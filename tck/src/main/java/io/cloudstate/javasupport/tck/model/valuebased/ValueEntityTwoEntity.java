@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package io.cloudstate.samples.shoppingcart;
+package io.cloudstate.javasupport.tck.model.valuebased;
 
-import com.example.valueentity.shoppingcart.Shoppingcart;
-import io.cloudstate.javasupport.CloudState;
+import io.cloudstate.javasupport.entity.Entity;
+import io.cloudstate.javasupport.entity.CommandHandler;
+import io.cloudstate.tck.model.valueentity.Valueentity.Request;
+import io.cloudstate.tck.model.valueentity.Valueentity.Response;
 
-public final class Main {
-  public static final void main(String[] args) throws Exception {
-    new CloudState()
-        .registerEntity(
-            ShoppingCartEntity.class,
-            Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"),
-            com.example.valueentity.shoppingcart.persistence.Domain.getDescriptor())
-        .start()
-        .toCompletableFuture()
-        .get();
+@Entity(persistenceId = "value-entity-tck-model-two")
+public class ValueEntityTwoEntity {
+  public ValueEntityTwoEntity() {}
+
+  @CommandHandler
+  public Response call(Request request) {
+    return Response.newBuilder().build();
   }
 }

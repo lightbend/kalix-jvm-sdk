@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package io.cloudstate.samples.shoppingcart;
+package io.cloudstate.samples.eventsourced.shoppingcart;
 
-import com.example.valueentity.shoppingcart.Shoppingcart;
-import io.cloudstate.javasupport.CloudState;
+import io.cloudstate.javasupport.*;
+import com.example.shoppingcart.Shoppingcart;
 
 public final class Main {
   public static final void main(String[] args) throws Exception {
     new CloudState()
-        .registerEntity(
+        .registerEventSourcedEntity(
             ShoppingCartEntity.class,
             Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"),
-            com.example.valueentity.shoppingcart.persistence.Domain.getDescriptor())
+            com.example.shoppingcart.persistence.Domain.getDescriptor())
         .start()
         .toCompletableFuture()
         .get();

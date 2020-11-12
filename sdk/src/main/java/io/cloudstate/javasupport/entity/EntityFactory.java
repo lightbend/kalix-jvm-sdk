@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package io.cloudstate.samples.shoppingcart;
+package io.cloudstate.javasupport.entity;
 
-import com.example.valueentity.shoppingcart.Shoppingcart;
-import io.cloudstate.javasupport.CloudState;
-
-public final class Main {
-  public static final void main(String[] args) throws Exception {
-    new CloudState()
-        .registerEntity(
-            ShoppingCartEntity.class,
-            Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"),
-            com.example.valueentity.shoppingcart.persistence.Domain.getDescriptor())
-        .start()
-        .toCompletableFuture()
-        .get();
-  }
+/**
+ * Low level interface for handling commands on a value based entity.
+ *
+ * <p>Generally, this should not be needed, instead, a class annotated with the {@link
+ * CommandHandler} and similar annotations should be used.
+ */
+public interface EntityFactory {
+  /**
+   * Create an entity handler for the given context.
+   *
+   * @param context The context.
+   * @return The handler for the given context.
+   */
+  EntityHandler create(EntityContext context);
 }

@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-package io.cloudstate.samples.shoppingcart;
+package io.cloudstate.javasupport.entity;
 
-import com.example.valueentity.shoppingcart.Shoppingcart;
-import io.cloudstate.javasupport.CloudState;
-
-public final class Main {
-  public static final void main(String[] args) throws Exception {
-    new CloudState()
-        .registerEntity(
-            ShoppingCartEntity.class,
-            Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"),
-            com.example.valueentity.shoppingcart.persistence.Domain.getDescriptor())
-        .start()
-        .toCompletableFuture()
-        .get();
-  }
-}
+/** Root context for all value based entity contexts. */
+public interface EntityContext extends io.cloudstate.javasupport.EntityContext {}

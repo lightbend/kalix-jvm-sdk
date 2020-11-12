@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package io.cloudstate.javasupport.impl.eventsourced
+package io.cloudstate.javasupport.impl.entity
 
 import akka.testkit.EventFilter
 import com.google.protobuf.Descriptors.{FileDescriptor, ServiceDescriptor}
 import com.typesafe.config.{Config, ConfigFactory}
 import io.cloudstate.javasupport.{CloudState, CloudStateRunner}
-import io.cloudstate.testkit.Sockets
 import scala.reflect.ClassTag
+import io.cloudstate.testkit.Sockets
 
-object TestEventSourced {
-  def service[T: ClassTag](descriptor: ServiceDescriptor, fileDescriptors: FileDescriptor*): TestEventSourcedService =
-    new TestEventSourcedService(implicitly[ClassTag[T]].runtimeClass, descriptor, fileDescriptors)
+object TestEntity {
+  def service[T: ClassTag](descriptor: ServiceDescriptor, fileDescriptors: FileDescriptor*): TestEntityService =
+    new TestEntityService(implicitly[ClassTag[T]].runtimeClass, descriptor, fileDescriptors)
 }
 
-class TestEventSourcedService(entityClass: Class[_],
-                              descriptor: ServiceDescriptor,
-                              fileDescriptors: Seq[FileDescriptor]) {
+class TestEntityService(entityClass: Class[_], descriptor: ServiceDescriptor, fileDescriptors: Seq[FileDescriptor]) {
   val port: Int = Sockets.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
@@ -46,7 +44,7 @@ class TestEventSourcedService(entityClass: Class[_],
   """))
 
   val runner: CloudStateRunner = new CloudState()
-    .registerEventSourcedEntity(entityClass, descriptor, fileDescriptors: _*)
+    .registerEntity(entityClass, descriptor, fileDescriptors: _*)
     .createRunner(config)
 
   runner.run()
