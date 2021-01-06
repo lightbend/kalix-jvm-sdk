@@ -1,6 +1,5 @@
 package com.lightbend;
 
-
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.plugin.testing.WithoutMojo;
 
@@ -9,19 +8,15 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import java.io.File;
 
-public class MyMojoTest
-{
+public class MyMojoTest {
     @Rule
-    public MojoRule rule = new MojoRule()
-    {
+    public MojoRule rule = new MojoRule() {
         @Override
-        protected void before() throws Throwable 
-        {
+        protected void before() throws Throwable {
         }
 
         @Override
-        protected void after()
-        {
+        protected void after() {
         }
     };
 
@@ -29,33 +24,29 @@ public class MyMojoTest
      * @throws Exception if any
      */
     @Test
-    public void testSomething()
-            throws Exception
-    {
-        File pom = new File( "target/test-classes/project-to-test/" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
+    public void testSomething() throws Exception {
+        File pom = new File("target/test-classes/project-to-test/");
+        assertNotNull(pom);
+        assertTrue(pom.exists());
 
-        MyMojo myMojo = ( MyMojo ) rule.lookupConfiguredMojo( pom, "touch" );
-        assertNotNull( myMojo );
+        MyMojo myMojo = (MyMojo) rule.lookupConfiguredMojo(pom, "touch");
+        assertNotNull(myMojo);
         myMojo.execute();
 
-        File outputDirectory = ( File ) rule.getVariableValueFromObject( myMojo, "outputDirectory" );
-        assertNotNull( outputDirectory );
-        assertTrue( outputDirectory.exists() );
+        File outputDirectory = (File) rule.getVariableValueFromObject(myMojo, "outputDirectory");
+        assertNotNull(outputDirectory);
+        assertTrue(outputDirectory.exists());
 
-        File touch = new File( outputDirectory, "touch.txt" );
-        assertTrue( touch.exists() );
+        File touch = new File(outputDirectory, "touch.txt");
+        assertTrue(touch.exists());
 
     }
 
     /** Do not need the MojoRule. */
     @WithoutMojo
     @Test
-    public void testSomethingWhichDoesNotNeedTheMojoAndProbablyShouldBeExtractedIntoANewClassOfItsOwn()
-    {
-        assertTrue( true );
+    public void testSomethingWhichDoesNotNeedTheMojoAndProbablyShouldBeExtractedIntoANewClassOfItsOwn() {
+        assertTrue(true);
     }
 
 }
-
