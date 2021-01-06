@@ -16,6 +16,12 @@ jobs:
         run: mvn install
       - name: Generate sample project
         run: mvn archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-cloudstate -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project --batch-mode
+        working-directory: ${{ runner.temp }}
       - name: Validate generated project
-        working-directory: ./generated-project
         run: mvn --batch-mode --update-snapshots verify
+        working-directory: ${{ runner.temp }}/generated-project
+      - name: upload-artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: generated-project
+          path: ${{ runner.temp }}
