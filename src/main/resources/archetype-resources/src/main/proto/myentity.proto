@@ -9,6 +9,7 @@ import "google/api/annotations.proto";
 package $package;
 
 option go_package = "$packageInPathFormat";
+option java_outer_classname = "MyEntity";
 
 message SetValue {
     string entity_id = 1 [(.cloudstate.entity_key) = true];
