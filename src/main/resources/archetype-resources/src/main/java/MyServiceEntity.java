@@ -1,18 +1,16 @@
 package $package;
 
-import ${package}.Myentity;
 import ${package}.persistence.Domain;
 import com.google.protobuf.Empty;
 import io.cloudstate.javasupport.EntityId;
 import io.cloudstate.javasupport.eventsourced.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /** An event sourced entity. */
 @EventSourcedEntity
 public class MyServiceEntity {
+  @SuppressWarnings("unused")
   private final String entityId;
+
   private int value = 0;
 
   public MyServiceEntity(@EntityId String entityId) {
@@ -20,17 +18,15 @@ public class MyServiceEntity {
   }
 
   /**
-  * This method will be called when snapshot is created
-  */
+   * This method will be called when snapshot is created
+   */
   @Snapshot
-  public Myentity.MyState snapshot() {
-    return Myentity.MyState.newBuilder()
-        .setValue(this.value)
-        .build();
+  public MyEntity.MyState snapshot() {
+    return MyEntity.MyState.newBuilder().setValue(this.value).build();
   }
 
   @SnapshotHandler
-  public void handleSnapshot(Myentity.MyState state) {
+  public void handleSnapshot(MyEntity.MyState state) {
     this.value = state.getValue();
   }
 
@@ -40,16 +36,14 @@ public class MyServiceEntity {
   }
 
   @CommandHandler
-  public Empty set(Myentity.SetValue setValue, CommandContext commandContext) {
+  public Empty set(MyEntity.SetValue setValue, CommandContext commandContext) {
     this.value = setValue.getValue();
 
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
-  public Myentity.MyState get(Myentity.GetValue getValue, CommandContext commandContext) {
-    return Myentity.MyState.newBuilder()
-        .setValue(value)
-        .build();
+  public MyEntity.MyState get(MyEntity.GetValue getValue, CommandContext commandContext) {
+    return MyEntity.MyState.newBuilder().setValue(value).build();
   }
 }
