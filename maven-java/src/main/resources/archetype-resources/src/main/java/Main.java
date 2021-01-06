@@ -1,9 +1,7 @@
 package $package;
 
 import io.cloudstate.javasupport.*;
-import ${package}.Myentity;
 import ${package}.persistence.Domain;
-import static java.util.Collections.singletonMap;
 
 public final class Main {
   public static final void main(String[] args) throws Exception {
