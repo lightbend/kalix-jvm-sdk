@@ -21,12 +21,12 @@ public class MyServiceEntity {
    * This method will be called when snapshot is created
    */
   @Snapshot
-  public Myentity.MyState snapshot() {
-    return Myentity.MyState.newBuilder().setValue(this.value).build();
+  public MyEntity.MyState snapshot() {
+    return MyEntity.MyState.newBuilder().setValue(this.value).build();
   }
 
   @SnapshotHandler
-  public void handleSnapshot(Myentity.MyState state) {
+  public void handleSnapshot(MyEntity.MyState state) {
     this.value = state.getValue();
   }
 
@@ -36,14 +36,14 @@ public class MyServiceEntity {
   }
 
   @CommandHandler
-  public Empty set(Myentity.SetValue setValue, CommandContext commandContext) {
+  public Empty set(MyEntity.SetValue setValue, CommandContext commandContext) {
     this.value = setValue.getValue();
 
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
-  public Myentity.MyState get(Myentity.GetValue getValue, CommandContext commandContext) {
-    return Myentity.MyState.newBuilder().setValue(value).build();
+  public MyEntity.MyState get(MyEntity.GetValue getValue, CommandContext commandContext) {
+    return MyEntity.MyState.newBuilder().setValue(value).build();
   }
 }

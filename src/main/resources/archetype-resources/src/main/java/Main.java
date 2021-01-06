@@ -8,7 +8,7 @@ public final class Main {
     new CloudState()
         .registerEventSourcedEntity(
             MyServiceEntity.class,
-            Myentity.getDescriptor().findServiceByName("MyService"),
+            MyEntity.getDescriptor().findServiceByName("MyService"),
             Domain.getDescriptor())
         .start()
         .toCompletableFuture()
