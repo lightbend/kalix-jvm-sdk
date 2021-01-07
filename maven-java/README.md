@@ -10,6 +10,24 @@ The plugin provides two functions:
 
 By including this plugin, no tooling other than Maven and Java are required to support a full-featured development lifecycle.
 
+## Usage
+
+To use the plugin (substitute the version accordingly):
+
+```xml
+<plugin>
+<groupId>com.lightbend</groupId>
+<artifactId>akkasls-maven-plugin</artifactId>
+<version>1.0-SNAPSHOT</version>
+<executions>
+  <execution>
+    <goals>
+      <goal>generate</goal>
+    </goals>
+  </execution>
+</executions>
+</plugin>
+```
 ## Building and testing
 
 Test sources are required to be generated, particularly when run from within an IDE and attempting to run tests. A simple

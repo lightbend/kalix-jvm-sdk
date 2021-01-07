@@ -3,19 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.lightbend</groupId>
-  <artifactId>akkasls-maven-plugin</artifactId>
+  <artifactId>project-to-test</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Test MyMojo</name>
+  <name>Test GenerateMojo</name>
 
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-my-plugin</artifactId>
-        <configuration>
-          <!-- Specify the MyMojo parameter -->
-          <outputDirectory>target/test-harness/project-to-test</outputDirectory>
-        </configuration>
+        <artifactId>akkasls-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
