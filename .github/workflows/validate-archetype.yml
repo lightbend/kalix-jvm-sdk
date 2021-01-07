@@ -15,7 +15,7 @@ jobs:
       - name: Build with Maven
         run: mvn install
       - name: Generate sample project
-        run: mvn archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-cloudstate -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project --batch-mode
+        run: mvn archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project --batch-mode
         working-directory: ${{ runner.temp }}
       - name: Upload generated project as artifact
         uses: actions/upload-artifact@v1
