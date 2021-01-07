@@ -15,19 +15,26 @@ public class MyServiceEntityTest {
     CommandContext context = Mockito.mock(CommandContext.class);
 
     @Test
-    public void activateDeviceTest() {
-        // Instantiate entity and send activation command.
+    public void setValueTest() {
+        // Given some arbitrary value and an instantiated entity
+        int arbitraryValue = 8;
         entity = new MyServiceEntity(entityId);
-        ValueSet event = ValueSet.newBuilder().setValue(8).build();
-        entity.setValue(MyEntity.SetValueCommand.newBuilder().setEntityId(entityId).setValue(8).build(), context);
+
+        // When the SetValue command is issued with that value
+        entity.setValue(MyEntity.SetValueCommand.newBuilder().setEntityId(entityId).setValue(arbitraryValue).build(), context);
+
+        // Then a ValueSet event is emitted with that value
+        ValueSet event = ValueSet.newBuilder().setValue(arbitraryValue).build();
         Mockito.verify(context).emit(event);
 
-        // Simulate event callback.
+        // When that event is handled by the entity (with no dedicated testing harness we must manually provide the event to the handler)
         entity.valueSet(event);
 
-        // Test get device.
+        // And the current state is requested
         MyEntity.GetValueCommand command = MyEntity.GetValueCommand.newBuilder().setEntityId(entityId).build();
         MyEntity.MyState currentState = entity.getValue(command, context);
-        Assert.assertEquals(currentState.getValue(), 8);
+
+        // Then the result contains the updated value
+        Assert.assertEquals(currentState.getValue(), arbitraryValue);
     }
 }
