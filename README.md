@@ -9,3 +9,8 @@ The plugin provides two functions:
 * the ability to deploy directly to Akka Serverless without requiring the `akkasls` CLI.
 
 By including this plugin, no tooling other than Maven and Java are required to support a full-featured development lifecycle.
+
+## Building and testing
+
+Test sources are required to be generated, particularly when run from within an IDE and attempting to run tests. A simple
+`mvn test` from the command line will suffice to get testing working.

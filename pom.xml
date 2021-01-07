@@ -11,8 +11,7 @@
 
   <name>akkasls-maven-plugin Maven Plugin</name>
 
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.lightbend.com</url>
+  <url>https://www.lightbend.com/akka-serverless</url>
 
   <prerequisites>
     <maven>${maven.version}</maven>
