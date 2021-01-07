@@ -6,7 +6,7 @@
         <fileSet filtered="true" packaged="true">
             <directory>src/main/proto</directory>
         </fileSet>
-        <fileSet>
+        <fileSet filtered="true" packaged="true">
             <directory>src/test/java</directory>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
