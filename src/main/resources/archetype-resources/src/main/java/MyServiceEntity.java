@@ -6,9 +6,9 @@ import io.cloudstate.javasupport.EntityId;
 import io.cloudstate.javasupport.eventsourced.*;
 
 /** An event sourced entity. */
+/** An event sourced entity. */
 @EventSourcedEntity
 public class MyServiceEntity {
-  @SuppressWarnings("unused")
   private final String entityId;
 
   private int value = 0;
@@ -36,14 +36,13 @@ public class MyServiceEntity {
   }
 
   @CommandHandler
-  public Empty set(MyEntity.SetValue setValue, CommandContext commandContext) {
-    this.value = setValue.getValue();
-
+  public Empty setValue(MyEntity.SetValueCommand command, CommandContext commandContext) {
+    commandContext.emit(Domain.ValueSet.newBuilder().setValue(command.getValue()).build());
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
-  public MyEntity.MyState get(MyEntity.GetValue getValue, CommandContext commandContext) {
-    return MyEntity.MyState.newBuilder().setValue(value).build();
+  public MyEntity.MyState getValue(MyEntity.GetValueCommand command, CommandContext commandContext) {
+    return MyEntity.MyState.newBuilder().setValue(this.value).build();
   }
 }

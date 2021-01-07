@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package ${package}.persistence;
 
-option go_package = "persistence";
+option go_package = "${packageInPathFormat}/persistence";
 
 // The value set event.
 message ValueSet {
