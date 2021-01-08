@@ -16,6 +16,7 @@
             <directory></directory>
             <includes>
                 <include>README.md</include>
+                <include>docker-compose.yml</include>
             </includes>
         </fileSet>
     </fileSets>
