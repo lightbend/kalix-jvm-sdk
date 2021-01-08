@@ -1,12 +1,10 @@
 package ${package};
 
 import io.cloudstate.javasupport.eventsourced.CommandContext;
-import org.testng.Assert;
-import org.testng.annotations.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mockito.*;
 import ${package}.persistence.Domain.*;
-
-import java.io.IOException;
 
 public class MyServiceEntityTest {
 
