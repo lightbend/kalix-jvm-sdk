@@ -37,6 +37,52 @@ object ModelBuilder {
       .asScala
 
   /**
+    * Given a collection of source files and a root from which they can be relativized,
+    * return their corresponding class file paths in relation to an output file directory.
+    * @param protoSourceDirectory the root directory of all protobuf java sources
+    * @param protoSources the full paths of the protobuf java sources
+    * @param outputDirectory the directory where the class files should exist
+    * @return a collection of paths correlating class files with their source files
+    */
+  def mapProtobufClasses(
+      protoSourceDirectory: Path,
+      protoSources: Iterable[Path],
+      outputDirectory: Path
+  ): Iterable[Path] =
+    protoSources
+      .map(protoSourceDirectory.relativize)
+      .map { entry =>
+        val relativeClassEntry = entry
+          .resolveSibling(entry.getFileName().toString().replace(JAVA_SOURCE, JAVA_CLASS))
+        outputDirectory.resolve(relativeClassEntry)
+      }
+
+  /**
+    * Given both protobuf sources and their classes, return a new collection of sources
+    * that either have no corresponding class or they have been modified more recently.
+    * Both the source and class collection items must correlate with each other and the
+    * collections must therefore be of the same size.
+    *
+    * @param protoSources the collection of protobuf sources
+    * @param protoClasses the corresponding target protobuf classes, which may or may not exist
+    * @return a filtered down collection of sources more recent than any existing corresponding class
+    */
+  def filterNewProtobufSources(
+      protoSources: Iterable[Path],
+      protoClasses: Iterable[Path]
+  ): Iterable[Path] = {
+    assert(protoSources.size == protoClasses.size)
+    val distinctProtoClasses = protoClasses.toArray
+    protoSources.zipWithIndex
+      .filter { case (source, i) =>
+        val sourceFile = source.toFile()
+        val classFile  = distinctProtoClasses(i).toFile()
+        !classFile.exists() || sourceFile.lastModified() > classFile.lastModified()
+      }
+      .map(_._1)
+  }
+
+  /**
     * Compile protobuf Java source files using the Java compiler
     *
     * @param protoSources the sources to compile
@@ -58,26 +104,6 @@ object ModelBuilder {
     compiler.run(null, null, null, args: _*)
   }
 
-  /**
-    * Given a collection of source files and a root from which they can be relativized,
-    * return their corresponding class file paths in relation to an output file directory.
-    * @param protoSourceDirectory the root directory of all protobuf java sources
-    * @param protoSources the full paths of the protobuf java sources
-    * @param outputDirectory the directory where the class files should exist
-    * @return a collection of paths correlating class files with their source files
-    */
-  def mapProtobufClasses(
-      protoSourceDirectory: Path,
-      protoSources: Iterable[Path],
-      outputDirectory: Path
-  ): Iterable[Path] =
-    protoSources
-      .map(protoSourceDirectory.relativize)
-      .map { entry =>
-        val relativeClassEntry = entry
-          .resolveSibling(entry.getFileName().toString().replace(JAVA_SOURCE, JAVA_CLASS))
-        outputDirectory.resolve(relativeClassEntry)
-      }
   /*
    * Given a class, return a String path to its containing Jar.
    */
