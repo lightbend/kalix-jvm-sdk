@@ -1,0 +1,16 @@
+// These are the messages that get persisted - the events, plus the current state (Cart) for snapshots.
+syntax = "proto3";
+
+package com.titanclass.persistence;
+
+option go_package = "persistence";
+
+// The value set event.
+message ValueSet {
+    int32 value = 1;
+}
+
+// The state.
+message MyState {
+    int32 value = 1;
+}
