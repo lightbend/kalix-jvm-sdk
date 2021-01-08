@@ -9,16 +9,16 @@
 package com.lightbend;
 
 public final class MyEntity {
-  private MyEntity() {
+  private MyEntity() {}
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
   }
 
-  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
-
-  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-
   public interface SetValueOrBuilder extends
       // @@protoc_insertion_point(interface_extends:com.lightbend.SetValue)
       com.google.protobuf.MessageOrBuilder {
@@ -27,54 +27,55 @@ public final class MyEntity {
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
     java.lang.String getEntityId();
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
-    com.google.protobuf.ByteString getEntityIdBytes();
+    com.google.protobuf.ByteString
+        getEntityIdBytes();
 
     /**
      * <code>int32 value = 2;</code>
      */
     int getValue();
   }
-
   /**
    * Protobuf type {@code com.lightbend.SetValue}
    */
-  public static final class SetValue extends com.google.protobuf.GeneratedMessageV3 implements
+  public  static final class SetValue extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:com.lightbend.SetValue)
       SetValueOrBuilder {
-    private static final long serialVersionUID = 0L;
-
+  private static final long serialVersionUID = 0L;
     // Use SetValue.newBuilder() to construct.
     private SetValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private SetValue() {
       entityId_ = "";
     }
 
     @java.lang.Override
-    @SuppressWarnings({ "unused" })
-    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
       return new SetValue();
     }
 
     @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
       return this.unknownFields;
     }
-
-    private SetValue(com.google.protobuf.CodedInputStream input,
+    private SetValue(
+        com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -95,7 +96,8 @@ public final class MyEntity {
               break;
             }
             default: {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -105,27 +107,28 @@ public final class MyEntity {
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
-
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_SetValue_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_SetValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.SetValue.class,
-              com.lightbend.MyEntity.SetValue.Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.lightbend.MyEntity.SetValue.class, com.lightbend.MyEntity.SetValue.Builder.class);
     }
 
     public static final int ENTITY_ID_FIELD_NUMBER = 1;
     private volatile java.lang.Object entityId_;
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
@@ -134,20 +137,23 @@ public final class MyEntity {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         entityId_ = s;
         return s;
       }
     }
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
-    public com.google.protobuf.ByteString getEntityIdBytes() {
+    public com.google.protobuf.ByteString
+        getEntityIdBytes() {
       java.lang.Object ref = entityId_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
         entityId_ = b;
         return b;
       } else {
@@ -157,7 +163,6 @@ public final class MyEntity {
 
     public static final int VALUE_FIELD_NUMBER = 2;
     private int value_;
-
     /**
      * <code>int32 value = 2;</code>
      */
@@ -166,21 +171,19 @@ public final class MyEntity {
     }
 
     private byte memoizedIsInitialized = -1;
-
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1)
-        return true;
-      if (isInitialized == 0)
-        return false;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
       if (!getEntityIdBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, entityId_);
       }
@@ -193,15 +196,15 @@ public final class MyEntity {
     @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
-      if (size != -1)
-        return size;
+      if (size != -1) return size;
 
       size = 0;
       if (!getEntityIdBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, entityId_);
       }
       if (value_ != 0) {
-        size += com.google.protobuf.CodedOutputStream.computeInt32Size(2, value_);
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -211,19 +214,18 @@ public final class MyEntity {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-        return true;
+       return true;
       }
       if (!(obj instanceof com.lightbend.MyEntity.SetValue)) {
         return super.equals(obj);
       }
       com.lightbend.MyEntity.SetValue other = (com.lightbend.MyEntity.SetValue) obj;
 
-      if (!getEntityId().equals(other.getEntityId()))
-        return false;
-      if (getValue() != other.getValue())
-        return false;
-      if (!unknownFields.equals(other.unknownFields))
-        return false;
+      if (!getEntityId()
+          .equals(other.getEntityId())) return false;
+      if (getValue()
+          != other.getValue()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
@@ -243,107 +245,114 @@ public final class MyEntity {
       return hash;
     }
 
-    public static com.lightbend.MyEntity.SetValue parseFrom(java.nio.ByteBuffer data)
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(java.nio.ByteBuffer data,
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(com.google.protobuf.ByteString data)
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(com.google.protobuf.ByteString data,
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.SetValue parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(byte[] data,
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(java.io.InputStream input) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    public static com.lightbend.MyEntity.SetValue parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.SetValue parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseDelimitedFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(com.google.protobuf.CodedInputStream input)
+    public static com.lightbend.MyEntity.SetValue parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.SetValue parseFrom(com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.lightbend.MyEntity.SetValue parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
+    public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
     public static Builder newBuilder(com.lightbend.MyEntity.SetValue prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-
     @java.lang.Override
     public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     /**
      * Protobuf type {@code com.lightbend.SetValue}
      */
-    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:com.lightbend.SetValue)
         com.lightbend.MyEntity.SetValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_SetValue_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_SetValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.SetValue.class,
-                com.lightbend.MyEntity.SetValue.Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.lightbend.MyEntity.SetValue.class, com.lightbend.MyEntity.SetValue.Builder.class);
       }
 
       // Construct using com.lightbend.MyEntity.SetValue.newBuilder()
@@ -351,16 +360,16 @@ public final class MyEntity {
         maybeForceBuilderInitialization();
       }
 
-      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -372,7 +381,8 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_SetValue_descriptor;
       }
 
@@ -403,37 +413,38 @@ public final class MyEntity {
       public Builder clone() {
         return super.clone();
       }
-
       @java.lang.Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.setField(field, value);
       }
-
       @java.lang.Override
-      public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-
       @java.lang.Override
-      public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-
       @java.lang.Override
-      public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
-          java.lang.Object value) {
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
-
       @java.lang.Override
-      public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
-
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.lightbend.MyEntity.SetValue) {
-          return mergeFrom((com.lightbend.MyEntity.SetValue) other);
+          return mergeFrom((com.lightbend.MyEntity.SetValue)other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -441,8 +452,7 @@ public final class MyEntity {
       }
 
       public Builder mergeFrom(com.lightbend.MyEntity.SetValue other) {
-        if (other == com.lightbend.MyEntity.SetValue.getDefaultInstance())
-          return this;
+        if (other == com.lightbend.MyEntity.SetValue.getDefaultInstance()) return this;
         if (!other.getEntityId().isEmpty()) {
           entityId_ = other.entityId_;
           onChanged();
@@ -461,8 +471,10 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.lightbend.MyEntity.SetValue parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -478,14 +490,14 @@ public final class MyEntity {
       }
 
       private java.lang.Object entityId_ = "";
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
       public java.lang.String getEntityId() {
         java.lang.Object ref = entityId_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           entityId_ = s;
           return s;
@@ -493,96 +505,96 @@ public final class MyEntity {
           return (java.lang.String) ref;
         }
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public com.google.protobuf.ByteString getEntityIdBytes() {
+      public com.google.protobuf.ByteString
+          getEntityIdBytes() {
         java.lang.Object ref = entityId_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
           entityId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public Builder setEntityId(java.lang.String value) {
+      public Builder setEntityId(
+          java.lang.String value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-
+    throw new NullPointerException();
+  }
+  
         entityId_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
       public Builder clearEntityId() {
-
+        
         entityId_ = getDefaultInstance().getEntityId();
         onChanged();
         return this;
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public Builder setEntityIdBytes(com.google.protobuf.ByteString value) {
+      public Builder setEntityIdBytes(
+          com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        checkByteStringIsUtf8(value);
-
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
         entityId_ = value;
         onChanged();
         return this;
       }
 
-      private int value_;
-
+      private int value_ ;
       /**
        * <code>int32 value = 2;</code>
        */
       public int getValue() {
         return value_;
       }
-
       /**
        * <code>int32 value = 2;</code>
        */
       public Builder setValue(int value) {
-
+        
         value_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>int32 value = 2;</code>
        */
       public Builder clearValue() {
-
+        
         value_ = 0;
         onChanged();
         return this;
       }
-
       @java.lang.Override
-      public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
-      public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
+
 
       // @@protoc_insertion_point(builder_scope:com.lightbend.SetValue)
     }
@@ -597,9 +609,11 @@ public final class MyEntity {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<SetValue> PARSER = new com.google.protobuf.AbstractParser<SetValue>() {
+    private static final com.google.protobuf.Parser<SetValue>
+        PARSER = new com.google.protobuf.AbstractParser<SetValue>() {
       @java.lang.Override
-      public SetValue parsePartialFrom(com.google.protobuf.CodedInputStream input,
+      public SetValue parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return new SetValue(input, extensionRegistry);
@@ -630,49 +644,50 @@ public final class MyEntity {
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
     java.lang.String getEntityId();
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
-    com.google.protobuf.ByteString getEntityIdBytes();
+    com.google.protobuf.ByteString
+        getEntityIdBytes();
   }
-
   /**
    * Protobuf type {@code com.lightbend.GetValue}
    */
-  public static final class GetValue extends com.google.protobuf.GeneratedMessageV3 implements
+  public  static final class GetValue extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:com.lightbend.GetValue)
       GetValueOrBuilder {
-    private static final long serialVersionUID = 0L;
-
+  private static final long serialVersionUID = 0L;
     // Use GetValue.newBuilder() to construct.
     private GetValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private GetValue() {
       entityId_ = "";
     }
 
     @java.lang.Override
-    @SuppressWarnings({ "unused" })
-    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
       return new GetValue();
     }
 
     @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
       return this.unknownFields;
     }
-
-    private GetValue(com.google.protobuf.CodedInputStream input,
+    private GetValue(
+        com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -688,7 +703,8 @@ public final class MyEntity {
               break;
             }
             default: {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -698,27 +714,28 @@ public final class MyEntity {
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
-
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_GetValue_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_GetValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.GetValue.class,
-              com.lightbend.MyEntity.GetValue.Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.lightbend.MyEntity.GetValue.class, com.lightbend.MyEntity.GetValue.Builder.class);
     }
 
     public static final int ENTITY_ID_FIELD_NUMBER = 1;
     private volatile java.lang.Object entityId_;
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
@@ -727,20 +744,23 @@ public final class MyEntity {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         entityId_ = s;
         return s;
       }
     }
-
     /**
      * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
      */
-    public com.google.protobuf.ByteString getEntityIdBytes() {
+    public com.google.protobuf.ByteString
+        getEntityIdBytes() {
       java.lang.Object ref = entityId_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
         entityId_ = b;
         return b;
       } else {
@@ -749,21 +769,19 @@ public final class MyEntity {
     }
 
     private byte memoizedIsInitialized = -1;
-
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1)
-        return true;
-      if (isInitialized == 0)
-        return false;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
       if (!getEntityIdBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, entityId_);
       }
@@ -773,8 +791,7 @@ public final class MyEntity {
     @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
-      if (size != -1)
-        return size;
+      if (size != -1) return size;
 
       size = 0;
       if (!getEntityIdBytes().isEmpty()) {
@@ -788,17 +805,16 @@ public final class MyEntity {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-        return true;
+       return true;
       }
       if (!(obj instanceof com.lightbend.MyEntity.GetValue)) {
         return super.equals(obj);
       }
       com.lightbend.MyEntity.GetValue other = (com.lightbend.MyEntity.GetValue) obj;
 
-      if (!getEntityId().equals(other.getEntityId()))
-        return false;
-      if (!unknownFields.equals(other.unknownFields))
-        return false;
+      if (!getEntityId()
+          .equals(other.getEntityId())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
@@ -816,107 +832,114 @@ public final class MyEntity {
       return hash;
     }
 
-    public static com.lightbend.MyEntity.GetValue parseFrom(java.nio.ByteBuffer data)
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(java.nio.ByteBuffer data,
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(com.google.protobuf.ByteString data)
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(com.google.protobuf.ByteString data,
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.GetValue parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(byte[] data,
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(java.io.InputStream input) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    public static com.lightbend.MyEntity.GetValue parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.GetValue parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseDelimitedFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(com.google.protobuf.CodedInputStream input)
+    public static com.lightbend.MyEntity.GetValue parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.GetValue parseFrom(com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.lightbend.MyEntity.GetValue parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
+    public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
     public static Builder newBuilder(com.lightbend.MyEntity.GetValue prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-
     @java.lang.Override
     public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     /**
      * Protobuf type {@code com.lightbend.GetValue}
      */
-    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:com.lightbend.GetValue)
         com.lightbend.MyEntity.GetValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_GetValue_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_GetValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.GetValue.class,
-                com.lightbend.MyEntity.GetValue.Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.lightbend.MyEntity.GetValue.class, com.lightbend.MyEntity.GetValue.Builder.class);
       }
 
       // Construct using com.lightbend.MyEntity.GetValue.newBuilder()
@@ -924,16 +947,16 @@ public final class MyEntity {
         maybeForceBuilderInitialization();
       }
 
-      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -943,7 +966,8 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_GetValue_descriptor;
       }
 
@@ -973,37 +997,38 @@ public final class MyEntity {
       public Builder clone() {
         return super.clone();
       }
-
       @java.lang.Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.setField(field, value);
       }
-
       @java.lang.Override
-      public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-
       @java.lang.Override
-      public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-
       @java.lang.Override
-      public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
-          java.lang.Object value) {
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
-
       @java.lang.Override
-      public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
-
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.lightbend.MyEntity.GetValue) {
-          return mergeFrom((com.lightbend.MyEntity.GetValue) other);
+          return mergeFrom((com.lightbend.MyEntity.GetValue)other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -1011,8 +1036,7 @@ public final class MyEntity {
       }
 
       public Builder mergeFrom(com.lightbend.MyEntity.GetValue other) {
-        if (other == com.lightbend.MyEntity.GetValue.getDefaultInstance())
-          return this;
+        if (other == com.lightbend.MyEntity.GetValue.getDefaultInstance()) return this;
         if (!other.getEntityId().isEmpty()) {
           entityId_ = other.entityId_;
           onChanged();
@@ -1028,8 +1052,10 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.lightbend.MyEntity.GetValue parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -1045,14 +1071,14 @@ public final class MyEntity {
       }
 
       private java.lang.Object entityId_ = "";
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
       public java.lang.String getEntityId() {
         java.lang.Object ref = entityId_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           entityId_ = s;
           return s;
@@ -1060,67 +1086,70 @@ public final class MyEntity {
           return (java.lang.String) ref;
         }
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public com.google.protobuf.ByteString getEntityIdBytes() {
+      public com.google.protobuf.ByteString
+          getEntityIdBytes() {
         java.lang.Object ref = entityId_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
           entityId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public Builder setEntityId(java.lang.String value) {
+      public Builder setEntityId(
+          java.lang.String value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-
+    throw new NullPointerException();
+  }
+  
         entityId_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
       public Builder clearEntityId() {
-
+        
         entityId_ = getDefaultInstance().getEntityId();
         onChanged();
         return this;
       }
-
       /**
        * <code>string entity_id = 1 [(.cloudstate.entity_key) = true];</code>
        */
-      public Builder setEntityIdBytes(com.google.protobuf.ByteString value) {
+      public Builder setEntityIdBytes(
+          com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        checkByteStringIsUtf8(value);
-
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
         entityId_ = value;
         onChanged();
         return this;
       }
-
       @java.lang.Override
-      public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
-      public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
+
 
       // @@protoc_insertion_point(builder_scope:com.lightbend.GetValue)
     }
@@ -1135,9 +1164,11 @@ public final class MyEntity {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<GetValue> PARSER = new com.google.protobuf.AbstractParser<GetValue>() {
+    private static final com.google.protobuf.Parser<GetValue>
+        PARSER = new com.google.protobuf.AbstractParser<GetValue>() {
       @java.lang.Override
-      public GetValue parsePartialFrom(com.google.protobuf.CodedInputStream input,
+      public GetValue parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return new GetValue(input, extensionRegistry);
@@ -1169,42 +1200,43 @@ public final class MyEntity {
      */
     int getValue();
   }
-
   /**
    * Protobuf type {@code com.lightbend.MyState}
    */
-  public static final class MyState extends com.google.protobuf.GeneratedMessageV3 implements
+  public  static final class MyState extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:com.lightbend.MyState)
       MyStateOrBuilder {
-    private static final long serialVersionUID = 0L;
-
+  private static final long serialVersionUID = 0L;
     // Use MyState.newBuilder() to construct.
     private MyState(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private MyState() {
     }
 
     @java.lang.Override
-    @SuppressWarnings({ "unused" })
-    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
       return new MyState();
     }
 
     @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
       return this.unknownFields;
     }
-
-    private MyState(com.google.protobuf.CodedInputStream input,
+    private MyState(
+        com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -1219,7 +1251,8 @@ public final class MyEntity {
               break;
             }
             default: {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -1229,27 +1262,28 @@ public final class MyEntity {
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
-
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_MyState_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
       return com.lightbend.MyEntity.internal_static_com_lightbend_MyState_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.MyState.class,
-              com.lightbend.MyEntity.MyState.Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.lightbend.MyEntity.MyState.class, com.lightbend.MyEntity.MyState.Builder.class);
     }
 
     public static final int VALUE_FIELD_NUMBER = 1;
     private int value_;
-
     /**
      * <code>int32 value = 1;</code>
      */
@@ -1258,21 +1292,19 @@ public final class MyEntity {
     }
 
     private byte memoizedIsInitialized = -1;
-
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1)
-        return true;
-      if (isInitialized == 0)
-        return false;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
       if (value_ != 0) {
         output.writeInt32(1, value_);
       }
@@ -1282,12 +1314,12 @@ public final class MyEntity {
     @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
-      if (size != -1)
-        return size;
+      if (size != -1) return size;
 
       size = 0;
       if (value_ != 0) {
-        size += com.google.protobuf.CodedOutputStream.computeInt32Size(1, value_);
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1297,17 +1329,16 @@ public final class MyEntity {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-        return true;
+       return true;
       }
       if (!(obj instanceof com.lightbend.MyEntity.MyState)) {
         return super.equals(obj);
       }
       com.lightbend.MyEntity.MyState other = (com.lightbend.MyEntity.MyState) obj;
 
-      if (getValue() != other.getValue())
-        return false;
-      if (!unknownFields.equals(other.unknownFields))
-        return false;
+      if (getValue()
+          != other.getValue()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
@@ -1325,107 +1356,114 @@ public final class MyEntity {
       return hash;
     }
 
-    public static com.lightbend.MyEntity.MyState parseFrom(java.nio.ByteBuffer data)
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(java.nio.ByteBuffer data,
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(com.google.protobuf.ByteString data)
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(com.google.protobuf.ByteString data,
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.MyState parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(byte[] data,
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(java.io.InputStream input) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    public static com.lightbend.MyEntity.MyState parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
-
     public static com.lightbend.MyEntity.MyState parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.MyEntity.MyState parseDelimitedFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(com.google.protobuf.CodedInputStream input)
+    public static com.lightbend.MyEntity.MyState parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-
-    public static com.lightbend.MyEntity.MyState parseFrom(com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.lightbend.MyEntity.MyState parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
+    public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
     public static Builder newBuilder(com.lightbend.MyEntity.MyState prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-
     @java.lang.Override
     public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     /**
      * Protobuf type {@code com.lightbend.MyState}
      */
-    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:com.lightbend.MyState)
         com.lightbend.MyEntity.MyStateOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_MyState_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_MyState_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(com.lightbend.MyEntity.MyState.class,
-                com.lightbend.MyEntity.MyState.Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.lightbend.MyEntity.MyState.class, com.lightbend.MyEntity.MyState.Builder.class);
       }
 
       // Construct using com.lightbend.MyEntity.MyState.newBuilder()
@@ -1433,16 +1471,16 @@ public final class MyEntity {
         maybeForceBuilderInitialization();
       }
 
-      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -1452,7 +1490,8 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
         return com.lightbend.MyEntity.internal_static_com_lightbend_MyState_descriptor;
       }
 
@@ -1482,37 +1521,38 @@ public final class MyEntity {
       public Builder clone() {
         return super.clone();
       }
-
       @java.lang.Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.setField(field, value);
       }
-
       @java.lang.Override
-      public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-
       @java.lang.Override
-      public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-
       @java.lang.Override
-      public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
-          java.lang.Object value) {
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
-
       @java.lang.Override
-      public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
-
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.lightbend.MyEntity.MyState) {
-          return mergeFrom((com.lightbend.MyEntity.MyState) other);
+          return mergeFrom((com.lightbend.MyEntity.MyState)other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -1520,8 +1560,7 @@ public final class MyEntity {
       }
 
       public Builder mergeFrom(com.lightbend.MyEntity.MyState other) {
-        if (other == com.lightbend.MyEntity.MyState.getDefaultInstance())
-          return this;
+        if (other == com.lightbend.MyEntity.MyState.getDefaultInstance()) return this;
         if (other.getValue() != 0) {
           setValue(other.getValue());
         }
@@ -1536,8 +1575,10 @@ public final class MyEntity {
       }
 
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.lightbend.MyEntity.MyState parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -1552,44 +1593,43 @@ public final class MyEntity {
         return this;
       }
 
-      private int value_;
-
+      private int value_ ;
       /**
        * <code>int32 value = 1;</code>
        */
       public int getValue() {
         return value_;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder setValue(int value) {
-
+        
         value_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder clearValue() {
-
+        
         value_ = 0;
         onChanged();
         return this;
       }
-
       @java.lang.Override
-      public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
-      public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
+
 
       // @@protoc_insertion_point(builder_scope:com.lightbend.MyState)
     }
@@ -1604,9 +1644,11 @@ public final class MyEntity {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<MyState> PARSER = new com.google.protobuf.AbstractParser<MyState>() {
+    private static final com.google.protobuf.Parser<MyState>
+        PARSER = new com.google.protobuf.AbstractParser<MyState>() {
       @java.lang.Override
-      public MyState parsePartialFrom(com.google.protobuf.CodedInputStream input,
+      public MyState parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return new MyState(input, extensionRegistry);
@@ -1629,49 +1671,78 @@ public final class MyEntity {
 
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor internal_static_com_lightbend_SetValue_descriptor;
-  private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_com_lightbend_SetValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor internal_static_com_lightbend_GetValue_descriptor;
-  private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_com_lightbend_GetValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor internal_static_com_lightbend_MyState_descriptor;
-  private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_com_lightbend_MyState_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_lightbend_SetValue_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_lightbend_SetValue_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_lightbend_GetValue_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_lightbend_GetValue_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_lightbend_MyState_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_lightbend_MyState_fieldAccessorTable;
 
-  public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+  public static com.google.protobuf.Descriptors.FileDescriptor
+      getDescriptor() {
     return descriptor;
   }
-
-  private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
+  private static  com.google.protobuf.Descriptors.FileDescriptor
+      descriptor;
   static {
     java.lang.String[] descriptorData = {
-        "\n\035com/lightbend/myentity.proto\022\016com.tit" + "anclass\032\033google/protobuf/empty.proto\032\033cl"
-            + "oudstate/entity_key.proto\032\031cloudstate/ev" + "enting.proto\032\034google/api/annotations.pro"
-            + "to\"2\n\010SetValue\022\027\n\tentity_id\030\001 \001(\tB\004\220\265\030\001\022"
-            + "\r\n\005value\030\002 \001(\005\"#\n\010GetValue\022\027\n\tentity_id\030"
-            + "\001 \001(\tB\004\220\265\030\001\"\030\n\007MyState\022\r\n\005value\030\001 \001(\0052\346\001"
-            + "\n\tMyService\022r\n\003Set\022\030.com.lightbend.SetV"
-            + "alue\032\026.google.protobuf.Empty\"9\202\323\344\223\002(\"#/c"
-            + "om.lightbend.MyState/{entity_id}:\001*\232\265\030\007"
-            + "\n\005value\022e\n\003Get\022\030.com.lightbend.GetValue"
-            + "\032\027.com.lightbend.MyState\"+\202\323\344\223\002%\022#/com."
-            + "lightbend.MyState/{entity_id}B\032B\010MyEnti" + "tyZ\016com/lightbendb\006proto3" };
-    descriptor = com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] { com.google.protobuf.EmptyProto.getDescriptor(),
-            io.cloudstate.EntityKey.getDescriptor(), io.cloudstate.EventsProto.getDescriptor(),
-            com.google.api.AnnotationsProto.getDescriptor(), });
-    internal_static_com_lightbend_SetValue_descriptor = getDescriptor().getMessageTypes().get(0);
-    internal_static_com_lightbend_SetValue_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_lightbend_SetValue_descriptor, new java.lang.String[] { "EntityId", "Value", });
-    internal_static_com_lightbend_GetValue_descriptor = getDescriptor().getMessageTypes().get(1);
-    internal_static_com_lightbend_GetValue_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_lightbend_GetValue_descriptor, new java.lang.String[] { "EntityId", });
-    internal_static_com_lightbend_MyState_descriptor = getDescriptor().getMessageTypes().get(2);
-    internal_static_com_lightbend_MyState_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_lightbend_MyState_descriptor, new java.lang.String[] { "Value", });
-    com.google.protobuf.ExtensionRegistry registry = com.google.protobuf.ExtensionRegistry.newInstance();
+      "\n\034com/lightbend/myentity.proto\022\rcom.ligh" +
+      "tbend\032\033google/protobuf/empty.proto\032\033clou" +
+      "dstate/entity_key.proto\032\031cloudstate/even" +
+      "ting.proto\032\034google/api/annotations.proto" +
+      "\"2\n\010SetValue\022\027\n\tentity_id\030\001 \001(\tB\004\220\265\030\001\022\r\n" +
+      "\005value\030\002 \001(\005\"#\n\010GetValue\022\027\n\tentity_id\030\001 " +
+      "\001(\tB\004\220\265\030\001\"\030\n\007MyState\022\r\n\005value\030\001 \001(\0052\343\001\n\t" +
+      "MyService\022q\n\003Set\022\027.com.lightbend.SetValu" +
+      "e\032\026.google.protobuf.Empty\"9\202\323\344\223\002(\"#/com." +
+      "titanclass.MyState/{entity_id}:\001*\232\265\030\007\n\005v" +
+      "alue\022c\n\003Get\022\027.com.lightbend.GetValue\032\026.c" +
+      "om.lightbend.MyState\"+\202\323\344\223\002%\022#/com.titan" +
+      "class.MyState/{entity_id}B\031B\010MyEntityZ\rc" +
+      "om/lightbendb\006proto3"
+    };
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+      .internalBuildGeneratedFileFrom(descriptorData,
+        new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.google.protobuf.EmptyProto.getDescriptor(),
+          io.cloudstate.EntityKey.getDescriptor(),
+          io.cloudstate.EventsProto.getDescriptor(),
+          com.google.api.AnnotationsProto.getDescriptor(),
+        });
+    internal_static_com_lightbend_SetValue_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_com_lightbend_SetValue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_lightbend_SetValue_descriptor,
+        new java.lang.String[] { "EntityId", "Value", });
+    internal_static_com_lightbend_GetValue_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_com_lightbend_GetValue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_lightbend_GetValue_descriptor,
+        new java.lang.String[] { "EntityId", });
+    internal_static_com_lightbend_MyState_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_com_lightbend_MyState_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_lightbend_MyState_descriptor,
+        new java.lang.String[] { "Value", });
+    com.google.protobuf.ExtensionRegistry registry =
+        com.google.protobuf.ExtensionRegistry.newInstance();
     registry.add(io.cloudstate.EntityKey.entityKey);
     registry.add(io.cloudstate.EventsProto.eventing);
     registry.add(com.google.api.AnnotationsProto.http);
-    com.google.protobuf.Descriptors.FileDescriptor.internalUpdateFileDescriptor(descriptor, registry);
+    com.google.protobuf.Descriptors.FileDescriptor
+        .internalUpdateFileDescriptor(descriptor, registry);
     com.google.protobuf.EmptyProto.getDescriptor();
     io.cloudstate.EntityKey.getDescriptor();
     io.cloudstate.EventsProto.getDescriptor();
