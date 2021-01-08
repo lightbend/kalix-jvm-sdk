@@ -11,12 +11,12 @@ package $package;
 option go_package = "$packageInPathFormat";
 option java_outer_classname = "MyEntity";
 
-message SetValue {
+message SetValueCommand {
     string entity_id = 1 [(.cloudstate.entity_key) = true];
     int32 value = 2;
 }
 
-message GetValue {
+message GetValueCommand {
     string entity_id = 1 [(.cloudstate.entity_key) = true];
 }
 
@@ -25,18 +25,18 @@ message MyState {
 }
 
 service MyService {
-    rpc Set(SetValue) returns (google.protobuf.Empty) {
+    rpc SetValue(SetValueCommand) returns (google.protobuf.Empty) {
         option (google.api.http) = {
-            post: "/${package}.MyState/{entity_id}",
+            post: "/${package}.MyEntity/{entity_id}",
             body: "*",
         };
         option (.cloudstate.eventing).in = "value";
     }
 
 
-    rpc Get(GetValue) returns (MyState) {
+    rpc GetValue(GetValueCommand) returns (MyState) {
         option (google.api.http) = {
-          get: "/${package}.MyState/{entity_id}",
+          get: "/${package}.MyEntity/{entity_id}",
         };
     }
 }
