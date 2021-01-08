@@ -1,7 +1,7 @@
 // These are the messages that get persisted - the events, plus the current state (Cart) for snapshots.
 syntax = "proto3";
 
-package com.titanclass.persistence;
+package com.lightbend.persistence;
 
 option go_package = "persistence";
 

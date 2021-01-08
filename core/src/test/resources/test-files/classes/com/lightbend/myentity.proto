@@ -6,9 +6,9 @@ import "cloudstate/entity_key.proto";
 import "cloudstate/eventing.proto";
 import "google/api/annotations.proto";
 
-package com.titanclass;
+package com.lightbend;
 
-option go_package = "com/titanclass";
+option go_package = "com/lightbend";
 option java_outer_classname = "MyEntity";
 
 message SetValue {

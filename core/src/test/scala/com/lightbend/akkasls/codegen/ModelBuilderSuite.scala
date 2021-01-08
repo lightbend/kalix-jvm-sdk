@@ -52,4 +52,11 @@ class ModelBuilderSuite extends munit.FunSuite {
 
     assertEquals(filteredSources, List(source2, source3))
   }
+
+  test("introspection") {
+    val testFilesPath    = Paths.get(getClass().getClassLoader().getResource("test-files").getFile())
+    val classesDirectory = testFilesPath.resolve("classes")
+    val class1           = classesDirectory.resolve("com/lightbend/MyEntity.class")
+    ModelBuilder.introspectProtobufClasses(classesDirectory, List(class1))
+  }
 }

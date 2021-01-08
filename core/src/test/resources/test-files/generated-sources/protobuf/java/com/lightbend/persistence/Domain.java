@@ -9,16 +9,16 @@
 package com.lightbend.persistence;
 
 public final class Domain {
-  private Domain() {
+  private Domain() {}
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
   }
 
-  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
-
-  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-
   public interface ValueSetOrBuilder extends
       // @@protoc_insertion_point(interface_extends:com.lightbend.persistence.ValueSet)
       com.google.protobuf.MessageOrBuilder {
@@ -28,7 +28,6 @@ public final class Domain {
      */
     int getValue();
   }
-
   /**
    * <pre>
    * The value set event.
@@ -36,38 +35,40 @@ public final class Domain {
    *
    * Protobuf type {@code com.lightbend.persistence.ValueSet}
    */
-  public static final class ValueSet extends com.google.protobuf.GeneratedMessageV3 implements
+  public  static final class ValueSet extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:com.lightbend.persistence.ValueSet)
       ValueSetOrBuilder {
-    private static final long serialVersionUID = 0L;
-
+  private static final long serialVersionUID = 0L;
     // Use ValueSet.newBuilder() to construct.
     private ValueSet(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private ValueSet() {
     }
 
     @java.lang.Override
-    @SuppressWarnings({ "unused" })
-    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
       return new ValueSet();
     }
 
     @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
       return this.unknownFields;
     }
-
-    private ValueSet(com.google.protobuf.CodedInputStream input,
+    private ValueSet(
+        com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -82,7 +83,8 @@ public final class Domain {
               break;
             }
             default: {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -92,27 +94,28 @@ public final class Domain {
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
-
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_ValueSet_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
       return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(com.lightbend.persistence.Domain.ValueSet.class,
-              com.lightbend.persistence.Domain.ValueSet.Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.lightbend.persistence.Domain.ValueSet.class, com.lightbend.persistence.Domain.ValueSet.Builder.class);
     }
 
     public static final int VALUE_FIELD_NUMBER = 1;
     private int value_;
-
     /**
      * <code>int32 value = 1;</code>
      */
@@ -121,21 +124,19 @@ public final class Domain {
     }
 
     private byte memoizedIsInitialized = -1;
-
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1)
-        return true;
-      if (isInitialized == 0)
-        return false;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
       if (value_ != 0) {
         output.writeInt32(1, value_);
       }
@@ -145,12 +146,12 @@ public final class Domain {
     @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
-      if (size != -1)
-        return size;
+      if (size != -1) return size;
 
       size = 0;
       if (value_ != 0) {
-        size += com.google.protobuf.CodedOutputStream.computeInt32Size(1, value_);
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -160,17 +161,16 @@ public final class Domain {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-        return true;
+       return true;
       }
       if (!(obj instanceof com.lightbend.persistence.Domain.ValueSet)) {
         return super.equals(obj);
       }
       com.lightbend.persistence.Domain.ValueSet other = (com.lightbend.persistence.Domain.ValueSet) obj;
 
-      if (getValue() != other.getValue())
-        return false;
-      if (!unknownFields.equals(other.unknownFields))
-        return false;
+      if (getValue()
+          != other.getValue()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
@@ -188,93 +188,96 @@ public final class Domain {
       return hash;
     }
 
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(java.nio.ByteBuffer data)
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(java.nio.ByteBuffer data,
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(com.google.protobuf.ByteString data)
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(com.google.protobuf.ByteString data,
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.ValueSet parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(byte[] data,
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.ValueSet parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.ValueSet parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseDelimitedFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(com.google.protobuf.CodedInputStream input)
+    public static com.lightbend.persistence.Domain.ValueSet parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-
-    public static com.lightbend.persistence.Domain.ValueSet parseFrom(com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.lightbend.persistence.Domain.ValueSet parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
+    public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
     public static Builder newBuilder(com.lightbend.persistence.Domain.ValueSet prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-
     @java.lang.Override
     public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     /**
      * <pre>
      * The value set event.
@@ -282,18 +285,21 @@ public final class Domain {
      *
      * Protobuf type {@code com.lightbend.persistence.ValueSet}
      */
-    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:com.lightbend.persistence.ValueSet)
         com.lightbend.persistence.Domain.ValueSetOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_ValueSet_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(com.lightbend.persistence.Domain.ValueSet.class,
-                com.lightbend.persistence.Domain.ValueSet.Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.lightbend.persistence.Domain.ValueSet.class, com.lightbend.persistence.Domain.ValueSet.Builder.class);
       }
 
       // Construct using com.lightbend.persistence.Domain.ValueSet.newBuilder()
@@ -301,16 +307,16 @@ public final class Domain {
         maybeForceBuilderInitialization();
       }
 
-      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -320,7 +326,8 @@ public final class Domain {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_ValueSet_descriptor;
       }
 
@@ -350,37 +357,38 @@ public final class Domain {
       public Builder clone() {
         return super.clone();
       }
-
       @java.lang.Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.setField(field, value);
       }
-
       @java.lang.Override
-      public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-
       @java.lang.Override
-      public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-
       @java.lang.Override
-      public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
-          java.lang.Object value) {
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
-
       @java.lang.Override
-      public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
-
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.lightbend.persistence.Domain.ValueSet) {
-          return mergeFrom((com.lightbend.persistence.Domain.ValueSet) other);
+          return mergeFrom((com.lightbend.persistence.Domain.ValueSet)other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -388,8 +396,7 @@ public final class Domain {
       }
 
       public Builder mergeFrom(com.lightbend.persistence.Domain.ValueSet other) {
-        if (other == com.lightbend.persistence.Domain.ValueSet.getDefaultInstance())
-          return this;
+        if (other == com.lightbend.persistence.Domain.ValueSet.getDefaultInstance()) return this;
         if (other.getValue() != 0) {
           setValue(other.getValue());
         }
@@ -404,8 +411,10 @@ public final class Domain {
       }
 
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.lightbend.persistence.Domain.ValueSet parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -420,44 +429,43 @@ public final class Domain {
         return this;
       }
 
-      private int value_;
-
+      private int value_ ;
       /**
        * <code>int32 value = 1;</code>
        */
       public int getValue() {
         return value_;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder setValue(int value) {
-
+        
         value_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder clearValue() {
-
+        
         value_ = 0;
         onChanged();
         return this;
       }
-
       @java.lang.Override
-      public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
-      public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
+
 
       // @@protoc_insertion_point(builder_scope:com.lightbend.persistence.ValueSet)
     }
@@ -472,9 +480,11 @@ public final class Domain {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<ValueSet> PARSER = new com.google.protobuf.AbstractParser<ValueSet>() {
+    private static final com.google.protobuf.Parser<ValueSet>
+        PARSER = new com.google.protobuf.AbstractParser<ValueSet>() {
       @java.lang.Override
-      public ValueSet parsePartialFrom(com.google.protobuf.CodedInputStream input,
+      public ValueSet parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return new ValueSet(input, extensionRegistry);
@@ -506,7 +516,6 @@ public final class Domain {
      */
     int getValue();
   }
-
   /**
    * <pre>
    * The state.
@@ -514,38 +523,40 @@ public final class Domain {
    *
    * Protobuf type {@code com.lightbend.persistence.MyState}
    */
-  public static final class MyState extends com.google.protobuf.GeneratedMessageV3 implements
+  public  static final class MyState extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:com.lightbend.persistence.MyState)
       MyStateOrBuilder {
-    private static final long serialVersionUID = 0L;
-
+  private static final long serialVersionUID = 0L;
     // Use MyState.newBuilder() to construct.
     private MyState(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private MyState() {
     }
 
     @java.lang.Override
-    @SuppressWarnings({ "unused" })
-    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
       return new MyState();
     }
 
     @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
       return this.unknownFields;
     }
-
-    private MyState(com.google.protobuf.CodedInputStream input,
+    private MyState(
+        com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields = com.google.protobuf.UnknownFieldSet.newBuilder();
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -560,7 +571,8 @@ public final class Domain {
               break;
             }
             default: {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
               break;
@@ -570,27 +582,28 @@ public final class Domain {
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
-
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_MyState_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
       return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_MyState_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(com.lightbend.persistence.Domain.MyState.class,
-              com.lightbend.persistence.Domain.MyState.Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.lightbend.persistence.Domain.MyState.class, com.lightbend.persistence.Domain.MyState.Builder.class);
     }
 
     public static final int VALUE_FIELD_NUMBER = 1;
     private int value_;
-
     /**
      * <code>int32 value = 1;</code>
      */
@@ -599,21 +612,19 @@ public final class Domain {
     }
 
     private byte memoizedIsInitialized = -1;
-
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1)
-        return true;
-      if (isInitialized == 0)
-        return false;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
       if (value_ != 0) {
         output.writeInt32(1, value_);
       }
@@ -623,12 +634,12 @@ public final class Domain {
     @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
-      if (size != -1)
-        return size;
+      if (size != -1) return size;
 
       size = 0;
       if (value_ != 0) {
-        size += com.google.protobuf.CodedOutputStream.computeInt32Size(1, value_);
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -638,17 +649,16 @@ public final class Domain {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-        return true;
+       return true;
       }
       if (!(obj instanceof com.lightbend.persistence.Domain.MyState)) {
         return super.equals(obj);
       }
       com.lightbend.persistence.Domain.MyState other = (com.lightbend.persistence.Domain.MyState) obj;
 
-      if (getValue() != other.getValue())
-        return false;
-      if (!unknownFields.equals(other.unknownFields))
-        return false;
+      if (getValue()
+          != other.getValue()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
 
@@ -666,93 +676,96 @@ public final class Domain {
       return hash;
     }
 
-    public static com.lightbend.persistence.Domain.MyState parseFrom(java.nio.ByteBuffer data)
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(java.nio.ByteBuffer data,
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(com.google.protobuf.ByteString data)
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(com.google.protobuf.ByteString data,
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.MyState parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(byte[] data,
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.MyState parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
-
     public static com.lightbend.persistence.Domain.MyState parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseDelimitedFrom(java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(com.google.protobuf.CodedInputStream input)
+    public static com.lightbend.persistence.Domain.MyState parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-
-    public static com.lightbend.persistence.Domain.MyState parseFrom(com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.lightbend.persistence.Domain.MyState parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
+    public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
     public static Builder newBuilder(com.lightbend.persistence.Domain.MyState prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-
     @java.lang.Override
     public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     /**
      * <pre>
      * The state.
@@ -760,18 +773,21 @@ public final class Domain {
      *
      * Protobuf type {@code com.lightbend.persistence.MyState}
      */
-    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:com.lightbend.persistence.MyState)
         com.lightbend.persistence.Domain.MyStateOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_MyState_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_MyState_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(com.lightbend.persistence.Domain.MyState.class,
-                com.lightbend.persistence.Domain.MyState.Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.lightbend.persistence.Domain.MyState.class, com.lightbend.persistence.Domain.MyState.Builder.class);
       }
 
       // Construct using com.lightbend.persistence.Domain.MyState.newBuilder()
@@ -779,16 +795,16 @@ public final class Domain {
         maybeForceBuilderInitialization();
       }
 
-      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -798,7 +814,8 @@ public final class Domain {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
         return com.lightbend.persistence.Domain.internal_static_com_lightbend_persistence_MyState_descriptor;
       }
 
@@ -828,37 +845,38 @@ public final class Domain {
       public Builder clone() {
         return super.clone();
       }
-
       @java.lang.Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.setField(field, value);
       }
-
       @java.lang.Override
-      public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
-
       @java.lang.Override
-      public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
-
       @java.lang.Override
-      public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
-          java.lang.Object value) {
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
-
       @java.lang.Override
-      public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
-
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.lightbend.persistence.Domain.MyState) {
-          return mergeFrom((com.lightbend.persistence.Domain.MyState) other);
+          return mergeFrom((com.lightbend.persistence.Domain.MyState)other);
         } else {
           super.mergeFrom(other);
           return this;
@@ -866,8 +884,7 @@ public final class Domain {
       }
 
       public Builder mergeFrom(com.lightbend.persistence.Domain.MyState other) {
-        if (other == com.lightbend.persistence.Domain.MyState.getDefaultInstance())
-          return this;
+        if (other == com.lightbend.persistence.Domain.MyState.getDefaultInstance()) return this;
         if (other.getValue() != 0) {
           setValue(other.getValue());
         }
@@ -882,8 +899,10 @@ public final class Domain {
       }
 
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.lightbend.persistence.Domain.MyState parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
@@ -898,44 +917,43 @@ public final class Domain {
         return this;
       }
 
-      private int value_;
-
+      private int value_ ;
       /**
        * <code>int32 value = 1;</code>
        */
       public int getValue() {
         return value_;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder setValue(int value) {
-
+        
         value_ = value;
         onChanged();
         return this;
       }
-
       /**
        * <code>int32 value = 1;</code>
        */
       public Builder clearValue() {
-
+        
         value_ = 0;
         onChanged();
         return this;
       }
-
       @java.lang.Override
-      public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
-      public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
+
 
       // @@protoc_insertion_point(builder_scope:com.lightbend.persistence.MyState)
     }
@@ -950,9 +968,11 @@ public final class Domain {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<MyState> PARSER = new com.google.protobuf.AbstractParser<MyState>() {
+    private static final com.google.protobuf.Parser<MyState>
+        PARSER = new com.google.protobuf.AbstractParser<MyState>() {
       @java.lang.Override
-      public MyState parsePartialFrom(com.google.protobuf.CodedInputStream input,
+      public MyState parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return new MyState(input, extensionRegistry);
@@ -975,29 +995,46 @@ public final class Domain {
 
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor internal_static_com_lightbend_persistence_ValueSet_descriptor;
-  private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor internal_static_com_lightbend_persistence_MyState_descriptor;
-  private static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_com_lightbend_persistence_MyState_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_lightbend_persistence_ValueSet_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_lightbend_persistence_MyState_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_lightbend_persistence_MyState_fieldAccessorTable;
 
-  public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+  public static com.google.protobuf.Descriptors.FileDescriptor
+      getDescriptor() {
     return descriptor;
   }
-
-  private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
+  private static  com.google.protobuf.Descriptors.FileDescriptor
+      descriptor;
   static {
     java.lang.String[] descriptorData = {
-        "\n\'com/lightbend/persistence/domain.prot" + "o\022\032com.lightbend.persistence\"\031\n\010ValueSe"
-            + "t\022\r\n\005value\030\001 \001(\005\"\030\n\007MyState\022\r\n\005value\030\001 \001"
-            + "(\005B\rZ\013persistenceb\006proto3" };
-    descriptor = com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {});
-    internal_static_com_lightbend_persistence_ValueSet_descriptor = getDescriptor().getMessageTypes().get(0);
-    internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_lightbend_persistence_ValueSet_descriptor, new java.lang.String[] { "Value", });
-    internal_static_com_lightbend_persistence_MyState_descriptor = getDescriptor().getMessageTypes().get(1);
-    internal_static_com_lightbend_persistence_MyState_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_lightbend_persistence_MyState_descriptor, new java.lang.String[] { "Value", });
+      "\n&com/lightbend/persistence/domain.proto" +
+      "\022\031com.lightbend.persistence\"\031\n\010ValueSet\022" +
+      "\r\n\005value\030\001 \001(\005\"\030\n\007MyState\022\r\n\005value\030\001 \001(\005" +
+      "B\rZ\013persistenceb\006proto3"
+    };
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+      .internalBuildGeneratedFileFrom(descriptorData,
+        new com.google.protobuf.Descriptors.FileDescriptor[] {
+        });
+    internal_static_com_lightbend_persistence_ValueSet_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_com_lightbend_persistence_ValueSet_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_lightbend_persistence_ValueSet_descriptor,
+        new java.lang.String[] { "Value", });
+    internal_static_com_lightbend_persistence_MyState_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_com_lightbend_persistence_MyState_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_lightbend_persistence_MyState_descriptor,
+        new java.lang.String[] { "Value", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

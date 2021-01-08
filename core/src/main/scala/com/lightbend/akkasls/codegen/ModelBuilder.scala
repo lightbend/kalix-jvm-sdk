@@ -11,12 +11,15 @@ import java.nio.file.Files
 import java.util.stream.Collectors
 
 import scala.jdk.CollectionConverters._
+import scala.util.Using
+import java.net.URLClassLoader
+import scala.collection.mutable.ListBuffer
+import scala.util.Try
+import com.google.protobuf.Descriptors.Descriptor
 
 /**
-  * Builds a model of entities and their commands, events and state types
-  * from compiled Java protobuf files.
+  * Builds a model of entities and their properties from compiled Java protobuf files.
   */
-@SuppressWarnings(Array("org.wartremover.warts.Null"))
 object ModelBuilder {
 
   private final val JAVA_SOURCE = ".java"
@@ -89,6 +92,7 @@ object ModelBuilder {
     * @param outputDirectory the directory to write .class files to
     * @return 0 for success, non-zero for failure (as per the Java compiler)
     */
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def compileProtobufSources(protoSources: Iterable[Path], outputDirectory: Path): Int = {
     val args = Array(
       "-d",
@@ -103,6 +107,57 @@ object ModelBuilder {
     val compiler = ToolProvider.getSystemJavaCompiler()
     compiler.run(null, null, null, args: _*)
   }
+
+  /**
+    * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
+    * An entity will have multiple Entity instances of it which can handle commands. For example, a user function may
+    * implement a chat room entity, encompassing the logic associated with chat rooms, and a particular chat room may
+    * be an instance of that entity, containing a list of the users currently in the room and a history of the messages
+    * sent to it. Each entity has a particular Entity type, which defines how the entity’s state is persisted, shared,
+    * and what its capabilities are.
+    */
+  sealed abstract class Entity
+
+  /**
+    * A type of Entity that stores its state using a journal of events, and restores its state
+    * by replaying that journal.
+    */
+  case object EventSourcedEntity extends Entity
+
+  /**
+    * Given a collection of classes representing protobuf declarations, and their root directory, discover
+    * the Cloudstate entities and their properities.
+    *
+    * @param protobufClassesDirectory the root folder of where classes reside
+    * @param protobufClasses the classes to inspect
+    * @return
+    */
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Null"))
+  def introspectProtobufClasses(
+      protobufClassesDirectory: Path,
+      protobufClasses: Iterable[Path]
+  ): Iterable[Entity] =
+    Using(
+      URLClassLoader.newInstance(
+        protobufClasses.map(p => p.toUri().toURL()).toArray,
+        getClass().getClassLoader()
+      )
+    ) { protobufClassLoader =>
+      val entities = new ListBuffer[Entity]
+      protobufClasses.foreach { p =>
+        val relativePath = protobufClassesDirectory.relativize(p)
+        val packageName  = relativePath.getParent().toString().replace("/", ".")
+        val className    = relativePath.toString().drop(packageName.size + 1).takeWhile(_ != '.')
+        val fqn          = packageName + "." + className
+        Try(protobufClassLoader.loadClass(fqn).getMethod("getDescriptor"))
+          .foreach { method =>
+            val descriptor = method.invoke(null).asInstanceOf[Descriptor]
+            // FIXME We are not getting this far as the class cannot be found
+            println(descriptor.toProto().toString())
+          }
+      }
+      entities.toList
+    }.getOrElse(List.empty)
 
   /*
    * Given a class, return a String path to its containing Jar.
