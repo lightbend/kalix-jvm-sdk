@@ -30,20 +30,36 @@ public class MyServiceEntity {
     this.value = state.getValue();
   }
 
+  /**
+   * Handle the ValueSet event, updating the persisted value
+   * @param event the event payload containing the updated value
+   */
   @EventHandler
   public void valueSet(Domain.ValueSet event) {
     this.value = event.getValue();
   }
 
+  /**
+   * Handle the SetValue command
+   * Dispatches a ValueSet event with the provided value.
+   * @param command the command payload, containing the value to update to
+   * @param commandContext the Akka Serverless command context
+   */
   @CommandHandler
-  public Empty set(MyEntity.SetValue setValue, CommandContext commandContext) {
-    this.value = setValue.getValue();
-
+  public Empty setValue(MyEntity.SetValueCommand command, CommandContext commandContext) {
+    commandContext.emit(Domain.ValueSet.newBuilder().setValue(command.getValue()).build());
     return Empty.getDefaultInstance();
   }
 
+  /**
+   * Handle the GetValue command
+   * Returns a state payload with the persisted value.
+   * @param command the command payload
+   * @param commandContext the Akka Serverless command context
+   * @return a MyState payload conatining the persisted value
+   */
   @CommandHandler
-  public MyEntity.MyState get(MyEntity.GetValue getValue, CommandContext commandContext) {
-    return MyEntity.MyState.newBuilder().setValue(value).build();
+  public MyEntity.MyState getValue(MyEntity.GetValueCommand command, CommandContext commandContext) {
+    return MyEntity.MyState.newBuilder().setValue(this.value).build();
   }
 }
