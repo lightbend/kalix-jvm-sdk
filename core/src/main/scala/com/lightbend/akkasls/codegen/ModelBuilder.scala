@@ -15,7 +15,7 @@ import scala.util.Using
 import java.net.URLClassLoader
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import com.google.protobuf.Descriptors.Descriptor
+import com.google.protobuf.Descriptors
 
 /**
   * Builds a model of entities and their properties from compiled Java protobuf files.
@@ -139,8 +139,8 @@ object ModelBuilder {
   ): Iterable[Entity] =
     Using(
       URLClassLoader.newInstance(
-        protobufClasses.map(p => p.toUri().toURL()).toArray,
-        getClass().getClassLoader()
+        Array(protobufClassesDirectory.toUri().toURL()),
+        classOf[ModelBuilder.type].getClassLoader()
       )
     ) { protobufClassLoader =>
       val entities = new ListBuffer[Entity]
@@ -151,8 +151,7 @@ object ModelBuilder {
         val fqn          = packageName + "." + className
         Try(protobufClassLoader.loadClass(fqn).getMethod("getDescriptor"))
           .foreach { method =>
-            val descriptor = method.invoke(null).asInstanceOf[Descriptor]
-            // FIXME We are not getting this far as the class cannot be found
+            val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
             println(descriptor.toProto().toString())
           }
       }
