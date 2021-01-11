@@ -1701,14 +1701,14 @@ public final class MyEntity {
       "ting.proto\032\034google/api/annotations.proto" +
       "\"2\n\010SetValue\022\027\n\tentity_id\030\001 \001(\tB\004\220\265\030\001\022\r\n" +
       "\005value\030\002 \001(\005\"#\n\010GetValue\022\027\n\tentity_id\030\001 " +
-      "\001(\tB\004\220\265\030\001\"\030\n\007MyState\022\r\n\005value\030\001 \001(\0052\343\001\n\t" +
-      "MyService\022q\n\003Set\022\027.com.lightbend.SetValu" +
-      "e\032\026.google.protobuf.Empty\"9\202\323\344\223\002(\"#/com." +
-      "titanclass.MyState/{entity_id}:\001*\232\265\030\007\n\005v" +
-      "alue\022c\n\003Get\022\027.com.lightbend.GetValue\032\026.c" +
-      "om.lightbend.MyState\"+\202\323\344\223\002%\022#/com.titan" +
-      "class.MyState/{entity_id}B\031B\010MyEntityZ\rc" +
-      "om/lightbendb\006proto3"
+      "\001(\tB\004\220\265\030\001\"\030\n\007MyState\022\r\n\005value\030\001 \001(\0052\341\001\n\t" +
+      "MyService\022p\n\003Set\022\027.com.lightbend.SetValu" +
+      "e\032\026.google.protobuf.Empty\"8\202\323\344\223\002\'\"\"/com." +
+      "lightbend.MyState/{entity_id}:\001*\232\265\030\007\n\005va" +
+      "lue\022b\n\003Get\022\027.com.lightbend.GetValue\032\026.co" +
+      "m.lightbend.MyState\"*\202\323\344\223\002$\022\"/com.lightb" +
+      "end.MyState/{entity_id}B\031B\010MyEntityZ\rcom" +
+      "/lightbendb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
