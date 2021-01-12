@@ -63,6 +63,19 @@ class ModelBuilderSuite extends munit.FunSuite {
       _ => fail("Shouldn't fail")
     )
 
-    assertEquals(entities, List(ModelBuilder.EventSourcedEntity("com.lightbend.MyService")))
+    assertEquals(
+      entities,
+      List(
+        ModelBuilder.EventSourcedEntity(
+          Some("com/lightbend"),
+          Some("MyEntity"),
+          "com.lightbend.MyService",
+          List(
+            ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
+            ModelBuilder.Command("com.lightbend.MyService.Get", "com.lightbend.GetValue")
+          )
+        )
+      )
+    )
   }
 }
