@@ -9,11 +9,11 @@ import java.nio.file.Path
 import javax.tools.ToolProvider
 import java.nio.file.Files
 import java.util.stream.Collectors
-
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import java.net.URLClassLoader
 import com.google.protobuf.Descriptors
+
 import scala.util.control.NonFatal
 
 /**
@@ -34,7 +34,7 @@ object ModelBuilder {
   def collectProtobufSources(protoSourceDirectory: Path): Iterable[Path] =
     Files
       .walk(protoSourceDirectory)
-      .filter(p => Files.isRegularFile(p) && p.toString().endsWith(JAVA_SOURCE))
+      .filter(p => Files.isRegularFile(p) && p.toString.endsWith(JAVA_SOURCE))
       .collect(Collectors.toList())
       .asScala
 
@@ -55,7 +55,7 @@ object ModelBuilder {
       .map(protoSourceDirectory.relativize)
       .map { entry =>
         val relativeClassEntry = entry
-          .resolveSibling(entry.getFileName().toString().replace(JAVA_SOURCE, JAVA_CLASS))
+          .resolveSibling(entry.getFileName.toString.replace(JAVA_SOURCE, JAVA_CLASS))
         outputDirectory.resolve(relativeClassEntry)
       }
 
@@ -77,8 +77,8 @@ object ModelBuilder {
     val distinctProtoClasses = protoClasses.toArray
     protoSources.zipWithIndex
       .filter { case (source, i) =>
-        val sourceFile = source.toFile()
-        val classFile  = distinctProtoClasses(i).toFile()
+        val sourceFile = source.toFile
+        val classFile  = distinctProtoClasses(i).toFile
         !classFile.exists() || sourceFile.lastModified() > classFile.lastModified()
       }
       .map(_._1)
@@ -94,19 +94,19 @@ object ModelBuilder {
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def compileProtobufSources(protoSources: Iterable[Path], outputDirectory: Path): Int = {
     def jarPath[A](aClass: Class[A]): String =
-      aClass.getProtectionDomain().getCodeSource().getLocation().getPath().toString()
+      aClass.getProtectionDomain.getCodeSource.getLocation.getPath
 
     val args = Array(
       "-d",
-      outputDirectory.toString(),
+      outputDirectory.toString,
       "-cp",
       s"${jarPath(classOf[com.google.protobuf.Descriptors.Descriptor])}:" +
       s"${jarPath(classOf[io.cloudstate.EntityKey])}"
-    ) ++ protoSources.map(_.toString())
+    ) ++ protoSources.map(_.toString)
 
-    val _ = outputDirectory.toFile().mkdir()
+    val _ = outputDirectory.toFile.mkdir()
 
-    val compiler = ToolProvider.getSystemJavaCompiler()
+    val compiler = ToolProvider.getSystemJavaCompiler
     compiler.run(null, null, null, args: _*)
   }
 
@@ -154,20 +154,28 @@ object ModelBuilder {
 
     try Using(
       URLClassLoader.newInstance(
-        Array(protobufClassesDirectory.toUri().toURL()),
-        classOf[ModelBuilder.type].getClassLoader()
+        Array(protobufClassesDirectory.toUri.toURL),
+        classOf[ModelBuilder.type].getClassLoader
       )
     ) { protobufClassLoader =>
       protobufClasses.flatMap { p =>
         val relativePath = protobufClassesDirectory.relativize(p)
-        val packageName  = relativePath.getParent().toString().replace("/", ".")
-        val className    = relativePath.toString().drop(packageName.size + 1).takeWhile(_ != '.')
+        val packageName  = relativePath.getParent.toString.replace("/", ".")
+        val className    = relativePath.toString.drop(packageName.length + 1).takeWhile(_ != '.')
         val fqn          = packageName + "." + className
         val method       = protobufClassLoader.loadClass(fqn).getMethod("getDescriptor")
         try {
           val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
-          descriptor.getServices().asScala.map { service =>
-            EventSourcedEntity(service.getFullName())
+          descriptor.getServices.asScala.flatMap { service =>
+            val methods = service.getMethods.asScala
+            if (
+              methods.exists(d =>
+                d.getOptions.getAllFields.asScala.exists(_._1.getFullName == "cloudstate.eventing")
+              )
+            )
+              List(EventSourcedEntity(service.getFullName))
+            else
+              List.empty
           }
         } catch exceptionHandler
       }
