@@ -57,6 +57,12 @@ class ModelBuilderSuite extends munit.FunSuite {
     val testFilesPath    = Paths.get(getClass().getClassLoader().getResource("test-files").getFile())
     val classesDirectory = testFilesPath.resolve("classes")
     val class1           = classesDirectory.resolve("com/lightbend/MyEntity.class")
-    ModelBuilder.introspectProtobufClasses(classesDirectory, List(class1))
+    val entities = ModelBuilder.introspectProtobufClasses(
+      classesDirectory,
+      List(class1),
+      _ => fail("Shouldn't fail")
+    )
+
+    assertEquals(entities, List(ModelBuilder.EventSourcedEntity("com.lightbend.MyService")))
   }
 }
