@@ -112,19 +112,27 @@ object ModelBuilder {
 
   /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
-    * An entity will have multiple Entity instances of it which can handle commands. For example, a user function may
-    * implement a chat room entity, encompassing the logic associated with chat rooms, and a particular chat room may
-    * be an instance of that entity, containing a list of the users currently in the room and a history of the messages
-    * sent to it. Each entity has a particular Entity type, which defines how the entity’s state is persisted, shared,
-    * and what its capabilities are.
     */
-  sealed abstract class Entity
+  sealed abstract class Entity(
+      val goPackage: Option[String],
+      val javaOuterClassname: Option[String]
+  )
 
   /**
     * A type of Entity that stores its state using a journal of events, and restores its state
     * by replaying that journal.
     */
-  case class EventSourcedEntity(fullName: String) extends Entity
+  case class EventSourcedEntity(
+      override val goPackage: Option[String],
+      override val javaOuterClassname: Option[String],
+      fullName: String,
+      commands: Iterable[Command]
+  ) extends Entity(goPackage, javaOuterClassname)
+
+  /**
+    * A command is used to express the intention to alter the state of an Entity.
+    */
+  case class Command(fullname: String, inputType: String)
 
   /**
     * Given a collection of classes representing protobuf declarations, and their root directory, discover
@@ -166,15 +174,26 @@ object ModelBuilder {
         val method       = protobufClassLoader.loadClass(fqn).getMethod("getDescriptor")
         try {
           val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
+
+          val generalOptions = descriptor.getOptions.getAllFields.asScala
+          val goPackage = generalOptions
+            .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
+            .map(_._2.toString)
+          val javaOuterClassname = generalOptions
+            .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
+            .map(_._2.toString)
+
           descriptor.getServices.asScala.flatMap { service =>
             val methods = service.getMethods.asScala
             if (
-              methods.exists(d =>
-                d.getOptions.getAllFields.asScala.exists(_._1.getFullName == "cloudstate.eventing")
+              methods.exists(
+                _.getOptions.getAllFields.asScala.exists(_._1.getFullName == "cloudstate.eventing")
               )
-            )
-              List(EventSourcedEntity(service.getFullName))
-            else
+            ) {
+              val commands =
+                methods.map(method => Command(method.getFullName, method.getInputType.getFullName))
+              List(EventSourcedEntity(goPackage, javaOuterClassname, service.getFullName, commands))
+            } else
               List.empty
           }
         } catch exceptionHandler
