@@ -13,9 +13,8 @@ import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import java.net.URLClassLoader
-import scala.collection.mutable.ListBuffer
-import scala.util.Try
 import com.google.protobuf.Descriptors
+import scala.util.control.NonFatal
 
 /**
   * Builds a model of entities and their properties from compiled Java protobuf files.
@@ -94,6 +93,9 @@ object ModelBuilder {
     */
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def compileProtobufSources(protoSources: Iterable[Path], outputDirectory: Path): Int = {
+    def jarPath[A](aClass: Class[A]): String =
+      aClass.getProtectionDomain().getCodeSource().getLocation().getPath().toString()
+
     val args = Array(
       "-d",
       outputDirectory.toString(),
@@ -122,7 +124,7 @@ object ModelBuilder {
     * A type of Entity that stores its state using a journal of events, and restores its state
     * by replaying that journal.
     */
-  case object EventSourcedEntity extends Entity
+  case class EventSourcedEntity(fullName: String) extends Entity
 
   /**
     * Given a collection of classes representing protobuf declarations, and their root directory, discover
@@ -130,37 +132,46 @@ object ModelBuilder {
     *
     * @param protobufClassesDirectory the root folder of where classes reside
     * @param protobufClasses the classes to inspect
-    * @return
+    * @return the entities found
     */
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Null"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.AsInstanceOf",
+      "org.wartremover.warts.Null",
+      "org.wartremover.warts.Throw",
+      "org.wartremover.warts.TryPartial"
+    )
+  )
   def introspectProtobufClasses(
       protobufClassesDirectory: Path,
-      protobufClasses: Iterable[Path]
-  ): Iterable[Entity] =
-    Using(
+      protobufClasses: Iterable[Path],
+      failureReporter: Throwable => Unit
+  ): Iterable[Entity] = {
+    val exceptionHandler: PartialFunction[Throwable, Iterable[Entity]] = { case NonFatal(e) =>
+      failureReporter(e)
+      List.empty
+    }
+
+    try Using(
       URLClassLoader.newInstance(
         Array(protobufClassesDirectory.toUri().toURL()),
         classOf[ModelBuilder.type].getClassLoader()
       )
     ) { protobufClassLoader =>
-      val entities = new ListBuffer[Entity]
-      protobufClasses.foreach { p =>
+      protobufClasses.flatMap { p =>
         val relativePath = protobufClassesDirectory.relativize(p)
         val packageName  = relativePath.getParent().toString().replace("/", ".")
         val className    = relativePath.toString().drop(packageName.size + 1).takeWhile(_ != '.')
         val fqn          = packageName + "." + className
-        Try(protobufClassLoader.loadClass(fqn).getMethod("getDescriptor"))
-          .foreach { method =>
-            val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
-            println(descriptor.toProto().toString())
+        val method       = protobufClassLoader.loadClass(fqn).getMethod("getDescriptor")
+        try {
+          val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
+          descriptor.getServices().asScala.map { service =>
+            EventSourcedEntity(service.getFullName())
           }
+        } catch exceptionHandler
       }
-      entities.toList
-    }.getOrElse(List.empty)
-
-  /*
-   * Given a class, return a String path to its containing Jar.
-   */
-  private def jarPath[A](aClass: Class[A]): String =
-    aClass.getProtectionDomain().getCodeSource().getLocation().getPath().toString()
+    }.get
+    catch exceptionHandler
+  }
 }
