@@ -68,7 +68,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       List(
         ModelBuilder.EventSourcedEntity(
           Some("com/lightbend"),
-          Some("MyEntity"),
+          "MyEntity",
           "com.lightbend.MyService",
           List(
             ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
