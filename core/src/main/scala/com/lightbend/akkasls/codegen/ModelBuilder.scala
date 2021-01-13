@@ -28,6 +28,8 @@ object ModelBuilder {
     * Given a source directory containing protobuf Java source files,
     * return a collection of their paths at any depth.
     *
+    * Impure.
+    *
     * @param protoSourceDirectory the directory to read .java files from
     * @return the collection of java protobuf source files
     */
@@ -65,6 +67,8 @@ object ModelBuilder {
     * Both the source and class collection items must correlate with each other and the
     * collections must therefore be of the same size.
     *
+    * Impure.
+    *
     * @param protoSources the collection of protobuf sources
     * @param protoClasses the corresponding target protobuf classes, which may or may not exist
     * @return a filtered down collection of sources more recent than any existing corresponding class
@@ -87,35 +91,40 @@ object ModelBuilder {
   /**
     * Compile protobuf Java source files using the Java compiler
     *
+    * Impure.
+    *
     * @param protoSources the sources to compile
     * @param outputDirectory the directory to write .class files to
     * @return 0 for success, non-zero for failure (as per the Java compiler)
     */
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  def compileProtobufSources(protoSources: Iterable[Path], outputDirectory: Path): Int = {
-    def jarPath[A](aClass: Class[A]): String =
-      aClass.getProtectionDomain.getCodeSource.getLocation.getPath
+  def compileProtobufSources(protoSources: Iterable[Path], outputDirectory: Path): Int =
+    if (protoSources.nonEmpty) {
+      def jarPath[A](aClass: Class[A]): String =
+        aClass.getProtectionDomain.getCodeSource.getLocation.getPath
 
-    val args = Array(
-      "-d",
-      outputDirectory.toString,
-      "-cp",
-      s"${jarPath(classOf[com.google.protobuf.Descriptors.Descriptor])}:" +
-      s"${jarPath(classOf[io.cloudstate.EntityKey])}"
-    ) ++ protoSources.map(_.toString)
+      val args = Array(
+        "-d",
+        outputDirectory.toString,
+        "-cp",
+        s"${jarPath(classOf[com.google.protobuf.Descriptors.Descriptor])}:" +
+        s"${jarPath(classOf[io.cloudstate.EntityKey])}"
+      ) ++ protoSources.map(_.toString)
 
-    val _ = outputDirectory.toFile.mkdir()
+      val _ = outputDirectory.toFile.mkdir()
 
-    val compiler = ToolProvider.getSystemJavaCompiler
-    compiler.run(null, null, null, args: _*)
-  }
+      val compiler = ToolProvider.getSystemJavaCompiler
+      compiler.run(null, null, null, args: _*)
+    } else {
+      0
+    }
 
   /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
     */
   sealed abstract class Entity(
       val goPackage: Option[String],
-      val javaOuterClassname: Option[String]
+      val javaOuterClassname: String
   )
 
   /**
@@ -124,7 +133,7 @@ object ModelBuilder {
     */
   case class EventSourcedEntity(
       override val goPackage: Option[String],
-      override val javaOuterClassname: Option[String],
+      override val javaOuterClassname: String,
       fullName: String,
       commands: Iterable[Command]
   ) extends Entity(goPackage, javaOuterClassname)
@@ -137,6 +146,8 @@ object ModelBuilder {
   /**
     * Given a collection of classes representing protobuf declarations, and their root directory, discover
     * the Cloudstate entities and their properities.
+    *
+    * Impure.
     *
     * @param protobufClassesDirectory the root folder of where classes reside
     * @param protobufClasses the classes to inspect
@@ -167,20 +178,17 @@ object ModelBuilder {
       )
     ) { protobufClassLoader =>
       protobufClasses.flatMap { p =>
-        val relativePath = protobufClassesDirectory.relativize(p)
-        val packageName  = relativePath.getParent.toString.replace("/", ".")
-        val className    = relativePath.toString.drop(packageName.length + 1).takeWhile(_ != '.')
-        val fqn          = packageName + "." + className
-        val method       = protobufClassLoader.loadClass(fqn).getMethod("getDescriptor")
+        val relativePath   = protobufClassesDirectory.relativize(p)
+        val packageName    = relativePath.getParent.toString.replace("/", ".")
+        val outerClassName = relativePath.toString.drop(packageName.length + 1).takeWhile(_ != '.')
+        val fqn            = packageName + "." + outerClassName
+        val method         = protobufClassLoader.loadClass(fqn).getMethod("getDescriptor")
         try {
           val descriptor = method.invoke(null).asInstanceOf[Descriptors.FileDescriptor]
 
           val generalOptions = descriptor.getOptions.getAllFields.asScala
           val goPackage = generalOptions
             .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
-            .map(_._2.toString)
-          val javaOuterClassname = generalOptions
-            .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
             .map(_._2.toString)
 
           descriptor.getServices.asScala.flatMap { service =>
@@ -192,7 +200,14 @@ object ModelBuilder {
             ) {
               val commands =
                 methods.map(method => Command(method.getFullName, method.getInputType.getFullName))
-              List(EventSourcedEntity(goPackage, javaOuterClassname, service.getFullName, commands))
+              List(
+                EventSourcedEntity(
+                  goPackage,
+                  outerClassName,
+                  service.getFullName,
+                  commands
+                )
+              )
             } else
               List.empty
           }

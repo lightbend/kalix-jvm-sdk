@@ -11,7 +11,7 @@ lazy val `akkasls-codegen` =
         publishArtifact := false
       )
     )
-    .aggregate(`akkasls-codegen-core`)
+    .aggregate(`akkasls-codegen-core`, `akkasls-codegen-java`)
 
 lazy val `akkasls-codegen-core` =
   project
@@ -26,6 +26,21 @@ lazy val `akkasls-codegen-core` =
       )
     )
 
+lazy val `akkasls-codegen-java` =
+  project
+    .in(file("java-gen"))
+    .enablePlugins(AutomateHeaderPlugin)
+    .settings(commonSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        library.kiama,
+        library.commonsIo       % Test,
+        library.munit           % Test,
+        library.munitScalaCheck % Test
+      )
+    )
+    .dependsOn(`akkasls-codegen-core`)
+
 // *****************************************************************************
 // Library dependencies
 // *****************************************************************************
@@ -34,12 +49,16 @@ lazy val library =
   new {
     object Version {
       val cloudStateJavaSupport = "0.5.2"
+      val commonsIo             = "2.8.0"
+      val kiama                 = "2.4.0"
       val munit                 = "0.7.20"
     }
     val cloudStateJavaSupport =
       "io.cloudstate" % "cloudstate-java-support" % Version.cloudStateJavaSupport
-    val munit           = "org.scalameta" %% "munit"            % Version.munit
-    val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % Version.munit
+    val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
+    val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
+    val munit           = "org.scalameta"                 %% "munit"            % Version.munit
+    val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
   }
 
 // *****************************************************************************
