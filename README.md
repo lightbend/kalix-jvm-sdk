@@ -1,6 +1,6 @@
-# akkasls-codegen #
+# akkaserverless-codegen #
 
-akkasls-codegen is a JVM-based library that accepts protobuf-generated Java sources and
+akkaserverless-codegen is a JVM-based library that accepts protobuf-generated Java sources and
 incrementally compiles them by invoking the Java compiler. The compiled artifacts are then
 introspected to build a graph of Cloudstate event-sourced entities along with their commands,
 events and serializable state types. This graph can then be fed into code generation for which
