@@ -28,6 +28,19 @@ To use the plugin (substitute the version accordingly):
 </executions>
 </plugin>
 ```
+
+By default, the plugin will search for protobuf service declarations that are suffixed with `ServiceEntity`.
+This can be overridden by declaring a regex pattern for the plugin's `serviceNamesFilter` configuration e.g. to 
+search for services ending in `Service` instead of the default ending of `ServiceEntity`:
+
+```xml
+<serviceNamesFilter>.*Service</serviceNamesFilter>
+```
+
+This same setting can be used to be explicit about what services relate to entities. Conversely, specifying
+`.*` permits all services to become candidate entities. In future, we expect that protobuf options will be introduced
+such that entities can be easily identified. At that time, the `.*` value will become appropriate.
+
 ## Building and testing
 
 Test sources are required to be generated, particularly when run from within an IDE and attempting to run tests. A simple

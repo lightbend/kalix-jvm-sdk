@@ -25,16 +25,23 @@ import scala.collection.Iterable;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMojo extends AbstractMojo {
     // target/classes
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.outputDirectory}", property = "outputDirectory", required = true)
     private File outputDirectory;
 
     // target/generated-sources/protobuf/java
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/protobuf/java", property = "protoOutputDirectory", required = true)
     private File protoOutputDirectory;
 
     // src/main/java
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sourceDirectory", required = true)
     private File sourceDirectory;
+
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
+    private String serviceNamesFilter;
 
     private final Log log = getLog();
 
@@ -59,7 +66,7 @@ public class GenerateMojo extends AbstractMojo {
             if (nrOfNewProtobufSource > 0) {
                 log.info(String.format("Inspecting %d proto file(s) for entity generation...", nrOfNewProtobufSource));
                 if (ModelBuilder.compileProtobufSources(newProtobufSources, outputDirectory.toPath()) == 0) {
-                    Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(outputDirectory.toPath(), protobufClasses, e -> {
+                    Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(outputDirectory.toPath(), protobufClasses, serviceNamesFilter, e -> {
                         throw new RuntimeException(new MojoExecutionException("There was a problem introspecting the protobuf classes", e));
                     });
                     Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath());

@@ -6,7 +6,6 @@ import org.apache.maven.plugin.testing.MojoRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -32,7 +31,6 @@ public class GenerateMojoTest {
         FileUtils.deleteDirectory(projectDirectory.resolve("target/classes").toFile());
 
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
-        assertNotNull(myMojo);
         myMojo.execute();
 
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/MyService.java").toFile().exists());
