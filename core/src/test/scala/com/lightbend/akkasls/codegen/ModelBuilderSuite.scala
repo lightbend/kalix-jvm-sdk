@@ -60,6 +60,7 @@ class ModelBuilderSuite extends munit.FunSuite {
     val entities = ModelBuilder.introspectProtobufClasses(
       classesDirectory,
       List(class1),
+      ".*Service",
       _ => fail("Shouldn't fail")
     )
 

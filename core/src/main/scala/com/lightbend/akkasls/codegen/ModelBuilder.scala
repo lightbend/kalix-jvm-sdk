@@ -5,9 +5,8 @@
 
 package com.lightbend.akkasls.codegen
 
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import javax.tools.ToolProvider
-import java.nio.file.Files
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 import scala.util.Using
@@ -15,6 +14,7 @@ import java.net.URLClassLoader
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
+import scala.util.matching.Regex
 
 /**
   * Builds a model of entities and their properties from compiled Java protobuf files.
@@ -164,12 +164,15 @@ object ModelBuilder {
   def introspectProtobufClasses(
       protobufClassesDirectory: Path,
       protobufClasses: Iterable[Path],
+      servicesPattern: String,
       failureReporter: Throwable => Unit
   ): Iterable[Entity] = {
     val exceptionHandler: PartialFunction[Throwable, Iterable[Entity]] = { case NonFatal(e) =>
       failureReporter(e)
       List.empty
     }
+
+    val servicesMatcher = new Regex(servicesPattern)
 
     try Using(
       URLClassLoader.newInstance(
@@ -191,26 +194,19 @@ object ModelBuilder {
             .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
             .map(_._2.toString)
 
-          descriptor.getServices.asScala.flatMap { service =>
-            val methods = service.getMethods.asScala
-            if (
-              methods.exists(
-                _.getOptions.getAllFields.asScala.exists(_._1.getFullName == "cloudstate.eventing")
-              )
-            ) {
+          descriptor.getServices.asScala
+            .filter(service => servicesMatcher.matches(service.getFullName))
+            .map { service =>
+              val methods = service.getMethods.asScala
               val commands =
                 methods.map(method => Command(method.getFullName, method.getInputType.getFullName))
-              List(
-                EventSourcedEntity(
-                  goPackage,
-                  outerClassName,
-                  service.getFullName,
-                  commands
-                )
+              EventSourcedEntity(
+                goPackage,
+                outerClassName,
+                service.getFullName,
+                commands
               )
-            } else
-              List.empty
-          }
+            }
         } catch exceptionHandler
       }
     }.get
