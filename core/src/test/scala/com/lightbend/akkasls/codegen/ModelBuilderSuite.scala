@@ -72,8 +72,16 @@ class ModelBuilderSuite extends munit.FunSuite {
           "MyEntity",
           "com.lightbend.MyService",
           List(
-            ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
-            ModelBuilder.Command("com.lightbend.MyService.Get", "com.lightbend.GetValue")
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Set",
+              "com.lightbend.SetValue",
+              "google.protobuf.Empty"
+            ),
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Get",
+              "com.lightbend.GetValue",
+              "com.lightbend.MyState"
+            )
           )
         )
       )
