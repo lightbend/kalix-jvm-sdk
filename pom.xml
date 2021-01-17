@@ -72,7 +72,7 @@
     <dependency>
       <groupId>com.lightbend</groupId>
       <artifactId>akkasls-codegen-java_2.13</artifactId>
-      <version>0.0.0+15-2ab3a118</version>
+      <version>0.0.0+14-64cab2b0+20210115-1719</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
