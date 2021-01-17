@@ -26,8 +26,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "MyEntity1",
           "com.lightbend.MyService1",
           List(
-            ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
-            ModelBuilder.Command("com.lightbend.MyService.Get", "com.lightbend.GetValue")
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Set",
+              "com.lightbend.SetValue",
+              "com.google.protobuf.Empty"
+            ),
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Get",
+              "com.lightbend.GetValue",
+              "com.lightbend.MyState"
+            )
           )
         ),
         ModelBuilder.EventSourcedEntity(
@@ -35,8 +43,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "MyEntity2",
           "com.lightbend.MyService2",
           List(
-            ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
-            ModelBuilder.Command("com.lightbend.MyService.Get", "com.lightbend.GetValue")
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Set",
+              "com.lightbend.SetValue",
+              "com.google.protobuf.Empty"
+            ),
+            ModelBuilder.Command(
+              "com.lightbend.MyService.Get",
+              "com.lightbend.GetValue",
+              "com.lightbend.MyState"
+            )
           )
         )
       )
@@ -52,15 +68,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("source") {
     val entity = ModelBuilder.EventSourcedEntity(
       Some("com/lightbend"),
-      "MyEntity2",
-      "com.lightbend.MyService2",
+      "MyEntity",
+      "com.lightbend.MyServiceEntity",
       List(
-        ModelBuilder.Command("com.lightbend.MyService.Set", "com.lightbend.SetValue"),
-        ModelBuilder.Command("com.lightbend.MyService.Get", "com.lightbend.GetValue")
+        ModelBuilder.Command(
+          "com.lightbend.MyServiceEntity.Set",
+          "com.lightbend.SetValue",
+          "com.google.protobuf.Empty"
+        ),
+        ModelBuilder.Command(
+          "com.lightbend.MyServiceEntity.Get",
+          "com.lightbend.GetValue",
+          "com.lightbend.MyState"
+        )
       )
     )
     val packageName = "com.lightbend"
-    val className   = "MyService2"
+    val className   = "MyServiceEntity"
 
     val sourceDoc = SourceGenerator.source(entity, packageName, className)
     assertEquals(
@@ -73,8 +97,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity
-      |public class MyService2 {
-      |    
+      |public class MyServiceEntity {
+      |  @SuppressWarnings("unused")
+      |  private final String entityId;
+      |  
+      |  public MyServiceEntity(@EntityId String entityId) {
+      |    this.entityId = entityId;
+      |  }
+      |  
+      |  @CommandHandler
+      |  public Empty set(MyEntity.SetValue setValue) {
+      |      throw new UnsupportedOperationException("Requires implementation");
+      |  }
+      |  
+      |  @CommandHandler
+      |  public MyEntity.MyState get(MyEntity.GetValue getValue) {
+      |      throw new UnsupportedOperationException("Requires implementation");
+      |  }
       |}""".stripMargin
     )
   }
