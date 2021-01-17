@@ -89,5 +89,8 @@ lazy val commonSettings =
            |""".stripMargin
       )
     ),
+    // Publishing
+    bintrayOmitLicense := true,
+    bintrayOrganization := Some("lightbend"),
     publishMavenStyle := true
   )

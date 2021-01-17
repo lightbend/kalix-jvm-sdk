@@ -1,0 +1,24 @@
+name: Publish
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Test and publish
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASSWORD: ${{ secrets.BINTRAY_PASSWORD }}
+        run: sbt test publish
