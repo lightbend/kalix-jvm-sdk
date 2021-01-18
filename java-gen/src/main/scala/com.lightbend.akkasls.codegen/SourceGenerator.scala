@@ -57,34 +57,123 @@ object SourceGenerator extends PrettyPrinter {
       className: String
   ): Document =
     pretty(
-      `package`(packageName) <>
-      linebreak <>
-      `import`("com.google.protobuf.Empty") <>
-      `import`("io.cloudstate.javasupport.EntityId") <>
-      `import`("io.cloudstate.javasupport.eventsourced.*") <>
-      linebreak <>
-      javaDoc("An event sourced entity.") <>
-      `annotation`("EventSourcedEntity") <>
+      `package`(packageName) <> line <>
+      line <>
+      `import`("com.google.protobuf.Empty") <> line <>
+      `import`("io.cloudstate.javasupport.EntityId") <> line <>
+      `import`("io.cloudstate.javasupport.eventsourced.*") <> line <>
+      line <>
+      javaDoc("An event sourced entity.") <> line <>
+      `annotation`("EventSourcedEntity") <> line <>
       `class`("public", className) {
-        emptyDoc
+        annotation("SuppressWarnings", List("unused")) <> line <>
+        field(
+          "private",
+          "String",
+          "entityId",
+          `final` = true
+        ) <> line <>
+        line <>
+        constructor(
+          "public",
+          className,
+          List(annotation("EntityId") <+> parameter("String", "entityId"))
+        ) {
+          assignment("this.entityId", "entityId")
+        } <> line <>
+        line <>
+        ssep(
+          entity.commands.toSeq.map { command =>
+            annotation("CommandHandler") <>
+            line <>
+            method(
+              "public",
+              qualifiedType(command.outputType, entity.javaOuterClassname),
+              lowerFirst(name(command.fullname)),
+              List(
+                parameter(
+                  qualifiedType(command.inputType, entity.javaOuterClassname),
+                  lowerFirst(name(command.inputType))
+                )
+              )
+            )
+          },
+          line <> line
+        )
       }
     )
 
-  private def `package`(packageName: String): Doc =
-    "package" <+> packageName <> ";" <> linebreak
+  private def `package`(name: String): Doc =
+    "package" <+> name <> semi
 
-  private def `import`(importName: String): Doc =
-    "import" <+> importName <> ";" <> linebreak
+  private def `import`(name: String): Doc =
+    "import" <+> name <> semi
 
   private def javaDoc(comment: String): Doc =
-    "/**" <+> comment <+> "*/" <> linebreak
+    "/**" <+> comment <+> "*/"
 
-  private def annotation(annotationName: String): Doc =
-    "@" <> annotationName <> linebreak
+  private def annotation(name: String): Doc =
+    annotation(name, List.empty)
 
-  private def `class`(scope: String, className: String)(body: Doc): Doc =
-    scope <+> "class" <+> className <+> "{" <> linebreak <>
-    indent(body) <> linebreak <>
-    "}"
+  private def annotation(name: String, parameters: Seq[String]): Doc =
+    "@" <> name <>
+    (if (parameters.nonEmpty)
+       parens(ssep(parameters.map(t => dquotes(text(t))), comma <> space))
+     else
+       emptyDoc)
+
+  private def `class`(scope: String, name: String)(body: Doc): Doc =
+    scope <+> "class" <+> name <+>
+    braces(nest(line <> body, 2) <> line)
+
+  private def field(
+      scope: String,
+      `type`: String,
+      name: String,
+      `final`: Boolean
+  ): Doc =
+    scope <+> (if (`final`) "final" <+> emptyDoc else emptyDoc) <> `type` <+> name <> semi
+
+  private def constructor(
+      scope: String,
+      name: String,
+      parameters: Seq[Doc]
+  )(body: Doc): Doc =
+    scope <+> name <> parens(ssep(parameters, comma <> space)) <+>
+    braces(nest(line <> body, 2) <> line)
+
+  private def parameter(`type`: String, name: String) =
+    `type` <+> name
+
+  private def assignment(lval: String, rval: String): Doc =
+    lval <+> equal <+> rval <> semi
+
+  private def method(
+      scope: String,
+      returnType: String,
+      name: String,
+      parameters: Seq[Doc]
+  ): Doc =
+    scope <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+>
+    braces(
+      nest(
+        line <> """throw new UnsupportedOperationException("Requires implementation")""" <> semi
+      ) <> line
+    )
+
+  private def name(`type`: String): String =
+    `type`.reverse.takeWhile(_ != '.').reverse
+
+  private def qualifiedType(`type`: String, outerClassname: String): String =
+    if (`type` == "google.protobuf.Empty")
+      name(`type`)
+    else
+      outerClassname + "." + name(`type`)
+
+  private def lowerFirst(text: String): String =
+    text.headOption match {
+      case Some(c) => c.toLower.toString + text.drop(1)
+      case None    => ""
+    }
 
 }

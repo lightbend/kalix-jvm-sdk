@@ -141,7 +141,7 @@ object ModelBuilder {
   /**
     * A command is used to express the intention to alter the state of an Entity.
     */
-  case class Command(fullname: String, inputType: String)
+  case class Command(fullname: String, inputType: String, outputType: String)
 
   /**
     * Given a collection of classes representing protobuf declarations, and their root directory, discover
@@ -199,7 +199,13 @@ object ModelBuilder {
             .map { service =>
               val methods = service.getMethods.asScala
               val commands =
-                methods.map(method => Command(method.getFullName, method.getInputType.getFullName))
+                methods.map(method =>
+                  Command(
+                    method.getFullName,
+                    method.getInputType.getFullName,
+                    method.getOutputType.getFullName
+                  )
+                )
               EventSourcedEntity(
                 goPackage,
                 outerClassName,
