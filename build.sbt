@@ -92,5 +92,6 @@ lazy val commonSettings =
     // Publishing
     bintrayOmitLicense := true,
     bintrayOrganization := Some("lightbend"),
+    bintrayRepository := "akkaserverless",
     publishMavenStyle := true
   )
