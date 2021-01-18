@@ -8,7 +8,7 @@ lazy val `akkasls-codegen` =
     .enablePlugins(AutomateHeaderPlugin)
     .settings(
       commonSettings ++ Seq(
-        publishArtifact := false
+        skip in publish := true
       )
     )
     .aggregate(`akkasls-codegen-core`, `akkasls-codegen-java`)
