@@ -74,7 +74,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
           "com.lightbend.SetValue",
-          "com.google.protobuf.Empty"
+          "google.protobuf.Empty"
         ),
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Get",
