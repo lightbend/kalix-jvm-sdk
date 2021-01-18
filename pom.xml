@@ -24,6 +24,24 @@
     <maven.version>3.3.9</maven.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-lightbend-akkaserverless</id>
+      <name>bintray</name>
+      <url>https://lightbend.bintray.com/akkaserverless</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>bintray-lightbend-akkaserverless</id>
+      <url>https://api.bintray.com/maven/lightbend/akkaserverless/akkasls-maven-plugin</url>
+    </repository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -72,7 +90,7 @@
     <dependency>
       <groupId>com.lightbend</groupId>
       <artifactId>akkasls-codegen-java_2.13</artifactId>
-      <version>0.0.0+14-64cab2b0+20210115-1719</version>
+      <version>0.1.2</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
