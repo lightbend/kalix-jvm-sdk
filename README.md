@@ -1,6 +1,6 @@
 # akkasls-codegen #
 
-![Scala CI](https://github.com/lightbend/akkaserverless-codegen/workflows/Test/badge.svg)
+![Test](https://github.com/lightbend/akkaserverless-codegen/workflows/Test/badge.svg)
 
 akkasls-codegen is a JVM-based library that accepts protobuf-generated Java sources and
 incrementally compiles them by invoking the Java compiler. The compiled artifacts are then
