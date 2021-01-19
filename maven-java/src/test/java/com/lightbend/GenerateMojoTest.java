@@ -26,6 +26,7 @@ public class GenerateMojoTest {
     @Test
     public void testGeneration() throws Exception {
         Path projectDirectory = Paths.get("target/test-classes/project-to-test/");
+        assertTrue(projectDirectory.toFile().exists());
 
         FileUtils.deleteDirectory(projectDirectory.resolve("src/main/java").toFile());
         FileUtils.deleteDirectory(projectDirectory.resolve("target/classes").toFile());
