@@ -23,4 +23,6 @@ jobs:
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: mvn -B deploy --file pom.xml
+        run:
+          mvn -B versions:set -DnewVersion="$(git tag|cut -c2-)"
+          mvn -B deploy
