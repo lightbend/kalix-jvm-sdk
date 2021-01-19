@@ -21,6 +21,4 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run:
-        mvn -B versions:set -DnewVersion=$(git tag|cut -c2-)
-        mvn -B package
+      run: mvn -B package
