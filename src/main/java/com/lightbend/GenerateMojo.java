@@ -54,7 +54,6 @@ public class GenerateMojo extends AbstractMojo {
      * then drives the code generation phase.
      */
     public void execute() throws MojoExecutionException {
-        log.info(">>> " + protoOutputDirectory.toString() + ", exists? " + protoOutputDirectory.exists());
         if (protoOutputDirectory.exists()) {
             Iterable<Path> protobufSources = ModelBuilder
                     .collectProtobufSources(protoOutputDirectory.toPath());
@@ -62,8 +61,6 @@ public class GenerateMojo extends AbstractMojo {
                     protobufSources, outputDirectory.toPath());
             Iterable<Path> newProtobufSources = ModelBuilder.filterNewProtobufSources(protobufSources,
                     protobufClasses);
-
-            log.info(protobufSources + ", " + protobufClasses + ", " + newProtobufSources);
 
             int nrOfNewProtobufSource = newProtobufSources.size();
             if (nrOfNewProtobufSource > 0) {
