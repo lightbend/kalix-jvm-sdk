@@ -90,7 +90,7 @@
     <dependency>
       <groupId>com.lightbend</groupId>
       <artifactId>akkasls-codegen-java_2.13</artifactId>
-      <version>0.1.2</version>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
