@@ -35,8 +35,9 @@ public class GenerateMojoTest {
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
+        System.err.println("Seeking files");
         for (File file : FileUtils.listFiles(projectDirectory.toFile(), new String[]{"java"}, true)) {
-            System.out.println(file.toString());
+            System.err.println(file.toString());
         }
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/MyService.java").toFile().exists());
     }
