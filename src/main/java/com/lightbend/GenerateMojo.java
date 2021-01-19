@@ -39,6 +39,11 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sourceDirectory", required = true)
     private File sourceDirectory;
 
+    // src/test/java
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "testSourceDirectory", required = true)
+    private File testSourceDirectory;
+
     @SuppressWarnings("unused")
     @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
     private String serviceNamesFilter;
@@ -69,7 +74,7 @@ public class GenerateMojo extends AbstractMojo {
                     Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(outputDirectory.toPath(), protobufClasses, serviceNamesFilter, e -> {
                         throw new RuntimeException(new MojoExecutionException("There was a problem introspecting the protobuf classes", e));
                     });
-                    Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath());
+                    Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath());
                     generated.foreach(p -> {
                         log.info("Generated entity: " + sourceDirectory.toPath().relativize(p));
                         return null;
