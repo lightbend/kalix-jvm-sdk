@@ -19,10 +19,10 @@ jobs:
           server-id: bintray-lightbend-akkaserverless
           server-username: BINTRAY_USER
           server-password: BINTRAY_PASS
+      - name: Set version
+        run: mvn -B versions:set -DnewVersion="$(git tag|cut -c2-)"
       - name: Test and publish
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run:
-          mvn -B versions:set -DnewVersion="$(git tag|cut -c2-)"
-          mvn -B deploy
+        run: mvn -B deploy
