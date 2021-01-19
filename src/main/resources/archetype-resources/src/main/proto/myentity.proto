@@ -24,7 +24,7 @@ message MyState {
     int32 value = 1;
 }
 
-service MyService {
+service MyServiceEntity {
     rpc SetValue(SetValueCommand) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/${package}.MyEntity/{entity_id}",
