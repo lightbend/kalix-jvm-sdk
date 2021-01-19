@@ -33,6 +33,7 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
         <configuration>
+          <checkStaleness>true</checkStaleness>
           <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
         </configuration>
         <executions>
@@ -128,8 +129,44 @@
           <mainClass>${package}.Main</mainClass>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>com.lightbend</groupId>
+        <artifactId>akkasls-maven-plugin</artifactId>
+        <version>0.1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-lightbend-akkaserverless</id>
+      <name>bintray</name>
+      <url>https://lightbend.bintray.com/akkaserverless</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-lightbend-akkaserverless</id>
+      <name>bintray</name>
+      <url>https://lightbend.bintray.com/akkaserverless</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencies>
     <dependency>
