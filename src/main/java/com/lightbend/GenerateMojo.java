@@ -62,6 +62,8 @@ public class GenerateMojo extends AbstractMojo {
             Iterable<Path> newProtobufSources = ModelBuilder.filterNewProtobufSources(protobufSources,
                     protobufClasses);
 
+            log.info(protobufSources + ", " + protobufClasses + ", " + newProtobufSources);
+
             int nrOfNewProtobufSource = newProtobufSources.size();
             if (nrOfNewProtobufSource > 0) {
                 log.info(String.format("Inspecting %d proto file(s) for entity generation...", nrOfNewProtobufSource));
