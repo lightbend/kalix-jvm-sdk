@@ -38,7 +38,7 @@
   <distributionManagement>
     <repository>
       <id>bintray-lightbend-akkaserverless</id>
-      <url>https://api.bintray.com/maven/lightbend/akkaserverless/akkasls-maven-plugin</url>
+      <url>https://api.bintray.com/maven/lightbend/akkaserverless/akkasls-maven-plugin/;publish=1</url>
     </repository>
   </distributionManagement>
 
