@@ -67,7 +67,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
             "MyEntity3",
-            "com.lightbend.MyService3",
+            "com.lightbend.something.MyService3",
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
@@ -83,7 +83,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
           )
         )
 
-        val sources = SourceGenerator.generate(entities, sourceDirectory, testSourceDirectory)
+        val sources = SourceGenerator.generate(
+          entities,
+          sourceDirectory,
+          testSourceDirectory,
+          "com.lightbend.Main"
+        )
 
         assertEquals(Files.size(source1), 0L)
         assertEquals(Files.size(testSource2), 0L)
@@ -92,12 +97,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
           sources,
           List(
             sourceDirectory.resolve("com/lightbend/MyService2.java"),
-            sourceDirectory.resolve("com/lightbend/MyService3.java"),
-            testSourceDirectory.resolve("com/lightbend/MyService3Test.java")
+            sourceDirectory.resolve("com/lightbend/something/MyService3.java"),
+            testSourceDirectory.resolve("com/lightbend/something/MyService3Test.java"),
+            sourceDirectory.resolve("com/lightbend/Main.java")
           )
         )
+
+        // Test that the main, source and test files are being written to
         assertEquals(Files.readAllBytes(sources.head).head.toChar, 'p')
         assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'p')
+        assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'p')
 
       } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
     } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
@@ -209,6 +218,86 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // Mockito.verify(context).emit(event);
         |    }
+        |}""".stripMargin
+    )
+  }
+
+  test("main source") {
+    val entities = List(
+      ModelBuilder.EventSourcedEntity(
+        Some("com/lightbend"),
+        "MyEntity1",
+        "com.lightbend.MyService1",
+        List(
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Set",
+            "com.lightbend.SetValue",
+            "com.google.protobuf.Empty"
+          ),
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Get",
+            "com.lightbend.GetValue",
+            "com.lightbend.MyState"
+          )
+        )
+      ),
+      ModelBuilder.EventSourcedEntity(
+        Some("com/lightbend"),
+        "MyEntity2",
+        "com.lightbend.MyService2",
+        List(
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Set",
+            "com.lightbend.SetValue",
+            "com.google.protobuf.Empty"
+          ),
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Get",
+            "com.lightbend.GetValue",
+            "com.lightbend.MyState"
+          )
+        )
+      ),
+      ModelBuilder.EventSourcedEntity(
+        Some("com/lightbend"),
+        "MyEntity3",
+        "com.lightbend.something.MyService3",
+        List(
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Set",
+            "com.lightbend.SetValue",
+            "com.google.protobuf.Empty"
+          ),
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Get",
+            "com.lightbend.GetValue",
+            "com.lightbend.MyState"
+          )
+        )
+      )
+    )
+    val mainPackageName = "com.lightbend"
+    val mainClassName   = "Main"
+
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.lightbend;
+        |
+        |import io.cloudstate.javasupport.*;
+        |import com.lightbend.something.MyEntity3;
+        |import com.lightbend.something.MyService3;
+        |
+        |public final class Main {
+        |    
+        |    public static void main(String[] args) throws Exception {
+        |        new CloudState() //
+        |            .registerEventSourcedEntity(MyService1.class, MyEntity1.getDescriptor().findServiceByName("MyService1")) //
+        |            .registerEventSourcedEntity(MyService2.class, MyEntity2.getDescriptor().findServiceByName("MyService2")) //
+        |            .registerEventSourcedEntity(MyService3.class, MyEntity3.getDescriptor().findServiceByName("MyService3")) //
+        |            .start().toCompletableFuture().get();
+        |    }
+        |    
         |}""".stripMargin
     )
   }
