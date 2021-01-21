@@ -26,6 +26,11 @@ import scala.collection.Iterable;
 public class GenerateMojo extends AbstractMojo {
     // target/classes
     @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project.basedir}", property = "baseDir", required = true)
+    private File baseDir;
+
+    // target/classes
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.outputDirectory}", property = "outputDirectory", required = true)
     private File outputDirectory;
 
@@ -43,6 +48,10 @@ public class GenerateMojo extends AbstractMojo {
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "testSourceDirectory", required = true)
     private File testSourceDirectory;
+
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project.groupId}.Main", property = "mainClass", required = true)
+    private String mainClass;
 
     @SuppressWarnings("unused")
     @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
@@ -74,9 +83,9 @@ public class GenerateMojo extends AbstractMojo {
                     Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(outputDirectory.toPath(), protobufClasses, serviceNamesFilter, e -> {
                         throw new RuntimeException(new MojoExecutionException("There was a problem introspecting the protobuf classes", e));
                     });
-                    Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath());
+                    Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath(), mainClass);
                     generated.foreach(p -> {
-                        log.info("Generated entity: " + sourceDirectory.toPath().relativize(p));
+                        log.info("Generated: " + baseDir.toPath().relativize(p));
                         return null;
                     });
                 } else {
