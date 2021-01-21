@@ -3,7 +3,6 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "cloudstate/entity_key.proto";
-import "cloudstate/eventing.proto";
 import "google/api/annotations.proto";
 
 package $package;
@@ -25,18 +24,6 @@ message MyState {
 }
 
 service MyServiceEntity {
-    rpc SetValue(SetValueCommand) returns (google.protobuf.Empty) {
-        option (google.api.http) = {
-            post: "/${package}.MyEntity/{entity_id}",
-            body: "*",
-        };
-        option (.cloudstate.eventing).in = "value";
-    }
-
-
-    rpc GetValue(GetValueCommand) returns (MyState) {
-        option (google.api.http) = {
-          get: "/${package}.MyEntity/{entity_id}",
-        };
-    }
+    rpc SetValue(SetValueCommand) returns (google.protobuf.Empty);
+    rpc GetValue(GetValueCommand) returns (MyState);
 }
