@@ -8,6 +8,14 @@
   <packaging>jar</packaging>
 
   <name>${artifactId}</name>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+    <akkasls.dockerImage>my-docker-repo/${artifactId}</akkasls.dockerImage>
+    <akkasls.dockerTag>${version}</akkasls.dockerTag>
+  </properties>
 
   <build>
     <extensions>
@@ -77,14 +85,13 @@
         <configuration>
           <images>
             <image>
-              <!-- TODO Please change it to your Docker repository info -->
-              <name>my-docker-repo/${artifactId}:%l</name>
+              <name>${akkasls.dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
                 <from>adoptopenjdk/openjdk8:alpine-jre</from>
                 <tags>
                   <!-- tag for generated image -->
-                  <tag>my-tag</tag>
+                  <tag>${akkasls.dockerTag}</tag>
                 </tags>
                 <ports>
                   <!-- expose port in Docker container -->
@@ -111,6 +118,13 @@
               <goal>build</goal>
             </goals>
           </execution>
+          <execution>
+            <id>push-docker-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
 
@@ -133,14 +147,25 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
         <executions>
           <execution>
             <goals>
               <goal>generate</goal>
+              <goal>deploy</goal>
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+            <skip>true</skip>
+        </configuration>
       </plugin>
 
     </plugins>
@@ -187,8 +212,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
 </project>
