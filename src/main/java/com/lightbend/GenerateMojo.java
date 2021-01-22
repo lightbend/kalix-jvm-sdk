@@ -24,7 +24,6 @@ import scala.collection.Iterable;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMojo extends AbstractMojo {
-    // target/classes
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.basedir}", property = "baseDir", required = true)
     private File baseDir;
