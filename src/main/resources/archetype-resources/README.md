@@ -15,10 +15,11 @@ and in particular the [Java section](https://developer.lightbend.com/docs/akka-s
 #[[
 ## Building
 ]]#
-To build, at a minimum you need to generate sources, particularly when using an IDE:
+To build, at a minimum you need to generate and process sources, particularly when using an IDE.
+A convenience is compile your project:
 
 ```
-mvn generate-sources
+mvn compile
 ```
 
 #[[
