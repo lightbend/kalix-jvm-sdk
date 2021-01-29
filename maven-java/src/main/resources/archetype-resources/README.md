@@ -39,12 +39,17 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn exec:java
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. E.g.
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```
-> curl http://localhost:9000/${package}.MyEntity/myFirstEntityId
-{"value":0}
+> grpcurl -plaintext -d '{"entityId": "foo"}' localhost:9000 ${package}.MyServiceEntity/GetValue
+ERROR:
+  Code: Unknown
+  Message: Unexpected entity failure
 ```
+
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in 
+your entity.
 
 #[[
 ## Deploying
