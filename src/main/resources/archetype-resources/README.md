@@ -31,6 +31,8 @@ In order to run your application locally, you must run the Cloudstate proxy. The
 docker-compose up -d
 ```
 
+On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007), or for the `USER_FUNCTION_HOST` environment variable to be set manually.
+
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
 ```
