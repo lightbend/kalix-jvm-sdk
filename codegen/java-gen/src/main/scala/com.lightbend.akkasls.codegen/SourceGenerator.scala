@@ -177,7 +177,7 @@ object SourceGenerator extends PrettyPrinter {
               List.empty,
               emptyDoc
             ) {
-              "entity" <+> equal <+> "new MyServiceEntity(entityId)" <> semi <> line <>
+              "entity" <+> equal <+> "new" <+> className <> parens("entityId") <> semi <> line <>
               line <>
               "// entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
                 name(entity.javaOuterClassname) <> dot <> name(
