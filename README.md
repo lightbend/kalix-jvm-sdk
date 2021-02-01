@@ -42,6 +42,12 @@ This same setting can be used to be explicit about what services relate to entit
 `.*` permits all services to become candidate entities. In future, we expect that protobuf options will be introduced
 such that entities can be easily identified. At that time, the `.*` value will become appropriate.
 
+## Configuration
+
+- `akkaslsPath` path and name of the `akkasls` commmand line tool
+- `akkaslsContext` selects the context when calling `akkasls` if set
+- `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
+
 ## Building and testing
 
 Test sources are required to be generated, particularly when run from within an IDE and attempting to run tests. A simple
