@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Goal which deploys the current project to Akka Serverless.
@@ -32,6 +33,9 @@ public class DeployMojo extends AbstractMojo {
     @Parameter(defaultValue = "akkasls", property = "akkaslsPath", required = true)
     private String akkaslsPath;
 
+    @Parameter(property = "akkaslsContext")
+    private String akkaslsContext;
+
     @Parameter(defaultValue = "30000", property = "cliTimeoutMs", required = true)
     private Long cliTimeoutMs;
 
@@ -43,7 +47,14 @@ public class DeployMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         log.info("Deploying project to Akka Serverless");
         try {
-            Process process = new ProcessBuilder().directory(baseDir).command(Arrays.asList(akkaslsPath, "service", "deploy", service, dockerImage)).start();
+            final List<String> commandLine;
+            if (akkaslsContext != null) {
+                commandLine = Arrays.asList(akkaslsPath, "--context", akkaslsContext, "service", "deploy", service, dockerImage);
+            } else {
+                commandLine = Arrays.asList(akkaslsPath, "service", "deploy", service, dockerImage);
+            }
+            log.info("Executing `" + String.join(" ", commandLine) + "`");
+            Process process = new ProcessBuilder().directory(baseDir).command(commandLine).start();
             synchronized (process) {
                 process.wait(cliTimeoutMs);
             }
