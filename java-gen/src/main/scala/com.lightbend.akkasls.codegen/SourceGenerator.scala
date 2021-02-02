@@ -136,12 +136,15 @@ object SourceGenerator extends PrettyPrinter {
               qualifiedType(command.outputType, entity.javaOuterClassname),
               lowerFirst(name(command.fullname)),
               List(
-                qualifiedType(command.inputType, entity.javaOuterClassname) <+>
-                lowerFirst(name(command.inputType))
+                qualifiedType(command.inputType, entity.javaOuterClassname) <+> "command",
+                "CommandContext" <+> "ctx"
               ),
               emptyDoc
             ) {
-              """throw new UnsupportedOperationException("Requires implementation")""" <> semi
+              "ctx.fail(\"The command handler for `" <> name(
+                command.fullname
+              ) <> "` is not implemented, yet\")" <> semi <> line <>
+              """return Empty.getDefaultInstance()""" <> semi
             }
           },
           line <> line
