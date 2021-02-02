@@ -8,13 +8,15 @@
   <packaging>jar</packaging>
 
   <name>${artifactId}</name>
-  
+
+  #set( $D = '$' )
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <akkasls.dockerImage>my-docker-repo/${artifactId}</akkasls.dockerImage>
-    <akkasls.dockerTag>${version}</akkasls.dockerTag>
+    <akkasls.dockerImage>my-docker-repo/${D}{project.artifactId}</akkasls.dockerImage>
+    <akkasls.dockerTag>${D}{project.version}</akkasls.dockerTag>
   </properties>
 
   <build>
@@ -43,7 +45,7 @@
         <version>0.6.1</version>
         <configuration>
           <checkStaleness>true</checkStaleness>
-          <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
         </configuration>
         <executions>
           <execution>
@@ -86,13 +88,13 @@
         <configuration>
           <images>
             <image>
-              <name>${akkasls.dockerImage}:%l</name>
+              <name>${D}{akkasls.dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
                 <from>adoptopenjdk/openjdk8:alpine-jre</from>
                 <tags>
                   <!-- tag for generated image -->
-                  <tag>${akkasls.dockerTag}</tag>
+                  <tag>${D}{akkasls.dockerTag}</tag>
                 </tags>
                 <ports>
                   <!-- expose port in Docker container -->
@@ -105,7 +107,7 @@
                 <entryPoint>
                   <arg>java</arg>
                   <arg>-jar</arg>
-                  <arg>/maven/${project.build.finalName}.jar</arg>
+                  <arg>/maven/${D}{project.build.finalName}.jar</arg>
                 </entryPoint>
               </build>
             </image>
@@ -158,7 +160,7 @@
           </execution>
         </executions>
         <configuration>
-          <dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>
+          <dockerImage>${D}{akkasls.dockerImage}:${D}{akkasls.dockerTag}</dockerImage>
         </configuration>
       </plugin>
 
