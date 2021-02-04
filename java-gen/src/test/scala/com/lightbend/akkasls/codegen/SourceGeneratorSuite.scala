@@ -153,13 +153,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @CommandHandler
-      |    public Empty set(MyEntity.SetValue setValue) {
-      |        throw new UnsupportedOperationException("Requires implementation");
+      |    public Empty set(MyEntity.SetValue command, CommandContext ctx) {
+      |        ctx.fail("The command handler for `Set` is not implemented, yet");
+      |        return Empty.getDefaultInstance();
       |    }
       |    
       |    @CommandHandler
-      |    public MyEntity.MyState get(MyEntity.GetValue getValue) {
-      |        throw new UnsupportedOperationException("Requires implementation");
+      |    public MyEntity.MyState get(MyEntity.GetValue command, CommandContext ctx) {
+      |        ctx.fail("The command handler for `Get` is not implemented, yet");
+      |        return Empty.getDefaultInstance();
       |    }
       |}""".stripMargin
     )
