@@ -90,6 +90,8 @@ lazy val commonSettings =
       )
     ),
     // Publishing
-    githubOwner := "lightbend",
-    githubRepository := "akkaserverless-codegen"
+    bintrayOmitLicense := true,
+    bintrayOrganization := Some("lightbend"),
+    bintrayRepository := "akkaserverless",
+    publishMavenStyle := true
   )
