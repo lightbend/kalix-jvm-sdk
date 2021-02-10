@@ -13,9 +13,6 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <configuration>
-          <serviceNamesFilter>.*Service</serviceNamesFilter>
-        </configuration>
       </plugin>
     </plugins>
   </build>

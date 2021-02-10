@@ -30,13 +30,12 @@ public class GenerateMojoTest {
 
         FileUtils.deleteDirectory(projectDirectory.resolve("src/main/java").toFile());
         FileUtils.deleteDirectory(projectDirectory.resolve("src/test/java").toFile());
-        FileUtils.deleteDirectory(projectDirectory.resolve("target/classes").toFile());
 
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
-        assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/MyService.java").toFile().exists());
-        assertTrue(projectDirectory.resolve("src/test/java/com/lightbend/MyServiceTest.java").toFile().exists());
+        assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/MyServiceEntity.java").toFile().exists());
+        assertTrue(projectDirectory.resolve("src/test/java/com/lightbend/MyServiceEntityTest.java").toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
     }
 }
