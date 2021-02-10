@@ -20,7 +20,7 @@ lazy val `akkasls-codegen-core` =
     .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
-        library.cloudStateJavaSupport,
+        library.protobufJava,
         library.munit           % Test,
         library.munitScalaCheck % Test
       )
@@ -48,17 +48,16 @@ lazy val `akkasls-codegen-java` =
 lazy val library =
   new {
     object Version {
-      val cloudStateJavaSupport = "0.5.2"
-      val commonsIo             = "2.8.0"
-      val kiama                 = "2.4.0"
-      val munit                 = "0.7.20"
+      val commonsIo    = "2.8.0"
+      val kiama        = "2.4.0"
+      val munit        = "0.7.20"
+      val protobufJava = "3.11.4"
     }
-    val cloudStateJavaSupport =
-      "io.cloudstate" % "cloudstate-java-support" % Version.cloudStateJavaSupport
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
     val munit           = "org.scalameta"                 %% "munit"            % Version.munit
     val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
+    val protobufJava    = "com.google.protobuf"            % "protobuf-java"    % Version.protobufJava
   }
 
 // *****************************************************************************
