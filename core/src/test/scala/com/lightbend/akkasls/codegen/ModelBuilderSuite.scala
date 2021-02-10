@@ -5,86 +5,49 @@
 
 package com.lightbend.akkasls.codegen
 
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet
+import com.google.protobuf.Descriptors
+
+import java.io.FileInputStream
 import java.nio.file.Paths
-import java.nio.file.Files
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 class ModelBuilderSuite extends munit.FunSuite {
 
-  test("compilation") {
-    val testFilesPath        = Paths.get(getClass.getClassLoader.getResource("test-files").getFile)
-    val protoSourceDirectory = testFilesPath.resolve("generated-sources/protobuf/java")
-    val sourcePaths          = ModelBuilder.collectProtobufSources(protoSourceDirectory)
-    val outputDirectory      = Files.createTempDirectory("compileProtobufSources")
-    outputDirectory.toFile.deleteOnExit()
-    val status = ModelBuilder.compileProtobufSources(sourcePaths, outputDirectory)
-    assertEquals(0, status)
-    val classPaths =
-      ModelBuilder.mapProtobufClasses(protoSourceDirectory, sourcePaths, outputDirectory).toList
-    assertEquals(2, classPaths.size)
-    assert(classPaths.head.toFile.exists())
-    assert(classPaths(1).toFile.exists())
-  }
-
-  test("filtering") {
-    val source1 = Files.createTempFile("source1", ".java")
-    source1.toFile.deleteOnExit()
-    val source2 = Files.createTempFile("source2", ".java")
-    source2.toFile.deleteOnExit()
-    val source3 = Files.createTempFile("source3", ".java")
-    source3.toFile.deleteOnExit()
-
-    val class1 = Paths.get(source1.toString.replace(".java", ".class"))
-    val class2 = Paths.get(source2.toString.replace(".java", ".class"))
-    val class3 = Paths.get(source3.toString.replace(".java", ".class"))
-
-    assert(class1.toFile.createNewFile())
-    class1.toFile.deleteOnExit()
-
-    assert(class2.toFile.createNewFile())
-    class2.toFile.setLastModified(0)
-    class2.toFile.deleteOnExit()
-
-    val filteredSources =
-      ModelBuilder.filterNewProtobufSources(
-        List(source1, source2, source3),
-        List(class1, class2, class3)
+  test("introspection") {
+    val testFilesPath      = Paths.get(getClass.getClassLoader.getResource("test-files").getFile)
+    val descriptorFilePath = testFilesPath.resolve("descriptor-sets/hello-1.0-SNAPSHOT.protobin")
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val descriptors = FileDescriptorSet.parseFrom(fis).getFileList.asScala
+      val descriptor  = Descriptors.FileDescriptor.buildFrom(descriptors.head, Array.empty, true)
+      val entities = ModelBuilder.introspectProtobufClasses(
+        descriptor,
+        ".*Service"
       )
 
-    assertEquals(filteredSources, List(source2, source3))
-  }
-
-  test("introspection") {
-    val testFilesPath    = Paths.get(getClass.getClassLoader.getResource("test-files").getFile)
-    val classesDirectory = testFilesPath.resolve("classes")
-    val class1           = classesDirectory.resolve("com/lightbend/MyEntity.class")
-    val entities = ModelBuilder.introspectProtobufClasses(
-      classesDirectory,
-      List(class1),
-      ".*Service",
-      _ => fail("Shouldn't fail")
-    )
-
-    assertEquals(
-      entities,
-      List(
-        ModelBuilder.EventSourcedEntity(
-          Some("com/lightbend"),
-          "MyEntity",
-          "com.lightbend.MyService",
-          List(
-            ModelBuilder.Command(
-              "com.lightbend.MyService.Set",
-              "com.lightbend.SetValue",
-              "google.protobuf.Empty"
-            ),
-            ModelBuilder.Command(
-              "com.lightbend.MyService.Get",
-              "com.lightbend.GetValue",
-              "com.lightbend.MyState"
+      assertEquals(
+        entities,
+        List(
+          ModelBuilder.EventSourcedEntity(
+            Some("com/lightbend"),
+            Some("MyEntity"),
+            "com.lightbend.MyService",
+            List(
+              ModelBuilder.Command(
+                "com.lightbend.MyService.Set",
+                "com.lightbend.SetValue",
+                "google.protobuf.Empty"
+              ),
+              ModelBuilder.Command(
+                "com.lightbend.MyService.Get",
+                "com.lightbend.GetValue",
+                "com.lightbend.MyState"
+              )
             )
           )
         )
       )
-    )
+    }
   }
 }
