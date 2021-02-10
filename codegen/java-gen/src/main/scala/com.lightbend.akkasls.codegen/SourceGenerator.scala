@@ -182,7 +182,7 @@ object SourceGenerator extends PrettyPrinter {
               "entity" <+> equal <+> "new" <+> className <> parens("entityId") <> semi <> line <>
               line <>
               "// entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
-                name(entity.javaOuterClassname) <> dot <> name(
+                entity.javaOuterClassname.fold(emptyDoc)(ocn => name(ocn) <> dot) <> name(
                   command.fullname
                 ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
               ) <> semi <> line <>
@@ -215,7 +215,9 @@ object SourceGenerator extends PrettyPrinter {
       "import" <+> "io.cloudstate.javasupport.*" <> semi
     ) ++
       entityClasses.toSeq.collect { case (Some(packageName), className, javaOuterClassName) =>
-        "import" <+> packageName <> dot <> javaOuterClassName <> semi <> line <>
+        javaOuterClassName.fold(emptyDoc)(ocn =>
+          "import" <+> packageName <> dot <> ocn <> semi <> line
+        ) <>
           "import" <+> packageName <> dot <> className <> semi
       }
 
@@ -239,12 +241,15 @@ object SourceGenerator extends PrettyPrinter {
           "new" <+> "CloudState()" <+> "//" <> line <>
           indent(
             ssep(
-              entityClasses.map { case (_, className, javaOuterClassName) =>
-                ".registerEventSourcedEntity" <> parens(
-                  className <> ".class" <> comma <+> javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                    dquotes(className)
-                  )
-                ) <+> "//"
+              entityClasses.map {
+                case (_, className, Some(javaOuterClassName)) =>
+                  ".registerEventSourcedEntity" <> parens(
+                    className <> ".class" <> comma <+> javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
+                      dquotes(className)
+                    )
+                  ) <+> "//"
+                case (_, className, None) =>
+                  "// FIXME: No Java outer class name specified - cannot register" <+> className <+> "- ensure you are generating protobuf for Java"
               }.toSeq,
               line
             ) <> line <>
@@ -287,11 +292,11 @@ object SourceGenerator extends PrettyPrinter {
   private def name(`type`: String): String =
     `type`.reverse.takeWhile(_ != '.').reverse
 
-  private def qualifiedType(`type`: String, outerClassname: String): String =
+  private def qualifiedType(`type`: String, outerClassname: Option[String]): String =
     if (`type` == "google.protobuf.Empty")
       name(`type`)
     else
-      outerClassname + "." + name(`type`)
+      outerClassname.fold("")(_ + ".") + name(`type`)
 
   private def lowerFirst(text: String): String =
     text.headOption match {

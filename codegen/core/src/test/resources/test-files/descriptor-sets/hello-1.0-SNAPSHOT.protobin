@@ -1,0 +1,13 @@
+
+Ÿ
+myentity.protocom.lightbendgoogle/protobuf/empty.protocloudstate/entity_key.protogoogle/api/annotations.proto"J
+SetValueCommand!
+	entity_id (	BêµRentityId
+value (Rvalue"4
+GetValueCommand!
+	entity_id (	BêµRentityId"
+MyState
+value (Rvalue2ô
+MyServiceEntityB
+SetValue.com.lightbend.SetValueCommand.google.protobuf.EmptyB
+GetValue.com.lightbend.GetValueCommand.com.lightbend.MyStateBBMyEntityZcom/lightbendbproto3

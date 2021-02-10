@@ -32,7 +32,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         val entities = List(
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
-            "MyEntity1",
+            Some("MyEntity1"),
             "com.lightbend.MyService1",
             List(
               ModelBuilder.Command(
@@ -49,7 +49,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ),
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
-            "MyEntity2",
+            Some("MyEntity2"),
             "com.lightbend.MyService2",
             List(
               ModelBuilder.Command(
@@ -66,7 +66,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ),
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
-            "MyEntity3",
+            Some("MyEntity3"),
             "com.lightbend.something.MyService3",
             List(
               ModelBuilder.Command(
@@ -115,7 +115,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("source") {
     val entity = ModelBuilder.EventSourcedEntity(
       Some("com/lightbend"),
-      "MyEntity",
+      Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
       List(
         ModelBuilder.Command(
@@ -168,7 +168,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("test source") {
     val entity = ModelBuilder.EventSourcedEntity(
       Some("com/lightbend"),
-      "MyEntity",
+      Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
       List(
         ModelBuilder.Command(
@@ -226,7 +226,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val entities = List(
       ModelBuilder.EventSourcedEntity(
         Some("com/lightbend"),
-        "MyEntity1",
+        Some("MyEntity1"),
         "com.lightbend.MyService1",
         List(
           ModelBuilder.Command(
@@ -243,7 +243,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ),
       ModelBuilder.EventSourcedEntity(
         Some("com/lightbend"),
-        "MyEntity2",
+        Some("MyEntity2"),
         "com.lightbend.MyService2",
         List(
           ModelBuilder.Command(
@@ -260,7 +260,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ),
       ModelBuilder.EventSourcedEntity(
         Some("com/lightbend"),
-        "MyEntity3",
+        Some("MyEntity3"),
         "com.lightbend.something.MyService3",
         List(
           ModelBuilder.Command(
@@ -295,6 +295,48 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |            .registerEventSourcedEntity(MyService1.class, MyEntity1.getDescriptor().findServiceByName("MyService1")) //
         |            .registerEventSourcedEntity(MyService2.class, MyEntity2.getDescriptor().findServiceByName("MyService2")) //
         |            .registerEventSourcedEntity(MyService3.class, MyEntity3.getDescriptor().findServiceByName("MyService3")) //
+        |            .start().toCompletableFuture().get();
+        |    }
+        |    
+        |}""".stripMargin
+    )
+  }
+
+  test("main source with no outer class") {
+    val entities = List(
+      ModelBuilder.EventSourcedEntity(
+        Some("com/lightbend"),
+        None,
+        "com.lightbend.MyService1",
+        List(
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Set",
+            "com.lightbend.SetValue",
+            "com.google.protobuf.Empty"
+          ),
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Get",
+            "com.lightbend.GetValue",
+            "com.lightbend.MyState"
+          )
+        )
+      )
+    )
+    val mainPackageName = "com.lightbend"
+    val mainClassName   = "Main"
+
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.lightbend;
+        |
+        |import io.cloudstate.javasupport.*;
+        |
+        |public final class Main {
+        |    
+        |    public static void main(String[] args) throws Exception {
+        |        new CloudState() //
+        |            // FIXME: No Java outer class name specified - cannot register MyService1 - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }
         |    
