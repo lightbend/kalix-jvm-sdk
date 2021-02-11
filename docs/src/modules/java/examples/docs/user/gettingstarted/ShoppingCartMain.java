@@ -17,13 +17,13 @@
 package docs.user.gettingstarted;
 
 // tag::shopping-cart-main[]
+import com.akkaserverless.javasdk.AkkaServerless;
 import com.example.Shoppingcart;
-import io.cloudstate.javasupport.CloudState;
 
 public class ShoppingCartMain {
 
   public static void main(String... args) {
-    new CloudState()
+    new AkkaServerless()
         .registerEventSourcedEntity(
             ShoppingCartEntity.class,
             Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"))

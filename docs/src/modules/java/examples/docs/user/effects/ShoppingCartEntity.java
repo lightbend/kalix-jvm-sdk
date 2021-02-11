@@ -16,13 +16,13 @@
 
 package docs.user.effects;
 
+import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.eventsourced.CommandContext;
+import com.akkaserverless.javasdk.eventsourced.CommandHandler;
 import com.example.Hotitems;
 import com.example.Shoppingcart;
 import com.google.protobuf.Empty;
-import io.cloudstate.javasupport.Context;
-import io.cloudstate.javasupport.ServiceCallRef;
-import io.cloudstate.javasupport.eventsourced.CommandContext;
-import io.cloudstate.javasupport.eventsourced.CommandHandler;
 
 public class ShoppingCartEntity {
 

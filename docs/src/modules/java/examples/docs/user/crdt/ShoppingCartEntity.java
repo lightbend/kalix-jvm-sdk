@@ -16,10 +16,10 @@
 
 package docs.user.crdt;
 
+import com.akkaserverless.javasdk.AkkaServerless;
+import com.akkaserverless.javasdk.crdt.*;
 import com.example.Shoppingcart;
 import com.google.protobuf.Empty;
-import io.cloudstate.javasupport.CloudState;
-import io.cloudstate.javasupport.crdt.*;
 
 import java.util.Optional;
 
@@ -78,7 +78,7 @@ public class ShoppingCartEntity {
 
   // tag::register[]
   public static void main(String... args) {
-    new CloudState()
+    new AkkaServerless()
         .registerCrdtEntity(
             ShoppingCartEntity.class,
             Shoppingcart.getDescriptor().findServiceByName("ShoppingCartService"))

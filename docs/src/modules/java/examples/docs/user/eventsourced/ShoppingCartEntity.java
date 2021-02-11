@@ -16,12 +16,12 @@
 
 package docs.user.eventsourced;
 
+import com.akkaserverless.javasdk.AkkaServerless;
+import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.eventsourced.*;
 import com.example.Domain;
 import com.example.Shoppingcart;
 import com.google.protobuf.Empty;
-import io.cloudstate.javasupport.CloudState;
-import io.cloudstate.javasupport.EntityId;
-import io.cloudstate.javasupport.eventsourced.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -123,7 +123,7 @@ public class ShoppingCartEntity {
 
   // tag::register[]
   public static void main(String... args) {
-    new CloudState()
+    new AkkaServerless()
         .registerEventSourcedEntity(
             ShoppingCartEntity.class,
             Shoppingcart.getDescriptor().findServiceByName("ShoppingCartService"),

@@ -2,33 +2,33 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "cloudstate/entity_key.proto";
-import "cloudstate/eventing.proto";
+import "akkaserverless/entity_key.proto";
+import "akkaserverless/eventing.proto";
 import "google/api/annotations.proto";
 import "google/api/http.proto";
 import "google/api/httpbody.proto";
 
-package cloudstate.pingpong;
+package akkaserverless.pingpong;
 
-option java_package = "io.cloudstate.pingpong";
+option java_package = "com.akkaserverless.pingpong";
 
 message PongSent {
-    string id = 1 [(.cloudstate.entity_key) = true];
+    string id = 1 [(.akkaserverless.entity_key) = true];
     int32 sequence_number = 2;
 }
 
 message PingSent {
-    string id = 1 [(.cloudstate.entity_key) = true];
+    string id = 1 [(.akkaserverless.entity_key) = true];
     int32 sequence_number = 2;
 }
 
 message PingSeen {
-    string id = 1 [(.cloudstate.entity_key) = true];
+    string id = 1 [(.akkaserverless.entity_key) = true];
     int32 sequence_number = 2;
 }
 
 message PongSeen {
-    string id = 1 [(.cloudstate.entity_key) = true];
+    string id = 1 [(.akkaserverless.entity_key) = true];
     int32 sequence_number = 2;
 }
 
@@ -40,13 +40,13 @@ message PingPongStats {
 }
 
 message GetReport {
-  string id = 1 [(.cloudstate.entity_key) = true];
+  string id = 1 [(.akkaserverless.entity_key) = true];
 }
 
 service PingPongService {
 
   rpc Ping(PongSent) returns (PingSent) {
-    option (.cloudstate.eventing) = {
+    option (.akkaserverless.eventing) = {
       out {
         topic: "pings",
       },
@@ -54,7 +54,7 @@ service PingPongService {
   }
 
   rpc Pong(PingSent) returns (PongSent) {
-    option (.cloudstate.eventing) = {
+    option (.akkaserverless.eventing) = {
       out {
         topic: "pongs",
       },
@@ -62,7 +62,7 @@ service PingPongService {
   }
 
   rpc SeenPong(PongSent) returns (google.protobuf.Empty) {
-    option (.cloudstate.eventing) = {
+    option (.akkaserverless.eventing) = {
       in {
         topic: "pongs",
       },
@@ -70,7 +70,7 @@ service PingPongService {
   }
 
   rpc SeenPing(PingSent) returns (google.protobuf.Empty) {
-    option (.cloudstate.eventing) = {
+    option (.akkaserverless.eventing) = {
       in {
         topic: "pings",
       },

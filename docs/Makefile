@@ -1,8 +1,10 @@
-# Make Cloudstate Java documentation
+# Make Akka Serverless Java SDK documentation
+
+# FIXME: set up new documentation building
 
 module   := java
-upstream := cloudstateio/cloudstate
-branch   := java-support/docs/current
+upstream := lightbend/akkaserverless-java-sdk
+branch   := java-sdk/docs/current
 sources  := src build/src/managed
 
 cloudstate_antora_download := https://github.com/cloudstateio/cloudstate-antora/raw/master/cloudstate-antora
@@ -36,13 +38,13 @@ managed: attributes apidocs
 
 attributes: ${cloudstate_antora}
 	mkdir -p "${managed_partials}"
-	${cloudstate_antora} version --prefix "java-support-" | xargs -0  printf ":cloudstate-java-support-version: %s" \
+	${cloudstate_antora} version --prefix "java-support-" | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
 		> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd ${root_dir} && sbt java-support/doc
+	cd ${root_dir} && sbt java-sdk/doc
 	mkdir -p "${managed_attachments}"
-	rsync -a "${root_dir}/java-support/target/api/" "${managed_attachments}/api/"
+	rsync -a "${root_dir}/java-sdk/target/api/" "${managed_attachments}/api/"
 
 ${descriptor}: ${cloudstate_antora}
 	mkdir -p $$(dirname ${descriptor})

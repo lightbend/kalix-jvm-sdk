@@ -3,11 +3,11 @@
 include::partial$attributes.adoc[]
 include::partial$include.adoc[]
 
-To get started writing Cloudstate services in Java, you need to install prerequisites.
+To get started writing Akka Serverless services in Java, you need to install prerequisites.
 
 == Prerequisites
 
-The following are required to start writing Cloudstate services in Java:
+The following are required to start writing Akka Serverless services in Java:
 
 ifdef::todo[TODO: link to where the reader can find instructions for installing the components that we don't describe how to install]
 
@@ -15,25 +15,25 @@ ifdef::todo[TODO: link to where the reader can find instructions for installing 
 |===
 
 | *Java version*
-| Cloudstate Java support requires at least Java {minimum-java-version}, though we recommend using Java {recommended-java-version}, which has better support for running in containers. While it is possible to build a GraalVM native image for Cloudstate Java user functions, at this stage Cloudstate offers no specific assistance or configuration to aid in doing that.
+| Akka Serverless Java support requires at least Java {minimum-java-version}, though we recommend using Java {recommended-java-version}, which has better support for running in containers. While it is possible to build a GraalVM native image for Akka Serverless Java user functions, at this stage Akka Serverless offers no specific assistance or configuration to aid in doing that.
 
 | *Build tool*
-| Cloudstate does not require any particular build tool, you can select your own.
+| Akka Serverless does not require any particular build tool, you can select your own.
 
 | *`protoc`*
-| Since Cloudstate is based on gRPC, you need a protoc compiler to compile gRPC protobuf descriptors. While this can be done by downloading, installing and running protoc manually, most popular build tools have a protoc plugin which will automatically compile protobuf descriptors during your build.
+| Since Akka Serverless is based on gRPC, you need a protoc compiler to compile gRPC protobuf descriptors. While this can be done by downloading, installing and running protoc manually, most popular build tools have a protoc plugin which will automatically compile protobuf descriptors during your build.
 
 | *Docker*
-| Cloudstate runs in Kubernetes using Docker. Hence you will need Docker to build a container that you can deploy to Kubernetes. Most popular build tools have plugins that assist in building Docker images.
+| Akka Serverless runs in Kubernetes using Docker. Hence you will need Docker to build a container that you can deploy to Kubernetes. Most popular build tools have plugins that assist in building Docker images.
 
-| *Cloudstate Java support library*
-| See the instructions in <<Install the Cloudstate library>>.
+| *Akka Serverless Java support library*
+| See the instructions in <<Install the Akka Serverless library>>.
 
 |===
 
-== Install the Cloudstate library
+== Install the Akka Serverless library
 
-As mentioned, you can use the build tool of your choice. The following examples show how to install the Java Cloudstate library for Gradle, Maven, and sbt.
+As mentioned, you can use the build tool of your choice. The following examples show how to install the Java Akka Serverless library for Gradle, Maven, and sbt.
 
 [.tabset]
 Gradle::
@@ -41,7 +41,7 @@ In your `build.gradle` file, add the following:
 +
 [subs="attributes+"]
 ----
-compile group: 'io.cloudstate', name: 'cloudstate-java-support', version: '{cloudstate-java-support-version}'
+compile group: 'com.akkaserverless', name: 'akkaserverless-java-sdk', version: '{akkaserverless-java-sdk-version}'
 ----
 Maven::
 In your `.pom` file, add the following:
@@ -49,9 +49,9 @@ In your `.pom` file, add the following:
 [source,xml,subs="attributes+"]
 ----
 <dependency>
-  <groupId>io.cloudstate</groupId>
-  <artifactId>cloudstate-java-support</artifactId>
-  <version>{cloudstate-java-support-version}</version>
+  <groupId>com.akkaserverless</groupId>
+  <artifactId>akkaserverless-java-sdk</artifactId>
+  <version>{akkaserverless-java-sdk-version}</version>
 </dependency>
 ----
 sbt::
@@ -59,7 +59,7 @@ In your dependencies file, add the following:
 +
 [subs="attributes+"]
 ----
-libraryDependencies += "io.cloudstate" % "cloudstate-java-support" % "{cloudstate-java-support-version}"
+libraryDependencies += "com.akkaserverless" % "akkaserverless-java-sdk" % "{akkaserverless-java-sdk-version}"
 ----
 
 == Maven example
@@ -156,9 +156,9 @@ A minimal Maven example pom file, which uses the https://www.xolstice.org/protob
 
   <dependencies>
     <dependency>
-      <groupId>io.cloudstate</groupId>
-      <artifactId>cloudstate-java-support</artifactId>
-      <version>$cloudstate.java-support.version$</version>
+      <groupId>com.akkaserverless</groupId>
+      <artifactId>akkaserverless-java-sdk</artifactId>
+      <version>{akkaserverless-java-sdk-version}</version>
     </dependency>
   </dependencies>
 
@@ -172,7 +172,7 @@ Subsequent source locations and build commands will assume the above Maven proje
 
 == Protobuf files
 
-The Xolstice Maven plugin assumes a location of `src/main/proto` for your protobuf files. In addition, it includes any protobuf files from your Java dependencies in the protoc include path, so there's nothing you need to do to pull in either the Cloudstate protobuf types, or any of the Google standard protobuf types, they are all automatically available for import.
+The Xolstice Maven plugin assumes a location of `src/main/proto` for your protobuf files. In addition, it includes any protobuf files from your Java dependencies in the protoc include path, so there's nothing you need to do to pull in either the Akka Serverless protobuf types, or any of the Google standard protobuf types, they are all automatically available for import.
 
 So, if you were to build the example shopping cart application shown earlier in xref:concepts:grpc.adoc[gRPC descriptors], you could simply paste that protobuf into `src/main/proto/shoppingcart.proto`. You may wish to also define the Java package, to ensure the package name used conforms to Java package naming conventions:
 
@@ -185,7 +185,7 @@ Now if you run `mvn compile`, you'll find your generated protobuf files in `targ
 
 == Creating a main class
 
-Your main class will be responsible for creating the Cloudstate gRPC server, registering the entities for it to serve, and starting it. To do this, you can use the link:{attachmentsdir}/api/io/cloudstate/javasupport/CloudState.html[`CloudState`] server builder, for example:
+Your main class will be responsible for creating the Akka Serverless gRPC server, registering the entities for it to serve, and starting it. To do this, you can use the link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless`] server builder, for example:
 
 [source,java]
 ----
@@ -196,26 +196,26 @@ We will see more details on registering entities in the coming pages.
 
 == Parameter injection
 
-Cloudstate entities work by annotating classes and methods to be instantiated and invoked by the Cloudstate server. The methods and constructors invoked by the server can be injected with parameters of various types from the context of the invocation. For example, an `@CommandHandler` annotated method may take an argument for the message type for that gRPC service call, in addition it may take a `CommandContext` parameter.
+Akka Serverless entities work by annotating classes and methods to be instantiated and invoked by the Akka Serverless server. The methods and constructors invoked by the server can be injected with parameters of various types from the context of the invocation. For example, an `@CommandHandler` annotated method may take an argument for the message type for that gRPC service call, in addition it may take a `CommandContext` parameter.
 
 Exactly which context parameters are available depend on the type of entity and the type of handler, in subsequent pages we'll detail which parameters are available in which circumstances. The order of the parameters in the method signature can be anything, parameters are matched by type and sometimes by annotation. The following context parameters are available in every context:
 
 |====
 | Type | Annotation | Description
 
-| link:{attachmentsdir}/api/io/cloudstate/javasupport/Context.html[`Context`]
+| link:{attachmentsdir}/api/com/akkaserverless/javasdk/Context.html[`Context`]
 |
-| The super type of all Cloudstate contexts. Every invoker makes a subtype of this available for injection, and method or constructor may accept that sub type, or any super type of that subtype that is a subtype of `Context`.
+| The super type of all Akka Serverless contexts. Every invoker makes a subtype of this available for injection, and method or constructor may accept that sub type, or any super type of that subtype that is a subtype of `Context`.
 
 | `java.lang.String`
-| link:{attachmentsdir}/api/io/cloudstate/javasupport/EntityId.html[`@EntityId`]
+| link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`@EntityId`]
 | The ID of the entity.
 
-| link:{attachmentsdir}/api/io/cloudstate/javasupport/Metadata.html[`Metadata`]
+| link:{attachmentsdir}/api/com/akkaserverless/javasdk/Metadata.html[`Metadata`]
 |
 | The metadata associated with the command.
 
-| link:{attachmentsdir}/api/io/cloudstate/javasupport/CloudEvent.html[`CloudEvent`]
+| link:{attachmentsdir}/api/com/akkaserverless/javasdk/CloudEvent.html[`CloudEvent`]
 |
 | The CloudEvent metadata associated with the command. May be wrapped in `java.util.Optional`.
 
