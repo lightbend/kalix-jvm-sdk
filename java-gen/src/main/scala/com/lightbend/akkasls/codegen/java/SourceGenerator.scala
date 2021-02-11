@@ -4,12 +4,13 @@
  */
 
 package com.lightbend.akkasls.codegen
+package java
 
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
-import java.nio.file.{ Files, Path, Paths }
+import _root_.java.nio.file.{ Files, Path, Paths }
 
 /**
   * Responsible for generating Java source from an entity model
