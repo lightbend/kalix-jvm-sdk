@@ -11,7 +11,12 @@ lazy val `akkasls-codegen` =
         skip in publish := true
       )
     )
-    .aggregate(`akkasls-codegen-core`, `akkasls-codegen-java`)
+    .aggregate(
+      `akkasls-codegen-core`,
+      `akkasls-codegen-java`,
+      `akkasls-codegen-js`,
+      `akkasls-codegen-js-cli`
+    )
 
 lazy val `akkasls-codegen-core` =
   project
@@ -41,6 +46,39 @@ lazy val `akkasls-codegen-java` =
     )
     .dependsOn(`akkasls-codegen-core`)
 
+lazy val `akkasls-codegen-js` =
+  project
+    .in(file("js-gen"))
+    .enablePlugins(AutomateHeaderPlugin)
+    .settings(commonSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        library.kiama,
+        library.munit           % Test,
+        library.munitScalaCheck % Test
+      )
+    )
+    .dependsOn(`akkasls-codegen-core`)
+
+lazy val `akkasls-codegen-js-cli` =
+  project
+    .in(file("js-gen-cli"))
+    .enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin, NativeImagePlugin)
+    .settings(commonSettings)
+    .settings(
+      buildInfoKeys := Seq[BuildInfoKey](version),
+      buildInfoPackage := "com.lightbend.akkasls.codegen.js",
+      name in NativeImage := "akkasls-codegen-js",
+      nativeImageOptions += "--no-fallback",
+      libraryDependencies ++= Seq(
+        library.scopt,
+        library.munit           % Test,
+        library.munitScalaCheck % Test
+      ),
+      skip in publish := true
+    )
+    .dependsOn(`akkasls-codegen-js`)
+
 // *****************************************************************************
 // Library dependencies
 // *****************************************************************************
@@ -52,12 +90,14 @@ lazy val library =
       val kiama        = "2.4.0"
       val munit        = "0.7.20"
       val protobufJava = "3.11.4"
+      val scopt        = "4.0.0"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
     val munit           = "org.scalameta"                 %% "munit"            % Version.munit
     val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
     val protobufJava    = "com.google.protobuf"            % "protobuf-java"    % Version.protobufJava
+    val scopt           = "com.github.scopt"              %% "scopt"            % Version.scopt
   }
 
 // *****************************************************************************

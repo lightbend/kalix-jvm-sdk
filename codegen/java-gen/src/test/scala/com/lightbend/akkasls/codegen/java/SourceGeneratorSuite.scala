@@ -4,10 +4,11 @@
  */
 
 package com.lightbend.akkasls.codegen
+package java
 
 import org.apache.commons.io.FileUtils
 
-import java.nio.file.Files
+import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
 
