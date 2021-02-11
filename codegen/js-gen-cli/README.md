@@ -1,18 +1,18 @@
 # akkasls-codegen-js-cli
 
-This is a CLI suitable for invoking JavaScript code generation from by JavaScript tooling.
+This is a CLI suitable for invoking JavaScript code generation from JavaScript tooling.
 
 ## Building
 
-We use GraalVM's native-image command to build a native image via native-image plugin. To build:
+We use GraalVM's native-image command to build a native image via the `sbt-native-image` plugin. To build:
 
 ```
 sbt 'akkasls-codegen-js-cli/nativeImage'
 ```
 
 The above command will automatically download the native-image tool by detecting the operating system
-and JDK. Once done, the command will yield the location of the image built, which will be in the sub
-project's target directory.
+and JDK. Once done, the command will yield the location of the image built, which will be in the 
+sub-project's target directory.
 
 ## Accommodating other code generation libraries
 

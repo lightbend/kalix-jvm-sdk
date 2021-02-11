@@ -10,7 +10,7 @@ import com.lightbend.akkasls.codegen.{ ModelBuilder, js }
 import scopt.OParser
 
 import java.io.{ File, FileInputStream, IOException }
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
@@ -18,13 +18,13 @@ object Cli {
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private case class Config(
-      baseDir: Path = Path.of(sys.props("user.dir")),
+      baseDir: Path = Paths.get(sys.props("user.dir")),
       mainFile: String = "index.js",
-      descriptorSetOutputDirectory: Path = Path.of(sys.props("user.dir")),
+      descriptorSetOutputDirectory: Path = Paths.get(sys.props("user.dir")),
       descriptorSetFileName: String = "user-function.desc",
       serviceNamesFilter: String = ".*ServiceEntity",
-      sourceDirectory: Path = Path.of("."),
-      testSourceDirectory: Path = Path.of(".")
+      sourceDirectory: Path = Paths.get("."),
+      testSourceDirectory: Path = Paths.get(".")
   )
 
   private val builder = OParser.builder[Config]
