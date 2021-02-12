@@ -69,7 +69,13 @@ lazy val `akkasls-codegen-js-cli` =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
       name in NativeImage := "akkasls-codegen-js",
-      nativeImageOptions += "--no-fallback",
+      nativeImageOptions ++= Seq(
+        "--no-fallback",
+        "-H:JNIConfigurationFiles=" + (resourceDirectory in Compile).value / "jni-config.json",
+        "-H:DynamicProxyConfigurationFiles=" + (resourceDirectory in Compile).value / "proxy-config.json",
+        "-H:ReflectionConfigurationFiles=" + (resourceDirectory in Compile).value / "reflect-config.json",
+        "-H:ResourceConfigurationFiles=" + (resourceDirectory in Compile).value / "resource-config.json"
+      ),
       libraryDependencies ++= Seq(
         library.scopt,
         library.munit           % Test,

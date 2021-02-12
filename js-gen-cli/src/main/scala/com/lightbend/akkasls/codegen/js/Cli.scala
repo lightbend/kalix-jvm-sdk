@@ -3,16 +3,13 @@
  *
  */
 
-package com.lightbend.akkasls.codegen.js
+package com.lightbend.akkasls.codegen
+package js
 
-import com.google.protobuf.{ DescriptorProtos, Descriptors }
-import com.lightbend.akkasls.codegen.{ ModelBuilder, js }
 import scopt.OParser
 
-import java.io.{ File, FileInputStream, IOException }
+import java.io.File
 import java.nio.file.{ Path, Paths }
-import scala.jdk.CollectionConverters._
-import scala.util.Using
 
 object Cli {
 
@@ -79,45 +76,41 @@ object Cli {
           config.descriptorSetOutputDirectory.resolve(config.descriptorSetFileName).toFile
         if (protobufDescriptor.exists) {
           println("Inspecting proto file descriptor for entity generation...")
-          val _ = Using(new FileInputStream(protobufDescriptor)) { fis =>
-            try {
-              val descriptorProtos =
-                DescriptorProtos.FileDescriptorSet.parseFrom(fis).getFileList.asScala
+          val _ = DescriptorSet.fileDescriptors(protobufDescriptor) match {
+            case Right(fileDescriptors) =>
+              fileDescriptors.foreach {
+                case Right(fileDescriptor) =>
+                  val entities =
+                    ModelBuilder.introspectProtobufClasses(
+                      fileDescriptor,
+                      config.serviceNamesFilter
+                    )
 
-              for (descriptorProto <- descriptorProtos) {
-
-                val fileDescriptor =
-                  try Descriptors.FileDescriptor.buildFrom(descriptorProto, Array.empty, true)
-                  catch {
-                    case e: Descriptors.DescriptorValidationException =>
-                      System.err.println(
-                        "There was a problem building the file descriptor from its protobuf"
-                      )
-                      System.err.println(e.toString)
-                      sys.exit(1)
-                  }
-
-                val entities =
-                  ModelBuilder.introspectProtobufClasses(fileDescriptor, config.serviceNamesFilter)
-
-                js.SourceGenerator
-                  .generate(
-                    entities,
-                    config.sourceDirectory,
-                    config.testSourceDirectory,
-                    config.mainFile
+                  js.SourceGenerator
+                    .generate(
+                      entities,
+                      config.sourceDirectory,
+                      config.testSourceDirectory,
+                      config.mainFile
+                    )
+                    .foreach { p =>
+                      println("Generated: " + config.baseDir.relativize(p).toString)
+                    }
+                case Left(e) =>
+                  System.err.println(
+                    "There was a problem building the file descriptor from its protobuf:"
                   )
-                  .foreach { p =>
-                    println("Generated: " + config.baseDir.relativize(p).toString)
-                  }
+                  System.err.println(e.toString)
+                  sys.exit(1)
               }
-            } catch {
-              case e: IOException =>
-                System.err.println("Problem reading the protobuf descriptor file")
-                System.err.println(e.toString)
-                sys.exit(1)
-            }
+            case Left(DescriptorSet.CannotOpen(e)) =>
+              System.err.println(
+                "There was a problem opening the protobuf descriptor file:"
+              )
+              System.err.println(e.toString)
+              sys.exit(1)
           }
+
         } else {
           println("Skipping generation because there is no protobuf descriptor found.")
         }
