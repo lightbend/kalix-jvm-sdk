@@ -1,8 +1,8 @@
 package com.lightbend;
 
-import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import com.lightbend.akkasls.codegen.SourceGenerator;
+import com.lightbend.akkasls.codegen.DescriptorSet;
+import com.lightbend.akkasls.codegen.java.SourceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -12,15 +12,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.lightbend.akkasls.codegen.ModelBuilder;
 import scala.collection.Iterable;
+import scala.util.Either;
 
 /**
  * Goal which reads in protobuf files and produces entities given their
@@ -63,40 +59,36 @@ public class GenerateMojo extends AbstractMojo {
 
     private final Log log = getLog();
 
-    private static final Logger descriptorslogger = Logger.getLogger(Descriptors.class.getName());
-    static {
-        descriptorslogger.setLevel(Level.OFF); // Silence protobuf
-    }
-
     /**
      * Given a protobuf descriptor, we inspect it and search for entities, commands, events and
      * state declarations, storing them in an appropriate structure. That structure
      * then drives the code generation phase.
      */
     public void execute() throws MojoExecutionException {
-        Path protobufDescriptor = descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName);
-        if (protobufDescriptor.toFile().exists()) {
+        File protobufDescriptor = descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName).toFile();
+        if (protobufDescriptor.exists()) {
             log.info("Inspecting proto file descriptor for entity generation...");
-            try (FileInputStream fis = new FileInputStream(protobufDescriptor.toFile())) {
-                List<DescriptorProtos.FileDescriptorProto> descriptorProtos = DescriptorProtos.FileDescriptorSet.parseFrom(fis).getFileList();
-                Descriptors.FileDescriptor[] dependencies = new Descriptors.FileDescriptor[0];
-                for (DescriptorProtos.FileDescriptorProto descriptorProto : descriptorProtos) {
-                    Descriptors.FileDescriptor fileDescriptor = null;
-                    try {
-                        fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, dependencies, true);
-                    } catch (Descriptors.DescriptorValidationException e) {
-                        throw new MojoExecutionException("There was a problem building the file descriptor from its protobuf", e);
-                    }
-                    Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptor, serviceNamesFilter);
-                    Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath(), mainClass);
-                    generated.foreach(p -> {
-                        log.info("Generated: " + baseDir.toPath().relativize(p));
-                        return null;
-                    });
+            Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors =
+                    DescriptorSet.fileDescriptors(protobufDescriptor);
+            if (descriptors.isRight()) {
+                descriptors.right().get().iterator().foreach(descriptor -> {
+                    if (descriptor.isRight()) {
+                        Descriptors.FileDescriptor fileDescriptor = descriptor.right().get();
+                        Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptor, serviceNamesFilter);
+                        Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath(), mainClass);
+                        generated.foreach(p -> {
+                            log.info("Generated: " + baseDir.toPath().relativize(p));
+                            return null;
+                        });
 
-                }
-            } catch (IOException e) {
-                throw new MojoExecutionException("Problem reading the protobuf descriptor file", e);
+                    } else {
+                        throw new RuntimeException(new MojoExecutionException("There was a problem building the file descriptor from its protobuf: " + descriptor.left().get().toString()));
+                    }
+                    return null;
+                });
+
+            } else {
+                throw new MojoExecutionException("There was a problem opening the protobuf descriptor file", descriptors.left().get().e());
             }
         } else {
             log.info("Skipping generation because there is no protobuf descriptor found.");
