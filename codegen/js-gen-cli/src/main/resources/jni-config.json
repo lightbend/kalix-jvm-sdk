@@ -1,0 +1,26 @@
+[
+{
+  "name":"com.lightbend.akkasls.codegen.js.Cli",
+  "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
+},
+{
+  "name":"java.lang.Class",
+  "methods":[{"name":"getCanonicalName","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.ClassLoader",
+  "methods":[
+    {"name":"getPlatformClassLoader","parameterTypes":[] }, 
+    {"name":"loadClass","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"java.lang.ClassNotFoundException"
+},
+{
+  "name":"java.lang.NoSuchMethodError"
+},
+{
+  "name":"java.lang.String"
+}
+]
