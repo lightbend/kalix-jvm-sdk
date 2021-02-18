@@ -9,6 +9,7 @@ jobs:
   deploy:
 
     runs-on: ubuntu-latest
+    needs: [deploy-macos, deploy-linux, deploy-windows]
 
     steps:
       - uses: actions/checkout@v2
@@ -21,3 +22,69 @@ jobs:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         run: sbt test publish
+
+  deploy-macos:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: GIT env setup
+        id: git-env
+        run: |
+          PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Test and build
+        run: sbt test akkasls-codegen-js-cli/nativeImage
+      - name: Publish
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        #run: curl -u$BINTRAY_USER:$BINTRAY_PASS https://dl.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-apple-darwin?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+
+  deploy-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: GIT env setup
+        id: git-env
+        run: |
+          PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Test and build
+        run: sbt test akkasls-codegen-js-cli/nativeImage
+      - name: Publish
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        #run: curl -u$BINTRAY_USER:$BINTRAY_PASS https://dl.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-unknown-linux-gnu?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+
+  deploy-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: GIT env setup
+        id: git-env
+        run: |
+          PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Test and build
+        run: sbt test akkasls-codegen-js-cli/nativeImage
+      - name: Publish
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        #run: curl -u%BINTRAY_USER%:%BINTRAY_PASS% https://dl.bintray.com/content/lightbend/generic/akkaserverless-codegen/%PUBLISH_VERSION%/akkasls-codegen-js-x86_64-pc-windows-gnu?publish=1 --upload-file js-gen-cli\target\native-image\akkasls-codegen-js
