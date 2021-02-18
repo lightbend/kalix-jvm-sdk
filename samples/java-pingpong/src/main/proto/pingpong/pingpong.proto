@@ -1,3 +1,5 @@
+// Copyright 2019 Lightbend Inc.
+
 // This is the public API offered by the shopping cart entity.
 syntax = "proto3";
 

@@ -1,3 +1,5 @@
+// Copyright 2019 Lightbend Inc.
+
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
