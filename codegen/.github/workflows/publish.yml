@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8 for Scala
-      - uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v10
       - name: Test and publish
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
@@ -32,7 +32,7 @@ jobs:
           PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
           echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
       - name: Set up Scala with GraalVM
-      - uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v10
         with:
           java-version: graalvm@
       - name: Test and build
@@ -54,7 +54,7 @@ jobs:
           PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
           echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
       - name: Set up Scala with GraalVM
-      - uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v10
         with:
           java-version: graalvm@
       - name: Test and build
@@ -76,7 +76,7 @@ jobs:
           PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
           echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> $GITHUB_ENV
       - name: Set up Scala with GraalVM
-      - uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v10
         with:
           java-version: graalvm@
       - name: Test and build
