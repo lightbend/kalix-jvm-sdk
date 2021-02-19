@@ -69,6 +69,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Configure git
+        run: "git config --global core.autocrlf false"
+        shell: bash
       - uses: actions/checkout@v2
       - name: GIT env setup
         id: git-env
@@ -85,4 +88,4 @@ jobs:
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: curl -u%BINTRAY_USER%:%BINTRAY_PASS% https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/%PUBLISH_VERSION%/akkasls-codegen-js-x86_64-pc-windows-gnu?publish=1 --upload-file js-gen-cli\target\native-image\akkasls-codegen-js
+        run: curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
