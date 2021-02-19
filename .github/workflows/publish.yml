@@ -77,6 +77,7 @@ jobs:
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        shell: bash
         run: |
           export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
           curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
