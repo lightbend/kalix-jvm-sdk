@@ -36,7 +36,9 @@ jobs:
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$(git describe --abbrev=0 --tags|cut -c2-)/akkasls-codegen-js-x86_64-apple-darwin?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+        run: |
+          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-apple-darwin-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
 
   deploy-linux:
     runs-on: ubuntu-latest
@@ -53,7 +55,9 @@ jobs:
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$(git describe --abbrev=0 --tags|cut -c2-)/akkasls-codegen-js-x86_64-unknown-linux-gnu?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+        run: |
+          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-unknown-linux-gnu-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
 
   deploy-windows:
     runs-on: windows-latest
@@ -68,6 +72,7 @@ jobs:
         with:
           java-version: graalvm@
       - name: Test and build
+        shell: bash
         run: sbt test akkasls-codegen-js-cli/nativeImage
       - name: Publish
         env:
@@ -75,7 +80,5 @@ jobs:
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         shell: bash
         run: |
-          git describe --abbrev=0 --tags|cut -c2-
-          pwd
-          ls -R
-          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$(git describe --abbrev=0 --tags|cut -c2-)/akkasls-codegen-js-x86_64-pc-windows-gnu.exe?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js.exe
+          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
+          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu-$PUBLISH_VERSION.exe?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js.exe
