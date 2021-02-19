@@ -73,7 +73,7 @@ jobs:
           java-version: graalvm@
       - name: Test and build
         shell: bash
-        run: sbt test akkasls-codegen-js-cli/nativeImage"
+        run: sbt test akkasls-codegen-js-cli/nativeImage
       - name: Publish
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
