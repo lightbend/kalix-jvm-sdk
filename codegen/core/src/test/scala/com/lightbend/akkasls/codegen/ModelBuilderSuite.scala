@@ -16,7 +16,7 @@ import scala.util.Using
 class ModelBuilderSuite extends munit.FunSuite {
 
   test("introspection") {
-    val testFilesPath      = Paths.get(getClass.getClassLoader.getResource("test-files").getFile)
+    val testFilesPath      = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath = testFilesPath.resolve("descriptor-sets/hello-1.0-SNAPSHOT.protobin")
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
       val descriptors = FileDescriptorSet.parseFrom(fis).getFileList.asScala
