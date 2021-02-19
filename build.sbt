@@ -74,8 +74,7 @@ lazy val `akkasls-codegen-js-cli` =
         "-H:JNIConfigurationFiles=" + (resourceDirectory in Compile).value / "jni-config.json",
         "-H:DynamicProxyConfigurationFiles=" + (resourceDirectory in Compile).value / "proxy-config.json",
         "-H:ReflectionConfigurationFiles=" + (resourceDirectory in Compile).value / "reflect-config.json",
-        "-H:ResourceConfigurationFiles=" + (resourceDirectory in Compile).value / "resource-config.json",
-        "-H:-CheckToolchain"
+        "-H:ResourceConfigurationFiles=" + (resourceDirectory in Compile).value / "resource-config.json"
       ),
       libraryDependencies ++= Seq(
         library.scopt,
