@@ -27,6 +27,14 @@ akkasls-codegen-js-cli/nativeImageRunAgent " --descriptor-set-output-dir=/Users/
 This will run the CLI via the GraalVM JVM and record various configuration. The output of this configuration can be found
 in the target folder and then copied directly into the src/main/resources folder of the CLI project.
 
+## Running on macOS from a deployed artifact
+
+On macOS, binaries generally downloaded from the internet are untrusted. To trust and run the codegen CLI:
+
+```
+xattr -d com.apple.quarantine <PATH-TO-IMAGE>/akkasls-codegen-js-x86_64-apple-darwin
+```
+
 ## Accommodating other code generation libraries
 
 The recommended approach is to produce a CLI for each code generation required. For example,
