@@ -130,10 +130,8 @@ final class AkkaServerlessRunner private[this] (
   def run(): CompletionStage[Done] = {
     val serverBindingFuture = Http
       .get(system)
-      .bindAndHandleAsync(createRoutes(),
-                          configuration.userFunctionInterface,
-                          configuration.userFunctionPort,
-                          HttpConnectionContext(UseHttp2.Always))
+      .newServerAt(configuration.userFunctionInterface, configuration.userFunctionPort)
+      .bind(createRoutes())
     // FIXME Register an onTerminate callback to unbind the Http server
     FutureConverters
       .toJava(serverBindingFuture)
