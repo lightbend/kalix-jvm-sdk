@@ -3,11 +3,10 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
     needs: [deploy-macos, deploy-linux, deploy-windows]
 
@@ -38,7 +37,7 @@ jobs:
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         run: |
           export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-apple-darwin-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-apple-darwin-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
 
   deploy-linux:
     runs-on: ubuntu-latest
@@ -57,7 +56,7 @@ jobs:
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         run: |
           export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-unknown-linux-gnu-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-unknown-linux-gnu-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
 
   deploy-windows:
     runs-on: windows-latest
@@ -67,6 +66,8 @@ jobs:
         run: "git config --global core.autocrlf false"
         shell: bash
       - uses: actions/checkout@v2
+      - name: Provide MSVC dev command prompt
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Set up Scala with GraalVM
         uses: olafurpg/setup-scala@v10
         with:
@@ -81,4 +82,4 @@ jobs:
         shell: bash
         run: |
           export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu-$PUBLISH_VERSION.exe?publish=1 --upload-file "js-gen-cli/target/native-image/akkasls-codegen-js"
+          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu-$PUBLISH_VERSION.exe?publish=1 --upload-file "js-gen-cli/target/native-image/akkasls-codegen-js.exe"
