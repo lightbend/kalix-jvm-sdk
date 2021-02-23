@@ -67,7 +67,10 @@ object SourceGenerator extends PrettyPrinter {
         val _ = sourcePath.getParent.toFile.mkdirs()
         val _ = Files.write(
           sourcePath,
-          source(sourceDirectory.toAbsolutePath.relativize(protobufDescriptor), entity).layout
+          source(
+            sourceDirectory.toAbsolutePath.relativize(protobufDescriptor.toAbsolutePath),
+            entity
+          ).layout
             .getBytes(Charsets.UTF_8)
         )
 
