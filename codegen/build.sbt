@@ -54,6 +54,7 @@ lazy val `akkasls-codegen-js` =
     .settings(
       libraryDependencies ++= Seq(
         library.kiama,
+        library.commonsIo       % Test,
         library.munit           % Test,
         library.munitScalaCheck % Test
       )
