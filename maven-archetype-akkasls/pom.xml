@@ -5,24 +5,15 @@
     <artifactId>maven-archetype-akkasls</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
+    <parent>
+        <groupId>com.lightbend</groupId>
+        <artifactId>akkaserverless-maven-java</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <name>Akka Serverless Maven Archetype</name>
     <description>This archetype can be used to generate a project suitable for the general development of event-sourced Akka Serverless applications</description>
     <url>https://www.lightbend.com/akka-serverless</url>
-    <licenses></licenses> <!-- FIXME: Need to provide a license -->
-    <scm>
-        <url>https://github.com/lightbend/akkaserverless-codegen-service</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>lightbend-engineering</id>
-            <name>Lightbend Engineering</name>
-            <email>info@lightbend.com</email>
-            <organization>Lightbend Inc.</organization>
-            <organizationUrl>https://www.lightbend.com</organizationUrl>
-        </developer>
-    </developers>
 
     <build>
         <extensions>

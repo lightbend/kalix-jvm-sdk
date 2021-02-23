@@ -8,32 +8,13 @@
   <artifactId>akkasls-maven-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
+  <parent>
+    <groupId>com.lightbend</groupId>
+    <artifactId>akkaserverless-maven-java</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
 
   <name>akkasls-maven-plugin Maven Plugin</name>
-
-  <url>https://www.lightbend.com/akka-serverless</url>
-
-  <prerequisites>
-    <maven>${maven.version}</maven>
-  </prerequisites>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.version>3.3.9</maven.version>
-  </properties>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>bintray-lightbend-akkaserverless</id>
-      <name>bintray</name>
-      <url>https://lightbend.bintray.com/akkaserverless</url>
-    </repository>
-  </repositories>
 
   <distributionManagement>
     <repository>
