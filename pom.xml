@@ -43,6 +43,13 @@
     </repository>
   </repositories>
 
+  <distributionManagement>
+    <repository>
+      <id>bintray-lightbend-akkaserverless</id>
+      <url>https://api.bintray.com/maven/lightbend/akkaserverless/akkaserverless-maven-java/;publish=1</url>
+    </repository>
+  </distributionManagement>
+
   <modules>
     <module>akkasls-maven-plugin</module>
     <module>maven-archetype-akkasls</module>
