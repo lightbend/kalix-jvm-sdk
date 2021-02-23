@@ -83,7 +83,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         )
 
         val sources = SourceGenerator.generate(
-          Paths.get("/some.protobin"),
+          Paths.get("./some.protobin"),
           entities,
           sourceDirectory,
           testSourceDirectory,
