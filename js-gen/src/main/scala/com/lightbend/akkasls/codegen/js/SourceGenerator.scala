@@ -11,6 +11,8 @@ import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
 import java.nio.file.{ Files, Path }
+import java.util.stream.Collectors
+import scala.jdk.CollectionConverters._
 
 /**
   * Responsible for generating JavaScript source from an entity model
@@ -18,6 +20,8 @@ import java.nio.file.{ Files, Path }
 object SourceGenerator extends PrettyPrinter {
 
   override val defaultIndent = 2
+
+  private val ProtoExt = ".proto"
 
   /**
     * Generate JavaScript source from entities where the target source and test source directories have no existing source.
@@ -43,7 +47,13 @@ object SourceGenerator extends PrettyPrinter {
       sourceDirectory: Path,
       testSourceDirectory: Path,
       indexFilename: String
-  ): Iterable[Path] =
+  ): Iterable[Path] = {
+    val allProtoSources = Files
+      .walk(protobufSourceDirectory)
+      .filter(p => Files.isRegularFile(p) && p.toString.endsWith(ProtoExt))
+      .collect(Collectors.toList())
+      .asScala
+      .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
     entities.flatMap { case entity: ModelBuilder.EventSourcedEntity =>
       val entityFilename = name(entity.fullName).toLowerCase + ".js"
       val sourcePath     = sourceDirectory.resolve(entityFilename)
@@ -70,6 +80,7 @@ object SourceGenerator extends PrettyPrinter {
         val _ = Files.write(
           sourcePath,
           source(
+            allProtoSources,
             protobufSourceDirectory,
             sourceDirectory,
             entity
@@ -102,8 +113,10 @@ object SourceGenerator extends PrettyPrinter {
         List.empty
       }
     }
+  }
 
   private[codegen] def source(
+      protoSources: Iterable[Path],
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
       entity: ModelBuilder.EventSourcedEntity
@@ -114,14 +127,22 @@ object SourceGenerator extends PrettyPrinter {
       "const entity = new EventSourced" <> parens(
         nest(
           line <>
-          brackets(dquotes(name(entity.fullName).toLowerCase() + ".proto")) <> comma <> line <>
+          brackets(
+            nest(
+              line <>
+              ssep(
+                protoSources.map(p => dquotes(p.toString)).toList,
+                comma <> line
+              )
+            ) <> line
+          ) <> comma <> line <>
           dquotes(entity.fullName) <> comma <> line <>
           braces(
             nest(
               line <>
               ssep(
                 (if (sourceDirectory != protobufSourceDirectory)
-                   Seq(
+                   List(
                      "includeDirs" <> colon <+> brackets(
                        dquotes(
                          sourceDirectory.toAbsolutePath
@@ -130,7 +151,7 @@ object SourceGenerator extends PrettyPrinter {
                        )
                      )
                    )
-                 else Seq.empty) ++ Seq(
+                 else List.empty) ++ List(
                   "persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase())
                 ),
                 comma <> line
