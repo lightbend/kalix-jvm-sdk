@@ -162,6 +162,7 @@
         </executions>
         <configuration>
           <dockerImage>${D}{akkasls.dockerImage}:${D}{akkasls.dockerTag}</dockerImage>
+          <mainClass>${package}.Main</mainClass>
         </configuration>
       </plugin>
 
