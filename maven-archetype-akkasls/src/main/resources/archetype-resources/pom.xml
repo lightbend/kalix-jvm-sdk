@@ -151,7 +151,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>${version}</version>
+        <version>@project.version@</version>
         <executions>
           <execution>
             <goals>
