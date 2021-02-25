@@ -5,11 +5,10 @@
 package com.akkaserverless.javasdk.impl.eventsourced
 
 import akka.testkit.EventFilter
+import akka.testkit.SocketUtil
 import com.akkaserverless.javasdk.{AkkaServerless, AkkaServerlessRunner}
-import com.akkaserverless.testkit.Sockets
 import com.google.protobuf.Descriptors.{FileDescriptor, ServiceDescriptor}
 import com.typesafe.config.{Config, ConfigFactory}
-
 import scala.reflect.ClassTag
 
 object TestEventSourced {
@@ -20,7 +19,7 @@ object TestEventSourced {
 class TestEventSourcedService(entityClass: Class[_],
                               descriptor: ServiceDescriptor,
                               fileDescriptors: Seq[FileDescriptor]) {
-  val port: Int = Sockets.temporaryLocalPort()
+  val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
     akkaserverless.user-function-port = $port
