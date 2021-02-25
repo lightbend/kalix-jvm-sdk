@@ -70,6 +70,7 @@ lazy val `akkasls-codegen-js-cli` =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
       name in NativeImage := "akkasls-codegen-js",
+      nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
         "--no-fallback",
         "-H:JNIConfigurationFiles=" + (resourceDirectory in Compile).value / "jni-config.json",
