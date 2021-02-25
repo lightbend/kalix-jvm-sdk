@@ -151,7 +151,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>${version}</version>
+        <version>@project.version@</version>
         <executions>
           <execution>
             <goals>
@@ -162,6 +162,7 @@
         </executions>
         <configuration>
           <dockerImage>${D}{akkasls.dockerImage}:${D}{akkasls.dockerTag}</dockerImage>
+          <mainClass>${package}.Main</mainClass>
         </configuration>
       </plugin>
 
