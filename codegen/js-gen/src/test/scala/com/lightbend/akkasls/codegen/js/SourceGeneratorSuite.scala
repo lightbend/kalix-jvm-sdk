@@ -83,7 +83,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         )
 
         val sources = SourceGenerator.generate(
-          sourceDirectory.resolve("some.protobin"),
+          sourceDirectory.resolve("some.desc"),
           entities,
           sourceDirectory,
           testSourceDirectory,
@@ -132,13 +132,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
 
     val sourceDoc =
-      SourceGenerator.source(Paths.get("myproto.protobin"), entity)
+      SourceGenerator.source(Paths.get("myproto.desc"), entity)
     assertEquals(
       sourceDoc.layout,
       """const EventSourced = require("cloudstate").EventSourced;
         |
         |const entity = new EventSourced(
-        |  ["myproto.protobin"],
+        |  ["myproto.desc"],
         |  "com.lightbend.MyServiceEntity",
         |  {persistenceId: "myserviceentity"}
         |);
