@@ -11,106 +11,114 @@ import org.apache.commons.io.FileUtils
 
 class SourceGeneratorSuite extends munit.FunSuite {
   test("generate") {
-    val sourceDirectory = Files.createTempDirectory("source-generator-test")
+    val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
     try {
-
-      val testSourceDirectory = Files.createTempDirectory("test-source-generator-test")
-
+      val sourceDirectory = Files.createTempDirectory("source-generator-test")
       try {
 
-        val source1     = sourceDirectory.resolve("myservice1.js")
-        val sourceFile1 = source1.toFile
-        FileUtils.forceMkdir(sourceFile1.getParentFile)
-        FileUtils.touch(sourceFile1)
+        val testSourceDirectory = Files.createTempDirectory("test-source-generator-test")
 
-        val testSource2     = testSourceDirectory.resolve("myservice2.test.js")
-        val testSourceFile2 = testSource2.toFile
-        FileUtils.forceMkdir(testSourceFile2.getParentFile)
-        FileUtils.touch(testSourceFile2)
+        try {
 
-        val entities = List(
-          ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity1"),
-            "com.lightbend.MyService1",
-            List(
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
-              ),
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+          val protoSource1     = protoSourceDirectory.resolve("myservice1.proto")
+          val protoSourceFile1 = protoSource1.toFile
+          FileUtils.forceMkdir(protoSourceFile1.getParentFile)
+          FileUtils.touch(protoSourceFile1)
+
+          val source1     = sourceDirectory.resolve("myservice1.js")
+          val sourceFile1 = source1.toFile
+          FileUtils.forceMkdir(sourceFile1.getParentFile)
+          FileUtils.touch(sourceFile1)
+
+          val testSource2     = testSourceDirectory.resolve("myservice2.test.js")
+          val testSourceFile2 = testSource2.toFile
+          FileUtils.forceMkdir(testSourceFile2.getParentFile)
+          FileUtils.touch(testSourceFile2)
+
+          val entities = List(
+            ModelBuilder.EventSourcedEntity(
+              Some("com/lightbend"),
+              Some("MyEntity1"),
+              "com.lightbend.MyService1",
+              List(
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Set",
+                  "com.lightbend.SetValue",
+                  "com.google.protobuf.Empty"
+                ),
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Get",
+                  "com.lightbend.GetValue",
+                  "com.lightbend.MyState"
+                )
               )
-            )
-          ),
-          ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity2"),
-            "com.lightbend.MyService2",
-            List(
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
-              ),
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+            ),
+            ModelBuilder.EventSourcedEntity(
+              Some("com/lightbend"),
+              Some("MyEntity2"),
+              "com.lightbend.MyService2",
+              List(
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Set",
+                  "com.lightbend.SetValue",
+                  "com.google.protobuf.Empty"
+                ),
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Get",
+                  "com.lightbend.GetValue",
+                  "com.lightbend.MyState"
+                )
               )
-            )
-          ),
-          ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity3"),
-            "com.lightbend.something.MyService3",
-            List(
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
-              ),
-              ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+            ),
+            ModelBuilder.EventSourcedEntity(
+              Some("com/lightbend"),
+              Some("MyEntity3"),
+              "com.lightbend.something.MyService3",
+              List(
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Set",
+                  "com.lightbend.SetValue",
+                  "com.google.protobuf.Empty"
+                ),
+                ModelBuilder.Command(
+                  "com.lightbend.MyService.Get",
+                  "com.lightbend.GetValue",
+                  "com.lightbend.MyState"
+                )
               )
             )
           )
-        )
 
-        val sources = SourceGenerator.generate(
-          sourceDirectory.resolve("some.desc"),
-          entities,
-          sourceDirectory,
-          sourceDirectory,
-          testSourceDirectory,
-          "index.js"
-        )
-
-        assertEquals(Files.size(source1), 0L)
-        assertEquals(Files.size(testSource2), 0L)
-
-        assertEquals(
-          sources,
-          List(
-            sourceDirectory.resolve("myservice2.js"),
-            sourceDirectory.resolve("myservice3.js"),
-            testSourceDirectory.resolve("myservice3.test.js"),
-            sourceDirectory.resolve("index.js")
+          val sources = SourceGenerator.generate(
+            sourceDirectory.resolve("some.desc"),
+            entities,
+            protoSourceDirectory,
+            sourceDirectory,
+            testSourceDirectory,
+            "index.js"
           )
-        )
 
-        // Test that the main, source and test files are being written to
-        assertEquals(Files.readAllBytes(sources.head).head.toChar, 'c')
-        assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'c')
-        assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'r')
+          assertEquals(Files.size(source1), 0L)
+          assertEquals(Files.size(testSource2), 0L)
 
-      } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
-    } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
+          assertEquals(
+            sources,
+            List(
+              sourceDirectory.resolve("myservice2.js"),
+              sourceDirectory.resolve("myservice3.js"),
+              testSourceDirectory.resolve("myservice3.test.js"),
+              sourceDirectory.resolve("index.js")
+            )
+          )
+
+          // Test that the main, source and test files are being written to
+          assertEquals(Files.readAllBytes(sources.head).head.toChar, 'c')
+          assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'c')
+          assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'r')
+
+        } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
+      } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
+    } finally FileUtils.deleteDirectory(protoSourceDirectory.toFile)
   }
 
   test("source") {
@@ -132,17 +140,21 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
+    val protoSources            = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
     val protobufSourceDirectory = Paths.get("./src/proto")
     val sourceDirectory         = Paths.get("./src/js")
 
     val sourceDoc =
-      SourceGenerator.source(protobufSourceDirectory, sourceDirectory, entity)
+      SourceGenerator.source(protoSources, protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """const EventSourced = require("cloudstate").EventSourced;
         |
         |const entity = new EventSourced(
-        |  ["myserviceentity.proto"],
+        |  [
+        |    "myentity1.proto",
+        |    "someother.proto"
+        |  ],
         |  "com.lightbend.MyServiceEntity",
         |  {
         |    includeDirs: ["../proto"],
