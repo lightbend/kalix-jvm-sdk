@@ -86,6 +86,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           sourceDirectory.resolve("some.desc"),
           entities,
           sourceDirectory,
+          sourceDirectory,
           testSourceDirectory,
           "index.js"
         )
@@ -131,16 +132,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
+    val protobufSourceDirectory = Paths.get("./src/proto")
+    val sourceDirectory         = Paths.get("./src/js")
+
     val sourceDoc =
-      SourceGenerator.source(Paths.get("myproto.desc"), entity)
+      SourceGenerator.source(protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
       sourceDoc.layout,
       """const EventSourced = require("cloudstate").EventSourced;
         |
         |const entity = new EventSourced(
-        |  ["myproto.desc"],
+        |  ["myserviceentity.proto"],
         |  "com.lightbend.MyServiceEntity",
-        |  {persistenceId: "myserviceentity"}
+        |  {
+        |    includeDirs: ["../proto"],
+        |    persistenceId: "myserviceentity"
+        |  }
         |);
         |
         |entity.setBehavior(state => {

@@ -30,6 +30,7 @@ object SourceGenerator extends PrettyPrinter {
     *
     * @param protobufDescriptor The path to the protobuf descriptor file
     * @param entities        The model of entity metadata to generate source file
+    * @param protobufSourceDirectory A directory to read protobuf source files in.
     * @param sourceDirectory A directory to generate source files in, which can also containing existing source.
     * @param testSourceDirectory A directory to generate test source files in, which can also containing existing source.
     * @param indexFilename  The name of the index file e.g. index.js
@@ -38,6 +39,7 @@ object SourceGenerator extends PrettyPrinter {
   def generate(
       protobufDescriptor: Path,
       entities: Iterable[ModelBuilder.Entity],
+      protobufSourceDirectory: Path,
       sourceDirectory: Path,
       testSourceDirectory: Path,
       indexFilename: String
@@ -68,7 +70,8 @@ object SourceGenerator extends PrettyPrinter {
         val _ = Files.write(
           sourcePath,
           source(
-            sourceDirectory.toAbsolutePath.relativize(protobufDescriptor.toAbsolutePath),
+            protobufSourceDirectory,
+            sourceDirectory,
             entity
           ).layout
             .getBytes(Charsets.UTF_8)
@@ -101,7 +104,8 @@ object SourceGenerator extends PrettyPrinter {
     }
 
   private[codegen] def source(
-      protobufDescriptor: Path,
+      protobufSourceDirectory: Path,
+      sourceDirectory: Path,
       entity: ModelBuilder.EventSourcedEntity
   ): Document =
     pretty(
@@ -110,9 +114,29 @@ object SourceGenerator extends PrettyPrinter {
       "const entity = new EventSourced" <> parens(
         nest(
           line <>
-          brackets(dquotes(protobufDescriptor.toString)) <> comma <> line <>
+          brackets(dquotes(name(entity.fullName).toLowerCase() + ".proto")) <> comma <> line <>
           dquotes(entity.fullName) <> comma <> line <>
-          braces("persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase()))
+          braces(
+            nest(
+              line <>
+              ssep(
+                (if (sourceDirectory != protobufSourceDirectory)
+                   Seq(
+                     "includeDirs" <> colon <+> brackets(
+                       dquotes(
+                         sourceDirectory.toAbsolutePath
+                           .relativize(protobufSourceDirectory.toAbsolutePath)
+                           .toString
+                       )
+                     )
+                   )
+                 else Seq.empty) ++ Seq(
+                  "persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase())
+                ),
+                comma <> line
+              )
+            ) <> line
+          )
         ) <> line
       ) <> semi <> line <>
       line <>

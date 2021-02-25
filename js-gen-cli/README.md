@@ -20,6 +20,10 @@ On occasion, particularly if you run into errors when running the CLI, you may n
 help you with configuring the image build. This can be done using the following syntax from the sbt
 prompt:
 
+> The first time you run this, it will warn you have not being able to merge configuration. Ignore
+> this warning as it cannot merge for the first time. Run the command a few times with different
+> options to provide greater coverage.
+
 ```
 akkasls-codegen-js-cli/nativeImageRunAgent " --descriptor-set-output-dir=/Users/myuser/Projects/lightbend/akkasls-codegen/core/src/test/resources/test-files/descriptor-sets --descriptor-set-file=hello-1.0-SNAPSHOT.protobin"
 ```
