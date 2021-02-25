@@ -138,7 +138,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val sourceDoc =
       SourceGenerator.source(protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
-      sourceDoc.layout,
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """const EventSourced = require("cloudstate").EventSourced;
         |
         |const entity = new EventSourced(
