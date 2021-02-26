@@ -22,13 +22,12 @@ class TestEventSourcedService(entityClass: Class[_],
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
-    akkaserverless.user-function-port = $port
-    akka {
-      loglevel = ERROR
-      loggers = ["akka.testkit.TestEventListener"]
-      http.server {
-        preview.enable-http2 = on
-        idle-timeout = infinite
+    akkaserverless {
+      user-function-port = $port
+      system.akka {
+        loglevel = DEBUG
+        loggers = ["akka.testkit.TestEventListener"]
+        coordinated-shutdown.exit-jvm = off
       }
     }
   """))

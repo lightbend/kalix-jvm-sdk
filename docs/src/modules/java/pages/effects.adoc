@@ -26,7 +26,7 @@ include::example$docs/user/effects/ShoppingCartEntity.java[tag=forward]
 
 == Emitting an effect
 
-The `CommandContext` for each entity type implements `EffectContext` to allow emitting an effect by invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/EffectContext.html#effect(com.akkaserverless.javasdk.ServiceCall,boolean)[`EffectContext.effect()`]. For example, upon successful completion of the `addItem` command by `ShoppingCartEntity`, if we also want to emit an effect on the `HotItems` entity, we would invoke the effectful service call as:
+The `CommandContext` for each entity type implements `EffectContext` to allow emitting an effect by invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/EffectContext.html#effect(com.akkaserverless.javasdk.ServiceCall,boolean)[`EffectContext.effect()`]. For example, upon successful completion of the `addItem` command by `CounterEntity`, if we also want to emit an effect on the `HotItems` entity, we would invoke the effectful service call as:
 
 [source,java]
 ----
