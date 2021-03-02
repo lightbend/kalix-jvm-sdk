@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
 @AkkaServerlessAnnotation
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CallHandler {
+public @interface CommandHandler {
 
   /**
    * The name of the command to handle.

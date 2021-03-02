@@ -5,7 +5,7 @@
 package com.akkaserverless.javasdk.tck.model.action;
 
 import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.CallHandler;
+import com.akkaserverless.javasdk.action.CommandHandler;
 import com.akkaserverless.tck.model.Action.OtherRequest;
 import com.akkaserverless.tck.model.Action.Response;
 
@@ -13,7 +13,7 @@ import com.akkaserverless.tck.model.Action.Response;
 public class ActionTwoBehavior {
   public ActionTwoBehavior() {}
 
-  @CallHandler
+  @CommandHandler
   public Response call(OtherRequest request) {
     return Response.getDefaultInstance();
   }

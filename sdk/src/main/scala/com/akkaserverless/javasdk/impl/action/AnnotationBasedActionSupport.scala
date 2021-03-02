@@ -108,11 +108,11 @@ private object ActionReflection {
     val allMethods = ReflectionHelper.getAllDeclaredMethods(behaviorClass)
 
     // First, find all the call handler methods, and match them with corresponding service methods
-    val allCallHandlers = allMethods
-      .filter(_.getAnnotation(classOf[CallHandler]) != null)
+    val allCommandHandlers = allMethods
+      .filter(_.getAnnotation(classOf[CommandHandler]) != null)
       .map { method =>
         method.setAccessible(true)
-        val annotation = method.getAnnotation(classOf[CallHandler])
+        val annotation = method.getAnnotation(classOf[CommandHandler])
         val name: String = if (annotation.name().isEmpty) {
           ReflectionHelper.getCapitalizedName(method)
         } else annotation.name()
@@ -134,25 +134,25 @@ private object ActionReflection {
           )
       }
 
-    val unaryCallHandlers = allCallHandlers.collect {
+    val unaryCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if !serviceMethod.descriptor.isClientStreaming && !serviceMethod.descriptor.isServerStreaming =>
         commandName -> new UnaryCallInvoker(method, serviceMethod)
     }.toMap
 
-    val serverStreamedCallHandlers = allCallHandlers.collect {
+    val serverStreamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if !serviceMethod.descriptor.isClientStreaming && serviceMethod.descriptor.isServerStreaming =>
         commandName -> new ServerStreamedCallInvoker(method, serviceMethod)
     }.toMap
 
-    val clientStreamedCallHandlers = allCallHandlers.collect {
+    val clientStreamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if serviceMethod.descriptor.isClientStreaming && !serviceMethod.descriptor.isServerStreaming =>
         commandName -> new ClientStreamedCallInvoker(method, serviceMethod, mat)
     }.toMap
 
-    val streamedCallHandlers = allCallHandlers.collect {
+    val streamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if serviceMethod.descriptor.isClientStreaming && serviceMethod.descriptor.isServerStreaming =>
         commandName -> new StreamedCallInvoker(method, serviceMethod, mat)
@@ -161,13 +161,13 @@ private object ActionReflection {
     ReflectionHelper.validateNoBadMethods(
       allMethods,
       classOf[Action],
-      Set(classOf[CallHandler])
+      Set(classOf[CommandHandler])
     )
 
-    new ActionReflection(unaryCallHandlers,
-                         serverStreamedCallHandlers,
-                         clientStreamedCallHandlers,
-                         streamedCallHandlers)
+    new ActionReflection(unaryCommandHandlers,
+                         serverStreamedCommandHandlers,
+                         clientStreamedCommandHandlers,
+                         streamedCommandHandlers)
   }
 
   def getOutputParameterMapper[T](method: String,
