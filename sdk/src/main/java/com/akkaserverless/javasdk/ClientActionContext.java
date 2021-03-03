@@ -14,8 +14,11 @@ public interface ClientActionContext extends Context {
    * Fail the command with the given message.
    *
    * @param errorMessage The error message to send to the client.
+   * @throws RuntimeException after recording the error message for response, upon invocation to
+   *     signal failure
+   * @throws IllegalStateException if fail was already called
    */
-  RuntimeException fail(String errorMessage);
+  void fail(String errorMessage);
 
   /**
    * Instruct the proxy to forward handling of this command to another entity served by this

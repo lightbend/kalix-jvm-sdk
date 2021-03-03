@@ -32,7 +32,7 @@ class AnnotationBasedEventSourcedSupportSpec extends WordSpec with Matchers {
     override def commandId(): Long = 20
     override def emit(event: AnyRef): Unit = emited :+= event
     override def entityId(): String = "foo"
-    override def fail(errorMessage: String): RuntimeException = ???
+    override def fail(errorMessage: String): Unit = ???
     override def forward(to: ServiceCall): Unit = ???
     override def effect(effect: ServiceCall, synchronous: Boolean): Unit = ???
     override def metadata(): Metadata = Metadata.EMPTY

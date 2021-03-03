@@ -37,7 +37,7 @@ class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
     override def deleteState(): Unit = currentState = None
     override def entityId(): String = "foo"
     override def metadata(): Metadata = ???
-    override def fail(errorMessage: String): RuntimeException = ???
+    override def fail(errorMessage: String): Unit = ???
     override def forward(to: ServiceCall): Unit = ???
     override def effect(effect: ServiceCall, synchronous: Boolean): Unit = ???
   }

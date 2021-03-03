@@ -44,7 +44,7 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
   private final var error: Option[String] = None
   private final var forward: Option[Forward] = None
 
-  override final def fail(errorMessage: String): RuntimeException = {
+  override final def fail(errorMessage: String): Unit = {
     checkActive()
     if (error.isEmpty) {
       error = Some(errorMessage)
@@ -94,6 +94,6 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
     }
 }
 
-object FailInvoked extends Throwable with NoStackTrace {
+object FailInvoked extends RuntimeException with NoStackTrace {
   override def toString: String = "CommandContext.fail(…) invoked"
 }
