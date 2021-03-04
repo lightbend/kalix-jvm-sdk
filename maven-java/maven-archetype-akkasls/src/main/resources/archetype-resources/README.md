@@ -3,13 +3,13 @@
 #[[
 ## Designing
 ]]#
-While designing your service it is useful to read [designing Cloudstate services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
+While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
 
 #[[
 ## Developing
 ]]#
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing Cloudstate services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
+extend it it may be useful to read up on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
 and in particular the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
 
 #[[
@@ -25,7 +25,7 @@ mvn compile
 #[[
 ## Running Locally
 ]]#
-In order to run your application locally, you must run the Cloudstate proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application. To start the proxy, run the following command from this directory:
+In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application. To start the proxy, run the following command from this directory:
 
 ### macOS and Windows
 
