@@ -1,6 +1,6 @@
 version: "3"
 services:
-  cloudstate-proxy:
+  as-proxy:
     image: cloudstateio/cloudstate-proxy-core:latest
     command: -Dconfig.resource=dev-mode.conf -Dcloudstate.proxy.protocol-compatibility-check=false
     ports:
