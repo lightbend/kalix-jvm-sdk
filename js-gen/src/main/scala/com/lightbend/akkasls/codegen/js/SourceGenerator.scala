@@ -152,13 +152,18 @@ object SourceGenerator extends PrettyPrinter {
                      )
                    )
                  else List.empty) ++ List(
-                  "persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase())
+                  "persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase()),
+                  "serializeFallbackToJson" <> colon <+> "true"
                 ),
                 comma <> line
               )
             ) <> line
           )
         ) <> line
+      ) <> semi <> line <>
+      line <>
+      "entity.setInitial" <> parens(
+        "entityId => " <> parens("{}")
       ) <> semi <> line <>
       line <>
       "entity.setBehavior" <> parens(
