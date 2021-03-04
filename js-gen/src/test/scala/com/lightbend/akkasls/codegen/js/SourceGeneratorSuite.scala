@@ -158,9 +158,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  "com.lightbend.MyServiceEntity",
         |  {
         |    includeDirs: ["../proto"],
-        |    persistenceId: "myserviceentity"
+        |    persistenceId: "myserviceentity",
+        |    serializeFallbackToJson: true
         |  }
         |);
+        |
+        |entity.setInitial(entityId => ({}));
         |
         |entity.setBehavior(state => {
         |  return {
