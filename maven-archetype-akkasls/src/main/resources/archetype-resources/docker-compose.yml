@@ -8,5 +8,3 @@ services:
     environment:
 #[[      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}]]#
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
