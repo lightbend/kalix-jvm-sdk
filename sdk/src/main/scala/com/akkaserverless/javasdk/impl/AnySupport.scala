@@ -202,9 +202,16 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
     val outerClassName =
       if (options.hasJavaMultipleFiles && options.getJavaMultipleFiles) ""
       else if (options.hasJavaOuterClassname) options.getJavaOuterClassname + "$"
-      else if (fileDescriptor.getName.nonEmpty)
-        CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, strippedFileName(fileDescriptor.getName)) + "$"
-      else ""
+      else if (fileDescriptor.getName.nonEmpty) {
+        val name = strippedFileName(fileDescriptor.getName)
+        if (name.contains('_') || !name(0).isUpper) {
+          // transform snake case into camel case
+          CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name) + "$"
+        } else {
+          // keep name as is to keep already camel cased file name
+          strippedFileName(fileDescriptor.getName) + "$"
+        }
+      } else ""
 
     val className = packageName + outerClassName + typeDescriptor.getName
     try {
