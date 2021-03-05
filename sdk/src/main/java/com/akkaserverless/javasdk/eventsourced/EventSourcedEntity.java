@@ -28,6 +28,10 @@ public @interface EventSourcedEntity {
    * Specifies how snapshots of the entity state should be made: Zero means use default from
    * configuration file. (Default) Any negative value means never snapshot. Any positive value means
    * snapshot at-or-after that number of events.
+   *
+   * <p>It is strongly recommended to not disable snapshotting unless it is known that event sourced
+   * entity will never have more than 100 events (in which case the default will anyway not
+   * trigger any snapshots)
    */
   int snapshotEvery() default 0;
 }
