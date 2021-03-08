@@ -30,7 +30,7 @@ import com.akkaserverless.tck.model.valueentity.Valueentity;
 import java.time.Duration;
 
 public final class JavaSdkTck {
-  public static final void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     new AkkaServerless()
         .registerAction(
             new ActionTckModelBehavior(),

@@ -46,17 +46,17 @@ public class PingPongEntity {
   }
 
   @EventHandler
-  public void pongSent(Pingpong.PingSent ping) {
+  public void pingSent(Pingpong.PingSent ping) {
     sentPings += 1;
   }
 
   @EventHandler
-  public void pongSent(Pingpong.PingSeen ping) {
+  public void pingSeen(Pingpong.PingSeen ping) {
     seenPings += 1;
   }
 
   @EventHandler
-  public void pongSent(Pingpong.PongSeen pong) {
+  public void pongSeen(Pingpong.PongSeen pong) {
     seenPongs += 1;
   }
 
