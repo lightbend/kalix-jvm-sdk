@@ -9,7 +9,7 @@ import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.scaladsl.Flow
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
-import com.akkaserverless.javasdk.entity._
+import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.{Delete, Update}
@@ -27,19 +27,19 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 
-final class ValueEntityStatefulService(val factory: EntityFactory,
+final class ValueEntityStatefulService(val factory: ValueEntityFactory,
                                        override val descriptor: Descriptors.ServiceDescriptor,
                                        val anySupport: AnySupport,
-                                       override val persistenceId: String,
-                                       override val entityOptions: Option[EntityOptions])
+                                       override val entityType: String,
+                                       override val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
-  def this(factory: EntityFactory,
+  def this(factory: ValueEntityFactory,
            descriptor: Descriptors.ServiceDescriptor,
            anySupport: AnySupport,
-           persistenceId: String,
-           entityOptions: EntityOptions) =
-    this(factory, descriptor, anySupport, persistenceId, Some(entityOptions))
+           entityType: String,
+           entityOptions: ValueEntityOptions) =
+    this(factory, descriptor, anySupport, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -47,7 +47,7 @@ final class ValueEntityStatefulService(val factory: EntityFactory,
       case _ => None
     }
 
-  override final val entityType = ValueEntity.name
+  override final val componentType = ValueEntity.name
 }
 
 final class ValueEntityImpl(_system: ActorSystem,
@@ -169,7 +169,7 @@ final class ValueEntityImpl(_system: ActorSystem,
       }
   }
 
-  trait AbstractContext extends EntityContext {
+  trait AbstractContext extends ValueEntityContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
@@ -219,6 +219,8 @@ final class ValueEntityImpl(_system: ActorSystem,
 
   }
 
-  private final class EntityContextImpl(override final val entityId: String) extends EntityContext with AbstractContext
+  private final class EntityContextImpl(override final val entityId: String)
+      extends ValueEntityContext
+      with AbstractContext
 
 }

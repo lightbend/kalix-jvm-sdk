@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.entity;
+package com.akkaserverless.javasdk.valueentity;
 
 import com.akkaserverless.javasdk.ClientActionContext;
 import com.akkaserverless.javasdk.EffectContext;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * entities, and performing side effects on other entities.
  */
 public interface CommandContext<T>
-    extends EntityContext, ClientActionContext, EffectContext, MetadataContext {
+    extends ValueEntityContext, ClientActionContext, EffectContext, MetadataContext {
 
   /**
    * The name of the command being executed.

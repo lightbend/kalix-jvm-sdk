@@ -5,8 +5,8 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.Jsonable
-import com.akkaserverless.protocol.entity.UserFunctionError
-import com.akkaserverless.protocol.event_sourced.EventSourcedProto
+import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.Shoppingcart
 import com.google.protobuf.{ByteString, Empty}
 import org.scalatest.{Matchers, OptionValues, WordSpec}
@@ -15,9 +15,11 @@ import scala.beans.BeanProperty
 
 class AnySupportSpec extends WordSpec with Matchers with OptionValues {
 
-  private val anySupport = new AnySupport(Array(Shoppingcart.getDescriptor, EventSourcedProto.javaDescriptor),
-                                          getClass.getClassLoader,
-                                          "com.example")
+  private val anySupport = new AnySupport(
+    Array(Shoppingcart.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
+    getClass.getClassLoader,
+    "com.example"
+  )
   private val addLineItem = Shoppingcart.AddLineItem
     .newBuilder()
     .setName("item")

@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.entity;
+package com.akkaserverless.javasdk.valueentity;
 
 import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
 
@@ -15,12 +15,12 @@ import java.lang.annotation.Target;
 @AkkaServerlessAnnotation
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Entity {
+public @interface ValueEntity {
   /**
-   * The name of the persistence id.
+   * The entity type name
    *
    * <p>If not specified, defaults to the entity's unqualified classname. It's strongly recommended
    * that you specify it explicitly.
    */
-  String persistenceId() default "";
+  String entityType() default "";
 }

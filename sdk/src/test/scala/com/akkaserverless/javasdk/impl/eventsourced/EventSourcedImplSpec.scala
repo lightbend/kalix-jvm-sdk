@@ -263,7 +263,7 @@ object EventSourcedImplSpec {
 
     val TestCartClass: Class[_] = classOf[TestCart]
 
-    @EventSourcedEntity(persistenceId = "shopping-cart", snapshotEvery = 2)
+    @EventSourcedEntity(entityType = "shopping-cart", snapshotEvery = 2)
     class TestCart(@EntityId val entityId: String) {
       val cart = mutable.Map.empty[String, Item]
 

@@ -9,7 +9,7 @@ import com.akkaserverless.javasdk.eventsourced.EventSourcedEntity;
 import com.akkaserverless.tck.model.Eventsourced.Request;
 import com.akkaserverless.tck.model.Eventsourced.Response;
 
-@EventSourcedEntity(persistenceId = "event-sourced-configured")
+@EventSourcedEntity(entityType = "event-sourced-configured")
 public class EventSourcedConfiguredEntity {
 
   @CommandHandler

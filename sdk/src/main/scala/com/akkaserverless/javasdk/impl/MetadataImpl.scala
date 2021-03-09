@@ -5,7 +5,7 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.{CloudEvent, Metadata}
-import com.akkaserverless.protocol.entity.MetadataEntry
+import com.akkaserverless.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 
 import java.net.URI

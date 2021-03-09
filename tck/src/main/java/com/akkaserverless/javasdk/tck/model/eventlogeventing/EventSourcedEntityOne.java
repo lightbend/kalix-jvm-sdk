@@ -11,7 +11,7 @@ import com.akkaserverless.javasdk.eventsourced.EventSourcedEntity;
 import com.akkaserverless.tck.model.Eventlogeventing;
 import com.google.protobuf.Empty;
 
-@EventSourcedEntity(persistenceId = "eventlogeventing-one")
+@EventSourcedEntity(entityType = "eventlogeventing-one")
 public class EventSourcedEntityOne {
   @CommandHandler
   public Empty emitEvent(Eventlogeventing.EmitEventRequest event, CommandContext ctx) {

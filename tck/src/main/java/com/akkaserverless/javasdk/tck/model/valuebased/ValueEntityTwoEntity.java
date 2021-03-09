@@ -4,12 +4,12 @@
 
 package com.akkaserverless.javasdk.tck.model.valuebased;
 
-import com.akkaserverless.javasdk.entity.CommandHandler;
-import com.akkaserverless.javasdk.entity.Entity;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.valueentity.Valueentity.Request;
 import com.akkaserverless.tck.model.valueentity.Valueentity.Response;
 
-@Entity(persistenceId = "value-entity-tck-model-two")
+@ValueEntity(entityType = "value-entity-tck-model-two")
 public class ValueEntityTwoEntity {
 
   @CommandHandler

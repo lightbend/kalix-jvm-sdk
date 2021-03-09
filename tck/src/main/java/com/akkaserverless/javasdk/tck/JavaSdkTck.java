@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.tck;
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
-import com.akkaserverless.javasdk.entity.EntityOptions;
+import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourced.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
 import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
@@ -40,17 +40,17 @@ public final class JavaSdkTck {
             new ActionTwoBehavior(),
             Action.getDescriptor().findServiceByName("ActionTwo"),
             Action.getDescriptor())
-        .registerEntity(
+        .registerValueEntity(
             ValueEntityTckModelEntity.class,
             Valueentity.getDescriptor().findServiceByName("ValueEntityTckModel"),
             Valueentity.getDescriptor())
-        .registerEntity(
+        .registerValueEntity(
             ValueEntityTwoEntity.class,
             Valueentity.getDescriptor().findServiceByName("ValueEntityTwo"))
-        .registerEntity(
+        .registerValueEntity(
             ValueEntityConfiguredEntity.class,
             Valueentity.getDescriptor().findServiceByName("ValueEntityConfigured"),
-            EntityOptions.defaults() // required timeout of 100 millis for TCK tests
+            ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerCrdtEntity(
             CrdtTckModelEntity.class,

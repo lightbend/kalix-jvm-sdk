@@ -5,7 +5,7 @@
 package com.akkaserverless.javasdk.impl.entity
 
 import com.akkaserverless.javasdk.EntityId
-import com.akkaserverless.javasdk.entity.{CommandContext, CommandHandler, Entity}
+import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity}
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.valueentity.ValueEntityMessages
 import com.google.protobuf.Empty
@@ -15,8 +15,8 @@ import java.util.Optional
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class EntityImplSpec extends WordSpec with Matchers with BeforeAndAfterAll {
-  import EntityImplSpec._
+class ValueEntityImplSpec extends WordSpec with Matchers with BeforeAndAfterAll {
+  import ValueEntityImplSpec._
   import ShoppingCart.Item
   import ShoppingCart.Protocol._
   import ValueEntityMessages._
@@ -174,7 +174,7 @@ class EntityImplSpec extends WordSpec with Matchers with BeforeAndAfterAll {
   }
 }
 
-object EntityImplSpec {
+object ValueEntityImplSpec {
   object ShoppingCart {
 
     import com.example.valueentity.shoppingcart.Shoppingcart
@@ -227,7 +227,7 @@ object EntityImplSpec {
 
     val TestCartClass: Class[_] = classOf[TestCart]
 
-    @Entity(persistenceId = "valuebased-entity-shopping-cart")
+    @ValueEntity(entityType = "valuebased-entity-shopping-cart")
     class TestCart(@EntityId val entityId: String) {
       import scala.jdk.CollectionConverters._
       import scala.jdk.OptionConverters._

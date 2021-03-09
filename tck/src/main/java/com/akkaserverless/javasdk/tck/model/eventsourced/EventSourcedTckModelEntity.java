@@ -13,7 +13,7 @@ import com.akkaserverless.tck.model.Eventsourced.*;
 
 import java.util.Optional;
 
-@EventSourcedEntity(persistenceId = "event-sourced-tck-model", snapshotEvery = 5)
+@EventSourcedEntity(entityType = "event-sourced-tck-model", snapshotEvery = 5)
 public class EventSourcedTckModelEntity {
 
   private final ServiceCallRef<Request> serviceTwoCall;

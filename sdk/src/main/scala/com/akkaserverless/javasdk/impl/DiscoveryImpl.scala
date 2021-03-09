@@ -6,14 +6,15 @@ package com.akkaserverless.javasdk.impl
 
 import akka.actor.ActorSystem
 import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
-import com.akkaserverless.protocol.entity.EntityPassivationStrategy.Strategy
-import com.akkaserverless.protocol.entity._
+import com.akkaserverless.protocol.action.Action
+import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
+import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
 
 import java.time.Duration
 import scala.concurrent.Future
 
-class EntityDiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends EntityDiscovery {
+class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
 
   private def configuredOrElse(key: String, default: String): String =
     if (system.settings.config.hasPath(key)) system.settings.config.getString(key) else default
@@ -33,22 +34,22 @@ class EntityDiscoveryImpl(system: ActorSystem, services: Map[String, Service]) e
   )
 
   /**
-   * Discover what entities the user function wishes to serve.
+   * Discover what components the user function wishes to serve.
    */
-  override def discover(in: ProxyInfo): scala.concurrent.Future[EntitySpec] = {
+  override def discover(in: ProxyInfo): scala.concurrent.Future[Spec] = {
     system.log.info(
       s"Received discovery call from [${in.proxyName} ${in.proxyVersion}] supporting Akka Serverless protocol ${in.protocolMajorVersion}.${in.protocolMinorVersion}"
     )
     system.log.debug(s"Supported sidecar entity types: ${in.supportedEntityTypes.mkString("[", ",", "]")}")
 
     val unsupportedServices = services.values.filterNot { service =>
-      in.supportedEntityTypes.contains(service.entityType)
+      in.supportedEntityTypes.contains(service.componentType)
     }
 
     if (unsupportedServices.nonEmpty) {
       system.log.error(
         "Proxy doesn't support the entity types for the following services: " + unsupportedServices
-          .map(s => s.descriptor.getFullName + ": " + s.entityType)
+          .map(s => s.descriptor.getFullName + ": " + s.componentType)
           .mkString(", ")
       )
       // Don't fail though. The proxy may give us more information as to why it doesn't support them if we send back unsupported services.
@@ -60,13 +61,20 @@ class EntityDiscoveryImpl(system: ActorSystem, services: Map[String, Service]) e
     allDescriptors.values.foreach(fd => builder.addFile(fd.toProto))
     val fileDescriptorSet = builder.build().toByteString
 
-    val entities = services.map {
+    val components = services.map {
       case (name, service) =>
-        val passivationStrategy = entityPassivationStrategy(service.entityOptions)
-        Entity(service.entityType, name, service.persistenceId, passivationStrategy)
+        service.componentType match {
+          case Action.name =>
+            Component(service.componentType, name, Component.ComponentSettings.Empty)
+          case _ =>
+            val passivationStrategy = entityPassivationStrategy(service.entityOptions)
+            Component(service.componentType,
+                      name,
+                      Component.ComponentSettings.Entity(EntitySettings(service.entityType, passivationStrategy)))
+        }
     }.toSeq
 
-    Future.successful(EntitySpec(fileDescriptorSet, entities, Some(serviceInfo)))
+    Future.successful(Spec(fileDescriptorSet, components, Some(serviceInfo)))
   }
 
   /**
@@ -80,8 +88,8 @@ class EntityDiscoveryImpl(system: ActorSystem, services: Map[String, Service]) e
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
 
-  private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[EntityPassivationStrategy] = {
-    import com.akkaserverless.protocol.entity.{EntityPassivationStrategy => EPStrategy}
+  private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[PassivationStrategy] = {
+    import com.akkaserverless.protocol.discovery.{PassivationStrategy => EPStrategy}
     maybeOptions.flatMap { options =>
       options.passivationStrategy() match {
         case Timeout(maybeTimeout) =>

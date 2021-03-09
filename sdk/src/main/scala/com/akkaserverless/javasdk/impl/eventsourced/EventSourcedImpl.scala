@@ -12,17 +12,17 @@ import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.eventsourced._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.event_sourced.EventSourcedStreamIn.Message.{
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
   Command => InCommand,
   Empty => InEmpty,
   Event => InEvent,
   Init => InInit
 }
-import com.akkaserverless.protocol.event_sourced.EventSourcedStreamOut.Message.{
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
   Failure => OutFailure,
   Reply => OutReply
 }
-import com.akkaserverless.protocol.event_sourced._
+import com.akkaserverless.protocol.event_sourced_entity.{EventSourcedEntity => EventSourcedEntityService, _}
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
@@ -32,7 +32,7 @@ import scala.util.control.NonFatal
 final class EventSourcedStatefulService(val factory: EventSourcedEntityFactory,
                                         override val descriptor: Descriptors.ServiceDescriptor,
                                         val anySupport: AnySupport,
-                                        override val persistenceId: String,
+                                        override val entityType: String,
                                         val snapshotEvery: Int,
                                         override val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
@@ -40,10 +40,10 @@ final class EventSourcedStatefulService(val factory: EventSourcedEntityFactory,
   def this(factory: EventSourcedEntityFactory,
            descriptor: Descriptors.ServiceDescriptor,
            anySupport: AnySupport,
-           persistenceId: String,
+           entityType: String,
            snapshotEvery: Int,
            entityOptions: EventSourcedEntityOptions) =
-    this(factory, descriptor, anySupport, persistenceId, snapshotEvery, Some(entityOptions))
+    this(factory, descriptor, anySupport, entityType, snapshotEvery, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -51,13 +51,13 @@ final class EventSourcedStatefulService(val factory: EventSourcedEntityFactory,
       case _ => None
     }
 
-  override final val entityType = EventSourced.name
+  override final val componentType = EventSourcedEntityService.name
   final def withSnapshotEvery(snapshotEvery: Int): EventSourcedStatefulService =
     if (snapshotEvery != this.snapshotEvery)
       new EventSourcedStatefulService(this.factory,
                                       this.descriptor,
                                       this.anySupport,
-                                      this.persistenceId,
+                                      this.entityType,
                                       snapshotEvery,
                                       this.entityOptions)
     else
@@ -68,7 +68,7 @@ final class EventSourcedImpl(_system: ActorSystem,
                              _services: Map[String, EventSourcedStatefulService],
                              rootContext: Context,
                              configuration: Configuration)
-    extends EventSourced {
+    extends EventSourcedEntityService {
   import EntityExceptions._
 
   private final val system = _system

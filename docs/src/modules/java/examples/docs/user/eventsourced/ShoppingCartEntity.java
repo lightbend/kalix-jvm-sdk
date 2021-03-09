@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 // tag::entity-class[]
-@EventSourcedEntity(persistenceId = "shopping-cart", snapshotEvery = 20)
+@EventSourcedEntity(entityType = "shopping-cart", snapshotEvery = 20)
 public class ShoppingCartEntity {
   // end::entity-class[]
 

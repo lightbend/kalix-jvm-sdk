@@ -4,10 +4,10 @@
 
 package com.akkaserverless.javasdk.impl.entity
 
-import com.akkaserverless.javasdk.entity.{
-  EntityContext => ValueEntityContext,
-  EntityFactory => ValueEntityFactory,
-  EntityHandler => ValueEntityHandler,
+import com.akkaserverless.javasdk.valueentity.{
+  ValueEntityContext => ValueEntityContext,
+  ValueEntityFactory => ValueEntityFactory,
+  ValueEntityHandler => ValueEntityHandler,
   _
 }
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
@@ -26,7 +26,7 @@ private[impl] class AnnotationBasedEntitySupport(
     entityClass: Class[_],
     anySupport: AnySupport,
     override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]],
-    factory: Option[EntityCreationContext => AnyRef] = None
+    factory: Option[ValueEntityCreationContext => AnyRef] = None
 ) extends ValueEntityFactory
     with ResolvedEntityFactory {
 
@@ -35,7 +35,7 @@ private[impl] class AnnotationBasedEntitySupport(
 
   private val behavior = EntityBehaviorReflection(entityClass, resolvedMethods)
 
-  private val constructor: EntityCreationContext => AnyRef = factory.getOrElse {
+  private val constructor: ValueEntityCreationContext => AnyRef = factory.getOrElse {
     entityClass.getConstructors match {
       case Array(single) =>
         new EntityConstructorInvoker(ReflectionHelper.ensureAccessible(single))
@@ -49,7 +49,7 @@ private[impl] class AnnotationBasedEntitySupport(
 
   private class EntityHandler(context: ValueEntityContext) extends ValueEntityHandler {
     private val entity = {
-      constructor(new DelegatingEntityContext(context) with EntityCreationContext {
+      constructor(new DelegatingEntityContext(context) with ValueEntityCreationContext {
         override def entityId(): String = context.entityId()
       })
     }
@@ -121,7 +121,7 @@ private object EntityBehaviorReflection {
 
     ReflectionHelper.validateNoBadMethods(
       allMethods,
-      classOf[Entity],
+      classOf[ValueEntity],
       Set(classOf[CommandHandler])
     )
 
@@ -129,15 +129,15 @@ private object EntityBehaviorReflection {
   }
 }
 
-private class EntityConstructorInvoker(constructor: Constructor[_]) extends (EntityCreationContext => AnyRef) {
-  private val parameters = ReflectionHelper.getParameterHandlers[AnyRef, EntityCreationContext](constructor)()
+private class EntityConstructorInvoker(constructor: Constructor[_]) extends (ValueEntityCreationContext => AnyRef) {
+  private val parameters = ReflectionHelper.getParameterHandlers[AnyRef, ValueEntityCreationContext](constructor)()
   parameters.foreach {
     case MainArgumentParameterHandler(clazz) =>
       throw new RuntimeException(s"Don't know how to handle argument of type $clazz in constructor")
     case _ =>
   }
 
-  def apply(context: EntityCreationContext): AnyRef = {
+  def apply(context: ValueEntityCreationContext): AnyRef = {
     val ctx = InvocationContext(null.asInstanceOf[AnyRef], context)
     constructor.newInstance(parameters.map(_.apply(ctx)): _*).asInstanceOf[AnyRef]
   }

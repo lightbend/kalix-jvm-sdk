@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.entity;
+package com.akkaserverless.javasdk.valueentity;
 
 import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
 

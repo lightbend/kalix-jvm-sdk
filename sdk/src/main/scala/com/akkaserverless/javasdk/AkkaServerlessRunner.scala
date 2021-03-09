@@ -9,15 +9,15 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import akka.stream.{ActorMaterializer, Materializer}
-import com.akkaserverless.javasdk.impl.action.{ActionProtocolImpl, ActionService}
+import com.akkaserverless.javasdk.impl.action.{ActionImpl, ActionService}
 import com.akkaserverless.javasdk.impl.crdt.{CrdtImpl, CrdtStatefulService}
 import com.akkaserverless.javasdk.impl.entity.{ValueEntityImpl, ValueEntityStatefulService}
 import com.akkaserverless.javasdk.impl.eventsourced.{EventSourcedImpl, EventSourcedStatefulService}
-import com.akkaserverless.javasdk.impl.{EntityDiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
-import com.akkaserverless.protocol.action.ActionProtocolHandler
+import com.akkaserverless.javasdk.impl.{DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
+import com.akkaserverless.protocol.action.ActionHandler
 import com.akkaserverless.protocol.crdt.CrdtHandler
-import com.akkaserverless.protocol.entity.EntityDiscoveryHandler
-import com.akkaserverless.protocol.event_sourced.EventSourcedHandler
+import com.akkaserverless.protocol.discovery.DiscoveryHandler
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityHandler
 import com.akkaserverless.protocol.value_entity.ValueEntityHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
@@ -98,7 +98,7 @@ final class AkkaServerlessRunner private[this] (
         case (route, (serviceClass, eventSourcedServices: Map[String, EventSourcedStatefulService] @unchecked))
             if serviceClass == classOf[EventSourcedStatefulService] =>
           val eventSourcedImpl = new EventSourcedImpl(system, eventSourcedServices, rootContext, configuration)
-          route orElse EventSourcedHandler.partial(eventSourcedImpl)
+          route orElse EventSourcedEntityHandler.partial(eventSourcedImpl)
 
         case (route, (serviceClass, crdtServices: Map[String, CrdtStatefulService] @unchecked))
             if serviceClass == classOf[CrdtStatefulService] =>
@@ -107,8 +107,8 @@ final class AkkaServerlessRunner private[this] (
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
             if serviceClass == classOf[ActionService] =>
-          val actionImpl = new ActionProtocolImpl(system, actionServices, rootContext)
-          route orElse ActionProtocolHandler.partial(actionImpl)
+          val actionImpl = new ActionImpl(system, actionServices, rootContext)
+          route orElse ActionHandler.partial(actionImpl)
 
         case (route, (serviceClass, entityServices: Map[String, ValueEntityStatefulService] @unchecked))
             if serviceClass == classOf[ValueEntityStatefulService] =>
@@ -119,10 +119,10 @@ final class AkkaServerlessRunner private[this] (
           sys.error(s"Unknown StatefulService: $serviceClass")
       }
 
-    val entityDiscovery = EntityDiscoveryHandler.partial(new EntityDiscoveryImpl(system, services))
+    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services))
 
     serviceRoutes orElse
-    entityDiscovery orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
+    discovery orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
   }
 
   /**
@@ -164,15 +164,14 @@ trait Service {
   def descriptor: Descriptors.ServiceDescriptor
 
   /**
-   * Possible values are: "", "", "".
-   * @return the type of entity represented by this service
+   * @return the type of component represented by this service
    */
-  def entityType: String
+  def componentType: String
 
   /**
-   * @return the persistence identifier used for the entities represented by this service
+   * @return the entity type name used for the entities represented by this service
    */
-  def persistenceId: String = descriptor.getName
+  def entityType: String = descriptor.getName
 
   /**
    * @return the options [[EntityOptions]] used by this service

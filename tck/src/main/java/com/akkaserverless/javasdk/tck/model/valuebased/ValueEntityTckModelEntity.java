@@ -7,14 +7,14 @@ package com.akkaserverless.javasdk.tck.model.valuebased;
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.entity.CommandContext;
-import com.akkaserverless.javasdk.entity.CommandHandler;
-import com.akkaserverless.javasdk.entity.Entity;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.valueentity.Valueentity.*;
 
 import java.util.Optional;
 
-@Entity(persistenceId = "value-entity-tck-model")
+@ValueEntity(entityType = "value-entity-tck-model")
 public class ValueEntityTckModelEntity {
 
   private final ServiceCallRef<Request> serviceTwoCall;

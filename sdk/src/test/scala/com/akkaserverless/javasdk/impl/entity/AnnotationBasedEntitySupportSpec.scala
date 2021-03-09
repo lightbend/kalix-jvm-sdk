@@ -4,7 +4,7 @@
 
 package com.akkaserverless.javasdk.impl.entity
 
-import com.akkaserverless.javasdk.entity._
+import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk.{EntityContext => _, _}
 import com.example.valueentity.shoppingcart.Shoppingcart
@@ -23,7 +23,7 @@ class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
     }
   }
 
-  object MockContext extends EntityContext with BaseContext {
+  object MockContext extends ValueEntityContext with BaseContext {
     override def entityId(): String = "foo"
   }
 
@@ -64,13 +64,13 @@ class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
   def method(name: String = "AddItem"): ResolvedServiceMethod[String, Wrapped] =
     ResolvedServiceMethod(serviceDescriptor.findMethodByName(name), StringResolvedType, WrappedResolvedType)
 
-  def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): EntityHandler =
+  def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): ValueEntityHandler =
     new AnnotationBasedEntitySupport(behavior.getClass,
                                      anySupport,
                                      methods.map(m => m.descriptor.getName -> m).toMap,
                                      Some(_ => behavior)).create(MockContext)
 
-  def create(clazz: Class[_]): EntityHandler =
+  def create(clazz: Class[_]): ValueEntityHandler =
     new AnnotationBasedEntitySupport(clazz, anySupport, Map.empty, None).create(MockContext)
 
   def command(str: String) =
@@ -254,24 +254,24 @@ class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
 
 import org.scalatest.Matchers._
 
-@Entity
+@ValueEntity
 private class NoArgConstructorTest() {}
 
-@Entity
+@ValueEntity
 private class EntityIdArgConstructorTest(@EntityId entityId: String) {
   entityId should ===("foo")
 }
 
-@Entity
-private class CreationContextArgConstructorTest(ctx: EntityCreationContext) {
+@ValueEntity
+private class CreationContextArgConstructorTest(ctx: ValueEntityCreationContext) {
   ctx.entityId should ===("foo")
 }
 
-@Entity
-private class MultiArgConstructorTest(ctx: EntityContext, @EntityId entityId: String) {
+@ValueEntity
+private class MultiArgConstructorTest(ctx: ValueEntityContext, @EntityId entityId: String) {
   ctx.entityId should ===("foo")
   entityId should ===("foo")
 }
 
-@Entity
+@ValueEntity
 private class UnsupportedConstructorParameter(foo: String)

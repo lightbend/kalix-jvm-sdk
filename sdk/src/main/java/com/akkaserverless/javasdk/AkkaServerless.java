@@ -12,9 +12,9 @@ import com.akkaserverless.javasdk.action.ActionHandler;
 import com.akkaserverless.javasdk.crdt.CrdtEntity;
 import com.akkaserverless.javasdk.crdt.CrdtEntityFactory;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
-import com.akkaserverless.javasdk.entity.Entity;
-import com.akkaserverless.javasdk.entity.EntityFactory;
-import com.akkaserverless.javasdk.entity.EntityOptions;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
+import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourced.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourced.EventSourcedEntityFactory;
 import com.akkaserverless.javasdk.eventsourced.EventSourcedEntityOptions;
@@ -142,13 +142,13 @@ public final class AkkaServerless {
           "The ServiceDescriptor may not be null, verify the service lookup name.");
     }
 
-    final String persistenceId;
+    final String entityType;
     final int snapshotEvery;
-    if (entity.persistenceId().isEmpty()) {
-      persistenceId = entityClass.getSimpleName();
+    if (entity.entityType().isEmpty()) {
+      entityType = entityClass.getSimpleName();
       snapshotEvery = 0; // Default
     } else {
-      persistenceId = entity.persistenceId();
+      entityType = entity.entityType();
       snapshotEvery = entity.snapshotEvery();
     }
 
@@ -159,7 +159,7 @@ public final class AkkaServerless {
             new AnnotationBasedEventSourcedSupport(entityClass, anySupport, descriptor),
             descriptor,
             anySupport,
-            persistenceId,
+            entityType,
             snapshotEvery,
             entityOptions);
 
@@ -176,7 +176,7 @@ public final class AkkaServerless {
    *
    * @param factory The event sourced factory.
    * @param descriptor The descriptor for the service that this entity implements.
-   * @param persistenceId The persistence id for this entity.
+   * @param entityType The persistence id for this entity.
    * @param snapshotEvery Specifies how snapshots of the entity state should be made: Zero means use
    *     default from configuration file. (Default) Any negative value means never snapshot. Any
    *     positive value means snapshot at-or-after that number of events.
@@ -188,7 +188,7 @@ public final class AkkaServerless {
   public AkkaServerless registerEventSourcedEntity(
       EventSourcedEntityFactory factory,
       Descriptors.ServiceDescriptor descriptor,
-      String persistenceId,
+      String entityType,
       int snapshotEvery,
       EventSourcedEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
@@ -200,7 +200,7 @@ public final class AkkaServerless {
                 factory,
                 descriptor,
                 newAnySupport(additionalDescriptors),
-                persistenceId,
+                entityType,
                 snapshotEvery,
                 entityOptions));
 
@@ -358,7 +358,7 @@ public final class AkkaServerless {
   /**
    * Register an annotated value based entity.
    *
-   * <p>The entity class must be annotated with {@link Entity}.
+   * <p>The entity class must be annotated with {@link ValueEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.
@@ -366,18 +366,19 @@ public final class AkkaServerless {
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEntity(
+  public AkkaServerless registerValueEntity(
       Class<?> entityClass,
       Descriptors.ServiceDescriptor descriptor,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    return registerEntity(entityClass, descriptor, EntityOptions.defaults(), additionalDescriptors);
+    return registerValueEntity(
+        entityClass, descriptor, ValueEntityOptions.defaults(), additionalDescriptors);
   }
 
   /**
    * Register an annotated value based entity.
    *
-   * <p>The entity class must be annotated with {@link Entity}.
+   * <p>The entity class must be annotated with {@link ValueEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.
@@ -386,23 +387,23 @@ public final class AkkaServerless {
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEntity(
+  public AkkaServerless registerValueEntity(
       Class<?> entityClass,
       Descriptors.ServiceDescriptor descriptor,
-      EntityOptions entityOptions,
+      ValueEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    Entity entity = entityClass.getAnnotation(Entity.class);
+    ValueEntity entity = entityClass.getAnnotation(ValueEntity.class);
     if (entity == null) {
       throw new IllegalArgumentException(
-          entityClass + " does not declare an " + Entity.class + " annotation!");
+          entityClass + " does not declare an " + ValueEntity.class + " annotation!");
     }
 
-    final String persistenceId;
-    if (entity.persistenceId().isEmpty()) {
-      persistenceId = entityClass.getSimpleName();
+    final String entityType;
+    if (entity.entityType().isEmpty()) {
+      entityType = entityClass.getSimpleName();
     } else {
-      persistenceId = entity.persistenceId();
+      entityType = entity.entityType();
     }
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
@@ -411,7 +412,7 @@ public final class AkkaServerless {
             new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
             descriptor,
             anySupport,
-            persistenceId,
+            entityType,
             entityOptions);
 
     services.put(descriptor.getFullName(), system -> service);
@@ -427,17 +428,17 @@ public final class AkkaServerless {
    *
    * @param factory The value based entity factory.
    * @param descriptor The descriptor for the service that this entity implements.
-   * @param persistenceId The persistence id for this entity.
+   * @param entityType The entity type name
    * @param entityOptions The options for this entity.
    * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEntity(
-      EntityFactory factory,
+  public AkkaServerless registerValueEntity(
+      ValueEntityFactory factory,
       Descriptors.ServiceDescriptor descriptor,
-      String persistenceId,
-      EntityOptions entityOptions,
+      String entityType,
+      ValueEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
     services.put(
@@ -447,7 +448,7 @@ public final class AkkaServerless {
                 factory,
                 descriptor,
                 newAnySupport(additionalDescriptors),
-                persistenceId,
+                entityType,
                 entityOptions));
 
     return this;

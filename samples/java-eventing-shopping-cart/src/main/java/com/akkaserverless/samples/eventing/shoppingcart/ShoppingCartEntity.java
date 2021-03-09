@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /** An event sourced entity. */
-@EventSourcedEntity(persistenceId = "eventsourced-shopping-cart")
+@EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartEntity {
   private final String entityId;
   private final Map<String, Shoppingcart.LineItem> cart = new LinkedHashMap<>();

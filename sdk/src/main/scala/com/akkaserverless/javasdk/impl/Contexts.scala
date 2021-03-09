@@ -5,7 +5,7 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.{ClientActionContext, Context, EffectContext, ServiceCall}
-import com.akkaserverless.protocol.entity._
+import com.akkaserverless.protocol.component._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 

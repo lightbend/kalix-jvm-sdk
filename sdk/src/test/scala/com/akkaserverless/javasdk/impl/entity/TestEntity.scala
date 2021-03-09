@@ -31,7 +31,7 @@ class TestEntityService(entityClass: Class[_], descriptor: ServiceDescriptor, fi
   """))
 
   val runner: AkkaServerlessRunner = new AkkaServerless()
-    .registerEntity(entityClass, descriptor, fileDescriptors: _*)
+    .registerValueEntity(entityClass, descriptor, fileDescriptors: _*)
     .createRunner(config)
 
   runner.run()

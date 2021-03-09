@@ -5,9 +5,9 @@
 package com.akkaserverless.samples.shoppingcart;
 
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.entity.CommandContext;
-import com.akkaserverless.javasdk.entity.CommandHandler;
-import com.akkaserverless.javasdk.entity.Entity;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.example.valueentity.shoppingcart.Shoppingcart;
 import com.example.valueentity.shoppingcart.persistence.Domain;
 import com.google.protobuf.Empty;
@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** A value based entity. */
-@Entity(persistenceId = "shopping-cart")
+@ValueEntity(entityType = "shopping-cart")
 public class ShoppingCartEntity {
 
   private final String entityId;

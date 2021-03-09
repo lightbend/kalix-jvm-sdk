@@ -5,11 +5,11 @@
 package com.akkaserverless.javasdk.impl.entity
 
 import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.javasdk.entity.EntityOptions
+import com.akkaserverless.javasdk.valueentity.ValueEntityOptions
 
 private[impl] case class ValueEntityOptionsImpl(override val passivationStrategy: PassivationStrategy)
-    extends EntityOptions {
+    extends ValueEntityOptions {
 
-  override def withPassivationStrategy(strategy: PassivationStrategy): EntityOptions =
+  override def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions =
     copy(passivationStrategy = strategy)
 }

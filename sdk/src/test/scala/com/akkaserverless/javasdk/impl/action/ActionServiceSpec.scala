@@ -13,8 +13,8 @@ import akkaserverless.javasdk.Actionspec.{In, Out}
 import com.akkaserverless.javasdk.action.{ActionContext, ActionHandler, ActionReply, MessageEnvelope}
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
 import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
-import com.akkaserverless.protocol.action.{ActionCommand, ActionProtocol, ActionResponse}
-import com.akkaserverless.protocol.entity.Reply
+import com.akkaserverless.protocol.action.{Action, ActionCommand, ActionResponse}
+import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.scalatest._
@@ -39,7 +39,7 @@ class ActionServiceSpec extends WordSpec with Matchers with BeforeAndAfterAll wi
     system.terminate()
   }
 
-  def create(handler: ActionHandler): ActionProtocol = {
+  def create(handler: ActionHandler): Action = {
     val service = new ActionService(
       handler,
       serviceDescriptor,
@@ -49,7 +49,7 @@ class ActionServiceSpec extends WordSpec with Matchers with BeforeAndAfterAll wi
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
 
-    new ActionProtocolImpl(system, services, new Context() {
+    new ActionImpl(system, services, new Context() {
       override def serviceCallFactory(): ServiceCallFactory = scf
     })
   }

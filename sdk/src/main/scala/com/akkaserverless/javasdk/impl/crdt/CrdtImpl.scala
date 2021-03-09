@@ -12,7 +12,8 @@ import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.crdt.CrdtStreamIn.{Message => In}
 import com.akkaserverless.protocol.crdt._
-import com.akkaserverless.protocol.entity.{Command, Failure, StreamCancelled}
+import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
+import com.akkaserverless.protocol.entity.Command
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
@@ -31,7 +32,7 @@ final class CrdtStatefulService(val factory: CrdtEntityFactory,
            anySupport: AnySupport,
            entityOptions: CrdtEntityOptions) = this(factory, descriptor, anySupport, Some(entityOptions))
 
-  override final val entityType = Crdt.name
+  override final val componentType = Crdt.name
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {

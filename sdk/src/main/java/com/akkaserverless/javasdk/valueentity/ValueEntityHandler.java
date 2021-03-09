@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.entity;
+package com.akkaserverless.javasdk.valueentity;
 
 import com.google.protobuf.Any;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
  * CommandHandler} and similar annotations should be used.
  */
-public interface EntityHandler {
+public interface ValueEntityHandler {
 
   /**
    * Handle the given command.
