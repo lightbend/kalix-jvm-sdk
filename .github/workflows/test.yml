@@ -22,7 +22,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Set JDK version in files
-        run: sed -i "" "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
+        run: sed -i "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
       - name: Build with Maven
         run: mvn install
       - name: Generate sample project
