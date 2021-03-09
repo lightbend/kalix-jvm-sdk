@@ -21,8 +21,13 @@ jobs:
           server-password: BINTRAY_PASS
       - name: Set version
         run: mvn -B versions:set -DnewVersion="$(git tag|cut -c2-)"
-      - name: Test and publish
+      - name: Test
+        run: |
+          sed -i "s/<jdk.target>11<\/jdk.target>/<jdk.target>8<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
+          mvn -B verify
+          sed -i "s/<jdk.target>8<\/jdk.target>/<jdk.target>11<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
+      - name: Publish
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: mvn -B deploy
+        run: mvn -B -DskipTests=true deploy
