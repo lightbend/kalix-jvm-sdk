@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 1.8, 11 ]
+        java: [ 8, 11 ]
     name: Java ${{ matrix.java }} build
 
     steps:
@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Set JDK version in files
+        run: sed -i "" "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
       - name: Build with Maven
         run: mvn install
       - name: Generate sample project

@@ -17,6 +17,7 @@
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <akkasls.dockerImage>my-docker-repo/${D}{project.artifactId}</akkasls.dockerImage>
     <akkasls.dockerTag>${D}{project.version}</akkasls.dockerTag>
+    <jdk.target>11</jdk.target>
   </properties>
 
   <build>
@@ -34,8 +35,8 @@
         <version>3.8.1</version>
         <configuration>
           <!-- java version -->
-          <source>11</source>
-          <target>11</target>
+          <source>${D}{jdk.target}</source>
+          <target>${D}{jdk.target}</target>
         </configuration>
       </plugin>
 
@@ -92,7 +93,7 @@
               <name>${D}{akkasls.dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:11-jre-hotspot</from>
+                <from>docker.io/library/adoptopenjdk:${D}{jdk.target}-jre-hotspot</from>
                 <tags>
                   <!-- tag for generated image -->
                   <tag>${D}{akkasls.dockerTag}</tag>
