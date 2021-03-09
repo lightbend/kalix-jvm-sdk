@@ -34,8 +34,8 @@
         <version>3.8.1</version>
         <configuration>
           <!-- java version -->
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
 
@@ -92,7 +92,7 @@
               <name>${D}{akkasls.dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>adoptopenjdk/openjdk8:alpine-jre</from>
+                <from>docker.io/library/adoptopenjdk:11-jre-hotspot</from>
                 <tags>
                   <!-- tag for generated image -->
                   <tag>${D}{akkasls.dockerTag}</tag>
