@@ -219,7 +219,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  describe("Set", () => {
         |    it("should...", () => {
         |      const entity = new MockEventSourcedEntity(myservice1, entityId);
-        |      // const result = entity.handle("Set", { entityId });
+        |      // const result = entity.handleCommand("Set", { entityId });
         |      
         |      // expect(result).to.deep.equal({});
         |      // expect(entity.error).to.be.undefined;
@@ -231,7 +231,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  describe("Get", () => {
         |    it("should...", () => {
         |      const entity = new MockEventSourcedEntity(myservice1, entityId);
-        |      // const result = entity.handle("Get", { entityId });
+        |      // const result = entity.handleCommand("Get", { entityId });
         |      
         |      // expect(result).to.deep.equal({});
         |      // expect(entity.error).to.be.undefined;

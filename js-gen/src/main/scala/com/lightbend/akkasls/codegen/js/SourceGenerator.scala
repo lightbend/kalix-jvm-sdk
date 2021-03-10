@@ -237,7 +237,7 @@ object SourceGenerator extends PrettyPrinter {
                       "const entity" <+> equal <+> "new MockEventSourcedEntity" <> parens(
                         entityName <> comma <+> "entityId"
                       ) <> semi <> line <>
-                      "// const result" <+> equal <+> "entity.handle" <> parens(
+                      "// const result" <+> equal <+> "entity.handleCommand" <> parens(
                         dquotes(name(command.fullname)) <> comma <+> braces(" entityId ")
                       ) <> semi <> line <>
                       line <>
