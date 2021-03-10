@@ -122,7 +122,7 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.EventSourcedEntity
   ): Document =
     pretty(
-      """const EventSourced = require("cloudstate").EventSourced""" <> semi <> line <>
+      """import { EventSourced } from "cloudstate"""" <> semi <> line <>
       line <>
       "const entity = new EventSourced" <> parens(
         nest(
@@ -206,7 +206,7 @@ object SourceGenerator extends PrettyPrinter {
         line <> line
       ) <> line <>
       line <>
-      "module.exports = entity;"
+      "export default entity;"
     )
 
   // TODO: Generate the test source
@@ -221,10 +221,14 @@ object SourceGenerator extends PrettyPrinter {
     pretty(
       ssep(
         entities.map { case entity: ModelBuilder.EventSourcedEntity =>
-          val entityFilename = name(entity.fullName).toLowerCase + ".js"
-          "require" <> parens(
-            dquotes("./" <> entityFilename)
-          ) <> ".start()" <> semi
+          val entityName = name(entity.fullName).toLowerCase
+          "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi
+        }.toSeq,
+        line
+      ) <> line <> line <>
+      ssep(
+        entities.map { case entity: ModelBuilder.EventSourcedEntity =>
+          name(entity.fullName).toLowerCase <> ".start()" <> semi
         }.toSeq,
         line
       )
