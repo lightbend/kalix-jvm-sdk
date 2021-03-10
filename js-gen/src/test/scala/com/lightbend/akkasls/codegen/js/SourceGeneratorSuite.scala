@@ -186,6 +186,63 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("test source") {
+    val entity =
+      ModelBuilder.EventSourcedEntity(
+        Some("com/lightbend"),
+        Some("MyEntity1"),
+        "com.lightbend.MyService1",
+        List(
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Set",
+            "com.lightbend.SetValue",
+            "com.google.protobuf.Empty"
+          ),
+          ModelBuilder.Command(
+            "com.lightbend.MyService.Get",
+            "com.lightbend.GetValue",
+            "com.lightbend.MyState"
+          )
+        )
+      )
+
+    val sourceDoc = SourceGenerator.testSource(entity)
+    assertEquals(
+      sourceDoc.layout,
+      """import { MockEventSourcedEntity } from "./testkit.js";
+        |import { expect } from "chai";
+        |import myservice1 from "./myservice1.js";
+        |
+        |describe("MyService1", () => {
+        |  const entityId = "entityId";
+        |  
+        |  describe("Set", () => {
+        |    it("should...", () => {
+        |      const entity = new MockEventSourcedEntity(myservice1, entityId);
+        |      // const result = entity.handle("Set", { entityId });
+        |      
+        |      // expect(result).to.deep.equal({});
+        |      // expect(entity.error).to.be.undefined;
+        |      // expect(entity.state).to.deep.equal({});
+        |      // expect(entity.events).to.deep.equal([]);
+        |    });
+        |  });
+        |  
+        |  describe("Get", () => {
+        |    it("should...", () => {
+        |      const entity = new MockEventSourcedEntity(myservice1, entityId);
+        |      // const result = entity.handle("Get", { entityId });
+        |      
+        |      // expect(result).to.deep.equal({});
+        |      // expect(entity.error).to.be.undefined;
+        |      // expect(entity.state).to.deep.equal({});
+        |      // expect(entity.events).to.deep.equal([]);
+        |    });
+        |  });
+        |});""".stripMargin
+    )
+  }
+
   test("index source") {
     val entities = List(
       ModelBuilder.EventSourcedEntity(
