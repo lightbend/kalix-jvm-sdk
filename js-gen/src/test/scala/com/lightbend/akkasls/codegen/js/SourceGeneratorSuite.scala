@@ -112,9 +112,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
           )
 
           // Test that the main, source and test files are being written to
-          assertEquals(Files.readAllBytes(sources.head).head.toChar, 'c')
-          assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'c')
-          assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'r')
+          assertEquals(Files.readAllBytes(sources.head).head.toChar, 'i')
+          assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'i')
+          assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'i')
 
         } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
       } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
@@ -148,7 +148,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       SourceGenerator.source(protoSources, protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """const EventSourced = require("cloudstate").EventSourced;
+      """import { EventSourced } from "cloudstate";
         |
         |const entity = new EventSourced(
         |  [
@@ -182,7 +182,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  ctx.fail("The command handler for `Get` is not implemented, yet");
         |}
         |
-        |module.exports = entity;""".stripMargin
+        |export default entity;""".stripMargin
     )
   }
 
@@ -210,7 +210,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val sourceDoc = SourceGenerator.indexSource(entities)
     assertEquals(
       sourceDoc.layout,
-      """require("./myservice1.js").start();"""
+      """import myservice1 from "./myservice1.js";
+        |
+        |myservice1.start();""".stripMargin
     )
   }
 }
