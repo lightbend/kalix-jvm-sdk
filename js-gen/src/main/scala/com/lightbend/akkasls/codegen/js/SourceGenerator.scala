@@ -66,7 +66,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = testSourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
             testSourcePath,
-            testSource(protobufDescriptor, entity).layout.getBytes(
+            testSource(entity).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -211,9 +211,65 @@ object SourceGenerator extends PrettyPrinter {
 
   // TODO: Generate the test source
   private[codegen] def testSource(
-      protobufDescriptor: Path,
       entity: ModelBuilder.EventSourcedEntity
-  ): Document = pretty(emptyDoc)
+  ): Document = {
+
+    val entityName = name(entity.fullName).toLowerCase
+    pretty(
+      """import { MockEventSourcedEntity } from "./testkit.js"""" <> semi <> line <>
+      """import { expect } from "chai"""" <> semi <> line <>
+      "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi <> line <>
+      line <>
+
+      "describe" <> parens(
+        dquotes(name(entity.fullName)) <> comma <+> arrowFn(
+          List.empty,
+          "const" <+> "entityId" <+> equal <+> dquotes("entityId") <> semi <> line <>
+          line <>
+          ssep(
+            entity.commands.map { command =>
+              "describe" <> parens(
+                dquotes(name(command.fullname)) <> comma <+> arrowFn(
+                  List.empty,
+                  "it" <> parens(
+                    dquotes("should...") <> comma <+> arrowFn(
+                      List.empty,
+                      "const entity" <+> equal <+> "new MockEventSourcedEntity" <> parens(
+                        entityName <> comma <+> "entityId"
+                      ) <> semi <> line <>
+                      "// const result" <+> equal <+> "entity.handle" <> parens(
+                        dquotes(name(command.fullname)) <> comma <+> braces(" entityId ")
+                      ) <> semi <> line <>
+                      line <>
+                      "// expect" <> parens(
+                        "result"
+                      ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
+                        braces("")
+                      ) <> semi <> line <>
+                      "// expect" <> parens(
+                        "entity.error"
+                      ) <> dot <> "to" <> dot <> "be" <> dot <> "undefined" <> semi <> line <>
+                      "// expect" <> parens(
+                        "entity.state"
+                      ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
+                        braces("")
+                      ) <> semi <> line <>
+                      "// expect" <> parens(
+                        "entity.events"
+                      ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
+                        "[]"
+                      ) <> semi
+                    )
+                  ) <> semi
+                )
+              ) <> semi
+            }.toSeq,
+            line <> line
+          )
+        )
+      ) <> semi
+    )
+  }
 
   private[codegen] def indexSource(
       entities: Iterable[ModelBuilder.Entity]
@@ -242,5 +298,8 @@ object SourceGenerator extends PrettyPrinter {
       case Some(c) => c.toLower.toString + text.drop(1)
       case None    => ""
     }
+
+  private def arrowFn(args: Seq[String], body: Doc) =
+    parens(ssep(args.map(text), comma)) <+> "=>" <+> braces(nest(line <> body) <> line)
 
 }
