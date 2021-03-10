@@ -10,12 +10,13 @@ import com.akkaserverless.javasdk.{EntityContext => _, _}
 import com.example.valueentity.shoppingcart.Shoppingcart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import java.util.Optional
 import scala.compat.java8.OptionConverters._
 
-class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
+class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {
     override def serviceCallFactory(): ServiceCallFactory = new ServiceCallFactory {
       override def lookup[T](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T] =
@@ -252,7 +253,7 @@ class AnnotationBasedValueEntitySupportSpec extends WordSpec with Matchers {
   }
 }
 
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
 
 @ValueEntity
 private class NoArgConstructorTest() {}

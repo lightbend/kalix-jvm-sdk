@@ -9,12 +9,14 @@ import com.akkaserverless.javasdk.eventsourced._
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.eventsourced.EventSourcedMessages
 import com.google.protobuf.Empty
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class EventSourcedImplSpec extends WordSpec with Matchers with BeforeAndAfterAll {
+class EventSourcedImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import EventSourcedImplSpec._
   import EventSourcedMessages._
   import ShoppingCart.Item

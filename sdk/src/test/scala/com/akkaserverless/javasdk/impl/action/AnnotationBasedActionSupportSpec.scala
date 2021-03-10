@@ -14,7 +14,9 @@ import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.{Metadata, ServiceCallFactory}
 import com.google.protobuf
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import java.util.Optional
 import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
@@ -22,7 +24,7 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class AnnotationBasedActionSupportSpec extends WordSpec with Matchers with BeforeAndAfterAll {
+class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 
   private implicit val sys = ActorSystem("AnnotationBasedActionSupportSpec")
 

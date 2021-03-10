@@ -10,9 +10,10 @@ import com.akkaserverless.javasdk._
 import com.example.shoppingcart.Shoppingcart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
-class AnnotationBasedEventSourcedSupportSpec extends WordSpec with Matchers {
+class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   trait BaseContext extends Context {
     override def serviceCallFactory(): ServiceCallFactory = new ServiceCallFactory {
@@ -418,7 +419,7 @@ class AnnotationBasedEventSourcedSupportSpec extends WordSpec with Matchers {
 
 }
 
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
 
 @EventSourcedEntity
 private class NoArgConstructorTest() {}

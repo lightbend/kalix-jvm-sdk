@@ -10,11 +10,12 @@ import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, Resol
 import com.example.shoppingcart.Shoppingcart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import java.util.Optional
 
-class AnnotationBasedCrdtSupportSpec extends WordSpec with Matchers {
+class AnnotationBasedCrdtSupportSpec extends AnyWordSpec with Matchers {
 
   trait BaseContext extends Context {
     override def serviceCallFactory(): ServiceCallFactory = new ServiceCallFactory {
@@ -128,7 +129,7 @@ class AnnotationBasedCrdtSupportSpec extends WordSpec with Matchers {
   }
 }
 
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
 
 @CrdtEntity
 private class OptionalEmptyCrdtConstructorTest(crdt: Optional[Vote]) {

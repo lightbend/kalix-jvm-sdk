@@ -17,14 +17,17 @@ import com.akkaserverless.protocol.action.{Action, ActionCommand, ActionResponse
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import org.scalatest._
-
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import java.util.concurrent.{CompletableFuture, CompletionStage}
+
+import org.scalatest.{BeforeAndAfterAll, Inside, OptionValues}
+
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class ActionServiceSpec extends WordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
+class ActionServiceSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 
   private implicit val system = ActorSystem("ActionServiceSpec")
 

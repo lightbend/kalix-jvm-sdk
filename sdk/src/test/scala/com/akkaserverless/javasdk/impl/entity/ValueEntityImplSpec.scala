@@ -9,13 +9,15 @@ import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, V
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.valueentity.ValueEntityMessages
 import com.google.protobuf.Empty
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import java.util.Optional
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class ValueEntityImplSpec extends WordSpec with Matchers with BeforeAndAfterAll {
+class ValueEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import ValueEntityImplSpec._
   import ShoppingCart.Item
   import ShoppingCart.Protocol._

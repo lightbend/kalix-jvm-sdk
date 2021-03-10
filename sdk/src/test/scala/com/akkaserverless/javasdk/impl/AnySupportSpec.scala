@@ -9,11 +9,13 @@ import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.Shoppingcart
 import com.google.protobuf.{ByteString, Empty}
-import org.scalatest.{Matchers, OptionValues, WordSpec}
+import org.scalatest.OptionValues
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.beans.BeanProperty
 
-class AnySupportSpec extends WordSpec with Matchers with OptionValues {
+class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
   private val anySupport = new AnySupport(
     Array(Shoppingcart.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
