@@ -15,18 +15,18 @@ import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.eventsourced.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourced.EventSourcedEntityFactory;
-import com.akkaserverless.javasdk.eventsourced.EventSourcedEntityOptions;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.impl.AnySupport;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
 import com.akkaserverless.javasdk.impl.crdt.AnnotationBasedCrdtSupport;
 import com.akkaserverless.javasdk.impl.crdt.CrdtStatefulService;
-import com.akkaserverless.javasdk.impl.entity.AnnotationBasedEntitySupport;
-import com.akkaserverless.javasdk.impl.entity.ValueEntityStatefulService;
-import com.akkaserverless.javasdk.impl.eventsourced.AnnotationBasedEventSourcedSupport;
-import com.akkaserverless.javasdk.impl.eventsourced.EventSourcedStatefulService;
+import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityStatefulService;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedStatefulService;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
@@ -96,7 +96,7 @@ public final class AkkaServerless {
    * Register an annotated event sourced entity.
    *
    * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourced.EventSourcedEntity}.
+   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.
@@ -117,7 +117,7 @@ public final class AkkaServerless {
    * Register an annotated event sourced entity.
    *
    * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourced.EventSourcedEntity}.
+   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.

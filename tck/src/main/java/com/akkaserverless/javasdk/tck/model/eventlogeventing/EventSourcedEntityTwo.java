@@ -4,10 +4,10 @@
 
 package com.akkaserverless.javasdk.tck.model.eventlogeventing;
 
-import com.akkaserverless.javasdk.eventsourced.CommandContext;
-import com.akkaserverless.javasdk.eventsourced.CommandHandler;
-import com.akkaserverless.javasdk.eventsourced.EventHandler;
-import com.akkaserverless.javasdk.eventsourced.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.tck.model.Eventlogeventing;
 import com.google.protobuf.Empty;
 

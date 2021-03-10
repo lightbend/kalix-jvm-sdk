@@ -6,8 +6,8 @@ package docs.user.effects;
 
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.eventsourced.CommandContext;
-import com.akkaserverless.javasdk.eventsourced.CommandHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
 import com.example.Hotitems;
 import com.example.Shoppingcart;
 import com.google.protobuf.Empty;

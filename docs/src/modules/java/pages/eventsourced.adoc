@@ -6,7 +6,7 @@ An event sourced entity can be created by annotating it with the link:{attachmen
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=entity-class]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=entity-class]
 ----
 
 The `entityType` is used to namespace events in the journal. This is useful when you share the same database between multiple entities. It defaults to the simple name for the entity class (in this case, `ShoppingCartEntity`). It is good practice to explicitly define an `entityType`. This helps to decouple the journal data from the classnames in your code—the event naming in the journal remains coherent, even if the underlying entity classname may have changed.
@@ -32,7 +32,7 @@ Each entity should store its state locally in a mutable variable, either a mutab
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=entity-state]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=entity-state]
 ----
 
 == Constructing
@@ -41,7 +41,7 @@ The context available for injection into the constructor is a link:{attachmentsd
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=constructing]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=constructing]
 ----
 
 == Handling commands
@@ -58,7 +58,7 @@ The following shows the implementation of the `GetCart` command handler. This co
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=get-cart]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=get-cart]
 ----
 
 === Emitting events
@@ -75,7 +75,7 @@ Here's an example of a command handler that emits an event:
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=add-item]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=add-item]
 ----
 
 This command handler also validates the command, ensuring the quantity items added is greater than zero. Invoking `ctx.fail` fails the command - this method throws so there's no need to explicitly throw an exception.
@@ -94,7 +94,7 @@ Here's an example event handler for the `ItemAdded` event. A utility method, `co
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=item-added]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=item-added]
 ----
 
 == Producing and handling snapshots
@@ -103,7 +103,7 @@ Snapshots are an important optimisation for event sourced entities that may cont
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=snapshot]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=snapshot]
 ----
 
 When the entity is loaded again, the snapshot will first be loaded before any other events are received, and passed to a snapshot handler. Snapshot handlers are declare by annotating a method with link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourced/SnapshotHandler.html[`@SnapshotHandler`], and it can take a context class of type link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourced/SnapshotContext.html[`SnapshotContext`].
@@ -112,7 +112,7 @@ Multiple snapshot handlers may be defined to handle multiple different types of 
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=handle-snapshot]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=handle-snapshot]
 ----
 
 == Registering the entity
@@ -121,5 +121,5 @@ Once you've created your entity, you can register it with the link:{attachmentsd
 
 [source,java]
 ----
-include::example$docs/user/eventsourced/ShoppingCartEntity.java[tag=register]
+include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=register]
 ----

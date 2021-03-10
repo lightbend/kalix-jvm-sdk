@@ -11,8 +11,8 @@ import akka.http.scaladsl.model._
 import akka.stream.{ActorMaterializer, Materializer}
 import com.akkaserverless.javasdk.impl.action.{ActionImpl, ActionService}
 import com.akkaserverless.javasdk.impl.crdt.{CrdtImpl, CrdtStatefulService}
-import com.akkaserverless.javasdk.impl.entity.{ValueEntityImpl, ValueEntityStatefulService}
-import com.akkaserverless.javasdk.impl.eventsourced.{EventSourcedImpl, EventSourcedStatefulService}
+import com.akkaserverless.javasdk.impl.valueentity.{ValueEntityImpl, ValueEntityStatefulService}
+import com.akkaserverless.javasdk.impl.eventsourcedentity.{EventSourcedImpl, EventSourcedStatefulService}
 import com.akkaserverless.javasdk.impl.{DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
 import com.akkaserverless.protocol.action.ActionHandler
 import com.akkaserverless.protocol.crdt.CrdtHandler

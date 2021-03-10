@@ -5,7 +5,7 @@
 package com.akkaserverless.samples.eventing.shoppingcart;
 
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.eventsourced.*;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.example.eventing.shoppingcart.Shoppingcart;
 import com.example.eventing.shoppingcart.persistence.Domain;
 import com.google.protobuf.Empty;

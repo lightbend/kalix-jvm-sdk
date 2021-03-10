@@ -5,7 +5,7 @@
 package com.akkaserverless.javasdk.valueentity;
 
 import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.impl.entity.ValueEntityOptionsImpl;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityOptionsImpl;
 
 /** Root entity options for all value based entities. */
 public interface ValueEntityOptions extends com.akkaserverless.javasdk.EntityOptions {

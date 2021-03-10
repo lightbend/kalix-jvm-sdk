@@ -4,7 +4,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{eventsourced, valueentity}
+import com.akkaserverless.javasdk.{eventsourcedentity, valueentity}
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
@@ -25,7 +25,7 @@ object EntityExceptions {
     def apply(context: valueentity.CommandContext[_], message: String): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message)
 
-    def apply(context: eventsourced.CommandContext, message: String): EntityException =
+    def apply(context: eventsourcedentity.CommandContext, message: String): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message)
   }
 

@@ -5,7 +5,7 @@
 package com.akkaserverless.samples.pingpong;
 
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.eventsourced.*;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.pingpong.Pingpong;
 import com.google.protobuf.Empty;
 
