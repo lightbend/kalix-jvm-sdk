@@ -13,7 +13,7 @@ import akkaserverless.javasdk.Actionspec.{In, Out}
 import com.akkaserverless.javasdk.action.{ActionContext, ActionHandler, ActionReply, MessageEnvelope}
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
 import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
-import com.akkaserverless.protocol.action.{Action, ActionCommand, ActionResponse}
+import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
@@ -27,9 +27,9 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class ActionServiceSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
+class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 
-  private implicit val system = ActorSystem("ActionServiceSpec")
+  private implicit val system = ActorSystem("ActionsSpec")
 
   import system.dispatcher
 
@@ -42,7 +42,7 @@ class ActionServiceSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     system.terminate()
   }
 
-  def create(handler: ActionHandler): Action = {
+  def create(handler: ActionHandler): Actions = {
     val service = new ActionService(
       handler,
       serviceDescriptor,
@@ -52,7 +52,7 @@ class ActionServiceSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
 
-    new ActionImpl(system, services, new Context() {
+    new ActionsImpl(system, services, new Context() {
       override def serviceCallFactory(): ServiceCallFactory = scf
     })
   }

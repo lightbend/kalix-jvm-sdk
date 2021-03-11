@@ -19,7 +19,7 @@ import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{
   Init => InInit
 }
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
-import com.akkaserverless.protocol.value_entity.{ValueEntity, _}
+import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
@@ -27,11 +27,11 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 
-final class ValueEntityStatefulService(val factory: ValueEntityFactory,
-                                       override val descriptor: Descriptors.ServiceDescriptor,
-                                       val anySupport: AnySupport,
-                                       override val entityType: String,
-                                       override val entityOptions: Option[ValueEntityOptions])
+final class ValueEntityService(val factory: ValueEntityFactory,
+                               override val descriptor: Descriptors.ServiceDescriptor,
+                               val anySupport: AnySupport,
+                               override val entityType: String,
+                               override val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
   def this(factory: ValueEntityFactory,
@@ -47,14 +47,14 @@ final class ValueEntityStatefulService(val factory: ValueEntityFactory,
       case _ => None
     }
 
-  override final val componentType = ValueEntity.name
+  override final val componentType = ValueEntities.name
 }
 
-final class ValueEntityImpl(_system: ActorSystem,
-                            _services: Map[String, ValueEntityStatefulService],
-                            rootContext: Context,
-                            configuration: Configuration)
-    extends ValueEntity {
+final class ValueEntitiesImpl(_system: ActorSystem,
+                              _services: Map[String, ValueEntityService],
+                              rootContext: Context,
+                              configuration: Configuration)
+    extends ValueEntities {
 
   import EntityExceptions._
 

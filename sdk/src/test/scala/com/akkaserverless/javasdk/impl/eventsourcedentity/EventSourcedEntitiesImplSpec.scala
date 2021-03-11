@@ -16,8 +16,8 @@ import org.scalatest.matchers.should.Matchers
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class EventSourcedImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
-  import EventSourcedImplSpec._
+class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
+  import EventSourcedEntitiesImplSpec._
   import EventSourcedMessages._
   import ShoppingCart.Item
   import ShoppingCart.Protocol._
@@ -213,7 +213,7 @@ class EventSourcedImplSpec extends AnyWordSpec with Matchers with BeforeAndAfter
   }
 }
 
-object EventSourcedImplSpec {
+object EventSourcedEntitiesImplSpec {
   object ShoppingCart {
     import com.example.shoppingcart.Shoppingcart
     import com.example.shoppingcart.persistence.Domain

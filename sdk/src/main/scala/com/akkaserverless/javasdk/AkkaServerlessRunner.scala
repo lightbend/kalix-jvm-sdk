@@ -9,16 +9,16 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import akka.stream.{ActorMaterializer, Materializer}
-import com.akkaserverless.javasdk.impl.action.{ActionImpl, ActionService}
+import com.akkaserverless.javasdk.impl.action.{ActionService, ActionsImpl}
 import com.akkaserverless.javasdk.impl.crdt.{CrdtImpl, CrdtStatefulService}
-import com.akkaserverless.javasdk.impl.valueentity.{ValueEntityImpl, ValueEntityStatefulService}
-import com.akkaserverless.javasdk.impl.eventsourcedentity.{EventSourcedImpl, EventSourcedStatefulService}
+import com.akkaserverless.javasdk.impl.valueentity.{ValueEntitiesImpl, ValueEntityService}
+import com.akkaserverless.javasdk.impl.eventsourcedentity.{EventSourcedEntitiesImpl, EventSourcedEntityService}
 import com.akkaserverless.javasdk.impl.{DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
-import com.akkaserverless.protocol.action.ActionHandler
+import com.akkaserverless.protocol.action.ActionsHandler
 import com.akkaserverless.protocol.crdt.CrdtHandler
 import com.akkaserverless.protocol.discovery.DiscoveryHandler
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityHandler
-import com.akkaserverless.protocol.value_entity.ValueEntityHandler
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
+import com.akkaserverless.protocol.value_entity.ValueEntitiesHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -95,10 +95,10 @@ final class AkkaServerlessRunner private[this] (
     val serviceRoutes =
       services.groupBy(_._2.getClass).foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) {
 
-        case (route, (serviceClass, eventSourcedServices: Map[String, EventSourcedStatefulService] @unchecked))
-            if serviceClass == classOf[EventSourcedStatefulService] =>
-          val eventSourcedImpl = new EventSourcedImpl(system, eventSourcedServices, rootContext, configuration)
-          route orElse EventSourcedEntityHandler.partial(eventSourcedImpl)
+        case (route, (serviceClass, eventSourcedServices: Map[String, EventSourcedEntityService] @unchecked))
+            if serviceClass == classOf[EventSourcedEntityService] =>
+          val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, rootContext, configuration)
+          route orElse EventSourcedEntitiesHandler.partial(eventSourcedImpl)
 
         case (route, (serviceClass, crdtServices: Map[String, CrdtStatefulService] @unchecked))
             if serviceClass == classOf[CrdtStatefulService] =>
@@ -107,13 +107,13 @@ final class AkkaServerlessRunner private[this] (
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
             if serviceClass == classOf[ActionService] =>
-          val actionImpl = new ActionImpl(system, actionServices, rootContext)
-          route orElse ActionHandler.partial(actionImpl)
+          val actionImpl = new ActionsImpl(system, actionServices, rootContext)
+          route orElse ActionsHandler.partial(actionImpl)
 
-        case (route, (serviceClass, entityServices: Map[String, ValueEntityStatefulService] @unchecked))
-            if serviceClass == classOf[ValueEntityStatefulService] =>
-          val valueEntityImpl = new ValueEntityImpl(system, entityServices, rootContext, configuration)
-          route orElse ValueEntityHandler.partial(valueEntityImpl)
+        case (route, (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
+            if serviceClass == classOf[ValueEntityService] =>
+          val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, rootContext, configuration)
+          route orElse ValueEntitiesHandler.partial(valueEntityImpl)
 
         case (_, (serviceClass, _)) =>
           sys.error(s"Unknown StatefulService: $serviceClass")
@@ -154,7 +154,7 @@ final class AkkaServerlessRunner private[this] (
 }
 
 /**
- * Service describes an entity type in a way which makes it possible to deploy.
+ * Service describes a component type in a way which makes it possible to deploy.
  */
 trait Service {
 

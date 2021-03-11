@@ -17,8 +17,8 @@ import java.util.Optional
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class ValueEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
-  import ValueEntityImplSpec._
+class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
+  import ValueEntitiesImplSpec._
   import ShoppingCart.Item
   import ShoppingCart.Protocol._
   import ValueEntityMessages._
@@ -176,7 +176,7 @@ class ValueEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterA
   }
 }
 
-object ValueEntityImplSpec {
+object ValueEntitiesImplSpec {
   object ShoppingCart {
 
     import com.example.valueentity.shoppingcart.Shoppingcart

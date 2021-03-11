@@ -10,7 +10,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk._
-import com.akkaserverless.protocol.action.{Action, ActionCommand, ActionResponse}
+import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
 import com.akkaserverless.protocol.component.{Failure, Forward, Reply, SideEffect, Metadata => PbMetadata}
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
@@ -31,11 +31,11 @@ final class ActionService(val actionHandler: ActionHandler,
       case _ => None
     }
 
-  override final val componentType = Action.name
+  override final val componentType = Actions.name
 }
 
-final class ActionImpl(_system: ActorSystem, services: Map[String, ActionService], rootContext: Context)
-    extends Action {
+final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionService], rootContext: Context)
+    extends Actions {
 
   import _system.dispatcher
   implicit val system: ActorSystem = _system

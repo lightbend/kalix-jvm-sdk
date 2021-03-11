@@ -6,7 +6,7 @@ package com.akkaserverless.javasdk.impl
 
 import akka.actor.ActorSystem
 import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
-import com.akkaserverless.protocol.action.Action
+import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
@@ -64,7 +64,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     val components = services.map {
       case (name, service) =>
         service.componentType match {
-          case Action.name =>
+          case Actions.name =>
             Component(service.componentType, name, Component.ComponentSettings.Empty)
           case _ =>
             val passivationStrategy = entityPassivationStrategy(service.entityOptions)

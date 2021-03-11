@@ -41,7 +41,10 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       val error = UserFunctionError("error")
       val any = anySupport.encodeScala(UserFunctionError("error"))
       any.typeUrl should ===("com.example/akkaserverless.UserFunctionError")
-      anySupport.decode(any) should ===(error)
+
+      val decoded = anySupport.decode(any)
+      decoded.getClass should ===(error.getClass)
+      decoded should ===(error)
     }
 
     "support resolving a service descriptor" in {

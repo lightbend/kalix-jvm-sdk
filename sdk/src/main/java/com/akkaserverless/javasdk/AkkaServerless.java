@@ -24,9 +24,9 @@ import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
 import com.akkaserverless.javasdk.impl.crdt.AnnotationBasedCrdtSupport;
 import com.akkaserverless.javasdk.impl.crdt.CrdtStatefulService;
 import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityStatefulService;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedStatefulService;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
@@ -154,8 +154,8 @@ public final class AkkaServerless {
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
 
-    EventSourcedStatefulService service =
-        new EventSourcedStatefulService(
+    EventSourcedEntityService service =
+        new EventSourcedEntityService(
             new AnnotationBasedEventSourcedSupport(entityClass, anySupport, descriptor),
             descriptor,
             anySupport,
@@ -196,7 +196,7 @@ public final class AkkaServerless {
     services.put(
         descriptor.getFullName(),
         system ->
-            new EventSourcedStatefulService(
+            new EventSourcedEntityService(
                 factory,
                 descriptor,
                 newAnySupport(additionalDescriptors),
@@ -407,8 +407,8 @@ public final class AkkaServerless {
     }
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ValueEntityStatefulService service =
-        new ValueEntityStatefulService(
+    ValueEntityService service =
+        new ValueEntityService(
             new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
             descriptor,
             anySupport,
@@ -444,7 +444,7 @@ public final class AkkaServerless {
     services.put(
         descriptor.getFullName(),
         system ->
-            new ValueEntityStatefulService(
+            new ValueEntityService(
                 factory,
                 descriptor,
                 newAnySupport(additionalDescriptors),

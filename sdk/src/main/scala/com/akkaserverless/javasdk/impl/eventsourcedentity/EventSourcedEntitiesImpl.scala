@@ -22,19 +22,19 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Me
   Failure => OutFailure,
   Reply => OutReply
 }
-import com.akkaserverless.protocol.event_sourced_entity.{EventSourcedEntity => EventSourcedEntityService, _}
+import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
 import java.util.Optional
 import scala.util.control.NonFatal
 
-final class EventSourcedStatefulService(val factory: EventSourcedEntityFactory,
-                                        override val descriptor: Descriptors.ServiceDescriptor,
-                                        val anySupport: AnySupport,
-                                        override val entityType: String,
-                                        val snapshotEvery: Int,
-                                        override val entityOptions: Option[EventSourcedEntityOptions])
+final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
+                                      override val descriptor: Descriptors.ServiceDescriptor,
+                                      val anySupport: AnySupport,
+                                      override val entityType: String,
+                                      val snapshotEvery: Int,
+                                      override val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
 
   def this(factory: EventSourcedEntityFactory,
@@ -51,24 +51,24 @@ final class EventSourcedStatefulService(val factory: EventSourcedEntityFactory,
       case _ => None
     }
 
-  override final val componentType = EventSourcedEntityService.name
-  final def withSnapshotEvery(snapshotEvery: Int): EventSourcedStatefulService =
+  override final val componentType = EventSourcedEntities.name
+  final def withSnapshotEvery(snapshotEvery: Int): EventSourcedEntityService =
     if (snapshotEvery != this.snapshotEvery)
-      new EventSourcedStatefulService(this.factory,
-                                      this.descriptor,
-                                      this.anySupport,
-                                      this.entityType,
-                                      snapshotEvery,
-                                      this.entityOptions)
+      new EventSourcedEntityService(this.factory,
+                                    this.descriptor,
+                                    this.anySupport,
+                                    this.entityType,
+                                    snapshotEvery,
+                                    this.entityOptions)
     else
       this
 }
 
-final class EventSourcedImpl(_system: ActorSystem,
-                             _services: Map[String, EventSourcedStatefulService],
-                             rootContext: Context,
-                             configuration: Configuration)
-    extends EventSourcedEntityService {
+final class EventSourcedEntitiesImpl(_system: ActorSystem,
+                                     _services: Map[String, EventSourcedEntityService],
+                                     rootContext: Context,
+                                     configuration: Configuration)
+    extends EventSourcedEntities {
   import EntityExceptions._
 
   private final val system = _system
