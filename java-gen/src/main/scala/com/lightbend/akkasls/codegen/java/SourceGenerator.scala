@@ -182,13 +182,18 @@ object SourceGenerator extends PrettyPrinter {
             ) {
               "entity" <+> equal <+> "new" <+> className <> parens("entityId") <> semi <> line <>
               line <>
-              "// entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
-                entity.javaOuterClassname.fold(emptyDoc)(ocn => name(ocn) <> dot) <> name(
-                  command.fullname
-                ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
+              "// TODO: you may want to set fields in addition to the entity id" <> line <>
+              "//" <> indent(
+                "entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
+                  qualifiedType(
+                    command.inputType,
+                    entity.javaOuterClassname
+                  ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
+                )
               ) <> semi <> line <>
               line <>
-              "// Mockito.verify(context).emit(event)" <> semi
+              "// TODO: if you wish to verify events:" <> line <>
+              "//" <> indent("Mockito.verify(context).emit(event)") <> semi
             }
           },
           line <> line
