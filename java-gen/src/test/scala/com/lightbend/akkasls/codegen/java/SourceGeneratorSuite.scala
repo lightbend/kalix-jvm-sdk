@@ -206,18 +206,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    public void setTest() {
         |        entity = new MyServiceEntity(entityId);
         |        
-        |        // entity.set(MyEntity.Set.newBuilder().setEntityId(entityId).build(), context);
+        |        // TODO: you may want to set fields in addition to the entity id
+        |        //    entity.set(MyEntity.SetValue.newBuilder().setEntityId(entityId).build(), context);
         |        
-        |        // Mockito.verify(context).emit(event);
+        |        // TODO: if you wish to verify events:
+        |        //    Mockito.verify(context).emit(event);
         |    }
         |    
         |    @Test
         |    public void getTest() {
         |        entity = new MyServiceEntity(entityId);
         |        
-        |        // entity.get(MyEntity.Get.newBuilder().setEntityId(entityId).build(), context);
+        |        // TODO: you may want to set fields in addition to the entity id
+        |        //    entity.get(MyEntity.GetValue.newBuilder().setEntityId(entityId).build(), context);
         |        
-        |        // Mockito.verify(context).emit(event);
+        |        // TODO: if you wish to verify events:
+        |        //    Mockito.verify(context).emit(event);
         |    }
         |}""".stripMargin
     )
