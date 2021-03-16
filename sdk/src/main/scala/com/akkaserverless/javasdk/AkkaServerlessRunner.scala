@@ -21,8 +21,10 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHand
 import com.akkaserverless.protocol.value_entity.ValueEntitiesHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
-
 import java.util.concurrent.CompletionStage
+
+import com.akkaserverless.javasdk.impl.view.ViewEntityStatefulService
+
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -114,6 +116,11 @@ final class AkkaServerlessRunner private[this] (
             if serviceClass == classOf[ValueEntityService] =>
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, rootContext, configuration)
           route orElse ValueEntitiesHandler.partial(valueEntityImpl)
+
+        case (route, (serviceClass, entityServices: Map[String, ViewEntityStatefulService] @unchecked))
+            if serviceClass == classOf[ViewEntityStatefulService] =>
+          // No routes to add for now
+          route
 
         case (_, (serviceClass, _)) =>
           sys.error(s"Unknown StatefulService: $serviceClass")

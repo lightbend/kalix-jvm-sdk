@@ -6,12 +6,14 @@ package com.akkaserverless.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionHandler;
 import com.akkaserverless.javasdk.crdt.CrdtEntity;
 import com.akkaserverless.javasdk.crdt.CrdtEntityFactory;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
+import com.akkaserverless.javasdk.impl.view.ViewEntityStatefulService;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
@@ -450,6 +452,27 @@ public final class AkkaServerless {
                 newAnySupport(additionalDescriptors),
                 entityType,
                 entityOptions));
+
+    return this;
+  }
+
+  /**
+   * Experimental API: Register a view entity.
+   *
+   * @param descriptor The descriptor of the view.
+   * @param viewId The id of this view, used for persistence.
+   * @param additionalDescriptors Any additional descriptors that may need to be loaded to support
+   *     it.
+   * @return This stateful service builder.
+   */
+  @ApiMayChange
+  public AkkaServerless registerViewEntity(
+      Descriptors.ServiceDescriptor descriptor,
+      String viewId,
+      Descriptors.FileDescriptor... additionalDescriptors) {
+
+    services.put(
+        descriptor.getFullName(), system -> new ViewEntityStatefulService(descriptor, viewId));
 
     return this;
   }

@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import shopping.cart.model.ShoppingCart;
 
 /**
- * This action illustrates the consumption from a topic (shopping-cart-events) Incoming messages are sent to
- * log with no further processing.
+ * This action illustrates the consumption from a topic (shopping-cart-events) Incoming messages are
+ * sent to log with no further processing.
  */
 @Action
 public class ShoppingCartAnalyticsAction {
