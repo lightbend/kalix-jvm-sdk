@@ -13,7 +13,7 @@ import com.akkaserverless.javasdk.action.ActionHandler;
 import com.akkaserverless.javasdk.crdt.CrdtEntity;
 import com.akkaserverless.javasdk.crdt.CrdtEntityFactory;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
-import com.akkaserverless.javasdk.impl.view.ViewEntityStatefulService;
+import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
@@ -457,7 +457,7 @@ public final class AkkaServerless {
   }
 
   /**
-   * Experimental API: Register a view entity.
+   * Experimental API: Register a view.
    *
    * @param descriptor The descriptor of the view.
    * @param viewId The id of this view, used for persistence.
@@ -466,13 +466,12 @@ public final class AkkaServerless {
    * @return This stateful service builder.
    */
   @ApiMayChange
-  public AkkaServerless registerViewEntity(
+  public AkkaServerless registerView(
       Descriptors.ServiceDescriptor descriptor,
       String viewId,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    services.put(
-        descriptor.getFullName(), system -> new ViewEntityStatefulService(descriptor, viewId));
+    services.put(descriptor.getFullName(), system -> new ViewService(descriptor, viewId));
 
     return this;
   }

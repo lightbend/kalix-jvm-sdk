@@ -23,7 +23,7 @@ import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
 import java.util.concurrent.CompletionStage
 
-import com.akkaserverless.javasdk.impl.view.ViewEntityStatefulService
+import com.akkaserverless.javasdk.impl.view.ViewService
 
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
@@ -117,8 +117,8 @@ final class AkkaServerlessRunner private[this] (
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, rootContext, configuration)
           route orElse ValueEntitiesHandler.partial(valueEntityImpl)
 
-        case (route, (serviceClass, entityServices: Map[String, ViewEntityStatefulService] @unchecked))
-            if serviceClass == classOf[ViewEntityStatefulService] =>
+        case (route, (serviceClass, entityServices: Map[String, ViewService] @unchecked))
+            if serviceClass == classOf[ViewService] =>
           // No routes to add for now
           route
 
