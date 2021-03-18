@@ -109,10 +109,10 @@ private object ActionReflection {
 
     // First, find all the call handler methods, and match them with corresponding service methods
     val allCommandHandlers = allMethods
-      .filter(_.getAnnotation(classOf[CommandHandler]) != null)
+      .filter(_.getAnnotation(classOf[Handler]) != null)
       .map { method =>
         method.setAccessible(true)
-        val annotation = method.getAnnotation(classOf[CommandHandler])
+        val annotation = method.getAnnotation(classOf[Handler])
         val name: String = if (annotation.name().isEmpty) {
           ReflectionHelper.getCapitalizedName(method)
         } else annotation.name()
@@ -161,7 +161,7 @@ private object ActionReflection {
     ReflectionHelper.validateNoBadMethods(
       allMethods,
       classOf[Action],
-      Set(classOf[CommandHandler])
+      Set(classOf[Handler])
     )
 
     new ActionReflection(unaryCommandHandlers,

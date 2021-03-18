@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An action call handler.
+ * An action service call handler.
  *
  * <p>This annotation should be placed on methods that handle Action service calls.
  *
@@ -35,19 +35,21 @@ import java.lang.annotation.Target;
  * {@link org.reactivestreams.Publisher} or a {@link java.util.concurrent.Flow.Publisher}. The
  * element type of these may either be the raw protobuf output type of the call, or wrapped in
  * {@link MessageEnvelope} or {@link ActionReply}.
+ *
+ * <p>The method may also take an {@link ActionContext}.
  */
 @AkkaServerlessAnnotation
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CommandHandler {
+public @interface Handler {
 
   /**
-   * The name of the command to handle.
+   * The name of the service call to handle.
    *
-   * <p>If not specified, the name of the method will be used as the command name, with the first
-   * letter capitalized to match the gRPC convention of capitalizing rpc method names.
+   * <p>If not specified, the name of the method will be used as the service call name, with the
+   * first letter capitalized to match the gRPC convention of capitalizing rpc method names.
    *
-   * @return The command name.
+   * @return The service call name.
    */
   String name() default "";
 }

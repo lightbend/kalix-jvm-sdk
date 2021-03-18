@@ -24,25 +24,25 @@ public class ActionTckModelBehavior {
 
   public ActionTckModelBehavior() {}
 
-  @CommandHandler
+  @Handler
   public CompletionStage<ActionReply<Response>> processUnary(
       Request request, ActionContext context) {
     return Source.single(request).via(responses(context)).runWith(singleResponse(), system);
   }
 
-  @CommandHandler
+  @Handler
   public CompletionStage<ActionReply<Response>> processStreamedIn(
       Source<Request, NotUsed> requests, ActionContext context) {
     return requests.via(responses(context)).runWith(singleResponse(), system);
   }
 
-  @CommandHandler
+  @Handler
   public Source<ActionReply<Response>, NotUsed> processStreamedOut(
       Request request, ActionContext context) {
     return Source.single(request).via(responses(context));
   }
 
-  @CommandHandler
+  @Handler
   public Source<ActionReply<Response>, NotUsed> processStreamed(
       Source<Request, NotUsed> requests, ActionContext context) {
     return requests.via(responses(context));

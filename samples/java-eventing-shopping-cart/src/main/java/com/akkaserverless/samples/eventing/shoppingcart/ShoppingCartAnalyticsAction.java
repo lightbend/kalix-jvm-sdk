@@ -5,7 +5,7 @@
 package com.akkaserverless.samples.eventing.shoppingcart;
 
 import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.CommandHandler;
+import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +20,13 @@ public class ShoppingCartAnalyticsAction {
 
   private static final Logger LOG = LoggerFactory.getLogger(ShoppingCartAnalyticsAction.class);
 
-  @CommandHandler
+  @Handler
   public Empty processAdded(ShoppingCart.ItemAdded event) {
     LOG.info("Analytics: item added '{}'", event);
     return Empty.getDefaultInstance();
   }
 
-  @CommandHandler
+  @Handler
   public Empty processRemoved(ShoppingCart.ItemRemoved event) {
     LOG.info("Analytics: item removed '{}'", event);
     return Empty.getDefaultInstance();

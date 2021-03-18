@@ -8,7 +8,7 @@ import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionReply;
-import com.akkaserverless.javasdk.action.CommandHandler;
+import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ToProductPopularityAction {
 
   private final String serviceName = "shopping.product.api.ProductPopularityService";
 
-  @CommandHandler
+  @Handler
   public ActionReply<Empty> forwardAdded(ShoppingCart.ItemAdded in, ActionContext ctx) {
 
     ProductApi.IncreasePopularity increase =
@@ -37,7 +37,7 @@ public class ToProductPopularityAction {
     return ActionReply.forward(call.createCall(increase));
   }
 
-  @CommandHandler
+  @Handler
   public ActionReply<Empty> forwardRemoved(ShoppingCart.ItemRemoved in, ActionContext ctx) {
 
     ProductApi.DecreasePopularity decrease =

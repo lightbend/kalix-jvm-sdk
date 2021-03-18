@@ -61,17 +61,17 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         Out.newBuilder().setField("out: " + in.getField).build()
 
       "synchronous" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): Out = inToOut(in)
       })
 
       "asynchronous" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): CompletionStage[Out] = CompletableFuture.completedFuture(inToOut(in))
       })
 
       "in wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: MessageEnvelope[In]): Out = {
           in.metadata().get("scope") should ===(Optional.of("message"))
           inToOut(in.payload())
@@ -79,29 +79,29 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       })
 
       "synchronous out wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): MessageEnvelope[Out] = MessageEnvelope.of(inToOut(in))
       })
 
       "asynchronous out wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): CompletionStage[MessageEnvelope[Out]] =
           CompletableFuture.completedFuture(MessageEnvelope.of(inToOut(in)))
       })
 
       "synchronous out wrapped in reply" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): ActionReply[Out] = ActionReply.message(inToOut(in))
       })
 
       "asynchronous out wrapped in reply" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In): CompletionStage[ActionReply[Out]] =
           CompletableFuture.completedFuture(ActionReply.message(inToOut(in)))
       })
 
       "with metadata parameter" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In, metadata: Metadata): Out = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in)
@@ -109,7 +109,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       })
 
       "with context parameter" in test(new {
-        @CommandHandler
+        @Handler
         def unary(in: In, context: ActionContext): Out = inToOut(in)
       })
 
@@ -139,41 +139,41 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
           }
 
       "source" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In): Source[Out, NotUsed] = inToOut(in).asJava
       })
 
       "reactive streams publisher" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In): org.reactivestreams.Publisher[Out] =
           inToOut(in).runWith(Sink.asPublisher(false))
       })
 
       "jdk publisher" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In): java.util.concurrent.Flow.Publisher[Out] =
           inToOut(in).runWith(JavaFlowSupport.Sink.asPublisher(false))
       })
 
       "message envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: MessageEnvelope[In]): Source[Out, NotUsed] = inToOut(in.payload()).asJava
       })
 
       "source wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In): Source[MessageEnvelope[Out], NotUsed] =
           inToOut(in).map(MessageEnvelope.of(_)).asJava
       })
 
       "source wrapped in reply" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In): Source[ActionReply[Out], NotUsed] =
           inToOut(in).map[ActionReply[Out]](ActionReply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In, metadata: Metadata): Source[Out, NotUsed] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in).asJava
@@ -181,7 +181,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       })
 
       "with context parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamedOut(in: In, metadata: Metadata): Source[Out, NotUsed] = inToOut(in).asJava
       })
 
@@ -210,42 +210,42 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         }
 
       "source" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[In, NotUsed]): CompletionStage[Out] = inToOut(in.asScala).toJava
       })
 
       "reactive streams publisher" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: org.reactivestreams.Publisher[In]): CompletionStage[Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).toJava
       })
 
       "jdk publisher" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: java.util.concurrent.Flow.Publisher[In]): CompletionStage[Out] =
           inToOut(JavaFlowSupport.Source.fromPublisher(in)).toJava
       })
 
       "source wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[MessageEnvelope[In], NotUsed]): CompletionStage[Out] =
           inToOut(in.asScala.map(_.payload)).toJava
       })
 
       "returns envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[In, NotUsed]): CompletionStage[MessageEnvelope[Out]] =
           inToOut(in.asScala).map(MessageEnvelope.of(_)).toJava
       })
 
       "returns reply" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[In, NotUsed]): CompletionStage[ActionReply[Out]] =
           inToOut(in.asScala).map[ActionReply[Out]](ActionReply.message(_)).toJava
       })
 
       "with metadata parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[In, NotUsed], metadata: Metadata): CompletionStage[Out] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in.asScala).toJava
@@ -253,7 +253,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       })
 
       "with context parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamedIn(in: Source[In, NotUsed], context: ActionContext): CompletionStage[Out] =
           inToOut(in.asScala).toJava
       })
@@ -290,78 +290,78 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         }
 
       "source in source out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed]): Source[Out, NotUsed] = inToOut(in.asScala).asJava
       })
 
       "reactive streams publisher in source out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: org.reactivestreams.Publisher[In]): Source[Out, NotUsed] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).asJava
       })
 
       "source in reactive streams publisher out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed]): org.reactivestreams.Publisher[Out] =
           inToOut(in.asScala).runWith(Sink.asPublisher(false))
       })
 
       "reactive streams publisher in reactive streams publisher out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: org.reactivestreams.Publisher[In]): org.reactivestreams.Publisher[Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).runWith(Sink.asPublisher(false))
       })
 
       "jdk publisher in source out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: java.util.concurrent.Flow.Publisher[In]): Source[Out, NotUsed] =
           inToOut(JavaFlowSupport.Source.fromPublisher(in)).asJava
       })
 
       "source in jdk publisher out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed]): java.util.concurrent.Flow.Publisher[Out] =
           inToOut(in.asScala).runWith(JavaFlowSupport.Sink.asPublisher(false))
       })
 
       "jdk publisher in jdk publisher out" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: java.util.concurrent.Flow.Publisher[In]): java.util.concurrent.Flow.Publisher[Out] =
           inToOut(JavaFlowSupport.Source.fromPublisher(in)).runWith(JavaFlowSupport.Sink.asPublisher(false))
       })
 
       "in wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[Out, NotUsed] =
           inToOut(in.asScala.map(_.payload)).asJava
       })
 
       "out wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed]): Source[MessageEnvelope[Out], NotUsed] =
           inToOut(in.asScala).map(MessageEnvelope.of(_)).asJava
       })
 
       "in and out wrapped in envelope" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[MessageEnvelope[Out], NotUsed] =
           inToOut(in.asScala.map(_.payload())).map(MessageEnvelope.of(_)).asJava
       })
 
       "out wrapped in reply" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed]): Source[ActionReply[Out], NotUsed] =
           inToOut(in.asScala).map[ActionReply[Out]](ActionReply.message(_)).asJava
       })
 
       "in wrapped in envelope out wrapped in reply" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[ActionReply[Out], NotUsed] =
           inToOut(in.asScala.map(_.payload())).map[ActionReply[Out]](ActionReply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed], metadata: Metadata): Source[Out, NotUsed] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in.asScala).asJava
@@ -369,7 +369,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       })
 
       "with context parameter" in test(new {
-        @CommandHandler
+        @Handler
         def streamed(in: Source[In, NotUsed], context: ActionContext): Source[Out, NotUsed] =
           inToOut(in.asScala).asJava
       })
