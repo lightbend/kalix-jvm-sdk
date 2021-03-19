@@ -13,8 +13,9 @@ To run the example locally with the GooglePubSub emulator:
 * Start the example: `sbt java-eventing-shopping-cart/run`
 * Start the proxy: `sbt proxy-core/run`
 * Send an AddItem command: 
-  `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  localhost:9000 shopping.cart.api.ShoppingCartService/AddItem`
+  `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartService/AddItem`
     * This will be published to the `shopping-cart-events` topic (via `TopicPublisherAction`) and received by the `ShoppingCartAnalyticsAction`.
     * This will be converted to commands and sent to `ProductPopularityEntity` via `ToProductPopularityAction`
-* Send a RemoveItem command: `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 1}' localhost:9000  localhost:9000 shopping.cart.api.ShoppingCartService/RemoveItem`
+* Send a RemoveItem command: `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 1}' localhost:9000 shopping.cart.api.ShoppingCartService/RemoveItem`
 * Check product popularity with `grpcurl -d '{"productId": "akka-tshirt"}' -plaintext localhost:9000  shopping.product.api.ProductPopularity/GetPopularity` 
+
