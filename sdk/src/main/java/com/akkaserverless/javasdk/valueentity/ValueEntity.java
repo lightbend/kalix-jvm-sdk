@@ -19,8 +19,9 @@ public @interface ValueEntity {
   /**
    * The entity type name
    *
-   * <p>The entity's unqualified classname can be a good default. However, be aware that the chosen name must be stable through the entity lifecycle.  Never change it after deploying a
-   * service that stored data of this type.
+   * <p>The entity's unqualified classname can be a good default. However, be aware that the chosen
+   * name must be stable through the entity lifecycle. Never change it after deploying a service
+   * that stored data of this type.
    */
   String entityType();
 }
