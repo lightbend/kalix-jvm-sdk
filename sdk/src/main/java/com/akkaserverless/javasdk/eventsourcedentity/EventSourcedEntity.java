@@ -17,12 +17,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventSourcedEntity {
   /**
-   * The entity type name
+   * The entity type name.
    *
-   * <p>If not specified, defaults to the entities unqualified classname. It's strongly recommended
-   * that you specify it explicitly.
+   * <p>The entity's unqualified classname can be a good default. However, be aware that the chosen name must be stable through the entity lifecycle.  Never change it after deploying a
+   * service that stored data of this type.
    */
-  String entityType() default "";
+  String entityType();
 
   /**
    * Specifies how snapshots of the entity state should be made: Zero means use default from

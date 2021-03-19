@@ -421,26 +421,26 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
 import org.scalatest.matchers.should.Matchers._
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "NoArgConstructorTest")
 private class NoArgConstructorTest() {}
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "EntityIdArgConstructorTest")
 private class EntityIdArgConstructorTest(@EntityId entityId: String) {
   entityId should ===("foo")
 }
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "CreationContextArgConstructorTest")
 private class CreationContextArgConstructorTest(ctx: EventSourcedEntityCreationContext) {
   ctx.entityId should ===("foo")
 }
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "MultiArgConstructorTest")
 private class MultiArgConstructorTest(ctx: EventSourcedContext, @EntityId entityId: String) {
   ctx.entityId should ===("foo")
   entityId should ===("foo")
 }
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "UnsupportedConstructorParameter")
 private class UnsupportedConstructorParameter(foo: String)
 
 private class FactoryCreatedEntityTest(ctx: EntityContext) {

@@ -255,24 +255,24 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
 import org.scalatest.matchers.should.Matchers._
 
-@ValueEntity
+@ValueEntity(entityType = "NoArgConstructorTest")
 private class NoArgConstructorTest() {}
 
-@ValueEntity
+@ValueEntity(entityType = "EntityIdArgConstructorTest")
 private class EntityIdArgConstructorTest(@EntityId entityId: String) {
   entityId should ===("foo")
 }
 
-@ValueEntity
+@ValueEntity(entityType = "CreationContextArgConstructorTest")
 private class CreationContextArgConstructorTest(ctx: ValueEntityCreationContext) {
   ctx.entityId should ===("foo")
 }
 
-@ValueEntity
+@ValueEntity(entityType = "MultiArgConstructorTest")
 private class MultiArgConstructorTest(ctx: ValueEntityContext, @EntityId entityId: String) {
   ctx.entityId should ===("foo")
   entityId should ===("foo")
 }
 
-@ValueEntity
+@ValueEntity(entityType = "UnsupportedConstructorParameter")
 private class UnsupportedConstructorParameter(foo: String)

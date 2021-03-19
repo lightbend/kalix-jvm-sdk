@@ -9,7 +9,7 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.tck.model.Eventsourced.Request;
 import com.akkaserverless.tck.model.Eventsourced.Response;
 
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "EventSourcedTwoEntity")
 public class EventSourcedTwoEntity {
 
   @CommandHandler

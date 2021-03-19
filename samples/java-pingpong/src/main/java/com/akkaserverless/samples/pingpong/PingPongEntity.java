@@ -10,7 +10,7 @@ import com.akkaserverless.pingpong.Pingpong;
 import com.google.protobuf.Empty;
 
 /** An event sourced entity. */
-@EventSourcedEntity
+@EventSourcedEntity(entityType = "PingPongEntity")
 public class PingPongEntity {
   private final String entityId;
   private int sentPings;
