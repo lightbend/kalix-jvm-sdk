@@ -44,7 +44,9 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
   }
 
   private def create(handler: AnyRef): ActionHandler =
-    new AnnotationBasedActionSupport(handler, anySupport, Actionspec.getDescriptor.findServiceByName("ActionSpec"))
+    new AnnotationBasedActionSupport(handler,
+                                     anySupport,
+                                     Actionspec.getDescriptor.findServiceByName("ActionSpecService"))
 
   "Annotation based action support" should {
 

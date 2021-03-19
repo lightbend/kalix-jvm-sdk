@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.impl.crdt
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.crdt._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
-import com.example.shoppingcart.Shoppingcart
+import com.example.shoppingcart.ShoppingCart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
@@ -29,7 +29,7 @@ class AnnotationBasedCrdtSupportSpec extends AnyWordSpec with Matchers {
     override protected def newCrdt[C <: InternalCrdt](crdt: C): C = crdt
   }
 
-  val anySupport = new AnySupport(Array(Shoppingcart.getDescriptor), this.getClass.getClassLoader)
+  val anySupport = new AnySupport(Array(ShoppingCart.getDescriptor), this.getClass.getClassLoader)
 
   object MockCreationContext extends MockCreationContext(None)
   class MockCreationContext(crdt: Option[Crdt] = None)
@@ -64,7 +64,7 @@ class AnnotationBasedCrdtSupportSpec extends AnyWordSpec with Matchers {
   }
 
   case class Wrapped(value: String)
-  val serviceDescriptor = Shoppingcart.getDescriptor.findServiceByName("ShoppingCart")
+  val serviceDescriptor = ShoppingCart.getDescriptor.findServiceByName("ShoppingCartService")
   val descriptor = serviceDescriptor.findMethodByName("AddItem")
   val method = ResolvedServiceMethod(descriptor, StringResolvedType, WrappedResolvedType)
 

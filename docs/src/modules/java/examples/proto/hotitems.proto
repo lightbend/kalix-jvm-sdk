@@ -3,7 +3,6 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/entity_key.proto";
 
 package example.shoppingcart;
 

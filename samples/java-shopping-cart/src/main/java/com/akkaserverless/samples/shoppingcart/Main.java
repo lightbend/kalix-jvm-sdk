@@ -5,14 +5,14 @@
 package com.akkaserverless.samples.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.example.valueentity.shoppingcart.Shoppingcart;
+import com.example.valueentity.shoppingcart.ShoppingCart;
 
 public final class Main {
   public static final void main(String[] args) throws Exception {
     new AkkaServerless()
         .registerValueEntity(
             ShoppingCartEntity.class,
-            Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"),
+            ShoppingCart.getDescriptor().findServiceByName("ShoppingCartService"),
             com.example.valueentity.shoppingcart.persistence.Domain.getDescriptor())
         .start()
         .toCompletableFuture()

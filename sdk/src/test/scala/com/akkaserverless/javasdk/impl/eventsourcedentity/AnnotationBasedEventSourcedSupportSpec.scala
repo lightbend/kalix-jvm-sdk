@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk._
-import com.example.shoppingcart.Shoppingcart
+import com.example.shoppingcart.ShoppingCart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
@@ -59,8 +59,8 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
   }
 
   case class Wrapped(value: String)
-  val anySupport = new AnySupport(Array(Shoppingcart.getDescriptor), this.getClass.getClassLoader)
-  val serviceDescriptor = Shoppingcart.getDescriptor.findServiceByName("ShoppingCart")
+  val anySupport = new AnySupport(Array(ShoppingCart.getDescriptor), this.getClass.getClassLoader)
+  val serviceDescriptor = ShoppingCart.getDescriptor.findServiceByName("ShoppingCartService")
   val descriptor = serviceDescriptor.findMethodByName("AddItem")
   val method = ResolvedServiceMethod(descriptor, StringResolvedType, WrappedResolvedType)
 

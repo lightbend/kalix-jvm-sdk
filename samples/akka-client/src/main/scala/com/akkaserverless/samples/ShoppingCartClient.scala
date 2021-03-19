@@ -58,7 +58,7 @@ class ShoppingCartClient(hostname: String, port: Int, hostnameOverride: Option[S
     hostnameOverride.fold(s)(host => s.withChannelBuilderOverrides(_.overrideAuthority(host)))
   }
   println(s"Connecting to $hostname:$port")
-  val service = com.example.shoppingcart.shoppingcart.ShoppingCartClient(settings)
+  val service = com.example.shoppingcart.shoppingcart.ShoppingCartServiceClient(settings)
 
   def shutdown(): Unit = {
     await(service.close())

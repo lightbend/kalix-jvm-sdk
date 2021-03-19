@@ -34,7 +34,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   import system.dispatcher
 
   private val serviceDescriptor =
-    akkaserverless.javasdk.Actionspec.getDescriptor.findServiceByName("ActionSpec")
+    akkaserverless.javasdk.Actionspec.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
 
   override protected def afterAll(): Unit = {

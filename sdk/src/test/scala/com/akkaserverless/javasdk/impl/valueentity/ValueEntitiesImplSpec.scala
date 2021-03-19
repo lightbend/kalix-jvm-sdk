@@ -179,17 +179,17 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
 object ValueEntitiesImplSpec {
   object ShoppingCart {
 
-    import com.example.valueentity.shoppingcart.Shoppingcart
-    import com.example.valueentity.shoppingcart.persistence.Domain
+    import com.example.valueentity.shoppingcart.{ShoppingCart => ShoppingCartProto}
+    import com.example.valueentity.shoppingcart.persistence.{Domain => DomainProto}
 
-    val Name: String = Shoppingcart.getDescriptor.findServiceByName("ShoppingCart").getFullName
+    val Name: String = ShoppingCartProto.getDescriptor.findServiceByName("ShoppingCartService").getFullName
 
     def testService: TestEntityService = service[TestCart]
 
     def service[T: ClassTag]: TestEntityService =
       TestEntity.service[T](
-        Shoppingcart.getDescriptor.findServiceByName("ShoppingCart"),
-        Domain.getDescriptor
+        ShoppingCartProto.getDescriptor.findServiceByName("ShoppingCartService"),
+        DomainProto.getDescriptor
       )
 
     case class Item(id: String, name: String, quantity: Int)
@@ -197,34 +197,34 @@ object ValueEntitiesImplSpec {
     object Protocol {
       import scala.jdk.CollectionConverters._
 
-      val EmptyCart: Shoppingcart.Cart = Shoppingcart.Cart.newBuilder.build
+      val EmptyCart: ShoppingCartProto.Cart = ShoppingCartProto.Cart.newBuilder.build
 
-      def cart(items: Item*): Shoppingcart.Cart =
-        Shoppingcart.Cart.newBuilder.addAllItems(lineItems(items)).build
+      def cart(items: Item*): ShoppingCartProto.Cart =
+        ShoppingCartProto.Cart.newBuilder.addAllItems(lineItems(items)).build
 
-      def lineItems(items: Seq[Item]): java.lang.Iterable[Shoppingcart.LineItem] =
+      def lineItems(items: Seq[Item]): java.lang.Iterable[ShoppingCartProto.LineItem] =
         items.sortBy(_.id).map(item => lineItem(item.id, item.name, item.quantity)).asJava
 
-      def lineItem(id: String, name: String, quantity: Int): Shoppingcart.LineItem =
-        Shoppingcart.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def lineItem(id: String, name: String, quantity: Int): ShoppingCartProto.LineItem =
+        ShoppingCartProto.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def addItem(id: String, name: String, quantity: Int): Shoppingcart.AddLineItem =
-        Shoppingcart.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def addItem(id: String, name: String, quantity: Int): ShoppingCartProto.AddLineItem =
+        ShoppingCartProto.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def removeItem(id: String): Shoppingcart.RemoveLineItem =
-        Shoppingcart.RemoveLineItem.newBuilder.setProductId(id).build
+      def removeItem(id: String): ShoppingCartProto.RemoveLineItem =
+        ShoppingCartProto.RemoveLineItem.newBuilder.setProductId(id).build
 
-      def removeCart(id: String): Shoppingcart.RemoveShoppingCart =
-        Shoppingcart.RemoveShoppingCart.newBuilder.setUserId(id).build
+      def removeCart(id: String): ShoppingCartProto.RemoveShoppingCart =
+        ShoppingCartProto.RemoveShoppingCart.newBuilder.setUserId(id).build
 
-      def domainLineItems(items: Seq[Item]): java.lang.Iterable[Domain.LineItem] =
+      def domainLineItems(items: Seq[Item]): java.lang.Iterable[DomainProto.LineItem] =
         items.sortBy(_.id).map(item => domainLineItem(item.id, item.name, item.quantity)).asJava
 
-      def domainLineItem(id: String, name: String, quantity: Int): Domain.LineItem =
-        Domain.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def domainLineItem(id: String, name: String, quantity: Int): DomainProto.LineItem =
+        DomainProto.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def domainCart(items: Item*): Domain.Cart =
-        Domain.Cart.newBuilder.addAllItems(domainLineItems(items)).build
+      def domainCart(items: Item*): DomainProto.Cart =
+        DomainProto.Cart.newBuilder.addAllItems(domainLineItems(items)).build
     }
 
     val TestCartClass: Class[_] = classOf[TestCart]
@@ -235,7 +235,7 @@ object ValueEntitiesImplSpec {
       import scala.jdk.OptionConverters._
 
       @CommandHandler
-      def getCart(ctx: CommandContext[Domain.Cart]): Shoppingcart.Cart =
+      def getCart(ctx: CommandContext[DomainProto.Cart]): ShoppingCartProto.Cart =
         ctx.getState.toScala
           .map { c =>
             val items = c.getItemsList.asScala.map(i => Item(i.getProductId, i.getName, i.getQuantity)).toSeq
@@ -244,30 +244,32 @@ object ValueEntitiesImplSpec {
           .getOrElse(Protocol.EmptyCart)
 
       @CommandHandler
-      def addItem(item: Shoppingcart.AddLineItem, ctx: CommandContext[Domain.Cart]): Empty = {
+      def addItem(item: ShoppingCartProto.AddLineItem, ctx: CommandContext[DomainProto.Cart]): Empty = {
         // update and then fail on negative quantities, for testing atomicity
         val cart = updateCart(item, asMap(ctx.getState))
         val items =
           cart.values
-            .map(i => Domain.LineItem.newBuilder().setProductId(i.id).setName(i.name).setQuantity(i.quantity).build)
-        ctx.updateState(Domain.Cart.newBuilder().addAllItems(items.toList.asJava).build())
+            .map(
+              i => DomainProto.LineItem.newBuilder().setProductId(i.id).setName(i.name).setQuantity(i.quantity).build
+            )
+        ctx.updateState(DomainProto.Cart.newBuilder().addAllItems(items.toList.asJava).build())
         if (item.getQuantity <= 0) ctx.fail(s"Cannot add negative quantity of item [${item.getProductId}]")
         Empty.getDefaultInstance
       }
 
       @CommandHandler
-      def removeItem(item: Shoppingcart.RemoveLineItem, ctx: CommandContext[Domain.Cart]): Empty = {
+      def removeItem(item: ShoppingCartProto.RemoveLineItem, ctx: CommandContext[DomainProto.Cart]): Empty = {
         if (true) throw new RuntimeException("Boom: " + item.getProductId) // always fail for testing
         Empty.getDefaultInstance
       }
 
       @CommandHandler
-      def removeCart(item: Shoppingcart.RemoveShoppingCart, ctx: CommandContext[Domain.Cart]): Empty = {
+      def removeCart(item: ShoppingCartProto.RemoveShoppingCart, ctx: CommandContext[DomainProto.Cart]): Empty = {
         ctx.deleteState()
         Empty.getDefaultInstance
       }
 
-      private def updateCart(item: Shoppingcart.AddLineItem,
+      private def updateCart(item: ShoppingCartProto.AddLineItem,
                              cart: mutable.Map[String, Item]): mutable.Map[String, Item] = {
         val currentQuantity = cart.get(item.getProductId).map(_.quantity).getOrElse(0)
         cart.update(
@@ -277,7 +279,7 @@ object ValueEntitiesImplSpec {
         cart
       }
 
-      private def asMap(cart: Optional[Domain.Cart]): mutable.Map[String, Item] = {
+      private def asMap(cart: Optional[DomainProto.Cart]): mutable.Map[String, Item] = {
         val map = cart.toScala match {
           case Some(c) =>
             c.getItemsList.asScala

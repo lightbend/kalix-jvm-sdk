@@ -14,7 +14,7 @@ public class ShoppingCartMain {
     new AkkaServerless()
         .registerEventSourcedEntity(
             ShoppingCartEntity.class,
-            Shoppingcart.getDescriptor().findServiceByName("ShoppingCart"))
+            Shoppingcart.getDescriptor().findServiceByName("ShoppingCartService"))
         .start();
   }
 }

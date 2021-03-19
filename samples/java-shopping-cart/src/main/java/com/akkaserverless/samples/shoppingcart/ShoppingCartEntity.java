@@ -8,7 +8,7 @@ import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.example.valueentity.shoppingcart.Shoppingcart;
+import com.example.valueentity.shoppingcart.ShoppingCart;
 import com.example.valueentity.shoppingcart.persistence.Domain;
 import com.google.protobuf.Empty;
 
@@ -29,18 +29,18 @@ public class ShoppingCartEntity {
   }
 
   @CommandHandler
-  public Shoppingcart.Cart getCart(CommandContext<Domain.Cart> ctx) {
+  public ShoppingCart.Cart getCart(CommandContext<Domain.Cart> ctx) {
     Domain.Cart cart = ctx.getState().orElse(Domain.Cart.newBuilder().build());
-    List<Shoppingcart.LineItem> allItems =
+    List<ShoppingCart.LineItem> allItems =
         cart.getItemsList().stream()
             .map(this::convert)
-            .sorted(Comparator.comparing(Shoppingcart.LineItem::getProductId))
+            .sorted(Comparator.comparing(ShoppingCart.LineItem::getProductId))
             .collect(Collectors.toList());
-    return Shoppingcart.Cart.newBuilder().addAllItems(allItems).build();
+    return ShoppingCart.Cart.newBuilder().addAllItems(allItems).build();
   }
 
   @CommandHandler
-  public Empty addItem(Shoppingcart.AddLineItem item, CommandContext<Domain.Cart> ctx) {
+  public Empty addItem(ShoppingCart.AddLineItem item, CommandContext<Domain.Cart> ctx) {
     if (item.getQuantity() <= 0) {
       ctx.fail("Cannot add negative quantity of to item " + item.getProductId());
     }
@@ -55,7 +55,7 @@ public class ShoppingCartEntity {
   }
 
   @CommandHandler
-  public Empty removeItem(Shoppingcart.RemoveLineItem item, CommandContext<Domain.Cart> ctx) {
+  public Empty removeItem(ShoppingCart.RemoveLineItem item, CommandContext<Domain.Cart> ctx) {
     Domain.Cart cart = ctx.getState().orElse(Domain.Cart.newBuilder().build());
     Optional<Domain.LineItem> lineItem = findItemByProductId(cart, item.getProductId());
 
@@ -70,18 +70,18 @@ public class ShoppingCartEntity {
   }
 
   @CommandHandler
-  public Empty removeCart(Shoppingcart.RemoveShoppingCart cart, CommandContext<Domain.Cart> ctx) {
+  public Empty removeCart(ShoppingCart.RemoveShoppingCart cart, CommandContext<Domain.Cart> ctx) {
     ctx.deleteState();
     return Empty.getDefaultInstance();
   }
 
-  private Domain.LineItem updateItem(Shoppingcart.AddLineItem item, Domain.Cart cart) {
+  private Domain.LineItem updateItem(ShoppingCart.AddLineItem item, Domain.Cart cart) {
     return findItemByProductId(cart, item.getProductId())
         .map(li -> li.toBuilder().setQuantity(li.getQuantity() + item.getQuantity()).build())
         .orElse(newItem(item));
   }
 
-  private Domain.LineItem newItem(Shoppingcart.AddLineItem item) {
+  private Domain.LineItem newItem(ShoppingCart.AddLineItem item) {
     return Domain.LineItem.newBuilder()
         .setProductId(item.getProductId())
         .setName(item.getName())
@@ -101,8 +101,8 @@ public class ShoppingCartEntity {
         .collect(Collectors.toList());
   }
 
-  private Shoppingcart.LineItem convert(Domain.LineItem item) {
-    return Shoppingcart.LineItem.newBuilder()
+  private ShoppingCart.LineItem convert(Domain.LineItem item) {
+    return ShoppingCart.LineItem.newBuilder()
         .setProductId(item.getProductId())
         .setName(item.getName())
         .setQuantity(item.getQuantity())

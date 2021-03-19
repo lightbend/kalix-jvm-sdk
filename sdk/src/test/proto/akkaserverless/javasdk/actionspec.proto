@@ -12,7 +12,7 @@ message Out {
     string field = 1;
 }
 
-service ActionSpec {
+service ActionSpecService {
     rpc Unary(In) returns (Out);
     rpc StreamedIn(stream In) returns (Out);
     rpc StreamedOut(In) returns (stream Out);
