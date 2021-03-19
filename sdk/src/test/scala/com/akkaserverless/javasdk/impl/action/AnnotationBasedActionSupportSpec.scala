@@ -151,12 +151,6 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
           inToOut(in).runWith(Sink.asPublisher(false))
       })
 
-      "jdk publisher" in test(new {
-        @Handler
-        def streamedOut(in: In): java.util.concurrent.Flow.Publisher[Out] =
-          inToOut(in).runWith(JavaFlowSupport.Sink.asPublisher(false))
-      })
-
       "message envelope" in test(new {
         @Handler
         def streamedOut(in: MessageEnvelope[In]): Source[Out, NotUsed] = inToOut(in.payload()).asJava
@@ -220,12 +214,6 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         @Handler
         def streamedIn(in: org.reactivestreams.Publisher[In]): CompletionStage[Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).toJava
-      })
-
-      "jdk publisher" in test(new {
-        @Handler
-        def streamedIn(in: java.util.concurrent.Flow.Publisher[In]): CompletionStage[Out] =
-          inToOut(JavaFlowSupport.Source.fromPublisher(in)).toJava
       })
 
       "source wrapped in envelope" in test(new {
@@ -312,24 +300,6 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         @Handler
         def streamed(in: org.reactivestreams.Publisher[In]): org.reactivestreams.Publisher[Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).runWith(Sink.asPublisher(false))
-      })
-
-      "jdk publisher in source out" in test(new {
-        @Handler
-        def streamed(in: java.util.concurrent.Flow.Publisher[In]): Source[Out, NotUsed] =
-          inToOut(JavaFlowSupport.Source.fromPublisher(in)).asJava
-      })
-
-      "source in jdk publisher out" in test(new {
-        @Handler
-        def streamed(in: Source[In, NotUsed]): java.util.concurrent.Flow.Publisher[Out] =
-          inToOut(in.asScala).runWith(JavaFlowSupport.Sink.asPublisher(false))
-      })
-
-      "jdk publisher in jdk publisher out" in test(new {
-        @Handler
-        def streamed(in: java.util.concurrent.Flow.Publisher[In]): java.util.concurrent.Flow.Publisher[Out] =
-          inToOut(JavaFlowSupport.Source.fromPublisher(in)).runWith(JavaFlowSupport.Sink.asPublisher(false))
       })
 
       "in wrapped in envelope" in test(new {

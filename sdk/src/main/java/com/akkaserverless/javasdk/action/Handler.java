@@ -22,19 +22,17 @@ import java.lang.annotation.Target;
  * <p>Calls with a unary in argument may accept the protobuf type of the call, either bare, or
  * wrapped in {@link MessageEnvelope}.
  *
- * <p>Calls with a streamed in argument may accept either a {@link akka.stream.javadsl.Source},
- * {@link org.reactivestreams.Publisher} or a {@link java.util.concurrent.Flow.Publisher}. The
- * element type may either be the bare protobuf type of the call, or that type wrapped in {@link
- * MessageEnvelope}.
+ * <p>Calls with a streamed in argument may accept either a {@link akka.stream.javadsl.Source} or a
+ * {@link org.reactivestreams.Publisher}. The element type may either be the bare protobuf type of
+ * the call, or that type wrapped in {@link MessageEnvelope}.
  *
  * <p>Calls with a unary out argument may either return synchronously, or return a {@link
  * java.util.concurrent.CompletionStage}. The argument return type may either be the raw protobuf
  * output type of the call, or wrapped in {@link MessageEnvelope} or {@link ActionReply}.
  *
- * <p>Calls with a streamed out argument may either return a {@link akka.stream.javadsl.Source},
- * {@link org.reactivestreams.Publisher} or a {@link java.util.concurrent.Flow.Publisher}. The
- * element type of these may either be the raw protobuf output type of the call, or wrapped in
- * {@link MessageEnvelope} or {@link ActionReply}.
+ * <p>Calls with a streamed out argument may either return a {@link akka.stream.javadsl.Source} or a
+ * {@link org.reactivestreams.Publisher}. The element type of these may either be the raw protobuf
+ * output type of the call, or wrapped in {@link MessageEnvelope} or {@link ActionReply}.
  *
  * <p>The method may also take an {@link ActionContext}.
  */

@@ -322,18 +322,6 @@ private trait StreamedInSupport {
               .runWith(Sink.asPublisher(false))
         )
 
-      case jdkPublisher if jdkPublisher.parameterType == classOf[java.util.concurrent.Flow.Publisher[_]] =>
-        val publisherType = ReflectionHelper.getGenericFirstParameter(jdkPublisher.genericParameterType)
-        val mapper =
-          ActionReflection.getInputParameterMapper(serviceMethod.name, serviceMethod.inputType, publisherType)
-
-        new StreamedPayloadParameterHandler(
-          source =>
-            source.asScala
-              .map(mapper.apply)
-              .runWith(JavaFlowSupport.Sink.asPublisher(false))
-        )
-
       case other =>
         throw new RuntimeException(
           s"Unknown input parameter of type $other. Streamed call ${serviceMethod.name} must accept a ${classOf[
@@ -374,18 +362,6 @@ private trait StreamedOutSupport {
         javadsl.Source
           .fromPublisher(any.asInstanceOf[org.reactivestreams.Publisher[Any]])
           .map(mapper.apply)
-      }
-
-    case jdkPublisher if jdkPublisher == classOf[java.util.concurrent.Flow.Publisher[_]] =>
-      val sourceType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
-      val mapper: Any => ActionReply[JavaPbAny] =
-        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType)
-
-      any: Any => {
-        JavaFlowSupport.Source
-          .fromPublisher(any.asInstanceOf[java.util.concurrent.Flow.Publisher[Any]])
-          .map(mapper.apply)
-          .asJava
       }
 
     case _ =>
