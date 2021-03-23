@@ -35,7 +35,7 @@ docker-compose up
 
 ### Linux
 
-> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007), 
+> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
 > or for a `USER_FUNCTION_HOST` environment variable to be set manually.
 
 ```
@@ -48,17 +48,24 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/js-services/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+
+```
+> curl -XPOST -H "Content-Type: application/json" localhost:9000/${package}.MyServiceEntity/GetValue -d '{"entityId": "foo"}'
+The command handler for `GetValue` is not implemented, yet
+```
+
+For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```
 > grpcurl -plaintext -d '{"entityId": "foo"}' localhost:9000 ${package}.MyServiceEntity/GetValue
 ERROR:
   Code: Unknown
-  Message: Unexpected entity failure
+  Message: The command handler for `GetValue` is not implemented, yet
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in 
-your entity.
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in
+> your entity.
 
 #[[
 ## Deploying
@@ -74,4 +81,4 @@ for more information on how to make your docker image available to Akka Serverle
 Finally you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
 to create a project and then deploy your service into the project either by using `mvn deploy`,
 through the `akkasls` CLI or via the web interface. When using `mvn deploy`, Maven will also
-conveniently package and publish your docker image prior to deployment. 
+conveniently package and publish your docker image prior to deployment.
