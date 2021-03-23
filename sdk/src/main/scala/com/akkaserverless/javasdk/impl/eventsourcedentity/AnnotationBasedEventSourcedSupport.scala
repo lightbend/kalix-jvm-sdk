@@ -247,7 +247,7 @@ private class EntityConstructorInvoker(constructor: Constructor[_])
     ReflectionHelper.getParameterHandlers[AnyRef, EventSourcedEntityCreationContext](constructor)()
   parameters.foreach {
     case MainArgumentParameterHandler(clazz) =>
-      throw new RuntimeException(s"Don't know how to handle argument of type $clazz in constructor")
+      throw new RuntimeException(s"Don't know how to handle argument of type ${clazz.getName} in constructor")
     case _ =>
   }
 
@@ -285,7 +285,7 @@ private class EventHandlerInvoker(val method: Method) {
       }
     case other =>
       throw new RuntimeException(
-        s"EventHandler method $method must defined at most one non context parameter to handle events, the parameters defined were: ${other
+        s"EventHandler method $method must define at most one non context parameter to handle events, the parameters defined were: ${other
           .mkString(",")}"
       )
   }
@@ -308,7 +308,7 @@ private class SnapshotHandlerInvoker(val method: Method) {
     case Array(handlerClass) => handlerClass
     case other =>
       throw new RuntimeException(
-        s"SnapshotHandler method $method must defined at most one non context parameter to handle snapshots, the parameters defined were: ${other
+        s"SnapshotHandler method $method must define at most one non context parameter to handle snapshots, the parameters defined were: ${other
           .mkString(",")}"
       )
   }

@@ -24,10 +24,12 @@ import com.typesafe.config.{Config, ConfigFactory}
 import java.util.concurrent.CompletionStage
 
 import com.akkaserverless.javasdk.impl.view.ViewService
-
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+
+import com.akkaserverless.javasdk.impl.view.ViewsImpl
+import com.akkaserverless.protocol.view.ViewsHandler
 
 object AkkaServerlessRunner {
   final case class Configuration(userFunctionInterface: String, userFunctionPort: Int, snapshotEvery: Int) {
@@ -117,10 +119,10 @@ final class AkkaServerlessRunner private[this] (
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, rootContext, configuration)
           route orElse ValueEntitiesHandler.partial(valueEntityImpl)
 
-        case (route, (serviceClass, entityServices: Map[String, ViewService] @unchecked))
+        case (route, (serviceClass, viewServices: Map[String, ViewService] @unchecked))
             if serviceClass == classOf[ViewService] =>
-          // No routes to add for now
-          route
+          val viewsImpl = new ViewsImpl(system, viewServices, rootContext)
+          route orElse ViewsHandler.partial(viewsImpl)
 
         case (_, (serviceClass, _)) =>
           sys.error(s"Unknown StatefulService: $serviceClass")

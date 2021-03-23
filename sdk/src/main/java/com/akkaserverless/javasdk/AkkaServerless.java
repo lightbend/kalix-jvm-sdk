@@ -13,6 +13,7 @@ import com.akkaserverless.javasdk.action.ActionHandler;
 import com.akkaserverless.javasdk.crdt.CrdtEntity;
 import com.akkaserverless.javasdk.crdt.CrdtEntityFactory;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
+import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
@@ -29,11 +30,14 @@ import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
+import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewFactory;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -137,7 +141,10 @@ public final class AkkaServerless {
     EventSourcedEntity entity = entityClass.getAnnotation(EventSourcedEntity.class);
     if (entity == null) {
       throw new IllegalArgumentException(
-          entityClass + " does not declare an " + EventSourcedEntity.class + " annotation!");
+          entityClass
+              + " does not declare an "
+              + EventSourcedEntity.class.getName()
+              + " annotation!");
     }
     if (descriptor == null) {
       throw new NullPointerException(
@@ -250,7 +257,7 @@ public final class AkkaServerless {
     CrdtEntity entity = entityClass.getAnnotation(CrdtEntity.class);
     if (entity == null) {
       throw new IllegalArgumentException(
-          entityClass + " does not declare an " + CrdtEntity.class + " annotation!");
+          entityClass + " does not declare an " + CrdtEntity.class.getName() + " annotation!");
     }
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
@@ -314,7 +321,7 @@ public final class AkkaServerless {
     Action actionAnnotation = action.getClass().getAnnotation(Action.class);
     if (actionAnnotation == null) {
       throw new IllegalArgumentException(
-          action.getClass() + " does not declare an " + Action.class + " annotation!");
+          action.getClass() + " does not declare an " + Action.class.getName() + " annotation!");
     }
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
@@ -398,7 +405,7 @@ public final class AkkaServerless {
     ValueEntity entity = entityClass.getAnnotation(ValueEntity.class);
     if (entity == null) {
       throw new IllegalArgumentException(
-          entityClass + " does not declare an " + ValueEntity.class + " annotation!");
+          entityClass + " does not declare an " + ValueEntity.class.getName() + " annotation!");
     }
 
     final String entityType;
@@ -471,7 +478,72 @@ public final class AkkaServerless {
       String viewId,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    services.put(descriptor.getFullName(), system -> new ViewService(descriptor, viewId));
+    AnySupport anySupport = newAnySupport(additionalDescriptors);
+    ViewService service = new ViewService(Optional.empty(), descriptor, anySupport, viewId);
+    services.put(descriptor.getFullName(), system -> service);
+
+    return this;
+  }
+
+  /**
+   * Register an annotated value based entity.
+   *
+   * <p>The view class must be annotated with {@link com.akkaserverless.javasdk.view.View}.
+   *
+   * @param viewClass The view class.
+   * @param descriptor The descriptor for the service that this entity implements.
+   * @param viewId The id of this view, used for persistence.
+   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
+   *     types when needed.
+   * @return This stateful service builder.
+   */
+  public AkkaServerless registerView(
+      Class<?> viewClass,
+      Descriptors.ServiceDescriptor descriptor,
+      String viewId,
+      Descriptors.FileDescriptor... additionalDescriptors) {
+
+    View view = viewClass.getAnnotation(View.class);
+    if (view == null) {
+      throw new IllegalArgumentException(
+          viewClass + " does not declare an " + View.class.getName() + " annotation!");
+    }
+
+    AnySupport anySupport = newAnySupport(additionalDescriptors);
+    ViewService service =
+        new ViewService(
+            Optional.of(new AnnotationBasedViewSupport(viewClass, anySupport, descriptor)),
+            descriptor,
+            anySupport,
+            viewId);
+    services.put(descriptor.getFullName(), system -> service);
+
+    return this;
+  }
+
+  /**
+   * Register a view factory.
+   *
+   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
+   * implementing the view.
+   *
+   * @param factory The value based entity factory.
+   * @param descriptor The descriptor for the service that this entity implements.
+   * @param viewId The id of this view, used for persistence.
+   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
+   *     types when needed.
+   * @return This stateful service builder.
+   */
+  public AkkaServerless registerView(
+      ViewFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String viewId,
+      Descriptors.FileDescriptor... additionalDescriptors) {
+
+    AnySupport anySupport = newAnySupport(additionalDescriptors);
+    ViewService service =
+        new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
+    services.put(descriptor.getFullName(), system -> service);
 
     return this;
   }

@@ -12,7 +12,6 @@ import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, ParameterHandler}
 import com.akkaserverless.javasdk.impl._
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.lang.reflect.{InvocationTargetException, Method, Type}
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
@@ -109,21 +108,21 @@ private object ActionReflection {
 
     // First, find all the call handler methods, and match them with corresponding service methods
     val allCommandHandlers = allMethods
-      .filter(_.getAnnotation(classOf[Handler]) != null)
-      .map { method =>
-        method.setAccessible(true)
-        val annotation = method.getAnnotation(classOf[Handler])
-        val name: String = if (annotation.name().isEmpty) {
-          ReflectionHelper.getCapitalizedName(method)
-        } else annotation.name()
+      .collect {
+        case method if method.getAnnotation(classOf[Handler]) != null =>
+          method.setAccessible(true)
+          val annotation = method.getAnnotation(classOf[Handler])
+          val name: String = if (annotation.name().isEmpty) {
+            ReflectionHelper.getCapitalizedName(method)
+          } else annotation.name()
 
-        val serviceMethod = serviceMethods.getOrElse(name, {
-          throw new RuntimeException(
-            s"Command handler method ${method.getName} for command $name found, but the service has no command by that name."
-          )
-        })
+          val serviceMethod = serviceMethods.getOrElse(name, {
+            throw new RuntimeException(
+              s"Command handler method ${method.getName} for command $name found, but the service has no command by that name."
+            )
+          })
 
-        (method, serviceMethod)
+          (method, serviceMethod)
       }
       .groupBy(_._2.name)
       .map {

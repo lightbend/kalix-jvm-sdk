@@ -133,7 +133,7 @@ private class EntityConstructorInvoker(constructor: Constructor[_]) extends (Val
   private val parameters = ReflectionHelper.getParameterHandlers[AnyRef, ValueEntityCreationContext](constructor)()
   parameters.foreach {
     case MainArgumentParameterHandler(clazz) =>
-      throw new RuntimeException(s"Don't know how to handle argument of type $clazz in constructor")
+      throw new RuntimeException(s"Don't know how to handle argument of type ${clazz.getName} in constructor")
     case _ =>
   }
 

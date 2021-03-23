@@ -8,7 +8,8 @@ package com.akkaserverless.javasdk.valueentity;
  * Low level interface for handling commands on a value based entity.
  *
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * CommandHandler} and similar annotations should be used.
+ * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
+ * be used.
  */
 public interface ValueEntityFactory {
   /**

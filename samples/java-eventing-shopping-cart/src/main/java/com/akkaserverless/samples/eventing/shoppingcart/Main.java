@@ -10,6 +10,7 @@ import shopping.cart.actions.ShoppingCartAnalytics;
 import shopping.cart.actions.ToProductPopularity;
 import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.model.ShoppingCart;
+import shopping.cart.view.ShoppingCartViewModel;
 import shopping.product.api.ProductApi;
 import shopping.product.model.Product;
 
@@ -45,6 +46,15 @@ public final class Main {
             ProductPopularityEntity.class,
             ProductApi.getDescriptor().findServiceByName("ProductPopularityService"),
             Product.getDescriptor())
+
+        // view of the shopping carts
+        .registerView(
+            ShoppingCartView.class,
+            shopping.cart.view.ShoppingCartViewModel.getDescriptor()
+                .findServiceByName("ShoppingCartViewService"),
+            "carts",
+            ShoppingCart.getDescriptor(),
+            ShoppingCartViewModel.getDescriptor())
         .start()
         .toCompletableFuture()
         .get();

@@ -170,7 +170,7 @@ private[impl] object ReflectionHelper {
                                                    parameters: Array[ParameterHandler[M, C]]) =
     if (parameters.count(_.isInstanceOf[MainArgumentParameterHandler[_, _]]) > 1) {
       throw new RuntimeException(
-        s"$name method $method must defined at most one non context parameter to handle commands, the parameters defined were: ${parameters
+        s"$name method $method must define at most one non context parameter to handle commands, the parameters defined were: ${parameters
           .collect { case MainArgumentParameterHandler(clazz) => clazz.getName }
           .mkString(",")}"
       )
@@ -250,7 +250,7 @@ private[impl] object ReflectionHelper {
         }
       }
     } else {
-      throw new RuntimeException(s"Incompatible input class $actualType for call $name, expected ${pbType.typeClass}")
+      throw new RuntimeException(s"Incompatible input $actualType for call $name, expected ${pbType.typeClass}")
     }
 
   def getRawType(t: Type): Class[_] = t match {
