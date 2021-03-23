@@ -9,9 +9,9 @@ This example show cases the following eventing features:
 To run the example locally with the GooglePubSub emulator:
 
 * Start the emulator: `gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085`
-* Set `akkaserverless.proxy.eventing.support` to `google-pubsub` e.g. by changing in `dev-mode.conf`
 * Start the example: `sbt java-eventing-shopping-cart/run`
-* Start the proxy: `sbt proxy-core/run`
+* Start the proxy: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
+  * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`
 * Send an AddItem command: 
   `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartService/AddItem`
     * This will be published to the `shopping-cart-events` topic (via `TopicPublisherAction`) and received by the `ShoppingCartAnalyticsAction`.
