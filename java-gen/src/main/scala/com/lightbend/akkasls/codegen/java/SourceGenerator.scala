@@ -111,11 +111,11 @@ object SourceGenerator extends PrettyPrinter {
       "package" <+> packageName <> semi <> line <>
       line <>
       "import" <+> "com.google.protobuf.Empty" <> semi <> line <>
-      "import" <+> "io.cloudstate.javasupport.EntityId" <> semi <> line <>
-      "import" <+> "io.cloudstate.javasupport.eventsourced.*" <> semi <> line <>
+      "import" <+> "com.akkaserverless.javasdk.EntityId" <> semi <> line <>
+      "import" <+> "com.akkaserverless.javasdk.eventsourcedentity.*" <> semi <> line <>
       line <>
       "/** An event sourced entity. */" <> line <>
-      "@EventSourcedEntity" <> line <>
+      "@EventSourcedEntity" <> parens("entityType" <+> equal <+> dquotes(className)) <> line <>
       `class`("public", className) {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
@@ -142,9 +142,10 @@ object SourceGenerator extends PrettyPrinter {
               ),
               emptyDoc
             ) {
-              "throw ctx.fail(\"The command handler for `" <> name(
+              "ctx.fail(\"The command handler for `" <> name(
                 command.fullname
-              ) <> "` is not implemented, yet\")" <> semi
+              ) <> "` is not implemented, yet\")" <> semi <> line <>
+              "throw new RuntimeException()" <> semi <+> "// This line is never reached, as ctx.fail throws, but is required to avoid compiler errors"
             }
           },
           line <> line
@@ -161,7 +162,7 @@ object SourceGenerator extends PrettyPrinter {
     pretty(
       "package" <+> packageName <> semi <> line <>
       line <>
-      "import" <+> "io.cloudstate.javasupport.eventsourced.CommandContext" <> semi <> line <>
+      "import" <+> "com.akkaserverless.javasdk.eventsourcedentity.CommandContext" <> semi <> line <>
       "import" <+> "org.junit.Test" <> semi <> line <>
       "import" <+> "org.mockito.*" <> semi <> line <>
       line <>
@@ -218,7 +219,7 @@ object SourceGenerator extends PrettyPrinter {
     }
 
     val imports = List(
-      "import" <+> "io.cloudstate.javasupport.*" <> semi
+      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
     ) ++
       entityClasses.toSeq.collect { case (Some(packageName), className, javaOuterClassName) =>
         javaOuterClassName.fold(emptyDoc)(ocn =>
@@ -244,7 +245,7 @@ object SourceGenerator extends PrettyPrinter {
           List("String[]" <+> "args"),
           "throws" <+> "Exception" <> space
         ) {
-          "new" <+> "CloudState()" <+> "//" <> line <>
+          "new" <+> "AkkaServerless()" <+> "//" <> line <>
           indent(
             ssep(
               entityClasses.map {
