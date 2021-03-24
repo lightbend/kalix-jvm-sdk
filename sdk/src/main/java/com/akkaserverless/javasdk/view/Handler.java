@@ -13,14 +13,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A view service call handler.
+ * A view service call handler for transforming updates.
  *
- * <p>This annotation should be placed on methods that handle View service calls.
+ * <p>This annotation should be placed on methods that handle View update service calls.
  *
- * <p>FIXME: what types of the input and output parameters are supported. unary/streamed? see
- * valueentity.CommandHandler
+ * <p>The first method parameter should correspond to the parameter in the service call.
  *
- * <p>The method may also take an {@link ActionContext}.
+ * <p>A second parameter can optionally be defined for the previous state. It's type corresponds to
+ * the return type of the service call. It can be defined as <code>Optional</code>. For the first
+ * event of an event sourced entity or for the first change of a value entity there is no previous
+ * state and then <code>Optional.empty</code> or <code>null</code> is used for the state parameter.
+ *
+ * <p>The method may also take a {@link HandlerContext} parameter.
+ *
+ * <p>The method should return the updated (new) state.
  */
 @AkkaServerlessAnnotation
 @Target(ElementType.METHOD)

@@ -8,7 +8,7 @@ import com.akkaserverless.javasdk.MetadataContext;
 
 import java.util.Optional;
 
-/** Context for view calls. */
+/** Context for view update calls. */
 public interface HandlerContext extends ViewContext, MetadataContext {
 
   /** The entity that emitted the event. */
