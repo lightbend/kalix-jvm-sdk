@@ -140,11 +140,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.lightbend;
       |
       |import com.google.protobuf.Empty;
-      |import io.cloudstate.javasupport.EntityId;
-      |import io.cloudstate.javasupport.eventsourced.*;
+      |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.eventsourcedentity.*;
       |
       |/** An event sourced entity. */
-      |@EventSourcedEntity
+      |@EventSourcedEntity(entityType = "MyServiceEntity")
       |public class MyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
@@ -155,12 +155,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @CommandHandler
       |    public Empty set(MyEntity.SetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
+      |        ctx.fail("The command handler for `Set` is not implemented, yet");
+      |        throw new RuntimeException(); // This line is never reached, as ctx.fail throws, but is required to avoid compiler errors
       |    }
       |    
       |    @CommandHandler
       |    public MyEntity.MyState get(MyEntity.GetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
+      |        ctx.fail("The command handler for `Get` is not implemented, yet");
+      |        throw new RuntimeException(); // This line is never reached, as ctx.fail throws, but is required to avoid compiler errors
       |    }
       |}""".stripMargin
     )
@@ -193,7 +195,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       sourceDoc.layout,
       """package com.lightbend;
         |
-        |import io.cloudstate.javasupport.eventsourced.CommandContext;
+        |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
         |import org.junit.Test;
         |import org.mockito.*;
         |
@@ -289,14 +291,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
       sourceDoc.layout,
       """package com.lightbend;
         |
-        |import io.cloudstate.javasupport.*;
+        |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.lightbend.something.MyEntity3;
         |import com.lightbend.something.MyService3;
         |
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new CloudState() //
+        |        new AkkaServerless() //
         |            .registerEventSourcedEntity(MyService1.class, MyEntity1.getDescriptor().findServiceByName("MyService1")) //
         |            .registerEventSourcedEntity(MyService2.class, MyEntity2.getDescriptor().findServiceByName("MyService2")) //
         |            .registerEventSourcedEntity(MyService3.class, MyEntity3.getDescriptor().findServiceByName("MyService3")) //
@@ -335,12 +337,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       sourceDoc.layout,
       """package com.lightbend;
         |
-        |import io.cloudstate.javasupport.*;
+        |import com.akkaserverless.javasdk.AkkaServerless;
         |
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new CloudState() //
+        |        new AkkaServerless() //
         |            // FIXME: No Java outer class name specified - cannot register MyService1 - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }
