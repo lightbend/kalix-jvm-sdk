@@ -9,7 +9,7 @@ An event sourced entity can be created by annotating it with the link:{attachmen
 include::example$docs/user/eventsourcedentity/ShoppingCartEntity.java[tag=entity-class]
 ----
 
-The `entityType` is used to namespace events in the journal. This is useful when you share the same database between multiple entities. It defaults to the simple name for the entity class (in this case, `ShoppingCartEntity`). It is good practice to explicitly define an `entityType`. This helps to decouple the journal data from the classnames in your code—the event naming in the journal remains coherent, even if the underlying entity classname may have changed.
+The `entityType` is used to namespace events in the journal. This is useful when you have multiple entity types (i.e. shopping carts and users) in the same service.
 
 The `snapshotEvery` parameter controls how often snapshots are taken, so that the entity doesn't need to be recovered from the entire history of the journal each time it is loaded. If left unset, it defaults to 100. To disable snapshots, set `snapshotEvery` to a negative value.
 
