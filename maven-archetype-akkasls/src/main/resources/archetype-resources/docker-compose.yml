@@ -1,8 +1,8 @@
 version: "3"
 services:
   as-proxy:
-    image: cloudstateio/cloudstate-proxy-core:latest
-    command: -Dconfig.resource=dev-mode.conf -Dcloudstate.proxy.protocol-compatibility-check=false
+    image: gcr.io/akkaserverless-public/akkaserverless-proxy:0.7.0-pre-ebf5e9ea
+    command: -Dconfig.resource=dev-mode.conf -Dakkaserverless.proxy.protocol-compatibility-check=false
     ports:
       - "9000:9000"
     environment:
