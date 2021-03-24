@@ -11,12 +11,12 @@ option go_package = "$packageInPathFormat";
 option java_outer_classname = "MyEntity";
 
 message SetValueCommand {
-    string entity_id = 1 [(.akkaserverless.field).entity_key = true];
+    string entity_id = 1 [(akkaserverless.field).entity_key = true];
     int32 value = 2;
 }
 
 message GetValueCommand {
-    string entity_id = 1 [(.akkaserverless.field).entity_key = true];
+    string entity_id = 1 [(akkaserverless.field).entity_key = true];
 }
 
 message MyState {
