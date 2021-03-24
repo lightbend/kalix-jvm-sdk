@@ -122,7 +122,7 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.EventSourcedEntity
   ): Document =
     pretty(
-      """import { EventSourced } from "cloudstate"""" <> semi <> line <>
+      """import { EventSourced } from "@lightbend/akkaserverless-javascript-sdk"""" <> semi <> line <>
       line <>
       "const entity = new EventSourced" <> parens(
         nest(
