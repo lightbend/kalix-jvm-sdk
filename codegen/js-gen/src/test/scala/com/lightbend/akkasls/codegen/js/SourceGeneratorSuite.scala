@@ -148,7 +148,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       SourceGenerator.source(protoSources, protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { EventSourced } from "cloudstate";
+      """import { EventSourced } from "@lightbend/akkaserverless-javascript-sdk";
         |
         |const entity = new EventSourced(
         |  [
