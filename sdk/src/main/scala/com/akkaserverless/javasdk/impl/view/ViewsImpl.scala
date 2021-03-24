@@ -86,7 +86,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               val commandName = receiveEvent.commandName
               val msg = ScalaPbAny.toJavaProto(receiveEvent.payload.get)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val sourceEntityId = metadata.get("ce-subject")
+              val sourceEntityId = metadata.subject()
               val context = new HandlerContextImpl(service.viewId, sourceEntityId, commandName, metadata, state)
 
               val reply = try {
