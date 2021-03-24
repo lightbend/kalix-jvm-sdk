@@ -187,6 +187,14 @@
       <name>bintray</name>
       <url>https://lightbend.bintray.com/akkaserverless</url>
     </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-lightbend-akkaserverless-snapshots</id>
+      <name>bintray-snapshots</name>
+      <url>https://lightbend.bintray.com/akkaserverless-snapshots</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -202,9 +210,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.cloudstate</groupId>
-      <artifactId>cloudstate-java-support</artifactId>
-      <version>0.5.2</version>
+      <groupId>com.akkaserverless</groupId>
+      <artifactId>akkaserverless-java-sdk</artifactId>
+      <version>0.7.0-pre-ebf5e9ea</version>
     </dependency>
     <dependency> 
       <groupId>junit</groupId>
