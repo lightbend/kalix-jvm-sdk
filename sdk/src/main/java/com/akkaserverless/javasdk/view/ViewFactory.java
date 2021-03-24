@@ -16,7 +16,7 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityHandler;
  */
 public interface ViewFactory {
   /**
-   * Create an view handler for the given context.
+   * Create a view handler for the given context.
    *
    * @param context The context.
    * @return The handler for the given context.

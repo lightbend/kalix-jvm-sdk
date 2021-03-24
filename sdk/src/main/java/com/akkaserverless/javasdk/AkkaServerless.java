@@ -486,7 +486,7 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated value based entity.
+   * Register an annotated view.
    *
    * <p>The view class must be annotated with {@link com.akkaserverless.javasdk.view.View}.
    *
@@ -527,7 +527,7 @@ public final class AkkaServerless {
    * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
    * implementing the view.
    *
-   * @param factory The value based entity factory.
+   * @param factory The view factory.
    * @param descriptor The descriptor for the service that this entity implements.
    * @param viewId The id of this view, used for persistence.
    * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
