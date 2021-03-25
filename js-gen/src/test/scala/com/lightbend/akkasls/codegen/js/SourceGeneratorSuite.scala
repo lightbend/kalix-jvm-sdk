@@ -157,8 +157,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  ],
         |  "com.lightbend.MyServiceEntity",
         |  {
-        |    includeDirs: ["../proto"],
-        |    persistenceId: "myserviceentity",
+        |    includeDirs: ["./src/proto"],
+        |    entityType: "myserviceentity",
         |    serializeFallbackToJson: true
         |  }
         |);
@@ -206,12 +206,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
         )
       )
 
-    val sourceDoc = SourceGenerator.testSource(entity)
+    val testSourceDirectory = Paths.get("./test/js");
+    val sourceDirectory     = Paths.get("./src/js");
+    val sourceDoc           = SourceGenerator.testSource(entity, testSourceDirectory, sourceDirectory)
     assertEquals(
       sourceDoc.layout,
       """import { MockEventSourcedEntity } from "./testkit.js";
         |import { expect } from "chai";
-        |import myservice1 from "./myservice1.js";
+        |import myservice1 from "../../src/js/myservice1.js";
         |
         |describe("MyService1", () => {
         |  const entityId = "entityId";
