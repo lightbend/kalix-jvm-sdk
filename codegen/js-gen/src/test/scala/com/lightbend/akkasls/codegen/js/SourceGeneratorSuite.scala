@@ -210,7 +210,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val sourceDirectory     = Paths.get("./src/js");
     val sourceDoc           = SourceGenerator.testSource(entity, testSourceDirectory, sourceDirectory)
     assertEquals(
-      sourceDoc.layout,
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """import { MockEventSourcedEntity } from "./testkit.js";
         |import { expect } from "chai";
         |import myservice1 from "../../src/js/myservice1.js";
