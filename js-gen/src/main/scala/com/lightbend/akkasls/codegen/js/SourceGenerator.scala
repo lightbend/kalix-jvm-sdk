@@ -66,7 +66,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = testSourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
             testSourcePath,
-            testSource(entity).layout.getBytes(
+            testSource(entity, testSourceDirectory, sourceDirectory).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -144,15 +144,11 @@ object SourceGenerator extends PrettyPrinter {
                 (if (sourceDirectory != protobufSourceDirectory)
                    List(
                      "includeDirs" <> colon <+> brackets(
-                       dquotes(
-                         sourceDirectory.toAbsolutePath
-                           .relativize(protobufSourceDirectory.toAbsolutePath)
-                           .toString
-                       )
+                       dquotes(protobufSourceDirectory.toString)
                      )
                    )
                  else List.empty) ++ List(
-                  "persistenceId" <> colon <+> dquotes(name(entity.fullName).toLowerCase()),
+                  "entityType" <> colon <+> dquotes(name(entity.fullName).toLowerCase()),
                   "serializeFallbackToJson" <> colon <+> "true"
                 ),
                 comma <> line
@@ -211,14 +207,21 @@ object SourceGenerator extends PrettyPrinter {
 
   // TODO: Generate the test source
   private[codegen] def testSource(
-      entity: ModelBuilder.EventSourcedEntity
+      entity: ModelBuilder.EventSourcedEntity,
+      testSourceDirectory: Path,
+      sourceDirectory: Path
   ): Document = {
 
     val entityName = name(entity.fullName).toLowerCase
     pretty(
       """import { MockEventSourcedEntity } from "./testkit.js"""" <> semi <> line <>
       """import { expect } from "chai"""" <> semi <> line <>
-      "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi <> line <>
+      "import" <+> entityName <+> "from" <+> dquotes(
+        testSourceDirectory.toAbsolutePath
+          .relativize(sourceDirectory.toAbsolutePath)
+          .resolve(s"$entityName.js")
+          .toString
+      ) <> semi <> line <>
       line <>
 
       "describe" <> parens(
