@@ -10,7 +10,7 @@ import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.valueentity.Valueentity.*;
+import com.akkaserverless.tck.model.ValueEntity.*;
 
 import java.util.Optional;
 

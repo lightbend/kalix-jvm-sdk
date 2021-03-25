@@ -9,7 +9,7 @@ import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.EventSourcedTwo;
-import com.akkaserverless.tck.model.Eventsourced.*;
+import com.akkaserverless.tck.model.EventSourcedEntity.*;
 
 import java.util.Optional;
 

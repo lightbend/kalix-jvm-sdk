@@ -6,8 +6,8 @@ package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.tck.model.Eventsourced.Request;
-import com.akkaserverless.tck.model.Eventsourced.Response;
+import com.akkaserverless.tck.model.EventSourcedEntity.Request;
+import com.akkaserverless.tck.model.EventSourcedEntity.Response;
 
 @EventSourcedEntity(entityType = "EventSourcedTwoEntity")
 public class EventSourcedTwoEntity {

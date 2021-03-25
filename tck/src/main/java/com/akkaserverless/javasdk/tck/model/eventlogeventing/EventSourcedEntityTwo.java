@@ -8,13 +8,13 @@ import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.tck.model.Eventlogeventing;
+import com.akkaserverless.tck.model.EventLogEventing;
 import com.google.protobuf.Empty;
 
 @EventSourcedEntity(entityType = "eventlogeventing-two")
 public class EventSourcedEntityTwo {
   @CommandHandler
-  public Empty emitJsonEvent(Eventlogeventing.JsonEvent event, CommandContext ctx) {
+  public Empty emitJsonEvent(EventLogEventing.JsonEvent event, CommandContext ctx) {
     ctx.emit(new JsonMessage(event.getMessage()));
     return Empty.getDefaultInstance();
   }

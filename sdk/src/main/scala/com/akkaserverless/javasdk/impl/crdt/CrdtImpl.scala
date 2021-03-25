@@ -387,9 +387,9 @@ class CrdtImpl(system: ActorSystem, services: Map[String, CrdtStatefulService], 
         this.writeConsistency = writeConsistency
 
       def crdtWriteConsistency: CrdtWriteConsistency = writeConsistency match {
-        case WriteConsistency.LOCAL => CrdtWriteConsistency.LOCAL
-        case WriteConsistency.MAJORITY => CrdtWriteConsistency.MAJORITY
-        case WriteConsistency.ALL => CrdtWriteConsistency.ALL
+        case WriteConsistency.LOCAL => CrdtWriteConsistency.CRDT_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
+        case WriteConsistency.MAJORITY => CrdtWriteConsistency.CRDT_WRITE_CONSISTENCY_MAJORITY
+        case WriteConsistency.ALL => CrdtWriteConsistency.CRDT_WRITE_CONSISTENCY_ALL
       }
     }
 

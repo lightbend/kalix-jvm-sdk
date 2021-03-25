@@ -51,10 +51,10 @@ private[crdt] final class LWWRegisterImpl[T](anySupport: AnySupport) extends Int
 
   private def convertClock(clock: LWWRegister.Clock): CrdtClock =
     clock match {
-      case LWWRegister.Clock.DEFAULT => CrdtClock.DEFAULT
-      case LWWRegister.Clock.REVERSE => CrdtClock.REVERSE
-      case LWWRegister.Clock.CUSTOM => CrdtClock.CUSTOM
-      case LWWRegister.Clock.CUSTOM_AUTO_INCREMENT => CrdtClock.CUSTOM_AUTO_INCREMENT
+      case LWWRegister.Clock.DEFAULT => CrdtClock.CRDT_CLOCK_DEFAULT_UNSPECIFIED
+      case LWWRegister.Clock.REVERSE => CrdtClock.CRDT_CLOCK_REVERSE
+      case LWWRegister.Clock.CUSTOM => CrdtClock.CRDT_CLOCK_CUSTOM
+      case LWWRegister.Clock.CUSTOM_AUTO_INCREMENT => CrdtClock.CRDT_CLOCK_CUSTOM_AUTO_INCREMENT
     }
 
   override def toString = s"LWWRegister($value)"

@@ -22,10 +22,10 @@ import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEnt
 import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntity;
 import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
 import com.akkaserverless.tck.model.Action;
-import com.akkaserverless.tck.model.Crdt;
-import com.akkaserverless.tck.model.Eventlogeventing;
-import com.akkaserverless.tck.model.Eventsourced;
-import com.akkaserverless.tck.model.valueentity.Valueentity;
+import com.akkaserverless.tck.model.CrdtEntity;
+import com.akkaserverless.tck.model.EventLogEventing;
+import com.akkaserverless.tck.model.EventSourcedEntity;
+import com.akkaserverless.tck.model.ValueEntity;
 
 import java.time.Duration;
 
@@ -42,49 +42,50 @@ public final class JavaSdkTck {
             Action.getDescriptor())
         .registerValueEntity(
             ValueEntityTckModelEntity.class,
-            Valueentity.getDescriptor().findServiceByName("ValueEntityTckModel"),
-            Valueentity.getDescriptor())
+            ValueEntity.getDescriptor().findServiceByName("ValueEntityTckModel"),
+            ValueEntity.getDescriptor())
         .registerValueEntity(
             ValueEntityTwoEntity.class,
-            Valueentity.getDescriptor().findServiceByName("ValueEntityTwo"))
+            ValueEntity.getDescriptor().findServiceByName("ValueEntityTwo"))
         .registerValueEntity(
             ValueEntityConfiguredEntity.class,
-            Valueentity.getDescriptor().findServiceByName("ValueEntityConfigured"),
+            ValueEntity.getDescriptor().findServiceByName("ValueEntityConfigured"),
             ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerCrdtEntity(
             CrdtTckModelEntity.class,
-            Crdt.getDescriptor().findServiceByName("CrdtTckModel"),
-            Crdt.getDescriptor())
-        .registerCrdtEntity(CrdtTwoEntity.class, Crdt.getDescriptor().findServiceByName("CrdtTwo"))
+            CrdtEntity.getDescriptor().findServiceByName("CrdtTckModel"),
+            CrdtEntity.getDescriptor())
+        .registerCrdtEntity(
+            CrdtTwoEntity.class, CrdtEntity.getDescriptor().findServiceByName("CrdtTwo"))
         .registerCrdtEntity(
             CrdtConfiguredEntity.class,
-            Crdt.getDescriptor().findServiceByName("CrdtConfigured"),
+            CrdtEntity.getDescriptor().findServiceByName("CrdtConfigured"),
             CrdtEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerEventSourcedEntity(
             EventSourcedTckModelEntity.class,
-            Eventsourced.getDescriptor().findServiceByName("EventSourcedTckModel"),
-            Eventsourced.getDescriptor())
+            EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTckModel"),
+            EventSourcedEntity.getDescriptor())
         .registerEventSourcedEntity(
             EventSourcedTwoEntity.class,
-            Eventsourced.getDescriptor().findServiceByName("EventSourcedTwo"))
+            EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTwo"))
         .registerEventSourcedEntity(
             EventSourcedConfiguredEntity.class,
-            Eventsourced.getDescriptor().findServiceByName("EventSourcedConfigured"),
+            EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedConfigured"),
             EventSourcedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerAction(
             new EventLogSubscriber(),
-            Eventlogeventing.getDescriptor().findServiceByName("EventLogSubscriberModel"))
+            EventLogEventing.getDescriptor().findServiceByName("EventLogSubscriberModel"))
         .registerEventSourcedEntity(
             com.akkaserverless.javasdk.tck.model.eventlogeventing.EventSourcedEntityOne.class,
-            Eventlogeventing.getDescriptor().findServiceByName("EventSourcedEntityOne"),
-            Eventlogeventing.getDescriptor())
+            EventLogEventing.getDescriptor().findServiceByName("EventSourcedEntityOne"),
+            EventLogEventing.getDescriptor())
         .registerEventSourcedEntity(
             com.akkaserverless.javasdk.tck.model.eventlogeventing.EventSourcedEntityTwo.class,
-            Eventlogeventing.getDescriptor().findServiceByName("EventSourcedEntityTwo"),
-            Eventlogeventing.getDescriptor())
+            EventLogEventing.getDescriptor().findServiceByName("EventSourcedEntityTwo"),
+            EventLogEventing.getDescriptor())
         .start()
         .toCompletableFuture()
         .get();

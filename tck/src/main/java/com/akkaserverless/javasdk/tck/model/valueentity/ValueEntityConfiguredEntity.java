@@ -6,8 +6,8 @@ package com.akkaserverless.javasdk.tck.model.valueentity;
 
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.valueentity.Valueentity.Request;
-import com.akkaserverless.tck.model.valueentity.Valueentity.Response;
+import com.akkaserverless.tck.model.ValueEntity.Request;
+import com.akkaserverless.tck.model.ValueEntity.Response;
 
 @ValueEntity(entityType = "value-entity-configured")
 public class ValueEntityConfiguredEntity {

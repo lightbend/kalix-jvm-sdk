@@ -8,9 +8,9 @@ import com.akkaserverless.javasdk.crdt.CommandContext;
 import com.akkaserverless.javasdk.crdt.CommandHandler;
 import com.akkaserverless.javasdk.crdt.CrdtEntity;
 import com.akkaserverless.javasdk.crdt.GCounter;
-import com.akkaserverless.tck.model.Crdt.Request;
-import com.akkaserverless.tck.model.Crdt.RequestAction;
-import com.akkaserverless.tck.model.Crdt.Response;
+import com.akkaserverless.tck.model.CrdtEntity.Request;
+import com.akkaserverless.tck.model.CrdtEntity.RequestAction;
+import com.akkaserverless.tck.model.CrdtEntity.Response;
 
 @CrdtEntity
 public class CrdtTwoEntity {

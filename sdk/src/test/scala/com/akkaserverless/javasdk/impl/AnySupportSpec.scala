@@ -40,7 +40,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "support se/deserializing scala protobufs" in {
       val error = UserFunctionError("error")
       val any = anySupport.encodeScala(UserFunctionError("error"))
-      any.typeUrl should ===("com.example/akkaserverless.UserFunctionError")
+      any.typeUrl should ===("com.example/akkaserverless.protocol.UserFunctionError")
 
       val decoded = anySupport.decode(any)
       decoded.getClass should ===(error.getClass)

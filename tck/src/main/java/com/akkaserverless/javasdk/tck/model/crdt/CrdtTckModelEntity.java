@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.tck.model.crdt;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.crdt.*;
-import com.akkaserverless.tck.model.Crdt.*;
+import com.akkaserverless.tck.model.CrdtEntity.*;
 
 import java.util.*;
 
@@ -25,7 +25,7 @@ public class CrdtTckModelEntity {
     serviceTwo =
         context
             .serviceCallFactory()
-            .lookup("akkaserverless.tck.model.crdt.CrdtTwo", "Call", Request.class);
+            .lookup("akkaserverless.tck.model.crdtentity.CrdtTwo", "Call", Request.class);
   }
 
   private static String crdtType(String name) {
@@ -88,13 +88,13 @@ public class CrdtTckModelEntity {
         case UPDATE:
           applyUpdate(crdt, action.getUpdate());
           switch (action.getUpdate().getWriteConsistency()) {
-            case LOCAL:
+            case UPDATE_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED:
               context.setWriteConsistency(WriteConsistency.LOCAL);
               break;
-            case MAJORITY:
+            case UPDATE_WRITE_CONSISTENCY_MAJORITY:
               context.setWriteConsistency(WriteConsistency.MAJORITY);
               break;
-            case ALL:
+            case UPDATE_WRITE_CONSISTENCY_ALL:
               context.setWriteConsistency(WriteConsistency.ALL);
               break;
           }
@@ -172,16 +172,16 @@ public class CrdtTckModelEntity {
         if (update.getLwwregister().hasClock()) {
           LWWRegisterClock clock = update.getLwwregister().getClock();
           switch (clock.getClockType()) {
-            case DEFAULT:
+            case LWW_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
               lwwRegister.set(newValue);
               break;
-            case REVERSE:
+            case LWW_REGISTER_CLOCK_TYPE_REVERSE:
               lwwRegister.set(newValue, LWWRegister.Clock.REVERSE, 0);
               break;
-            case CUSTOM:
+            case LWW_REGISTER_CLOCK_TYPE_CUSTOM:
               lwwRegister.set(newValue, LWWRegister.Clock.CUSTOM, clock.getCustomClockValue());
               break;
-            case CUSTOM_AUTO_INCREMENT:
+            case LWW_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
               lwwRegister.set(
                   newValue, LWWRegister.Clock.CUSTOM_AUTO_INCREMENT, clock.getCustomClockValue());
               break;

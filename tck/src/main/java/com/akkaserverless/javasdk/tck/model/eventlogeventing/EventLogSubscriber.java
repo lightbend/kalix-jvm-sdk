@@ -12,45 +12,45 @@ import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionReply;
 import com.akkaserverless.javasdk.action.Handler;
 import com.akkaserverless.tck.model.EventLogSubscriberModel;
-import com.akkaserverless.tck.model.Eventlogeventing;
+import com.akkaserverless.tck.model.EventLogEventing;
 
 @Action
 public class EventLogSubscriber {
 
   @Handler
-  public ActionReply<Eventlogeventing.Response> processEventOne(
-      ActionContext context, CloudEvent cloudEvent, Eventlogeventing.EventOne eventOne) {
+  public ActionReply<EventLogEventing.Response> processEventOne(
+      ActionContext context, CloudEvent cloudEvent, EventLogEventing.EventOne eventOne) {
     return convert(context, cloudEvent, eventOne.getStep());
   }
 
   @Handler
-  public Source<ActionReply<Eventlogeventing.Response>, NotUsed> processEventTwo(
-      ActionContext context, CloudEvent cloudEvent, Eventlogeventing.EventTwo eventTwo) {
+  public Source<ActionReply<EventLogEventing.Response>, NotUsed> processEventTwo(
+      ActionContext context, CloudEvent cloudEvent, EventLogEventing.EventTwo eventTwo) {
     return Source.from(eventTwo.getStepList()).map(step -> convert(context, cloudEvent, step));
   }
 
   @Handler
-  public Eventlogeventing.Response effect(Eventlogeventing.EffectRequest request) {
-    return Eventlogeventing.Response.newBuilder()
+  public EventLogEventing.Response effect(EventLogEventing.EffectRequest request) {
+    return EventLogEventing.Response.newBuilder()
         .setId(request.getId())
         .setMessage(request.getMessage())
         .build();
   }
 
   @Handler
-  public Eventlogeventing.Response processAnyEvent(JsonMessage jsonMessage, CloudEvent cloudEvent) {
-    return Eventlogeventing.Response.newBuilder()
+  public EventLogEventing.Response processAnyEvent(JsonMessage jsonMessage, CloudEvent cloudEvent) {
+    return EventLogEventing.Response.newBuilder()
         .setId(cloudEvent.subject().orElse(""))
         .setMessage(jsonMessage.message)
         .build();
   }
 
-  private ActionReply<Eventlogeventing.Response> convert(
-      ActionContext context, CloudEvent cloudEvent, Eventlogeventing.ProcessStep step) {
+  private ActionReply<EventLogEventing.Response> convert(
+      ActionContext context, CloudEvent cloudEvent, EventLogEventing.ProcessStep step) {
     String id = cloudEvent.subject().orElse("");
     if (step.hasReply()) {
       return ActionReply.message(
-          Eventlogeventing.Response.newBuilder()
+          EventLogEventing.Response.newBuilder()
               .setId(id)
               .setMessage(step.getReply().getMessage())
               .build());
@@ -58,9 +58,9 @@ public class EventLogSubscriber {
       return ActionReply.forward(
           context
               .serviceCallFactory()
-              .lookup(EventLogSubscriberModel.name, "Effect", Eventlogeventing.EffectRequest.class)
+              .lookup(EventLogSubscriberModel.name, "Effect", EventLogEventing.EffectRequest.class)
               .createCall(
-                  Eventlogeventing.EffectRequest.newBuilder()
+                  EventLogEventing.EffectRequest.newBuilder()
                       .setId(id)
                       .setMessage(step.getForward().getMessage())
                       .build()));
