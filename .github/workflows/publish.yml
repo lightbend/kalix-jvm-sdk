@@ -29,6 +29,8 @@ jobs:
         working-directory: ${{ runner.temp }}/generated-project
       - name: Run service in background
         run: mvn exec:java&
+        env:
+          HOST: "0.0.0.0"
         working-directory: ${{ runner.temp }}/generated-project
       - name: Verify expected error is returned from request once services are running
         timeout-minutes: 2
