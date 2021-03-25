@@ -9,6 +9,7 @@ import shopping.cart.actions.TopicPublisher;
 import shopping.cart.actions.ShoppingCartAnalytics;
 import shopping.cart.actions.ToProductPopularity;
 import shopping.cart.api.ShoppingCartApi;
+import shopping.cart.api.ShoppingCartTopic;
 import shopping.cart.model.ShoppingCart;
 import shopping.cart.view.ShoppingCartViewModel;
 import shopping.product.api.ProductApi;
@@ -29,6 +30,9 @@ public final class Main {
         .registerAction(
             new TopicPublisherAction(),
             TopicPublisher.getDescriptor().findServiceByName("TopicPublisherService"))
+        .registerAction(
+            new ShoppingCartTopicAction(),
+            ShoppingCartTopic.getDescriptor().findServiceByName("ShoppingCartTopicService"))
 
         // consume shopping cart events published to 'shopping-cart-events' topic
         .registerAction(

@@ -116,11 +116,14 @@ private object ActionReflection {
             ReflectionHelper.getCapitalizedName(method)
           } else annotation.name()
 
-          val serviceMethod = serviceMethods.getOrElse(name, {
-            throw new RuntimeException(
-              s"Command handler method ${method.getName} for command $name found, but the service has no command by that name."
-            )
-          })
+          val serviceMethod = serviceMethods.getOrElse(
+            name, {
+              throw new RuntimeException(
+                s"Command handler method [${method.getDeclaringClass.getSimpleName}.${method.getName}] for command [$name] found, but the service has no command by that name${serviceMethods.keys
+                  .mkString(" (existing commands are: ", ", ", ")")}."
+              )
+            }
+          )
 
           (method, serviceMethod)
       }

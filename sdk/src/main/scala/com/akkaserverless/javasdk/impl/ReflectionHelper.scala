@@ -240,15 +240,22 @@ private[impl] object ReflectionHelper {
       pbType.parseFrom(pbAny.getValue).asInstanceOf[AnyRef]
     } else if (pbType.typeClass.equals(classOf[JavaPbAny]) && actualType.getAnnotation(classOf[Jsonable]) != null) {
       val reader = AnySupport.objectMapper.readerFor(actualType)
-      pbAny => {
+      pbAny =>
         if (pbAny.getTypeUrl.startsWith(AnySupport.AkkaServerlessJson)) {
-          reader.readValue(AnySupport.extractBytes(pbAny.getValue).newInput()).asInstanceOf[AnyRef]
+          try {
+            reader.readValue(AnySupport.extractBytes(pbAny.getValue).newInput()).asInstanceOf[AnyRef]
+          } catch {
+            case e: com.fasterxml.jackson.core.JsonProcessingException =>
+              throw new RuntimeException(
+                s"Failed to parse JSON into [${actualType.getCanonicalName}] for call [$name].",
+                e
+              )
+          }
         } else {
           throw new RuntimeException(
-            s"Don't know how to deserialize protobuf Any type with type URL ${pbAny.getTypeUrl} "
+            s"Don't know how to deserialize protobuf Any type with type URL [${pbAny.getTypeUrl}]."
           )
         }
-      }
     } else {
       throw new RuntimeException(s"Incompatible input $actualType for call $name, expected ${pbType.typeClass}")
     }
