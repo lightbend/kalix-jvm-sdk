@@ -142,10 +142,9 @@ object SourceGenerator extends PrettyPrinter {
               ),
               emptyDoc
             ) {
-              "ctx.fail(\"The command handler for `" <> name(
+              "throw new RuntimeException(\"The command handler for `" <> name(
                 command.fullname
-              ) <> "` is not implemented, yet\")" <> semi <> line <>
-              "throw new RuntimeException()" <> semi <+> "// This line is never reached, as ctx.fail throws, but is required to avoid compiler errors"
+              ) <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
