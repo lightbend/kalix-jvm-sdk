@@ -6,7 +6,7 @@ This example show cases the following eventing features:
 * Reading of events from the event log and forwarding to a ValueEntity, see ForwardAdded/ForwardRemoved in [to-product-popularity.proto](../../protocols/example/eventing/shoppingcart/to-product-popularity.proto)
 * Reading of events from Google Pub Suc topic, see ProcessAdded/ProcessRemoved in [shopping-cart-analytics.proto](../../protocols/example/eventing/shoppingcart/shopping-cart-analytics.proto)
 
-To run the example locally with the GooglePubSub emulator:
+To run the example locally with the GooglePubSub emulator: (See below for instructions to run against real Pub/Sub)
 
 * Start the emulator: `gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085`
 * Start the example: `sbt java-eventing-shopping-cart/run`
@@ -79,3 +79,37 @@ To run the example locally with the GooglePubSub emulator:
     ]
   }'
   ```
+
+## Setup with real Google Pub/Sub
+
+Choose the Google Cloud project to use, this uses `akka-serverless-playground`
+
+```shell
+GCP_PROJECT_ID=akka-serverless-playground
+gcloud auth login
+gcloud projects list
+gcloud config set project ${GCP_PROJECT_ID}
+# create key
+gcloud iam service-accounts create akka-serverless-broker
+gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} \
+    --member "serviceAccount:akka-serverless-broker@${GCP_PROJECT_ID}.iam.gserviceaccount.com" \
+    --role "roles/pubsub.editor"
+gcloud iam service-accounts keys create keyfile.json \
+    --iam-account akka-serverless-broker@${GCP_PROJECT_ID}.iam.gserviceaccount.com
+```
+
+Comment out the whole `akkaserverless.proxy.eventing` section in `proxy/core/src/main/resources/dev-mode.conf` to fully rely on `reference.conf`.
+
+```shell
+export EVENTING_SUPPORT="google-pubsub"
+export PUBSUB_PROJECT_ID=${GCP_PROJECT_ID}
+export PUBSUB_APPLICATION_CREDENTIALS=${PWD}/keyfile.json
+```
+
+Create the topics (subscriptions are auto-created)
+
+```shell
+gcloud beta pubsub topics create shopping-cart-events
+gcloud beta pubsub topics create shopping-cart-protobuf-cloudevents
+gcloud beta pubsub topics create shopping-cart-json
+```
