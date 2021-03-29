@@ -4,15 +4,20 @@
 
 package com.akkaserverless.javasdk.impl
 
+import java.nio.file.Files
+
 import akka.actor.ActorSystem
 import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
-
 import java.time.Duration
+
 import scala.concurrent.Future
+import scala.io.Source
+import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
 
@@ -56,9 +61,20 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
     }
 
+    val descriptorsWithSource = loadDescriptorsWithSource(
+      system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path")
+    )
     val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
     val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
-    allDescriptors.values.foreach(fd => builder.addFile(fd.toProto))
+    allDescriptors.values.foreach { fd =>
+      val proto = fd.toProto
+      // We still use the descriptor as passed in by the user, but if we have one that we've read from the
+      // descriptors file that has the source info, we add that source info to the one passed in, and use that.
+      val protoWithSource = descriptorsWithSource.get(proto.getName).fold(proto) { withSource =>
+        proto.toBuilder.setSourceCodeInfo(withSource.getSourceCodeInfo).build()
+      }
+      builder.addFile(protoWithSource)
+    }
     val fileDescriptorSet = builder.build().toByteString
 
     val components = services.map {
@@ -84,9 +100,54 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
    * should be logged clearly for debugging purposes.
    */
   override def reportError(in: UserFunctionError): scala.concurrent.Future[com.google.protobuf.empty.Empty] = {
-    system.log.error(s"Error reported from sidecar: ${in.message}")
+    val sourceMsgs = in.sourceLocations.map { location =>
+      loadSource(location) match {
+        case None if location.startLine == 0 && location.startCol == 0 =>
+          s"At ${location.fileName}"
+        case None =>
+          s"At ${location.fileName}:${location.startLine + 1}:${location.startCol + 1}"
+        case Some(source) =>
+          s"At ${location.fileName}:${location.startLine + 1}:${location.startCol + 1}:${"\n"}$source"
+      }
+    }.toList
+    val message = s"Error reported from Akka Serverless system: ${in.code} ${in.message}"
+    val messages = if (in.detail.nonEmpty) {
+      message :: in.detail :: sourceMsgs
+    } else {
+      message :: sourceMsgs
+    }
+
+    system.log.error(messages.mkString("\n\n"))
+
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
+
+  private def loadSource(location: UserFunctionError.SourceLocation): Option[String] =
+    if (location.endLine == 0 && location.endCol == 0) {
+      // It's been sent without line/col data
+      None
+    } else {
+      val resourceStream = getClass.getClassLoader.getResourceAsStream(location.fileName)
+      if (resourceStream != null) {
+        val lines = Source
+          .fromInputStream(resourceStream, "utf-8")
+          .getLines()
+          .slice(location.startLine, location.endLine + 1)
+          .take(6) // Don't render more than 6 lines, we don't want to fill the logs too much
+          .toList
+        if (lines.size > 1) {
+          Some(lines.mkString("\n"))
+        } else {
+          lines.headOption
+            .map { line =>
+              line + "\n" + line.take(location.startCol).map {
+                case '\t' => '\t'
+                case _ => ' '
+              } + "^"
+            }
+        }
+      } else None
+    }
 
   private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[PassivationStrategy] = {
     import com.akkaserverless.protocol.discovery.{PassivationStrategy => EPStrategy}
@@ -106,4 +167,51 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
 
   private def configuredPassivationTimeout(key: String): Option[Duration] =
     if (system.settings.config.hasPath(key)) Some(system.settings.config.getDuration(key)) else None
+
+  private def loadDescriptorsWithSource(path: String): Map[String, DescriptorProtos.FileDescriptorProto] =
+    // Special case for disabled, this allows the user to disable attempting to load the descriptor, which means
+    // they won't get the great big warning below if it doesn't exist.
+    if (path == "disabled") {
+      Map.empty
+    } else {
+      val stream = getClass.getClassLoader.getResourceAsStream(path)
+      if (stream == null) {
+        system.log.warning(
+          s"Source info descriptor [$path] not found on classpath. Reporting descriptor errors against " +
+          "source locations will be disabled. To fix this, ensure that the following configuration applied to the " +
+          "protobuf maven plugin: \n" +
+          s"""
+             |<writeDescriptorSet>true</writeDescriptorSet>
+             |<includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+             |<descriptorSetFileName>${path.split("/").last}</descriptorSetFileName>
+             |
+             |and also that the generated resources directory is included in the classpath:
+             |
+             |  <build>
+             |    <resources>
+             |      <resource>
+             |        <directory>$${project.build.directory}/generated-resources</directory>
+             |      </resource>
+             |    </resources>
+             |    ...
+             |""".stripMargin
+        )
+        Map.empty
+      } else {
+        try {
+          DescriptorProtos.FileDescriptorSet
+            .parseFrom(stream)
+            .getFileList
+            .asScala
+            .collect {
+              case file if file.hasSourceCodeInfo => file.getName -> file
+            }
+            .toMap
+        } catch {
+          case NonFatal(e) =>
+            system.log.error(e, s"Error parsing descriptor file $path from classpath, source mapping will be disabled")
+            Map.empty
+        }
+      }
+    }
 }
