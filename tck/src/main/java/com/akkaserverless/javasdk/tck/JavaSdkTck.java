@@ -14,7 +14,7 @@ import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
 import com.akkaserverless.javasdk.tck.model.crdt.CrdtConfiguredEntity;
 import com.akkaserverless.javasdk.tck.model.crdt.CrdtTckModelEntity;
 import com.akkaserverless.javasdk.tck.model.crdt.CrdtTwoEntity;
-import com.akkaserverless.javasdk.tck.model.eventlogeventing.EventLogSubscriber;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
 import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
 import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
 import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntity;
@@ -23,7 +23,7 @@ import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntit
 import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
 import com.akkaserverless.tck.model.Action;
 import com.akkaserverless.tck.model.CrdtEntity;
-import com.akkaserverless.tck.model.EventLogEventing;
+import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.akkaserverless.tck.model.EventSourcedEntity;
 import com.akkaserverless.tck.model.ValueEntity;
 
@@ -76,16 +76,27 @@ public final class JavaSdkTck {
             EventSourcedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerAction(
-            new EventLogSubscriber(),
-            EventLogEventing.getDescriptor().findServiceByName("EventLogSubscriberModel"))
+            new LocalPersistenceSubscriber(),
+            LocalPersistenceEventing.getDescriptor()
+                .findServiceByName("LocalPersistenceSubscriberModel"))
         .registerEventSourcedEntity(
-            com.akkaserverless.javasdk.tck.model.eventlogeventing.EventSourcedEntityOne.class,
-            EventLogEventing.getDescriptor().findServiceByName("EventSourcedEntityOne"),
-            EventLogEventing.getDescriptor())
+            com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOne
+                .class,
+            LocalPersistenceEventing.getDescriptor().findServiceByName("EventSourcedEntityOne"),
+            LocalPersistenceEventing.getDescriptor())
         .registerEventSourcedEntity(
-            com.akkaserverless.javasdk.tck.model.eventlogeventing.EventSourcedEntityTwo.class,
-            EventLogEventing.getDescriptor().findServiceByName("EventSourcedEntityTwo"),
-            EventLogEventing.getDescriptor())
+            com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwo
+                .class,
+            LocalPersistenceEventing.getDescriptor().findServiceByName("EventSourcedEntityTwo"),
+            LocalPersistenceEventing.getDescriptor())
+        .registerValueEntity(
+            com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne.class,
+            LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityOne"),
+            LocalPersistenceEventing.getDescriptor())
+        .registerValueEntity(
+            com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo.class,
+            LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityTwo"),
+            LocalPersistenceEventing.getDescriptor())
         .start()
         .toCompletableFuture()
         .get();
