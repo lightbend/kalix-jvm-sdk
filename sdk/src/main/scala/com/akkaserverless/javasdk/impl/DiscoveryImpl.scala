@@ -19,7 +19,11 @@ import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
+import org.slf4j.LoggerFactory
+
 class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
+
+  private val log = LoggerFactory.getLogger(getClass)
 
   private def configuredOrElse(key: String, default: String): String =
     if (system.settings.config.hasPath(key)) system.settings.config.getString(key) else default
@@ -42,18 +46,23 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
    * Discover what components the user function wishes to serve.
    */
   override def discover(in: ProxyInfo): scala.concurrent.Future[Spec] = {
-    system.log.info(
-      s"Received discovery call from [${in.proxyName} ${in.proxyVersion}] supporting Akka Serverless protocol ${in.protocolMajorVersion}.${in.protocolMinorVersion}"
+    log.info(
+      "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
+      in.proxyName,
+      in.proxyVersion,
+      in.protocolMajorVersion,
+      in.protocolMinorVersion
     )
-    system.log.debug(s"Supported sidecar entity types: ${in.supportedEntityTypes.mkString("[", ",", "]")}")
+    log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
     val unsupportedServices = services.values.filterNot { service =>
       in.supportedEntityTypes.contains(service.componentType)
     }
 
     if (unsupportedServices.nonEmpty) {
-      system.log.error(
-        "Proxy doesn't support the entity types for the following services: " + unsupportedServices
+      log.error(
+        "Proxy doesn't support the entity types for the following services: {}",
+        unsupportedServices
           .map(s => s.descriptor.getFullName + ": " + s.componentType)
           .mkString(", ")
       )
@@ -117,7 +126,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       message :: sourceMsgs
     }
 
-    system.log.error(messages.mkString("\n\n"))
+    log.error(messages.mkString("\n\n"))
 
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
@@ -176,7 +185,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     } else {
       val stream = getClass.getClassLoader.getResourceAsStream(path)
       if (stream == null) {
-        system.log.warning(
+        log.warn(
           s"Source info descriptor [$path] not found on classpath. Reporting descriptor errors against " +
           "source locations will be disabled. To fix this, ensure that the following configuration applied to the " +
           "protobuf maven plugin: \n" +
@@ -209,7 +218,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
             .toMap
         } catch {
           case NonFatal(e) =>
-            system.log.error(e, s"Error parsing descriptor file $path from classpath, source mapping will be disabled")
+            log.error("Error parsing descriptor file [{}] from classpath, source mapping will be disabled", path, e)
             Map.empty
         }
       }

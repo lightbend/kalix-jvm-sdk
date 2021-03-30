@@ -37,6 +37,8 @@ object AnySupport {
   final val AkkaServerlessJson = "json.akkaserverless.com/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
 
+  private val log = LoggerFactory.getLogger(classOf[AnySupport])
+
   private sealed abstract class Primitive[T: ClassTag] {
     val name = fieldType.name().toLowerCase(Locale.ROOT)
     val fullName = AkkaServerlessPrimitive + name
@@ -177,8 +179,6 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
                  prefer: AnySupport.Prefer = AnySupport.Prefer.Java) {
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
-
-  private final val log = LoggerFactory.getLogger(getClass)
 
   private val allTypes = (for {
     descriptor <- allDescriptors.values

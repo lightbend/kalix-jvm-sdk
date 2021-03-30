@@ -10,7 +10,6 @@ import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 
 import akka.actor.ActorSystem
-import akka.event.Logging
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
@@ -24,6 +23,7 @@ import com.akkaserverless.protocol.{view => pv}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
+import org.slf4j.LoggerFactory
 
 /** INTERNAL API */
 final class ViewService(val factory: Optional[ViewFactory],
@@ -42,11 +42,15 @@ final class ViewService(val factory: Optional[ViewFactory],
   override def entityType: String = viewId
 }
 
+object ViewsImpl {
+  private val log = LoggerFactory.getLogger(classOf[ViewsImpl])
+}
+
 /** INTERNAL API */
 final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], rootContext: Context) extends pv.Views {
+  import ViewsImpl.log
 
   private final val services = _services.iterator.toMap
-  private final val log = Logging(system.eventStream, this.getClass)
 
   /**
    * Handle a full duplex streamed session. One stream will be established per incoming message to the view service.

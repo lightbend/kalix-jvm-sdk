@@ -14,6 +14,10 @@ import java.util
 import java.util.{function, Map}
 import scala.collection.JavaConverters._
 
+private object ORMapImpl {
+  private val log = LoggerFactory.getLogger(classOf[ORMapImpl[_, _]])
+}
+
 /**
  * A few notes on implementation:
  *
@@ -30,6 +34,8 @@ private[crdt] final class ORMapImpl[K, V <: InternalCrdt](anySupport: AnySupport
     extends util.AbstractMap[K, V]
     with InternalCrdt
     with ORMap[K, V] {
+  import ORMapImpl.log
+
   override final val name = "ORMap"
   private val value = new util.HashMap[K, V]()
   private val added = new util.HashMap[K, (ScalaPbAny, V)]()
@@ -173,7 +179,7 @@ private[crdt] final class ORMapImpl[K, V <: InternalCrdt](anySupport: AnySupport
         case ORMapEntryDelta(Some(key), Some(delta), _) =>
           val crdt = value.get(anySupport.decode(key))
           if (crdt == null) {
-            ORMapImpl.log.warn(s"ORMap entry to update with key $key not found in map")
+            log.warn("ORMap entry to update with key [{}] not found in map", key)
           } else {
             crdt.applyDelta(delta.delta)
           }
@@ -186,8 +192,4 @@ private[crdt] final class ORMapImpl[K, V <: InternalCrdt](anySupport: AnySupport
   }
 
   override def toString = s"ORMap(${value.asScala.map { case (k, v) => s"$k->$v" }.mkString(",")})"
-}
-
-private object ORMapImpl {
-  private final val log = LoggerFactory.getLogger(classOf[ORMapImpl[_, _]])
 }

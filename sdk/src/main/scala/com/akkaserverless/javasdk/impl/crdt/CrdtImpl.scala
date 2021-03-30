@@ -16,10 +16,12 @@ import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
 import com.akkaserverless.protocol.entity.Command
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.util.function.Consumer
 import java.util.{function, Optional}
+
 import scala.jdk.CollectionConverters._
+
+import org.slf4j.LoggerFactory
 
 final class CrdtStatefulService(val factory: CrdtEntityFactory,
                                 override val descriptor: Descriptors.ServiceDescriptor,
@@ -44,7 +46,12 @@ final class CrdtStatefulService(val factory: CrdtEntityFactory,
   def isStreamed(command: String): Boolean = streamed(command)
 }
 
+object CrdtImpl {
+  private val log = LoggerFactory.getLogger(classOf[CrdtImpl])
+}
+
 class CrdtImpl(system: ActorSystem, services: Map[String, CrdtStatefulService], rootContext: Context) extends Crdt {
+  import CrdtImpl.log
 
   /**
    * After invoking handle, the first message sent will always be a CrdtInit message, containing the entity ID, and,
@@ -99,7 +106,7 @@ class CrdtImpl(system: ActorSystem, services: Map[String, CrdtStatefulService], 
       }
       .recover {
         case err =>
-          system.log.error(err, "Unexpected error, terminating CRDT.")
+          log.error("Unexpected error, terminating CRDT.", err)
           CrdtStreamOut(CrdtStreamOut.Message.Failure(Failure(description = err.getMessage)))
       }
   }
