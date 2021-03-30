@@ -167,7 +167,7 @@ private class AdaptedCommandContext(val delegate: CommandContext[JavaPbAny], any
   override def metadata(): Metadata = delegate.metadata()
   override def entityId(): String = delegate.entityId()
   override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
-  override def fail(errorMessage: String): Unit = delegate.fail(errorMessage)
+  override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
   override def forward(to: ServiceCall): Unit = delegate.forward(to)
   override def serviceCallFactory(): ServiceCallFactory = delegate.serviceCallFactory()
 }

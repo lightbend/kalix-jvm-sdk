@@ -18,7 +18,7 @@ public interface ClientActionContext extends Context {
    *     signal failure
    * @throws IllegalStateException if fail was already called
    */
-  void fail(String errorMessage);
+  RuntimeException fail(String errorMessage);
 
   /**
    * Instruct the proxy to forward handling of this command to another entity served by this

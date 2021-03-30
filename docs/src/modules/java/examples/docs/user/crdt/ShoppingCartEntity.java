@@ -35,7 +35,7 @@ public class ShoppingCartEntity {
   @CommandHandler
   public Empty addItem(Shoppingcart.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
-      ctx.fail("Cannot add a negative quantity of items.");
+      throw ctx.fail("Cannot add a negative quantity of items.");
     }
     if (items.containsKey(item.getProductId())) {
       items.computeIfPresent(

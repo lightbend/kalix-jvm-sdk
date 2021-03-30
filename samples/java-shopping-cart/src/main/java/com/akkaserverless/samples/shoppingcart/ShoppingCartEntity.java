@@ -42,7 +42,7 @@ public class ShoppingCartEntity {
   @CommandHandler
   public Empty addItem(ShoppingCart.AddLineItem item, CommandContext<Domain.Cart> ctx) {
     if (item.getQuantity() <= 0) {
-      ctx.fail("Cannot add negative quantity of to item " + item.getProductId());
+      throw ctx.fail("Cannot add negative quantity of to item " + item.getProductId());
     }
 
     Domain.Cart cart = ctx.getState().orElse(Domain.Cart.newBuilder().build());
@@ -60,7 +60,8 @@ public class ShoppingCartEntity {
     Optional<Domain.LineItem> lineItem = findItemByProductId(cart, item.getProductId());
 
     if (!lineItem.isPresent()) {
-      ctx.fail("Cannot remove item " + item.getProductId() + " because it is not in the cart.");
+      throw ctx.fail(
+          "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     }
 
     List<Domain.LineItem> items = removeItemByProductId(cart, item.getProductId());

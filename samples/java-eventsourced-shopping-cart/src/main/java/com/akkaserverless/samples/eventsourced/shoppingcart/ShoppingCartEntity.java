@@ -66,7 +66,7 @@ public class ShoppingCartEntity {
   @CommandHandler
   public Empty addItem(ShoppingCart.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
-      ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
+      throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
     ctx.emit(
         Domain.ItemAdded.newBuilder()
@@ -83,7 +83,8 @@ public class ShoppingCartEntity {
   @CommandHandler
   public Empty removeItem(ShoppingCart.RemoveLineItem item, CommandContext ctx) {
     if (!cart.containsKey(item.getProductId())) {
-      ctx.fail("Cannot remove item " + item.getProductId() + " because it is not in the cart.");
+      throw ctx.fail(
+          "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     }
     ctx.emit(Domain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
     return Empty.getDefaultInstance();
