@@ -4,10 +4,6 @@
 
 package com.akkaserverless.javasdk.view;
 
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityHandler;
-
 /**
  * Low level interface for handling messages in views.
  *
@@ -21,5 +17,5 @@ public interface ViewFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ViewHandler create(ViewContext context);
+  ViewUpdateHandler create(ViewContext context);
 }

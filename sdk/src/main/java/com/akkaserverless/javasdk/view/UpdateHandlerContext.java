@@ -9,7 +9,7 @@ import com.akkaserverless.javasdk.MetadataContext;
 import java.util.Optional;
 
 /** Context for view update calls. */
-public interface HandlerContext extends ViewContext, MetadataContext {
+public interface UpdateHandlerContext extends ViewContext, MetadataContext {
 
   /** The entity that emitted the event. */
   Optional<String> sourceEntityId();

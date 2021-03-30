@@ -4,8 +4,8 @@
 
 package com.akkaserverless.samples.eventing.shoppingcart;
 
-import com.akkaserverless.javasdk.view.Handler;
-import com.akkaserverless.javasdk.view.HandlerContext;
+import com.akkaserverless.javasdk.view.UpdateHandler;
+import com.akkaserverless.javasdk.view.UpdateHandlerContext;
 import com.akkaserverless.javasdk.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +19,11 @@ public class ShoppingCartView {
 
   private static Logger LOG = LoggerFactory.getLogger(ShoppingCartView.class);
 
-  @Handler
+  @UpdateHandler
   public ShoppingCartViewModel.CartViewState processAdded(
       ShoppingCart.ItemAdded event,
       Optional<ShoppingCartViewModel.CartViewState> state,
-      HandlerContext context) {
+      UpdateHandlerContext context) {
     if (state.isPresent()) {
       String userId = state.get().getUserId();
       int newNumberOfItems = state.get().getNumberOfItems() + event.getItem().getQuantity();
@@ -46,7 +46,7 @@ public class ShoppingCartView {
     }
   }
 
-  @Handler
+  @UpdateHandler
   public ShoppingCartViewModel.CartViewState processRemoved(
       ShoppingCart.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
     int newNumberOfItems = state.getNumberOfItems() - event.getQuantity();

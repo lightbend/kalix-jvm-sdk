@@ -4,7 +4,6 @@
 
 package com.akkaserverless.javasdk.view;
 
-import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
 
 import java.lang.annotation.ElementType;
@@ -24,14 +23,14 @@ import java.lang.annotation.Target;
  * event of an event sourced entity or for the first change of a value entity there is no previous
  * state and then <code>Optional.empty</code> or <code>null</code> is used for the state parameter.
  *
- * <p>The method may also take a {@link HandlerContext} parameter.
+ * <p>The method may also take a {@link UpdateHandlerContext} parameter.
  *
  * <p>The method should return the updated (new) state.
  */
 @AkkaServerlessAnnotation
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Handler {
+public @interface UpdateHandler {
 
   /**
    * The name of the service call to handle.

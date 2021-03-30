@@ -33,7 +33,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
   class MockHandlerContext(override val commandName: String = "ProcessAdded",
                            override val sourceEntityId: Optional[String] = Optional.of("entity-1"),
                            override val state: Optional[JavaPbAny] = Optional.empty[JavaPbAny])
-      extends HandlerContext
+      extends UpdateHandlerContext
       with StateContext
       with BaseContext {
     override def viewId(): String = "foo"
@@ -65,13 +65,13 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
   def methodWithTwoStateParameters(name: String = "ProcessAdded"): ResolvedServiceMethod[State, State] =
     ResolvedServiceMethod(serviceDescriptor.findMethodByName(name), StateResolvedType, StateResolvedType)
 
-  def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): ViewHandler =
+  def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): ViewUpdateHandler =
     new AnnotationBasedViewSupport(behavior.getClass,
                                    methods.map(m => m.descriptor.getName -> m).toMap,
                                    Some((_: ViewCreationContext) => behavior))
       .create(MockContext)
 
-  def create(clazz: Class[_]): ViewHandler =
+  def create(clazz: Class[_]): ViewUpdateHandler =
     new AnnotationBasedViewSupport(clazz, Map.empty[String, ResolvedServiceMethod[_, _]], factory = None)
       .create(MockContext)
 
@@ -107,7 +107,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "no arg handler" in {
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded() = State("blah")
         }, method())
         decodeState(handler.handle(command("nothing"), new MockHandlerContext).get) should ===(State("blah"))
@@ -115,7 +115,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "msg arg handler" in {
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(msg: String) = State(msg)
         }, method())
         decodeState(handler.handle(command("blah"), new MockHandlerContext).get) should ===(State("blah"))
@@ -123,7 +123,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "msg and state arg handler" in {
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(msg: String, state: State): State = State(s"${state.value}-$msg")
         }, method())
         decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
@@ -133,7 +133,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "msg and state arg handler invoked with null state" in {
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(msg: String, state: State): State =
             if (state == null) State(msg)
             else State(s"${state.value}-$msg")
@@ -144,24 +144,30 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
       }
 
       "msg and Optional state arg handler" in {
-        val handler = create(new {
-          @Handler
-          def processAdded(msg: String, state: Optional[State]): State =
-            if (state.isPresent) State(s"${state.get.value}-$msg")
-            else State(msg)
-        }, method())
+        val handler = create(
+          new {
+            @UpdateHandler
+            def processAdded(msg: String, state: Optional[State]): State =
+              if (state.isPresent) State(s"${state.get.value}-$msg")
+              else State(msg)
+          },
+          method()
+        )
         decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
           State("a-blah")
         )
       }
 
       "msg and Optional state arg handler invoked with empty state" in {
-        val handler = create(new {
-          @Handler
-          def processAdded(msg: String, state: Optional[State]): State =
-            if (state.isPresent) State(s"${state.get.value}-$msg")
-            else State(msg)
-        }, method())
+        val handler = create(
+          new {
+            @UpdateHandler
+            def processAdded(msg: String, state: Optional[State]): State =
+              if (state.isPresent) State(s"${state.get.value}-$msg")
+              else State(msg)
+          },
+          method()
+        )
         decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.empty())).get) should ===(
           State("blah")
         )
@@ -170,7 +176,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
       "msg and state of same type" in {
         // first parameter is used as the msg
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(msg: State, state: State): State = State(s"${state.value}-${msg.value}")
         }, methodWithTwoStateParameters())
         decodeState(handler.handle(state("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
@@ -180,7 +186,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "fail if msg and state arg handler in other order" in {
         a[RuntimeException] should be thrownBy create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(state: State, msg: String): State = State(s"${state.value}-$msg")
         }, method())
       }
@@ -188,8 +194,8 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
       "msg and ctx arg handler" in {
         val handler = create(
           new {
-            @Handler
-            def processAdded(msg: String, ctx: HandlerContext): State = {
+            @UpdateHandler
+            def processAdded(msg: String, ctx: UpdateHandlerContext): State = {
               ctx.commandName() should ===("ProcessAdded")
               State(msg)
             }
@@ -202,8 +208,8 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
       "msg, state and ctx arg handler" in {
         val handler = create(
           new {
-            @Handler
-            def processAdded(msg: String, state: State, ctx: HandlerContext): State = {
+            @UpdateHandler
+            def processAdded(msg: String, state: State, ctx: UpdateHandlerContext): State = {
               ctx.commandName() should ===("ProcessAdded")
               State(s"${state.value}-$msg")
             }
@@ -217,7 +223,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "fail if there's a bad context type" in {
         a[RuntimeException] should be thrownBy create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(msg: String, ctx: BaseContext) =
             State(msg)
         }, method())
@@ -225,10 +231,10 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "fail if there's two handlers for the same command" in {
         a[RuntimeException] should be thrownBy create(new {
-          @Handler
-          def processAdded(msg: String, ctx: HandlerContext) =
+          @UpdateHandler
+          def processAdded(msg: String, ctx: UpdateHandlerContext) =
             State(msg)
-          @Handler
+          @UpdateHandler
           def processAdded(msg: String) =
             State(msg)
         }, method())
@@ -236,7 +242,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "fail if there's no rpc with that name" in {
         a[RuntimeException] should be thrownBy create(new {
-          @Handler
+          @UpdateHandler
           def wrongName(msg: String) =
             State(msg)
         }, method())
@@ -244,7 +250,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
       "unwrap exceptions" in {
         val handler = create(new {
-          @Handler
+          @UpdateHandler
           def processAdded(): State = throw new RuntimeException("foo")
         }, method())
         val ex = the[RuntimeException] thrownBy handler.handle(command("nothing"), new MockHandlerContext)
@@ -257,8 +263,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
             def processAdded(msg: String) =
               State(msg)
           }, method())
-        ex.getMessage should include("Did you mean")
-        ex.getMessage should include(classOf[Handler].getName)
+        ex.getMessage should include("not allowed")
       }
 
       "fail if there's a value entity command handler" in {

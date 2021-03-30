@@ -12,13 +12,12 @@ import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.Service
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.view.HandlerContext
+import com.akkaserverless.javasdk.view.UpdateHandlerContext
 import com.akkaserverless.javasdk.view.ViewContext
 import com.akkaserverless.javasdk.view.ViewFactory
 import com.akkaserverless.protocol.{view => pv}
@@ -145,7 +144,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                                          override val commandName: String,
                                          override val metadata: Metadata,
                                          override val state: Optional[JavaPbAny])
-      extends HandlerContext
+      extends UpdateHandlerContext
       with AbstractContext
       with StateContext
 

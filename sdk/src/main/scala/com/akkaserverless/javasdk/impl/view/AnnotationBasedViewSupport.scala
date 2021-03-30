@@ -17,13 +17,13 @@ import com.akkaserverless.javasdk.impl.ReflectionHelper.MethodParameter
 import com.akkaserverless.javasdk.impl.ReflectionHelper.ParameterHandler
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.view.Handler
-import com.akkaserverless.javasdk.view.HandlerContext
+import com.akkaserverless.javasdk.view.UpdateHandler
+import com.akkaserverless.javasdk.view.UpdateHandlerContext
 import com.akkaserverless.javasdk.view.View
 import com.akkaserverless.javasdk.view.ViewContext
 import com.akkaserverless.javasdk.view.ViewCreationContext
 import com.akkaserverless.javasdk.view.ViewFactory
-import com.akkaserverless.javasdk.view.ViewHandler
+import com.akkaserverless.javasdk.view.ViewUpdateHandler
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{Any => JavaPbAny}
 
@@ -53,15 +53,15 @@ private[impl] class AnnotationBasedViewSupport(
     }
   }
 
-  override def create(context: ViewContext): ViewHandler =
-    new ViewHandlerImpl(context)
+  override def create(context: ViewContext): ViewUpdateHandler =
+    new ViewUpdateHandlerImpl(context)
 
-  private class ViewHandlerImpl(context: ViewContext) extends ViewHandler {
+  private class ViewUpdateHandlerImpl(context: ViewContext) extends ViewUpdateHandler {
     private val view = {
       constructor(new DelegatingViewContext(context) with ViewCreationContext)
     }
 
-    override def handle(message: JavaPbAny, context: HandlerContext): Optional[JavaPbAny] = unwrap {
+    override def handle(message: JavaPbAny, context: UpdateHandlerContext): Optional[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(view, message, context)
       } getOrElse {
@@ -87,7 +87,7 @@ private[impl] class AnnotationBasedViewSupport(
 }
 
 private class ViewBehaviorReflection(
-    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[HandlerContext]]
+    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[UpdateHandlerContext]]
 )
 
 private object ViewBehaviorReflection {
@@ -97,8 +97,8 @@ private object ViewBehaviorReflection {
     val allMethods = ReflectionHelper.getAllDeclaredMethods(behaviorClass)
     val commandHandlers = allMethods
       .collect {
-        case method if method.getAnnotation(classOf[Handler]) != null =>
-          val annotation = method.getAnnotation(classOf[Handler])
+        case method if method.getAnnotation(classOf[UpdateHandler]) != null =>
+          val annotation = method.getAnnotation(classOf[UpdateHandler])
           val name: String = if (annotation.name().isEmpty) {
             ReflectionHelper.getCapitalizedName(method)
           } else annotation.name()
@@ -109,7 +109,8 @@ private object ViewBehaviorReflection {
             )
           })
 
-          def stateParameterHandlers: PartialFunction[MethodParameter, ParameterHandler[AnyRef, HandlerContext]] = {
+          def stateParameterHandlers
+              : PartialFunction[MethodParameter, ParameterHandler[AnyRef, UpdateHandlerContext]] = {
             case param
                 if param.param > 0 // message (main arg) must be first param
                 && param.parameterType == serviceMethod.outputType.typeClass =>
@@ -130,9 +131,9 @@ private object ViewBehaviorReflection {
               new StateParameterHandler(decoder, optional = true)
           }
 
-          new ReflectionHelper.CommandHandlerInvoker[HandlerContext](ReflectionHelper.ensureAccessible(method),
-                                                                     serviceMethod,
-                                                                     stateParameterHandlers)
+          new ReflectionHelper.CommandHandlerInvoker[UpdateHandlerContext](ReflectionHelper.ensureAccessible(method),
+                                                                           serviceMethod,
+                                                                           stateParameterHandlers)
       }
       .groupBy(_.serviceMethod.name)
       .map {
@@ -146,15 +147,15 @@ private object ViewBehaviorReflection {
     ReflectionHelper.validateNoBadMethods(
       allMethods,
       classOf[View],
-      Set(classOf[Handler])
+      Set(classOf[UpdateHandler])
     )
 
     new ViewBehaviorReflection(commandHandlers)
   }
 
   private class StateParameterHandler(decoder: JavaPbAny => AnyRef, optional: Boolean)
-      extends ParameterHandler[AnyRef, HandlerContext] {
-    override def apply(ctx: InvocationContext[AnyRef, HandlerContext]): AnyRef = {
+      extends ParameterHandler[AnyRef, UpdateHandlerContext] {
+    override def apply(ctx: InvocationContext[AnyRef, UpdateHandlerContext]): AnyRef = {
       val ctxState = ctx.context match {
         case stateCtx: StateContext => stateCtx.state
         case other => throw new IllegalStateException(s"Expected StateContext: $other")

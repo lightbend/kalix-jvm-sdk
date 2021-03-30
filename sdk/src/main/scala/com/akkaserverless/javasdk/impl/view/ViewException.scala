@@ -4,7 +4,7 @@
 
 package com.akkaserverless.javasdk.impl.view
 
-import com.akkaserverless.javasdk.view.HandlerContext
+import com.akkaserverless.javasdk.view.UpdateHandlerContext
 
 /**
  * INTERNAL API
@@ -19,7 +19,7 @@ private[impl] object ViewException {
   def apply(message: String): ViewException =
     ViewException(viewId = "", commandName = "", message)
 
-  def apply(context: HandlerContext, message: String): ViewException =
+  def apply(context: UpdateHandlerContext, message: String): ViewException =
     ViewException(context.viewId, context.commandName, message)
 
 }

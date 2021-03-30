@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * com.akkaserverless.javasdk.AkkaServerless#registerView AkkaServerless.registerView}.
  *
  * <p>The view class should define methods corresponding to the service calls (rpc) for view
- * updates. Those methods are annoted with {@link Handler}.
+ * updates. Those methods are annoted with {@link UpdateHandler}.
  */
 @AkkaServerlessAnnotation
 @Target(ElementType.TYPE)
