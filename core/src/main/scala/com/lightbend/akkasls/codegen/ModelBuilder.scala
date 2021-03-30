@@ -31,7 +31,10 @@ object ModelBuilder {
       override val goPackage: Option[String],
       override val javaOuterClassname: Option[String],
       fullName: String,
-      commands: Iterable[Command]
+      entityType: String,
+      state: String,
+      commands: Iterable[Command],
+      events: Iterable[String]
   ) extends Entity(goPackage, javaOuterClassname)
 
   /**
@@ -65,7 +68,9 @@ object ModelBuilder {
     descriptor.getServices.asScala
       .filter(service => servicesMatcher.matches(service.getFullName))
       .map { service =>
-        val methods = service.getMethods.asScala
+        val entityType = service.getName
+        val state      = descriptor.getMessageTypes().asScala.headOption.map(_.getFullName).getOrElse("")
+        val methods    = service.getMethods.asScala
         val commands =
           methods.map(method =>
             Command(
@@ -74,11 +79,16 @@ object ModelBuilder {
               method.getOutputType.getFullName
             )
           )
+
+        val events = Seq.empty
         EventSourcedEntity(
           goPackage,
           javaOuterClassName,
           service.getFullName,
-          commands
+          entityType,
+          state,
+          commands,
+          events
         )
       }
   }

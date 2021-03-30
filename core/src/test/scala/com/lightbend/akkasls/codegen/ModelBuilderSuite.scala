@@ -23,7 +23,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val descriptor  = Descriptors.FileDescriptor.buildFrom(descriptors.head, Array.empty, true)
       val entities = ModelBuilder.introspectProtobufClasses(
         descriptor,
-        ".*Service"
+        ".*"
       )
 
       assertEquals(
@@ -32,22 +32,25 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
             Some("MyEntity"),
-            "com.lightbend.MyService",
+            "com.lightbend.MyServiceEntity",
+            "MyServiceEntity",
+            "com.lightbend.SetValueCommand",
             List(
               ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
+                "com.lightbend.MyServiceEntity.SetValue",
+                "com.lightbend.SetValueCommand",
                 "google.protobuf.Empty"
               ),
               ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
+                "com.lightbend.MyServiceEntity.GetValue",
+                "com.lightbend.GetValueCommand",
                 "com.lightbend.MyState"
               )
-            )
+            ),
+            Seq.empty
           )
         )
       )
-    }
+    }.get
   }
 }
