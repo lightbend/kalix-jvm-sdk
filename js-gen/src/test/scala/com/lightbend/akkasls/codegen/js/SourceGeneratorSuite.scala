@@ -149,7 +149,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "com.lightbend.MyState"
         )
       ),
-      List.empty
+      List(
+        "com.lightbend.SetEvent"
+      )
     )
 
     val protoSources            = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
@@ -177,22 +179,28 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |entity.setInitial(entityId => ({}));
         |
+        |const commandHandlers = {
+        |  Set(command, state, ctx) {
+        |    ctx.fail("The command handler for `Set` is not implemented, yet");
+        |  },
+        |  
+        |  Get(command, state, ctx) {
+        |    ctx.fail("The command handler for `Get` is not implemented, yet");
+        |  }
+        |}
+        |
+        |const eventHandlers = {
+        |  SetEvent(event, state) {
+        |    return state;
+        |  }
+        |}
+        |
         |entity.setBehavior(state => {
         |  return {
-        |    commandHandlers: {
-        |      Set: set,
-        |      Get: get
-        |    }
+        |    commandHandlers,
+        |    eventHandlers
         |  };
         |});
-        |
-        |function set(command, state, ctx) {
-        |  ctx.fail("The command handler for `Set` is not implemented, yet");
-        |}
-        |
-        |function get(command, state, ctx) {
-        |  ctx.fail("The command handler for `Get` is not implemented, yet");
-        |}
         |
         |export default entity;""".stripMargin
     )
