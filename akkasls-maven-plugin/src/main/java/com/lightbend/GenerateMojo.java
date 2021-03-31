@@ -32,7 +32,7 @@ public class GenerateMojo extends AbstractMojo {
     private File baseDir;
 
     @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.finalName}.protobin", required = true)
+    @Parameter(defaultValue = "user-function.desc", required = true)
     private String descriptorSetFileName;
 
     @SuppressWarnings("unused")

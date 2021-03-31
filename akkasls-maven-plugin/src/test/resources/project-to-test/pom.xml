@@ -13,6 +13,9 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
+        <configuration>
+          <descriptorSetOutputDirectory>${project.basedir}</descriptorSetOutputDirectory>
+        </configuration>
       </plugin>
     </plugins>
   </build>
