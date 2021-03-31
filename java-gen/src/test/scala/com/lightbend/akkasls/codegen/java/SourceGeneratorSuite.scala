@@ -141,7 +141,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "com.lightbend.MyState"
         )
       ),
-      List.empty
+      List(
+        "com.lightbend.SetEvent"
+      )
     )
     val packageName = "com.lightbend"
     val className   = "MyServiceEntity"
@@ -165,6 +167,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |        this.entityId = entityId;
       |    }
       |    
+      |    @Snapshot
+      |    public MyEntity.MyState snapshot() {
+      |        // TODO: produce state snapshot here
+      |        return MyEntity.MyState.newBuilder().setEntityId(this.entityId).build();
+      |    }
+      |    
+      |    @SnapshotHandler
+      |    public void handleSnapshot(MyEntity.MyState snapshot) {
+      |        // TODO: restore state from snapshot here
+      |        this.entityId = snapshot.entityId;
+      |    }
+      |    
       |    @CommandHandler
       |    public Empty set(MyEntity.SetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Set` is not implemented, yet");
@@ -173,6 +187,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    @CommandHandler
       |    public MyEntity.MyState get(MyEntity.GetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Get` is not implemented, yet");
+      |    }
+      |    
+      |    @EventHandler
+      |    public void setEvent(MyEntity.SetEvent event) {
+      |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
@@ -320,10 +339,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new AkkaServerless() //
-        |            .registerEventSourcedEntity(MyService1.class, MyEntity1.getDescriptor().findServiceByName("MyService1")) //
-        |            .registerEventSourcedEntity(MyService2.class, MyEntity2.getDescriptor().findServiceByName("MyService2")) //
-        |            .registerEventSourcedEntity(MyService3.class, MyEntity3.getDescriptor().findServiceByName("MyService3")) //
+        |        new AkkaServerless()
+        |            .registerEventSourcedEntity(
+        |                MyService1.class,
+        |                MyEntity1.getDescriptor().findServiceByName("MyService1"),
+        |                MyEntity1.getDescriptor()
+        |            )
+        |            .registerEventSourcedEntity(
+        |                MyService2.class,
+        |                MyEntity2.getDescriptor().findServiceByName("MyService2"),
+        |                MyEntity2.getDescriptor()
+        |            )
+        |            .registerEventSourcedEntity(
+        |                MyService3.class,
+        |                MyEntity3.getDescriptor().findServiceByName("MyService3"),
+        |                MyEntity3.getDescriptor()
+        |            )
         |            .start().toCompletableFuture().get();
         |    }
         |    
@@ -367,7 +398,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new AkkaServerless() //
+        |        new AkkaServerless()
         |            // FIXME: No Java outer class name specified - cannot register MyService1 - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }
