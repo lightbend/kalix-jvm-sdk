@@ -40,6 +40,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some("com/lightbend"),
               Some("MyEntity1"),
               "com.lightbend.MyService1",
+              "MyService1",
+              "com.lightbend.State1",
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -51,12 +53,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
                   "com.lightbend.GetValue",
                   "com.lightbend.MyState"
                 )
-              )
+              ),
+              List.empty
             ),
             ModelBuilder.EventSourcedEntity(
               Some("com/lightbend"),
               Some("MyEntity2"),
               "com.lightbend.MyService2",
+              "MyService2",
+              "com.lightbend.State2",
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -68,12 +73,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
                   "com.lightbend.GetValue",
                   "com.lightbend.MyState"
                 )
-              )
+              ),
+              List.empty
             ),
             ModelBuilder.EventSourcedEntity(
               Some("com/lightbend"),
               Some("MyEntity3"),
               "com.lightbend.something.MyService3",
+              "MyService3",
+              "com.lightbend.State3",
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -85,7 +93,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
                   "com.lightbend.GetValue",
                   "com.lightbend.MyState"
                 )
-              )
+              ),
+              List.empty
             )
           )
 
@@ -126,6 +135,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some("com/lightbend"),
       Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
+      "MyServiceEntity",
+      "com.lightbend.MyState",
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
@@ -137,7 +148,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "com.lightbend.GetValue",
           "com.lightbend.MyState"
         )
-      )
+      ),
+      List.empty
     )
 
     val protoSources            = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
@@ -192,6 +204,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("com/lightbend"),
         Some("MyEntity1"),
         "com.lightbend.MyService1",
+        "MyService1",
+        "com.lightbend.MyState",
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -203,7 +217,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       )
 
     val testSourceDirectory = Paths.get("./test/js");
@@ -253,6 +268,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("com/lightbend"),
         Some("MyEntity1"),
         "com.lightbend.MyService1",
+        "MyService1",
+        "com.lightbend.MyState",
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -264,7 +281,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       )
     )
 
