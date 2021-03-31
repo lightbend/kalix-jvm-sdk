@@ -162,6 +162,46 @@ object SourceGenerator extends PrettyPrinter {
         "entityId => " <> parens("{}")
       ) <> semi <> line <>
       line <>
+      "const commandHandlers" <+> equal <+> braces(
+        nest(
+          line <>
+          ssep(
+            entity.commands.toSeq.map { command =>
+              name(command.fullname) <> parens(
+                "command, state, ctx"
+              ) <+> braces(
+                nest(
+                  line <>
+                  "ctx.fail(\"The command handler for `" <> name(
+                    command.fullname
+                  ) <> "` is not implemented, yet\")" <> semi
+                ) <> line
+              )
+            },
+            comma <> line <> line
+          )
+        ) <> line
+      ) <> line <>
+      line <>
+      "const eventHandlers" <+> equal <+> braces(
+        nest(
+          line <>
+          ssep(
+            entity.events.toSeq.map { event =>
+              name(event) <> parens(
+                "event, state"
+              ) <+> braces(
+                nest(
+                  line <>
+                  "return state"
+                ) <> semi <> line
+              )
+            },
+            comma <> line <> line
+          )
+        ) <> line
+      ) <> line <>
+      line <>
       "entity.setBehavior" <> parens(
         "state => " <> braces(
           nest(
@@ -169,38 +209,13 @@ object SourceGenerator extends PrettyPrinter {
             "return" <+> braces(
               nest(
                 line <>
-                "commandHandlers:" <+> braces(
-                  nest(
-                    line <>
-                    ssep(
-                      entity.commands.toSeq.map { command =>
-                        name(command.fullname) <> colon <+> lowerFirst(name(command.fullname))
-                      },
-                      comma <> line
-                    )
-                  ) <> line
-                )
+                "commandHandlers" <> comma <> line <>
+                "eventHandlers"
               ) <> line
             ) <> semi
           ) <> line
         )
       ) <> semi <> line <>
-      line <>
-      ssep(
-        entity.commands.toSeq.map { command =>
-          "function" <+> lowerFirst(name(command.fullname)) <> parens(
-            "command, state, ctx"
-          ) <+> braces(
-            nest(
-              line <>
-              "ctx.fail(\"The command handler for `" <> name(
-                command.fullname
-              ) <> "` is not implemented, yet\")" <> semi
-            ) <> line
-          )
-        },
-        line <> line
-      ) <> line <>
       line <>
       "export default entity;"
     )
