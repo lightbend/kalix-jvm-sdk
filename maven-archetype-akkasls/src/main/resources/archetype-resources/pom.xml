@@ -17,6 +17,7 @@
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <akkasls.dockerImage>my-docker-repo/${D}{project.artifactId}</akkasls.dockerImage>
     <akkasls.dockerTag>${D}{project.version}</akkasls.dockerTag>
+    <jdk.target>11</jdk.target>
   </properties>
 
   <build>
@@ -27,6 +28,13 @@
         <version>1.6.0</version>
       </extension>
     </extensions>
+    <resources>
+      <!-- Ensures that the generated protobuf descriptor is on the classpath,
+           to ensure source mapping works -->
+      <resource>
+        <directory>${D}{project.build.directory}/generated-resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -34,8 +42,8 @@
         <version>3.8.1</version>
         <configuration>
           <!-- java version -->
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${D}{jdk.target}</source>
+          <target>${D}{jdk.target}</target>
         </configuration>
       </plugin>
 
@@ -45,6 +53,8 @@
         <version>0.6.1</version>
         <configuration>
           <writeDescriptorSet>true</writeDescriptorSet>
+          <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+          <descriptorSetFileName>user-function.desc</descriptorSetFileName>
           <checkStaleness>true</checkStaleness>
           <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
         </configuration>
@@ -92,7 +102,7 @@
               <name>${D}{akkasls.dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>adoptopenjdk/openjdk8:alpine-jre</from>
+                <from>docker.io/library/adoptopenjdk:${D}{jdk.target}-jre-hotspot</from>
                 <tags>
                   <!-- tag for generated image -->
                   <tag>${D}{akkasls.dockerTag}</tag>
@@ -151,7 +161,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>${version}</version>
+        <version>@project.version@</version>
         <executions>
           <execution>
             <goals>
@@ -162,6 +172,7 @@
         </executions>
         <configuration>
           <dockerImage>${D}{akkasls.dockerImage}:${D}{akkasls.dockerTag}</dockerImage>
+          <mainClass>${package}.Main</mainClass>
         </configuration>
       </plugin>
 
@@ -185,6 +196,14 @@
       <name>bintray</name>
       <url>https://lightbend.bintray.com/akkaserverless</url>
     </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-lightbend-akkaserverless-snapshots</id>
+      <name>bintray-snapshots</name>
+      <url>https://lightbend.bintray.com/akkaserverless-snapshots</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -200,9 +219,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.cloudstate</groupId>
-      <artifactId>cloudstate-java-support</artifactId>
-      <version>0.5.2</version>
+      <groupId>com.akkaserverless</groupId>
+      <artifactId>akkaserverless-java-sdk</artifactId>
+      <version>0.7.0-pre-ebf5e9ea</version>
     </dependency>
     <dependency> 
       <groupId>junit</groupId>
