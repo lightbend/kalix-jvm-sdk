@@ -128,37 +128,41 @@ object SourceGenerator extends PrettyPrinter {
           "this.entityId" <+> equal <+> "entityId" <> semi
         } <> line <>
         line <>
-        "@Snapshot" <>
-        line <>
-        method(
-          "public",
-          qualifiedType(entity.state, entity.javaOuterClassname),
-          "snapshot",
-          List.empty,
-          emptyDoc
-        ) {
-          "// TODO: produce state snapshot here" <> line <>
-          "return" <+> qualifiedType(
-            entity.state,
-            entity.javaOuterClassname
-          ) <> dot <> "newBuilder().setEntityId(this.entityId).build()" <> semi
-        } <> line <>
-        line <>
-        "@SnapshotHandler" <>
-        line <>
-        method(
-          "public",
-          "void",
-          "handleSnapshot",
-          List(
-            qualifiedType(entity.state, entity.javaOuterClassname) <+> "snapshot"
-          ),
-          emptyDoc
-        ) {
-          "// TODO: restore state from snapshot here" <> line <>
-          "this.entityId" <+> equal <+> "snapshot.entityId" <> semi
-        } <> line <>
-        line <>
+        entity.state
+          .map { state =>
+            "@Snapshot" <>
+            line <>
+            method(
+              "public",
+              qualifiedType(state, entity.javaOuterClassname),
+              "snapshot",
+              List.empty,
+              emptyDoc
+            ) {
+              "// TODO: produce state snapshot here" <> line <>
+              "return" <+> qualifiedType(
+                state,
+                entity.javaOuterClassname
+              ) <> dot <> "newBuilder().setEntityId(this.entityId).build()" <> semi
+            } <> line <>
+            line <>
+            "@SnapshotHandler" <>
+            line <>
+            method(
+              "public",
+              "void",
+              "handleSnapshot",
+              List(
+                qualifiedType(state, entity.javaOuterClassname) <+> "snapshot"
+              ),
+              emptyDoc
+            ) {
+              "// TODO: restore state from snapshot here" <> line <>
+              "this.entityId" <+> equal <+> "snapshot.entityId" <> semi
+            } <> line <>
+            line
+          }
+          .getOrElse(emptyDoc) <>
         ssep(
           entity.commands.toSeq.map { command =>
             "@CommandHandler" <>
