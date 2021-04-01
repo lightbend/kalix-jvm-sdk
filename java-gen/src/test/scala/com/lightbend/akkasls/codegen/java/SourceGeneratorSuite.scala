@@ -35,6 +35,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
             Some("com/lightbend"),
             Some("MyEntity1"),
             "com.lightbend.MyService1",
+            "MyService1",
+            Some("com.lightbend.State1"),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
@@ -46,12 +48,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 "com.lightbend.GetValue",
                 "com.lightbend.MyState"
               )
-            )
+            ),
+            List.empty
           ),
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
             Some("MyEntity2"),
             "com.lightbend.MyService2",
+            "MyService2",
+            Some("com.lightbend.State2"),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
@@ -63,12 +68,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 "com.lightbend.GetValue",
                 "com.lightbend.MyState"
               )
-            )
+            ),
+            List.empty
           ),
           ModelBuilder.EventSourcedEntity(
             Some("com/lightbend"),
             Some("MyEntity3"),
             "com.lightbend.something.MyService3",
+            "MyService3",
+            Some("com.lightbend.State3"),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
@@ -80,7 +88,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 "com.lightbend.GetValue",
                 "com.lightbend.MyState"
               )
-            )
+            ),
+            List.empty
           )
         )
 
@@ -118,6 +127,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some("com/lightbend"),
       Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
+      "MyServiceEntity",
+      Some("com.lightbend.MyState"),
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
@@ -129,6 +140,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "com.lightbend.GetValue",
           "com.lightbend.MyState"
         )
+      ),
+      List(
+        "com.lightbend.SetEvent"
       )
     )
     val packageName = "com.lightbend"
@@ -153,6 +167,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |        this.entityId = entityId;
       |    }
       |    
+      |    @Snapshot
+      |    public MyEntity.MyState snapshot() {
+      |        // TODO: produce state snapshot here
+      |        return MyEntity.MyState.newBuilder().setEntityId(this.entityId).build();
+      |    }
+      |    
+      |    @SnapshotHandler
+      |    public void handleSnapshot(MyEntity.MyState snapshot) {
+      |        // TODO: restore state from snapshot here
+      |        this.entityId = snapshot.entityId;
+      |    }
+      |    
       |    @CommandHandler
       |    public Empty set(MyEntity.SetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Set` is not implemented, yet");
@@ -161,6 +187,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    @CommandHandler
       |    public MyEntity.MyState get(MyEntity.GetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Get` is not implemented, yet");
+      |    }
+      |    
+      |    @EventHandler
+      |    public void setEvent(MyEntity.SetEvent event) {
+      |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
@@ -171,6 +202,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some("com/lightbend"),
       Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
+      "MyServiceEntity",
+      Some("com.lightbend.MyState"),
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
@@ -182,7 +215,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
           "com.lightbend.GetValue",
           "com.lightbend.MyState"
         )
-      )
+      ),
+      List.empty
     )
     val packageName   = "com.lightbend"
     val className     = "MyServiceEntity"
@@ -233,6 +267,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("com/lightbend"),
         Some("MyEntity1"),
         "com.lightbend.MyService1",
+        "MyService1",
+        Some("com.lightbend.State1"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -244,12 +280,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       ),
       ModelBuilder.EventSourcedEntity(
         Some("com/lightbend"),
         Some("MyEntity2"),
         "com.lightbend.MyService2",
+        "MyService2",
+        Some("com.lightbend.State2"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -261,12 +300,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       ),
       ModelBuilder.EventSourcedEntity(
         Some("com/lightbend"),
         Some("MyEntity3"),
         "com.lightbend.something.MyService3",
+        "MyService3",
+        Some("com.lightbend.State3"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -278,7 +320,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       )
     )
     val mainPackageName = "com.lightbend"
@@ -296,10 +339,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new AkkaServerless() //
-        |            .registerEventSourcedEntity(MyService1.class, MyEntity1.getDescriptor().findServiceByName("MyService1")) //
-        |            .registerEventSourcedEntity(MyService2.class, MyEntity2.getDescriptor().findServiceByName("MyService2")) //
-        |            .registerEventSourcedEntity(MyService3.class, MyEntity3.getDescriptor().findServiceByName("MyService3")) //
+        |        new AkkaServerless()
+        |            .registerEventSourcedEntity(
+        |                MyService1.class,
+        |                MyEntity1.getDescriptor().findServiceByName("MyService1"),
+        |                MyEntity1.getDescriptor()
+        |            )
+        |            .registerEventSourcedEntity(
+        |                MyService2.class,
+        |                MyEntity2.getDescriptor().findServiceByName("MyService2"),
+        |                MyEntity2.getDescriptor()
+        |            )
+        |            .registerEventSourcedEntity(
+        |                MyService3.class,
+        |                MyEntity3.getDescriptor().findServiceByName("MyService3"),
+        |                MyEntity3.getDescriptor()
+        |            )
         |            .start().toCompletableFuture().get();
         |    }
         |    
@@ -313,6 +368,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("com/lightbend"),
         None,
         "com.lightbend.MyService1",
+        "MyService1",
+        Some("com.lightbend.State1"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -324,7 +381,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
             "com.lightbend.GetValue",
             "com.lightbend.MyState"
           )
-        )
+        ),
+        List.empty
       )
     )
     val mainPackageName = "com.lightbend"
@@ -340,7 +398,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
-        |        new AkkaServerless() //
+        |        new AkkaServerless()
         |            // FIXME: No Java outer class name specified - cannot register MyService1 - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }

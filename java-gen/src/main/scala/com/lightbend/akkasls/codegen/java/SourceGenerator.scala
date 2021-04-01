@@ -128,6 +128,41 @@ object SourceGenerator extends PrettyPrinter {
           "this.entityId" <+> equal <+> "entityId" <> semi
         } <> line <>
         line <>
+        entity.state
+          .map { state =>
+            "@Snapshot" <>
+            line <>
+            method(
+              "public",
+              qualifiedType(state, entity.javaOuterClassname),
+              "snapshot",
+              List.empty,
+              emptyDoc
+            ) {
+              "// TODO: produce state snapshot here" <> line <>
+              "return" <+> qualifiedType(
+                state,
+                entity.javaOuterClassname
+              ) <> dot <> "newBuilder().setEntityId(this.entityId).build()" <> semi
+            } <> line <>
+            line <>
+            "@SnapshotHandler" <>
+            line <>
+            method(
+              "public",
+              "void",
+              "handleSnapshot",
+              List(
+                qualifiedType(state, entity.javaOuterClassname) <+> "snapshot"
+              ),
+              emptyDoc
+            ) {
+              "// TODO: restore state from snapshot here" <> line <>
+              "this.entityId" <+> equal <+> "snapshot.entityId" <> semi
+            } <> line <>
+            line
+          }
+          .getOrElse(emptyDoc) <>
         ssep(
           entity.commands.toSeq.map { command =>
             "@CommandHandler" <>
@@ -144,6 +179,27 @@ object SourceGenerator extends PrettyPrinter {
             ) {
               "throw new RuntimeException(\"The command handler for `" <> name(
                 command.fullname
+              ) <> "` is not implemented, yet\")" <> semi
+            }
+          },
+          line <> line
+        ) <> line <>
+        line <>
+        ssep(
+          entity.events.toSeq.map { event =>
+            "@EventHandler" <>
+            line <>
+            method(
+              "public",
+              "void",
+              lowerFirst(name(event)),
+              List(
+                qualifiedType(event, entity.javaOuterClassname) <+> "event"
+              ),
+              emptyDoc
+            ) {
+              "throw new RuntimeException(\"The event handler for `" <> name(
+                event
               ) <> "` is not implemented, yet\")" <> semi
             }
           },
@@ -244,16 +300,21 @@ object SourceGenerator extends PrettyPrinter {
           List("String[]" <+> "args"),
           "throws" <+> "Exception" <> space
         ) {
-          "new" <+> "AkkaServerless()" <+> "//" <> line <>
+          "new" <+> "AkkaServerless()" <> line <>
           indent(
             ssep(
               entityClasses.map {
                 case (_, className, Some(javaOuterClassName)) =>
                   ".registerEventSourcedEntity" <> parens(
-                    className <> ".class" <> comma <+> javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                      dquotes(className)
-                    )
-                  ) <+> "//"
+                    nest(
+                      line <>
+                      className <> ".class" <> comma <> line <>
+                      javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
+                        dquotes(className)
+                      ) <> comma <> line <>
+                      javaOuterClassName <> ".getDescriptor()"
+                    ) <> line
+                  )
                 case (_, className, None) =>
                   "// FIXME: No Java outer class name specified - cannot register" <+> className <+> "- ensure you are generating protobuf for Java"
               }.toSeq,
