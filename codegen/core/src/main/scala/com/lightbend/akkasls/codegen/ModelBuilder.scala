@@ -32,7 +32,7 @@ object ModelBuilder {
       override val javaOuterClassname: Option[String],
       fullName: String,
       entityType: String,
-      state: String,
+      state: Option[String],
       commands: Iterable[Command],
       events: Iterable[String]
   ) extends Entity(goPackage, javaOuterClassname)
@@ -69,7 +69,7 @@ object ModelBuilder {
       .filter(service => servicesMatcher.matches(service.getFullName))
       .map { service =>
         val entityType = service.getName
-        val state      = descriptor.getMessageTypes().asScala.headOption.map(_.getFullName).getOrElse("")
+        val state      = None
         val methods    = service.getMethods.asScala
         val commands =
           methods.map(method =>

@@ -34,7 +34,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             Some("MyEntity"),
             "com.lightbend.MyServiceEntity",
             "MyServiceEntity",
-            "com.lightbend.SetValueCommand",
+            None,
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyServiceEntity.SetValue",

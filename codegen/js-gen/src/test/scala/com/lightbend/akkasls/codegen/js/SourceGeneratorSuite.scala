@@ -41,7 +41,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some("MyEntity1"),
               "com.lightbend.MyService1",
               "MyService1",
-              "com.lightbend.State1",
+              Some("com.lightbend.State1"),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -61,7 +61,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some("MyEntity2"),
               "com.lightbend.MyService2",
               "MyService2",
-              "com.lightbend.State2",
+              Some("com.lightbend.State2"),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -81,7 +81,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some("MyEntity3"),
               "com.lightbend.something.MyService3",
               "MyService3",
-              "com.lightbend.State3",
+              Some("com.lightbend.State3"),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -136,7 +136,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some("MyEntity"),
       "com.lightbend.MyServiceEntity",
       "MyServiceEntity",
-      "com.lightbend.MyState",
+      Some("com.lightbend.MyState"),
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
@@ -213,7 +213,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("MyEntity1"),
         "com.lightbend.MyService1",
         "MyService1",
-        "com.lightbend.MyState",
+        Some("com.lightbend.MyState"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -277,7 +277,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some("MyEntity1"),
         "com.lightbend.MyService1",
         "MyService1",
-        "com.lightbend.MyState",
+        Some("com.lightbend.MyState"),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
