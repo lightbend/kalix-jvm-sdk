@@ -61,7 +61,6 @@ final class AkkaServerlessRunner private[this] (
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]
 ) {
   private[javasdk] implicit final val system = _system
-  private[this] implicit final val materializer: Materializer = ActorMaterializer()
 
   private[this] final val configuration =
     new AkkaServerlessRunner.Configuration(system.settings.config.getConfig("akkaserverless"))
