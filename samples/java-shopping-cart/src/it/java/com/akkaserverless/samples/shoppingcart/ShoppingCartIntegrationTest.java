@@ -75,7 +75,7 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void emptyCartByDefault() throws Exception {
-    assertEquals("shopping cart was not empty", 0, getCart("user1").getItemsCount());
+    assertEquals("shopping cart should be empty", 0, getCart("user1").getItemsCount());
   }
 
   @Test
@@ -84,9 +84,9 @@ public class ShoppingCartIntegrationTest {
     addItem("user2", "b", "Banana", 2);
     addItem("user2", "c", "Cantaloupe", 3);
     ShoppingCart.Cart cart = getCart("user2");
-    assertEquals("shopping cart did not have 3 items", 3, cart.getItemsCount());
+    assertEquals("shopping cart should have 3 items", 3, cart.getItemsCount());
     assertEquals(
-        "shopping cart did not have expected items",
+        "shopping cart should have expected items",
         cart.getItemsList(),
         List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)));
   }
@@ -96,16 +96,16 @@ public class ShoppingCartIntegrationTest {
     addItem("user3", "a", "Apple", 1);
     addItem("user3", "b", "Banana", 2);
     ShoppingCart.Cart cart1 = getCart("user3");
-    assertEquals("shopping cart did not have 2 items", 2, cart1.getItemsCount());
+    assertEquals("shopping cart should have 2 items", 2, cart1.getItemsCount());
     assertEquals(
-        "shopping cart did not have expected items",
+        "shopping cart should have expected items",
         cart1.getItemsList(),
         List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
     removeItem("user3", "a");
     ShoppingCart.Cart cart2 = getCart("user3");
-    assertEquals("shopping cart did not have 1 item", 1, cart2.getItemsCount());
+    assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
     assertEquals(
-        "shopping cart did not have expected items",
+        "shopping cart should have expected items",
         cart2.getItemsList(),
         List.of(item("b", "Banana", 2)));
   }
@@ -114,12 +114,12 @@ public class ShoppingCartIntegrationTest {
   public void removeCart() throws Exception {
     addItem("user4", "a", "Apple", 42);
     ShoppingCart.Cart cart1 = getCart("user4");
-    assertEquals("shopping cart did not have 1 item", 1, cart1.getItemsCount());
+    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
     assertEquals(
-        "shopping cart did not have expected items",
+        "shopping cart should have expected items",
         cart1.getItemsList(),
         List.of(item("a", "Apple", 42)));
     removeCart("user4");
-    assertEquals("shopping cart was not empty", 0, getCart("user4").getItemsCount());
+    assertEquals("shopping cart should be empty", 0, getCart("user4").getItemsCount());
   }
 }
