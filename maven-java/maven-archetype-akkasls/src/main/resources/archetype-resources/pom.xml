@@ -17,7 +17,7 @@
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <akkasls.dockerImage>my-docker-repo/${D}{project.artifactId}</akkasls.dockerImage>
     <akkasls.dockerTag>${D}{project.version}</akkasls.dockerTag>
-    <akkasls.mainClass>${D}{package}.Main</akkasls.mainClass>
+    <akkasls.mainClass>{package}.Main</akkasls.mainClass>
     <jdk.target>11</jdk.target>
   </properties>
 
