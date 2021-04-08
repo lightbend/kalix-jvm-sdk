@@ -11,6 +11,7 @@ import java.io.{ File, FileInputStream, FileNotFoundException, IOException }
 import java.util.logging.{ Level, Logger }
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Using }
+import com.google.protobuf.ExtensionRegistry
 
 /**
   * Provides conveniences for reading and parsing Protobuf descriptor sets
@@ -43,9 +44,13 @@ object DescriptorSet {
     ]]](
       new FileInputStream(file)
     ) { fis =>
+      val registry = ExtensionRegistry.newInstance()
+      registry.add(com.akkaserverless.Annotations.service)
+      registry.add(com.akkaserverless.Annotations.file)
+
       Right(try {
         val descriptorProtos =
-          DescriptorProtos.FileDescriptorSet.parseFrom(fis).getFileList.asScala
+          DescriptorProtos.FileDescriptorSet.parseFrom(fis, registry).getFileList.asScala
 
         for (descriptorProto <- descriptorProtos)
           yield try Right(Descriptors.FileDescriptor.buildFrom(descriptorProto, Array.empty, true))

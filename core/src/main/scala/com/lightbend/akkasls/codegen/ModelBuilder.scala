@@ -59,9 +59,12 @@ object ModelBuilder {
         .map(entity => entity.fullName -> entity)
         .toMap
 
+    println(entities)
+
     descriptors
       .flatMap(_.getServices().asScala)
       .flatMap { service =>
+        println(service.getName())
         Option(
           service
             .getOptions()
