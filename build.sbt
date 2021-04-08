@@ -26,12 +26,9 @@ lazy val `akkasls-codegen-core` =
     .settings(
       libraryDependencies ++= Seq(
         library.akkaserverless,
-        library.protobufJava    % "protobuf",
+        library.protobufJava,
         library.munit           % Test,
         library.munitScalaCheck % Test
-      ),
-      Compile / PB.targets := Seq(
-        PB.gens.java -> (Compile / sourceManaged).value
       )
     )
 
@@ -103,7 +100,6 @@ lazy val library =
       val munit          = "0.7.20"
       val protobufJava   = "3.13.0"
       val scopt          = "4.0.0"
-      val scalapb        = "0.10.10"
       val akkaserverless = "0.7.0-beta.1"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
@@ -112,7 +108,6 @@ lazy val library =
     val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
     val protobufJava    = "com.google.protobuf"            % "protobuf-java"    % Version.protobufJava
     val scopt           = "com.github.scopt"              %% "scopt"            % Version.scopt
-    val scalapb         = "com.thesamet.scalapb"          %% "compilerplugin"   % Version.scalapb
     val akkaserverless =
       "com.akkaserverless" % "akkaserverless-java-sdk" % Version.akkaserverless
   }
