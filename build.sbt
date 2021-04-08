@@ -25,9 +25,12 @@ lazy val `akkasls-codegen-core` =
     .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
-        library.protobufJava,
+        library.protobufJava    % "protobuf",
         library.munit           % Test,
         library.munitScalaCheck % Test
+      ),
+      Compile / PB.targets := Seq(
+        PB.gens.java -> (Compile / sourceManaged).value
       )
     )
 
@@ -97,8 +100,9 @@ lazy val library =
       val commonsIo    = "2.8.0"
       val kiama        = "2.4.0"
       val munit        = "0.7.20"
-      val protobufJava = "3.11.4"
+      val protobufJava = "3.13.0"
       val scopt        = "4.0.0"
+      val scalapb      = "0.10.10"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
@@ -106,6 +110,7 @@ lazy val library =
     val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
     val protobufJava    = "com.google.protobuf"            % "protobuf-java"    % Version.protobufJava
     val scopt           = "com.github.scopt"              %% "scopt"            % Version.scopt
+    val scalapb         = "com.thesamet.scalapb"          %% "compilerplugin"   % Version.scalapb
   }
 
 // *****************************************************************************

@@ -86,34 +86,33 @@ object Cli {
           println("Inspecting proto file descriptor for entity generation...")
           val _ = DescriptorSet.fileDescriptors(protobufDescriptor) match {
             case Right(fileDescriptors) =>
-              fileDescriptors.foreach {
-                case Right(fileDescriptor) =>
-                  val entities =
-                    ModelBuilder.introspectProtobufClasses(
-                      fileDescriptor,
-                      config.serviceNamesFilter
-                    )
+              val entities =
+                ModelBuilder.introspectProtobufClasses(
+                  fileDescriptors.map {
+                    case Right(fileDescriptor) => fileDescriptor
+                    case Left(e) =>
+                      System.err.println(
+                        "There was a problem building the file descriptor from its protobuf:"
+                      )
+                      System.err.println(e.toString)
+                      sys.exit(1)
+                  }
+                )
 
-                  val absBaseDir = config.baseDir.toAbsolutePath
-                  js.SourceGenerator
-                    .generate(
-                      protobufDescriptor.toPath,
-                      entities,
-                      config.protoSourceDirectory,
-                      config.sourceDirectory,
-                      config.testSourceDirectory,
-                      config.indexFile
-                    )
-                    .foreach { p =>
-                      println("Generated: " + absBaseDir.relativize(p.toAbsolutePath).toString)
-                    }
-                case Left(e) =>
-                  System.err.println(
-                    "There was a problem building the file descriptor from its protobuf:"
-                  )
-                  System.err.println(e.toString)
-                  sys.exit(1)
-              }
+              val absBaseDir = config.baseDir.toAbsolutePath
+              js.SourceGenerator
+                .generate(
+                  protobufDescriptor.toPath,
+                  entities,
+                  config.protoSourceDirectory,
+                  config.sourceDirectory,
+                  config.testSourceDirectory,
+                  config.indexFile
+                )
+                .foreach { p =>
+                  println("Generated: " + absBaseDir.relativize(p.toAbsolutePath).toString)
+                }
+
             case Left(DescriptorSet.CannotOpen(e)) =>
               System.err.println(
                 "There was a problem opening the protobuf descriptor file:"

@@ -1,0 +1,38 @@
+// Copyright 2019 Lightbend Inc.
+
+// Extension for specifying which topics a gRPC endpoint should be connected
+// to, in order to facilitate consuming and producing events from a message broker.
+
+syntax = "proto3";
+
+package akkaserverless;
+
+option go_package = "github.com/lightbend/akkaserverless-go-sdk/akkaserverless;akkaserverless";
+option java_multiple_files = true;
+option java_outer_classname = "EventSourcedEntityProto";
+option java_package = "com.akkaserverless";
+
+// Describes entity state
+message StateDescriptor {
+  // A path to a protobuf message that represents the state
+  string type = 1;
+}
+
+// Describes an entity event
+message EventDescriptor {
+  // A path to a protobuf message that represents the event
+  string type = 1;
+}
+
+// Options to describe event sourced entities
+message EventSourcedEntity {
+  // A mandatory name for the entity - used for type name generation
+  string name = 1;
+  // A mandatory key name to be used for persisting names with, quite often
+  // the name of the entity.
+  string entity_type = 2;
+  // The associated state message.
+  StateDescriptor state = 3;
+  // Zero or more event messages associated with the entity.
+  repeated EventDescriptor event = 4;
+}

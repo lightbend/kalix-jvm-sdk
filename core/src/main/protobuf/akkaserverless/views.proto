@@ -1,0 +1,50 @@
+// Copyright 2019 Lightbend Inc.
+
+// Extension for specifying which field in a message is to be considered an
+// entity key, for the purposes associating gRPC calls with entities and
+// sharding.
+
+syntax = "proto3";
+
+package akkaserverless;
+
+option go_package = "github.com/lightbend/akkaserverless-go-sdk/akkaserverless;akkaserverless";
+option java_multiple_files = true;
+option java_outer_classname = "ViewsProto";
+option java_package = "com.akkaserverless";
+
+import "google/protobuf/descriptor.proto";
+
+// Views configuration for a gRPC method.
+message View {
+  Update update = 1;
+  Query query = 2;
+  message Update {
+    // Indicates the name of the table that this processing method will persist
+    // to, or that the query that is indexing will use.
+    //
+    // The return type of this call specifies the schema of the persisted value.
+    // Any defined queries that select from this table will be selecting over this
+    // schema.
+    string table = 1;
+    // Whether messages should automatically be persisted without further
+    // processing.
+    //
+    // By default (false) all received message will be persisted at the key given
+    // by the CloudEvents subject (that is, the entity key) without passing them
+    // to the gRPC service call. That is, the user function does not need to
+    // implement this service call.
+    bool transform_updates = 2;
+  }
+  message Query {
+    // A query that gets executed when this call is executed.
+    //
+    // This query is used to know how the view should be indexed.
+    string query = 3;
+    // Whether query results should be passed to the user function for further
+    // processing before being returned to the client.
+    //
+    // By default (false), the user function does not process query results.
+    bool transform_results = 4;
+  }
+}
