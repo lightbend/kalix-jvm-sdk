@@ -71,6 +71,17 @@ lazy val `akkasls-codegen-js-cli` =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
       name in NativeImage := "akkasls-codegen-js",
+      /**
+        * Due to limitations of the Windows command prompt/PowerShell, with a the native-image command fails with a long classpath
+        * By using sbt-assembly, we first build a fat JAR which is then able to be used in place of the full classpath
+        *
+        * This has been raised as an issue against the plugin: https://github.com/scalameta/sbt-native-image/issues/26
+        */
+      assemblyMergeStrategy in assembly := {
+        case s if s.endsWith(".proto") =>
+          MergeStrategy.first
+        case s => MergeStrategy.defaultMergeStrategy(s)
+      },
       fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
       nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
@@ -85,11 +96,6 @@ lazy val `akkasls-codegen-js-cli` =
         library.munit           % Test,
         library.munitScalaCheck % Test
       ),
-      assemblyMergeStrategy in assembly := {
-        case s if s.endsWith(".proto") =>
-          MergeStrategy.first
-        case s => MergeStrategy.defaultMergeStrategy(s)
-      },
       skip in publish := true
     )
     .dependsOn(`akkasls-codegen-js`)
