@@ -71,6 +71,7 @@ lazy val `akkasls-codegen-js-cli` =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
       name in NativeImage := "akkasls-codegen-js",
+      fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
       nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
         "--no-fallback",
@@ -84,6 +85,11 @@ lazy val `akkasls-codegen-js-cli` =
         library.munit           % Test,
         library.munitScalaCheck % Test
       ),
+      assemblyMergeStrategy in assembly := {
+        case s if s.endsWith(".proto") =>
+          MergeStrategy.first
+        case s => MergeStrategy.defaultMergeStrategy(s)
+      },
       skip in publish := true
     )
     .dependsOn(`akkasls-codegen-js`)
