@@ -122,9 +122,9 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.EventSourcedEntity
   ): Document =
     pretty(
-      """import { EventSourced } from "@lightbend/akkaserverless-javascript-sdk"""" <> semi <> line <>
+      """import { EventSourcedEntity } from "@lightbend/akkaserverless-javascript-sdk"""" <> semi <> line <>
       line <>
-      "const entity = new EventSourced" <> parens(
+      "const entity = new EventSourcedEntity" <> parens(
         nest(
           line <>
           brackets(
@@ -137,6 +137,7 @@ object SourceGenerator extends PrettyPrinter {
             ) <> line
           ) <> comma <> line <>
           dquotes(entity.fullName) <> comma <> line <>
+          dquotes(name(entity.fullName).toLowerCase()) <> comma <> line <>
           braces(
             nest(
               line <>
@@ -148,7 +149,6 @@ object SourceGenerator extends PrettyPrinter {
                      )
                    )
                  else List.empty) ++ List(
-                  "entityType" <> colon <+> dquotes(name(entity.fullName).toLowerCase()),
                   "serializeFallbackToJson" <> colon <+> "true"
                 ),
                 comma <> line
