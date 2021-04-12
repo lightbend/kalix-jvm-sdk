@@ -34,8 +34,10 @@ public class GenerateMojoTest {
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
-        assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/MyServiceEntity.java").toFile().exists());
-        assertTrue(projectDirectory.resolve("src/test/java/com/lightbend/MyServiceEntityTest.java").toFile().exists());
+        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/ShoppingCartService.java").toFile()
+                .exists());
+        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/ShoppingCartServiceTest.java")
+                .toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
     }
 }

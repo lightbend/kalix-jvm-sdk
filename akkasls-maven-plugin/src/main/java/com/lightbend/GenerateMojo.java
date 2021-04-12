@@ -1,6 +1,7 @@
 package com.lightbend;
 
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.Descriptors.FileDescriptor;
 import com.lightbend.akkasls.codegen.DescriptorSet;
 import com.lightbend.akkasls.codegen.java.SourceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
@@ -60,36 +61,39 @@ public class GenerateMojo extends AbstractMojo {
     private final Log log = getLog();
 
     /**
-     * Given a protobuf descriptor, we inspect it and search for entities, commands, events and
-     * state declarations, storing them in an appropriate structure. That structure
-     * then drives the code generation phase.
+     * Given a protobuf descriptor, we inspect it and search for entities, commands,
+     * events and state declarations, storing them in an appropriate structure. That
+     * structure then drives the code generation phase.
      */
     public void execute() throws MojoExecutionException {
         File protobufDescriptor = descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName).toFile();
         if (protobufDescriptor.exists()) {
             log.info("Inspecting proto file descriptor for entity generation...");
-            Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors =
-                    DescriptorSet.fileDescriptors(protobufDescriptor);
+            Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors = DescriptorSet
+                    .fileDescriptors(protobufDescriptor);
             if (descriptors.isRight()) {
-                descriptors.right().get().iterator().foreach(descriptor -> {
-                    if (descriptor.isRight()) {
-                        Descriptors.FileDescriptor fileDescriptor = descriptor.right().get();
-                        Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptor, serviceNamesFilter);
-                        Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(), testSourceDirectory.toPath(), mainClass);
-                        Path absBaseDir = baseDir.toPath().toAbsolutePath();
-                        generated.foreach(p -> {
-                            log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
-                            return null;
-                        });
 
+                Iterable<FileDescriptor> fileDescriptors = descriptors.right().get().map(descriptor -> {
+                    if (descriptor.isRight()) {
+                        return descriptor.right().get();
                     } else {
-                        throw new RuntimeException(new MojoExecutionException("There was a problem building the file descriptor from its protobuf: " + descriptor.left().get().toString()));
+                        throw new RuntimeException(new MojoExecutionException(
+                                "There was a problem building the file descriptor from its protobuf: "
+                                        + descriptor.left().get().toString()));
                     }
+                });
+                Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptors);
+                Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(),
+                        testSourceDirectory.toPath(), mainClass);
+                Path absBaseDir = baseDir.toPath().toAbsolutePath();
+                generated.foreach(p -> {
+                    log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
                     return null;
                 });
 
             } else {
-                throw new MojoExecutionException("There was a problem opening the protobuf descriptor file", descriptors.left().get().e());
+                throw new MojoExecutionException("There was a problem opening the protobuf descriptor file",
+                        descriptors.left().get().e());
             }
         } else {
             log.info("Skipping generation because there is no protobuf descriptor found.");
