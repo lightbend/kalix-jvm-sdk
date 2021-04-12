@@ -162,17 +162,17 @@ class SourceGeneratorSuite extends munit.FunSuite {
       SourceGenerator.source(protoSources, protobufSourceDirectory, sourceDirectory, entity)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { EventSourced } from "@lightbend/akkaserverless-javascript-sdk";
+      """import { EventSourcedEntity } from "@lightbend/akkaserverless-javascript-sdk";
         |
-        |const entity = new EventSourced(
+        |const entity = new EventSourcedEntity(
         |  [
         |    "myentity1.proto",
         |    "someother.proto"
         |  ],
         |  "com.lightbend.MyServiceEntity",
+        |  "myserviceentity",
         |  {
         |    includeDirs: ["./src/proto"],
-        |    entityType: "myserviceentity",
         |    serializeFallbackToJson: true
         |  }
         |);
