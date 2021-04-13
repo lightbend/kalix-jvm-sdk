@@ -34,40 +34,101 @@ class ModelBuilderSuite extends munit.FunSuite {
         descriptors
       )
 
+      val shoppingCartProto =
+        ModelBuilder.ProtoReference(
+          "shoppingcart.proto",
+          "com.example.shoppingcart",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"
+          ),
+          None,
+          Some("ShoppingCart")
+        )
+
+      val domainProto =
+        ModelBuilder.ProtoReference(
+          "persistence/domain.proto",
+          "com.example.shoppingcart.persistence",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart/persistence;persistence"
+          ),
+          None,
+          None
+        )
+
+      val googleEmptyProto =
+        ModelBuilder.ProtoReference(
+          "google.protobuf.Empty.placeholder.proto",
+          "google.protobuf",
+          None,
+          None,
+          None
+        )
+
       assertEquals(
         entities,
         List(
           ModelBuilder.EventSourcedEntity(
-            Some("github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"),
-            Some("ShoppingCart"),
+            shoppingCartProto,
             "com.example.shoppingcart.ShoppingCartService",
             "ShoppingCartService",
-            Some("com.example.shoppingcart.persistence.Cart"),
+            Some(ModelBuilder.TypeReference("Cart", domainProto)),
             List(
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.AddItem",
-                "com.example.shoppingcart.AddLineItem",
-                "google.protobuf.Empty"
+                ModelBuilder.TypeReference("AddLineItem", shoppingCartProto),
+                ModelBuilder.TypeReference("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.RemoveItem",
-                "com.example.shoppingcart.RemoveLineItem",
-                "google.protobuf.Empty"
+                ModelBuilder.TypeReference("RemoveLineItem", shoppingCartProto),
+                ModelBuilder.TypeReference("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.GetCart",
-                "com.example.shoppingcart.GetShoppingCart",
-                "com.example.shoppingcart.Cart"
+                ModelBuilder.TypeReference("GetShoppingCart", shoppingCartProto),
+                ModelBuilder.TypeReference("Cart", shoppingCartProto)
               )
             ),
             List(
-              "com.example.shoppingcart.persistence.ItemAdded",
-              "com.example.shoppingcart.persistence.ItemRemoved"
+              ModelBuilder.TypeReference("ItemAdded", domainProto),
+              ModelBuilder.TypeReference("ItemRemoved", domainProto)
             )
           )
         )
       )
     }.get
+  }
+
+  test("deriving java class names and packages from proto options") {
+    val fileName = "subdirectory/my_file.proto";
+    val pkg      = "com.example"
+
+    assertEquals(
+      ModelBuilder
+        .ProtoReference(fileName, pkg, None, None, None)
+        .javaClassname,
+      "MyFile"
+    )
+    assertEquals(
+      ModelBuilder
+        .ProtoReference(fileName, pkg, None, None, Some("OverrideClassName"))
+        .javaClassname,
+      "OverrideClassName"
+    )
+
+    assertEquals(
+      ModelBuilder
+        .ProtoReference(fileName, pkg, None, None, None)
+        .javaPackage,
+      pkg
+    )
+    assertEquals(
+      ModelBuilder
+        .ProtoReference(fileName, pkg, None, Some("override.package"), None)
+        .javaPackage,
+      "override.package"
+    )
   }
 
   test("resolving full names") {

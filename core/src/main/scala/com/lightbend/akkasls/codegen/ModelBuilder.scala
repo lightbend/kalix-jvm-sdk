@@ -17,8 +17,7 @@ object ModelBuilder {
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
     */
   sealed abstract class Entity(
-      val goPackage: Option[String],
-      val javaOuterClassname: Option[String]
+      val serviceProto: ProtoReference
   )
 
   /**
@@ -26,19 +25,42 @@ object ModelBuilder {
     * by replaying that journal.
     */
   case class EventSourcedEntity(
-      override val goPackage: Option[String],
-      override val javaOuterClassname: Option[String],
+      override val serviceProto: ProtoReference,
       fullName: String,
       entityType: String,
-      state: Option[String],
+      state: Option[TypeReference],
       commands: Iterable[Command],
-      events: Iterable[String]
-  ) extends Entity(goPackage, javaOuterClassname)
+      events: Iterable[TypeReference]
+  ) extends Entity(serviceProto)
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
     */
-  case class Command(fullname: String, inputType: String, outputType: String)
+  case class Command(fullname: String, inputType: TypeReference, outputType: TypeReference)
+
+  /**
+    * The details of the proto file that an entity or related message type have been derived from.
+    */
+  case class ProtoReference(
+      fileName: String,
+      pkg: String,
+      goPackage: Option[String],
+      javaPackageOption: Option[String],
+      javaOuterClassname: Option[String]
+  ) {
+    lazy val javaPackage = javaPackageOption.getOrElse(pkg)
+  }
+
+  /**
+    * The reference to a message type defined in protobuf
+    * This contains enough detail to reconstruct references such as absolute Java packages
+    */
+  case class TypeReference(
+      name: String,
+      parent: ProtoReference
+  ) {
+    lazy val fullName = s"${parent.pkg}.$name"
+  }
 
   /**
     * Given a protobuf descriptor, discover the Cloudstate entities and their properties.
@@ -76,28 +98,20 @@ object ModelBuilder {
           .map(resolveFullName(_, service.getFile().getPackage()))
           .flatMap(entities.get)
           .map { entity =>
-            val generalOptions = service.getFile.getOptions.getAllFields.asScala
-            val javaOuterClassName = generalOptions
-              .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
-              .map(_._2.toString)
-            val goPackage = generalOptions
-              .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
-              .map(_._2.toString)
-
-            val entityType = service.getName
-            val methods    = service.getMethods.asScala
+            val serviceProto = ProtoReference.fromFileDescriptor(service.getFile())
+            val entityType   = service.getName
+            val methods      = service.getMethods.asScala
             val commands =
               methods.map(method =>
                 Command(
                   method.getFullName,
-                  method.getInputType.getFullName,
-                  method.getOutputType.getFullName
+                  TypeReference.fromDescriptor(method.getInputType),
+                  TypeReference.fromDescriptor(method.getOutputType)
                 )
               )
 
             EventSourcedEntity(
-              goPackage,
-              javaOuterClassName,
+              serviceProto,
               service.getFullName,
               entityType,
               entity.state,
@@ -134,8 +148,8 @@ object ModelBuilder {
     */
   private case class EventSourcedEntityDefinition(
       fullName: String,
-      events: Iterable[String],
-      state: Option[String]
+      events: Iterable[TypeReference],
+      state: Option[TypeReference]
   )
 
   /**
@@ -155,6 +169,8 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getEventSourcedEntity()
 
+    val protoReference = ProtoReference.fromFileDescriptor(descriptor)
+
     Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
       val fullName = s"${descriptor.getPackage()}.${name}"
       EventSourcedEntityDefinition(
@@ -162,10 +178,39 @@ object ModelBuilder {
         rawEntity
           .getEventList()
           .asScala
-          .map(event => resolveFullName(event.getType(), descriptor.getPackage())),
-        Option(resolveFullName(rawEntity.getState().getType(), descriptor.getPackage()))
+          .map(event => TypeReference(event.getType(), protoReference)),
+        Option(rawEntity.getState().getType())
           .filter(_.nonEmpty)
+          .map(TypeReference(_, protoReference))
       )
     }
+  }
+
+  private object ProtoReference {
+    def fromFileDescriptor(descriptor: Descriptors.FileDescriptor) = {
+      val generalOptions = descriptor.getOptions.getAllFields.asScala
+      val goPackage = generalOptions
+        .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
+        .map(_._2.toString)
+      val javaPackage = generalOptions
+        .find(_._1.getFullName == "google.protobuf.FileOptions.java_package")
+        .map(_._2.toString)
+      val javaOuterClassname = generalOptions
+        .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
+        .map(_._2.toString)
+
+      ProtoReference(
+        descriptor.getName(),
+        descriptor.getPackage(),
+        goPackage,
+        javaPackage,
+        javaOuterClassname
+      )
+    }
+  }
+
+  private object TypeReference {
+    def fromDescriptor(descriptor: Descriptors.Descriptor) =
+      TypeReference(descriptor.getName(), ProtoReference.fromFileDescriptor(descriptor.getFile()))
   }
 }
