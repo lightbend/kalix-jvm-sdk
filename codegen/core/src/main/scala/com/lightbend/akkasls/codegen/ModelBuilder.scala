@@ -186,7 +186,7 @@ object ModelBuilder {
     }
   }
 
-  private object ProtoReference {
+  object ProtoReference {
     def fromFileDescriptor(descriptor: Descriptors.FileDescriptor) = {
       val generalOptions = descriptor.getOptions.getAllFields.asScala
       val goPackage = generalOptions
@@ -209,7 +209,7 @@ object ModelBuilder {
     }
   }
 
-  private object TypeReference {
+  object TypeReference {
     def fromDescriptor(descriptor: Descriptors.Descriptor) =
       TypeReference(descriptor.getName(), ProtoReference.fromFileDescriptor(descriptor.getFile()))
   }

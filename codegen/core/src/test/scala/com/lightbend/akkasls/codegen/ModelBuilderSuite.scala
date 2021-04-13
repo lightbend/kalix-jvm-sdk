@@ -100,22 +100,9 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
-  test("deriving java class names and packages from proto options") {
+  test("deriving java package from proto options") {
     val fileName = "subdirectory/my_file.proto";
     val pkg      = "com.example"
-
-    assertEquals(
-      ModelBuilder
-        .ProtoReference(fileName, pkg, None, None, None)
-        .javaClassname,
-      "MyFile"
-    )
-    assertEquals(
-      ModelBuilder
-        .ProtoReference(fileName, pkg, None, None, Some("OverrideClassName"))
-        .javaClassname,
-      "OverrideClassName"
-    )
 
     assertEquals(
       ModelBuilder
