@@ -188,7 +188,7 @@ object SourceGenerator extends PrettyPrinter {
           line <>
           ssep(
             entity.events.toSeq.map { event =>
-              name(event) <> parens(
+              event.name <> parens(
                 "event, state"
               ) <+> braces(
                 nest(

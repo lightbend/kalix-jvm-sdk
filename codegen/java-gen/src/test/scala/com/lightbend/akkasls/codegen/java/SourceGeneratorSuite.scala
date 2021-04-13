@@ -30,63 +30,96 @@ class SourceGeneratorSuite extends munit.FunSuite {
         FileUtils.forceMkdir(testSourceFile2.getParentFile)
         FileUtils.touch(testSourceFile2)
 
+        val service1Proto =
+          ModelBuilder.ProtoReference(
+            "service.proto",
+            "com.example.service",
+            None,
+            None,
+            Some("OuterClass1")
+          )
+
+        val service2Proto =
+          ModelBuilder.ProtoReference(
+            "service.proto",
+            "com.example.service",
+            None,
+            None,
+            Some("OuterClass2")
+          )
+
+        val service3Proto =
+          ModelBuilder.ProtoReference(
+            "service.proto",
+            "com.example.service",
+            None,
+            None,
+            Some("OuterClass3")
+          )
+
+        val domainProto =
+          ModelBuilder.ProtoReference(
+            "persistence/domain.proto",
+            "com.example.service.persistence",
+            None,
+            None,
+            Some("Domain")
+          )
+
         val entities = List(
           ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity1"),
+            service1Proto,
             "com.lightbend.MyService1",
             "MyService1",
-            Some("com.lightbend.State1"),
+            Some(ModelBuilder.TypeReference("MyState", domainProto)),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
+                ModelBuilder.TypeReference("SetValue", service1Proto),
+                ModelBuilder.TypeReference("protobuf.Empty", service1Proto)
               ),
               ModelBuilder.Command(
                 "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+                ModelBuilder.TypeReference("GetValue", service1Proto),
+                ModelBuilder.TypeReference("MyState", service1Proto)
               )
             ),
             List.empty
           ),
           ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity2"),
+            service2Proto,
             "com.lightbend.MyService2",
             "MyService2",
-            Some("com.lightbend.State2"),
+            Some(ModelBuilder.TypeReference("MyState2", domainProto)),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
+                ModelBuilder.TypeReference("SetValue", service2Proto),
+                ModelBuilder.TypeReference("protobuf.Empty", service2Proto)
               ),
               ModelBuilder.Command(
                 "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+                ModelBuilder.TypeReference("GetValue", service2Proto),
+                ModelBuilder.TypeReference("MyState", service2Proto)
               )
             ),
             List.empty
           ),
           ModelBuilder.EventSourcedEntity(
-            Some("com/lightbend"),
-            Some("MyEntity3"),
+            service3Proto,
             "com.lightbend.something.MyService3",
             "MyService3",
-            Some("com.lightbend.State3"),
+            Some(ModelBuilder.TypeReference("MyState3", domainProto)),
             List(
               ModelBuilder.Command(
                 "com.lightbend.MyService.Set",
-                "com.lightbend.SetValue",
-                "com.google.protobuf.Empty"
+                ModelBuilder.TypeReference("SetValue", service3Proto),
+                ModelBuilder.TypeReference("protobuf.Empty", service3Proto)
               ),
               ModelBuilder.Command(
                 "com.lightbend.MyService.Get",
-                "com.lightbend.GetValue",
-                "com.lightbend.MyState"
+                ModelBuilder.TypeReference("GetValue", service3Proto),
+                ModelBuilder.TypeReference("MyState", service3Proto)
               )
             ),
             List.empty
@@ -123,39 +156,68 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("source") {
+
+    val serviceProto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass")
+      )
+
+    val domainProto =
+      ModelBuilder.ProtoReference(
+        "persistence/domain.proto",
+        "com.example.service.persistence",
+        None,
+        None,
+        Some("Domain")
+      )
+
+    val externalProto =
+      ModelBuilder.ProtoReference(
+        "com.external.imported.types",
+        "com.external",
+        None,
+        None,
+        None
+      )
+
     val entity = ModelBuilder.EventSourcedEntity(
-      Some("com/lightbend"),
-      Some("MyEntity"),
+      serviceProto,
       "com.lightbend.MyServiceEntity",
       "MyServiceEntity",
-      Some("com.lightbend.MyState"),
+      Some(ModelBuilder.TypeReference("MyState", domainProto)),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Set",
-          "com.lightbend.SetValue",
-          "google.protobuf.Empty"
+          "com.lightbend.MyService.Set",
+          ModelBuilder.TypeReference("SetValue", serviceProto),
+          ModelBuilder.TypeReference("Empty", externalProto)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Get",
-          "com.lightbend.GetValue",
-          "com.lightbend.MyState"
+          "com.lightbend.MyService.Get",
+          ModelBuilder.TypeReference("GetValue", serviceProto),
+          ModelBuilder.TypeReference("MyState", serviceProto)
         )
       ),
       List(
-        "com.lightbend.SetEvent"
+        ModelBuilder.TypeReference("SetEvent", domainProto)
       )
     )
-    val packageName = "com.lightbend"
+
+    val packageName = "com.example.service"
     val className   = "MyServiceEntity"
 
     val sourceDoc = SourceGenerator.source(entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
-      """package com.lightbend;
+      """package com.example.service;
       |
-      |import com.google.protobuf.Empty;
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.eventsourcedentity.*;
+      |import com.example.service.persistence.Domain;
+      |import com.external.Empty;
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "MyServiceEntity")
@@ -168,29 +230,29 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Snapshot
-      |    public MyEntity.MyState snapshot() {
+      |    public Domain.MyState snapshot() {
       |        // TODO: produce state snapshot here
-      |        return MyEntity.MyState.newBuilder().setEntityId(this.entityId).build();
+      |        return Domain.MyState.newBuilder().build();
       |    }
       |    
       |    @SnapshotHandler
-      |    public void handleSnapshot(MyEntity.MyState snapshot) {
+      |    public void handleSnapshot(Domain.MyState snapshot) {
       |        // TODO: restore state from snapshot here
-      |        this.entityId = snapshot.entityId;
+      |        
       |    }
       |    
       |    @CommandHandler
-      |    public Empty set(MyEntity.SetValue command, CommandContext ctx) {
+      |    public Empty set(OuterClass.SetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @CommandHandler
-      |    public MyEntity.MyState get(MyEntity.GetValue command, CommandContext ctx) {
+      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
       |        throw new RuntimeException("The command handler for `Get` is not implemented, yet");
       |    }
       |    
       |    @EventHandler
-      |    public void setEvent(MyEntity.SetEvent event) {
+      |    public void setEvent(Domain.SetEvent event) {
       |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -198,34 +260,52 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("test source") {
+    val serviceProto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass")
+      )
+
+    val domainProto =
+      ModelBuilder.ProtoReference(
+        "persistence/domain.proto",
+        "com.example.service.persistence",
+        None,
+        None,
+        Some("Domain")
+      )
+
     val entity = ModelBuilder.EventSourcedEntity(
-      Some("com/lightbend"),
-      Some("MyEntity"),
+      serviceProto,
       "com.lightbend.MyServiceEntity",
       "MyServiceEntity",
-      Some("com.lightbend.MyState"),
+      Some(ModelBuilder.TypeReference("MyState", domainProto)),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Set",
-          "com.lightbend.SetValue",
-          "google.protobuf.Empty"
+          "com.lightbend.MyService.Set",
+          ModelBuilder.TypeReference("SetValue", serviceProto),
+          ModelBuilder.TypeReference("protobuf.Empty", serviceProto)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Get",
-          "com.lightbend.GetValue",
-          "com.lightbend.MyState"
+          "com.lightbend.MyService.Get",
+          ModelBuilder.TypeReference("GetValue", serviceProto),
+          ModelBuilder.TypeReference("MyState", serviceProto)
         )
       ),
       List.empty
     )
-    val packageName   = "com.lightbend"
+
+    val packageName   = "com.example.service"
     val className     = "MyServiceEntity"
     val testClassName = "MyServiceEntityTest"
 
     val sourceDoc = SourceGenerator.testSource(entity, packageName, className, testClassName)
     assertEquals(
       sourceDoc.layout,
-      """package com.lightbend;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
         |import org.junit.Test;
@@ -241,7 +321,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        entity = new MyServiceEntity(entityId);
         |        
         |        // TODO: you may want to set fields in addition to the entity id
-        |        //    entity.set(MyEntity.SetValue.newBuilder().setEntityId(entityId).build(), context);
+        |        //    entity.set(OuterClass.SetValue.newBuilder().setEntityId(entityId).build(), context);
         |        
         |        // TODO: if you wish to verify events:
         |        //    Mockito.verify(context).emit(event);
@@ -252,7 +332,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        entity = new MyServiceEntity(entityId);
         |        
         |        // TODO: you may want to set fields in addition to the entity id
-        |        //    entity.get(MyEntity.GetValue.newBuilder().setEntityId(entityId).build(), context);
+        |        //    entity.get(OuterClass.GetValue.newBuilder().setEntityId(entityId).build(), context);
         |        
         |        // TODO: if you wish to verify events:
         |        //    Mockito.verify(context).emit(event);
@@ -262,68 +342,102 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("main source") {
+    val service1Proto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass1")
+      )
+
+    val service2Proto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass2")
+      )
+
+    val service3Proto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass3")
+      )
+
+    val domainProto =
+      ModelBuilder.ProtoReference(
+        "persistence/domain.proto",
+        "com.example.service.persistence",
+        None,
+        Some("com.lightbend.something"),
+        Some("Domain")
+      )
+
     val entities = List(
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity1"),
+        service1Proto,
         "com.lightbend.MyService1",
         "MyService1",
-        Some("com.lightbend.State1"),
+        Some(ModelBuilder.TypeReference("MyState", domainProto)),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            ModelBuilder.TypeReference("SetValue", service1Proto),
+            ModelBuilder.TypeReference("protobuf.Empty", service1Proto)
           ),
           ModelBuilder.Command(
             "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            ModelBuilder.TypeReference("GetValue", service1Proto),
+            ModelBuilder.TypeReference("MyState", service1Proto)
           )
         ),
         List.empty
       ),
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity2"),
+        service2Proto,
         "com.lightbend.MyService2",
         "MyService2",
-        Some("com.lightbend.State2"),
+        Some(ModelBuilder.TypeReference("MyState2", domainProto)),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            ModelBuilder.TypeReference("SetValue", service2Proto),
+            ModelBuilder.TypeReference("protobuf.Empty", service2Proto)
           ),
           ModelBuilder.Command(
             "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            ModelBuilder.TypeReference("GetValue", service2Proto),
+            ModelBuilder.TypeReference("MyState", service2Proto)
           )
         ),
         List.empty
       ),
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity3"),
+        service3Proto,
         "com.lightbend.something.MyService3",
         "MyService3",
-        Some("com.lightbend.State3"),
+        Some(ModelBuilder.TypeReference("MyState3", domainProto)),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            ModelBuilder.TypeReference("SetValue", service3Proto),
+            ModelBuilder.TypeReference("protobuf.Empty", service3Proto)
           ),
           ModelBuilder.Command(
             "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            ModelBuilder.TypeReference("GetValue", service3Proto),
+            ModelBuilder.TypeReference("MyState", service3Proto)
           )
         ),
         List.empty
       )
     )
+
     val mainPackageName = "com.lightbend"
     val mainClassName   = "Main"
 
@@ -333,7 +447,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.lightbend;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
-        |import com.lightbend.something.MyEntity3;
+        |import com.lightbend.something.OuterClass3;
         |import com.lightbend.something.MyService3;
         |
         |public final class Main {
@@ -342,18 +456,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        new AkkaServerless()
         |            .registerEventSourcedEntity(
         |                MyService1.class,
-        |                MyEntity1.getDescriptor().findServiceByName("MyService1"),
-        |                MyEntity1.getDescriptor()
+        |                OuterClass1.getDescriptor().findServiceByName("MyService1"),
+        |                OuterClass1.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
         |                MyService2.class,
-        |                MyEntity2.getDescriptor().findServiceByName("MyService2"),
-        |                MyEntity2.getDescriptor()
+        |                OuterClass2.getDescriptor().findServiceByName("MyService2"),
+        |                OuterClass2.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
         |                MyService3.class,
-        |                MyEntity3.getDescriptor().findServiceByName("MyService3"),
-        |                MyEntity3.getDescriptor()
+        |                OuterClass3.getDescriptor().findServiceByName("MyService3"),
+        |                OuterClass3.getDescriptor()
         |            )
         |            .start().toCompletableFuture().get();
         |    }
@@ -363,32 +477,48 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("main source with no outer class") {
-    val entities = List(
-      ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
+    val serviceProto =
+      ModelBuilder.ProtoReference(
+        "service.proto",
+        "com.example.service",
         None,
-        "com.lightbend.MyService1",
-        "MyService1",
-        Some("com.lightbend.State1"),
-        List(
-          ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
-          ),
-          ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
-          )
-        ),
-        List.empty
+        None,
+        None
       )
+
+    val domainProto =
+      ModelBuilder.ProtoReference(
+        "persistence/domain.proto",
+        "com.example.service.persistence",
+        None,
+        None,
+        Some("Domain")
+      )
+
+    val entity = ModelBuilder.EventSourcedEntity(
+      serviceProto,
+      "com.lightbend.MyServiceEntity",
+      "MyServiceEntity",
+      Some(ModelBuilder.TypeReference("MyState", domainProto)),
+      List(
+        ModelBuilder.Command(
+          "com.lightbend.MyService.Set",
+          ModelBuilder.TypeReference("SetValue", serviceProto),
+          ModelBuilder.TypeReference("protobuf.Empty", serviceProto)
+        ),
+        ModelBuilder.Command(
+          "com.lightbend.MyService.Get",
+          ModelBuilder.TypeReference("GetValue", serviceProto),
+          ModelBuilder.TypeReference("MyState", serviceProto)
+        )
+      ),
+      List.empty
     )
+
     val mainPackageName = "com.lightbend"
     val mainClassName   = "Main"
 
-    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(entity))
     assertEquals(
       sourceDoc.layout,
       """package com.lightbend;
@@ -399,7 +529,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    
         |    public static void main(String[] args) throws Exception {
         |        new AkkaServerless()
-        |            // FIXME: No Java outer class name specified - cannot register MyService1 - ensure you are generating protobuf for Java
+        |            // FIXME: No Java outer class name specified - cannot register MyServiceEntity - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }
         |    

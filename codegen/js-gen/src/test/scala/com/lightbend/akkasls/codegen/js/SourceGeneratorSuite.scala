@@ -10,6 +10,14 @@ import java.nio.file.{ Files, Paths }
 import org.apache.commons.io.FileUtils
 
 class SourceGeneratorSuite extends munit.FunSuite {
+  val protoRef =
+    ModelBuilder.ProtoReference(
+      "service.proto",
+      "com.example.service",
+      None,
+      None,
+      None
+    )
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
     try {
@@ -37,61 +45,58 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
           val entities = List(
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity1"),
+              protoRef,
               "com.lightbend.MyService1",
               "MyService1",
-              Some("com.lightbend.State1"),
+              Some(ModelBuilder.TypeReference("State1", protoRef)),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  ModelBuilder.TypeReference("SetValue", protoRef),
+                  ModelBuilder.TypeReference("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  ModelBuilder.TypeReference("GetValue", protoRef),
+                  ModelBuilder.TypeReference("MyState", protoRef)
                 )
               ),
               List.empty
             ),
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity2"),
+              protoRef,
               "com.lightbend.MyService2",
               "MyService2",
-              Some("com.lightbend.State2"),
+              Some(ModelBuilder.TypeReference("State2", protoRef)),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  ModelBuilder.TypeReference("SetValue", protoRef),
+                  ModelBuilder.TypeReference("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  ModelBuilder.TypeReference("GetValue", protoRef),
+                  ModelBuilder.TypeReference("MyState", protoRef)
                 )
               ),
               List.empty
             ),
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity3"),
+              protoRef,
               "com.lightbend.something.MyService3",
               "MyService3",
-              Some("com.lightbend.State3"),
+              Some(ModelBuilder.TypeReference("State3", protoRef)),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  ModelBuilder.TypeReference("SetValue", protoRef),
+                  ModelBuilder.TypeReference("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  ModelBuilder.TypeReference("GetValue", protoRef),
+                  ModelBuilder.TypeReference("MyState", protoRef)
                 )
               ),
               List.empty
@@ -132,25 +137,24 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("source") {
     val entity = ModelBuilder.EventSourcedEntity(
-      Some("com/lightbend"),
-      Some("MyEntity"),
+      protoRef,
       "com.lightbend.MyServiceEntity",
       "MyServiceEntity",
-      Some("com.lightbend.MyState"),
+      Some(ModelBuilder.TypeReference("MyState", protoRef)),
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
-          "com.lightbend.SetValue",
-          "google.protobuf.Empty"
+          ModelBuilder.TypeReference("SetValue", protoRef),
+          ModelBuilder.TypeReference("Empty", protoRef)
         ),
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Get",
-          "com.lightbend.GetValue",
-          "com.lightbend.MyState"
+          ModelBuilder.TypeReference("GetValue", protoRef),
+          ModelBuilder.TypeReference("MyState", protoRef)
         )
       ),
       List(
-        "com.lightbend.SetEvent"
+        ModelBuilder.TypeReference("SetEvent", protoRef)
       )
     )
 
@@ -209,21 +213,20 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("test source") {
     val entity =
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity1"),
+        protoRef,
         "com.lightbend.MyService1",
         "MyService1",
-        Some("com.lightbend.MyState"),
+        Some(ModelBuilder.TypeReference("MyState", protoRef)),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            ModelBuilder.TypeReference("SetValue", protoRef),
+            ModelBuilder.TypeReference("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
             "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            ModelBuilder.TypeReference("GetValue", protoRef),
+            ModelBuilder.TypeReference("MyState", protoRef)
           )
         ),
         List.empty
@@ -273,21 +276,20 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("index source") {
     val entities = List(
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity1"),
+        protoRef,
         "com.lightbend.MyService1",
         "MyService1",
-        Some("com.lightbend.MyState"),
+        Some(ModelBuilder.TypeReference("MyState", protoRef)),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            ModelBuilder.TypeReference("SetValue", protoRef),
+            ModelBuilder.TypeReference("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
             "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            ModelBuilder.TypeReference("GetValue", protoRef),
+            ModelBuilder.TypeReference("MyState", protoRef)
           )
         ),
         List.empty
