@@ -59,6 +59,14 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         assertIsOutReplyWithField(reply, "out: in")
       }
 
+      def testJson(handler: AnyRef) = {
+        val reply = create(handler)
+          .handleUnary("UnaryJson", createInEnvelope("in"), ctx)
+          .toCompletableFuture
+          .get(10, TimeUnit.SECONDS)
+        assertIsJsonReply(reply, "in")
+      }
+
       def inToOut(in: In): Out =
         Out.newBuilder().setField("out: " + in.getField).build()
 
@@ -67,9 +75,19 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         def unary(in: In): Out = inToOut(in)
       })
 
+      "synchronous JSON reply" in testJson(new {
+        @Handler
+        def unaryJson(in: In): JsonOut = new JsonOut(in.getField)
+      })
+
       "asynchronous" in test(new {
         @Handler
         def unary(in: In): CompletionStage[Out] = CompletableFuture.completedFuture(inToOut(in))
+      })
+
+      "asynchronous JSON reply" in testJson(new {
+        @Handler
+        def unaryJson(in: In): CompletionStage[JsonOut] = CompletableFuture.completedFuture(new JsonOut(in.getField))
       })
 
       "in wrapped in envelope" in test(new {
@@ -96,10 +114,21 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         def unary(in: In): ActionReply[Out] = ActionReply.message(inToOut(in))
       })
 
+      "synchronous JSON out wrapped in reply" in testJson(new {
+        @Handler
+        def unaryJson(in: In): ActionReply[JsonOut] = ActionReply.message(new JsonOut(in.getField))
+      })
+
       "asynchronous out wrapped in reply" in test(new {
         @Handler
         def unary(in: In): CompletionStage[ActionReply[Out]] =
           CompletableFuture.completedFuture(ActionReply.message(inToOut(in)))
+      })
+
+      "asynchronous JSON out wrapped in reply" in testJson(new {
+        @Handler
+        def unaryJson(in: In): CompletionStage[ActionReply[JsonOut]] =
+          CompletableFuture.completedFuture(ActionReply.message(new JsonOut(in.getField)))
       })
 
       "with metadata parameter" in test(new {
@@ -133,6 +162,21 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         }
       }
 
+      def testJson(handler: AnyRef) = {
+        val replies = Await.result(
+          create(handler)
+            .handleStreamedOut("StreamedJsonOut", createInEnvelope("in here"), ctx)
+            .asScala
+            .runWith(Sink.seq),
+          10.seconds
+        )
+        replies should have size 3
+        replies.zipWithIndex.foreach {
+          case (reply, idx) =>
+            assertIsJsonReply(reply, s"out ${idx + 1}: in here")
+        }
+      }
+
       def inToOut(in: In): akka.stream.scaladsl.Source[Out, NotUsed] =
         akka.stream.scaladsl
           .Source(1 to 3)
@@ -140,9 +184,21 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
             Out.newBuilder().setField(s"out $idx: " + in.getField).build()
           }
 
+      def inToJsonOut(in: In): akka.stream.scaladsl.Source[JsonOut, NotUsed] =
+        akka.stream.scaladsl
+          .Source(1 to 3)
+          .map { idx =>
+            new JsonOut(s"out $idx: " + in.getField)
+          }
+
       "source" in test(new {
         @Handler
         def streamedOut(in: In): Source[Out, NotUsed] = inToOut(in).asJava
+      })
+
+      "JSON source" in testJson(new {
+        @Handler
+        def streamedJsonOut(in: In): Source[JsonOut, NotUsed] = inToJsonOut(in).asJava
       })
 
       "reactive streams publisher" in test(new {
@@ -365,4 +421,14 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         fail(s"$reply is not a MessageReply")
     }
 
+  private def assertIsJsonReply(reply: ActionReply[protobuf.Any], messageValue: String) =
+    reply match {
+      case message: MessageReply[protobuf.Any] =>
+        val out = message.payload()
+        out.getTypeUrl should ===("json.akkaserverless.com/com.akkaserverless.javasdk.impl.action.JsonOut")
+        val msg = AnySupport.extractBytes(out.getValue)
+        msg.toStringUtf8 should ===(s"""{"message":"$messageValue"}""")
+      case other =>
+        fail(s"$reply is not a MessageReply")
+    }
 }

@@ -2,6 +2,8 @@
 
 syntax = "proto3";
 
+import "google/protobuf/any.proto";
+
 package akkaserverless.javasdk;
 
 message In {
@@ -14,7 +16,9 @@ message Out {
 
 service ActionSpecService {
     rpc Unary(In) returns (Out);
+    rpc UnaryJson(In) returns (google.protobuf.Any);
     rpc StreamedIn(stream In) returns (Out);
     rpc StreamedOut(In) returns (stream Out);
+    rpc StreamedJsonOut(In) returns (stream google.protobuf.Any);
     rpc Streamed(stream In) returns (stream Out);
 }

@@ -6,8 +6,9 @@ package com.akkaserverless.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import akka.stream.scaladsl.{JavaFlowSupport, Sink}
+import akka.stream.scaladsl.Sink
 import akka.stream.{javadsl, Materializer}
+import com.akkaserverless.javasdk.Jsonable
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, ParameterHandler}
 import com.akkaserverless.javasdk.impl._
@@ -31,7 +32,7 @@ private[impl] class AnnotationBasedActionSupport(
   ) =
     this(action, anySupport, anySupport.resolveServiceDescriptor(serviceDescriptor))
 
-  private val behavior = ActionReflection(action.getClass, resolvedMethods)
+  private val behavior = ActionReflection(action.getClass, resolvedMethods, anySupport)
 
   override def handleUnary(commandName: String,
                            message: MessageEnvelope[JavaPbAny],
@@ -96,11 +97,12 @@ private class ActionReflection(
     val unaryHandlers: Map[String, UnaryCallInvoker],
     val serverStreamedHandlers: Map[String, ServerStreamedCallInvoker],
     val clientStreamedHandlers: Map[String, ClientStreamedCallInvoker],
-    val streamedHandlers: Map[String, StreamedCallInvoker]
+    val streamedHandlers: Map[String, StreamedCallInvoker],
+    val anySupport: AnySupport
 )
 
 private object ActionReflection {
-  def apply(behaviorClass: Class[_], serviceMethods: Map[String, ResolvedServiceMethod[_, _]])(
+  def apply(behaviorClass: Class[_], serviceMethods: Map[String, ResolvedServiceMethod[_, _]], anySupport: AnySupport)(
       implicit mat: Materializer
   ): ActionReflection = {
 
@@ -109,7 +111,7 @@ private object ActionReflection {
     // First, find all the call handler methods, and match them with corresponding service methods
     val allCommandHandlers = allMethods
       .collect {
-        case method if method.getAnnotation(classOf[Handler]) != null =>
+        case method if method.isAnnotationPresent(classOf[Handler]) =>
           method.setAccessible(true)
           val annotation = method.getAnnotation(classOf[Handler])
           val name: String = if (annotation.name().isEmpty) {
@@ -139,25 +141,25 @@ private object ActionReflection {
     val unaryCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if !serviceMethod.descriptor.isClientStreaming && !serviceMethod.descriptor.isServerStreaming =>
-        commandName -> new UnaryCallInvoker(method, serviceMethod)
+        commandName -> new UnaryCallInvoker(method, serviceMethod, anySupport)
     }.toMap
 
     val serverStreamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if !serviceMethod.descriptor.isClientStreaming && serviceMethod.descriptor.isServerStreaming =>
-        commandName -> new ServerStreamedCallInvoker(method, serviceMethod)
+        commandName -> new ServerStreamedCallInvoker(method, serviceMethod, anySupport)
     }.toMap
 
     val clientStreamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if serviceMethod.descriptor.isClientStreaming && !serviceMethod.descriptor.isServerStreaming =>
-        commandName -> new ClientStreamedCallInvoker(method, serviceMethod, mat)
+        commandName -> new ClientStreamedCallInvoker(method, serviceMethod, mat, anySupport)
     }.toMap
 
     val streamedCommandHandlers = allCommandHandlers.collect {
       case (commandName, method, serviceMethod)
           if serviceMethod.descriptor.isClientStreaming && serviceMethod.descriptor.isServerStreaming =>
-        commandName -> new StreamedCallInvoker(method, serviceMethod, mat)
+        commandName -> new StreamedCallInvoker(method, serviceMethod, mat, anySupport)
     }.toMap
 
     ReflectionHelper.validateNoBadMethods(
@@ -169,12 +171,14 @@ private object ActionReflection {
     new ActionReflection(unaryCommandHandlers,
                          serverStreamedCommandHandlers,
                          clientStreamedCommandHandlers,
-                         streamedCommandHandlers)
+                         streamedCommandHandlers,
+                         anySupport)
   }
 
   def getOutputParameterMapper[T](method: String,
                                   resolvedType: ResolvedType[T],
-                                  returnType: Type): Any => ActionReply[JavaPbAny] = {
+                                  returnType: Type,
+                                  anySupport: AnySupport): Any => ActionReply[JavaPbAny] = {
     val (payloadClass, mapper) = ReflectionHelper.getRawType(returnType) match {
       case envelope if envelope == classOf[MessageEnvelope[_]] =>
         val payload = ReflectionHelper.getFirstParameter(returnType)
@@ -189,20 +193,41 @@ private object ActionReflection {
         })
       case message if message == classOf[ActionReply[_]] =>
         val payload = ReflectionHelper.getFirstParameter(returnType)
-        (payload, { any: Any =>
-          val message = any.asInstanceOf[ActionReply[T]]
-          message match {
-            case envelope: MessageReply[T] =>
-              ActionReply
-                .message(JavaPbAny
-                           .newBuilder()
-                           .setValue(resolvedType.toByteString(envelope.payload))
-                           .setTypeUrl(resolvedType.typeUrl)
-                           .build(),
-                         envelope.metadata)
-                .withEffects(envelope.effects)
-            case other => other.asInstanceOf[ActionReply[JavaPbAny]]
-          }
+        if (payload.isAnnotationPresent(classOf[Jsonable])) {
+          (classOf[com.google.protobuf.Any], { any: Any =>
+            val message = any.asInstanceOf[ActionReply[T]]
+            message match {
+              case envelope: MessageReply[T] =>
+                ActionReply
+                  .message(
+                    anySupport.encodeJava(envelope.payload())
+                  )
+                  .withEffects(envelope.effects)
+              case other => other.asInstanceOf[ActionReply[JavaPbAny]]
+            }
+          })
+        } else {
+          (payload, { any: Any =>
+            val message = any.asInstanceOf[ActionReply[T]]
+            message match {
+              case envelope: MessageReply[T] =>
+                ActionReply
+                  .message(JavaPbAny
+                             .newBuilder()
+                             .setValue(resolvedType.toByteString(envelope.payload))
+                             .setTypeUrl(resolvedType.typeUrl)
+                             .build(),
+                           envelope.metadata)
+                  .withEffects(envelope.effects)
+              case other => other.asInstanceOf[ActionReply[JavaPbAny]]
+            }
+          })
+        }
+      case payload if payload.isAnnotationPresent(classOf[Jsonable]) =>
+        (classOf[com.google.protobuf.Any], { any: Any =>
+          ActionReply.message(
+            anySupport.encodeJava(any)
+          )
         })
       case payload =>
         (payload, { any: Any =>
@@ -278,19 +303,20 @@ private trait UnaryInSupport {
 private trait UnaryOutSupport {
   protected val method: Method
   protected val serviceMethod: ResolvedServiceMethod[_, _]
+  protected val anySupport: AnySupport
 
   protected val outputMapper: Any => CompletionStage[ActionReply[JavaPbAny]] = method.getReturnType match {
     case cstage if cstage == classOf[CompletionStage[_]] =>
       val cstageType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
       val mapper =
-        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, cstageType)
+        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, cstageType, anySupport)
+      any: Any => any.asInstanceOf[CompletionStage[Any]].thenApply(mapper.apply(_))
 
-      any: Any => any.asInstanceOf[CompletionStage[Any]].thenApply(mapper.apply)
     case _ =>
       val mapper = ActionReflection.getOutputParameterMapper(serviceMethod.name,
                                                              serviceMethod.outputType,
-                                                             method.getGenericReturnType)
-
+                                                             method.getGenericReturnType,
+                                                             anySupport)
       any: Any => CompletableFuture.completedFuture(mapper(any))
   }
 }
@@ -310,7 +336,7 @@ private trait StreamedInSupport {
         val mapper =
           ActionReflection.getInputParameterMapper(serviceMethod.name, serviceMethod.inputType, sourceType)
 
-        new StreamedPayloadParameterHandler(source => source.map(mapper.apply))
+        new StreamedPayloadParameterHandler(source => source.map(mapper.apply(_)))
 
       case rsPublisher if rsPublisher.parameterType == classOf[org.reactivestreams.Publisher[_]] =>
         val publisherType = ReflectionHelper.getGenericFirstParameter(rsPublisher.genericParameterType)
@@ -342,28 +368,29 @@ private trait StreamedInSupport {
 private trait StreamedOutSupport {
   protected val method: Method
   protected val serviceMethod: ResolvedServiceMethod[_, _]
+  protected val anySupport: AnySupport
 
   protected val outputMapper: Any => javadsl.Source[ActionReply[JavaPbAny], NotUsed] = method.getReturnType match {
     case source if source == classOf[javadsl.Source[_, _]] =>
       val sourceType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
       val mapper: Any => ActionReply[JavaPbAny] =
-        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType)
+        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType, anySupport)
 
       any: Any =>
         any
           .asInstanceOf[javadsl.Source[Any, _]]
-          .map(mapper.apply)
+          .map(mapper.apply(_))
           .mapMaterializedValue(_ => NotUsed)
 
     case rsPublisher if rsPublisher == classOf[org.reactivestreams.Publisher[_]] =>
       val sourceType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
       val mapper: Any => ActionReply[JavaPbAny] =
-        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType)
+        ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType, anySupport)
 
       any: Any => {
         javadsl.Source
           .fromPublisher(any.asInstanceOf[org.reactivestreams.Publisher[Any]])
-          .map(mapper.apply)
+          .map(mapper.apply(_))
       }
 
     case _ =>
@@ -373,7 +400,9 @@ private trait StreamedOutSupport {
   }
 }
 
-private class UnaryCallInvoker(protected val method: Method, protected val serviceMethod: ResolvedServiceMethod[_, _])
+private class UnaryCallInvoker(protected val method: Method,
+                               protected val serviceMethod: ResolvedServiceMethod[_, _],
+                               protected val anySupport: AnySupport)
     extends UnaryInSupport
     with UnaryOutSupport {
 
@@ -388,7 +417,8 @@ private class UnaryCallInvoker(protected val method: Method, protected val servi
 }
 
 private class ServerStreamedCallInvoker(protected val method: Method,
-                                        protected val serviceMethod: ResolvedServiceMethod[_, _])
+                                        protected val serviceMethod: ResolvedServiceMethod[_, _],
+                                        protected val anySupport: AnySupport)
     extends UnaryInSupport
     with StreamedOutSupport {
 
@@ -404,7 +434,8 @@ private class ServerStreamedCallInvoker(protected val method: Method,
 
 private class ClientStreamedCallInvoker(protected val method: Method,
                                         protected val serviceMethod: ResolvedServiceMethod[_, _],
-                                        protected val materializer: Materializer)
+                                        protected val materializer: Materializer,
+                                        protected val anySupport: AnySupport)
     extends UnaryOutSupport
     with StreamedInSupport {
 
@@ -420,7 +451,8 @@ private class ClientStreamedCallInvoker(protected val method: Method,
 
 private class StreamedCallInvoker(protected val method: Method,
                                   protected val serviceMethod: ResolvedServiceMethod[_, _],
-                                  protected val materializer: Materializer)
+                                  protected val materializer: Materializer,
+                                  protected val anySupport: AnySupport)
     extends StreamedOutSupport
     with StreamedInSupport {
 

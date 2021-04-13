@@ -298,13 +298,12 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       .getOrElseUpdate(
         typeDescriptor.getFullName,
         Try {
-          val maybeResolvedType = if (prefer == Prefer.Java) {
-            tryResolveJavaPbType(typeDescriptor) orElse
-            tryResolveScalaPbType(typeDescriptor)
-          } else {
-            tryResolveScalaPbType(typeDescriptor) orElse
-            tryResolveJavaPbType(typeDescriptor)
-          }
+          val maybeResolvedType =
+            if (prefer == Prefer.Java) {
+              tryResolveJavaPbType(typeDescriptor).orElse(tryResolveScalaPbType(typeDescriptor))
+            } else {
+              tryResolveScalaPbType(typeDescriptor).orElse(tryResolveJavaPbType(typeDescriptor))
+            }
 
           maybeResolvedType match {
             case Some(resolvedType) => resolvedType.asInstanceOf[ResolvedType[Any]]
@@ -335,7 +334,7 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
         Try {
           try {
             val jsonClass = classLoader.loadClass(jsonType)
-            if (jsonClass.getAnnotation(classOf[Jsonable]) == null) {
+            if (!jsonClass.isAnnotationPresent(classOf[Jsonable])) {
               throw SerializationException(
                 s"Illegal CloudEvents json class, no @Jsonable annotation is present: $jsonType"
               )
@@ -385,7 +384,7 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       case byteString: ByteString =>
         ScalaPbAny(BytesPrimitive.fullName, primitiveToBytes(BytesPrimitive, byteString))
 
-      case _: AnyRef if value.getClass.getAnnotation(classOf[Jsonable]) != null =>
+      case _: AnyRef if value.getClass.isAnnotationPresent(classOf[Jsonable]) =>
         val json = UnsafeByteOperations.unsafeWrap(objectMapper.writeValueAsBytes(value))
         ScalaPbAny(AkkaServerlessJson + value.getClass.getName, primitiveToBytes(BytesPrimitive, json))
 
@@ -434,10 +433,6 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           throw SerializationException("Unable to find descriptor for type: " + typeUrl)
       }
     }
-
-  def decodeProtobuf(typeDescriptor: Descriptors.Descriptor, any: ScalaPbAny) =
-    resolveTypeDescriptor(typeDescriptor).parseFrom(any.value)
-
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)
