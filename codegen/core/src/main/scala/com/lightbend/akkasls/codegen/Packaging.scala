@@ -19,43 +19,84 @@ case class FullyQualifiedName(
 }
 
 object FullyQualifiedName {
-  def from(descriptor: Descriptors.GenericDescriptor) =
+  def from(descriptor: Descriptors.GenericDescriptor) = {
+    val fileDescriptor = descriptor.getFile()
+
+    val packageNaming =
+      if (
+        fileDescriptor.getName() == s"google.protobuf.${descriptor.getName()}.placeholder.proto"
+      ) {
+        // In the case of placeholders for standard google types, we need to assume the package naming
+        // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
+        PackageNaming(
+          descriptor.getName(),
+          fileDescriptor.getPackage(),
+          Some(s"google.golang.org/protobuf/types/known/${descriptor.getName().toLowerCase}pb"),
+          Some(s"com.${fileDescriptor.getPackage()}"),
+          Some(s"${descriptor.getName()}Proto"),
+          true
+        )
+      } else PackageNaming.from(fileDescriptor)
     FullyQualifiedName(
       descriptor.getName(),
-      PackageNaming.from(descriptor.getFile())
+      packageNaming
     )
+  }
 }
 
 /**
   * The details of a package's naming, sufficient to construct fully qualified names in any target language
   */
 case class PackageNaming(
+    name: String,
     pkg: String,
     goPackage: Option[String],
     javaPackageOption: Option[String],
-    javaOuterClassname: Option[String]
+    javaOuterClassnameOption: Option[String],
+    javaMultipleFiles: Boolean
 ) {
-  lazy val javaPackage = javaPackageOption.getOrElse(pkg)
+  lazy val javaPackage        = javaPackageOption.getOrElse(pkg)
+  lazy val javaOuterClassname = javaOuterClassnameOption.getOrElse(name)
 }
 
 object PackageNaming {
   def from(descriptor: Descriptors.FileDescriptor) = {
-    val generalOptions = descriptor.getOptions.getAllFields.asScala
-    val goPackage = generalOptions
-      .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
-      .map(_._2.toString)
-    val javaPackage = generalOptions
-      .find(_._1.getFullName == "google.protobuf.FileOptions.java_package")
-      .map(_._2.toString)
-    val javaOuterClassname = generalOptions
-      .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
-      .map(_._2.toString)
+    val name =
+      descriptor
+        .getName()
+        .split('/')
+        .last
+        .reverse
+        .dropWhile(_ != '.')
+        .tail
+        .reverse
+        .split('_')
+        .map(s => s.headOption.fold("")(first => s"${first.toUpper.toString}${s.tail}"))
+        .mkString
+
+    val generalOptions = descriptor.getOptions.getAllFields.asScala.map {
+      case (fieldDescriptor, field) => (fieldDescriptor.getFullName(), field)
+    }
+
+    val goPackage = generalOptions.get("google.protobuf.FileOptions.go_package").map(_.toString())
+    val javaPackage =
+      generalOptions.get("google.protobuf.FileOptions.java_package").map(_.toString())
+
+    val javaOuterClassname =
+      generalOptions
+        .get("google.protobuf.FileOptions.java_outer_classname")
+        .map(_.toString())
+
+    val javaMultipleFiles =
+      generalOptions.get("google.protobuf.FileOptions.java_multiple_files").exists(_ == true)
 
     PackageNaming(
+      name,
       descriptor.getPackage(),
       goPackage,
       javaPackage,
-      javaOuterClassname
+      javaOuterClassname,
+      javaMultipleFiles
     )
   }
 }
