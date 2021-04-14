@@ -137,7 +137,7 @@ object SourceGenerator extends PrettyPrinter {
             ) <> line
           ) <> comma <> line <>
           dquotes(entity.serviceName.fullName) <> comma <> line <>
-          dquotes(name(entity.serviceName.fullName).toLowerCase()) <> comma <> line <>
+          dquotes(entity.serviceName.name.toLowerCase()) <> comma <> line <>
           braces(
             nest(
               line <>
@@ -167,14 +167,12 @@ object SourceGenerator extends PrettyPrinter {
           line <>
           ssep(
             entity.commands.toSeq.map { command =>
-              name(command.fullName) <> parens(
+              command.fqn.name <> parens(
                 "command, state, ctx"
               ) <+> braces(
                 nest(
                   line <>
-                  "ctx.fail(\"The command handler for `" <> name(
-                    command.fullName
-                  ) <> "` is not implemented, yet\")" <> semi
+                  "ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
                 ) <> line
               )
             },
@@ -227,7 +225,7 @@ object SourceGenerator extends PrettyPrinter {
       sourceDirectory: Path
   ): Document = {
 
-    val entityName = name(entity.serviceName.fullName).toLowerCase
+    val entityName = entity.serviceName.name.toLowerCase
     pretty(
       """import { MockEventSourcedEntity } from "./testkit.js"""" <> semi <> line <>
       """import { expect } from "chai"""" <> semi <> line <>
@@ -240,14 +238,14 @@ object SourceGenerator extends PrettyPrinter {
       line <>
 
       "describe" <> parens(
-        dquotes(name(entity.serviceName.fullName)) <> comma <+> arrowFn(
+        dquotes(entity.serviceName.name) <> comma <+> arrowFn(
           List.empty,
           "const" <+> "entityId" <+> equal <+> dquotes("entityId") <> semi <> line <>
           line <>
           ssep(
             entity.commands.map { command =>
               "describe" <> parens(
-                dquotes(name(command.fullName)) <> comma <+> arrowFn(
+                dquotes(command.fqn.name) <> comma <+> arrowFn(
                   List.empty,
                   "it" <> parens(
                     dquotes("should...") <> comma <+> arrowFn(
@@ -257,7 +255,7 @@ object SourceGenerator extends PrettyPrinter {
                       ) <> semi <> line <>
                       "// TODO: you may want to set fields in addition to the entity id" <> line <>
                       "// const result" <+> equal <+> "entity.handleCommand" <> parens(
-                        dquotes(name(command.fullName)) <> comma <+> braces(" entityId ")
+                        dquotes(command.fqn.name) <> comma <+> braces(" entityId ")
                       ) <> semi <> line <>
                       line <>
                       "// expect" <> parens(
@@ -296,21 +294,18 @@ object SourceGenerator extends PrettyPrinter {
     pretty(
       ssep(
         entities.map { case entity: ModelBuilder.EventSourcedEntity =>
-          val entityName = name(entity.serviceName.fullName).toLowerCase
+          val entityName = entity.serviceName.name.toLowerCase
           "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi
         }.toSeq,
         line
       ) <> line <> line <>
       ssep(
         entities.map { case entity: ModelBuilder.EventSourcedEntity =>
-          name(entity.serviceName.fullName).toLowerCase <> ".start()" <> semi
+          entity.serviceName.name.toLowerCase <> ".start()" <> semi
         }.toSeq,
         line
       )
     )
-
-  private def name(`type`: String): String =
-    `type`.reverse.takeWhile(_ != '.').reverse
 
   private def lowerFirst(text: String): String =
     text.headOption match {

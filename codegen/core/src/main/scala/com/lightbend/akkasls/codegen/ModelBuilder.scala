@@ -39,7 +39,7 @@ object ModelBuilder {
     * A command is used to express the intention to alter the state of an Entity.
     */
   case class Command(
-      fullName: String,
+      fqn: FullyQualifiedName,
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName
   )
@@ -93,18 +93,15 @@ object ModelBuilder {
           .map(resolveFullName(_, service.getFile().getPackage()))
           .flatMap(entities.get)
           .map { entity =>
-            val serviceName = FullyQualifiedName(
-              service.getName,
-              PackageNaming.fromFileDescriptor(service.getFile())
-            )
-            val entityType = service.getName
-            val methods    = service.getMethods.asScala
+            val serviceName = FullyQualifiedName.from(service)
+            val entityType  = service.getName
+            val methods     = service.getMethods.asScala
             val commands =
               methods.map(method =>
                 Command(
-                  method.getFullName,
-                  FullyQualifiedName.fromDescriptor(method.getInputType),
-                  FullyQualifiedName.fromDescriptor(method.getOutputType)
+                  FullyQualifiedName.from(method),
+                  FullyQualifiedName.from(method.getInputType),
+                  FullyQualifiedName.from(method.getOutputType)
                 )
               )
 
@@ -166,7 +163,7 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getEventSourcedEntity()
 
-    val protoReference = PackageNaming.fromFileDescriptor(descriptor)
+    val protoReference = PackageNaming.from(descriptor)
 
     Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
       val fullName = s"${descriptor.getPackage()}.${name}"

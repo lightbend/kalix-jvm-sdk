@@ -19,10 +19,10 @@ case class FullyQualifiedName(
 }
 
 object FullyQualifiedName {
-  def fromDescriptor(descriptor: Descriptors.Descriptor) =
+  def from(descriptor: Descriptors.GenericDescriptor) =
     FullyQualifiedName(
       descriptor.getName(),
-      PackageNaming.fromFileDescriptor(descriptor.getFile())
+      PackageNaming.from(descriptor.getFile())
     )
 }
 
@@ -39,7 +39,7 @@ case class PackageNaming(
 }
 
 object PackageNaming {
-  def fromFileDescriptor(descriptor: Descriptors.FileDescriptor) = {
+  def from(descriptor: Descriptors.FileDescriptor) = {
     val generalOptions = descriptor.getOptions.getAllFields.asScala
     val goPackage = generalOptions
       .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")

@@ -69,12 +69,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
             Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
             List(
               ModelBuilder.Command(
-                "com.example.service.MyService.Set",
+                FullyQualifiedName("Set", service1Proto),
                 FullyQualifiedName("SetValue", service1Proto),
                 FullyQualifiedName("protobuf.Empty", service1Proto)
               ),
               ModelBuilder.Command(
-                "com.example.service.MyService.Get",
+                FullyQualifiedName("Get", service1Proto),
                 FullyQualifiedName("GetValue", service1Proto),
                 FullyQualifiedName("MyState", service1Proto)
               )
@@ -87,12 +87,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
             Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
             List(
               ModelBuilder.Command(
-                "com.example.service.MyService.Set",
+                FullyQualifiedName("Set", service2Proto),
                 FullyQualifiedName("SetValue", service2Proto),
                 FullyQualifiedName("protobuf.Empty", service2Proto)
               ),
               ModelBuilder.Command(
-                "com.example.service.MyService.Get",
+                FullyQualifiedName("Get", service2Proto),
                 FullyQualifiedName("GetValue", service2Proto),
                 FullyQualifiedName("MyState", service2Proto)
               )
@@ -105,12 +105,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
             Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
             List(
               ModelBuilder.Command(
-                "com.example.service.MyService.Set",
+                FullyQualifiedName("Set", service3Proto),
                 FullyQualifiedName("SetValue", service3Proto),
                 FullyQualifiedName("protobuf.Empty", service3Proto)
               ),
               ModelBuilder.Command(
-                "com.example.service.MyService.Get",
+                FullyQualifiedName("Get", service3Proto),
                 FullyQualifiedName("GetValue", service3Proto),
                 FullyQualifiedName("MyState", service3Proto)
               )
@@ -180,12 +180,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
-          "com.example.service.MyService.Set",
+          FullyQualifiedName("Set", serviceProto),
           FullyQualifiedName("SetValue", serviceProto),
           FullyQualifiedName("Empty", externalProto)
         ),
         ModelBuilder.Command(
-          "com.example.service.MyService.Get",
+          FullyQualifiedName("Get", serviceProto),
           FullyQualifiedName("GetValue", serviceProto),
           FullyQualifiedName("MyState", serviceProto)
         )
@@ -271,12 +271,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
-          "com.example.service.MyService.Set",
+          FullyQualifiedName("Set", serviceProto),
           FullyQualifiedName("SetValue", serviceProto),
           FullyQualifiedName("protobuf.Empty", serviceProto)
         ),
         ModelBuilder.Command(
-          "com.example.service.MyService.Get",
+          FullyQualifiedName("Get", serviceProto),
           FullyQualifiedName("GetValue", serviceProto),
           FullyQualifiedName("MyState", serviceProto)
         )
@@ -367,12 +367,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
         List(
           ModelBuilder.Command(
-            "com.example.service.MyService.Set",
+            FullyQualifiedName("Set", service1Proto),
             FullyQualifiedName("SetValue", service1Proto),
             FullyQualifiedName("protobuf.Empty", service1Proto)
           ),
           ModelBuilder.Command(
-            "com.example.service.MyService.Get",
+            FullyQualifiedName("Get", service1Proto),
             FullyQualifiedName("GetValue", service1Proto),
             FullyQualifiedName("MyState", service1Proto)
           )
@@ -385,12 +385,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
         List(
           ModelBuilder.Command(
-            "com.example.service.MyService.Set",
+            FullyQualifiedName("Set", service2Proto),
             FullyQualifiedName("SetValue", service2Proto),
             FullyQualifiedName("protobuf.Empty", service2Proto)
           ),
           ModelBuilder.Command(
-            "com.example.service.MyService.Get",
+            FullyQualifiedName("Get", service2Proto),
             FullyQualifiedName("GetValue", service2Proto),
             FullyQualifiedName("MyState", service2Proto)
           )
@@ -403,12 +403,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
         List(
           ModelBuilder.Command(
-            "com.example.service.MyService.Set",
+            FullyQualifiedName("Set", service3Proto),
             FullyQualifiedName("SetValue", service3Proto),
             FullyQualifiedName("protobuf.Empty", service3Proto)
           ),
           ModelBuilder.Command(
-            "com.example.service.MyService.Get",
+            FullyQualifiedName("Get", service3Proto),
             FullyQualifiedName("GetValue", service3Proto),
             FullyQualifiedName("MyState", service3Proto)
           )
@@ -478,12 +478,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
-          "com.example.service.MyService.Set",
+          FullyQualifiedName("Set", serviceProto),
           FullyQualifiedName("SetValue", serviceProto),
           FullyQualifiedName("protobuf.Empty", serviceProto)
         ),
         ModelBuilder.Command(
-          "com.example.service.MyService.Get",
+          FullyQualifiedName("Get", serviceProto),
           FullyQualifiedName("GetValue", serviceProto),
           FullyQualifiedName("MyState", serviceProto)
         )
