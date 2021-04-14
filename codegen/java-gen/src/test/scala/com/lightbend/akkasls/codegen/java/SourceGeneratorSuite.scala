@@ -246,12 +246,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @CommandHandler
       |    public Empty set(OuterClass.SetValue command, CommandContext ctx) {
-      |        throw new RuntimeException("The command handler for `Set` is not implemented, yet");
+      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @CommandHandler
       |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
-      |        throw new RuntimeException("The command handler for `Get` is not implemented, yet");
+      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |    
       |    @EventHandler
