@@ -196,14 +196,6 @@
       <name>bintray</name>
       <url>https://lightbend.bintray.com/akkaserverless</url>
     </repository>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>bintray-lightbend-akkaserverless-snapshots</id>
-      <name>bintray-snapshots</name>
-      <url>https://lightbend.bintray.com/akkaserverless-snapshots</url>
-    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -221,7 +213,7 @@
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk</artifactId>
-      <version>0.7.0-pre-ebf5e9ea</version>
+      <version>0.7.0-beta.1</version>
     </dependency>
     <dependency> 
       <groupId>junit</groupId>
