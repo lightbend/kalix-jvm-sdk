@@ -182,16 +182,14 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               qualifiedType(command.outputType),
-              lowerFirst(name(command.fullName)),
+              lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
                 "CommandContext" <+> "ctx"
               ),
               emptyDoc
             ) {
-              "throw new RuntimeException(\"The command handler for `" <> name(
-                command.fullName
-              ) <> "` is not implemented, yet\")" <> semi
+              "throw new RuntimeException(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
@@ -255,7 +253,7 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               "void",
-              lowerFirst(name(command.fullName)) + "Test",
+              lowerFirst(command.fqn.name) + "Test",
               List.empty,
               emptyDoc
             ) {
@@ -263,7 +261,7 @@ object SourceGenerator extends PrettyPrinter {
               line <>
               "// TODO: you may want to set fields in addition to the entity id" <> line <>
               "//" <> indent(
-                "entity" <> dot <> lowerFirst(name(command.fullName)) <> parens(
+                "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
                   qualifiedType(
                     command.inputType
                   ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
@@ -378,11 +376,8 @@ object SourceGenerator extends PrettyPrinter {
     modifier <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+> postModifier <>
     braces(nest(line <> body) <> line)
 
-  private def name(`type`: String): String =
-    `type`.reverse.takeWhile(_ != '.').reverse
-
   private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
-    fullyQualifiedName.parent.javaOuterClassname.fold("")(_ + ".") + name(fullyQualifiedName.name)
+    fullyQualifiedName.parent.javaOuterClassname.fold("")(_ + ".") + fullyQualifiedName.name
 
   private def typeImport(fullyQualifiedName: FullyQualifiedName): String =
     s"${fullyQualifiedName.parent.javaPackage}.${fullyQualifiedName.parent.javaOuterClassname

@@ -71,17 +71,17 @@ class ModelBuilderSuite extends munit.FunSuite {
             Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
             List(
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.AddItem",
+                FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
                 FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.RemoveItem",
+                FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
                 FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.GetCart",
+                FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
                 FullyQualifiedName("Cart", shoppingCartProto)
               )

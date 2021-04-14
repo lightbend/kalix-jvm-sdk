@@ -49,12 +49,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some(ModelBuilder.State(FullyQualifiedName("State1", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
+                  FullyQualifiedName("Set", protoRef),
                   FullyQualifiedName("SetValue", protoRef),
                   FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
+                  FullyQualifiedName("Get", protoRef),
                   FullyQualifiedName("GetValue", protoRef),
                   FullyQualifiedName("MyState", protoRef)
                 )
@@ -67,12 +67,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some(ModelBuilder.State(FullyQualifiedName("State2", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
+                  FullyQualifiedName("Set", protoRef),
                   FullyQualifiedName("SetValue", protoRef),
                   FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
+                  FullyQualifiedName("Get", protoRef),
                   FullyQualifiedName("GetValue", protoRef),
                   FullyQualifiedName("MyState", protoRef)
                 )
@@ -85,12 +85,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
               Some(ModelBuilder.State(FullyQualifiedName("State3", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
+                  FullyQualifiedName("Set", protoRef),
                   FullyQualifiedName("SetValue", protoRef),
                   FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
+                  FullyQualifiedName("Get", protoRef),
                   FullyQualifiedName("GetValue", protoRef),
                   FullyQualifiedName("MyState", protoRef)
                 )
@@ -138,12 +138,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Set",
+          FullyQualifiedName("Set", protoRef),
           FullyQualifiedName("SetValue", protoRef),
           FullyQualifiedName("Empty", protoRef)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Get",
+          FullyQualifiedName("Get", protoRef),
           FullyQualifiedName("GetValue", protoRef),
           FullyQualifiedName("MyState", protoRef)
         )
@@ -213,12 +213,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
+            FullyQualifiedName("Set", protoRef),
             FullyQualifiedName("SetValue", protoRef),
             FullyQualifiedName("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
+            FullyQualifiedName("Get", protoRef),
             FullyQualifiedName("GetValue", protoRef),
             FullyQualifiedName("MyState", protoRef)
           )
@@ -275,12 +275,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
+            FullyQualifiedName("Set", protoRef),
             FullyQualifiedName("SetValue", protoRef),
             FullyQualifiedName("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
+            FullyQualifiedName("Get", protoRef),
             FullyQualifiedName("GetValue", protoRef),
             FullyQualifiedName("MyState", protoRef)
           )
