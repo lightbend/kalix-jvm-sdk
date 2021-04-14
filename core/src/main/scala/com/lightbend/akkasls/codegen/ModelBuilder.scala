@@ -30,9 +30,9 @@ object ModelBuilder {
   case class EventSourcedEntity(
       override val serviceName: FullyQualifiedName,
       entityType: String,
-      state: Option[FullyQualifiedName],
+      state: Option[State],
       commands: Iterable[Command],
-      events: Iterable[FullyQualifiedName]
+      events: Iterable[Event]
   ) extends Entity(serviceName)
 
   /**
@@ -43,6 +43,19 @@ object ModelBuilder {
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName
   )
+
+  /**
+    * An event indicates that a change has occurred to an entity. Events are stored in a journal,
+    * and are read and replayed each time the entity is reloaded by the Akka Serverless state
+    * management system.
+    */
+  case class Event(fqn: FullyQualifiedName)
+
+  /**
+    * The state is simply data—​the current set of values for an entity instance.
+    * Event Sourced entities hold their state in memory.
+    */
+  case class State(fqn: FullyQualifiedName)
 
   /**
     * Given a protobuf descriptor, discover the Cloudstate entities and their properties.
@@ -132,8 +145,8 @@ object ModelBuilder {
     */
   private case class EventSourcedEntityDefinition(
       fullName: String,
-      events: Iterable[FullyQualifiedName],
-      state: Option[FullyQualifiedName]
+      events: Iterable[Event],
+      state: Option[State]
   )
 
   /**
@@ -162,10 +175,10 @@ object ModelBuilder {
         rawEntity
           .getEventList()
           .asScala
-          .map(event => FullyQualifiedName(event.getType(), protoReference)),
+          .map(event => Event(FullyQualifiedName(event.getType(), protoReference))),
         Option(rawEntity.getState().getType())
           .filter(_.nonEmpty)
-          .map(FullyQualifiedName(_, protoReference))
+          .map(name => State(FullyQualifiedName(name, protoReference)))
       )
     }
   }

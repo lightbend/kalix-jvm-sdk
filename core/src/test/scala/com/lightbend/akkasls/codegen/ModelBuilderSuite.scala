@@ -68,7 +68,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             "ShoppingCartService",
-            Some(FullyQualifiedName("Cart", domainProto)),
+            Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
             List(
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.AddItem",
@@ -87,8 +87,8 @@ class ModelBuilderSuite extends munit.FunSuite {
               )
             ),
             List(
-              FullyQualifiedName("ItemAdded", domainProto),
-              FullyQualifiedName("ItemRemoved", domainProto)
+              ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
+              ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
             )
           )
         )

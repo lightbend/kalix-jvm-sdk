@@ -46,7 +46,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
             ModelBuilder.EventSourcedEntity(
               FullyQualifiedName("MyService1", protoRef),
               "MyService1",
-              Some(FullyQualifiedName("State1", protoRef)),
+              Some(ModelBuilder.State(FullyQualifiedName("State1", protoRef))),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -64,7 +64,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
             ModelBuilder.EventSourcedEntity(
               FullyQualifiedName("MyService2", protoRef),
               "MyService2",
-              Some(FullyQualifiedName("State2", protoRef)),
+              Some(ModelBuilder.State(FullyQualifiedName("State2", protoRef))),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -82,7 +82,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
             ModelBuilder.EventSourcedEntity(
               FullyQualifiedName("MyService3", protoRef),
               "MyService3",
-              Some(FullyQualifiedName("State3", protoRef)),
+              Some(ModelBuilder.State(FullyQualifiedName("State3", protoRef))),
               List(
                 ModelBuilder.Command(
                   "com.lightbend.MyService.Set",
@@ -135,7 +135,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val entity = ModelBuilder.EventSourcedEntity(
       FullyQualifiedName("MyServiceEntity", protoRef),
       "MyServiceEntity",
-      Some(FullyQualifiedName("MyState", protoRef)),
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
       List(
         ModelBuilder.Command(
           "com.lightbend.MyServiceEntity.Set",
@@ -149,7 +149,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         )
       ),
       List(
-        FullyQualifiedName("SetEvent", protoRef)
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", protoRef))
       )
     )
 
@@ -210,7 +210,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.EventSourcedEntity(
         FullyQualifiedName("MyService1", protoRef),
         "MyService1",
-        Some(FullyQualifiedName("MyState", protoRef)),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
@@ -272,7 +272,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.EventSourcedEntity(
         FullyQualifiedName("MyService1", protoRef),
         "MyService1",
-        Some(FullyQualifiedName("MyState", protoRef)),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
             "com.lightbend.MyService.Set",
