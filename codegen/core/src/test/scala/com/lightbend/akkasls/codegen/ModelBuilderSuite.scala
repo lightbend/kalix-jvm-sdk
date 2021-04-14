@@ -35,8 +35,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       )
 
       val shoppingCartProto =
-        ModelBuilder.ProtoReference(
-          "shoppingcart.proto",
+        PackageNaming(
           "com.example.shoppingcart",
           Some(
             "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"
@@ -46,8 +45,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         )
 
       val domainProto =
-        ModelBuilder.ProtoReference(
-          "persistence/domain.proto",
+        PackageNaming(
           "com.example.shoppingcart.persistence",
           Some(
             "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart/persistence;persistence"
@@ -57,8 +55,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         )
 
       val googleEmptyProto =
-        ModelBuilder.ProtoReference(
-          "google.protobuf.Empty.placeholder.proto",
+        PackageNaming(
           "google.protobuf",
           None,
           None,
@@ -69,30 +66,29 @@ class ModelBuilderSuite extends munit.FunSuite {
         entities,
         List(
           ModelBuilder.EventSourcedEntity(
-            shoppingCartProto,
-            "com.example.shoppingcart.ShoppingCartService",
+            FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             "ShoppingCartService",
-            Some(ModelBuilder.TypeReference("Cart", domainProto)),
+            Some(FullyQualifiedName("Cart", domainProto)),
             List(
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.AddItem",
-                ModelBuilder.TypeReference("AddLineItem", shoppingCartProto),
-                ModelBuilder.TypeReference("Empty", googleEmptyProto)
+                FullyQualifiedName("AddLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.RemoveItem",
-                ModelBuilder.TypeReference("RemoveLineItem", shoppingCartProto),
-                ModelBuilder.TypeReference("Empty", googleEmptyProto)
+                FullyQualifiedName("RemoveLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
                 "com.example.shoppingcart.ShoppingCartService.GetCart",
-                ModelBuilder.TypeReference("GetShoppingCart", shoppingCartProto),
-                ModelBuilder.TypeReference("Cart", shoppingCartProto)
+                FullyQualifiedName("GetShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Cart", shoppingCartProto)
               )
             ),
             List(
-              ModelBuilder.TypeReference("ItemAdded", domainProto),
-              ModelBuilder.TypeReference("ItemRemoved", domainProto)
+              FullyQualifiedName("ItemAdded", domainProto),
+              FullyQualifiedName("ItemRemoved", domainProto)
             )
           )
         )
@@ -101,19 +97,14 @@ class ModelBuilderSuite extends munit.FunSuite {
   }
 
   test("deriving java package from proto options") {
-    val fileName = "subdirectory/my_file.proto";
-    val pkg      = "com.example"
+    val pkg = "com.example"
 
     assertEquals(
-      ModelBuilder
-        .ProtoReference(fileName, pkg, None, None, None)
-        .javaPackage,
+      PackageNaming(pkg, None, None, None).javaPackage,
       pkg
     )
     assertEquals(
-      ModelBuilder
-        .ProtoReference(fileName, pkg, None, Some("override.package"), None)
-        .javaPackage,
+      PackageNaming(pkg, None, Some("override.package"), None).javaPackage,
       "override.package"
     )
   }
