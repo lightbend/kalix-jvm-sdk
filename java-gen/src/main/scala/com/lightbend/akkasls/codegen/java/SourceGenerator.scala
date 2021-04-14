@@ -289,7 +289,7 @@ object SourceGenerator extends PrettyPrinter {
       (
         Option(entity.serviceName.parent.javaPackage).filterNot(_ == mainClassPackageName),
         entity.serviceName.name,
-        entity.serviceName.parent.javaOuterClassname
+        entity.serviceName.parent.javaOuterClassnameOption
       )
     }
 
@@ -377,11 +377,15 @@ object SourceGenerator extends PrettyPrinter {
     braces(nest(line <> body) <> line)
 
   private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
-    fullyQualifiedName.parent.javaOuterClassname.fold("")(_ + ".") + fullyQualifiedName.name
+    if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
+    else s"${fullyQualifiedName.parent.javaOuterClassname}.${fullyQualifiedName.name}"
 
-  private def typeImport(fullyQualifiedName: FullyQualifiedName): String =
-    s"${fullyQualifiedName.parent.javaPackage}.${fullyQualifiedName.parent.javaOuterClassname
-      .getOrElse(fullyQualifiedName.name)}"
+  private def typeImport(fullyQualifiedName: FullyQualifiedName): String = {
+    val name =
+      if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
+      else fullyQualifiedName.parent.javaOuterClassname
+    s"${fullyQualifiedName.parent.javaPackage}.${name}"
+  }
 
   private def lowerFirst(text: String): String =
     text.headOption match {
