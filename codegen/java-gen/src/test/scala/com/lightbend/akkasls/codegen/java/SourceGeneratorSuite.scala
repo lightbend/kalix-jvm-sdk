@@ -66,7 +66,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             FullyQualifiedName("MyService1", service1Proto),
             "MyService1",
-            Some(FullyQualifiedName("MyState", domainProto)),
+            Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
             List(
               ModelBuilder.Command(
                 "com.example.service.MyService.Set",
@@ -84,7 +84,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             FullyQualifiedName("MyService2", service2Proto),
             "MyService2",
-            Some(FullyQualifiedName("MyState2", domainProto)),
+            Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
             List(
               ModelBuilder.Command(
                 "com.example.service.MyService.Set",
@@ -102,7 +102,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           ModelBuilder.EventSourcedEntity(
             FullyQualifiedName("MyService3", service3Proto),
             "MyService3",
-            Some(FullyQualifiedName("MyState3", domainProto)),
+            Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
             List(
               ModelBuilder.Command(
                 "com.example.service.MyService.Set",
@@ -177,7 +177,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val entity = ModelBuilder.EventSourcedEntity(
       FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(FullyQualifiedName("MyState", domainProto)),
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
           "com.example.service.MyService.Set",
@@ -191,7 +191,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         )
       ),
       List(
-        FullyQualifiedName("SetEvent", domainProto)
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
       )
     )
 
@@ -268,7 +268,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val entity = ModelBuilder.EventSourcedEntity(
       FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(FullyQualifiedName("MyState", domainProto)),
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
           "com.example.service.MyService.Set",
@@ -364,7 +364,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.EventSourcedEntity(
         FullyQualifiedName("MyService1", service1Proto),
         "MyService1",
-        Some(FullyQualifiedName("MyState", domainProto)),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
         List(
           ModelBuilder.Command(
             "com.example.service.MyService.Set",
@@ -382,7 +382,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.EventSourcedEntity(
         FullyQualifiedName("MyService2", service2Proto),
         "MyService2",
-        Some(FullyQualifiedName("MyState2", domainProto)),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
         List(
           ModelBuilder.Command(
             "com.example.service.MyService.Set",
@@ -400,7 +400,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.EventSourcedEntity(
         FullyQualifiedName("MyService3", service3Proto),
         "MyService3",
-        Some(FullyQualifiedName("MyState3", domainProto)),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
         List(
           ModelBuilder.Command(
             "com.example.service.MyService.Set",
@@ -475,7 +475,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val entity = ModelBuilder.EventSourcedEntity(
       FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(FullyQualifiedName("MyState", domainProto)),
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Command(
           "com.example.service.MyService.Set",

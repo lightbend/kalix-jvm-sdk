@@ -108,9 +108,10 @@ object SourceGenerator extends PrettyPrinter {
       packageName: String,
       className: String
   ): Document = {
-    val messageTypes = entity.state.toSeq ++ entity.events ++ entity.commands.flatMap(command =>
-      Seq(command.inputType, command.outputType)
-    )
+    val messageTypes =
+      entity.state.toSeq.map(_.fqn) ++ entity.events.map(_.fqn) ++ entity.commands.flatMap(
+        command => Seq(command.inputType, command.outputType)
+      )
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -147,14 +148,14 @@ object SourceGenerator extends PrettyPrinter {
             line <>
             method(
               "public",
-              qualifiedType(state),
+              qualifiedType(state.fqn),
               "snapshot",
               List.empty,
               emptyDoc
             ) {
               "// TODO: produce state snapshot here" <> line <>
               "return" <+> qualifiedType(
-                state
+                state.fqn
               ) <> dot <> "newBuilder().build()" <> semi
             } <> line <>
             line <>
@@ -165,7 +166,7 @@ object SourceGenerator extends PrettyPrinter {
               "void",
               "handleSnapshot",
               List(
-                qualifiedType(state) <+> "snapshot"
+                qualifiedType(state.fqn) <+> "snapshot"
               ),
               emptyDoc
             ) {
@@ -203,13 +204,13 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               "void",
-              lowerFirst(event.name),
+              lowerFirst(event.fqn.name),
               List(
-                qualifiedType(event) <+> "event"
+                qualifiedType(event.fqn) <+> "event"
               ),
               emptyDoc
             ) {
-              "throw new RuntimeException(\"The event handler for `" <> event.name <> "` is not implemented, yet\")" <> semi
+              "throw new RuntimeException(\"The event handler for `" <> event.fqn.name <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
