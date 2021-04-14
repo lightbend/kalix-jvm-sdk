@@ -189,7 +189,7 @@ object SourceGenerator extends PrettyPrinter {
               ),
               emptyDoc
             ) {
-              "throw new RuntimeException(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
+              "throw ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
