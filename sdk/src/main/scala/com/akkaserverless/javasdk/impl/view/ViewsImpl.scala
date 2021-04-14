@@ -127,16 +127,14 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   private def replyToOut(reply: Optional[JavaPbAny], receiveEvent: pv.ReceiveEvent): pv.ViewStreamOut = {
     val table = receiveEvent.initialTable
     val key = receiveEvent.key
-    if (reply.isPresent) {
-      val outMessage = pv.ViewStreamOut.Message.Upsert(
+    val upsert =
+      if (reply.isPresent) {
         pv.Upsert(Some(pv.Row(table, key, Some(ScalaPbAny.fromJavaProto(reply.get)))))
-      )
-      pv.ViewStreamOut(outMessage)
-    } else {
-      // FIXME it should be possible to ignore the event without new Upsert
-      pv.Upsert(Some(pv.Row(table, key, receiveEvent.payload)))
-      throw new IllegalArgumentException("Empty reply not supported yet.")
-    }
+      } else {
+        // ignore incoming event
+        pv.Upsert(None)
+      }
+    pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
   }
 
   trait AbstractContext extends ViewContext {
