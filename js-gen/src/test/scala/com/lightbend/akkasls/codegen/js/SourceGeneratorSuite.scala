@@ -10,6 +10,13 @@ import java.nio.file.{ Files, Paths }
 import org.apache.commons.io.FileUtils
 
 class SourceGeneratorSuite extends munit.FunSuite {
+  val protoRef =
+    PackageNaming(
+      "com.example.service",
+      None,
+      None,
+      None
+    )
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
     try {
@@ -37,61 +44,55 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
           val entities = List(
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity1"),
-              "com.lightbend.MyService1",
+              FullyQualifiedName("MyService1", protoRef),
               "MyService1",
-              Some("com.lightbend.State1"),
+              Some(ModelBuilder.State(FullyQualifiedName("State1", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  FullyQualifiedName("Set", protoRef),
+                  FullyQualifiedName("SetValue", protoRef),
+                  FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  FullyQualifiedName("Get", protoRef),
+                  FullyQualifiedName("GetValue", protoRef),
+                  FullyQualifiedName("MyState", protoRef)
                 )
               ),
               List.empty
             ),
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity2"),
-              "com.lightbend.MyService2",
+              FullyQualifiedName("MyService2", protoRef),
               "MyService2",
-              Some("com.lightbend.State2"),
+              Some(ModelBuilder.State(FullyQualifiedName("State2", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  FullyQualifiedName("Set", protoRef),
+                  FullyQualifiedName("SetValue", protoRef),
+                  FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  FullyQualifiedName("Get", protoRef),
+                  FullyQualifiedName("GetValue", protoRef),
+                  FullyQualifiedName("MyState", protoRef)
                 )
               ),
               List.empty
             ),
             ModelBuilder.EventSourcedEntity(
-              Some("com/lightbend"),
-              Some("MyEntity3"),
-              "com.lightbend.something.MyService3",
+              FullyQualifiedName("MyService3", protoRef),
               "MyService3",
-              Some("com.lightbend.State3"),
+              Some(ModelBuilder.State(FullyQualifiedName("State3", protoRef))),
               List(
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Set",
-                  "com.lightbend.SetValue",
-                  "com.google.protobuf.Empty"
+                  FullyQualifiedName("Set", protoRef),
+                  FullyQualifiedName("SetValue", protoRef),
+                  FullyQualifiedName("Empty", protoRef)
                 ),
                 ModelBuilder.Command(
-                  "com.lightbend.MyService.Get",
-                  "com.lightbend.GetValue",
-                  "com.lightbend.MyState"
+                  FullyQualifiedName("Get", protoRef),
+                  FullyQualifiedName("GetValue", protoRef),
+                  FullyQualifiedName("MyState", protoRef)
                 )
               ),
               List.empty
@@ -132,25 +133,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("source") {
     val entity = ModelBuilder.EventSourcedEntity(
-      Some("com/lightbend"),
-      Some("MyEntity"),
-      "com.lightbend.MyServiceEntity",
+      FullyQualifiedName("MyServiceEntity", protoRef),
       "MyServiceEntity",
-      Some("com.lightbend.MyState"),
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Set",
-          "com.lightbend.SetValue",
-          "google.protobuf.Empty"
+          FullyQualifiedName("Set", protoRef),
+          FullyQualifiedName("SetValue", protoRef),
+          FullyQualifiedName("Empty", protoRef)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyServiceEntity.Get",
-          "com.lightbend.GetValue",
-          "com.lightbend.MyState"
+          FullyQualifiedName("Get", protoRef),
+          FullyQualifiedName("GetValue", protoRef),
+          FullyQualifiedName("MyState", protoRef)
         )
       ),
       List(
-        "com.lightbend.SetEvent"
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", protoRef))
       )
     )
 
@@ -169,7 +168,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    "myentity1.proto",
         |    "someother.proto"
         |  ],
-        |  "com.lightbend.MyServiceEntity",
+        |  "com.example.service.MyServiceEntity",
         |  "myserviceentity",
         |  {
         |    includeDirs: ["./src/proto"],
@@ -209,21 +208,19 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("test source") {
     val entity =
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity1"),
-        "com.lightbend.MyService1",
+        FullyQualifiedName("MyService1", protoRef),
         "MyService1",
-        Some("com.lightbend.MyState"),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            FullyQualifiedName("Set", protoRef),
+            FullyQualifiedName("SetValue", protoRef),
+            FullyQualifiedName("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            FullyQualifiedName("Get", protoRef),
+            FullyQualifiedName("GetValue", protoRef),
+            FullyQualifiedName("MyState", protoRef)
           )
         ),
         List.empty
@@ -273,21 +270,19 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("index source") {
     val entities = List(
       ModelBuilder.EventSourcedEntity(
-        Some("com/lightbend"),
-        Some("MyEntity1"),
-        "com.lightbend.MyService1",
+        FullyQualifiedName("MyService1", protoRef),
         "MyService1",
-        Some("com.lightbend.MyState"),
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            "com.lightbend.SetValue",
-            "com.google.protobuf.Empty"
+            FullyQualifiedName("Set", protoRef),
+            FullyQualifiedName("SetValue", protoRef),
+            FullyQualifiedName("protobuf.Empty", protoRef)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            "com.lightbend.GetValue",
-            "com.lightbend.MyState"
+            FullyQualifiedName("Get", protoRef),
+            FullyQualifiedName("GetValue", protoRef),
+            FullyQualifiedName("MyState", protoRef)
           )
         ),
         List.empty

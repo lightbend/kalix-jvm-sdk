@@ -15,10 +15,12 @@ object ModelBuilder {
 
   /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
+    *
+    * @param serviceName the fully qualified name of the protobuf service we are generating the implementation for
+    *  The true service to entity relationship isn't upheld by this code at this point.
     */
   sealed abstract class Entity(
-      val goPackage: Option[String],
-      val javaOuterClassname: Option[String]
+      val serviceName: FullyQualifiedName
   )
 
   /**
@@ -26,19 +28,34 @@ object ModelBuilder {
     * by replaying that journal.
     */
   case class EventSourcedEntity(
-      override val goPackage: Option[String],
-      override val javaOuterClassname: Option[String],
-      fullName: String,
+      override val serviceName: FullyQualifiedName,
       entityType: String,
-      state: Option[String],
+      state: Option[State],
       commands: Iterable[Command],
-      events: Iterable[String]
-  ) extends Entity(goPackage, javaOuterClassname)
+      events: Iterable[Event]
+  ) extends Entity(serviceName)
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
     */
-  case class Command(fullname: String, inputType: String, outputType: String)
+  case class Command(
+      fqn: FullyQualifiedName,
+      inputType: FullyQualifiedName,
+      outputType: FullyQualifiedName
+  )
+
+  /**
+    * An event indicates that a change has occurred to an entity. Events are stored in a journal,
+    * and are read and replayed each time the entity is reloaded by the Akka Serverless state
+    * management system.
+    */
+  case class Event(fqn: FullyQualifiedName)
+
+  /**
+    * The state is simply data—​the current set of values for an entity instance.
+    * Event Sourced entities hold their state in memory.
+    */
+  case class State(fqn: FullyQualifiedName)
 
   /**
     * Given a protobuf descriptor, discover the Cloudstate entities and their properties.
@@ -76,29 +93,20 @@ object ModelBuilder {
           .map(resolveFullName(_, service.getFile().getPackage()))
           .flatMap(entities.get)
           .map { entity =>
-            val generalOptions = service.getFile.getOptions.getAllFields.asScala
-            val javaOuterClassName = generalOptions
-              .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
-              .map(_._2.toString)
-            val goPackage = generalOptions
-              .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
-              .map(_._2.toString)
-
-            val entityType = service.getName
-            val methods    = service.getMethods.asScala
+            val serviceName = FullyQualifiedName.from(service)
+            val entityType  = service.getName
+            val methods     = service.getMethods.asScala
             val commands =
               methods.map(method =>
                 Command(
-                  method.getFullName,
-                  method.getInputType.getFullName,
-                  method.getOutputType.getFullName
+                  FullyQualifiedName.from(method),
+                  FullyQualifiedName.from(method.getInputType),
+                  FullyQualifiedName.from(method.getOutputType)
                 )
               )
 
             EventSourcedEntity(
-              goPackage,
-              javaOuterClassName,
-              service.getFullName,
+              serviceName,
               entityType,
               entity.state,
               commands,
@@ -134,8 +142,8 @@ object ModelBuilder {
     */
   private case class EventSourcedEntityDefinition(
       fullName: String,
-      events: Iterable[String],
-      state: Option[String]
+      events: Iterable[Event],
+      state: Option[State]
   )
 
   /**
@@ -155,6 +163,8 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getEventSourcedEntity()
 
+    val protoReference = PackageNaming.from(descriptor)
+
     Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
       val fullName = s"${descriptor.getPackage()}.${name}"
       EventSourcedEntityDefinition(
@@ -162,9 +172,10 @@ object ModelBuilder {
         rawEntity
           .getEventList()
           .asScala
-          .map(event => resolveFullName(event.getType(), descriptor.getPackage())),
-        Option(resolveFullName(rawEntity.getState().getType(), descriptor.getPackage()))
+          .map(event => Event(FullyQualifiedName(event.getType(), protoReference))),
+        Option(rawEntity.getState().getType())
           .filter(_.nonEmpty)
+          .map(name => State(FullyQualifiedName(name, protoReference)))
       )
     }
   }

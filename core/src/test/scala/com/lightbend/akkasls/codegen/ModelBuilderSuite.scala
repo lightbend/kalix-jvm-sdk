@@ -34,40 +34,79 @@ class ModelBuilderSuite extends munit.FunSuite {
         descriptors
       )
 
+      val shoppingCartProto =
+        PackageNaming(
+          "com.example.shoppingcart",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"
+          ),
+          None,
+          Some("ShoppingCart")
+        )
+
+      val domainProto =
+        PackageNaming(
+          "com.example.shoppingcart.persistence",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart/persistence;persistence"
+          ),
+          None,
+          None
+        )
+
+      val googleEmptyProto =
+        PackageNaming(
+          "google.protobuf",
+          None,
+          None,
+          None
+        )
+
       assertEquals(
         entities,
         List(
           ModelBuilder.EventSourcedEntity(
-            Some("github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"),
-            Some("ShoppingCart"),
-            "com.example.shoppingcart.ShoppingCartService",
+            FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             "ShoppingCartService",
-            Some("com.example.shoppingcart.persistence.Cart"),
+            Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
             List(
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.AddItem",
-                "com.example.shoppingcart.AddLineItem",
-                "google.protobuf.Empty"
+                FullyQualifiedName("AddItem", shoppingCartProto),
+                FullyQualifiedName("AddLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.RemoveItem",
-                "com.example.shoppingcart.RemoveLineItem",
-                "google.protobuf.Empty"
+                FullyQualifiedName("RemoveItem", shoppingCartProto),
+                FullyQualifiedName("RemoveLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
               ModelBuilder.Command(
-                "com.example.shoppingcart.ShoppingCartService.GetCart",
-                "com.example.shoppingcart.GetShoppingCart",
-                "com.example.shoppingcart.Cart"
+                FullyQualifiedName("GetCart", shoppingCartProto),
+                FullyQualifiedName("GetShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Cart", shoppingCartProto)
               )
             ),
             List(
-              "com.example.shoppingcart.persistence.ItemAdded",
-              "com.example.shoppingcart.persistence.ItemRemoved"
+              ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
+              ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
             )
           )
         )
       )
     }.get
+  }
+
+  test("deriving java package from proto options") {
+    val pkg = "com.example"
+
+    assertEquals(
+      PackageNaming(pkg, None, None, None).javaPackage,
+      pkg
+    )
+    assertEquals(
+      PackageNaming(pkg, None, Some("override.package"), None).javaPackage,
+      "override.package"
+    )
   }
 
   test("resolving full names") {

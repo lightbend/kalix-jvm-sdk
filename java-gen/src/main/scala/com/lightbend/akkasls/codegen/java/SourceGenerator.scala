@@ -43,8 +43,9 @@ object SourceGenerator extends PrettyPrinter {
       Paths.get(packageName.replace(".", "/"))
 
     entities.flatMap { case entity: ModelBuilder.EventSourcedEntity =>
-      val (packageName, className) = dissassembleClassName(entity.fullName)
-      val packagePath              = packageAsPath(packageName)
+      val packageName = entity.serviceName.parent.javaPackage
+      val className   = entity.serviceName.name
+      val packagePath = packageAsPath(packageName)
 
       val sourcePath = sourceDirectory.resolve(packagePath.resolve(className + ".java"))
       if (!sourcePath.toFile.exists()) {
@@ -106,13 +107,26 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String
-  ): Document =
+  ): Document = {
+    val messageTypes =
+      entity.state.toSeq.map(_.fqn) ++ entity.events.map(_.fqn) ++ entity.commands.flatMap(
+        command => Seq(command.inputType, command.outputType)
+      )
+
+    val imports = (messageTypes
+      .filterNot(_.parent.javaPackage == packageName)
+      .map(typeImport) ++ Seq(
+      "com.akkaserverless.javasdk.EntityId",
+      "com.akkaserverless.javasdk.eventsourcedentity.*"
+    )).distinct.sorted
+
     pretty(
       "package" <+> packageName <> semi <> line <>
       line <>
-      "import" <+> "com.google.protobuf.Empty" <> semi <> line <>
-      "import" <+> "com.akkaserverless.javasdk.EntityId" <> semi <> line <>
-      "import" <+> "com.akkaserverless.javasdk.eventsourcedentity.*" <> semi <> line <>
+      ssep(
+        imports.map(pkg => "import" <+> pkg <> semi),
+        line
+      ) <> line <>
       line <>
       "/** An event sourced entity. */" <> line <>
       "@EventSourcedEntity" <> parens("entityType" <+> equal <+> dquotes(className)) <> line <>
@@ -134,16 +148,15 @@ object SourceGenerator extends PrettyPrinter {
             line <>
             method(
               "public",
-              qualifiedType(state, entity.javaOuterClassname),
+              qualifiedType(state.fqn),
               "snapshot",
               List.empty,
               emptyDoc
             ) {
               "// TODO: produce state snapshot here" <> line <>
               "return" <+> qualifiedType(
-                state,
-                entity.javaOuterClassname
-              ) <> dot <> "newBuilder().setEntityId(this.entityId).build()" <> semi
+                state.fqn
+              ) <> dot <> "newBuilder().build()" <> semi
             } <> line <>
             line <>
             "@SnapshotHandler" <>
@@ -153,12 +166,11 @@ object SourceGenerator extends PrettyPrinter {
               "void",
               "handleSnapshot",
               List(
-                qualifiedType(state, entity.javaOuterClassname) <+> "snapshot"
+                qualifiedType(state.fqn) <+> "snapshot"
               ),
               emptyDoc
             ) {
-              "// TODO: restore state from snapshot here" <> line <>
-              "this.entityId" <+> equal <+> "snapshot.entityId" <> semi
+              "// TODO: restore state from snapshot here" <> line
             } <> line <>
             line
           }
@@ -169,17 +181,15 @@ object SourceGenerator extends PrettyPrinter {
             line <>
             method(
               "public",
-              qualifiedType(command.outputType, entity.javaOuterClassname),
-              lowerFirst(name(command.fullname)),
+              qualifiedType(command.outputType),
+              lowerFirst(command.fqn.name),
               List(
-                qualifiedType(command.inputType, entity.javaOuterClassname) <+> "command",
+                qualifiedType(command.inputType) <+> "command",
                 "CommandContext" <+> "ctx"
               ),
               emptyDoc
             ) {
-              "throw new RuntimeException(\"The command handler for `" <> name(
-                command.fullname
-              ) <> "` is not implemented, yet\")" <> semi
+              "throw new RuntimeException(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
@@ -192,34 +202,45 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               "void",
-              lowerFirst(name(event)),
+              lowerFirst(event.fqn.name),
               List(
-                qualifiedType(event, entity.javaOuterClassname) <+> "event"
+                qualifiedType(event.fqn) <+> "event"
               ),
               emptyDoc
             ) {
-              "throw new RuntimeException(\"The event handler for `" <> name(
-                event
-              ) <> "` is not implemented, yet\")" <> semi
+              "throw new RuntimeException(\"The event handler for `" <> event.fqn.name <> "` is not implemented, yet\")" <> semi
             }
           },
           line <> line
         )
       }
     )
+  }
 
   private[codegen] def testSource(
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String,
       testClassName: String
-  ): Document =
+  ): Document = {
+    val messageTypes =
+      entity.commands.flatMap(command => Seq(command.inputType, command.outputType))
+
+    val imports = (messageTypes.toSeq
+      .filterNot(_.parent.javaPackage == packageName)
+      .map(typeImport) ++ Seq(
+      "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
+      "org.junit.Test",
+      "org.mockito.*"
+    )).distinct.sorted
+
     pretty(
       "package" <+> packageName <> semi <> line <>
       line <>
-      "import" <+> "com.akkaserverless.javasdk.eventsourcedentity.CommandContext" <> semi <> line <>
-      "import" <+> "org.junit.Test" <> semi <> line <>
-      "import" <+> "org.mockito.*" <> semi <> line <>
+      ssep(
+        imports.map(pkg => "import" <+> pkg <> semi),
+        line
+      ) <> line <>
       line <>
       `class`("public", testClassName) {
         "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
@@ -232,7 +253,7 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               "void",
-              lowerFirst(name(command.fullname)) + "Test",
+              lowerFirst(command.fqn.name) + "Test",
               List.empty,
               emptyDoc
             ) {
@@ -240,10 +261,9 @@ object SourceGenerator extends PrettyPrinter {
               line <>
               "// TODO: you may want to set fields in addition to the entity id" <> line <>
               "//" <> indent(
-                "entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
+                "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
                   qualifiedType(
-                    command.inputType,
-                    entity.javaOuterClassname
+                    command.inputType
                   ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
                 )
               ) <> semi <> line <>
@@ -256,6 +276,7 @@ object SourceGenerator extends PrettyPrinter {
         )
       }
     )
+  }
 
   private[codegen] def mainSource(
       mainClassPackageName: String,
@@ -265,12 +286,11 @@ object SourceGenerator extends PrettyPrinter {
     assert(entities.nonEmpty) // Pointless to generate a main if empty, so don't try
 
     val entityClasses = entities.map { case entity: ModelBuilder.EventSourcedEntity =>
-      val (packageName, className) = dissassembleClassName(entity.fullName)
-      // Package names should be relative to the main class's one
-      if (packageName == mainClassPackageName)
-        (Option.empty[String], className, entity.javaOuterClassname)
-      else
-        (Some(packageName), className, entity.javaOuterClassname)
+      (
+        Option(entity.serviceName.parent.javaPackage).filterNot(_ == mainClassPackageName),
+        entity.serviceName.name,
+        entity.serviceName.parent.javaOuterClassname
+      )
     }
 
     val imports = List(
@@ -356,14 +376,12 @@ object SourceGenerator extends PrettyPrinter {
     modifier <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+> postModifier <>
     braces(nest(line <> body) <> line)
 
-  private def name(`type`: String): String =
-    `type`.reverse.takeWhile(_ != '.').reverse
+  private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
+    fullyQualifiedName.parent.javaOuterClassname.fold("")(_ + ".") + fullyQualifiedName.name
 
-  private def qualifiedType(`type`: String, outerClassname: Option[String]): String =
-    if (`type` == "google.protobuf.Empty")
-      name(`type`)
-    else
-      outerClassname.fold("")(_ + ".") + name(`type`)
+  private def typeImport(fullyQualifiedName: FullyQualifiedName): String =
+    s"${fullyQualifiedName.parent.javaPackage}.${fullyQualifiedName.parent.javaOuterClassname
+      .getOrElse(fullyQualifiedName.name)}"
 
   private def lowerFirst(text: String): String =
     text.headOption match {
