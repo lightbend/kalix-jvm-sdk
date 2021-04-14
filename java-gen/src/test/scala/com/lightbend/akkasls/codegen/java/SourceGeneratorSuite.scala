@@ -20,19 +20,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
       try {
 
-        val source1     = sourceDirectory.resolve("com/lightbend/MyService1.java")
+        val source1     = sourceDirectory.resolve("com/example/service/MyService1.java")
         val sourceFile1 = source1.toFile
         FileUtils.forceMkdir(sourceFile1.getParentFile)
         FileUtils.touch(sourceFile1)
 
-        val testSource2     = testSourceDirectory.resolve("com/lightbend/MyService2Test.java")
+        val testSource2     = testSourceDirectory.resolve("com/example/service/MyService2Test.java")
         val testSourceFile2 = testSource2.toFile
         FileUtils.forceMkdir(testSourceFile2.getParentFile)
         FileUtils.touch(testSourceFile2)
 
         val service1Proto =
-          ModelBuilder.ProtoReference(
-            "service.proto",
+          PackageNaming(
             "com.example.service",
             None,
             None,
@@ -40,8 +39,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           )
 
         val service2Proto =
-          ModelBuilder.ProtoReference(
-            "service.proto",
+          PackageNaming(
             "com.example.service",
             None,
             None,
@@ -49,17 +47,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
           )
 
         val service3Proto =
-          ModelBuilder.ProtoReference(
-            "service.proto",
-            "com.example.service",
+          PackageNaming(
+            "com.example.service.something",
             None,
             None,
             Some("OuterClass3")
           )
 
         val domainProto =
-          ModelBuilder.ProtoReference(
-            "persistence/domain.proto",
+          PackageNaming(
             "com.example.service.persistence",
             None,
             None,
@@ -68,58 +64,55 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
         val entities = List(
           ModelBuilder.EventSourcedEntity(
-            service1Proto,
-            "com.lightbend.MyService1",
+            FullyQualifiedName("MyService1", service1Proto),
             "MyService1",
-            Some(ModelBuilder.TypeReference("MyState", domainProto)),
+            Some(FullyQualifiedName("MyState", domainProto)),
             List(
               ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                ModelBuilder.TypeReference("SetValue", service1Proto),
-                ModelBuilder.TypeReference("protobuf.Empty", service1Proto)
+                "com.example.service.MyService.Set",
+                FullyQualifiedName("SetValue", service1Proto),
+                FullyQualifiedName("protobuf.Empty", service1Proto)
               ),
               ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                ModelBuilder.TypeReference("GetValue", service1Proto),
-                ModelBuilder.TypeReference("MyState", service1Proto)
+                "com.example.service.MyService.Get",
+                FullyQualifiedName("GetValue", service1Proto),
+                FullyQualifiedName("MyState", service1Proto)
               )
             ),
             List.empty
           ),
           ModelBuilder.EventSourcedEntity(
-            service2Proto,
-            "com.lightbend.MyService2",
+            FullyQualifiedName("MyService2", service2Proto),
             "MyService2",
-            Some(ModelBuilder.TypeReference("MyState2", domainProto)),
+            Some(FullyQualifiedName("MyState2", domainProto)),
             List(
               ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                ModelBuilder.TypeReference("SetValue", service2Proto),
-                ModelBuilder.TypeReference("protobuf.Empty", service2Proto)
+                "com.example.service.MyService.Set",
+                FullyQualifiedName("SetValue", service2Proto),
+                FullyQualifiedName("protobuf.Empty", service2Proto)
               ),
               ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                ModelBuilder.TypeReference("GetValue", service2Proto),
-                ModelBuilder.TypeReference("MyState", service2Proto)
+                "com.example.service.MyService.Get",
+                FullyQualifiedName("GetValue", service2Proto),
+                FullyQualifiedName("MyState", service2Proto)
               )
             ),
             List.empty
           ),
           ModelBuilder.EventSourcedEntity(
-            service3Proto,
-            "com.lightbend.something.MyService3",
+            FullyQualifiedName("MyService3", service3Proto),
             "MyService3",
-            Some(ModelBuilder.TypeReference("MyState3", domainProto)),
+            Some(FullyQualifiedName("MyState3", domainProto)),
             List(
               ModelBuilder.Command(
-                "com.lightbend.MyService.Set",
-                ModelBuilder.TypeReference("SetValue", service3Proto),
-                ModelBuilder.TypeReference("protobuf.Empty", service3Proto)
+                "com.example.service.MyService.Set",
+                FullyQualifiedName("SetValue", service3Proto),
+                FullyQualifiedName("protobuf.Empty", service3Proto)
               ),
               ModelBuilder.Command(
-                "com.lightbend.MyService.Get",
-                ModelBuilder.TypeReference("GetValue", service3Proto),
-                ModelBuilder.TypeReference("MyState", service3Proto)
+                "com.example.service.MyService.Get",
+                FullyQualifiedName("GetValue", service3Proto),
+                FullyQualifiedName("MyState", service3Proto)
               )
             ),
             List.empty
@@ -130,7 +123,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           entities,
           sourceDirectory,
           testSourceDirectory,
-          "com.lightbend.Main"
+          "com.example.service.Main"
         )
 
         assertEquals(Files.size(source1), 0L)
@@ -139,10 +132,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
         assertEquals(
           sources,
           List(
-            sourceDirectory.resolve("com/lightbend/MyService2.java"),
-            sourceDirectory.resolve("com/lightbend/something/MyService3.java"),
-            testSourceDirectory.resolve("com/lightbend/something/MyService3Test.java"),
-            sourceDirectory.resolve("com/lightbend/Main.java")
+            sourceDirectory.resolve("com/example/service/MyService2.java"),
+            sourceDirectory.resolve("com/example/service/something/MyService3.java"),
+            testSourceDirectory.resolve("com/example/service/something/MyService3Test.java"),
+            sourceDirectory.resolve("com/example/service/Main.java")
           )
         )
 
@@ -158,8 +151,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("source") {
 
     val serviceProto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
+      PackageNaming(
         "com.example.service",
         None,
         None,
@@ -167,8 +159,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val domainProto =
-      ModelBuilder.ProtoReference(
-        "persistence/domain.proto",
+      PackageNaming(
         "com.example.service.persistence",
         None,
         None,
@@ -176,8 +167,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val externalProto =
-      ModelBuilder.ProtoReference(
-        "com.external.imported.types",
+      PackageNaming(
         "com.external",
         None,
         None,
@@ -185,24 +175,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val entity = ModelBuilder.EventSourcedEntity(
-      serviceProto,
-      "com.lightbend.MyServiceEntity",
+      FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(ModelBuilder.TypeReference("MyState", domainProto)),
+      Some(FullyQualifiedName("MyState", domainProto)),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyService.Set",
-          ModelBuilder.TypeReference("SetValue", serviceProto),
-          ModelBuilder.TypeReference("Empty", externalProto)
+          "com.example.service.MyService.Set",
+          FullyQualifiedName("SetValue", serviceProto),
+          FullyQualifiedName("Empty", externalProto)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyService.Get",
-          ModelBuilder.TypeReference("GetValue", serviceProto),
-          ModelBuilder.TypeReference("MyState", serviceProto)
+          "com.example.service.MyService.Get",
+          FullyQualifiedName("GetValue", serviceProto),
+          FullyQualifiedName("MyState", serviceProto)
         )
       ),
       List(
-        ModelBuilder.TypeReference("SetEvent", domainProto)
+        FullyQualifiedName("SetEvent", domainProto)
       )
     )
 
@@ -261,8 +250,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("test source") {
     val serviceProto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
+      PackageNaming(
         "com.example.service",
         None,
         None,
@@ -270,8 +258,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val domainProto =
-      ModelBuilder.ProtoReference(
-        "persistence/domain.proto",
+      PackageNaming(
         "com.example.service.persistence",
         None,
         None,
@@ -279,20 +266,19 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val entity = ModelBuilder.EventSourcedEntity(
-      serviceProto,
-      "com.lightbend.MyServiceEntity",
+      FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(ModelBuilder.TypeReference("MyState", domainProto)),
+      Some(FullyQualifiedName("MyState", domainProto)),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyService.Set",
-          ModelBuilder.TypeReference("SetValue", serviceProto),
-          ModelBuilder.TypeReference("protobuf.Empty", serviceProto)
+          "com.example.service.MyService.Set",
+          FullyQualifiedName("SetValue", serviceProto),
+          FullyQualifiedName("protobuf.Empty", serviceProto)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyService.Get",
-          ModelBuilder.TypeReference("GetValue", serviceProto),
-          ModelBuilder.TypeReference("MyState", serviceProto)
+          "com.example.service.MyService.Get",
+          FullyQualifiedName("GetValue", serviceProto),
+          FullyQualifiedName("MyState", serviceProto)
         )
       ),
       List.empty
@@ -343,8 +329,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("main source") {
     val service1Proto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
+      PackageNaming(
         "com.example.service",
         None,
         None,
@@ -352,8 +337,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val service2Proto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
+      PackageNaming(
         "com.example.service",
         None,
         None,
@@ -361,94 +345,89 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val service3Proto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
-        "com.example.service",
+      PackageNaming(
+        "com.example.service.something",
         None,
         None,
         Some("OuterClass3")
       )
 
     val domainProto =
-      ModelBuilder.ProtoReference(
-        "persistence/domain.proto",
+      PackageNaming(
         "com.example.service.persistence",
         None,
-        Some("com.lightbend.something"),
+        Some("com.example.service.something"),
         Some("Domain")
       )
 
     val entities = List(
       ModelBuilder.EventSourcedEntity(
-        service1Proto,
-        "com.lightbend.MyService1",
+        FullyQualifiedName("MyService1", service1Proto),
         "MyService1",
-        Some(ModelBuilder.TypeReference("MyState", domainProto)),
+        Some(FullyQualifiedName("MyState", domainProto)),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            ModelBuilder.TypeReference("SetValue", service1Proto),
-            ModelBuilder.TypeReference("protobuf.Empty", service1Proto)
+            "com.example.service.MyService.Set",
+            FullyQualifiedName("SetValue", service1Proto),
+            FullyQualifiedName("protobuf.Empty", service1Proto)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            ModelBuilder.TypeReference("GetValue", service1Proto),
-            ModelBuilder.TypeReference("MyState", service1Proto)
+            "com.example.service.MyService.Get",
+            FullyQualifiedName("GetValue", service1Proto),
+            FullyQualifiedName("MyState", service1Proto)
           )
         ),
         List.empty
       ),
       ModelBuilder.EventSourcedEntity(
-        service2Proto,
-        "com.lightbend.MyService2",
+        FullyQualifiedName("MyService2", service2Proto),
         "MyService2",
-        Some(ModelBuilder.TypeReference("MyState2", domainProto)),
+        Some(FullyQualifiedName("MyState2", domainProto)),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            ModelBuilder.TypeReference("SetValue", service2Proto),
-            ModelBuilder.TypeReference("protobuf.Empty", service2Proto)
+            "com.example.service.MyService.Set",
+            FullyQualifiedName("SetValue", service2Proto),
+            FullyQualifiedName("protobuf.Empty", service2Proto)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            ModelBuilder.TypeReference("GetValue", service2Proto),
-            ModelBuilder.TypeReference("MyState", service2Proto)
+            "com.example.service.MyService.Get",
+            FullyQualifiedName("GetValue", service2Proto),
+            FullyQualifiedName("MyState", service2Proto)
           )
         ),
         List.empty
       ),
       ModelBuilder.EventSourcedEntity(
-        service3Proto,
-        "com.lightbend.something.MyService3",
+        FullyQualifiedName("MyService3", service3Proto),
         "MyService3",
-        Some(ModelBuilder.TypeReference("MyState3", domainProto)),
+        Some(FullyQualifiedName("MyState3", domainProto)),
         List(
           ModelBuilder.Command(
-            "com.lightbend.MyService.Set",
-            ModelBuilder.TypeReference("SetValue", service3Proto),
-            ModelBuilder.TypeReference("protobuf.Empty", service3Proto)
+            "com.example.service.MyService.Set",
+            FullyQualifiedName("SetValue", service3Proto),
+            FullyQualifiedName("protobuf.Empty", service3Proto)
           ),
           ModelBuilder.Command(
-            "com.lightbend.MyService.Get",
-            ModelBuilder.TypeReference("GetValue", service3Proto),
-            ModelBuilder.TypeReference("MyState", service3Proto)
+            "com.example.service.MyService.Get",
+            FullyQualifiedName("GetValue", service3Proto),
+            FullyQualifiedName("MyState", service3Proto)
           )
         ),
         List.empty
       )
     )
 
-    val mainPackageName = "com.lightbend"
+    val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
     val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
     assertEquals(
       sourceDoc.layout,
-      """package com.lightbend;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
-        |import com.lightbend.something.OuterClass3;
-        |import com.lightbend.something.MyService3;
+        |import com.example.service.something.OuterClass3;
+        |import com.example.service.something.MyService3;
         |
         |public final class Main {
         |    
@@ -478,8 +457,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("main source with no outer class") {
     val serviceProto =
-      ModelBuilder.ProtoReference(
-        "service.proto",
+      PackageNaming(
         "com.example.service",
         None,
         None,
@@ -487,8 +465,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val domainProto =
-      ModelBuilder.ProtoReference(
-        "persistence/domain.proto",
+      PackageNaming(
         "com.example.service.persistence",
         None,
         None,
@@ -496,32 +473,31 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
 
     val entity = ModelBuilder.EventSourcedEntity(
-      serviceProto,
-      "com.lightbend.MyServiceEntity",
+      FullyQualifiedName("MyServiceEntity", serviceProto),
       "MyServiceEntity",
-      Some(ModelBuilder.TypeReference("MyState", domainProto)),
+      Some(FullyQualifiedName("MyState", domainProto)),
       List(
         ModelBuilder.Command(
-          "com.lightbend.MyService.Set",
-          ModelBuilder.TypeReference("SetValue", serviceProto),
-          ModelBuilder.TypeReference("protobuf.Empty", serviceProto)
+          "com.example.service.MyService.Set",
+          FullyQualifiedName("SetValue", serviceProto),
+          FullyQualifiedName("protobuf.Empty", serviceProto)
         ),
         ModelBuilder.Command(
-          "com.lightbend.MyService.Get",
-          ModelBuilder.TypeReference("GetValue", serviceProto),
-          ModelBuilder.TypeReference("MyState", serviceProto)
+          "com.example.service.MyService.Get",
+          FullyQualifiedName("GetValue", serviceProto),
+          FullyQualifiedName("MyState", serviceProto)
         )
       ),
       List.empty
     )
 
-    val mainPackageName = "com.lightbend"
+    val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
     val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(entity))
     assertEquals(
       sourceDoc.layout,
-      """package com.lightbend;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |

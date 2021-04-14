@@ -15,9 +15,12 @@ object ModelBuilder {
 
   /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
+    *
+    * @param serviceName the fully qualified name of the protobuf service we are generating the implementation for
+    *  The true service to entity relationship isn't upheld by this code at this point.
     */
   sealed abstract class Entity(
-      val serviceProto: ProtoReference
+      val serviceName: FullyQualifiedName
   )
 
   /**
@@ -25,42 +28,21 @@ object ModelBuilder {
     * by replaying that journal.
     */
   case class EventSourcedEntity(
-      override val serviceProto: ProtoReference,
-      fullName: String,
+      override val serviceName: FullyQualifiedName,
       entityType: String,
-      state: Option[TypeReference],
+      state: Option[FullyQualifiedName],
       commands: Iterable[Command],
-      events: Iterable[TypeReference]
-  ) extends Entity(serviceProto)
+      events: Iterable[FullyQualifiedName]
+  ) extends Entity(serviceName)
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
     */
-  case class Command(fullname: String, inputType: TypeReference, outputType: TypeReference)
-
-  /**
-    * The details of the proto file that an entity or related message type have been derived from.
-    */
-  case class ProtoReference(
-      fileName: String,
-      pkg: String,
-      goPackage: Option[String],
-      javaPackageOption: Option[String],
-      javaOuterClassname: Option[String]
-  ) {
-    lazy val javaPackage = javaPackageOption.getOrElse(pkg)
-  }
-
-  /**
-    * The reference to a message type defined in protobuf
-    * This contains enough detail to reconstruct references such as absolute Java packages
-    */
-  case class TypeReference(
-      name: String,
-      parent: ProtoReference
-  ) {
-    lazy val fullName = s"${parent.pkg}.$name"
-  }
+  case class Command(
+      fullName: String,
+      inputType: FullyQualifiedName,
+      outputType: FullyQualifiedName
+  )
 
   /**
     * Given a protobuf descriptor, discover the Cloudstate entities and their properties.
@@ -98,21 +80,23 @@ object ModelBuilder {
           .map(resolveFullName(_, service.getFile().getPackage()))
           .flatMap(entities.get)
           .map { entity =>
-            val serviceProto = ProtoReference.fromFileDescriptor(service.getFile())
-            val entityType   = service.getName
-            val methods      = service.getMethods.asScala
+            val serviceName = FullyQualifiedName(
+              service.getName,
+              PackageNaming.fromFileDescriptor(service.getFile())
+            )
+            val entityType = service.getName
+            val methods    = service.getMethods.asScala
             val commands =
               methods.map(method =>
                 Command(
                   method.getFullName,
-                  TypeReference.fromDescriptor(method.getInputType),
-                  TypeReference.fromDescriptor(method.getOutputType)
+                  FullyQualifiedName.fromDescriptor(method.getInputType),
+                  FullyQualifiedName.fromDescriptor(method.getOutputType)
                 )
               )
 
             EventSourcedEntity(
-              serviceProto,
-              service.getFullName,
+              serviceName,
               entityType,
               entity.state,
               commands,
@@ -148,8 +132,8 @@ object ModelBuilder {
     */
   private case class EventSourcedEntityDefinition(
       fullName: String,
-      events: Iterable[TypeReference],
-      state: Option[TypeReference]
+      events: Iterable[FullyQualifiedName],
+      state: Option[FullyQualifiedName]
   )
 
   /**
@@ -169,7 +153,7 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getEventSourcedEntity()
 
-    val protoReference = ProtoReference.fromFileDescriptor(descriptor)
+    val protoReference = PackageNaming.fromFileDescriptor(descriptor)
 
     Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
       val fullName = s"${descriptor.getPackage()}.${name}"
@@ -178,39 +162,11 @@ object ModelBuilder {
         rawEntity
           .getEventList()
           .asScala
-          .map(event => TypeReference(event.getType(), protoReference)),
+          .map(event => FullyQualifiedName(event.getType(), protoReference)),
         Option(rawEntity.getState().getType())
           .filter(_.nonEmpty)
-          .map(TypeReference(_, protoReference))
+          .map(FullyQualifiedName(_, protoReference))
       )
     }
-  }
-
-  object ProtoReference {
-    def fromFileDescriptor(descriptor: Descriptors.FileDescriptor) = {
-      val generalOptions = descriptor.getOptions.getAllFields.asScala
-      val goPackage = generalOptions
-        .find(_._1.getFullName == "google.protobuf.FileOptions.go_package")
-        .map(_._2.toString)
-      val javaPackage = generalOptions
-        .find(_._1.getFullName == "google.protobuf.FileOptions.java_package")
-        .map(_._2.toString)
-      val javaOuterClassname = generalOptions
-        .find(_._1.getFullName == "google.protobuf.FileOptions.java_outer_classname")
-        .map(_._2.toString)
-
-      ProtoReference(
-        descriptor.getName(),
-        descriptor.getPackage(),
-        goPackage,
-        javaPackage,
-        javaOuterClassname
-      )
-    }
-  }
-
-  object TypeReference {
-    def fromDescriptor(descriptor: Descriptors.Descriptor) =
-      TypeReference(descriptor.getName(), ProtoReference.fromFileDescriptor(descriptor.getFile()))
   }
 }

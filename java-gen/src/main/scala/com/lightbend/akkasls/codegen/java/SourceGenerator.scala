@@ -43,8 +43,9 @@ object SourceGenerator extends PrettyPrinter {
       Paths.get(packageName.replace(".", "/"))
 
     entities.flatMap { case entity: ModelBuilder.EventSourcedEntity =>
-      val (packageName, className) = dissassembleClassName(entity.fullName)
-      val packagePath              = packageAsPath(packageName)
+      val packageName = entity.serviceName.parent.javaPackage
+      val className   = entity.serviceName.name
+      val packagePath = packageAsPath(packageName)
 
       val sourcePath = sourceDirectory.resolve(packagePath.resolve(className + ".java"))
       if (!sourcePath.toFile.exists()) {
@@ -180,7 +181,7 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               qualifiedType(command.outputType),
-              lowerFirst(name(command.fullname)),
+              lowerFirst(name(command.fullName)),
               List(
                 qualifiedType(command.inputType) <+> "command",
                 "CommandContext" <+> "ctx"
@@ -188,7 +189,7 @@ object SourceGenerator extends PrettyPrinter {
               emptyDoc
             ) {
               "throw new RuntimeException(\"The command handler for `" <> name(
-                command.fullname
+                command.fullName
               ) <> "` is not implemented, yet\")" <> semi
             }
           },
@@ -253,7 +254,7 @@ object SourceGenerator extends PrettyPrinter {
             method(
               "public",
               "void",
-              lowerFirst(name(command.fullname)) + "Test",
+              lowerFirst(name(command.fullName)) + "Test",
               List.empty,
               emptyDoc
             ) {
@@ -261,7 +262,7 @@ object SourceGenerator extends PrettyPrinter {
               line <>
               "// TODO: you may want to set fields in addition to the entity id" <> line <>
               "//" <> indent(
-                "entity" <> dot <> lowerFirst(name(command.fullname)) <> parens(
+                "entity" <> dot <> lowerFirst(name(command.fullName)) <> parens(
                   qualifiedType(
                     command.inputType
                   ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
@@ -286,12 +287,11 @@ object SourceGenerator extends PrettyPrinter {
     assert(entities.nonEmpty) // Pointless to generate a main if empty, so don't try
 
     val entityClasses = entities.map { case entity: ModelBuilder.EventSourcedEntity =>
-      val (packageName, className) = dissassembleClassName(entity.fullName)
-      // Package names should be relative to the main class's one
-      if (packageName == mainClassPackageName)
-        (Option.empty[String], className, entity.serviceProto.javaOuterClassname)
-      else
-        (Some(packageName), className, entity.serviceProto.javaOuterClassname)
+      (
+        Option(entity.serviceName.parent.javaPackage).filterNot(_ == mainClassPackageName),
+        entity.serviceName.name,
+        entity.serviceName.parent.javaOuterClassname
+      )
     }
 
     val imports = List(
@@ -380,11 +380,12 @@ object SourceGenerator extends PrettyPrinter {
   private def name(`type`: String): String =
     `type`.reverse.takeWhile(_ != '.').reverse
 
-  private def qualifiedType(typeReference: ModelBuilder.TypeReference): String =
-    typeReference.parent.javaOuterClassname.fold("")(_ + ".") + name(typeReference.name)
+  private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
+    fullyQualifiedName.parent.javaOuterClassname.fold("")(_ + ".") + name(fullyQualifiedName.name)
 
-  private def typeImport(typeReference: ModelBuilder.TypeReference): String =
-    s"${typeReference.parent.javaPackage}.${typeReference.parent.javaOuterClassname.getOrElse(typeReference.name)}"
+  private def typeImport(fullyQualifiedName: FullyQualifiedName): String =
+    s"${fullyQualifiedName.parent.javaPackage}.${fullyQualifiedName.parent.javaOuterClassname
+      .getOrElse(fullyQualifiedName.name)}"
 
   private def lowerFirst(text: String): String =
     text.headOption match {
