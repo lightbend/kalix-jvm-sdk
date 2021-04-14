@@ -36,30 +36,36 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
+          "Shoppingcart",
           "com.example.shoppingcart",
           Some(
             "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"
           ),
           None,
-          Some("ShoppingCart")
+          Some("ShoppingCart"),
+          false
         )
 
       val domainProto =
         PackageNaming(
+          "Domain",
           "com.example.shoppingcart.persistence",
           Some(
             "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart/persistence;persistence"
           ),
           None,
-          None
+          None,
+          false
         )
 
       val googleEmptyProto =
         PackageNaming(
+          "Empty",
           "google.protobuf",
-          None,
-          None,
-          None
+          Some("google.golang.org/protobuf/types/known/emptypb"),
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          true
         )
 
       assertEquals(
@@ -97,14 +103,15 @@ class ModelBuilderSuite extends munit.FunSuite {
   }
 
   test("deriving java package from proto options") {
-    val pkg = "com.example"
+    val name = "Name"
+    val pkg  = "com.example"
 
     assertEquals(
-      PackageNaming(pkg, None, None, None).javaPackage,
+      PackageNaming(name, pkg, None, None, None, false).javaPackage,
       pkg
     )
     assertEquals(
-      PackageNaming(pkg, None, Some("override.package"), None).javaPackage,
+      PackageNaming(name, pkg, None, Some("override.package"), None, false).javaPackage,
       "override.package"
     )
   }

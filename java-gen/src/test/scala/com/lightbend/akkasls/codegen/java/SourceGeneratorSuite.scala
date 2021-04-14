@@ -32,34 +32,42 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
         val service1Proto =
           PackageNaming(
+            "MyService1",
             "com.example.service",
             None,
             None,
-            Some("OuterClass1")
+            Some("OuterClass1"),
+            false
           )
 
         val service2Proto =
           PackageNaming(
+            "MyService2",
             "com.example.service",
             None,
             None,
-            Some("OuterClass2")
+            Some("OuterClass2"),
+            false
           )
 
         val service3Proto =
           PackageNaming(
+            "MyService3",
             "com.example.service.something",
             None,
             None,
-            Some("OuterClass3")
+            Some("OuterClass3"),
+            false
           )
 
         val domainProto =
           PackageNaming(
+            "Domain",
             "com.example.service.persistence",
             None,
             None,
-            Some("Domain")
+            Some("Domain"),
+            false
           )
 
         val entities = List(
@@ -152,26 +160,32 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     val serviceProto =
       PackageNaming(
+        "MyService",
         "com.example.service",
         None,
         None,
-        Some("OuterClass")
+        Some("OuterClass"),
+        false
       )
 
     val domainProto =
       PackageNaming(
+        "Domain",
         "com.example.service.persistence",
         None,
         None,
-        Some("Domain")
+        None,
+        false
       )
 
     val externalProto =
       PackageNaming(
+        "EXT",
         "com.external",
         None,
         None,
-        None
+        None,
+        true
       )
 
     val entity = ModelBuilder.EventSourcedEntity(
@@ -251,18 +265,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("test source") {
     val serviceProto =
       PackageNaming(
+        "MyService",
         "com.example.service",
         None,
         None,
-        Some("OuterClass")
+        Some("OuterClass"),
+        false
       )
 
     val domainProto =
       PackageNaming(
+        "Domain",
         "com.example.service.persistence",
         None,
         None,
-        Some("Domain")
+        None,
+        false
       )
 
     val entity = ModelBuilder.EventSourcedEntity(
@@ -330,34 +348,42 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("main source") {
     val service1Proto =
       PackageNaming(
+        "Service1",
         "com.example.service",
         None,
         None,
-        Some("OuterClass1")
+        Some("OuterClass1"),
+        false
       )
 
     val service2Proto =
       PackageNaming(
+        "Service2",
         "com.example.service",
         None,
         None,
-        Some("OuterClass2")
+        Some("OuterClass2"),
+        false
       )
 
     val service3Proto =
       PackageNaming(
+        "Service3",
         "com.example.service.something",
         None,
         None,
-        Some("OuterClass3")
+        Some("OuterClass3"),
+        false
       )
 
     val domainProto =
       PackageNaming(
+        "Domain",
         "com.example.service.persistence",
         None,
         Some("com.example.service.something"),
-        Some("Domain")
+        Some("Domain"),
+        false
       )
 
     val entities = List(
@@ -458,18 +484,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("main source with no outer class") {
     val serviceProto =
       PackageNaming(
+        "MyService",
         "com.example.service",
         None,
         None,
-        None
+        None,
+        false
       )
 
     val domainProto =
       PackageNaming(
+        "Domain",
         "com.example.service.persistence",
         None,
         None,
-        Some("Domain")
+        Some("Domain"),
+        false
       )
 
     val entity = ModelBuilder.EventSourcedEntity(

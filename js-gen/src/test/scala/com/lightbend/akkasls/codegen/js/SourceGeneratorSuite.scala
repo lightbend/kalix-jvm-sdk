@@ -12,10 +12,12 @@ import org.apache.commons.io.FileUtils
 class SourceGeneratorSuite extends munit.FunSuite {
   val protoRef =
     PackageNaming(
+      "MyService",
       "com.example.service",
       None,
       None,
-      None
+      None,
+      false
     )
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
