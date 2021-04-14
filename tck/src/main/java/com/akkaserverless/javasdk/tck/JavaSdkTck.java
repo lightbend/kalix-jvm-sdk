@@ -7,6 +7,7 @@ package com.akkaserverless.javasdk.tck;
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
+import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
@@ -26,6 +27,7 @@ import com.akkaserverless.tck.model.CrdtEntity;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.akkaserverless.tck.model.EventSourcedEntity;
 import com.akkaserverless.tck.model.ValueEntity;
+import com.akkaserverless.tck.model.View;
 
 import java.time.Duration;
 
@@ -97,6 +99,11 @@ public final class JavaSdkTck {
             com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo.class,
             LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityTwo"),
             LocalPersistenceEventing.getDescriptor())
+        .registerView(
+            com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior.class,
+            View.getDescriptor().findServiceByName("ViewTckModel"),
+            "tck-view",
+            View.getDescriptor())
         .start()
         .toCompletableFuture()
         .get();
