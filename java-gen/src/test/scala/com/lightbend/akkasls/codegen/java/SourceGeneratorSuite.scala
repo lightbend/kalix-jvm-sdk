@@ -405,10 +405,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
 
     val packageName   = "com.example.service"
-    val className     = "MyServiceEntity"
+    val implClassName = "MyServiceEntityImpl"
     val testClassName = "MyServiceEntityTest"
 
-    val sourceDoc = SourceGenerator.testSource(entity, packageName, className, testClassName)
+    val sourceDoc = SourceGenerator.testSource(entity, packageName, implClassName, testClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -419,12 +419,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |public class MyServiceEntityTest {
         |    private String entityId = "entityId1";
-        |    private MyServiceEntity entity;
+        |    private MyServiceEntityImpl entity;
         |    private CommandContext context = Mockito.mock(CommandContext.class);
         |    
         |    @Test
         |    public void setTest() {
-        |        entity = new MyServiceEntity(entityId);
+        |        entity = new MyServiceEntityImpl(entityId);
         |        
         |        // TODO: you may want to set fields in addition to the entity id
         |        //    entity.set(OuterClass.SetValue.newBuilder().setEntityId(entityId).build(), context);
@@ -435,7 +435,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    
         |    @Test
         |    public void getTest() {
-        |        entity = new MyServiceEntity(entityId);
+        |        entity = new MyServiceEntityImpl(entityId);
         |        
         |        // TODO: you may want to set fields in addition to the entity id
         |        //    entity.get(OuterClass.GetValue.newBuilder().setEntityId(entityId).build(), context);
