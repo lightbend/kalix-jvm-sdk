@@ -11,6 +11,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -28,6 +29,9 @@ import scala.util.Either;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMojo extends AbstractMojo {
+    @Parameter(defaultValue = "${project}")
+    private MavenProject project;
+
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.basedir}", property = "baseDir", required = true)
     private File baseDir;
@@ -39,6 +43,10 @@ public class GenerateMojo extends AbstractMojo {
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.directory}/generated-resources/protobuf/descriptor-sets", required = true)
     private File descriptorSetOutputDirectory;
+
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java", required = true)
+    private File generatedSourceDirectory;
 
     // src/main/java
     @SuppressWarnings("unused")
@@ -84,12 +92,14 @@ public class GenerateMojo extends AbstractMojo {
                 });
                 Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptors);
                 Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(),
-                        testSourceDirectory.toPath(), mainClass);
+                        testSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
                 Path absBaseDir = baseDir.toPath().toAbsolutePath();
                 generated.foreach(p -> {
                     log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
                     return null;
                 });
+
+                project.addCompileSourceRoot(generatedSourceDirectory.toString());
 
             } else {
                 throw new MojoExecutionException("There was a problem opening the protobuf descriptor file",
