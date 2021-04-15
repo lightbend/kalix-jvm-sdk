@@ -23,6 +23,8 @@ object SourceGenerator extends PrettyPrinter {
 
   private val ProtoExt = ".proto"
 
+  private val ProtoNs = "proto"
+
   /**
     * Generate JavaScript source from entities where the target source and test source directories have no existing source.
     * Note that we only generate tests for entities where we are successful in generating an entity. The user may
@@ -46,6 +48,7 @@ object SourceGenerator extends PrettyPrinter {
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
       testSourceDirectory: Path,
+      generatedSourceDirectory: Path,
       indexFilename: String
   ): Iterable[Path] = {
     val allProtoSources = Files
@@ -57,6 +60,16 @@ object SourceGenerator extends PrettyPrinter {
     entities.flatMap { case entity: ModelBuilder.EventSourcedEntity =>
       val entityFilename = entity.serviceName.name.toLowerCase + ".js"
       val sourcePath     = sourceDirectory.resolve(entityFilename)
+
+      val typedefFilename   = entity.serviceName.name.toLowerCase + ".d.ts"
+      val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
+      val _                 = typedefSourcePath.getParent.toFile.mkdirs()
+      val _ = Files.write(
+        typedefSourcePath,
+        typedefSource(entity).layout.getBytes(
+          Charsets.UTF_8
+        )
+      )
       if (!sourcePath.toFile.exists()) {
         // We're going to generate an entity - let's see if we can generate its test...
         val entityTestFilename = entityFilename.replace(".js", ".test.js")
@@ -83,14 +96,15 @@ object SourceGenerator extends PrettyPrinter {
             allProtoSources,
             protobufSourceDirectory,
             sourceDirectory,
+            generatedSourceDirectory,
             entity
           ).layout
             .getBytes(Charsets.UTF_8)
         )
 
-        List(sourcePath) ++ testSourceFiles
+        List(sourcePath, typedefSourcePath) ++ testSourceFiles
       } else {
-        List.empty
+        List(typedefSourcePath)
       }
     } ++ {
       if (entities.nonEmpty) {
@@ -119,11 +133,51 @@ object SourceGenerator extends PrettyPrinter {
       protoSources: Iterable[Path],
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
+      generatedSourceDirectory: Path,
       entity: ModelBuilder.EventSourcedEntity
-  ): Document =
+  ): Document = {
+    val typedefPath =
+      sourceDirectory.toAbsolutePath
+        .relativize(generatedSourceDirectory.toAbsolutePath)
+        .resolve(entity.serviceName.name.toLowerCase())
+        .toString
+
     pretty(
       """import { EventSourcedEntity } from "@lightbend/akkaserverless-javascript-sdk"""" <> semi <> line <>
       line <>
+      blockComment(
+        "Type definitions.",
+        "These types have been generated based on your proto source.",
+        "A TypeScript aware editor such as VS Code will be able to leverage them to provide hinting and validation.",
+        emptyDoc,
+        "State; the serialisable and persistable state of the entity",
+        typedef(
+          "import" <> parens(
+            dquotes(typedefPath)
+          ) <> dot <> "State",
+          "State"
+        ),
+        emptyDoc,
+        "Event; the union of all possible event types",
+        typedef(
+          "import" <> parens(
+            dquotes(typedefPath)
+          ) <> dot <> "Event",
+          "Event"
+        ),
+        emptyDoc,
+        entity.serviceName.name <> semi <+> "a strongly typed extension of EventSourcedEntity derived from your proto source",
+        typedef(
+          "import" <> parens(
+            dquotes(typedefPath)
+          ) <> dot <> entity.serviceName.name,
+          entity.serviceName.name
+        )
+      ) <> line <>
+      line <>
+      blockComment(
+        "@type" <+> "MyServiceEntity"
+      ) <> line <>
       "const entity = new EventSourcedEntity" <> parens(
         nest(
           line <>
@@ -162,60 +216,121 @@ object SourceGenerator extends PrettyPrinter {
         "entityId => " <> parens("{}")
       ) <> semi <> line <>
       line <>
-      "const commandHandlers" <+> equal <+> braces(
-        nest(
-          line <>
-          ssep(
-            entity.commands.toSeq.map { command =>
-              command.fqn.name <> parens(
-                "command, state, ctx"
-              ) <+> braces(
+      "entity.setBehavior" <> parens(
+        "state => " <> parens(
+          braces(
+            nest(
+              line <>
+              "commandHandlers" <> colon <+> braces(
                 nest(
                   line <>
-                  "ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
+                  ssep(
+                    entity.commands.toSeq.map { command =>
+                      command.fqn.name <> parens(
+                        "command, state, ctx"
+                      ) <+> braces(
+                        nest(
+                          line <>
+                          "throw ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
+                        ) <> line
+                      )
+                    },
+                    comma <> line
+                  )
+                ) <> line
+              ) <> comma <> line <>
+              line <>
+              "eventHandlers" <> colon <+> braces(
+                nest(
+                  line <>
+                  ssep(
+                    entity.events.toSeq.map { event =>
+                      event.fqn.name <> parens(
+                        "event, state"
+                      ) <+> braces(
+                        nest(
+                          line <>
+                          "return state"
+                        ) <> semi <> line
+                      )
+                    },
+                    comma
+                  )
                 ) <> line
               )
-            },
-            comma <> line <> line
+            ) <> line
           )
-        ) <> line
-      ) <> line <>
-      line <>
-      "const eventHandlers" <+> equal <+> braces(
-        nest(
-          line <>
-          ssep(
-            entity.events.toSeq.map { event =>
-              event.fqn.name <> parens(
-                "event, state"
-              ) <+> braces(
-                nest(
-                  line <>
-                  "return state"
-                ) <> semi <> line
-              )
-            },
-            comma <> line <> line
-          )
-        ) <> line
-      ) <> line <>
-      line <>
-      "entity.setBehavior" <> parens(
-        "state => " <> braces(
-          nest(
-            line <>
-            "return" <+> braces(
-              nest(
-                line <>
-                "commandHandlers" <> comma <> line <>
-                "eventHandlers"
-              ) <> line
-            ) <> semi
-          ) <> line
         )
       ) <> semi <> line <>
       line <>
       "export default entity;"
+    )
+  }
+
+  private[codegen] def typedefSource(
+      entity: ModelBuilder.EventSourcedEntity
+  ): Document =
+    pretty(
+      "import" <+> braces(
+        nest(
+          line <>
+          "TypedEventSourcedEntity" <> comma <> line <>
+          "EventSourcedCommandContext"
+        ) <> line
+      ) <+> "from" <+> dquotes("../akkaserverless") <> semi <> line <>
+      "import" <+> ProtoNs <+> "from" <+> dquotes("./proto") <> semi <> line <>
+      line <>
+      "export type State" <+> equal <+> entity.state
+        .map(state => typeReference(state.fqn))
+        .getOrElse(text("unknown")) <> semi <> line <>
+      "export type Event" <+> equal <> typeUnion(entity.events.toSeq.map(_.fqn)) <> semi <> line <>
+      "export type Command" <+> equal <> typeUnion(
+        entity.commands.toSeq.map(_.inputType)
+      ) <> semi <> line <>
+      line <>
+      "export type EventHandlers" <+> equal <+> braces(
+        nest(
+          line <>
+          ssep(
+            entity.events.toSeq.map { event =>
+              event.fqn.name <> colon <+> parens(
+                nest(
+                  line <>
+                  "event" <> colon <+> typeReference(event.fqn) <> comma <> line <>
+                  "state" <> colon <+> "State"
+                ) <> line
+              ) <+> "=>" <+> "State" <> semi
+            },
+            line
+          )
+        ) <> line
+      ) <> semi <> line <>
+      line <>
+      "export type CommandHandlers" <+> equal <+> braces(
+        nest(
+          line <>
+          ssep(
+            entity.commands.toSeq.map { command =>
+              command.fqn.name <> colon <+> parens(
+                nest(
+                  line <>
+                  "command" <> colon <+> typeReference(command.inputType) <> comma <> line <>
+                  "state" <> colon <+> "State" <> comma <> line <>
+                  "ctx" <> colon <+> "EventSourcedCommandContext<Event>"
+                ) <> line
+              ) <+> "=>" <+> typeReference(command.outputType) <> semi
+            },
+            line
+          )
+        ) <> line
+      ) <> semi <> line <>
+      line <>
+      "export type" <+> entity.serviceName.name <+> equal <+> "TypedEventSourcedEntity" <> angles(
+        nest(
+          line <>
+          ssep(Seq("State", "EventHandlers", "CommandHandlers"), comma <> line)
+        ) <> line
+      ) <> semi <> line
     )
 
   // TODO: Generate the test source
@@ -316,4 +431,25 @@ object SourceGenerator extends PrettyPrinter {
   private def arrowFn(args: Seq[String], body: Doc) =
     parens(ssep(args.map(text), comma)) <+> "=>" <+> braces(nest(line <> body) <> line)
 
+  private def typeReference(fqn: FullyQualifiedName): Doc = fqn match {
+    case FullyQualifiedName("Empty", parent) if (parent.pkg) == "google.protobuf" =>
+      "void"
+    case FullyQualifiedName(name, parent) =>
+      ProtoNs <> dot <> parent.pkg <> dot <> "I" <> name
+  }
+
+  private def typeUnion(fqns: Seq[FullyQualifiedName]): Doc = fqns match {
+    case Nil        => " " <> "unknown"
+    case fqn :: Nil => " " <> typeReference(fqn)
+    case _ =>
+      nest(line <> ssep(fqns.map(fqn => "|" <+> typeReference(fqn)), line))
+  }
+
+  private def typedef(source: Doc, name: Doc): Doc =
+    "@typedef" <+> braces(" " <> source <> " ") <+> name
+
+  private def blockComment(lines: Doc*) = "/**" <> line <> ssep(
+    lines.map(" *" <+> _),
+    line
+  ) <> line <> " */"
 }

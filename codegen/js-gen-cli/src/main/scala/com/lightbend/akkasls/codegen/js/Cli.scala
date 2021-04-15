@@ -24,7 +24,8 @@ object Cli {
       protoSourceDirectory: Path = CWD,
       serviceNamesFilter: String = ".*ServiceEntity",
       sourceDirectory: Path = CWD,
-      testSourceDirectory: Path = CWD
+      testSourceDirectory: Path = CWD,
+      generatedSourceDirectory: Path = CWD
   )
 
   private val builder = OParser.builder[Config]
@@ -68,6 +69,11 @@ object Cli {
         .text(
           "The location of source files in relation to the base directory - defaults to the current working directory"
         ),
+      opt[File]("generated-source-dir")
+        .action((x, c) => c.copy(generatedSourceDirectory = x.toPath))
+        .text(
+          "The location of generated source files in relation to the base directory - defaults to the current working directory"
+        ),
       opt[File]("test-source-dir")
         .action((x, c) => c.copy(testSourceDirectory = x.toPath))
         .text(
@@ -107,6 +113,7 @@ object Cli {
                   config.protoSourceDirectory,
                   config.sourceDirectory,
                   config.testSourceDirectory,
+                  config.generatedSourceDirectory,
                   config.indexFile
                 )
                 .foreach { p =>
