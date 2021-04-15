@@ -5,14 +5,14 @@
 package docs.user.crdt;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.crdt.*;
+import com.akkaserverless.javasdk.replicatedentity.*;
 import com.example.Shoppingcart;
 import com.google.protobuf.Empty;
 
 import java.util.Optional;
 
 // tag::entity-class[]
-@CrdtEntity
+@ReplicatedEntity
 public class ShoppingCartEntity {
   // end::entity-class[]
 
@@ -67,7 +67,7 @@ public class ShoppingCartEntity {
   // tag::register[]
   public static void main(String... args) {
     new AkkaServerless()
-        .registerCrdtEntity(
+        .registerReplicatedEntity(
             ShoppingCartEntity.class,
             Shoppingcart.getDescriptor().findServiceByName("ShoppingCartService"))
         .start();

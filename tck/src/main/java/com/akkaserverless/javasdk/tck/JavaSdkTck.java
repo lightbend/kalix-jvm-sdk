@@ -6,15 +6,15 @@ package com.akkaserverless.javasdk.tck;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
 import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
-import com.akkaserverless.javasdk.tck.model.crdt.CrdtConfiguredEntity;
-import com.akkaserverless.javasdk.tck.model.crdt.CrdtTckModelEntity;
-import com.akkaserverless.javasdk.tck.model.crdt.CrdtTwoEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ConfiguredReplicatedEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.TckModelReplicatedEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwo;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
 import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
 import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
@@ -23,9 +23,9 @@ import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEnt
 import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntity;
 import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
 import com.akkaserverless.tck.model.Action;
-import com.akkaserverless.tck.model.CrdtEntity;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.akkaserverless.tck.model.EventSourcedEntity;
+import com.akkaserverless.tck.model.ReplicatedEntity;
 import com.akkaserverless.tck.model.ValueEntity;
 import com.akkaserverless.tck.model.View;
 
@@ -54,16 +54,17 @@ public final class JavaSdkTck {
             ValueEntity.getDescriptor().findServiceByName("ValueEntityConfigured"),
             ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
-        .registerCrdtEntity(
-            CrdtTckModelEntity.class,
-            CrdtEntity.getDescriptor().findServiceByName("CrdtTckModel"),
-            CrdtEntity.getDescriptor())
-        .registerCrdtEntity(
-            CrdtTwoEntity.class, CrdtEntity.getDescriptor().findServiceByName("CrdtTwo"))
-        .registerCrdtEntity(
-            CrdtConfiguredEntity.class,
-            CrdtEntity.getDescriptor().findServiceByName("CrdtConfigured"),
-            CrdtEntityOptions.defaults() // required timeout of 100 millis for TCK tests
+        .registerReplicatedEntity(
+            TckModelReplicatedEntity.class,
+            ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityTckModel"),
+            ReplicatedEntity.getDescriptor())
+        .registerReplicatedEntity(
+            ReplicatedEntityTwo.class,
+            ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityTwo"))
+        .registerReplicatedEntity(
+            ConfiguredReplicatedEntity.class,
+            ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityConfigured"),
+            ReplicatedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerEventSourcedEntity(
             EventSourcedTckModelEntity.class,

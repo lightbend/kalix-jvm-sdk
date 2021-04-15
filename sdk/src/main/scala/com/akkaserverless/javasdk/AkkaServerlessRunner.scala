@@ -10,14 +10,14 @@ import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import akka.stream.{ActorMaterializer, Materializer}
 import com.akkaserverless.javasdk.impl.action.{ActionService, ActionsImpl}
-import com.akkaserverless.javasdk.impl.crdt.{CrdtImpl, CrdtStatefulService}
+import com.akkaserverless.javasdk.impl.replicatedentity.{ReplicatedEntityImpl, ReplicatedEntityStatefulService}
 import com.akkaserverless.javasdk.impl.valueentity.{ValueEntitiesImpl, ValueEntityService}
 import com.akkaserverless.javasdk.impl.eventsourcedentity.{EventSourcedEntitiesImpl, EventSourcedEntityService}
 import com.akkaserverless.javasdk.impl.{DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
 import com.akkaserverless.protocol.action.ActionsHandler
-import com.akkaserverless.protocol.crdt.CrdtHandler
 import com.akkaserverless.protocol.discovery.DiscoveryHandler
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntitiesHandler
 import com.akkaserverless.protocol.value_entity.ValueEntitiesHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
@@ -103,10 +103,10 @@ final class AkkaServerlessRunner private[this] (
           val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, rootContext, configuration)
           route orElse EventSourcedEntitiesHandler.partial(eventSourcedImpl)
 
-        case (route, (serviceClass, crdtServices: Map[String, CrdtStatefulService] @unchecked))
-            if serviceClass == classOf[CrdtStatefulService] =>
-          val crdtImpl = new CrdtImpl(system, crdtServices, rootContext)
-          route orElse CrdtHandler.partial(crdtImpl)
+        case (route, (serviceClass, services: Map[String, ReplicatedEntityStatefulService] @unchecked))
+            if serviceClass == classOf[ReplicatedEntityStatefulService] =>
+          val replicatedEntityImpl = new ReplicatedEntityImpl(system, services, rootContext)
+          route orElse ReplicatedEntitiesHandler.partial(replicatedEntityImpl)
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
             if serviceClass == classOf[ActionService] =>

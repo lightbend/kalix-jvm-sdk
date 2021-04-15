@@ -10,9 +10,9 @@ import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionHandler;
-import com.akkaserverless.javasdk.crdt.CrdtEntity;
-import com.akkaserverless.javasdk.crdt.CrdtEntityFactory;
-import com.akkaserverless.javasdk.crdt.CrdtEntityOptions;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityHandlerFactory;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -24,8 +24,8 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.impl.AnySupport;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
-import com.akkaserverless.javasdk.impl.crdt.AnnotationBasedCrdtSupport;
-import com.akkaserverless.javasdk.impl.crdt.CrdtStatefulService;
+import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
 import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
@@ -217,9 +217,9 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated CRDT entity.
+   * Register an annotated replicated entity.
    *
-   * <p>The entity class must be annotated with {@link com.akkaserverless.javasdk.crdt.CrdtEntity}.
+   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.
@@ -227,19 +227,19 @@ public final class AkkaServerless {
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerCrdtEntity(
+  public AkkaServerless registerReplicatedEntity(
       Class<?> entityClass,
       Descriptors.ServiceDescriptor descriptor,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    return registerCrdtEntity(
-        entityClass, descriptor, CrdtEntityOptions.defaults(), additionalDescriptors);
+    return registerReplicatedEntity(
+        entityClass, descriptor, ReplicatedEntityOptions.defaults(), additionalDescriptors);
   }
 
   /**
-   * Register an annotated CRDT entity.
+   * Register an annotated replicated entity.
    *
-   * <p>The entity class must be annotated with {@link com.akkaserverless.javasdk.crdt.CrdtEntity}.
+   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
    *
    * @param entityClass The entity class.
    * @param descriptor The descriptor for the service that this entity implements.
@@ -248,23 +248,26 @@ public final class AkkaServerless {
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerCrdtEntity(
+  public AkkaServerless registerReplicatedEntity(
       Class<?> entityClass,
       Descriptors.ServiceDescriptor descriptor,
-      CrdtEntityOptions entityOptions,
+      ReplicatedEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    CrdtEntity entity = entityClass.getAnnotation(CrdtEntity.class);
+    ReplicatedEntity entity = entityClass.getAnnotation(ReplicatedEntity.class);
     if (entity == null) {
       throw new IllegalArgumentException(
-          entityClass + " does not declare an " + CrdtEntity.class.getName() + " annotation!");
+          entityClass
+              + " does not declare an "
+              + ReplicatedEntity.class.getName()
+              + " annotation!");
     }
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
 
-    CrdtStatefulService service =
-        new CrdtStatefulService(
-            new AnnotationBasedCrdtSupport(entityClass, anySupport, descriptor),
+    ReplicatedEntityStatefulService service =
+        new ReplicatedEntityStatefulService(
+            new AnnotationBasedReplicatedEntitySupport(entityClass, anySupport, descriptor),
             descriptor,
             anySupport,
             entityOptions);
@@ -275,28 +278,28 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register a CRDT entity factory.
+   * Register a replicated entity factory.
    *
    * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
    * implementing the entity.
    *
-   * @param factory The CRDT factory.
+   * @param factory The replicated entity factory.
    * @param descriptor The descriptor for the service that this entity implements.
    * @param entityOptions The options for this entity.
    * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
    *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerCrdtEntity(
-      CrdtEntityFactory factory,
+  public AkkaServerless registerReplicatedEntity(
+      ReplicatedEntityHandlerFactory factory,
       Descriptors.ServiceDescriptor descriptor,
-      CrdtEntityOptions entityOptions,
+      ReplicatedEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
     services.put(
         descriptor.getFullName(),
         system ->
-            new CrdtStatefulService(
+            new ReplicatedEntityStatefulService(
                 factory, descriptor, newAnySupport(additionalDescriptors), entityOptions));
 
     return this;

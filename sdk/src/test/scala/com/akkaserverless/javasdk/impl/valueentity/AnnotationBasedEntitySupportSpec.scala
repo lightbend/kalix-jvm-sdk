@@ -230,7 +230,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
       "fail if there's a CRDT command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
-            @com.akkaserverless.javasdk.crdt.CommandHandler
+            @com.akkaserverless.javasdk.replicatedentity.CommandHandler
             def addItem(msg: String) =
               Wrapped(msg)
           }, method())
