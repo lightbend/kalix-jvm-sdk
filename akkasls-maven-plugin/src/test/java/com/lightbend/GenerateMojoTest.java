@@ -30,12 +30,16 @@ public class GenerateMojoTest {
 
         FileUtils.deleteDirectory(projectDirectory.resolve("src/main/java").toFile());
         FileUtils.deleteDirectory(projectDirectory.resolve("src/test/java").toFile());
+        FileUtils.deleteDirectory(projectDirectory.resolve("target").toFile());
 
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
-        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/ShoppingCartService.java").toFile()
-                .exists());
+        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/ShoppingCartServiceImpl.java")
+                .toFile().exists());
+        assertTrue(projectDirectory.resolve(
+                "target/generated-sources/akkaserverless/java/com/example/shoppingcart/ShoppingCartService.java")
+                .toFile().exists());
         assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/ShoppingCartServiceTest.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
