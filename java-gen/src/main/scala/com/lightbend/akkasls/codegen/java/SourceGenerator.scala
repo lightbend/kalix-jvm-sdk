@@ -73,7 +73,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = testSourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
             testSourcePath,
-            testSource(entity, packageName, className, testClassName).layout.getBytes(
+            testSource(entity, packageName, implClassName, testClassName).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -328,7 +328,7 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def testSource(
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
-      className: String,
+      implClassName: String,
       testClassName: String
   ): Document = {
     val messageTypes =
@@ -352,7 +352,7 @@ object SourceGenerator extends PrettyPrinter {
       line <>
       `class`("public", testClassName) {
         "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
-        "private" <+> className <+> "entity" <> semi <> line <>
+        "private" <+> implClassName <+> "entity" <> semi <> line <>
         "private" <+> "CommandContext" <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
         ssep(
@@ -365,7 +365,9 @@ object SourceGenerator extends PrettyPrinter {
               List.empty,
               emptyDoc
             ) {
-              "entity" <+> equal <+> "new" <+> className <> parens("entityId") <> semi <> line <>
+              "entity" <+> equal <+> "new" <+> implClassName <> parens(
+                "entityId"
+              ) <> semi <> line <>
               line <>
               "// TODO: you may want to set fields in addition to the entity id" <> line <>
               "//" <> indent(
