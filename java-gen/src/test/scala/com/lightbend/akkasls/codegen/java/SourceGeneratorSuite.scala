@@ -13,14 +13,15 @@ import _root_.java.nio.file.Files
 class SourceGeneratorSuite extends munit.FunSuite {
 
   test("generate") {
-    val sourceDirectory = Files.createTempDirectory("source-generator-test")
+    val sourceDirectory          = Files.createTempDirectory("source-generator-test")
+    val generatedSourceDirectory = Files.createTempDirectory("generated-source-generator-test")
     try {
 
       val testSourceDirectory = Files.createTempDirectory("test-source-generator-test")
 
       try {
 
-        val source1     = sourceDirectory.resolve("com/example/service/MyService1.java")
+        val source1     = sourceDirectory.resolve("com/example/service/MyService1Impl.java")
         val sourceFile1 = source1.toFile
         FileUtils.forceMkdir(sourceFile1.getParentFile)
         FileUtils.touch(sourceFile1)
@@ -29,6 +30,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
         val testSourceFile2 = testSource2.toFile
         FileUtils.forceMkdir(testSourceFile2.getParentFile)
         FileUtils.touch(testSourceFile2)
+
+        val implSource1 =
+          generatedSourceDirectory.resolve("com/example/service/MyService1.java")
+        val implSourceFile1 = implSource1.toFile
+        val implSource2 =
+          generatedSourceDirectory.resolve("com/example/service/MyService2.java")
+        val implSourceFile2 = implSource2.toFile
+        FileUtils.forceMkdir(implSourceFile1.getParentFile)
+        FileUtils.touch(implSourceFile1)
+        FileUtils.touch(implSourceFile2)
 
         val service1Proto =
           PackageNaming(
@@ -131,6 +142,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           entities,
           sourceDirectory,
           testSourceDirectory,
+          generatedSourceDirectory,
           "com.example.service.Main"
         )
 
@@ -140,8 +152,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
         assertEquals(
           sources,
           List(
-            sourceDirectory.resolve("com/example/service/MyService2.java"),
-            sourceDirectory.resolve("com/example/service/something/MyService3.java"),
+            generatedSourceDirectory.resolve("com/example/service/MyService1.java"),
+            sourceDirectory.resolve("com/example/service/MyService2Impl.java"),
+            generatedSourceDirectory.resolve("com/example/service/MyService2.java"),
+            sourceDirectory.resolve("com/example/service/something/MyService3Impl.java"),
+            generatedSourceDirectory.resolve("com/example/service/something/MyService3.java"),
             testSourceDirectory.resolve("com/example/service/something/MyService3Test.java"),
             sourceDirectory.resolve("com/example/service/Main.java")
           )
@@ -209,10 +224,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-    val packageName = "com.example.service"
-    val className   = "MyServiceEntity"
+    val packageName        = "com.example.service"
+    val className          = "MyServiceEntityImpl"
+    val interfaceClassName = "MyServiceEntity"
 
-    val sourceDoc = SourceGenerator.source(entity, packageName, className)
+    val sourceDoc = SourceGenerator.source(entity, packageName, className, interfaceClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -224,40 +240,126 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "MyServiceEntity")
-      |public class MyServiceEntity {
+      |public class MyServiceEntityImpl extends MyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceEntity(@EntityId String entityId) {
+      |    public MyServiceEntityImpl(@EntityId String entityId) {
       |        this.entityId = entityId;
       |    }
       |    
-      |    @Snapshot
+      |    @Override
       |    public Domain.MyState snapshot() {
       |        // TODO: produce state snapshot here
       |        return Domain.MyState.newBuilder().build();
       |    }
       |    
-      |    @SnapshotHandler
+      |    @Override
       |    public void handleSnapshot(Domain.MyState snapshot) {
       |        // TODO: restore state from snapshot here
       |        
       |    }
       |    
-      |    @CommandHandler
+      |    @Override
       |    public Empty set(OuterClass.SetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
-      |    @CommandHandler
+      |    @Override
       |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |    
-      |    @EventHandler
+      |    @Override
       |    public void setEvent(Domain.SetEvent event) {
       |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
+      |}""".stripMargin
+    )
+  }
+
+  test("interface source") {
+
+    val serviceProto =
+      PackageNaming(
+        "MyService",
+        "com.example.service",
+        None,
+        None,
+        Some("OuterClass"),
+        false
+      )
+
+    val domainProto =
+      PackageNaming(
+        "Domain",
+        "com.example.service.persistence",
+        None,
+        None,
+        None,
+        false
+      )
+
+    val externalProto =
+      PackageNaming(
+        "EXT",
+        "com.external",
+        None,
+        None,
+        None,
+        true
+      )
+
+    val entity = ModelBuilder.EventSourcedEntity(
+      FullyQualifiedName("MyServiceEntity", serviceProto),
+      "MyServiceEntity",
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("Set", serviceProto),
+          FullyQualifiedName("SetValue", serviceProto),
+          FullyQualifiedName("Empty", externalProto)
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("Get", serviceProto),
+          FullyQualifiedName("GetValue", serviceProto),
+          FullyQualifiedName("MyState", serviceProto)
+        )
+      ),
+      List(
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
+      )
+    )
+
+    val packageName = "com.example.service"
+    val className   = "MyServiceEntity"
+
+    val sourceDoc = SourceGenerator.interfaceSource(entity, packageName, className)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+      |
+      |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.eventsourcedentity.*;
+      |import com.example.service.persistence.Domain;
+      |import com.external.Empty;
+      |
+      |/** An event sourced entity. */
+      |public abstract class MyServiceEntity {
+      |    @Snapshot
+      |    public abstract Domain.MyState snapshot();
+      |    
+      |    @SnapshotHandler
+      |    public abstract void handleSnapshot(Domain.MyState snapshot);
+      |    
+      |    @CommandHandler
+      |    public abstract Empty set(OuterClass.SetValue command, CommandContext ctx);
+      |    
+      |    @CommandHandler
+      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx);
+      |    
+      |    @EventHandler
+      |    public abstract void setEvent(Domain.SetEvent event);
       |}""".stripMargin
     )
   }
@@ -453,24 +555,24 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.example.service.something.OuterClass3;
-        |import com.example.service.something.MyService3;
+        |import com.example.service.something.MyService3Impl;
         |
         |public final class Main {
         |    
         |    public static void main(String[] args) throws Exception {
         |        new AkkaServerless()
         |            .registerEventSourcedEntity(
-        |                MyService1.class,
+        |                MyService1Impl.class,
         |                OuterClass1.getDescriptor().findServiceByName("MyService1"),
         |                OuterClass1.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
-        |                MyService2.class,
+        |                MyService2Impl.class,
         |                OuterClass2.getDescriptor().findServiceByName("MyService2"),
         |                OuterClass2.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
-        |                MyService3.class,
+        |                MyService3Impl.class,
         |                OuterClass3.getDescriptor().findServiceByName("MyService3"),
         |                OuterClass3.getDescriptor()
         |            )
