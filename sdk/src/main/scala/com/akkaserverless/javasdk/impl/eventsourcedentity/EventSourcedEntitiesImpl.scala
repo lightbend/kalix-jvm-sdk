@@ -172,7 +172,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
             val snapshot =
               if (context.performSnapshot) {
                 val s = handler.snapshot(new SnapshotContext with AbstractContext {
-                  override def entityId: String = entityId
+                  override def entityId: String = thisEntityId
                   override def sequenceNumber: Long = endSequenceNumber
                 })
                 if (s.isPresent) Option(ScalaPbAny.fromJavaProto(s.get)) else None
