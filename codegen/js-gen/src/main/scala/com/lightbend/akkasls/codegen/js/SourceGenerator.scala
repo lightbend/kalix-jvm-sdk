@@ -231,7 +231,7 @@ object SourceGenerator extends PrettyPrinter {
                       ) <+> braces(
                         nest(
                           line <>
-                          "throw ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
+                          "return ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
                         ) <> line
                       )
                     },

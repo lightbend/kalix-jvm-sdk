@@ -217,10 +217,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |entity.setBehavior(state => ({
         |  commandHandlers: {
         |    Set(command, state, ctx) {
-        |      throw ctx.fail("The command handler for `Set` is not implemented, yet");
+        |      return ctx.fail("The command handler for `Set` is not implemented, yet");
         |    },
         |    Get(command, state, ctx) {
-        |      throw ctx.fail("The command handler for `Get` is not implemented, yet");
+        |      return ctx.fail("The command handler for `Get` is not implemented, yet");
         |    }
         |  },
         |  
