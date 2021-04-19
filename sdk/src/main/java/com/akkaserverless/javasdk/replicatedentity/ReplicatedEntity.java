@@ -22,8 +22,8 @@ import java.lang.annotation.Target;
  * before creating the Replicated Data, the entity should check whether the Replicated Data has
  * already been created, for example, it may have been created on another node and replicated to
  * this node. To check, either use the {@link ReplicatedEntityContext#state(Class)} method, which
- * can be injected into the constructor or any {@link CommandHandler} method, or have an instance
- * of the Replicated Data wrapped in {@link java.util.Optional} injected into the constructor or
+ * can be injected into the constructor or any {@link CommandHandler} method, or have an instance of
+ * the Replicated Data wrapped in {@link java.util.Optional} injected into the constructor or
  * command handler methods.
  */
 @AkkaServerlessAnnotation
