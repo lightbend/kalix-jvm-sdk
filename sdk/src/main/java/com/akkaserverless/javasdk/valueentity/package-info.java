@@ -1,8 +1,8 @@
 /**
- * Value based entity support.
+ * Value Entity support.
  *
- * <p>Value based entities can be annotated with the {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity @Entity} annotation, and supply command
+ * <p>Value Entities can be annotated with the {@link
+ * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} annotation, and supply command
  * handlers using the {@link com.akkaserverless.javasdk.valueentity.CommandHandler @CommandHandler}
  * annotation.
  */

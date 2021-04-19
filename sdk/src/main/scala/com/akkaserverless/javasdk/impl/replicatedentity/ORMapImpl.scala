@@ -21,9 +21,10 @@ private object ORMapImpl {
 /**
  * A few notes on implementation:
  *
- * - put, and any similar operations (such as Map.Entry.setValue) are not supported, because the only way to create
- *   a CRDT is using a CrdtFactory, and we only make CrdtFactory's available in very specific contexts, such as in the
- *   getOrCreate method. The getOrCreate method is the only way to insert something new into the map.
+ * - put, and any similar operations (such as Map.Entry.setValue) are not supported, because the only way to create a
+ *   Replicated Data object is using a ReplicatedDataFactory, and we only make ReplicatedDataFactory available in very
+ *   specific contexts, such as in the getOrCreate method. The getOrCreate method is the only way to insert something
+ *   new into the map.
  * - All mechanisms for removal are supported - eg, calling remove directly, calling remove on any of the derived sets
  *   (entrySet, keySet, values), and calling remove on the entrySet iterator.
  * - ju.AbstractMap is very useful, though bases most of its implementation on entrySet, so we need to take care to
@@ -61,10 +62,10 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
         }
       })
       if (data == null) {
-        throw new IllegalArgumentException("getOrCreate creation callback must return a CRDT")
+        throw new IllegalArgumentException("getOrCreate creation callback must return a Replicated Data object")
       } else if (data != internalData) {
         throw new IllegalArgumentException(
-          "Replicated data returned by getOrCreate creation callback must have been created by the ReplicatedDataFactory passed to it"
+          "Replicated Data returned by getOrCreate creation callback must have been created by the ReplicatedDataFactory passed to it"
         )
       }
 

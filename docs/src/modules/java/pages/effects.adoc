@@ -6,7 +6,7 @@ This page documents how to use Akka Serverless effects and forwarding in Java. F
 
 To forward a command or emit an effect, a reference to the service call that will be invoked needs to be looked up. This can be done using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/ServiceCallFactory.html[ServiceCallFactory] interface, which is accessible on any context object via the link:{attachmentsdir}/api/com/akkaserverless/javasdk/Context.html#serviceCallFactory()[`serviceCallFactory()`] method.
 
-For example, if a user function serves two entity types, a shopping cart, and a CRDT that tracks which items are currently in hot demand, it might want to invoke the `ItemAddedToCart` command on `example.shoppingcart.HotItems` as a side effect of the `AddItem` shopping cart command. This reference can be looked up like so:
+For example, if a user function serves two entity types, a shopping cart, and a Replicated Entity that tracks which items are currently in hot demand, it might want to invoke the `ItemAddedToCart` command on `example.shoppingcart.HotItems` as a side effect of the `AddItem` shopping cart command. This reference can be looked up like so:
 
 [source,java]
 ----

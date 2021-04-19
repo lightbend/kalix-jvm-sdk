@@ -1,9 +1,9 @@
 /**
- * Replicated Entity (Conflict-free Replicated Data Type) support.
+ * Replicated Entity support.
  *
- * <p>Replicated entities can be annotated with the {@link
- * com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity @CrdtEntity} annotation, and supply
- * command handlers using the {@link
+ * <p>Replicated Entities can be annotated with the {@link
+ * com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity @ReplicatedEntity} annotation, and
+ * supply command handlers using the {@link
  * com.akkaserverless.javasdk.replicatedentity.CommandHandler @CommandHandler} annotation.
  *
  * <p>The data stored by a replicated entity can be stored in a subtype of {@link

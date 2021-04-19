@@ -133,19 +133,19 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
 import org.scalatest.matchers.should.Matchers._
 
 @ReplicatedEntity
-private class OptionalEmptyEntityConstructorTest(crdt: Optional[Vote]) {
-  crdt should ===(Optional.empty())
+private class OptionalEmptyEntityConstructorTest(replicatedData: Optional[Vote]) {
+  replicatedData should ===(Optional.empty())
 }
 
 @ReplicatedEntity
-private class OptionalEntityConstructorTest(crdt: Optional[Vote]) {
-  crdt.isPresent shouldBe true
-  crdt.get shouldBe a[Vote]
+private class OptionalEntityConstructorTest(replicatedData: Optional[Vote]) {
+  replicatedData.isPresent shouldBe true
+  replicatedData.get shouldBe a[Vote]
 }
 
 @ReplicatedEntity
-private class ReplicatedEntityConstructorTest(crdt: Vote) {
-  crdt shouldBe a[Vote]
+private class ReplicatedEntityConstructorTest(replicatedData: Vote) {
+  replicatedData shouldBe a[Vote]
 }
 
 @ReplicatedEntity

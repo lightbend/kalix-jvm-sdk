@@ -8,7 +8,7 @@ import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.stream.scaladsl.{Keep, Sink}
 import akka.stream.KillSwitches
-import com.example.replicated_entity.replicated_entity_example._
+import com.example.replicatedentity.replicated_entity_example._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}

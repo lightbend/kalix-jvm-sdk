@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package docs.user.crdt;
+package docs.user.replicatedentity;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.replicatedentity.*;

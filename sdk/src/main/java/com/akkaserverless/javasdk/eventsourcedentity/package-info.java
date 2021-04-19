@@ -1,7 +1,7 @@
 /**
- * Event Sourcing support.
+ * Event Sourced Entity support.
  *
- * <p>Event sourced entities can be annotated with the {@link
+ * <p>Event Sourced Entities can be annotated with the {@link
  * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity @EventSourcedEntity} annotation,
  * and supply command handlers using the {@link
  * com.akkaserverless.javasdk.eventsourcedentity.CommandHandler @CommandHandler} annotation.

@@ -40,7 +40,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
       case Array(single) =>
         new EntityConstructorInvoker(ReflectionHelper.ensureAccessible(single))
       case _ =>
-        throw new RuntimeException(s"Only a single constructor is allowed on CRDT entities: $entityClass")
+        throw new RuntimeException(s"Only a single constructor is allowed on Replicated Entity: $entityClass")
     }
   }
 
@@ -99,7 +99,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
 
       maybeResult.getOrElse {
         throw new RuntimeException(
-          s"No command handler found for command [${context.commandName()}] on CRDT entity: $entityClass"
+          s"No command handler found for command [${context.commandName()}] on Replicated Entity: $entityClass"
         )
       }
     }
@@ -115,7 +115,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
 
       maybeResult.getOrElse {
         throw new RuntimeException(
-          s"No streamed command handler found for command [${context.commandName()}] on CRDT entity: $entityClass"
+          s"No streamed command handler found for command [${context.commandName()}] on Replicated Entity: $entityClass"
         )
       }
     }

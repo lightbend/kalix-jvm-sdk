@@ -49,7 +49,7 @@ apidocs:
 ${descriptor}: ${cloudstate_antora}
 	mkdir -p $$(dirname ${descriptor})
 	${cloudstate_antora} source --preview --upstream ${upstream} ${sources} > build/source.yml
-	${cloudstate_antora} site --preview --exclude ${module} build/source.yml > ${descriptor}
+	${cloudstate_antora} site --preview --exclude ${module} --exclude springboot build/source.yml > ${descriptor}
 
 validate: ${descriptor}
 	${cloudstate_antora} validate ${descriptor}

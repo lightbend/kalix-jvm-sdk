@@ -5,14 +5,14 @@
 package com.akkaserverless.javasdk.replicatedentity;
 
 /**
- * Factory for creating replicated data items.
+ * Factory for creating Replicated Data objects.
  *
- * <p>This is used both by Replicated Entity contexts that allow creating Replicated Entities, as
- * well as by Replicated Entities that allow nesting other Replicated Entities.
+ * <p>This is used both by Replicated Entity contexts that allow creating Replicated Data objects,
+ * as well as by Replicated Data objects that allow nesting other Replicated Data.
  *
- * <p>Replicated Entities may only be created by a supplied Replicated Entity factory, Replicated
- * Entities created any other way will not be known by the library and so won't have their deltas
- * synced to and from the proxy.
+ * <p>Replicated Data objects may only be created by a supplied Replicated Data factory. Replicated
+ * Data objects created any other way will not be known by the library and so won't have their
+ * deltas synced to and from the proxy.
  */
 public interface ReplicatedDataFactory {
   /**

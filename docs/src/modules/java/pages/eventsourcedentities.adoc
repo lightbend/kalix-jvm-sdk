@@ -1,4 +1,4 @@
-= Implementing event sourced entities
+= Implementing Event Sourced Entities
 
 This page documents how to implement Akka Serverless event sourced entities in Java. For information on what Akka Serverless event sourced entities are, please read the general xref:concepts:eventsourced.adoc[Event sourcing] documentation first.
 

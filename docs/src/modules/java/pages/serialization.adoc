@@ -2,8 +2,8 @@
 
 Akka Serverless functions serve gRPC interfaces, and naturally the input and output messages are protobuf messages that get serialized to the protobuf wire format. However, in addition to these messages, there are a number of places where Akka Serverless needs to serialize other objects, for persistence and replication. This includes:
 
-* Event sourced xref:eventsourced.adoc#persistence-types-and-serialization[events and snapshots].
-* CRDT xref:crdt.adoc#sets-and-maps[map keys and set elements], and xref:crdt.adoc#registers[LWWRegister values].
+* Event Sourced Entity xref:eventsourcedentities.adoc#persistence-types-and-serialization[events and snapshots].
+* Replicated Entity xref:replicatedentities.adoc#sets-and-maps[map keys and set elements], and xref:replicatedentities.adoc#registers[LWWRegister values].
 
 Akka Serverless supports a number of types and serialization options for these values.
 
@@ -46,4 +46,4 @@ Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize 
 
 The serialization of JSON values is described in xref:contribute:serialization.adoc#json-values[Language support / Akka Serverless serialization convention].
 
-Note that if you are using JSON values in CRDT sets or maps, the serialization of these values **must** be stable. This means you must not use maps or sets in your value, and you should define an explicit ordering for the fields in your objects, using the http://fasterxml.github.io/jackson-annotations/javadoc/2.9/com/fasterxml/jackson/annotation/JsonPropertyOrder.html[`@JsonPropertyOrder`] annotation. This constraint is explained in xref:concepts:crdts.adoc[CRDTs].
+Note that if you are using JSON values in Replicated Entity sets or maps, the serialization of these values **must** be stable. This means you must not use maps or sets in your value, and you should define an explicit ordering for the fields in your objects, using the http://fasterxml.github.io/jackson-annotations/javadoc/2.9/com/fasterxml/jackson/annotation/JsonPropertyOrder.html[`@JsonPropertyOrder`] annotation. This constraint is explained in xref:concepts:crdts.adoc[CRDTs].

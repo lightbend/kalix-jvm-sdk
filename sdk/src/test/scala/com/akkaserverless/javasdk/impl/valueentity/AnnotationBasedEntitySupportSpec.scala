@@ -228,7 +228,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         ex.getMessage should ===("foo")
       }
 
-      "fail if there's a CRDT command handler" in {
+      "fail if there's a ReplicatedEntity command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
             @com.akkaserverless.javasdk.replicatedentity.CommandHandler
             def addItem(msg: String) =
@@ -238,7 +238,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         ex.getMessage should include(classOf[CommandHandler].getName)
       }
 
-      "fail if there's a EventSourced command handler" in {
+      "fail if there's an EventSourcedEntity command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
             @com.akkaserverless.javasdk.eventsourcedentity.CommandHandler
             def addItem(msg: String) =

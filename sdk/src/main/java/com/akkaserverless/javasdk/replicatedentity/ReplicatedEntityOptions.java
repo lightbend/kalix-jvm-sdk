@@ -14,9 +14,9 @@ public interface ReplicatedEntityOptions extends EntityOptions {
   ReplicatedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   /**
-   * Create a default CRDT entity option.
+   * Create default Replicated Entity options.
    *
-   * @return the entity option
+   * @return the entity options
    */
   static ReplicatedEntityOptions defaults() {
     return new ReplicatedEntityOptionsImpl(PassivationStrategy.defaultTimeout());
