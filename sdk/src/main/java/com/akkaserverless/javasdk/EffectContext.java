@@ -17,7 +17,8 @@ public interface EffectContext extends Context {
    * from any (including this) contexts {@link Context#serviceCallFactory()} method.
    *
    * @param effect The service call to make as an effect effect.
-   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and attach effects to it instead.
+   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and attach effects to it
+   *     instead.
    */
   @Deprecated
   default void effect(ServiceCall effect) {
@@ -33,7 +34,8 @@ public interface EffectContext extends Context {
    * @param effect The service call to make as an effect effect.
    * @param synchronous Whether the effect should be performed synchronously (ie, wait till it has
    *     finished before sending a reply) or asynchronously.
-   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and attach effects to it instead.
+   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and attach effects to it
+   *     instead.
    */
   @Deprecated
   void effect(ServiceCall effect, boolean synchronous);

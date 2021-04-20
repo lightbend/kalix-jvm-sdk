@@ -31,7 +31,8 @@ public interface ClientActionContext extends Context {
    * from any (including this) contexts {@link Context#serviceCallFactory()} method.
    *
    * @param to The service call to forward command processing to.
-   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and construct a forward with it instead.
+   * @deprecated Use return type {@link com.akkaserverless.javasdk.Reply} and construct a forward
+   *     with it instead.
    */
   @Deprecated
   void forward(ServiceCall to);
