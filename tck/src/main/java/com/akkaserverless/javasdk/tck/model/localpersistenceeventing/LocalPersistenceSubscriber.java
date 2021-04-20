@@ -9,7 +9,7 @@ import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.ActionReply;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.action.Handler;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
@@ -18,13 +18,13 @@ import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 public class LocalPersistenceSubscriber {
 
   @Handler
-  public ActionReply<LocalPersistenceEventing.Response> processEventOne(
+  public Reply<LocalPersistenceEventing.Response> processEventOne(
       ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.EventOne eventOne) {
     return convert(context, cloudEvent, eventOne.getStep());
   }
 
   @Handler
-  public Source<ActionReply<LocalPersistenceEventing.Response>, NotUsed> processEventTwo(
+  public Source<Reply<LocalPersistenceEventing.Response>, NotUsed> processEventTwo(
       ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.EventTwo eventTwo) {
     return Source.from(eventTwo.getStepList()).map(step -> convert(context, cloudEvent, step));
   }
@@ -39,13 +39,13 @@ public class LocalPersistenceSubscriber {
   }
 
   @Handler
-  public ActionReply<LocalPersistenceEventing.Response> processValueOne(
+  public Reply<LocalPersistenceEventing.Response> processValueOne(
       ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ValueOne valueOne) {
     return convert(context, cloudEvent, valueOne.getStep());
   }
 
   @Handler
-  public Source<ActionReply<LocalPersistenceEventing.Response>, NotUsed> processValueTwo(
+  public Source<Reply<LocalPersistenceEventing.Response>, NotUsed> processValueTwo(
       ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ValueTwo valueTwo) {
     return Source.from(valueTwo.getStepList()).map(step -> convert(context, cloudEvent, step));
   }
@@ -67,17 +67,17 @@ public class LocalPersistenceSubscriber {
         .build();
   }
 
-  private ActionReply<LocalPersistenceEventing.Response> convert(
+  private Reply<LocalPersistenceEventing.Response> convert(
       ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ProcessStep step) {
     String id = cloudEvent.subject().orElse("");
     if (step.hasReply()) {
-      return ActionReply.message(
+      return Reply.message(
           LocalPersistenceEventing.Response.newBuilder()
               .setId(id)
               .setMessage(step.getReply().getMessage())
               .build());
     } else if (step.hasForward()) {
-      return ActionReply.forward(
+      return Reply.forward(
           context
               .serviceCallFactory()
               .lookup(

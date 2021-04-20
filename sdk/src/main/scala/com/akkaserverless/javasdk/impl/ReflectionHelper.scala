@@ -6,8 +6,9 @@ package com.akkaserverless.javasdk.impl
 
 import akka.NotUsed
 import com.akkaserverless.javasdk._
+import com.akkaserverless.javasdk.action.MessageEnvelope
+import com.akkaserverless.javasdk.reply.MessageReply
 import com.google.protobuf.{Any => JavaPbAny}
-
 import java.lang.annotation.Annotation
 import java.lang.reflect.{AccessibleObject, Executable, Member, Method, ParameterizedType, Type, WildcardType}
 import java.util.Optional
@@ -176,9 +177,66 @@ private[impl] object ReflectionHelper {
       )
     }
 
+  def getOutputParameterMapper[T](method: String,
+                                  resolvedType: ResolvedType[T],
+                                  returnType: Type,
+                                  anySupport: AnySupport,
+                                  specialMappers: PartialFunction[Class[_], (Class[_], Any => Reply[JavaPbAny])] =
+                                    PartialFunction.empty): Any => Reply[JavaPbAny] = {
+    val defaultMappers: Function[Class[_], (Class[_], Any => Reply[JavaPbAny])] = {
+
+      case message if message == classOf[Reply[_]] =>
+        val payload = ReflectionHelper.getFirstParameter(returnType)
+        if (payload.isAnnotationPresent(classOf[Jsonable])) {
+          (classOf[com.google.protobuf.Any], { any: Any =>
+            val message = any.asInstanceOf[Reply[T]]
+            message match {
+              case envelope: MessageReply[T] =>
+                Reply
+                  .message(anySupport.encodeJava(envelope.payload()))
+                  .withEffects(envelope.effects)
+              case other => other.asInstanceOf[Reply[JavaPbAny]]
+            }
+          })
+        } else {
+          (payload, { any: Any =>
+            val message = any.asInstanceOf[Reply[T]]
+            message match {
+              case envelope: MessageReply[T] =>
+                Reply
+                  .message(serialize(resolvedType, envelope.payload), envelope.metadata)
+                  .withEffects(envelope.effects)
+              case other => other.asInstanceOf[Reply[JavaPbAny]]
+            }
+          })
+        }
+
+      case payload if payload.isAnnotationPresent(classOf[Jsonable]) =>
+        (classOf[com.google.protobuf.Any], { any: Any =>
+          Reply.message(anySupport.encodeJava(any))
+        })
+
+      case payload =>
+        (payload, { any: Any =>
+          Reply.message(ReflectionHelper.serialize(resolvedType.asInstanceOf[ResolvedType[Any]], any))
+        })
+    }
+    val (payloadClass, mapper): (Class[_], Any => Reply[JavaPbAny]) = {
+      specialMappers.applyOrElse(ReflectionHelper.getRawType(returnType), defaultMappers)
+    }
+
+    if (payloadClass != resolvedType.typeClass) {
+      throw new RuntimeException(
+        s"Incompatible return type $payloadClass for call $method, expected ${resolvedType.typeClass}"
+      )
+    }
+    mapper
+  }
+
   final class CommandHandlerInvoker[CommandContext <: Context: ClassTag](
       val method: Method,
       val serviceMethod: ResolvedServiceMethod[_, _],
+      anySupport: AnySupport,
       extraParameters: PartialFunction[MethodParameter, ParameterHandler[AnyRef, CommandContext]] =
         PartialFunction.empty
   ) {
@@ -196,11 +254,7 @@ private[impl] object ReflectionHelper {
       .getOrElse(_ => NotUsed)
 
     private def serialize(result: AnyRef) =
-      JavaPbAny
-        .newBuilder()
-        .setTypeUrl(serviceMethod.outputType.typeUrl)
-        .setValue(serviceMethod.outputType.asInstanceOf[ResolvedType[Any]].toByteString(result))
-        .build()
+      ReflectionHelper.serialize(serviceMethod.outputType.asInstanceOf[ResolvedType[AnyRef]], result)
 
     private def verifyOutputType(t: Type): Unit =
       if (!serviceMethod.outputType.typeClass.isAssignableFrom(getRawType(t))) {
@@ -209,31 +263,42 @@ private[impl] object ReflectionHelper {
         )
       }
 
-    private val handleResult: AnyRef => Optional[JavaPbAny] = if (method.getReturnType == Void.TYPE) { _ =>
-      Optional.empty()
+    private val handleResult: AnyRef => Reply[JavaPbAny] = if (method.getReturnType == Void.TYPE) { _ =>
+      Reply.noReply()
     } else if (method.getReturnType == classOf[Optional[_]]) {
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 
       { result =>
         val asOptional = result.asInstanceOf[Optional[AnyRef]]
         if (asOptional.isPresent) {
-          Optional.of(serialize(asOptional.get()))
+          Reply.message(serialize(asOptional.get()))
         } else {
-          Optional.empty()
+          Reply.noReply()
         }
       }
+    } else if (method.getReturnType == classOf[Reply[_]]) {
+      verifyOutputType(getFirstParameter(method.getGenericReturnType))
+
+      getOutputParameterMapper(method.getName, serviceMethod.outputType, method.getGenericReturnType, anySupport)
     } else {
       verifyOutputType(method.getReturnType)
-      result => Optional.of(serialize(result))
+      result => Reply.message(serialize(result))
     }
 
-    def invoke(obj: AnyRef, command: JavaPbAny, context: CommandContext): Optional[JavaPbAny] = {
+    def invoke(obj: AnyRef, command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = {
       val decodedCommand = mainArgumentDecoder(command)
       val ctx = InvocationContext(decodedCommand, context)
       val result = method.invoke(obj, parameters.map(_.apply(ctx)): _*)
       handleResult(result)
     }
   }
+
+  def serialize[T](resolvedType: ResolvedType[T], result: T): JavaPbAny =
+    JavaPbAny
+      .newBuilder()
+      .setTypeUrl(resolvedType.typeUrl)
+      .setValue(resolvedType.toByteString(result))
+      .build()
 
   def getMainArgumentDecoder(name: String, actualType: Class[_], pbType: ResolvedType[_]): JavaPbAny => AnyRef =
     if (actualType.isAssignableFrom(pbType.typeClass)) { pbAny =>

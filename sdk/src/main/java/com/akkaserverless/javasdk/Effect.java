@@ -2,10 +2,9 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.impl.action.EffectImpl;
+import com.akkaserverless.javasdk.impl.reply.EffectImpl;
 
 /** An effect. */
 public interface Effect {

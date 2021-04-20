@@ -2,14 +2,16 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk.reply;
 
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.Metadata;
+import com.akkaserverless.javasdk.Reply;
 
 import java.util.Collection;
 
 /** A message reply. */
-public interface MessageReply<T> extends ActionReply<T> {
+public interface MessageReply<T> extends Reply<T> {
 
   /**
    * The payload of the message reply.

@@ -7,18 +7,18 @@ package com.akkaserverless.javasdk.impl.action
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Sink, Source}
+import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk._
+import com.akkaserverless.javasdk.impl.reply.ReplySupport
+import com.akkaserverless.javasdk.reply.{FailureReply, ForwardReply, MessageReply}
 import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
-import com.akkaserverless.protocol.component.{Failure, Forward, Reply, SideEffect, Metadata => PbMetadata}
+import com.akkaserverless.protocol.component.Failure
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
-import java.util
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
 
 final class ActionService(val actionHandler: ActionHandler,
                           override val descriptor: Descriptors.ServiceDescriptor,
@@ -43,57 +43,18 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
 
-  private def toOptionPbMetadata(metadata: Metadata) =
-    metadata match {
-      case impl: MetadataImpl if impl.entries.nonEmpty =>
-        Some(PbMetadata(impl.entries))
-      case _: MetadataImpl => None
-      case other => throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
-    }
-
-  private def actionMessageToReply(msg: ActionReply[JavaPbAny]) = {
+  private def replyToActionResponse(msg: javasdk.Reply[JavaPbAny]): ActionResponse = {
     val response = msg match {
       case message: MessageReply[JavaPbAny] =>
-        ActionResponse.Response.Reply(
-          Reply(
-            Some(ScalaPbAny.fromJavaProto(message.payload())),
-            toOptionPbMetadata(message.metadata())
-          )
-        )
+        ActionResponse.Response.Reply(ReplySupport.asProtocol(message))
       case forward: ForwardReply[JavaPbAny] =>
-        ActionResponse.Response.Forward(
-          Forward(
-            forward.serviceCall().ref().method().getService.getFullName,
-            forward.serviceCall().ref().method().getName,
-            Some(ScalaPbAny.fromJavaProto(forward.serviceCall().message())),
-            toOptionPbMetadata(forward.serviceCall().metadata())
-          )
-        )
+        ActionResponse.Response.Forward(ReplySupport.asProtocol(forward))
       case failure: FailureReply[JavaPbAny] =>
-        ActionResponse.Response.Failure(
-          Failure(description = failure.description())
-        )
+        ActionResponse.Response.Failure(Failure(description = failure.description()))
       // ie, NoReply
       case _ => ActionResponse.Response.Empty
     }
-
-    val effects = msg match {
-      case impl: ActionReplyImpl[_] =>
-        impl._effects
-      case other =>
-        other.effects().asScala.toList
-    }
-    val encodedEffects = effects.map { effect =>
-      SideEffect(
-        effect.serviceCall().ref().method().getService.getFullName,
-        effect.serviceCall().ref().method().getName,
-        Some(ScalaPbAny.fromJavaProto(effect.serviceCall().message())),
-        effect.synchronous(),
-        toOptionPbMetadata(effect.serviceCall().metadata())
-      )
-    }
-
-    ActionResponse(response, encodedEffects)
+    ActionResponse(response, ReplySupport.effectsFrom(msg))
   }
 
   /**
@@ -109,7 +70,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         service.actionHandler
           .handleUnary(in.name, MessageEnvelope.of(toJavaPbAny(in.payload), context.metadata()), context)
           .toScala
-          .map(actionMessageToReply)
+          .map(replyToActionResponse)
       case None =>
         Future.successful(
           ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName)))
@@ -158,7 +119,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   createContext(call)
                 )
                 .toScala
-                .map(actionMessageToReply)
+                .map(replyToActionResponse)
             case None =>
               Future.successful(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
@@ -182,7 +143,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         service.actionHandler
           .handleStreamedOut(in.name, MessageEnvelope.of(toJavaPbAny(in.payload), context.metadata()), context)
           .asScala
-          .map(actionMessageToReply)
+          .map(replyToActionResponse)
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
@@ -231,7 +192,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   createContext(call)
                 )
                 .asScala
-                .map(actionMessageToReply)
+                .map(replyToActionResponse)
             case None =>
               Source.single(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
@@ -249,44 +210,4 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   }
 }
 
-trait ActionReplyImpl[T] extends ActionReply[T] {
-  override def isEmpty: Boolean = false
-  def _effects: List[Effect]
-  override def effects(): util.Collection[Effect] = _effects.asJava
-}
 case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
-case class MessageReplyImpl[T](payload: T, metadata: Metadata, _effects: List[Effect])
-    extends MessageReply[T]
-    with ActionReplyImpl[T] {
-  def this(payload: T, metadata: Metadata) = this(payload, metadata, Nil)
-  override def withEffects(effects: util.Collection[Effect]): MessageReply[T] = addEffects(effects.asScala)
-  override def withEffects(effects: Effect*): MessageReply[T] = addEffects(effects)
-  private def addEffects(effects: Iterable[Effect]): MessageReply[T] = copy(_effects = _effects ++ effects)
-}
-case class ForwardReplyImpl[T](serviceCall: ServiceCall, _effects: List[Effect])
-    extends ForwardReply[T]
-    with ActionReplyImpl[T] {
-  def this(serviceCall: ServiceCall) = this(serviceCall, Nil)
-  override def withEffects(effects: util.Collection[Effect]): ForwardReply[T] = addEffects(effects.asScala)
-  override def withEffects(effects: Effect*): ForwardReply[T] = addEffects(effects)
-  private def addEffects(effects: Iterable[Effect]): ForwardReply[T] = copy(_effects = _effects ++ effects)
-}
-case class FailureReplyImpl[T](description: String, _effects: List[Effect])
-    extends FailureReply[T]
-    with ActionReplyImpl[T] {
-  def this(description: String) = this(description, Nil)
-  override def withEffects(effects: util.Collection[Effect]): FailureReply[T] = addEffects(effects.asScala)
-  override def withEffects(effects: Effect*): FailureReply[T] = addEffects(effects)
-  private def addEffects(effects: Iterable[Effect]): FailureReply[T] = copy(_effects = _effects ++ effects)
-}
-case class NoReply[T](_effects: List[Effect]) extends ActionReplyImpl[T] {
-  override def isEmpty: Boolean = true
-  override def withEffects(effects: util.Collection[Effect]): NoReply[T] = addEffects(effects.asScala)
-  override def withEffects(effects: Effect*): NoReply[T] = addEffects(effects)
-  private def addEffects(effects: Iterable[Effect]): NoReply[T] = copy(_effects = _effects ++ effects)
-}
-object NoReply {
-  private val instance = NoReply[Any](Nil)
-  def apply[T]: ActionReply[T] = instance.asInstanceOf[NoReply[T]]
-}
-case class EffectImpl(serviceCall: ServiceCall, synchronous: Boolean) extends Effect

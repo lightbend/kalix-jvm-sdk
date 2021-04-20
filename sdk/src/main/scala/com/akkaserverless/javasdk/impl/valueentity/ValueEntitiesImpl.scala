@@ -11,7 +11,9 @@ import akka.stream.scaladsl.Flow
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.impl.reply.ReplySupport
+import com.akkaserverless.javasdk.reply.FailureReply
+import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.{Delete, Update}
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{
   Command => InCommand,
@@ -22,7 +24,6 @@ import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Fa
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
@@ -120,10 +121,10 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             service.anySupport,
             log
           )
-          val reply = try {
+          val reply: Reply[JavaPbAny] = try {
             handler.handleCommand(cmd, context)
           } catch {
-            case FailInvoked => Option.empty[JavaPbAny].asJava
+            case FailInvoked => Reply.noReply() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
             case NonFatal(error) =>
               throw EntityException(command, s"Value entity unexpected failure: ${error.getMessage}")
@@ -131,8 +132,8 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          val clientAction = context.createClientAction(reply, false, false)
-          if (!context.hasError) {
+          val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
+          if (!context.hasError && !reply.isInstanceOf[FailureReply[_]]) {
             val nextState = context.currentState()
             (nextState,
              Some(
@@ -140,7 +141,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
                  ValueEntityReply(
                    command.id,
                    clientAction,
-                   context.sideEffects,
+                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
                    context.action
                  )
                )

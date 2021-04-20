@@ -1,0 +1,59 @@
+/*
+ * Copyright 2019 Lightbend Inc.
+ */
+
+package com.akkaserverless.javasdk.impl.reply
+
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.impl.MetadataImpl
+import com.akkaserverless.javasdk.reply.{ForwardReply, MessageReply}
+import com.akkaserverless.protocol.component
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.{Any => JavaPbAny}
+import scala.jdk.CollectionConverters._
+
+object ReplySupport {
+  private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
+    metadata match {
+      case impl: MetadataImpl if impl.entries.nonEmpty =>
+        Some(component.Metadata(impl.entries))
+      case _: MetadataImpl => None
+      case other =>
+        throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
+    }
+
+  def asProtocol(message: MessageReply[JavaPbAny]): component.Reply =
+    component.Reply(
+      Some(ScalaPbAny.fromJavaProto(message.payload())),
+      asProtocol(message.metadata())
+    )
+
+  def asProtocol(forward: ForwardReply[_]): component.Forward =
+    component.Forward(
+      forward.serviceCall().ref().method().getService.getFullName,
+      forward.serviceCall().ref().method().getName,
+      Some(ScalaPbAny.fromJavaProto(forward.serviceCall().message())),
+      asProtocol(forward.serviceCall().metadata())
+    )
+
+  def effectsFrom(reply: javasdk.Reply[JavaPbAny]): List[component.SideEffect] = {
+    val replyEffects: List[javasdk.Effect] = reply match {
+      case impl: ReplyImpl[_] =>
+        impl._effects
+      case other =>
+        other.effects().asScala.toList
+    }
+
+    val encodedEffects = replyEffects.map { effect =>
+      component.SideEffect(
+        effect.serviceCall().ref().method().getService.getFullName,
+        effect.serviceCall().ref().method().getName,
+        Some(ScalaPbAny.fromJavaProto(effect.serviceCall().message())),
+        effect.synchronous(),
+        asProtocol(effect.serviceCall().metadata())
+      )
+    }
+    encodedEffects
+  }
+
+}

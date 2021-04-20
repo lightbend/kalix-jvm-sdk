@@ -4,9 +4,8 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
+import com.akkaserverless.javasdk.Reply;
 import com.google.protobuf.Any;
-
-import java.util.Optional;
 
 /**
  * Low level interface for handling commands on a value based entity.
@@ -23,5 +22,5 @@ public interface ValueEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  Optional<Any> handleCommand(Any command, CommandContext<Any> context);
+  Reply<Any> handleCommand(Any command, CommandContext<Any> context);
 }

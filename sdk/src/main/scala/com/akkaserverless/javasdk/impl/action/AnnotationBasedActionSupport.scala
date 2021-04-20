@@ -8,10 +8,11 @@ import akka.NotUsed
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import akka.stream.{javadsl, Materializer}
-import com.akkaserverless.javasdk.Jsonable
+import com.akkaserverless.javasdk.{Jsonable, Reply}
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, ParameterHandler}
 import com.akkaserverless.javasdk.impl._
+import com.akkaserverless.javasdk.reply.MessageReply
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.lang.reflect.{InvocationTargetException, Method, Type}
 import java.util.concurrent.{CompletableFuture, CompletionStage}
@@ -36,7 +37,7 @@ private[impl] class AnnotationBasedActionSupport(
 
   override def handleUnary(commandName: String,
                            message: MessageEnvelope[JavaPbAny],
-                           context: ActionContext): CompletionStage[ActionReply[JavaPbAny]] = unwrap {
+                           context: ActionContext): CompletionStage[Reply[JavaPbAny]] = unwrap {
     behavior.unaryHandlers.get(commandName) match {
       case Some(handler) =>
         handler.invoke(action, message, context)
@@ -49,7 +50,7 @@ private[impl] class AnnotationBasedActionSupport(
 
   override def handleStreamedOut(commandName: String,
                                  message: MessageEnvelope[JavaPbAny],
-                                 context: ActionContext): Source[ActionReply[JavaPbAny], NotUsed] = unwrap {
+                                 context: ActionContext): Source[Reply[JavaPbAny], NotUsed] = unwrap {
     behavior.serverStreamedHandlers.get(commandName) match {
       case Some(handler) =>
         handler.invoke(action, message, context)
@@ -62,7 +63,7 @@ private[impl] class AnnotationBasedActionSupport(
 
   override def handleStreamedIn(commandName: String,
                                 stream: Source[MessageEnvelope[JavaPbAny], NotUsed],
-                                context: ActionContext): CompletionStage[ActionReply[JavaPbAny]] =
+                                context: ActionContext): CompletionStage[Reply[JavaPbAny]] =
     behavior.clientStreamedHandlers.get(commandName) match {
       case Some(handler) =>
         handler.invoke(action, stream, context)
@@ -74,7 +75,7 @@ private[impl] class AnnotationBasedActionSupport(
 
   override def handleStreamed(commandName: String,
                               stream: Source[MessageEnvelope[JavaPbAny], NotUsed],
-                              context: ActionContext): Source[ActionReply[JavaPbAny], NotUsed] =
+                              context: ActionContext): Source[Reply[JavaPbAny], NotUsed] =
     behavior.streamedHandlers.get(commandName) match {
       case Some(handler) =>
         handler.invoke(action, stream, context)
@@ -178,76 +179,21 @@ private object ActionReflection {
   def getOutputParameterMapper[T](method: String,
                                   resolvedType: ResolvedType[T],
                                   returnType: Type,
-                                  anySupport: AnySupport): Any => ActionReply[JavaPbAny] = {
-    val (payloadClass, mapper) = ReflectionHelper.getRawType(returnType) match {
-      case envelope if envelope == classOf[MessageEnvelope[_]] =>
-        val payload = ReflectionHelper.getFirstParameter(returnType)
-        (payload, { any: Any =>
-          val envelope = any.asInstanceOf[MessageEnvelope[T]]
-          ActionReply.message(JavaPbAny
-                                .newBuilder()
-                                .setValue(resolvedType.toByteString(envelope.payload))
-                                .setTypeUrl(resolvedType.typeUrl)
-                                .build(),
-                              envelope.metadata)
-        })
-      case message if message == classOf[ActionReply[_]] =>
-        val payload = ReflectionHelper.getFirstParameter(returnType)
-        if (payload.isAnnotationPresent(classOf[Jsonable])) {
-          (classOf[com.google.protobuf.Any], { any: Any =>
-            val message = any.asInstanceOf[ActionReply[T]]
-            message match {
-              case envelope: MessageReply[T] =>
-                ActionReply
-                  .message(
-                    anySupport.encodeJava(envelope.payload())
-                  )
-                  .withEffects(envelope.effects)
-              case other => other.asInstanceOf[ActionReply[JavaPbAny]]
-            }
-          })
-        } else {
+                                  anySupport: AnySupport): Any => Reply[JavaPbAny] =
+    ReflectionHelper.getOutputParameterMapper(
+      method,
+      resolvedType,
+      returnType,
+      anySupport,
+      specialMappers = {
+        case envelope if envelope == classOf[MessageEnvelope[_]] =>
+          val payload = ReflectionHelper.getFirstParameter(returnType)
           (payload, { any: Any =>
-            val message = any.asInstanceOf[ActionReply[T]]
-            message match {
-              case envelope: MessageReply[T] =>
-                ActionReply
-                  .message(JavaPbAny
-                             .newBuilder()
-                             .setValue(resolvedType.toByteString(envelope.payload))
-                             .setTypeUrl(resolvedType.typeUrl)
-                             .build(),
-                           envelope.metadata)
-                  .withEffects(envelope.effects)
-              case other => other.asInstanceOf[ActionReply[JavaPbAny]]
-            }
+            val envelope = any.asInstanceOf[MessageEnvelope[T]]
+            Reply.message(ReflectionHelper.serialize(resolvedType, envelope.payload), envelope.metadata)
           })
-        }
-      case payload if payload.isAnnotationPresent(classOf[Jsonable]) =>
-        (classOf[com.google.protobuf.Any], { any: Any =>
-          ActionReply.message(
-            anySupport.encodeJava(any)
-          )
-        })
-      case payload =>
-        (payload, { any: Any =>
-          ActionReply.message(
-            JavaPbAny
-              .newBuilder()
-              .setValue(resolvedType.toByteString(any.asInstanceOf[T]))
-              .setTypeUrl(resolvedType.typeUrl)
-              .build()
-          )
-        })
-    }
-
-    if (payloadClass != resolvedType.typeClass) {
-      throw new RuntimeException(
-        s"Incompatible return type $payloadClass for call $method, expected ${resolvedType.typeClass}"
-      )
-    }
-    mapper
-  }
+      }
+    )
 
   def getInputParameterMapper(method: String,
                               resolvedType: ResolvedType[_],
@@ -305,7 +251,7 @@ private trait UnaryOutSupport {
   protected val serviceMethod: ResolvedServiceMethod[_, _]
   protected val anySupport: AnySupport
 
-  protected val outputMapper: Any => CompletionStage[ActionReply[JavaPbAny]] = method.getReturnType match {
+  protected val outputMapper: Any => CompletionStage[Reply[JavaPbAny]] = method.getReturnType match {
     case cstage if cstage == classOf[CompletionStage[_]] =>
       val cstageType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
       val mapper =
@@ -370,10 +316,10 @@ private trait StreamedOutSupport {
   protected val serviceMethod: ResolvedServiceMethod[_, _]
   protected val anySupport: AnySupport
 
-  protected val outputMapper: Any => javadsl.Source[ActionReply[JavaPbAny], NotUsed] = method.getReturnType match {
+  protected val outputMapper: Any => javadsl.Source[Reply[JavaPbAny], NotUsed] = method.getReturnType match {
     case source if source == classOf[javadsl.Source[_, _]] =>
       val sourceType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
-      val mapper: Any => ActionReply[JavaPbAny] =
+      val mapper: Any => Reply[JavaPbAny] =
         ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType, anySupport)
 
       any: Any =>
@@ -384,7 +330,7 @@ private trait StreamedOutSupport {
 
     case rsPublisher if rsPublisher == classOf[org.reactivestreams.Publisher[_]] =>
       val sourceType = ReflectionHelper.getGenericFirstParameter(method.getGenericReturnType)
-      val mapper: Any => ActionReply[JavaPbAny] =
+      val mapper: Any => Reply[JavaPbAny] =
         ActionReflection.getOutputParameterMapper(serviceMethod.name, serviceMethod.outputType, sourceType, anySupport)
 
       any: Any => {
@@ -408,7 +354,7 @@ private class UnaryCallInvoker(protected val method: Method,
 
   def invoke(action: AnyRef,
              message: MessageEnvelope[JavaPbAny],
-             context: ActionContext): CompletionStage[ActionReply[JavaPbAny]] = {
+             context: ActionContext): CompletionStage[Reply[JavaPbAny]] = {
     val ctx = InvocationContext(message, context)
     val result = method.invoke(action, parameters.map(_.apply(ctx)): _*)
     outputMapper(result)
@@ -424,7 +370,7 @@ private class ServerStreamedCallInvoker(protected val method: Method,
 
   def invoke(action: AnyRef,
              message: MessageEnvelope[JavaPbAny],
-             context: ActionContext): javadsl.Source[ActionReply[JavaPbAny], NotUsed] = {
+             context: ActionContext): javadsl.Source[Reply[JavaPbAny], NotUsed] = {
     val ctx = InvocationContext(message, context)
     val result = method.invoke(action, parameters.map(_.apply(ctx)): _*)
     outputMapper(result)
@@ -441,7 +387,7 @@ private class ClientStreamedCallInvoker(protected val method: Method,
 
   def invoke(action: AnyRef,
              stream: javadsl.Source[MessageEnvelope[JavaPbAny], NotUsed],
-             context: ActionContext): CompletionStage[ActionReply[JavaPbAny]] = {
+             context: ActionContext): CompletionStage[Reply[JavaPbAny]] = {
     val ctx = InvocationContext(stream, context)
     val result = method.invoke(action, parameters.map(_.apply(ctx)): _*)
     outputMapper(result)
@@ -458,7 +404,7 @@ private class StreamedCallInvoker(protected val method: Method,
 
   def invoke(action: AnyRef,
              stream: javadsl.Source[MessageEnvelope[JavaPbAny], NotUsed],
-             context: ActionContext): javadsl.Source[ActionReply[JavaPbAny], NotUsed] = {
+             context: ActionContext): javadsl.Source[Reply[JavaPbAny], NotUsed] = {
     val ctx = InvocationContext(stream, context)
     val result = method.invoke(action, parameters.map(_.apply(ctx)): _*)
     outputMapper(result)

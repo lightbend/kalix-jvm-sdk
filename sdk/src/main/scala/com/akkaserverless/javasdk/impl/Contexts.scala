@@ -4,12 +4,13 @@
 
 package com.akkaserverless.javasdk.impl
 
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.impl.reply.{NoReply, ReplySupport}
 import com.akkaserverless.javasdk.{ClientActionContext, Context, EffectContext, ServiceCall}
+import com.akkaserverless.javasdk.reply._
 import com.akkaserverless.protocol.component._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
-
-import java.util.Optional
 import scala.util.control.NoStackTrace
 
 private[impl] trait ActivatableContext extends Context {
@@ -53,6 +54,7 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
     } else throw new IllegalStateException("fail(…) already previously invoked!")
   }
 
+  @Deprecated
   override final def forward(to: ServiceCall): Unit = {
     checkActive()
     if (forward.isDefined) {
@@ -71,27 +73,35 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
 
   protected def logError(message: String): Unit = ()
 
-  final def createClientAction(reply: Optional[JavaPbAny],
-                               allowNoReply: Boolean,
-                               restartOnFailure: Boolean): Option[ClientAction] =
+  final def replyToClientAction(msg: javasdk.Reply[JavaPbAny],
+                                allowNoReply: Boolean,
+                                restartOnFailure: Boolean): Option[ClientAction] =
     error match {
       case Some(msg) => Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, msg, restartOnFailure))))
       case None =>
-        if (reply.isPresent) {
-          if (forward.isDefined) {
-            throw new IllegalStateException(
-              "Both a reply was returned, and a forward message was sent, choose one or the other."
-            )
-          }
-          Some(ClientAction(ClientAction.Action.Reply(Reply(Some(ScalaPbAny.fromJavaProto(reply.get()))))))
-        } else if (forward.isDefined) {
-          Some(ClientAction(ClientAction.Action.Forward(forward.get)))
-        } else if (allowNoReply) {
-          None
-        } else {
-          throw new RuntimeException("No reply or forward returned by command handler!")
+        msg match {
+          case message: MessageReply[JavaPbAny] =>
+            if (forward.isDefined) {
+              throw new IllegalStateException(
+                "Both a reply was returned, and a forward message was sent, choose one or the other."
+              )
+            }
+            Some(ClientAction(ClientAction.Action.Reply(ReplySupport.asProtocol(message))))
+          case forward: ForwardReply[JavaPbAny] =>
+            Some(ClientAction(ClientAction.Action.Forward(ReplySupport.asProtocol(forward))))
+          case failure: FailureReply[JavaPbAny] =>
+            Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description(), restartOnFailure))))
+          case _: NoReply[_] =>
+            if (forward.isDefined) {
+              Some(ClientAction(ClientAction.Action.Forward(forward.get)))
+            } else if (allowNoReply) {
+              None
+            } else {
+              throw new RuntimeException("No reply or forward returned by command handler!")
+            }
         }
     }
+
 }
 
 object FailInvoked extends RuntimeException with NoStackTrace {

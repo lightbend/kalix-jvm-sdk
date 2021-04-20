@@ -7,8 +7,7 @@ package com.akkaserverless.javasdk.impl.view
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.util.Optional
-
-import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.{Reply, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.ReflectionHelper
 import com.akkaserverless.javasdk.impl.ReflectionHelper.InvocationContext
@@ -34,15 +33,16 @@ import com.google.protobuf.{Any => JavaPbAny}
  */
 private[impl] class AnnotationBasedViewSupport(
     viewClass: Class[_],
+    anySupport: AnySupport,
     override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]],
     factory: Option[ViewCreationContext => AnyRef]
 ) extends ViewFactory
     with ResolvedEntityFactory {
 
   def this(viewClass: Class[_], anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor) =
-    this(viewClass, anySupport.resolveServiceDescriptor(serviceDescriptor), None)
+    this(viewClass, anySupport, anySupport.resolveServiceDescriptor(serviceDescriptor), None)
 
-  private val behavior = ViewBehaviorReflection(viewClass, resolvedMethods)
+  private val behavior = ViewBehaviorReflection(viewClass, resolvedMethods, anySupport)
 
   private val constructor: ViewCreationContext => AnyRef = factory.getOrElse {
     viewClass.getConstructors match {
@@ -61,7 +61,7 @@ private[impl] class AnnotationBasedViewSupport(
       constructor(new DelegatingViewContext(context) with ViewCreationContext)
     }
 
-    override def handle(message: JavaPbAny, context: UpdateHandlerContext): Optional[JavaPbAny] = unwrap {
+    override def handle(message: JavaPbAny, context: UpdateHandlerContext): Reply[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(view, message, context)
       } getOrElse {
@@ -92,7 +92,8 @@ private class ViewBehaviorReflection(
 
 private object ViewBehaviorReflection {
   def apply(behaviorClass: Class[_],
-            serviceMethods: Map[String, ResolvedServiceMethod[_, _]]): ViewBehaviorReflection = {
+            serviceMethods: Map[String, ResolvedServiceMethod[_, _]],
+            anySupport: AnySupport): ViewBehaviorReflection = {
 
     val allMethods = ReflectionHelper.getAllDeclaredMethods(behaviorClass)
     val commandHandlers = allMethods
@@ -133,6 +134,7 @@ private object ViewBehaviorReflection {
 
           new ReflectionHelper.CommandHandlerInvoker[UpdateHandlerContext](ReflectionHelper.ensureAccessible(method),
                                                                            serviceMethod,
+                                                                           anySupport,
                                                                            stateParameterHandlers)
       }
       .groupBy(_.serviceMethod.name)

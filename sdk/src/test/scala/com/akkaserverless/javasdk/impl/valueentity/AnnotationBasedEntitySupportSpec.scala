@@ -4,15 +4,15 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
-import com.akkaserverless.javasdk.{EntityContext => _, _}
+import com.akkaserverless.javasdk.{Reply, EntityContext => _, _}
 import com.example.valueentity.shoppingcart.ShoppingCart
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 import java.util.Optional
 import scala.compat.java8.OptionConverters._
 
@@ -77,6 +77,12 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
+  def decodeWrapped(reply: Reply[JavaPbAny]): Wrapped =
+    reply match {
+      case MessageReplyImpl(any, _, _) =>
+        decodeWrapped(any)
+    }
+
   def decodeWrapped(any: JavaPbAny): Wrapped = {
     any.getTypeUrl should ===(WrappedResolvedType.typeUrl)
     WrappedResolvedType.parseFrom(any.getValue)
@@ -116,7 +122,15 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem() = Wrapped("blah")
         }, method())
-        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
+      }
+
+      "no arg command handler with Reply" in {
+        val handler = create(new {
+          @CommandHandler
+          def addItem(): Reply[Wrapped] = Reply.message(Wrapped("blah"))
+        }, method())
+        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "single arg command handler" in {
@@ -124,7 +138,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(msg: String) = Wrapped(msg)
         }, method())
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
@@ -139,7 +153,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "read state" in {
@@ -155,7 +169,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method("GetCart")
         )
         val ctx = new MockCommandContext("GetCart", Some(state("state")))
-        decodeWrapped(handler.handleCommand(command("blah"), ctx).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
       }
 
       "update state" in {
@@ -171,7 +185,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method()
         )
         val ctx = new MockCommandContext
-        decodeWrapped(handler.handleCommand(command("blah"), ctx).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
         ctx.currentState.get should ===(state("blah state"))
       }
 
@@ -188,7 +202,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method("RemoveCart")
         )
         val ctx = new MockCommandContext("RemoveCart")
-        decodeWrapped(handler.handleCommand(command("blah"), ctx).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
         ctx.currentState should ===(None)
       }
 

@@ -2,25 +2,24 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.impl.action.FailureReplyImpl;
-import com.akkaserverless.javasdk.impl.action.ForwardReplyImpl;
-import com.akkaserverless.javasdk.impl.action.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.action.NoReply;
+import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.NoReply;
+import com.akkaserverless.javasdk.reply.FailureReply;
+import com.akkaserverless.javasdk.reply.ForwardReply;
+import com.akkaserverless.javasdk.reply.MessageReply;
 
 import java.util.Collection;
 
 /**
- * An action reply.
+ * A return type to allow returning forwards or failures, and attaching effects to messages.
  *
- * <p>Action replies allow returning forwards or failures, and attaching effects to messages.
- *
- * @param <T> The type of the message that must be returned by this action call.
+ * @param <T> The type of the message that must be returned by this call.
  */
-public interface ActionReply<T> {
+public interface Reply<T> {
   /**
    * Whether this reply is empty: does not have a message, forward, or failure.
    *
@@ -41,7 +40,7 @@ public interface ActionReply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  ActionReply<T> withEffects(Collection<Effect> effects);
+  Reply<T> withEffects(Collection<Effect> effects);
 
   /**
    * Attach the given effects to this reply.
@@ -49,7 +48,7 @@ public interface ActionReply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  ActionReply<T> withEffects(Effect... effects);
+  Reply<T> withEffects(Effect... effects);
 
   /**
    * Create a message reply.
@@ -99,7 +98,7 @@ public interface ActionReply<T> {
    *
    * @return The reply.
    */
-  static <T> ActionReply<T> noReply() {
+  static <T> Reply<T> noReply() {
     return NoReply.apply();
   }
 }

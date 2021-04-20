@@ -4,6 +4,7 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
+import com.akkaserverless.javasdk.Reply;
 import com.google.protobuf.Any;
 
 import java.util.Optional;
@@ -31,7 +32,7 @@ public interface EventSourcedEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  Optional<Any> handleCommand(Any command, CommandContext context);
+  Reply<Any> handleCommand(Any command, CommandContext context);
 
   /**
    * Handle the given snapshot.

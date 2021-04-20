@@ -5,11 +5,11 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
-
-import com.akkaserverless.javasdk._
+import com.akkaserverless.javasdk.{Reply, _}
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.ResolvedType
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.view._
 import com.google.protobuf.ByteString
 import com.google.protobuf.any.{Any => ScalaPbAny}
@@ -67,12 +67,13 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
   def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): ViewUpdateHandler =
     new AnnotationBasedViewSupport(behavior.getClass,
+                                   anySupport,
                                    methods.map(m => m.descriptor.getName -> m).toMap,
                                    Some((_: ViewCreationContext) => behavior))
       .create(MockContext)
 
   def create(clazz: Class[_]): ViewUpdateHandler =
-    new AnnotationBasedViewSupport(clazz, Map.empty[String, ResolvedServiceMethod[_, _]], factory = None)
+    new AnnotationBasedViewSupport(clazz, anySupport, Map.empty[String, ResolvedServiceMethod[_, _]], factory = None)
       .create(MockContext)
 
   def command(str: String): JavaPbAny =
@@ -80,6 +81,12 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
 
   def state(value: String): JavaPbAny =
     ScalaPbAny.toJavaProto(ScalaPbAny(StateResolvedType.typeUrl, StateResolvedType.toByteString(State(value))))
+
+  def decodeState(reply: Reply[JavaPbAny]): State =
+    reply match {
+      case MessageReplyImpl(any, _, _) =>
+        decodeState(any)
+    }
 
   def decodeState(any: JavaPbAny): State = {
     any.getTypeUrl should ===(StateResolvedType.typeUrl)
@@ -110,7 +117,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           @UpdateHandler
           def processAdded() = State("blah")
         }, method())
-        decodeState(handler.handle(command("nothing"), new MockHandlerContext).get) should ===(State("blah"))
+        decodeState(handler.handle(command("nothing"), new MockHandlerContext)) should ===(State("blah"))
       }
 
       "msg arg handler" in {
@@ -118,7 +125,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           @UpdateHandler
           def processAdded(msg: String) = State(msg)
         }, method())
-        decodeState(handler.handle(command("blah"), new MockHandlerContext).get) should ===(State("blah"))
+        decodeState(handler.handle(command("blah"), new MockHandlerContext)) should ===(State("blah"))
       }
 
       "msg and state arg handler" in {
@@ -126,7 +133,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           @UpdateHandler
           def processAdded(msg: String, state: State): State = State(s"${state.value}-$msg")
         }, method())
-        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
+        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a"))))) should ===(
           State("a-blah")
         )
       }
@@ -138,7 +145,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
             if (state == null) State(msg)
             else State(s"${state.value}-$msg")
         }, method())
-        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.empty())).get) should ===(
+        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.empty()))) should ===(
           State("blah")
         )
       }
@@ -153,7 +160,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
+        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a"))))) should ===(
           State("a-blah")
         )
       }
@@ -168,7 +175,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.empty())).get) should ===(
+        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.empty()))) should ===(
           State("blah")
         )
       }
@@ -179,7 +186,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           @UpdateHandler
           def processAdded(msg: State, state: State): State = State(s"${state.value}-${msg.value}")
         }, methodWithTwoStateParameters())
-        decodeState(handler.handle(state("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
+        decodeState(handler.handle(state("blah"), new MockHandlerContext(state = Optional.of(state("a"))))) should ===(
           State("a-blah")
         )
       }
@@ -202,7 +209,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeState(handler.handle(command("blah"), new MockHandlerContext).get) should ===(State("blah"))
+        decodeState(handler.handle(command("blah"), new MockHandlerContext)) should ===(State("blah"))
       }
 
       "msg, state and ctx arg handler" in {
@@ -216,7 +223,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a")))).get) should ===(
+        decodeState(handler.handle(command("blah"), new MockHandlerContext(state = Optional.of(state("a"))))) should ===(
           State("a-blah")
         )
       }

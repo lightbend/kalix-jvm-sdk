@@ -7,9 +7,8 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.impl.ReflectionHelper._
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.{EntityFactory, Metadata, ServiceCall, ServiceCallFactory}
+import com.akkaserverless.javasdk.{EntityFactory, Metadata, Reply, ServiceCall, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.lang.reflect.{Constructor, Executable, InvocationTargetException}
 import java.util.function.Consumer
 import java.util.{function, Optional}
@@ -71,6 +70,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
           case (method, serviceMethod) =>
             new CommandHandlerInvoker[C](method,
                                          serviceMethod,
+                                         anySupport,
                                          ReplicatedEntityAnnotationHelper.replicatedEntityParameterHandlers[C])
         }
         .groupBy(_.serviceMethod.name)
@@ -92,7 +92,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
 
   private class EntityHandler(entity: AnyRef) extends ReplicatedEntityHandler {
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext): Optional[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = unwrap {
       val maybeResult = commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(entity, command, context)
       }
@@ -105,7 +105,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
     }
 
     override def handleStreamedCommand(command: JavaPbAny,
-                                       context: StreamedCommandContext[JavaPbAny]): Optional[JavaPbAny] = unwrap {
+                                       context: StreamedCommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
       val maybeResult = streamedCommandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
           new AdaptedStreamedCommandContext(context,

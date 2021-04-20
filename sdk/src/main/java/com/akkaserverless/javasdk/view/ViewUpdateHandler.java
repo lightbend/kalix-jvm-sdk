@@ -4,9 +4,8 @@
 
 package com.akkaserverless.javasdk.view;
 
+import com.akkaserverless.javasdk.Reply;
 import com.google.protobuf.Any;
-
-import java.util.Optional;
 
 /**
  * Low level interface for handling messages on views.
@@ -23,5 +22,5 @@ public interface ViewUpdateHandler {
    * @param context The context.
    * @return The updated state.
    */
-  Optional<Any> handle(Any message, UpdateHandlerContext context);
+  Reply<Any> handle(Any message, UpdateHandlerContext context);
 }

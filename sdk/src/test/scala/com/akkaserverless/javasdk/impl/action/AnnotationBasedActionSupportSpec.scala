@@ -12,12 +12,12 @@ import akkaserverless.javasdk.Actionspec
 import akkaserverless.javasdk.Actionspec.{In, Out}
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.{Metadata, ServiceCallFactory}
+import com.akkaserverless.javasdk.reply.{FailureReply, MessageReply}
+import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCallFactory}
 import com.google.protobuf
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 import java.util.Optional
 import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
 import scala.compat.java8.FutureConverters._
@@ -111,24 +111,36 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "synchronous out wrapped in reply" in test(new {
         @Handler
-        def unary(in: In): ActionReply[Out] = ActionReply.message(inToOut(in))
+        def unary(in: In): Reply[Out] = Reply.message(inToOut(in))
       })
 
       "synchronous JSON out wrapped in reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): ActionReply[JsonOut] = ActionReply.message(new JsonOut(in.getField))
+        def unaryJson(in: In): Reply[JsonOut] = Reply.message(new JsonOut(in.getField))
       })
+
+      "synchronous failure wrapped in reply" in {
+        val handler = new {
+          @Handler
+          def unary(in: In): Reply[Out] = Reply.failure("this should blow up")
+        }
+        val reply = create(handler)
+          .handleUnary("Unary", createInEnvelope("in"), ctx)
+          .toCompletableFuture
+          .get(10, TimeUnit.SECONDS)
+        assertIsFailure(reply, "this should blow up")
+      }
 
       "asynchronous out wrapped in reply" in test(new {
         @Handler
-        def unary(in: In): CompletionStage[ActionReply[Out]] =
-          CompletableFuture.completedFuture(ActionReply.message(inToOut(in)))
+        def unary(in: In): CompletionStage[Reply[Out]] =
+          CompletableFuture.completedFuture(Reply.message(inToOut(in)))
       })
 
       "asynchronous JSON out wrapped in reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): CompletionStage[ActionReply[JsonOut]] =
-          CompletableFuture.completedFuture(ActionReply.message(new JsonOut(in.getField)))
+        def unaryJson(in: In): CompletionStage[Reply[JsonOut]] =
+          CompletableFuture.completedFuture(Reply.message(new JsonOut(in.getField)))
       })
 
       "with metadata parameter" in test(new {
@@ -220,8 +232,8 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "source wrapped in reply" in test(new {
         @Handler
-        def streamedOut(in: In): Source[ActionReply[Out], NotUsed] =
-          inToOut(in).map[ActionReply[Out]](ActionReply.message(_)).asJava
+        def streamedOut(in: In): Source[Reply[Out], NotUsed] =
+          inToOut(in).map[Reply[Out]](Reply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
@@ -286,8 +298,8 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "returns reply" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed]): CompletionStage[ActionReply[Out]] =
-          inToOut(in.asScala).map[ActionReply[Out]](ActionReply.message(_)).toJava
+        def streamedIn(in: Source[In, NotUsed]): CompletionStage[Reply[Out]] =
+          inToOut(in.asScala).map[Reply[Out]](Reply.message(_)).toJava
       })
 
       "with metadata parameter" in test(new {
@@ -378,14 +390,14 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "out wrapped in reply" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed]): Source[ActionReply[Out], NotUsed] =
-          inToOut(in.asScala).map[ActionReply[Out]](ActionReply.message(_)).asJava
+        def streamed(in: Source[In, NotUsed]): Source[Reply[Out], NotUsed] =
+          inToOut(in.asScala).map[Reply[Out]](Reply.message(_)).asJava
       })
 
       "in wrapped in envelope out wrapped in reply" in test(new {
         @Handler
-        def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[ActionReply[Out], NotUsed] =
-          inToOut(in.asScala.map(_.payload())).map[ActionReply[Out]](ActionReply.message(_)).asJava
+        def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[Reply[Out], NotUsed] =
+          inToOut(in.asScala.map(_.payload())).map[Reply[Out]](Reply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
@@ -412,7 +424,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       Metadata.EMPTY.add("scope", "message")
     )
 
-  private def assertIsOutReplyWithField(reply: ActionReply[protobuf.Any], field: String) =
+  private def assertIsOutReplyWithField(reply: Reply[protobuf.Any], field: String) =
     reply match {
       case message: MessageReply[protobuf.Any] =>
         val out = message.payload().unpack(classOf[Out])
@@ -421,7 +433,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         fail(s"$reply is not a MessageReply")
     }
 
-  private def assertIsJsonReply(reply: ActionReply[protobuf.Any], messageValue: String) =
+  private def assertIsJsonReply(reply: Reply[protobuf.Any], messageValue: String) =
     reply match {
       case message: MessageReply[protobuf.Any] =>
         val out = message.payload()
@@ -430,5 +442,13 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         msg.toStringUtf8 should ===(s"""{"message":"$messageValue"}""")
       case other =>
         fail(s"$reply is not a MessageReply")
+    }
+
+  private def assertIsFailure(reply: Reply[protobuf.Any], failureDescription: String) =
+    reply match {
+      case message: FailureReply[protobuf.Any] =>
+        message.description() should ===(failureDescription)
+      case other =>
+        fail(s"$reply is not a FailureReply")
     }
 }

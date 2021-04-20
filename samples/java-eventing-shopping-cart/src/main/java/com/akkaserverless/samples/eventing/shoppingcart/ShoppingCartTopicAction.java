@@ -4,14 +4,12 @@
 
 package com.akkaserverless.samples.eventing.shoppingcart;
 
-import com.akkaserverless.javasdk.Jsonable;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.ActionReply;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
-import com.google.protobuf.Any;
 import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.api.ShoppingCartTopic;
 
@@ -26,7 +24,7 @@ public class ShoppingCartTopicAction {
 
   /** Akka Serverless expects some CloudEvent metadata to determine the target protobuf type. */
   @Handler
-  public ActionReply<Empty> protobufFromTopic(
+  public Reply<Empty> protobufFromTopic(
       ShoppingCartTopic.TopicOperation message, ActionContext ctx) {
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem increase =
@@ -39,10 +37,9 @@ public class ShoppingCartTopicAction {
 
       ServiceCallRef<ShoppingCartApi.AddLineItem> call =
           ctx.serviceCallFactory().lookup(forwardTo, "AddItem", ShoppingCartApi.AddLineItem.class);
-      return ActionReply.forward(call.createCall(increase));
+      return Reply.forward(call.createCall(increase));
     } else {
-      return ActionReply.failure(
-          "The operation [" + message.getOperation() + "] is not implemented.");
+      return Reply.failure("The operation [" + message.getOperation() + "] is not implemented.");
     }
   }
 
@@ -51,7 +48,7 @@ public class ShoppingCartTopicAction {
    * with `@com.akkaserverless.javasdk.Jsonable`.
    */
   @Handler
-  public ActionReply<Empty> jsonFromTopic(TopicMessage message, ActionContext ctx) {
+  public Reply<Empty> jsonFromTopic(TopicMessage message, ActionContext ctx) {
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem add =
           ShoppingCartApi.AddLineItem.newBuilder()
@@ -62,7 +59,7 @@ public class ShoppingCartTopicAction {
               .build();
       ServiceCallRef<ShoppingCartApi.AddLineItem> addItemCall =
           ctx.serviceCallFactory().lookup(forwardTo, "AddItem", ShoppingCartApi.AddLineItem.class);
-      return ActionReply.forward(addItemCall.createCall(add));
+      return Reply.forward(addItemCall.createCall(add));
     } else if ("remove".equals(message.getOperation())) {
       ShoppingCartApi.RemoveLineItem remove =
           ShoppingCartApi.RemoveLineItem.newBuilder()
@@ -73,10 +70,9 @@ public class ShoppingCartTopicAction {
       ServiceCallRef<ShoppingCartApi.RemoveLineItem> removeItemCall =
           ctx.serviceCallFactory()
               .lookup(forwardTo, "RemoveItem", ShoppingCartApi.RemoveLineItem.class);
-      return ActionReply.forward(removeItemCall.createCall(remove));
+      return Reply.forward(removeItemCall.createCall(remove));
     } else {
-      return ActionReply.failure(
-          "The operation [" + message.getOperation() + "] is not implemented.");
+      return Reply.failure("The operation [" + message.getOperation() + "] is not implemented.");
     }
   }
 }

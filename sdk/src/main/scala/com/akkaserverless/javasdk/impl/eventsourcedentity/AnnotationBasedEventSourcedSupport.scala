@@ -8,9 +8,8 @@ import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, MainArgumentParameterHandler}
 import com.akkaserverless.javasdk.impl.{AnySupport, ReflectionHelper, ResolvedEntityFactory, ResolvedServiceMethod}
-import com.akkaserverless.javasdk.{EntityFactory, ServiceCallFactory}
+import com.akkaserverless.javasdk.{EntityFactory, Reply, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
 import scala.collection.concurrent.TrieMap
@@ -35,7 +34,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
          anySupport.resolveServiceDescriptor(serviceDescriptor),
          Some(context => factory.create(context)))
 
-  private val behavior = EventBehaviorReflection(entityClass, resolvedMethods)
+  private val behavior = EventBehaviorReflection(entityClass, resolvedMethods, anySupport)
 
   override def create(context: EventSourcedContext): EventSourcedEntityHandler =
     new EntityHandler(context)
@@ -72,7 +71,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
       }
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext): Optional[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(entity, command, context)
       } getOrElse {
@@ -160,7 +159,8 @@ private class EventBehaviorReflection(
 
 private object EventBehaviorReflection {
   def apply(behaviorClass: Class[_],
-            serviceMethods: Map[String, ResolvedServiceMethod[_, _]]): EventBehaviorReflection = {
+            serviceMethods: Map[String, ResolvedServiceMethod[_, _]],
+            anySupport: AnySupport): EventBehaviorReflection = {
 
     val allMethods = ReflectionHelper.getAllDeclaredMethods(behaviorClass)
     val eventHandlers = allMethods
@@ -193,7 +193,8 @@ private object EventBehaviorReflection {
         })
 
         new ReflectionHelper.CommandHandlerInvoker[CommandContext](ReflectionHelper.ensureAccessible(method),
-                                                                   serviceMethod)
+                                                                   serviceMethod,
+                                                                   anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {

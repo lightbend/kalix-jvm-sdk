@@ -5,6 +5,7 @@
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
 import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
@@ -12,7 +13,8 @@ import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.ValueEntity.*;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @ValueEntity(entityType = "value-entity-tck-model")
 public class ValueEntityTckModelEntity {
@@ -29,8 +31,9 @@ public class ValueEntityTckModelEntity {
   }
 
   @CommandHandler
-  public Optional<Response> process(Request request, CommandContext<Persisted> context) {
-    boolean forwarding = false;
+  public Reply<Response> process(Request request, CommandContext<Persisted> context) {
+    Reply<Response> reply = null;
+    List<com.akkaserverless.javasdk.Effect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
@@ -42,21 +45,23 @@ public class ValueEntityTckModelEntity {
           state = "";
           break;
         case FORWARD:
-          forwarding = true;
-          context.forward(serviceTwoRequest(action.getForward().getId()));
+          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
           break;
         case EFFECT:
           Effect effect = action.getEffect();
-          context.effect(serviceTwoRequest(effect.getId()), effect.getSynchronous());
+          e.add(
+              com.akkaserverless.javasdk.Effect.of(
+                  serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          context.fail(action.getFail().getMessage());
+          reply = Reply.failure(action.getFail().getMessage());
           break;
       }
     }
-    return forwarding
-        ? Optional.empty()
-        : Optional.of(Response.newBuilder().setMessage(state).build());
+    if (reply == null) {
+      reply = Reply.message(Response.newBuilder().setMessage(state).build());
+    }
+    return reply.withEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {

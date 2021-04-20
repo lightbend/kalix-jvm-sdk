@@ -4,6 +4,7 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.replicatedentity.*;
@@ -86,8 +87,9 @@ public class TckModelReplicatedEntity {
   }
 
   @CommandHandler
-  public Optional<Response> process(Request request, CommandContext context) {
-    boolean forwarding = false;
+  public Reply<Response> process(Request request, CommandContext context) {
+    Reply<Response> reply = null;
+    List<com.akkaserverless.javasdk.Effect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
@@ -108,19 +110,23 @@ public class TckModelReplicatedEntity {
           context.delete();
           break;
         case FORWARD:
-          forwarding = true;
-          context.forward(serviceTwoRequest(action.getForward().getId()));
+          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
           break;
         case EFFECT:
           Effect effect = action.getEffect();
-          context.effect(serviceTwoRequest(effect.getId()), effect.getSynchronous());
+          e.add(
+              com.akkaserverless.javasdk.Effect.of(
+                  serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          context.fail(action.getFail().getMessage());
+          reply = Reply.failure(action.getFail().getMessage());
           break;
       }
     }
-    return forwarding ? Optional.empty() : Optional.of(responseValue());
+    if (reply == null) {
+      reply = Reply.message(responseValue());
+    }
+    return reply.withEffects(e);
   }
 
   @CommandHandler

@@ -4,18 +4,12 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.valueentity.{
-  ValueEntityContext => ValueEntityContext,
-  ValueEntityFactory => ValueEntityFactory,
-  ValueEntityHandler => ValueEntityHandler,
-  _
-}
+import com.akkaserverless.javasdk.valueentity.{ValueEntityContext, ValueEntityFactory, ValueEntityHandler, _}
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, MainArgumentParameterHandler}
 import com.akkaserverless.javasdk.impl.{AnySupport, ReflectionHelper, ResolvedEntityFactory, ResolvedServiceMethod}
-import com.akkaserverless.javasdk.{Metadata, ServiceCall, ServiceCallFactory}
+import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCall, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.lang.reflect.{Constructor, InvocationTargetException}
 import java.util.Optional
 
@@ -33,7 +27,7 @@ private[impl] class AnnotationBasedEntitySupport(
   def this(entityClass: Class[_], anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor) =
     this(entityClass, anySupport, anySupport.resolveServiceDescriptor(serviceDescriptor))
 
-  private val behavior = EntityBehaviorReflection(entityClass, resolvedMethods)
+  private val behavior = EntityBehaviorReflection(entityClass, resolvedMethods, anySupport)
 
   private val constructor: ValueEntityCreationContext => AnyRef = factory.getOrElse {
     entityClass.getConstructors match {
@@ -54,7 +48,7 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): Optional[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
           new AdaptedCommandContext(context, anySupport)
@@ -90,7 +84,8 @@ private class EntityBehaviorReflection(
 
 private object EntityBehaviorReflection {
   def apply(behaviorClass: Class[_],
-            serviceMethods: Map[String, ResolvedServiceMethod[_, _]]): EntityBehaviorReflection = {
+            serviceMethods: Map[String, ResolvedServiceMethod[_, _]],
+            anySupport: AnySupport): EntityBehaviorReflection = {
 
     val allMethods = ReflectionHelper.getAllDeclaredMethods(behaviorClass)
     val commandHandlers = allMethods
@@ -101,14 +96,18 @@ private object EntityBehaviorReflection {
           ReflectionHelper.getCapitalizedName(method)
         } else annotation.name()
 
-        val serviceMethod = serviceMethods.getOrElse(name, {
-          throw new RuntimeException(
-            s"Command handler method ${method.getName} for command $name found, but the service has no command with that name."
-          )
-        })
+        val serviceMethod = serviceMethods.getOrElse(
+          name, {
+            throw new RuntimeException(
+              s"Command handler method [${method.getDeclaringClass.getSimpleName}.${method.getName}] for command [$name] found, but the service has no command with that name${serviceMethods.keys
+                .mkString(" (existing commands are: ", ", ", ")")}."
+            )
+          }
+        )
 
         new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]](ReflectionHelper.ensureAccessible(method),
-                                                                           serviceMethod)
+                                                                           serviceMethod,
+                                                                           anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {

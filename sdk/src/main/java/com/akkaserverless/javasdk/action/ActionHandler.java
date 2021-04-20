@@ -6,6 +6,7 @@ package com.akkaserverless.javasdk.action;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import com.akkaserverless.javasdk.Reply;
 import com.google.protobuf.Any;
 
 import java.util.concurrent.CompletionStage;
@@ -21,7 +22,7 @@ public interface ActionHandler {
    * @param context The action context.
    * @return A future of the message to return.
    */
-  CompletionStage<ActionReply<Any>> handleUnary(
+  CompletionStage<Reply<Any>> handleUnary(
       String commandName, MessageEnvelope<Any> message, ActionContext context);
 
   /**
@@ -32,7 +33,7 @@ public interface ActionHandler {
    * @param context The action context.
    * @return The stream of messages to return.
    */
-  Source<ActionReply<Any>, NotUsed> handleStreamedOut(
+  Source<Reply<Any>, NotUsed> handleStreamedOut(
       String commandName, MessageEnvelope<Any> message, ActionContext context);
 
   /**
@@ -43,7 +44,7 @@ public interface ActionHandler {
    * @param context The action context.
    * @return A future of the message to return.
    */
-  CompletionStage<ActionReply<Any>> handleStreamedIn(
+  CompletionStage<Reply<Any>> handleStreamedIn(
       String commandName, Source<MessageEnvelope<Any>, NotUsed> stream, ActionContext context);
 
   /**
@@ -54,6 +55,6 @@ public interface ActionHandler {
    * @param context The action context.
    * @return The stream of messages to return.
    */
-  Source<ActionReply<Any>, NotUsed> handleStreamed(
+  Source<Reply<Any>, NotUsed> handleStreamed(
       String commandName, Source<MessageEnvelope<Any>, NotUsed> stream, ActionContext context);
 }

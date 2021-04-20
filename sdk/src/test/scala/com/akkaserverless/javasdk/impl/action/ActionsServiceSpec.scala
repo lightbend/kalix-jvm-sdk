@@ -10,7 +10,8 @@ import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import akkaserverless.javasdk.Actionspec
 import akkaserverless.javasdk.Actionspec.{In, Out}
-import com.akkaserverless.javasdk.action.{ActionContext, ActionHandler, ActionReply, MessageEnvelope}
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.action.{ActionContext, ActionHandler, MessageEnvelope}
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
 import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
 import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
@@ -20,9 +21,7 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.util.concurrent.{CompletableFuture, CompletionStage}
-
 import org.scalatest.{BeforeAndAfterAll, Inside, OptionValues}
-
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -62,7 +61,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
       val service = create(new AbstractHandler {
         override def handleUnary(commandName: String,
                                  message: MessageEnvelope[protobuf.Any],
-                                 context: ActionContext): CompletionStage[ActionReply[protobuf.Any]] =
+                                 context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] =
           CompletableFuture.completedFuture(createOutReply("out: " + extractInField(message)))
       })
 
@@ -81,7 +80,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
       val service = create(new AbstractHandler {
         override def handleStreamedIn(commandName: String,
                                       stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                      context: ActionContext): CompletionStage[ActionReply[protobuf.Any]] =
+                                      context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] =
           stream.asScala
             .map(extractInField)
             .runWith(Sink.seq)
@@ -110,7 +109,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
       val service = create(new AbstractHandler {
         override def handleStreamedOut(commandName: String,
                                        message: MessageEnvelope[protobuf.Any],
-                                       context: ActionContext): Source[ActionReply[protobuf.Any], NotUsed] = {
+                                       context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = {
           val in = extractInField(message)
           akka.stream.scaladsl.Source(1 to 3).map(idx => createOutReply(s"out $idx: $in")).asJava
         }
@@ -136,7 +135,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
       val service = create(new AbstractHandler {
         override def handleStreamed(commandName: String,
                                     stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                    context: ActionContext): Source[ActionReply[protobuf.Any], NotUsed] =
+                                    context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] =
           stream.asScala
             .map(extractInField)
             .map(in => createOutReply(s"out: $in"))
@@ -170,8 +169,8 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   private def createOutAny(field: String) =
     protobuf.Any.pack(Out.newBuilder().setField(field).build())
 
-  private def createOutReply(field: String): ActionReply[protobuf.Any] =
-    ActionReply.message(createOutAny(field))
+  private def createOutReply(field: String): javasdk.Reply[protobuf.Any] =
+    javasdk.Reply.message(createOutAny(field))
 
   private def extractInField(message: MessageEnvelope[protobuf.Any]) =
     message.payload().unpack(classOf[In]).getField
@@ -185,19 +184,19 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   private trait AbstractHandler extends ActionHandler {
     override def handleUnary(commandName: String,
                              message: MessageEnvelope[protobuf.Any],
-                             context: ActionContext): CompletionStage[ActionReply[protobuf.Any]] = ???
+                             context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] = ???
 
     override def handleStreamedOut(commandName: String,
                                    message: MessageEnvelope[protobuf.Any],
-                                   context: ActionContext): Source[ActionReply[protobuf.Any], NotUsed] = ???
+                                   context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = ???
 
     override def handleStreamedIn(commandName: String,
                                   stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                  context: ActionContext): CompletionStage[ActionReply[protobuf.Any]] = ???
+                                  context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] = ???
 
     override def handleStreamed(commandName: String,
                                 stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                context: ActionContext): Source[ActionReply[protobuf.Any], NotUsed] = ???
+                                context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = ???
   }
 
 }

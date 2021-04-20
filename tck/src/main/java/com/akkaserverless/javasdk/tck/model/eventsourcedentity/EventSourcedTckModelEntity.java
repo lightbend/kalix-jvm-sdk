@@ -5,13 +5,15 @@
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.EventSourcedTwo;
 import com.akkaserverless.tck.model.EventSourcedEntity.*;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @EventSourcedEntity(entityType = "event-sourced-tck-model", snapshotEvery = 5)
 public class EventSourcedTckModelEntity {
@@ -41,29 +43,32 @@ public class EventSourcedTckModelEntity {
   }
 
   @CommandHandler
-  public Optional<Response> process(Request request, CommandContext context) {
-    boolean forwarding = false;
+  public Reply<Response> process(Request request, CommandContext context) {
+    Reply<Response> reply = null;
+    List<com.akkaserverless.javasdk.Effect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case EMIT:
           context.emit(Persisted.newBuilder().setValue(action.getEmit().getValue()).build());
           break;
         case FORWARD:
-          forwarding = true;
-          context.forward(serviceTwoRequest(action.getForward().getId()));
+          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
           break;
         case EFFECT:
           Effect effect = action.getEffect();
-          context.effect(serviceTwoRequest(effect.getId()), effect.getSynchronous());
+          e.add(
+              com.akkaserverless.javasdk.Effect.of(
+                  serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          context.fail(action.getFail().getMessage());
+          reply = Reply.failure(action.getFail().getMessage());
           break;
       }
     }
-    return forwarding
-        ? Optional.empty()
-        : Optional.of(Response.newBuilder().setMessage(state).build());
+    if (reply == null) {
+      reply = Reply.message(Response.newBuilder().setMessage(state).build());
+    }
+    return reply.withEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {

@@ -4,9 +4,8 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.javasdk.Reply;
 import com.google.protobuf.Any;
-
-import java.util.Optional;
 
 /**
  * Low level interface for handling Replicated Entity commands.
@@ -25,7 +24,7 @@ public interface ReplicatedEntityHandler {
    * @param context The context for the command.
    * @return A reply to the command, if any is sent.
    */
-  Optional<Any> handleCommand(Any command, CommandContext context);
+  Reply<Any> handleCommand(Any command, CommandContext context);
 
   /**
    * Handle the given stream command. During the handling of a command, a Replicated Entity may be
@@ -35,5 +34,5 @@ public interface ReplicatedEntityHandler {
    * @param context The context for the command.
    * @return A reply to the command, if any is sent.
    */
-  Optional<Any> handleStreamedCommand(Any command, StreamedCommandContext<Any> context);
+  Reply<Any> handleStreamedCommand(Any command, StreamedCommandContext<Any> context);
 }

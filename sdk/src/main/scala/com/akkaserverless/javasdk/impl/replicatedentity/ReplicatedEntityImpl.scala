@@ -9,15 +9,16 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Source}
 import com.akkaserverless.javasdk.replicatedentity.{ReplicatedData => _, _}
 import com.akkaserverless.javasdk.impl._
+import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.reply.FailureReply
+import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{Message => In}
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
 import java.util.function.Consumer
 import java.util.{function, Optional}
 import scala.jdk.CollectionConverters._
@@ -164,7 +165,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         new ReplicatedEntityCommandContext(command)
       }
 
-      val reply = try {
+      val reply: Reply[JavaPbAny] = try {
         val payload = ScalaPbAny.toJavaProto(command.payload.get)
         ctx match {
           case streamed: ReplicatedEntityStreamedCommandContext =>
@@ -174,14 +175,14 @@ class ReplicatedEntityImpl(system: ActorSystem,
         }
       } catch {
         case FailInvoked =>
-          Optional.empty[JavaPbAny]()
+          Reply.noReply() // Optional.empty[JavaPbAny]()
       } finally {
         ctx.deactivate()
       }
 
-      val clientAction = ctx.createClientAction(reply, allowNoReply = true, restartOnFailure = false)
+      val clientAction = ctx.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
-      if (ctx.hasError) {
+      if (ctx.hasError && !reply.isInstanceOf[FailureReply[_]]) {
         verifyNoDelta("failed command handling")
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(
@@ -210,7 +211,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
               commandId = command.id,
               clientAction = clientAction,
               stateAction = stateAction,
-              sideEffects = ctx.sideEffects,
+              sideEffects = ctx.sideEffects ++ ReplySupport.effectsFrom(reply),
               streamed = streamAccepted
             )
           )
@@ -268,16 +269,17 @@ class ReplicatedEntityImpl(system: ActorSystem,
         .collect(Function.unlift {
           case (id, callback) =>
             val context = new ReplicatedEntitySubscriptionContext(id)
-            val reply = try {
+            val reply: Reply[JavaPbAny] = try {
               callback(context)
+                .map(v => Reply.message(v): Reply[JavaPbAny])
+                .orElse(Reply.noReply())
             } catch {
-              case FailInvoked =>
-                Optional.empty[JavaPbAny]()
+              case FailInvoked => Reply.noReply()
             } finally {
               context.deactivate()
             }
 
-            val clientAction = context.createClientAction(reply, allowNoReply = true, restartOnFailure = false)
+            val clientAction = context.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
             if (context.hasError) {
               subscribers -= id
@@ -288,7 +290,8 @@ class ReplicatedEntityImpl(system: ActorSystem,
                   clientAction = clientAction
                 )
               )
-            } else if (clientAction.isDefined || context.isEnded || context.sideEffects.nonEmpty) {
+            } else if (clientAction.isDefined || context.isEnded ||
+                       context.sideEffects.nonEmpty || !reply.effects().isEmpty) {
               if (context.isEnded) {
                 subscribers -= id
                 cancelListeners -= id
@@ -297,7 +300,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
                 ReplicatedEntityStreamedMessage(
                   commandId = id,
                   clientAction = clientAction,
-                  sideEffects = context.sideEffects,
+                  sideEffects = context.sideEffects ++ ReplySupport.effectsFrom(reply),
                   endStream = context.isEnded
                 )
               )

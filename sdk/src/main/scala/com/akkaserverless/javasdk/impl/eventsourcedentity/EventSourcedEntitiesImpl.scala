@@ -11,7 +11,9 @@ import akka.stream.scaladsl.Flow
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.impl.reply.ReplySupport
+import com.akkaserverless.javasdk.reply.FailureReply
+import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
   Command => InCommand,
   Empty => InEmpty,
@@ -25,8 +27,6 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Me
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
-import java.util.Optional
 import scala.util.control.NonFatal
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
@@ -155,19 +155,20 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                                    service.snapshotEvery,
                                    log)
 
-          val reply = try {
+          val reply: Reply[JavaPbAny] = try {
             handler.handleCommand(cmd, context)
           } catch {
-            case FailInvoked => Optional.empty[JavaPbAny]() // Ignore, error already captured
+            case FailInvoked => Reply.noReply() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) => throw EntityException(command, "Unexpected failure: " + error.getMessage)
           } finally {
             context.deactivate() // Very important!
           }
 
-          val clientAction = context.createClientAction(reply, false, restartOnFailure = context.events.nonEmpty)
+          val clientAction =
+            context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = context.events.nonEmpty)
 
-          if (!context.hasError) {
+          if (!context.hasError && !reply.isInstanceOf[FailureReply[_]]) {
             val endSequenceNumber = sequence + context.events.size
             val snapshot =
               if (context.performSnapshot) {
@@ -184,7 +185,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                  EventSourcedReply(
                    command.id,
                    clientAction,
-                   context.sideEffects,
+                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
                    context.events,
                    snapshot
                  )

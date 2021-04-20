@@ -5,17 +5,13 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
-
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
-
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.Service
-import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl._
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.view.UpdateHandlerContext
 import com.akkaserverless.javasdk.view.ViewContext
 import com.akkaserverless.javasdk.view.ViewFactory
@@ -124,16 +120,18 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
           )
       }
 
-  private def replyToOut(reply: Optional[JavaPbAny], receiveEvent: pv.ReceiveEvent): pv.ViewStreamOut = {
+  private def replyToOut(reply: Reply[JavaPbAny], receiveEvent: pv.ReceiveEvent): pv.ViewStreamOut = {
     val table = receiveEvent.initialTable
     val key = receiveEvent.key
-    val upsert =
-      if (reply.isPresent) {
-        pv.Upsert(Some(pv.Row(table, key, Some(ScalaPbAny.fromJavaProto(reply.get)))))
-      } else {
-        // ignore incoming event
-        pv.Upsert(None)
+    val upsert = {
+      reply match {
+        case r: MessageReplyImpl[JavaPbAny] =>
+          pv.Upsert(Some(pv.Row(table, key, Some(ScalaPbAny.fromJavaProto(r.payload)))))
+        case _ =>
+          // ignore incoming event
+          pv.Upsert(None)
       }
+    }
     pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
   }
 

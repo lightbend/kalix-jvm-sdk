@@ -4,10 +4,10 @@
 
 package com.akkaserverless.samples.eventing.shoppingcart;
 
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.ActionReply;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class ToProductPopularityAction {
   private final String serviceName = "shopping.product.api.ProductPopularityService";
 
   @Handler
-  public ActionReply<Empty> forwardAdded(ShoppingCart.ItemAdded in, ActionContext ctx) {
+  public Reply<Empty> forwardAdded(ShoppingCart.ItemAdded in, ActionContext ctx) {
 
     ProductApi.IncreasePopularity increase =
         ProductApi.IncreasePopularity.newBuilder()
@@ -34,11 +34,11 @@ public class ToProductPopularityAction {
     ServiceCallRef<ProductApi.IncreasePopularity> call =
         ctx.serviceCallFactory()
             .lookup(serviceName, "Increase", ProductApi.IncreasePopularity.class);
-    return ActionReply.forward(call.createCall(increase));
+    return Reply.forward(call.createCall(increase));
   }
 
   @Handler
-  public ActionReply<Empty> forwardRemoved(ShoppingCart.ItemRemoved in, ActionContext ctx) {
+  public Reply<Empty> forwardRemoved(ShoppingCart.ItemRemoved in, ActionContext ctx) {
 
     ProductApi.DecreasePopularity decrease =
         ProductApi.DecreasePopularity.newBuilder()
@@ -50,6 +50,6 @@ public class ToProductPopularityAction {
     ServiceCallRef<ProductApi.DecreasePopularity> call =
         ctx.serviceCallFactory()
             .lookup(serviceName, "Decrease", ProductApi.DecreasePopularity.class);
-    return ActionReply.forward(call.createCall(decrease));
+    return Reply.forward(call.createCall(decrease));
   }
 }

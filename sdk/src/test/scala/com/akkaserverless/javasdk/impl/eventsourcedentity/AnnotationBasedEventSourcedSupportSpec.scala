@@ -7,7 +7,10 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk._
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
+import com.akkaserverless.javasdk.reply.FailureReply
 import com.example.shoppingcart.ShoppingCart
+import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
@@ -75,6 +78,12 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
+
+  def decodeWrapped(reply: Reply[JavaPbAny]): Wrapped =
+    reply match {
+      case MessageReplyImpl(any, _, _) =>
+        decodeWrapped(any)
+    }
 
   def decodeWrapped(any: JavaPbAny) = {
     any.getTypeUrl should ===(WrappedResolvedType.typeUrl)
@@ -223,7 +232,15 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem() = Wrapped("blah")
         }, method)
-        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
+      }
+
+      "no arg command handler with Reply" in {
+        val handler = create(new {
+          @CommandHandler
+          def addItem(): Reply[Wrapped] = Reply.message(Wrapped("blah"))
+        }, method)
+        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "single arg command handler" in {
@@ -231,7 +248,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(msg: String) = Wrapped(msg)
         }, method)
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
@@ -246,10 +263,10 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           },
           method
         )
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
-      "allow emiting events" in {
+      "allow emitting events" in {
         val handler = create(new {
           @CommandHandler
           def addItem(msg: String, ctx: CommandContext) = {
@@ -259,7 +276,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           }
         }, method)
         val ctx = new MockCommandContext
-        decodeWrapped(handler.handleCommand(command("blah"), ctx).get) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
         ctx.emited should ===(Seq("blah event"))
       }
 
@@ -307,6 +324,15 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
         }, method)
         val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), new MockCommandContext)
         ex.getMessage should ===("foo")
+      }
+
+      "receive Failure Reply" in {
+        val handler = create(new {
+          @CommandHandler
+          def addItem(): Reply[Wrapped] = Reply.failure("foo")
+        }, method)
+        val ex = handler.handleCommand(command("nothing"), new MockCommandContext)
+        assertIsFailure(ex, "foo")
       }
 
     }
@@ -417,6 +443,13 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   }
 
+  private def assertIsFailure(reply: Reply[protobuf.Any], failureDescription: String) =
+    reply match {
+      case message: FailureReply[protobuf.Any] =>
+        message.description() should ===(failureDescription)
+      case other =>
+        fail(s"$reply is not a FailureReply")
+    }
 }
 
 import org.scalatest.matchers.should.Matchers._

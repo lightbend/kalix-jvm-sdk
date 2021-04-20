@@ -5,6 +5,7 @@
 package com.akkaserverless.javasdk.action;
 
 import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
+import com.akkaserverless.javasdk.Reply;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -28,11 +29,11 @@ import java.lang.annotation.Target;
  *
  * <p>Calls with a unary out argument may either return synchronously, or return a {@link
  * java.util.concurrent.CompletionStage}. The argument return type may either be the raw protobuf
- * output type of the call, or wrapped in {@link MessageEnvelope} or {@link ActionReply}.
+ * output type of the call, or wrapped in {@link MessageEnvelope} or {@link Reply}.
  *
  * <p>Calls with a streamed out argument may either return a {@link akka.stream.javadsl.Source} or a
  * {@link org.reactivestreams.Publisher}. The element type of these may either be the raw protobuf
- * output type of the call, or wrapped in {@link MessageEnvelope} or {@link ActionReply}.
+ * output type of the call, or wrapped in {@link MessageEnvelope} or {@link Reply}.
  *
  * <p>The method may also take an {@link ActionContext}.
  */

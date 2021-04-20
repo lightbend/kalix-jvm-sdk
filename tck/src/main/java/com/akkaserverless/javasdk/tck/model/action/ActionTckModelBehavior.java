@@ -12,6 +12,8 @@ import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.action.*;
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.tck.model.Action.*;
 import com.akkaserverless.tck.model.ActionTwo;
 
@@ -25,48 +27,46 @@ public class ActionTckModelBehavior {
   public ActionTckModelBehavior() {}
 
   @Handler
-  public CompletionStage<ActionReply<Response>> processUnary(
-      Request request, ActionContext context) {
+  public CompletionStage<Reply<Response>> processUnary(Request request, ActionContext context) {
     return Source.single(request).via(responses(context)).runWith(singleResponse(), system);
   }
 
   @Handler
-  public CompletionStage<ActionReply<Response>> processStreamedIn(
+  public CompletionStage<Reply<Response>> processStreamedIn(
       Source<Request, NotUsed> requests, ActionContext context) {
     return requests.via(responses(context)).runWith(singleResponse(), system);
   }
 
   @Handler
-  public Source<ActionReply<Response>, NotUsed> processStreamedOut(
+  public Source<Reply<Response>, NotUsed> processStreamedOut(
       Request request, ActionContext context) {
     return Source.single(request).via(responses(context));
   }
 
   @Handler
-  public Source<ActionReply<Response>, NotUsed> processStreamed(
+  public Source<Reply<Response>, NotUsed> processStreamed(
       Source<Request, NotUsed> requests, ActionContext context) {
     return requests.via(responses(context));
   }
 
-  private Flow<Request, ActionReply<Response>, NotUsed> responses(ActionContext context) {
+  private Flow<Request, Reply<Response>, NotUsed> responses(ActionContext context) {
     return Flow.of(Request.class)
         .flatMapConcat(request -> Source.from(request.getGroupsList()))
         .map(group -> response(group, context));
   }
 
-  private ActionReply<Response> response(ProcessGroup group, ActionContext context) {
-    ActionReply<Response> reply = ActionReply.noReply();
+  private Reply<Response> response(ProcessGroup group, ActionContext context) {
+    Reply<Response> reply = Reply.noReply();
     for (ProcessStep step : group.getStepsList()) {
       switch (step.getStepCase()) {
         case REPLY:
           reply =
-              ActionReply.message(
-                      Response.newBuilder().setMessage(step.getReply().getMessage()).build())
+              Reply.message(Response.newBuilder().setMessage(step.getReply().getMessage()).build())
                   .withEffects(reply.effects());
           break;
         case FORWARD:
           reply =
-              ActionReply.<Response>forward(serviceTwoRequest(context, step.getForward().getId()))
+              Reply.<Response>forward(serviceTwoRequest(context, step.getForward().getId()))
                   .withEffects(reply.effects());
           break;
         case EFFECT:
@@ -76,17 +76,15 @@ public class ActionTckModelBehavior {
                   Effect.of(serviceTwoRequest(context, effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          reply =
-              ActionReply.<Response>failure(step.getFail().getMessage())
-                  .withEffects(reply.effects());
+          reply = Reply.<Response>failure(step.getFail().getMessage()).withEffects(reply.effects());
       }
     }
     return reply;
   }
 
-  private Sink<ActionReply<Response>, CompletionStage<ActionReply<Response>>> singleResponse() {
+  private Sink<Reply<Response>, CompletionStage<Reply<Response>>> singleResponse() {
     return Sink.fold(
-        ActionReply.noReply(),
+        Reply.noReply(),
         (reply, next) ->
             next.isEmpty() ? reply.withEffects(next.effects()) : next.withEffects(reply.effects()));
   }
