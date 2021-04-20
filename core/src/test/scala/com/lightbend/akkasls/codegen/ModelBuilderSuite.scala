@@ -71,10 +71,17 @@ class ModelBuilderSuite extends munit.FunSuite {
       assertEquals(
         entities,
         List(
-          ModelBuilder.EventSourcedEntity(
+          ModelBuilder.Service(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            "ShoppingCartService",
-            Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
+            ModelBuilder.EventSourcedEntity(
+              FullyQualifiedName("ShoppingCart", domainProto),
+              "ShoppingCart",
+              Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
+              List(
+                ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
+                ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
+              )
+            ),
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
@@ -91,10 +98,6 @@ class ModelBuilderSuite extends munit.FunSuite {
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
                 FullyQualifiedName("Cart", shoppingCartProto)
               )
-            ),
-            List(
-              ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
-              ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
             )
           )
         )

@@ -15,12 +15,10 @@ object ModelBuilder {
 
   /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
-    *
-    * @param serviceName the fully qualified name of the protobuf service we are generating the implementation for
-    *  The true service to entity relationship isn't upheld by this code at this point.
     */
   sealed abstract class Entity(
-      val serviceName: FullyQualifiedName
+      val fqn: FullyQualifiedName,
+      val entityType: String
   )
 
   /**
@@ -28,12 +26,30 @@ object ModelBuilder {
     * by replaying that journal.
     */
   case class EventSourcedEntity(
-      override val serviceName: FullyQualifiedName,
-      entityType: String,
+      override val fqn: FullyQualifiedName,
+      override val entityType: String,
       state: Option[State],
-      commands: Iterable[Command],
       events: Iterable[Event]
-  ) extends Entity(serviceName)
+  ) extends Entity(fqn, entityType)
+
+  /**
+    * A type of Entity that stores its state using a journal of events, and restores its state
+    * by replaying that journal.
+    */
+  case class ValueEntity(
+      override val fqn: FullyQualifiedName,
+      override val entityType: String,
+      state: Option[State]
+  ) extends Entity(fqn, entityType)
+
+  /**
+    * A Service backed by an Akka Serverless entity
+    */
+  case class Service(
+      fqn: FullyQualifiedName,
+      entity: Entity,
+      commands: Iterable[Command]
+  )
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
@@ -68,13 +84,12 @@ object ModelBuilder {
     */
   def introspectProtobufClasses(
       descriptors: Iterable[Descriptors.FileDescriptor]
-  ): Iterable[Entity] = {
+  ): Iterable[Service] = {
 
-    val entities =
-      descriptors
-        .flatMap(extractEventSourcedEntityDefinition)
-        .map(entity => entity.fullName -> entity)
-        .toMap
+    val entities = (
+      descriptors.flatMap[Entity](extractEventSourcedEntityDefinition) ++
+        descriptors.flatMap[Entity](extractValueEntityDefinition)
+    ).map(entity => entity.fqn.fullName -> entity).toMap
 
     descriptors
       .flatMap(_.getServices().asScala)
@@ -102,12 +117,10 @@ object ModelBuilder {
                 )
               )
 
-            EventSourcedEntity(
+            Service(
               serviceName,
-              entityType,
-              entity.state,
-              commands,
-              entity.events
+              entity,
+              commands
             )
           }
 
@@ -151,7 +164,7 @@ object ModelBuilder {
     */
   private def extractEventSourcedEntityDefinition(
       descriptor: Descriptors.FileDescriptor
-  ): Option[EventSourcedEntityDefinition] = {
+  ): Option[EventSourcedEntity] = {
     val generalOptions = descriptor.getOptions.getAllFields.asScala
 
     val rawEntity =
@@ -164,16 +177,37 @@ object ModelBuilder {
 
     Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
       val fullName = s"${descriptor.getPackage()}.${name}"
-      EventSourcedEntityDefinition(
-        fullName,
+      EventSourcedEntity(
+        FullyQualifiedName(name, protoReference),
+        rawEntity.getEntityType(),
+        Option(rawEntity.getState().getType())
+          .filter(_.nonEmpty)
+          .map(name => State(FullyQualifiedName(name, protoReference))),
         rawEntity
           .getEventList()
           .asScala
-          .map(event => Event(FullyQualifiedName(event.getType(), protoReference))),
-        Option(rawEntity.getState().getType())
-          .filter(_.nonEmpty)
-          .map(name => State(FullyQualifiedName(name, protoReference)))
+          .map(event => Event(FullyQualifiedName(event.getType(), protoReference)))
       )
     }
+  }
+
+  /**
+    * Extracts any defined value entity from the provided protobuf file descriptor
+    *
+    * @param descriptor the file descriptor to extract from
+    */
+  private def extractValueEntityDefinition(
+      descriptor: Descriptors.FileDescriptor
+  ): Option[ValueEntity] = {
+    val generalOptions = descriptor.getOptions.getAllFields.asScala
+
+    val rawEntity =
+      descriptor
+        .getOptions()
+        .getExtension(com.akkaserverless.Annotations.file)
+
+    val protoReference = PackageNaming.from(descriptor)
+
+    None
   }
 }
