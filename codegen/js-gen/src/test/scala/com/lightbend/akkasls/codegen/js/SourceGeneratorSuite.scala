@@ -10,14 +10,81 @@ import java.nio.file.{ Files, Paths }
 import org.apache.commons.io.FileUtils
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  val protoRef =
+  def serviceProto(suffix: String = "") =
     PackageNaming(
-      "MyService",
+      s"MyService$suffix",
       "com.example.service",
+      None,
+      None,
+      Some(s"OuterClass$suffix"),
+      false
+    )
+
+  val domainProto =
+    PackageNaming(
+      "Domain",
+      "com.example.service.persistence",
       None,
       None,
       None,
       false
+    )
+
+  val knownGoogleProto =
+    PackageNaming(
+      "EXT",
+      "google.protobuf",
+      None,
+      None,
+      None,
+      true
+    )
+
+  def eventSourcedEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+    ModelBuilder.Service(
+      FullyQualifiedName(s"MyService$suffix", proto),
+      ModelBuilder.EventSourcedEntity(
+        FullyQualifiedName(s"MyEntity$suffix", domainProto),
+        s"MyEntity$suffix",
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
+        List(
+          ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
+        )
+      ),
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("Set", proto),
+          FullyQualifiedName("SetValue", proto),
+          FullyQualifiedName("Empty", knownGoogleProto)
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("Get", proto),
+          FullyQualifiedName("GetValue", proto),
+          FullyQualifiedName("MyState", proto)
+        )
+      )
+    )
+
+  def valueEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+    ModelBuilder.Service(
+      FullyQualifiedName(s"MyService$suffix", proto),
+      ModelBuilder.ValueEntity(
+        FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
+        s"MyValueEntity$suffix",
+        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto)))
+      ),
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("Set", proto),
+          FullyQualifiedName("SetValue", proto),
+          FullyQualifiedName("Empty", knownGoogleProto)
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("Get", proto),
+          FullyQualifiedName("GetValue", proto),
+          FullyQualifiedName("MyState", proto)
+        )
+      )
     )
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
@@ -49,61 +116,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
             FileUtils.forceMkdir(testSourceFile2.getParentFile)
             FileUtils.touch(testSourceFile2)
 
+            val protoRef = serviceProto()
+
             val entities = List(
-              ModelBuilder.EventSourcedEntity(
-                FullyQualifiedName("MyService1", protoRef),
-                "MyService1",
-                Some(ModelBuilder.State(FullyQualifiedName("State1", protoRef))),
-                List(
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Set", protoRef),
-                    FullyQualifiedName("SetValue", protoRef),
-                    FullyQualifiedName("Empty", protoRef)
-                  ),
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Get", protoRef),
-                    FullyQualifiedName("GetValue", protoRef),
-                    FullyQualifiedName("MyState", protoRef)
-                  )
-                ),
-                List.empty
-              ),
-              ModelBuilder.EventSourcedEntity(
-                FullyQualifiedName("MyService2", protoRef),
-                "MyService2",
-                Some(ModelBuilder.State(FullyQualifiedName("State2", protoRef))),
-                List(
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Set", protoRef),
-                    FullyQualifiedName("SetValue", protoRef),
-                    FullyQualifiedName("Empty", protoRef)
-                  ),
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Get", protoRef),
-                    FullyQualifiedName("GetValue", protoRef),
-                    FullyQualifiedName("MyState", protoRef)
-                  )
-                ),
-                List.empty
-              ),
-              ModelBuilder.EventSourcedEntity(
-                FullyQualifiedName("MyService3", protoRef),
-                "MyService3",
-                Some(ModelBuilder.State(FullyQualifiedName("State3", protoRef))),
-                List(
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Set", protoRef),
-                    FullyQualifiedName("SetValue", protoRef),
-                    FullyQualifiedName("Empty", protoRef)
-                  ),
-                  ModelBuilder.Command(
-                    FullyQualifiedName("Get", protoRef),
-                    FullyQualifiedName("GetValue", protoRef),
-                    FullyQualifiedName("MyState", protoRef)
-                  )
-                ),
-                List.empty
-              )
+              eventSourcedEntityService(protoRef, "1"),
+              valueEntityService(protoRef, "2"),
+              eventSourcedEntityService(protoRef, "3")
             )
 
             val sources = SourceGenerator.generate(
@@ -142,27 +160,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
     } finally FileUtils.deleteDirectory(protoSourceDirectory.toFile)
   }
 
-  test("source") {
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", protoRef),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", protoRef),
-          FullyQualifiedName("SetValue", protoRef),
-          FullyQualifiedName("Empty", protoRef)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", protoRef),
-          FullyQualifiedName("GetValue", protoRef),
-          FullyQualifiedName("MyState", protoRef)
-        )
-      ),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", protoRef))
-      )
-    )
+  test("EventSourcedEntity source") {
+    val protoRef = serviceProto()
+    val entity   = eventSourcedEntityService(protoRef);
 
     val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
     val protobufSourceDirectory  = Paths.get("./src/proto")
@@ -187,25 +187,25 @@ class SourceGeneratorSuite extends munit.FunSuite {
         | * A TypeScript aware editor such as VS Code will be able to leverage them to provide hinting and validation.
         | * 
         | * State; the serialisable and persistable state of the entity
-        | * @typedef { import("../../lib/generated/myserviceentity").State } State
+        | * @typedef { import("../../lib/generated/myservice").State } State
         | * 
         | * Event; the union of all possible event types
-        | * @typedef { import("../../lib/generated/myserviceentity").Event } Event
+        | * @typedef { import("../../lib/generated/myservice").Event } Event
         | * 
-        | * MyServiceEntity; a strongly typed extension of EventSourcedEntity derived from your proto source
-        | * @typedef { import("../../lib/generated/myserviceentity").MyServiceEntity } MyServiceEntity
+        | * MyService; a strongly typed extension of EventSourcedEntity derived from your proto source
+        | * @typedef { import("../../lib/generated/myservice").MyService } MyService
         | */
         |
         |/**
-        | * @type MyServiceEntity
+        | * @type MyService
         | */
         |const entity = new EventSourcedEntity(
         |  [
         |    "myentity1.proto",
         |    "someother.proto"
         |  ],
-        |  "com.example.service.MyServiceEntity",
-        |  "myserviceentity",
+        |  "com.example.service.MyService",
+        |  "myservice",
         |  {
         |    includeDirs: ["./src/proto"],
         |    serializeFallbackToJson: true
@@ -235,36 +235,73 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("typedef source") {
-    val googleKnownProto =
-      PackageNaming(
-        "Empty",
-        "google.protobuf",
-        None,
-        None,
-        None,
-        true
+  test("ValueEntity source") {
+    val protoRef = serviceProto()
+    val entity   = valueEntityService(protoRef);
+
+    val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
+    val protobufSourceDirectory  = Paths.get("./src/proto")
+    val sourceDirectory          = Paths.get("./src/js")
+    val generatedSourceDirectory = Paths.get("./lib/generated")
+
+    val sourceDoc =
+      SourceGenerator.source(
+        protoSources,
+        protobufSourceDirectory,
+        sourceDirectory,
+        generatedSourceDirectory,
+        entity
       )
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", protoRef),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", protoRef),
-          FullyQualifiedName("SetValue", protoRef),
-          FullyQualifiedName("Empty", googleKnownProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", protoRef),
-          FullyQualifiedName("GetValue", protoRef),
-          FullyQualifiedName("MyState", protoRef)
-        )
-      ),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", protoRef))
-      )
+    assertEquals(
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
+      """import { ValueEntity } from "@lightbend/akkaserverless-javascript-sdk";
+        |
+        |/**
+        | * Type definitions.
+        | * These types have been generated based on your proto source.
+        | * A TypeScript aware editor such as VS Code will be able to leverage them to provide hinting and validation.
+        | * 
+        | * State; the serialisable and persistable state of the entity
+        | * @typedef { import("../../lib/generated/myservice").State } State
+        | * 
+        | * MyService; a strongly typed extension of ValueEntity derived from your proto source
+        | * @typedef { import("../../lib/generated/myservice").MyService } MyService
+        | */
+        |
+        |/**
+        | * @type MyService
+        | */
+        |const entity = new ValueEntity(
+        |  [
+        |    "myentity1.proto",
+        |    "someother.proto"
+        |  ],
+        |  "com.example.service.MyService",
+        |  "myservice",
+        |  {
+        |    includeDirs: ["./src/proto"],
+        |    serializeFallbackToJson: true
+        |  }
+        |);
+        |
+        |entity.setInitial(entityId => ({}));
+        |
+        |entity.setCommandHandlers({
+        |  Set(command, state, ctx) {
+        |    return ctx.fail("The command handler for `Set` is not implemented, yet");
+        |  },
+        |  Get(command, state, ctx) {
+        |    return ctx.fail("The command handler for `Get` is not implemented, yet");
+        |  }
+        |});
+        |
+        |export default entity;""".stripMargin
     )
+  }
+
+  test("EventSourcedEntity typedef source") {
+    val protoRef = serviceProto()
+    val entity   = eventSourcedEntityService(protoRef);
 
     val sourceDoc =
       SourceGenerator.typedefSource(
@@ -278,15 +315,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |} from "../akkaserverless";
         |import proto from "./proto";
         |
-        |export type State = proto.com.example.service.IMyState;
-        |export type Event = proto.com.example.service.ISetEvent;
+        |export type State = proto.com.example.service.persistence.IMyState;
+        |export type Event = proto.com.example.service.persistence.ISetEvent;
         |export type Command =
         |  | proto.com.example.service.ISetValue
         |  | proto.com.example.service.IGetValue;
         |
         |export type EventHandlers = {
         |  SetEvent: (
-        |    event: proto.com.example.service.ISetEvent,
+        |    event: proto.com.example.service.persistence.ISetEvent,
         |    state: State
         |  ) => State;
         |};
@@ -304,7 +341,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  ) => proto.com.example.service.IMyState;
         |};
         |
-        |export type MyServiceEntity = TypedEventSourcedEntity<
+        |export type MyService = TypedEventSourcedEntity<
         |  State,
         |  EventHandlers,
         |  CommandHandlers
@@ -313,26 +350,51 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("test source") {
-    val entity =
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName("MyService1", protoRef),
-        "MyService1",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
-        List(
-          ModelBuilder.Command(
-            FullyQualifiedName("Set", protoRef),
-            FullyQualifiedName("SetValue", protoRef),
-            FullyQualifiedName("protobuf.Empty", protoRef)
-          ),
-          ModelBuilder.Command(
-            FullyQualifiedName("Get", protoRef),
-            FullyQualifiedName("GetValue", protoRef),
-            FullyQualifiedName("MyState", protoRef)
-          )
-        ),
-        List.empty
+  test("ValueEntity typedef source") {
+    val protoRef = serviceProto()
+    val entity   = valueEntityService(protoRef);
+
+    val sourceDoc =
+      SourceGenerator.typedefSource(
+        entity
       )
+    assertEquals(
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
+      """import {
+        |  TypedValueEntity,
+        |  ValueEntityCommandContext
+        |} from "../akkaserverless";
+        |import proto from "./proto";
+        |
+        |export type State = proto.com.example.service.persistence.IMyState;
+        |export type Command =
+        |  | proto.com.example.service.ISetValue
+        |  | proto.com.example.service.IGetValue;
+        |
+        |export type CommandHandlers = {
+        |  Set: (
+        |    command: proto.com.example.service.ISetValue,
+        |    state: State,
+        |    ctx: ValueEntityCommandContext<State>
+        |  ) => void;
+        |  Get: (
+        |    command: proto.com.example.service.IGetValue,
+        |    state: State,
+        |    ctx: ValueEntityCommandContext<State>
+        |  ) => proto.com.example.service.IMyState;
+        |};
+        |
+        |export type MyService = TypedValueEntity<
+        |  State,
+        |  CommandHandlers
+        |>;
+        |""".stripMargin
+    )
+  }
+
+  test("test source") {
+    val protoRef = serviceProto()
+    val entity   = eventSourcedEntityService(protoRef, "1");
 
     val testSourceDirectory = Paths.get("./test/js");
     val sourceDirectory     = Paths.get("./src/js");
@@ -376,33 +438,24 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("index source") {
+    val protoRef = serviceProto()
+
     val entities = List(
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName("MyService1", protoRef),
-        "MyService1",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", protoRef))),
-        List(
-          ModelBuilder.Command(
-            FullyQualifiedName("Set", protoRef),
-            FullyQualifiedName("SetValue", protoRef),
-            FullyQualifiedName("protobuf.Empty", protoRef)
-          ),
-          ModelBuilder.Command(
-            FullyQualifiedName("Get", protoRef),
-            FullyQualifiedName("GetValue", protoRef),
-            FullyQualifiedName("MyState", protoRef)
-          )
-        ),
-        List.empty
-      )
+      eventSourcedEntityService(protoRef, "1"),
+      valueEntityService(protoRef, "2"),
+      eventSourcedEntityService(protoRef, "3")
     )
 
     val sourceDoc = SourceGenerator.indexSource(entities)
     assertEquals(
       sourceDoc.layout,
       """import myservice1 from "./myservice1.js";
+        |import myservice2 from "./myservice2.js";
+        |import myservice3 from "./myservice3.js";
         |
-        |myservice1.start();""".stripMargin
+        |myservice1.start();
+        |myservice2.start();
+        |myservice3.start();""".stripMargin
     )
   }
 }
