@@ -205,9 +205,19 @@ object ModelBuilder {
       descriptor
         .getOptions()
         .getExtension(com.akkaserverless.Annotations.file)
+        .getValueEntity()
 
     val protoReference = PackageNaming.from(descriptor)
 
-    None
+    Option(rawEntity.getName()).filter(_.nonEmpty).map { name =>
+      val fullName = s"${descriptor.getPackage()}.${name}"
+      ValueEntity(
+        FullyQualifiedName(name, protoReference),
+        rawEntity.getEntityType(),
+        Option(rawEntity.getState().getType())
+          .filter(_.nonEmpty)
+          .map(name => State(FullyQualifiedName(name, protoReference)))
+      )
+    }
   }
 }
