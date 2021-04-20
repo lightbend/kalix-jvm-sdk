@@ -91,6 +91,7 @@ object ModelBuilder {
         descriptors.flatMap[Entity](extractValueEntityDefinition)
     ).map(entity => entity.fqn.fullName -> entity).toMap
 
+    println(entities)
     descriptors
       .flatMap(_.getServices().asScala)
       .flatMap { service =>

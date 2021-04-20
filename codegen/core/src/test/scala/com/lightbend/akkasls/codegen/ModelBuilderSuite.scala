@@ -15,10 +15,10 @@ import scala.util.Using
 import com.google.protobuf.ExtensionRegistry
 
 class ModelBuilderSuite extends munit.FunSuite {
-
-  test("introspection") {
-    val testFilesPath      = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
-    val descriptorFilePath = testFilesPath.resolve("descriptor-sets/user-function.desc")
+  test("EventSourcedEntity introspection") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve("descriptor-sets/event-sourced-shoppingcart.desc")
 
     val registry = ExtensionRegistry.newInstance()
     registry.add(com.akkaserverless.Annotations.service)
@@ -97,6 +97,97 @@ class ModelBuilderSuite extends munit.FunSuite {
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
                 FullyQualifiedName("Cart", shoppingCartProto)
+              )
+            )
+          )
+        )
+      )
+    }.get
+  }
+
+  test("ValueEntity introspection") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve("descriptor-sets/value-shoppingcart.desc")
+
+    val registry = ExtensionRegistry.newInstance()
+    registry.add(com.akkaserverless.Annotations.service)
+    registry.add(com.akkaserverless.Annotations.file)
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileList    = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val entities = ModelBuilder.introspectProtobufClasses(
+        descriptors
+      )
+
+      val shoppingCartProto =
+        PackageNaming(
+          "Shoppingcart",
+          "com.example.valueentity.shoppingcart",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/valueentity/shoppingcart;shoppingcart"
+          ),
+          None,
+          Some("ShoppingCart"),
+          false
+        )
+
+      val domainProto =
+        PackageNaming(
+          "Domain",
+          "com.example.valueentity.shoppingcart.persistence",
+          Some(
+            "github.com/lightbend/akkaserverless-go-sdk/example/valueentity/shoppingcart/persistence;persistence"
+          ),
+          None,
+          None,
+          false
+        )
+
+      val googleEmptyProto =
+        PackageNaming(
+          "Empty",
+          "google.protobuf",
+          Some("google.golang.org/protobuf/types/known/emptypb"),
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          true
+        )
+
+      assertEquals(
+        entities,
+        List(
+          ModelBuilder.Service(
+            FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+            ModelBuilder.ValueEntity(
+              FullyQualifiedName("ShoppingCart", domainProto),
+              "ShoppingCart",
+              Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
+            ),
+            List(
+              ModelBuilder.Command(
+                FullyQualifiedName("AddItem", shoppingCartProto),
+                FullyQualifiedName("AddLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
+              ),
+              ModelBuilder.Command(
+                FullyQualifiedName("RemoveItem", shoppingCartProto),
+                FullyQualifiedName("RemoveLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
+              ),
+              ModelBuilder.Command(
+                FullyQualifiedName("GetCart", shoppingCartProto),
+                FullyQualifiedName("GetShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Cart", shoppingCartProto)
+              ),
+              ModelBuilder.Command(
+                FullyQualifiedName("RemoveCart", shoppingCartProto),
+                FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
               )
             )
           )
