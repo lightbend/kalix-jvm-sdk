@@ -72,7 +72,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.ValueEntity(
         FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
         s"MyValueEntity$suffix",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto)))
+        ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
       ),
       List(
         ModelBuilder.Command(
@@ -287,12 +287,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Empty set(OuterClass.SetValue command, CommandContext ctx) {
+      |    public Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
+      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -352,10 +352,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |/** A value entity. */
       |public abstract class MyService {
       |    @CommandHandler
-      |    public abstract Empty set(OuterClass.SetValue command, CommandContext ctx);
+      |    public abstract Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx);
       |    
       |    @CommandHandler
-      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx);
+      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx);
       |}""".stripMargin
     )
   }

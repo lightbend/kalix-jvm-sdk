@@ -39,7 +39,7 @@ object ModelBuilder {
   case class ValueEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
-      state: Option[State]
+      state: State
   ) extends Entity(fqn, entityType)
 
   /**
@@ -91,7 +91,6 @@ object ModelBuilder {
         descriptors.flatMap[Entity](extractValueEntityDefinition)
     ).map(entity => entity.fqn.fullName -> entity).toMap
 
-    println(entities)
     descriptors
       .flatMap(_.getServices().asScala)
       .flatMap { service =>
@@ -143,19 +142,6 @@ object ModelBuilder {
     case _ => // name contains at least one dot, treat as absolute
       name
   }
-
-  /**
-    * Represents the parsed definition of an EventSourcedEntity, with all types resolved to their full names
-    *
-    * @param fullName the resolved full name of the entity
-    * @param events the resolved full name of each event type the entity handles
-    * @param state the resolved full name of the state type
-    */
-  private case class EventSourcedEntityDefinition(
-      fullName: String,
-      events: Iterable[Event],
-      state: Option[State]
-  )
 
   /**
     * Extracts any defined event sourced entity from the provided protobuf file descriptor
@@ -215,9 +201,7 @@ object ModelBuilder {
       ValueEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType(),
-        Option(rawEntity.getState().getType())
-          .filter(_.nonEmpty)
-          .map(name => State(FullyQualifiedName(name, protoReference)))
+        State(FullyQualifiedName(rawEntity.getState().getType(), protoReference))
       )
     }
   }

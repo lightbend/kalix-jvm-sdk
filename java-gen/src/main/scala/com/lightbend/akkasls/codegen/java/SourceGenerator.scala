@@ -134,7 +134,7 @@ object SourceGenerator extends PrettyPrinter {
     ) ++ (service.entity match {
       case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
         state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-      case ModelBuilder.ValueEntity(_, _, state) => state.toSeq.map(_.fqn)
+      case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
     })
 
     val imports = (messageTypes
@@ -227,7 +227,11 @@ object SourceGenerator extends PrettyPrinter {
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
-                "CommandContext" <+> "ctx"
+                (service.entity match {
+                  case ModelBuilder.ValueEntity(_, _, state) =>
+                    "CommandContext" <> angles(qualifiedType(state.fqn))
+                  case _ => text("CommandContext")
+                }) <+> "ctx"
               ),
               emptyDoc
             ) {
@@ -274,7 +278,7 @@ object SourceGenerator extends PrettyPrinter {
     ) ++ (service.entity match {
       case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
         state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-      case ModelBuilder.ValueEntity(_, _, state) => state.toSeq.map(_.fqn)
+      case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
     })
 
     val imports = (messageTypes
@@ -340,7 +344,11 @@ object SourceGenerator extends PrettyPrinter {
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
-                "CommandContext" <+> "ctx"
+                (service.entity match {
+                  case ModelBuilder.ValueEntity(_, _, state) =>
+                    "CommandContext" <> angles(qualifiedType(state.fqn))
+                  case _ => text("CommandContext")
+                }) <+> "ctx"
               )
             )
           },
