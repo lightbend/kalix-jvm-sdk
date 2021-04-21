@@ -92,7 +92,7 @@ object Cli {
           println("Inspecting proto file descriptor for entity generation...")
           val _ = DescriptorSet.fileDescriptors(protobufDescriptor) match {
             case Right(fileDescriptors) =>
-              val entities =
+              val model =
                 ModelBuilder.introspectProtobufClasses(
                   fileDescriptors.map {
                     case Right(fileDescriptor) => fileDescriptor
@@ -109,7 +109,7 @@ object Cli {
               js.SourceGenerator
                 .generate(
                   protobufDescriptor.toPath,
-                  entities,
+                  model.services,
                   config.protoSourceDirectory,
                   config.sourceDirectory,
                   config.testSourceDirectory,

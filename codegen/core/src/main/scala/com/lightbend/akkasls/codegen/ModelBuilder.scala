@@ -14,6 +14,14 @@ import com.google.protobuf.Descriptors
 object ModelBuilder {
 
   /**
+    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
+    */
+  case class AkkaServerlessModel(
+      services: Iterable[Service],
+      entities: Iterable[Entity]
+  )
+
+  /**
     * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
     */
   sealed abstract class Entity(
@@ -84,14 +92,15 @@ object ModelBuilder {
     */
   def introspectProtobufClasses(
       descriptors: Iterable[Descriptors.FileDescriptor]
-  ): Iterable[Service] = {
+  ): AkkaServerlessModel = {
 
-    val entities = (
+    val entities =
       descriptors.flatMap[Entity](extractEventSourcedEntityDefinition) ++
-        descriptors.flatMap[Entity](extractValueEntityDefinition)
-    ).map(entity => entity.fqn.fullName -> entity).toMap
+      descriptors.flatMap[Entity](extractValueEntityDefinition)
 
-    descriptors
+    val entityMap = entities.map(entity => entity.fqn.fullName -> entity).toMap
+
+    val services = descriptors
       .flatMap(_.getServices().asScala)
       .flatMap { service =>
         Option(
@@ -103,7 +112,7 @@ object ModelBuilder {
         )
           .filter(_.nonEmpty)
           .map(resolveFullName(_, service.getFile().getPackage()))
-          .flatMap(entities.get)
+          .flatMap(entityMap.get)
           .map { entity =>
             val serviceName = FullyQualifiedName.from(service)
             val entityType  = service.getName
@@ -125,6 +134,7 @@ object ModelBuilder {
           }
 
       }
+    AkkaServerlessModel(services, entities)
   }
 
   /**
