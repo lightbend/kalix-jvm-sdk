@@ -71,7 +71,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       ModelBuilder.ValueEntity(
         FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
         s"MyValueEntity$suffix",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto)))
+        ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
       ),
       List(
         ModelBuilder.Command(

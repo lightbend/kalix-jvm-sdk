@@ -381,9 +381,7 @@ object SourceGenerator extends PrettyPrinter {
               events.toSeq.map(_.fqn)
             ) <> semi
         case ModelBuilder.ValueEntity(_, _, state) =>
-          "export type State" <+> equal <+> state
-            .map(state => typeReference(state.fqn))
-            .getOrElse(text("unknown")) <> semi
+          "export type State" <+> equal <+> typeReference(state.fqn) <> semi
       }) <> line <>
       "export type Command" <+> equal <> typeUnion(
         service.commands.toSeq.map(_.inputType)

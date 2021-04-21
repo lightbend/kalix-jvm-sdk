@@ -166,7 +166,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             ModelBuilder.ValueEntity(
               FullyQualifiedName("ShoppingCart", domainProto),
               "ShoppingCart",
-              Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
+              ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
             ),
             List(
               ModelBuilder.Command(
