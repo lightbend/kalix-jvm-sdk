@@ -62,21 +62,21 @@ public class ActionTckModelBehavior {
         case REPLY:
           reply =
               Reply.message(Response.newBuilder().setMessage(step.getReply().getMessage()).build())
-                  .withEffects(reply.effects());
+                  .addEffects(reply.effects());
           break;
         case FORWARD:
           reply =
               Reply.<Response>forward(serviceTwoRequest(context, step.getForward().getId()))
-                  .withEffects(reply.effects());
+                  .addEffects(reply.effects());
           break;
         case EFFECT:
           SideEffect effect = step.getEffect();
           reply =
-              reply.withEffects(
+              reply.addEffects(
                   Effect.of(serviceTwoRequest(context, effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          reply = Reply.<Response>failure(step.getFail().getMessage()).withEffects(reply.effects());
+          reply = Reply.<Response>failure(step.getFail().getMessage()).addEffects(reply.effects());
       }
     }
     return reply;
@@ -86,7 +86,7 @@ public class ActionTckModelBehavior {
     return Sink.fold(
         Reply.noReply(),
         (reply, next) ->
-            next.isEmpty() ? reply.withEffects(next.effects()) : next.withEffects(reply.effects()));
+            next.isEmpty() ? reply.addEffects(next.effects()) : next.addEffects(reply.effects()));
   }
 
   private ServiceCall serviceTwoRequest(Context context, String id) {

@@ -20,7 +20,7 @@ public interface ForwardReply<T> extends Reply<T> {
    */
   ServiceCall serviceCall();
 
-  ForwardReply<T> withEffects(Collection<Effect> effects);
+  ForwardReply<T> addEffects(Collection<Effect> effects);
 
-  ForwardReply<T> withEffects(Effect... effects);
+  ForwardReply<T> addEffects(Effect... effects);
 }

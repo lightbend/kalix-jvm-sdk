@@ -19,7 +19,7 @@ public interface FailureReply<T> extends Reply<T> {
    */
   String description();
 
-  FailureReply<T> withEffects(Collection<Effect> effects);
+  FailureReply<T> addEffects(Collection<Effect> effects);
 
-  FailureReply<T> withEffects(Effect... effects);
+  FailureReply<T> addEffects(Effect... effects);
 }

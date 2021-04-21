@@ -126,7 +126,7 @@ public class TckModelReplicatedEntity {
     if (reply == null) {
       reply = Reply.message(responseValue());
     }
-    return reply.withEffects(e);
+    return reply.addEffects(e);
   }
 
   @CommandHandler

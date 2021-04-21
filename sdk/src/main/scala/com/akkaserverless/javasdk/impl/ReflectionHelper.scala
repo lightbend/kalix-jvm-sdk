@@ -194,7 +194,7 @@ private[impl] object ReflectionHelper {
               case envelope: MessageReply[T] =>
                 Reply
                   .message(anySupport.encodeJava(envelope.payload()))
-                  .withEffects(envelope.effects)
+                  .addEffects(envelope.effects)
               case other => other.asInstanceOf[Reply[JavaPbAny]]
             }
           })
@@ -205,7 +205,7 @@ private[impl] object ReflectionHelper {
               case envelope: MessageReply[T] =>
                 Reply
                   .message(serialize(resolvedType, envelope.payload), envelope.metadata)
-                  .withEffects(envelope.effects)
+                  .addEffects(envelope.effects)
               case other => other.asInstanceOf[Reply[JavaPbAny]]
             }
           })

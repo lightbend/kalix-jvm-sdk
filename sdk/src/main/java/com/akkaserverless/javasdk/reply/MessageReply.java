@@ -27,7 +27,7 @@ public interface MessageReply<T> extends Reply<T> {
    */
   Metadata metadata();
 
-  MessageReply<T> withEffects(Collection<Effect> effects);
+  MessageReply<T> addEffects(Collection<Effect> effects);
 
-  MessageReply<T> withEffects(Effect... effects);
+  MessageReply<T> addEffects(Effect... effects);
 }

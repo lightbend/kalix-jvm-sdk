@@ -40,7 +40,7 @@ public interface Reply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  Reply<T> withEffects(Collection<Effect> effects);
+  Reply<T> addEffects(Collection<Effect> effects);
 
   /**
    * Attach the given effects to this reply.
@@ -48,7 +48,7 @@ public interface Reply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  Reply<T> withEffects(Effect... effects);
+  Reply<T> addEffects(Effect... effects);
 
   /**
    * Create a message reply.

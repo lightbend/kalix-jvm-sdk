@@ -68,7 +68,7 @@ public class EventSourcedTckModelEntity {
     if (reply == null) {
       reply = Reply.message(Response.newBuilder().setMessage(state).build());
     }
-    return reply.withEffects(e);
+    return reply.addEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {
