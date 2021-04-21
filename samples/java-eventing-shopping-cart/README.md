@@ -2,9 +2,9 @@
 
 This example show cases the following eventing features:
 
-* Publishing of events from the event log to Google Pub Sub, see PublishAdded/PublishRemoved in [topic-publisher.proto](../../protocols/example/eventing/shoppingcart/topic-publisher.proto)
-* Reading of events from the event log and forwarding to a ValueEntity, see ForwardAdded/ForwardRemoved in [to-product-popularity.proto](../../protocols/example/eventing/shoppingcart/to-product-popularity.proto)
-* Reading of events from Google Pub Suc topic, see ProcessAdded/ProcessRemoved in [shopping-cart-analytics.proto](../../protocols/example/eventing/shoppingcart/shopping-cart-analytics.proto)
+* Publishing of events from an Event Sourced Entity to Google Pub Sub, see PublishAdded/PublishRemoved in [topic-publisher.proto](../../protocols/example/eventing/shoppingcart/topic-publisher.proto)
+* Reading of events from an Event Sourced Entity and forwarding to a ValueEntity, see ForwardAdded/ForwardRemoved in [to-product-popularity.proto](../../protocols/example/eventing/shoppingcart/to-product-popularity.proto)
+* Reading of events from Google Pub Sub topic, see ProcessAdded/ProcessRemoved in [shopping-cart-analytics.proto](../../protocols/example/eventing/shoppingcart/shopping-cart-analytics.proto)
 
 To run the example locally with the GooglePubSub emulator: (See below for instructions to run against real Pub/Sub)
 

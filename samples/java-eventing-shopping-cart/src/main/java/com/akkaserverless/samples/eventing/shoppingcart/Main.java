@@ -19,13 +19,13 @@ public final class Main {
   public static final void main(String[] args) throws Exception {
     new AkkaServerless()
         // event sourced shopping cart entity
-        // receives commands from external world and persist events to event log
+        // receives commands from outside the service and persists events to its journal/event log
         .registerEventSourcedEntity(
             ShoppingCartEntity.class,
             ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
             ShoppingCart.getDescriptor())
 
-        // consume shopping cart events directly from event log
+        // consume shopping cart events emitted from the ShoppingCartEntity
         // and publish as is to 'shopping-cart-events' topic
         .registerAction(
             new TopicPublisherAction(),
@@ -39,7 +39,7 @@ public final class Main {
             new ShoppingCartAnalyticsAction(),
             ShoppingCartAnalytics.getDescriptor().findServiceByName("ShoppingCartAnalyticsService"))
 
-        // consume shopping cart events directly from event log
+        // consume shopping cart events emitted from the ShoppingCartEntity
         // and send as commands to ProductPopularityEntity
         .registerAction(
             new ToProductPopularityAction(),
