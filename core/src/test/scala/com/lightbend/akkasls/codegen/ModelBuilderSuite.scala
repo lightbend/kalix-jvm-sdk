@@ -30,7 +30,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val entities = ModelBuilder.introspectProtobufClasses(
+      val model = ModelBuilder.introspectProtobufClasses(
         descriptors
       )
 
@@ -68,20 +68,28 @@ class ModelBuilderSuite extends munit.FunSuite {
           true
         )
 
+      val entity =
+        ModelBuilder.EventSourcedEntity(
+          FullyQualifiedName("ShoppingCart", domainProto),
+          "ShoppingCart",
+          Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
+          List(
+            ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
+            ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
+          )
+        )
+
       assertEquals(
-        entities,
+        model.entities,
+        List(entity)
+      )
+
+      assertEquals(
+        model.services,
         List(
           ModelBuilder.Service(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            ModelBuilder.EventSourcedEntity(
-              FullyQualifiedName("ShoppingCart", domainProto),
-              "ShoppingCart",
-              Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
-              List(
-                ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
-                ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
-              )
-            ),
+            entity,
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
@@ -120,7 +128,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val entities = ModelBuilder.introspectProtobufClasses(
+      val model = ModelBuilder.introspectProtobufClasses(
         descriptors
       )
 
@@ -157,9 +165,19 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           true
         )
+      val entity = ModelBuilder.ValueEntity(
+        FullyQualifiedName("ShoppingCart", domainProto),
+        "ShoppingCart",
+        ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
+      )
 
       assertEquals(
-        entities,
+        model.entities,
+        List(entity)
+      )
+
+      assertEquals(
+        model.services,
         List(
           ModelBuilder.Service(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
