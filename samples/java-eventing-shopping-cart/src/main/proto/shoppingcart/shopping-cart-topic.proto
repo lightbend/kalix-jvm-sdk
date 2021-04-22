@@ -1,0 +1,40 @@
+// Copyright 2019 Lightbend Inc.
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+
+// This is the Pub/Sub listener to contact the Shopping Cart service.
+package shopping.cart.api;
+option java_outer_classname = "ShoppingCartTopic";
+
+// Read from a Pub/Sub message with CloudEvent metadata
+message TopicOperation {
+    string operation = 1;
+    string user_id = 2;
+    string product_id = 3;
+    string name = 4;
+    int32 quantity = 5;
+}
+
+service ShoppingCartTopicService {
+
+    rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) {
+        option (akkaserverless.method).eventing = {
+            in: {
+                topic:  "shopping-cart-protobuf-cloudevents"
+            }
+        };
+    }
+
+    rpc JsonFromTopic(google.protobuf.Any) returns (google.protobuf.Empty) {
+        option (akkaserverless.method).eventing = {
+            in: {
+                topic:  "shopping-cart-json"
+            }
+        };
+    }
+}

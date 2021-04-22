@@ -1,0 +1,29 @@
+// Copyright 2019 Lightbend Inc.
+
+syntax = "proto3";
+
+package shopping.cart.actions;
+
+import "akkaserverless/annotations.proto";
+import "shoppingcart/persistence/shopping-cart-domain.proto";
+import "google/protobuf/empty.proto";
+
+// Adapt events from the EventSourcedEntity ShoppingCart to commands for the
+// ProductPopularity ValueEntity events are read from event log, converted to
+// commands and forwarded to ProductPopularity ValueEntity
+service ToProductPopularityService {
+  rpc ForwardAdded(shopping.cart.model.ItemAdded) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing = {
+      in: {
+        event_sourced_entity: "eventsourced-shopping-cart"
+      }
+    };
+  }
+  rpc ForwardRemoved(shopping.cart.model.ItemRemoved) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing = {
+      in: {
+        event_sourced_entity: "eventsourced-shopping-cart"
+      }
+    };
+  }
+}

@@ -1,0 +1,42 @@
+// Copyright 2019 Lightbend Inc.
+
+// These are the messages that get persisted - the events, plus the current
+// state (CartState) for snapshots.
+
+syntax = "proto3";
+
+package shopping.cart.model;
+
+import "akkaserverless/annotations.proto";
+
+option (akkaserverless.file).event_sourced_entity = {
+  name: "ShoppingCartEntity"
+  entity_type: "eventsourced-shopping-cart"
+  state: { type: "CartState" }
+  event: { type: "ItemAdded" }
+  event: { type: "ItemRemoved" }
+};
+
+option java_outer_classname = "ShoppingCart";
+
+message LineItem {
+  string productId = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+// The item added event.
+message ItemAdded {
+  LineItem item = 1;
+}
+
+// The item removed event.
+message ItemRemoved {
+  string productId = 1;
+  int32 quantity = 2;
+}
+
+// The shopping cart state.
+message CartState {
+  repeated LineItem items = 1;
+}

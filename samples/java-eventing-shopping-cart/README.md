@@ -9,7 +9,15 @@ This example show cases the following eventing features:
 To run the example locally with the GooglePubSub emulator: (See below for instructions to run against real Pub/Sub)
 
 * Start the emulator: `gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085`
-* Start the example: `sbt java-eventing-shopping-cart/run`
+* Start the example:
+  * from sbt: `sbt java-eventing-shopping-cart/run`
+  * or mvn
+    ```
+    sbt java-sdk/publishM2
+    export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
+    cd samples/java-eventing-shopping-cart
+    mvn exec:java
+    ```
 * Start the proxy: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
   * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`
 * Send an AddItem command: 

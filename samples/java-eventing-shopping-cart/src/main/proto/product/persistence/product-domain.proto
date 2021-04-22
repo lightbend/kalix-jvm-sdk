@@ -1,0 +1,22 @@
+// Copyright 2019 Lightbend Inc.
+
+// this defines the state model for the Product Popularity Value Entity
+
+syntax = "proto3";
+
+package shopping.product.model;
+
+import "akkaserverless/annotations.proto";
+
+option (akkaserverless.file).value_entity = {
+  name: "ProductPopularityEntity"
+  entity_type: "product-popularity"
+  state: { type: "Popularity" }
+};
+
+option java_outer_classname = "Product";
+
+message Popularity {
+  string productId = 1;
+  int32 score = 2;
+}
