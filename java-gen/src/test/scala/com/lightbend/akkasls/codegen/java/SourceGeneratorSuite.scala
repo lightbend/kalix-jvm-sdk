@@ -11,6 +11,70 @@ import org.apache.commons.io.FileUtils
 import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
+  def serviceProto(suffix: String = "") =
+    PackageNaming(
+      s"MyService$suffix",
+      "com.example.service",
+      None,
+      None,
+      Some(s"OuterClass$suffix"),
+      false
+    )
+
+  val domainProto =
+    PackageNaming(
+      "Domain",
+      "com.example.service.persistence",
+      None,
+      None,
+      None,
+      false
+    )
+
+  val externalProto =
+    PackageNaming(
+      "EXT",
+      "com.external",
+      None,
+      None,
+      None,
+      true
+    )
+
+  def simpleService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+    ModelBuilder.Service(
+      FullyQualifiedName(s"MyService$suffix", proto),
+      s"com.example.Entity${suffix}",
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("Set", proto),
+          FullyQualifiedName("SetValue", proto),
+          FullyQualifiedName("Empty", externalProto)
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("Get", proto),
+          FullyQualifiedName("GetValue", proto),
+          FullyQualifiedName("MyState", proto)
+        )
+      )
+    )
+
+  def eventSourcedEntity(suffix: String = "") =
+    ModelBuilder.EventSourcedEntity(
+      FullyQualifiedName(s"MyEntity$suffix", domainProto),
+      s"MyEntity$suffix",
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
+      List(
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
+      )
+    )
+
+  def valueEntity(suffix: String = "") =
+    ModelBuilder.ValueEntity(
+      FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
+      s"MyValueEntity$suffix",
+      ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
+    )
 
   test("generate") {
     val sourceDirectory          = Files.createTempDirectory("source-generator-test")
@@ -41,105 +105,24 @@ class SourceGeneratorSuite extends munit.FunSuite {
         FileUtils.touch(implSourceFile1)
         FileUtils.touch(implSourceFile2)
 
-        val service1Proto =
-          PackageNaming(
-            "MyService1",
-            "com.example.service",
-            None,
-            None,
-            Some("OuterClass1"),
-            false
-          )
+        val service1Proto = serviceProto("1")
+        val service2Proto = serviceProto("2")
+        val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
 
-        val service2Proto =
-          PackageNaming(
-            "MyService2",
-            "com.example.service",
-            None,
-            None,
-            Some("OuterClass2"),
-            false
-          )
+        val services = Map(
+          "com.example.Service1" -> simpleService(service1Proto, "1"),
+          "com.example.Service2" -> simpleService(service2Proto, "2"),
+          "com.example.Service3" -> simpleService(service3Proto, "3")
+        )
 
-        val service3Proto =
-          PackageNaming(
-            "MyService3",
-            "com.example.service.something",
-            None,
-            None,
-            Some("OuterClass3"),
-            false
-          )
-
-        val domainProto =
-          PackageNaming(
-            "Domain",
-            "com.example.service.persistence",
-            None,
-            None,
-            Some("Domain"),
-            false
-          )
-
-        val entities = List(
-          ModelBuilder.EventSourcedEntity(
-            FullyQualifiedName("MyService1", service1Proto),
-            "MyService1",
-            Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-            List(
-              ModelBuilder.Command(
-                FullyQualifiedName("Set", service1Proto),
-                FullyQualifiedName("SetValue", service1Proto),
-                FullyQualifiedName("protobuf.Empty", service1Proto)
-              ),
-              ModelBuilder.Command(
-                FullyQualifiedName("Get", service1Proto),
-                FullyQualifiedName("GetValue", service1Proto),
-                FullyQualifiedName("MyState", service1Proto)
-              )
-            ),
-            List.empty
-          ),
-          ModelBuilder.EventSourcedEntity(
-            FullyQualifiedName("MyService2", service2Proto),
-            "MyService2",
-            Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
-            List(
-              ModelBuilder.Command(
-                FullyQualifiedName("Set", service2Proto),
-                FullyQualifiedName("SetValue", service2Proto),
-                FullyQualifiedName("protobuf.Empty", service2Proto)
-              ),
-              ModelBuilder.Command(
-                FullyQualifiedName("Get", service2Proto),
-                FullyQualifiedName("GetValue", service2Proto),
-                FullyQualifiedName("MyState", service2Proto)
-              )
-            ),
-            List.empty
-          ),
-          ModelBuilder.EventSourcedEntity(
-            FullyQualifiedName("MyService3", service3Proto),
-            "MyService3",
-            Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
-            List(
-              ModelBuilder.Command(
-                FullyQualifiedName("Set", service3Proto),
-                FullyQualifiedName("SetValue", service3Proto),
-                FullyQualifiedName("protobuf.Empty", service3Proto)
-              ),
-              ModelBuilder.Command(
-                FullyQualifiedName("Get", service3Proto),
-                FullyQualifiedName("GetValue", service3Proto),
-                FullyQualifiedName("MyState", service3Proto)
-              )
-            ),
-            List.empty
-          )
+        val entities = Map(
+          "com.example.Entity1" -> eventSourcedEntity("1"),
+          "com.example.Entity2" -> valueEntity("2"),
+          "com.example.Entity3" -> eventSourcedEntity("3")
         )
 
         val sources = SourceGenerator.generate(
-          entities,
+          ModelBuilder.Model(services, entities),
           sourceDirectory,
           testSourceDirectory,
           generatedSourceDirectory,
@@ -171,7 +154,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
   }
 
-  test("source") {
+  test("EventSourcedEntity source") {
 
     val serviceProto =
       PackageNaming(
@@ -193,42 +176,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
         false
       )
 
-    val externalProto =
-      PackageNaming(
-        "EXT",
-        "com.external",
-        None,
-        None,
-        None,
-        true
-      )
-
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", serviceProto),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", serviceProto),
-          FullyQualifiedName("SetValue", serviceProto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", serviceProto),
-          FullyQualifiedName("GetValue", serviceProto),
-          FullyQualifiedName("MyState", serviceProto)
-        )
-      ),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
-      )
-    )
+    val entity  = eventSourcedEntity()
+    val service = simpleService()
 
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
     val interfaceClassName = "MyServiceEntity"
 
-    val sourceDoc = SourceGenerator.source(entity, packageName, className, interfaceClassName)
+    val sourceDoc =
+      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -278,7 +234,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("interface source") {
+  test("ValueEntity source") {
 
     val serviceProto =
       PackageNaming(
@@ -300,41 +256,54 @@ class SourceGeneratorSuite extends munit.FunSuite {
         false
       )
 
-    val externalProto =
-      PackageNaming(
-        "EXT",
-        "com.external",
-        None,
-        None,
-        None,
-        true
-      )
+    val service = simpleService()
+    val entity  = valueEntity()
 
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", serviceProto),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", serviceProto),
-          FullyQualifiedName("SetValue", serviceProto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", serviceProto),
-          FullyQualifiedName("GetValue", serviceProto),
-          FullyQualifiedName("MyState", serviceProto)
-        )
-      ),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
-      )
+    val packageName        = "com.example.service"
+    val className          = "MyServiceImpl"
+    val interfaceClassName = "MyService"
+
+    val sourceDoc =
+      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+      |
+      |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.valueentity.*;
+      |import com.example.service.persistence.Domain;
+      |import com.external.Empty;
+      |
+      |/** A value entity. */
+      |@ValueEntity(entityType = "MyService")
+      |public class MyServiceImpl extends MyService {
+      |    @SuppressWarnings("unused")
+      |    private final String entityId;
+      |    
+      |    public MyServiceImpl(@EntityId String entityId) {
+      |        this.entityId = entityId;
+      |    }
+      |    
+      |    @Override
+      |    public Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
+      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
+      |    }
+      |    
+      |    @Override
+      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
+      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
+      |    }
+      |}""".stripMargin
     )
+  }
 
+  test("EventSourcedEntity interface source") {
+    val service     = simpleService()
+    val entity      = eventSourcedEntity()
     val packageName = "com.example.service"
     val className   = "MyServiceEntity"
 
-    val sourceDoc = SourceGenerator.interfaceSource(entity, packageName, className)
+    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -364,56 +333,49 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("test source") {
-    val serviceProto =
-      PackageNaming(
-        "MyService",
-        "com.example.service",
-        None,
-        None,
-        Some("OuterClass"),
-        false
-      )
+  test("ValueEntity interface source") {
+    val service     = simpleService()
+    val entity      = valueEntity()
+    val packageName = "com.example.service"
+    val className   = "MyService"
 
-    val domainProto =
-      PackageNaming(
-        "Domain",
-        "com.example.service.persistence",
-        None,
-        None,
-        None,
-        false
-      )
-
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", serviceProto),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", serviceProto),
-          FullyQualifiedName("SetValue", serviceProto),
-          FullyQualifiedName("protobuf.Empty", serviceProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", serviceProto),
-          FullyQualifiedName("GetValue", serviceProto),
-          FullyQualifiedName("MyState", serviceProto)
-        )
-      ),
-      List.empty
+    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+      |
+      |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.valueentity.*;
+      |import com.example.service.persistence.Domain;
+      |import com.external.Empty;
+      |
+      |/** A value entity. */
+      |public abstract class MyService {
+      |    @CommandHandler
+      |    public abstract Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx);
+      |    
+      |    @CommandHandler
+      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx);
+      |}""".stripMargin
     )
+  }
+
+  test("EventSourcedEntity test source") {
+    val service = simpleService()
+    val entity  = eventSourcedEntity()
 
     val packageName   = "com.example.service"
     val implClassName = "MyServiceEntityImpl"
     val testClassName = "MyServiceEntityTest"
 
-    val sourceDoc = SourceGenerator.testSource(entity, packageName, implClassName, testClassName)
+    val sourceDoc =
+      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+        |import com.external.Empty;
         |import org.junit.Test;
         |import org.mockito.*;
         |
@@ -447,108 +409,64 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("ValueEntity test source") {
+    val service = simpleService()
+    val entity  = valueEntity()
+
+    val packageName   = "com.example.service"
+    val implClassName = "MyServiceImpl"
+    val testClassName = "MyServiceTest"
+
+    val sourceDoc =
+      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+        |
+        |import com.akkaserverless.javasdk.valueentity.CommandContext;
+        |import com.external.Empty;
+        |import org.junit.Test;
+        |import org.mockito.*;
+        |
+        |public class MyServiceTest {
+        |    private String entityId = "entityId1";
+        |    private MyServiceImpl entity;
+        |    private CommandContext context = Mockito.mock(CommandContext.class);
+        |    
+        |    @Test
+        |    public void setTest() {
+        |        entity = new MyServiceImpl(entityId);
+        |        
+        |        // TODO: you may want to set fields in addition to the entity id
+        |        //    entity.set(OuterClass.SetValue.newBuilder().setEntityId(entityId).build(), context);
+        |    }
+        |    
+        |    @Test
+        |    public void getTest() {
+        |        entity = new MyServiceImpl(entityId);
+        |        
+        |        // TODO: you may want to set fields in addition to the entity id
+        |        //    entity.get(OuterClass.GetValue.newBuilder().setEntityId(entityId).build(), context);
+        |    }
+        |}""".stripMargin
+    )
+  }
+
   test("main source") {
-    val service1Proto =
-      PackageNaming(
-        "Service1",
-        "com.example.service",
-        None,
-        None,
-        Some("OuterClass1"),
-        false
-      )
+    val service1Proto = serviceProto("1")
+    val service2Proto = serviceProto("2")
+    val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
 
-    val service2Proto =
-      PackageNaming(
-        "Service2",
-        "com.example.service",
-        None,
-        None,
-        Some("OuterClass2"),
-        false
-      )
-
-    val service3Proto =
-      PackageNaming(
-        "Service3",
-        "com.example.service.something",
-        None,
-        None,
-        Some("OuterClass3"),
-        false
-      )
-
-    val domainProto =
-      PackageNaming(
-        "Domain",
-        "com.example.service.persistence",
-        None,
-        Some("com.example.service.something"),
-        Some("Domain"),
-        false
-      )
-
-    val entities = List(
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName("MyService1", service1Proto),
-        "MyService1",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-        List(
-          ModelBuilder.Command(
-            FullyQualifiedName("Set", service1Proto),
-            FullyQualifiedName("SetValue", service1Proto),
-            FullyQualifiedName("protobuf.Empty", service1Proto)
-          ),
-          ModelBuilder.Command(
-            FullyQualifiedName("Get", service1Proto),
-            FullyQualifiedName("GetValue", service1Proto),
-            FullyQualifiedName("MyState", service1Proto)
-          )
-        ),
-        List.empty
-      ),
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName("MyService2", service2Proto),
-        "MyService2",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState2", domainProto))),
-        List(
-          ModelBuilder.Command(
-            FullyQualifiedName("Set", service2Proto),
-            FullyQualifiedName("SetValue", service2Proto),
-            FullyQualifiedName("protobuf.Empty", service2Proto)
-          ),
-          ModelBuilder.Command(
-            FullyQualifiedName("Get", service2Proto),
-            FullyQualifiedName("GetValue", service2Proto),
-            FullyQualifiedName("MyState", service2Proto)
-          )
-        ),
-        List.empty
-      ),
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName("MyService3", service3Proto),
-        "MyService3",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState3", domainProto))),
-        List(
-          ModelBuilder.Command(
-            FullyQualifiedName("Set", service3Proto),
-            FullyQualifiedName("SetValue", service3Proto),
-            FullyQualifiedName("protobuf.Empty", service3Proto)
-          ),
-          ModelBuilder.Command(
-            FullyQualifiedName("Get", service3Proto),
-            FullyQualifiedName("GetValue", service3Proto),
-            FullyQualifiedName("MyState", service3Proto)
-          )
-        ),
-        List.empty
-      )
+    val services = List(
+      simpleService(service1Proto, "1"),
+      simpleService(service2Proto, "2"),
+      simpleService(service3Proto, "3")
     )
 
     val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
-    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, services)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -584,49 +502,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("main source with no outer class") {
-    val serviceProto =
-      PackageNaming(
-        "MyService",
-        "com.example.service",
-        None,
-        None,
-        None,
-        false
-      )
-
-    val domainProto =
-      PackageNaming(
-        "Domain",
-        "com.example.service.persistence",
-        None,
-        None,
-        Some("Domain"),
-        false
-      )
-
-    val entity = ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("MyServiceEntity", serviceProto),
-      "MyServiceEntity",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", serviceProto),
-          FullyQualifiedName("SetValue", serviceProto),
-          FullyQualifiedName("protobuf.Empty", serviceProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", serviceProto),
-          FullyQualifiedName("GetValue", serviceProto),
-          FullyQualifiedName("MyState", serviceProto)
-        )
-      ),
-      List.empty
+    val service = simpleService(
+      serviceProto().copy(javaOuterClassnameOption = None)
     )
 
     val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
-    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(entity))
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(service))
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -637,7 +520,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    
         |    public static void main(String[] args) throws Exception {
         |        new AkkaServerless()
-        |            // FIXME: No Java outer class name specified - cannot register MyServiceEntity - ensure you are generating protobuf for Java
+        |            // FIXME: No Java outer class name specified - cannot register MyService - ensure you are generating protobuf for Java
         |            .start().toCompletableFuture().get();
         |    }
         |    

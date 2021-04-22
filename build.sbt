@@ -112,7 +112,7 @@ lazy val library =
       val munit          = "0.7.20"
       val protobufJava   = "3.13.0"
       val scopt          = "4.0.0"
-      val akkaserverless = "0.7.0-beta.1"
+      val akkaserverless = "0.7.0-beta.2"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
