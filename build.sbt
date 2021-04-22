@@ -80,7 +80,8 @@ lazy val `akkasls-codegen-js-cli` =
       assemblyMergeStrategy in assembly := {
         case s if s.endsWith(".proto") =>
           MergeStrategy.first
-        case s => MergeStrategy.defaultMergeStrategy(s)
+        case "module-info.class" => MergeStrategy.discard
+        case s                   => MergeStrategy.defaultMergeStrategy(s)
       },
       fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
       nativeImageAgentMerge := true,
