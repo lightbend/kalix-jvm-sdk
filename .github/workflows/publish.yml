@@ -8,19 +8,59 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    needs: [deploy-macos, deploy-linux, deploy-windows]
+    needs: [native-image-macos, native-image-linux, native-image-windows]
 
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8 for Scala
         uses: olafurpg/setup-scala@v10
+      - name: Get version from git tag
+        run: echo "::set-output name=PUBLISH_VERSION::$(git describe --abbrev=0 --tags|cut -c2-)"
+        id: version-tag
       - name: Test and publish
         env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+          CLOUDSMITH_USER: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_PASS: ${{ secrets.CLOUDSMITH_PASS }}
         run: sbt test publish
+      - name: Download native images
+        uses: actions/download-artifact@v2
+        with:
+          name: "native-image"
+      - name: Push macos native image
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_PASS }}
+          command: "push"
+          format: "raw"
+          owner: "lightbend"
+          repo: "akkaserverless"
+          file: "akkasls-codegen-js-x86_64-apple-darwin"
+          name: "akkasls-codegen-js-x86_64-apple-darwin"
+          version: ${{ steps.version-tag.outputs.PUBLISH_VERSION }}
+      - name: Push linux native image
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_PASS }}
+          command: "push"
+          format: "raw"
+          owner: "lightbend"
+          repo: "akkaserverless"
+          file: "akkasls-codegen-js-x86_64-unknown-linux-gnu"
+          name: "akkasls-codegen-js-x86_64-unknown-linux-gnu"
+          version: ${{ steps.version-tag.outputs.PUBLISH_VERSION }}
+      - name: Push Windows native image
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_PASS }}
+          command: "push"
+          format: "raw"
+          owner: "lightbend"
+          repo: "akkaserverless"
+          file: "akkasls-codegen-js-x86_64-pc-windows-gnu.exe"
+          name: "akkasls-codegen-js-x86_64-pc-windows-gnu"
+          version: ${{ steps.version-tag.outputs.PUBLISH_VERSION }}
 
-  deploy-macos:
+  native-image-macos:
     runs-on: macOS-latest
 
     steps:
@@ -31,15 +71,15 @@ jobs:
           java-version: graalvm@
       - name: Test and build
         run: sbt test akkasls-codegen-js-cli/nativeImage
-      - name: Publish
-        env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: |
-          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-apple-darwin-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+      - name: Rename native image
+        run: mv "js-gen-cli/target/native-image/akkasls-codegen-js" "akkasls-codegen-js-x86_64-apple-darwin"
+      - name: Upload native image
+        uses: actions/upload-artifact@v2
+        with:
+          path: "akkasls-codegen-js-x86_64-apple-darwin"
+          name: "native-image"
 
-  deploy-linux:
+  native-image-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -50,15 +90,15 @@ jobs:
           java-version: graalvm@
       - name: Test and build
         run: sbt test akkasls-codegen-js-cli/nativeImage
-      - name: Publish
-        env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        run: |
-          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-unknown-linux-gnu-$PUBLISH_VERSION?publish=1 --upload-file js-gen-cli/target/native-image/akkasls-codegen-js
+      - name: Rename native image
+        run: mv "js-gen-cli/target/native-image/akkasls-codegen-js" "akkasls-codegen-js-x86_64-unknown-linux-gnu"
+      - name: Upload native image
+        uses: actions/upload-artifact@v2
+        with:
+          path: "akkasls-codegen-js-x86_64-unknown-linux-gnu"
+          name: "native-image"
 
-  deploy-windows:
+  native-image-windows:
     runs-on: windows-latest
 
     steps:
@@ -75,11 +115,10 @@ jobs:
       - name: Test and build
         shell: bash
         run: sbt test akkasls-codegen-js-cli/nativeImage
-      - name: Publish
-        env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-        shell: bash
-        run: |
-          export PUBLISH_VERSION="$(git describe --abbrev=0 --tags|cut -c2-)"
-          curl --fail -u$BINTRAY_USER:$BINTRAY_PASS https://api.bintray.com/content/lightbend/generic/akkaserverless-codegen/$PUBLISH_VERSION/akkasls-codegen-js-x86_64-pc-windows-gnu-$PUBLISH_VERSION.exe?publish=1 --upload-file "js-gen-cli/target/native-image/akkasls-codegen-js.exe"
+      - name: Rename native image
+        run: mv "js-gen-cli/target/native-image/akkasls-codegen-js.exe" "akkasls-codegen-js-x86_64-pc-windows-gnu.exe"
+      - name: Upload native image
+        uses: actions/upload-artifact@v2
+        with:
+          path: "akkasls-codegen-js-x86_64-pc-windows-gnu.exe"
+          name: "native-image"
