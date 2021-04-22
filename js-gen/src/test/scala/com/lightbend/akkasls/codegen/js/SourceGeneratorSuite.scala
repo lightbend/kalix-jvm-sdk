@@ -40,17 +40,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
       true
     )
 
-  def eventSourcedEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+  def simpleService(proto: PackageNaming = serviceProto(), suffix: String = "") =
     ModelBuilder.Service(
       FullyQualifiedName(s"MyService$suffix", proto),
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName(s"MyEntity$suffix", domainProto),
-        s"MyEntity$suffix",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-        List(
-          ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
-        )
-      ),
+      s"com.example.Entity${suffix}",
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
@@ -65,27 +58,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def valueEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
-    ModelBuilder.Service(
-      FullyQualifiedName(s"MyService$suffix", proto),
-      ModelBuilder.ValueEntity(
-        FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
-        s"MyValueEntity$suffix",
-        ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
-      ),
+  def eventSourcedEntity(suffix: String = "") =
+    ModelBuilder.EventSourcedEntity(
+      FullyQualifiedName(s"MyEntity$suffix", domainProto),
+      s"MyEntity$suffix",
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", proto),
-          FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", knownGoogleProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", proto),
-          FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
-        )
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
       )
     )
+
+  def valueEntity(suffix: String = "") =
+    ModelBuilder.ValueEntity(
+      FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
+      s"MyValueEntity$suffix",
+      ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
+    )
+
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
     try {
@@ -118,15 +107,21 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
             val protoRef = serviceProto()
 
-            val entities = List(
-              eventSourcedEntityService(protoRef, "1"),
-              valueEntityService(protoRef, "2"),
-              eventSourcedEntityService(protoRef, "3")
+            val services = Map(
+              "com.example.Service1" -> simpleService(protoRef, "1"),
+              "com.example.Service2" -> simpleService(protoRef, "2"),
+              "com.example.Service3" -> simpleService(protoRef, "3")
+            )
+
+            val entities = Map(
+              "com.example.Entity1" -> eventSourcedEntity("1"),
+              "com.example.Entity2" -> valueEntity("2"),
+              "com.example.Entity3" -> eventSourcedEntity("3")
             )
 
             val sources = SourceGenerator.generate(
               sourceDirectory.resolve("some.desc"),
-              entities,
+              ModelBuilder.Model(services, entities),
               protoSourceDirectory,
               sourceDirectory,
               testSourceDirectory,
@@ -162,7 +157,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity source") {
     val protoRef = serviceProto()
-    val entity   = eventSourcedEntityService(protoRef);
+    val service  = simpleService(protoRef)
+    val entity   = eventSourcedEntity();
 
     val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
     val protobufSourceDirectory  = Paths.get("./src/proto")
@@ -175,6 +171,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         protobufSourceDirectory,
         sourceDirectory,
         generatedSourceDirectory,
+        service,
         entity
       )
     assertEquals(
@@ -237,7 +234,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("ValueEntity source") {
     val protoRef = serviceProto()
-    val entity   = valueEntityService(protoRef);
+    val service  = simpleService(protoRef)
+    val entity   = valueEntity();
 
     val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
     val protobufSourceDirectory  = Paths.get("./src/proto")
@@ -250,6 +248,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         protobufSourceDirectory,
         sourceDirectory,
         generatedSourceDirectory,
+        service,
         entity
       )
     assertEquals(
@@ -301,10 +300,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity typedef source") {
     val protoRef = serviceProto()
-    val entity   = eventSourcedEntityService(protoRef);
+    val service  = simpleService(protoRef)
+    val entity   = eventSourcedEntity();
 
     val sourceDoc =
       SourceGenerator.typedefSource(
+        service,
         entity
       )
     assertEquals(
@@ -352,10 +353,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("ValueEntity typedef source") {
     val protoRef = serviceProto()
-    val entity   = valueEntityService(protoRef);
+    val service  = simpleService(protoRef)
+    val entity   = valueEntity();
 
     val sourceDoc =
       SourceGenerator.typedefSource(
+        service,
         entity
       )
     assertEquals(
@@ -394,11 +397,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
   test("test source") {
     val protoRef = serviceProto()
-    val entity   = eventSourcedEntityService(protoRef, "1");
+    val service  = simpleService(protoRef, "1")
 
     val testSourceDirectory = Paths.get("./test/js");
     val sourceDirectory     = Paths.get("./src/js");
-    val sourceDoc           = SourceGenerator.testSource(entity, testSourceDirectory, sourceDirectory)
+    val sourceDoc =
+      SourceGenerator.testSource(service, testSourceDirectory, sourceDirectory)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """import { MockEventSourcedEntity } from "./testkit.js";
@@ -440,13 +444,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("index source") {
     val protoRef = serviceProto()
 
-    val entities = List(
-      eventSourcedEntityService(protoRef, "1"),
-      valueEntityService(protoRef, "2"),
-      eventSourcedEntityService(protoRef, "3")
+    val services = List(
+      simpleService(protoRef, "1"),
+      simpleService(protoRef, "2"),
+      simpleService(protoRef, "3")
     )
 
-    val sourceDoc = SourceGenerator.indexSource(entities)
+    val sourceDoc = SourceGenerator.indexSource(services)
     assertEquals(
       sourceDoc.layout,
       """import myservice1 from "./myservice1.js";

@@ -109,7 +109,7 @@ object Cli {
               js.SourceGenerator
                 .generate(
                   protobufDescriptor.toPath,
-                  model.services,
+                  model,
                   config.protoSourceDirectory,
                   config.sourceDirectory,
                   config.testSourceDirectory,

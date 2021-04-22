@@ -41,17 +41,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
       true
     )
 
-  def eventSourcedEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+  def simpleService(proto: PackageNaming = serviceProto(), suffix: String = "") =
     ModelBuilder.Service(
       FullyQualifiedName(s"MyService$suffix", proto),
-      ModelBuilder.EventSourcedEntity(
-        FullyQualifiedName(s"MyEntity$suffix", domainProto),
-        s"MyEntity$suffix",
-        Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-        List(
-          ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
-        )
-      ),
+      s"com.example.Entity${suffix}",
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
@@ -66,26 +59,21 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def valueEntityService(proto: PackageNaming = serviceProto(), suffix: String = "") =
-    ModelBuilder.Service(
-      FullyQualifiedName(s"MyService$suffix", proto),
-      ModelBuilder.ValueEntity(
-        FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
-        s"MyValueEntity$suffix",
-        ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
-      ),
+  def eventSourcedEntity(suffix: String = "") =
+    ModelBuilder.EventSourcedEntity(
+      FullyQualifiedName(s"MyEntity$suffix", domainProto),
+      s"MyEntity$suffix",
+      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", proto),
-          FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", proto),
-          FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
-        )
+        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
       )
+    )
+
+  def valueEntity(suffix: String = "") =
+    ModelBuilder.ValueEntity(
+      FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
+      s"MyValueEntity$suffix",
+      ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
     )
 
   test("generate") {
@@ -121,14 +109,20 @@ class SourceGeneratorSuite extends munit.FunSuite {
         val service2Proto = serviceProto("2")
         val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
 
-        val entities = List(
-          eventSourcedEntityService(service1Proto, "1"),
-          valueEntityService(service2Proto, "2"),
-          eventSourcedEntityService(service3Proto, "3")
+        val services = Map(
+          "com.example.Service1" -> simpleService(service1Proto, "1"),
+          "com.example.Service2" -> simpleService(service2Proto, "2"),
+          "com.example.Service3" -> simpleService(service3Proto, "3")
+        )
+
+        val entities = Map(
+          "com.example.Entity1" -> eventSourcedEntity("1"),
+          "com.example.Entity2" -> valueEntity("2"),
+          "com.example.Entity3" -> eventSourcedEntity("3")
         )
 
         val sources = SourceGenerator.generate(
-          entities,
+          ModelBuilder.Model(services, entities),
           sourceDirectory,
           testSourceDirectory,
           generatedSourceDirectory,
@@ -182,13 +176,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
         false
       )
 
-    val entity = eventSourcedEntityService()
+    val entity  = eventSourcedEntity()
+    val service = simpleService()
 
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
     val interfaceClassName = "MyServiceEntity"
 
-    val sourceDoc = SourceGenerator.source(entity, packageName, className, interfaceClassName)
+    val sourceDoc =
+      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -260,13 +256,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
         false
       )
 
-    val entity = valueEntityService()
+    val service = simpleService()
+    val entity  = valueEntity()
 
     val packageName        = "com.example.service"
     val className          = "MyServiceImpl"
     val interfaceClassName = "MyService"
 
-    val sourceDoc = SourceGenerator.source(entity, packageName, className, interfaceClassName)
+    val sourceDoc =
+      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -300,11 +298,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("EventSourcedEntity interface source") {
-    val entity      = eventSourcedEntityService()
+    val service     = simpleService()
+    val entity      = eventSourcedEntity()
     val packageName = "com.example.service"
     val className   = "MyServiceEntity"
 
-    val sourceDoc = SourceGenerator.interfaceSource(entity, packageName, className)
+    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -335,11 +334,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("ValueEntity interface source") {
-    val entity      = valueEntityService()
+    val service     = simpleService()
+    val entity      = valueEntity()
     val packageName = "com.example.service"
     val className   = "MyService"
 
-    val sourceDoc = SourceGenerator.interfaceSource(entity, packageName, className)
+    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -361,13 +361,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("EventSourcedEntity test source") {
-    val entity = eventSourcedEntityService()
+    val service = simpleService()
+    val entity  = eventSourcedEntity()
 
     val packageName   = "com.example.service"
     val implClassName = "MyServiceEntityImpl"
     val testClassName = "MyServiceEntityTest"
 
-    val sourceDoc = SourceGenerator.testSource(entity, packageName, implClassName, testClassName)
+    val sourceDoc =
+      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -408,13 +410,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("ValueEntity test source") {
-    val entity = valueEntityService()
+    val service = simpleService()
+    val entity  = valueEntity()
 
     val packageName   = "com.example.service"
     val implClassName = "MyServiceImpl"
     val testClassName = "MyServiceTest"
 
-    val sourceDoc = SourceGenerator.testSource(entity, packageName, implClassName, testClassName)
+    val sourceDoc =
+      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -453,16 +457,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val service2Proto = serviceProto("2")
     val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
 
-    val entities = List(
-      eventSourcedEntityService(service1Proto, "1"),
-      valueEntityService(service2Proto, "2"),
-      eventSourcedEntityService(service3Proto, "3")
+    val services = List(
+      simpleService(service1Proto, "1"),
+      simpleService(service2Proto, "2"),
+      simpleService(service3Proto, "3")
     )
 
     val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
-    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities)
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, services)
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -498,14 +502,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("main source with no outer class") {
-    val entity = eventSourcedEntityService(
+    val service = simpleService(
       serviceProto().copy(javaOuterClassnameOption = None)
     )
 
     val mainPackageName = "com.example.service"
     val mainClassName   = "Main"
 
-    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(entity))
+    val sourceDoc = SourceGenerator.mainSource(mainPackageName, mainClassName, List(service))
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
