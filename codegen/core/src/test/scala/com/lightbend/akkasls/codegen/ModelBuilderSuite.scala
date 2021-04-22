@@ -81,15 +81,16 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       assertEquals(
         model.entities,
-        List(entity)
+        Map(entity.fqn.fullName -> entity)
       )
 
       assertEquals(
         model.services,
-        List(
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
           ModelBuilder.Service(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            entity,
+            entity.fqn.fullName,
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
@@ -173,19 +174,16 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       assertEquals(
         model.entities,
-        List(entity)
+        Map(entity.fqn.fullName -> entity)
       )
 
       assertEquals(
         model.services,
-        List(
+        Map(
+          "com.example.valueentity.shoppingcart.ShoppingCartService" ->
           ModelBuilder.Service(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            ModelBuilder.ValueEntity(
-              FullyQualifiedName("ShoppingCart", domainProto),
-              "ShoppingCart",
-              ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
-            ),
+            entity.fqn.fullName,
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),

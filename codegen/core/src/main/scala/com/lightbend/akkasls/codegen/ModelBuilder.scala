@@ -16,9 +16,9 @@ object ModelBuilder {
   /**
     * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
     */
-  case class AkkaServerlessModel(
-      services: Iterable[Service],
-      entities: Iterable[Entity]
+  case class Model(
+      services: Map[String, Service],
+      entities: Map[String, Entity]
   )
 
   /**
@@ -55,7 +55,7 @@ object ModelBuilder {
     */
   case class Service(
       fqn: FullyQualifiedName,
-      entity: Entity,
+      entityFullName: String,
       commands: Iterable[Command]
   )
 
@@ -92,50 +92,50 @@ object ModelBuilder {
     */
   def introspectProtobufClasses(
       descriptors: Iterable[Descriptors.FileDescriptor]
-  ): AkkaServerlessModel = {
-
-    val entities =
-      descriptors.flatMap[Entity](extractEventSourcedEntityDefinition) ++
-      descriptors.flatMap[Entity](extractValueEntityDefinition)
-
-    val entityMap = entities.map(entity => entity.fqn.fullName -> entity).toMap
-
-    val services = descriptors
-      .flatMap(_.getServices().asScala)
-      .flatMap { service =>
-        Option(
-          service
-            .getOptions()
-            .getExtension(com.akkaserverless.Annotations.service)
-            .getEntity()
-            .getType()
-        )
-          .filter(_.nonEmpty)
-          .map(resolveFullName(_, service.getFile().getPackage()))
-          .flatMap(entityMap.get)
-          .map { entity =>
-            val serviceName = FullyQualifiedName.from(service)
-            val entityType  = service.getName
-            val methods     = service.getMethods.asScala
-            val commands =
-              methods.map(method =>
-                Command(
-                  FullyQualifiedName.from(method),
-                  FullyQualifiedName.from(method.getInputType),
-                  FullyQualifiedName.from(method.getOutputType)
-                )
+  ): Model =
+    descriptors.foldLeft(Model(Map.empty, Map.empty)) {
+      case (Model(services, entities), descriptor) =>
+        Model(
+          services ++ descriptors
+            .flatMap(_.getServices().asScala)
+            .flatMap { service =>
+              Option(
+                service
+                  .getOptions()
+                  .getExtension(com.akkaserverless.Annotations.service)
+                  .getEntity()
+                  .getType()
               )
+                .filter(_.nonEmpty)
+                .map(resolveFullName(_, service.getFile().getPackage()))
+                .map { entityFullName =>
+                  val serviceName = FullyQualifiedName.from(service)
+                  val entityType  = service.getName
+                  val methods     = service.getMethods.asScala
+                  val commands =
+                    methods.map(method =>
+                      Command(
+                        FullyQualifiedName.from(method),
+                        FullyQualifiedName.from(method.getInputType),
+                        FullyQualifiedName.from(method.getOutputType)
+                      )
+                    )
 
-            Service(
-              serviceName,
-              entity,
-              commands
-            )
-          }
+                  serviceName.fullName -> Service(
+                    serviceName,
+                    entityFullName,
+                    commands
+                  )
+                }
 
-      }
-    AkkaServerlessModel(services, entities)
-  }
+            },
+          entities ++
+          extractEventSourcedEntityDefinition(descriptor).map(entity =>
+            entity.fqn.fullName -> entity
+          ) ++
+          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullName -> entity)
+        )
+    }
 
   /**
     * Resolves the provided name relative to the provided package

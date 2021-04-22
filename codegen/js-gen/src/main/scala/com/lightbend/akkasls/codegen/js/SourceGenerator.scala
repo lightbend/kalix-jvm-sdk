@@ -44,7 +44,7 @@ object SourceGenerator extends PrettyPrinter {
     */
   def generate(
       protobufDescriptor: Path,
-      services: Iterable[ModelBuilder.Service],
+      model: ModelBuilder.Model,
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
       testSourceDirectory: Path,
@@ -57,57 +57,60 @@ object SourceGenerator extends PrettyPrinter {
       .collect(Collectors.toList())
       .asScala
       .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
-    services.flatMap { case service: ModelBuilder.Service =>
-      val entityFilename = service.fqn.name.toLowerCase + ".js"
-      val sourcePath     = sourceDirectory.resolve(entityFilename)
+    model.services.values.flatMap { case service: ModelBuilder.Service =>
+      model.entities.get(service.entityFullName).toSeq.flatMap { case entity: ModelBuilder.Entity =>
+        val entityFilename = service.fqn.name.toLowerCase + ".js"
+        val sourcePath     = sourceDirectory.resolve(entityFilename)
 
-      val typedefFilename   = service.fqn.name.toLowerCase + ".d.ts"
-      val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
-      val _                 = typedefSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
-        typedefSourcePath,
-        typedefSource(service).layout.getBytes(
-          Charsets.UTF_8
-        )
-      )
-      if (!sourcePath.toFile.exists()) {
-        // We're going to generate an entity - let's see if we can generate its test...
-        val entityTestFilename = entityFilename.replace(".js", ".test.js")
-        val testSourcePath =
-          testSourceDirectory.resolve(entityTestFilename)
-        val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-          val _ = testSourcePath.getParent.toFile.mkdirs()
-          val _ = Files.write(
-            testSourcePath,
-            testSource(service, testSourceDirectory, sourceDirectory).layout.getBytes(
-              Charsets.UTF_8
-            )
-          )
-          List(testSourcePath)
-        } else {
-          List.empty
-        }
-
-        // Now we generate the entity
-        val _ = sourcePath.getParent.toFile.mkdirs()
+        val typedefFilename   = service.fqn.name.toLowerCase + ".d.ts"
+        val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
+        val _                 = typedefSourcePath.getParent.toFile.mkdirs()
         val _ = Files.write(
-          sourcePath,
-          source(
-            allProtoSources,
-            protobufSourceDirectory,
-            sourceDirectory,
-            generatedSourceDirectory,
-            service
-          ).layout
-            .getBytes(Charsets.UTF_8)
+          typedefSourcePath,
+          typedefSource(service, entity).layout.getBytes(
+            Charsets.UTF_8
+          )
         )
+        if (!sourcePath.toFile.exists()) {
+          // We're going to generate an entity - let's see if we can generate its test...
+          val entityTestFilename = entityFilename.replace(".js", ".test.js")
+          val testSourcePath =
+            testSourceDirectory.resolve(entityTestFilename)
+          val testSourceFiles = if (!testSourcePath.toFile.exists()) {
+            val _ = testSourcePath.getParent.toFile.mkdirs()
+            val _ = Files.write(
+              testSourcePath,
+              testSource(service, testSourceDirectory, sourceDirectory).layout.getBytes(
+                Charsets.UTF_8
+              )
+            )
+            List(testSourcePath)
+          } else {
+            List.empty
+          }
 
-        List(sourcePath, typedefSourcePath) ++ testSourceFiles
-      } else {
-        List(typedefSourcePath)
+          // Now we generate the entity
+          val _ = sourcePath.getParent.toFile.mkdirs()
+          val _ = Files.write(
+            sourcePath,
+            source(
+              allProtoSources,
+              protobufSourceDirectory,
+              sourceDirectory,
+              generatedSourceDirectory,
+              service,
+              entity
+            ).layout
+              .getBytes(Charsets.UTF_8)
+          )
+
+          List(sourcePath, typedefSourcePath) ++ testSourceFiles
+        } else {
+          List(typedefSourcePath)
+        }
       }
     } ++ {
-      if (services.nonEmpty) {
+      if (model.services.nonEmpty) {
         // Generate a main source file is it is not there already
         val indexPath =
           sourceDirectory.resolve(indexFilename)
@@ -115,7 +118,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = indexPath.getParent.toFile.mkdirs()
           val _ = Files.write(
             indexPath,
-            indexSource(services).layout.getBytes(
+            indexSource(model.services.values).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -134,7 +137,8 @@ object SourceGenerator extends PrettyPrinter {
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
       generatedSourceDirectory: Path,
-      service: ModelBuilder.Service
+      service: ModelBuilder.Service,
+      entity: ModelBuilder.Entity
   ): Document = {
     val typedefPath =
       sourceDirectory.toAbsolutePath
@@ -142,7 +146,7 @@ object SourceGenerator extends PrettyPrinter {
         .resolve(service.fqn.name.toLowerCase())
         .toString
 
-    val entityType = service.entity match {
+    val entityType = entity match {
       case _: ModelBuilder.EventSourcedEntity => "EventSourcedEntity"
       case _: ModelBuilder.ValueEntity        => "ValueEntity"
     }
@@ -165,7 +169,7 @@ object SourceGenerator extends PrettyPrinter {
             "State"
           ),
           emptyDoc
-        ) ++ (service.entity match {
+        ) ++ (entity match {
           case _: ModelBuilder.EventSourcedEntity =>
             Seq[Doc](
               "Event; the union of all possible event types",
@@ -230,7 +234,7 @@ object SourceGenerator extends PrettyPrinter {
         "entityId => " <> parens("{}")
       ) <> semi <> line <>
       line <>
-      (service.entity match {
+      (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           "entity.setBehavior" <> parens(
             "state => " <> parens(
@@ -357,11 +361,12 @@ object SourceGenerator extends PrettyPrinter {
     * @return
     */
   private[codegen] def typedefSource(
-      service: ModelBuilder.Service
+      service: ModelBuilder.Service,
+      entity: ModelBuilder.Entity
   ): Document =
     pretty(
       "import" <+> braces(
-        nest(line <> (service.entity match {
+        nest(line <> (entity match {
           case _: ModelBuilder.EventSourcedEntity =>
             "TypedEventSourcedEntity" <> comma <> line <>
               "EventSourcedCommandContext"
@@ -372,7 +377,7 @@ object SourceGenerator extends PrettyPrinter {
       ) <+> "from" <+> dquotes("../akkaserverless") <> semi <> line <>
       "import" <+> ProtoNs <+> "from" <+> dquotes("./proto") <> semi <> line <>
       line <>
-      (service.entity match {
+      (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
           "export type State" <+> equal <+> state
             .map(state => typeReference(state.fqn))
@@ -387,7 +392,7 @@ object SourceGenerator extends PrettyPrinter {
         service.commands.toSeq.map(_.inputType)
       ) <> semi <> line <>
       line <>
-      (service.entity match {
+      (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           "export type EventHandlers" <+> equal <+> braces(
             nest(
@@ -419,7 +424,7 @@ object SourceGenerator extends PrettyPrinter {
                   line <>
                   "command" <> colon <+> typeReference(command.inputType) <> comma <> line <>
                   "state" <> colon <+> "State" <> comma <> line <>
-                  "ctx" <> colon <+> (service.entity match {
+                  "ctx" <> colon <+> (entity match {
                     case _: ModelBuilder.EventSourcedEntity => "EventSourcedCommandContext<Event>"
                     case _: ModelBuilder.ValueEntity        => "ValueEntityCommandContext<State>"
                   })
@@ -431,7 +436,7 @@ object SourceGenerator extends PrettyPrinter {
         ) <> line
       ) <> semi <> line <>
       line <>
-      "export type" <+> service.fqn.name <+> equal <+> (service.entity match {
+      "export type" <+> service.fqn.name <+> equal <+> (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
           "TypedEventSourcedEntity" <> angles(
             nest(
