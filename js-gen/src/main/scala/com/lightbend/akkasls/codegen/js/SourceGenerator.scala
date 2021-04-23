@@ -80,7 +80,7 @@ object SourceGenerator extends PrettyPrinter {
             val _ = testSourcePath.getParent.toFile.mkdirs()
             val _ = Files.write(
               testSourcePath,
-              testSource(service, testSourceDirectory, sourceDirectory).layout.getBytes(
+              testSource(service, entity, testSourceDirectory, sourceDirectory).layout.getBytes(
                 Charsets.UTF_8
               )
             )
@@ -310,56 +310,6 @@ object SourceGenerator extends PrettyPrinter {
     )
   }
 
-  /**
-    *    case ModelBuilder.ValueEntity(fqn, entityType, state) =>
-    *      pretty(
-    *        "import" <+> braces(
-    *          nest(
-    *            line <>
-    *            "TypedValueEntity" <> comma <> line <>
-    *            "ValueEntityCommandContext"
-    *          ) <> line
-    *        ) <+> "from" <+> dquotes("../akkaserverless") <> semi <> line <>
-    *        "import" <+> ProtoNs <+> "from" <+> dquotes("./proto") <> semi <> line <>
-    *        line <>
-    *        "export type State" <+> equal <+> state
-    *          .map(state => typeReference(state.fqn))
-    *          .getOrElse(text("unknown")) <> semi <> line <>
-    *        "export type Command" <+> equal <> typeUnion(
-    *          service.commands.toSeq.map(_.inputType)
-    *        ) <> semi <> line <>
-    *        line <>
-    *        "export type CommandHandlers" <+> equal <+> braces(
-    *          nest(
-    *            line <>
-    *            ssep(
-    *              service.commands.toSeq.map { command =>
-    *                command.fqn.name <> colon <+> parens(
-    *                  nest(
-    *                    line <>
-    *                    "command" <> colon <+> typeReference(command.inputType) <> comma <> line <>
-    *                    "state" <> colon <+> "State" <> comma <> line <>
-    *                    "ctx" <> colon <+> "ValueEntityCommandContext<State>"
-    *                  ) <> line
-    *                ) <+> "=>" <+> typeReference(command.outputType) <> semi
-    *              },
-    *              line
-    *            )
-    *          ) <> line
-    *        ) <> semi <> line <>
-    *        line <>
-    *        "export type" <+> service.fqn.name <+> equal <+> "TypedValueEntity" <> angles(
-    *          nest(
-    *            line <>
-    *            ssep(Seq("State", "CommandHandlers"), comma <> line)
-    *          ) <> line
-    *        ) <> semi <> line
-    *      )
-    *  }
-    *
-    * @param service
-    * @return
-    */
   private[codegen] def typedefSource(
       service: ModelBuilder.Service,
       entity: ModelBuilder.Entity
@@ -457,13 +407,22 @@ object SourceGenerator extends PrettyPrinter {
   // TODO: Generate the test source
   private[codegen] def testSource(
       service: ModelBuilder.Service,
+      entity: ModelBuilder.Entity,
       testSourceDirectory: Path,
       sourceDirectory: Path
   ): Document = {
 
     val entityName = service.fqn.name.toLowerCase
+
+    val entityMockType = entity match {
+      case _: ModelBuilder.EventSourcedEntity => "MockEventSourcedEntity"
+      case _: ModelBuilder.ValueEntity        => "MockValueEntity"
+    }
+
     pretty(
-      """import { MockEventSourcedEntity } from "./testkit.js"""" <> semi <> line <>
+      "import" <+> braces(
+        " " <> entityMockType <> " "
+      ) <+> "from" <+> dquotes("./testkit.js") <> semi <> line <>
       """import { expect } from "chai"""" <> semi <> line <>
       "import" <+> entityName <+> "from" <+> dquotes(
         testSourceDirectory.toAbsolutePath
@@ -486,7 +445,7 @@ object SourceGenerator extends PrettyPrinter {
                   "it" <> parens(
                     dquotes("should...") <> comma <+> arrowFn(
                       List.empty,
-                      "const entity" <+> equal <+> "new MockEventSourcedEntity" <> parens(
+                      "const entity" <+> equal <+> "new" <+> entityMockType <> parens(
                         entityName <> comma <+> "entityId"
                       ) <> semi <> line <>
                       "// TODO: you may want to set fields in addition to the entity id" <> line <>
@@ -506,12 +465,17 @@ object SourceGenerator extends PrettyPrinter {
                         "entity.state"
                       ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
                         braces("")
-                      ) <> semi <> line <>
-                      "// expect" <> parens(
-                        "entity.events"
-                      ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
-                        "[]"
-                      ) <> semi
+                      ) <> semi <>
+                      (entity match {
+                        case _: ModelBuilder.EventSourcedEntity =>
+                          line <>
+                            "// expect" <> parens(
+                              "entity.events"
+                            ) <> dot <> "to" <> dot <> "deep" <> dot <> "equal" <> parens(
+                              "[]"
+                            ) <> semi
+                        case _ => emptyDoc
+                      })
                     )
                   ) <> semi
                 )

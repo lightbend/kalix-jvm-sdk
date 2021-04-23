@@ -395,14 +395,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("test source") {
+  test("EventSourcedEntity test source") {
     val protoRef = serviceProto()
     val service  = simpleService(protoRef, "1")
+    val entity   = eventSourcedEntity();
 
     val testSourceDirectory = Paths.get("./test/js");
     val sourceDirectory     = Paths.get("./src/js");
     val sourceDoc =
-      SourceGenerator.testSource(service, testSourceDirectory, sourceDirectory)
+      SourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """import { MockEventSourcedEntity } from "./testkit.js";
@@ -441,6 +442,51 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("ValueEntity test source") {
+    val protoRef = serviceProto()
+    val service  = simpleService(protoRef, "1")
+    val entity   = valueEntity();
+
+    val testSourceDirectory = Paths.get("./test/js");
+    val sourceDirectory     = Paths.get("./src/js");
+    val sourceDoc =
+      SourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
+    assertEquals(
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
+      """import { MockValueEntity } from "./testkit.js";
+        |import { expect } from "chai";
+        |import myservice1 from "../../src/js/myservice1.js";
+        |
+        |describe("MyService1", () => {
+        |  const entityId = "entityId";
+        |  
+        |  describe("Set", () => {
+        |    it("should...", () => {
+        |      const entity = new MockValueEntity(myservice1, entityId);
+        |      // TODO: you may want to set fields in addition to the entity id
+        |      // const result = entity.handleCommand("Set", { entityId });
+        |      
+        |      // expect(result).to.deep.equal({});
+        |      // expect(entity.error).to.be.undefined;
+        |      // expect(entity.state).to.deep.equal({});
+        |    });
+        |  });
+        |  
+        |  describe("Get", () => {
+        |    it("should...", () => {
+        |      const entity = new MockValueEntity(myservice1, entityId);
+        |      // TODO: you may want to set fields in addition to the entity id
+        |      // const result = entity.handleCommand("Get", { entityId });
+        |      
+        |      // expect(result).to.deep.equal({});
+        |      // expect(entity.error).to.be.undefined;
+        |      // expect(entity.state).to.deep.equal({});
+        |    });
+        |  });
+        |});""".stripMargin
+    )
+  }
+
   test("index source") {
     val protoRef = serviceProto()
 
@@ -462,4 +508,5 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |myservice3.start();""".stripMargin
     )
   }
+
 }
