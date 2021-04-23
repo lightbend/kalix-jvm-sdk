@@ -154,8 +154,12 @@ lazy val commonSettings =
       )
     ),
     // Publishing
-    bintrayOmitLicense := true,
-    bintrayOrganization := Some("lightbend"),
-    bintrayRepository := "akkaserverless",
-    publishMavenStyle := true
+    publishTo := Some("Cloudsmith API" at "https://maven.cloudsmith.io/lightbend/akkaserverless/"),
+    pomIncludeRepository := { x => false },
+    credentials += Credentials(
+      "Cloudsmith API",
+      "maven.cloudsmith.io",
+      sys.env.getOrElse("CLOUDSMITH_USER", ""),
+      sys.env.getOrElse("CLOUDSMITH_PASS", "")
+    )
   )
