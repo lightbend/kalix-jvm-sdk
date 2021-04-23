@@ -90,8 +90,8 @@ public class GenerateMojo extends AbstractMojo {
                                         + descriptor.left().get().toString()));
                     }
                 });
-                Iterable<ModelBuilder.Entity> entities = ModelBuilder.introspectProtobufClasses(fileDescriptors);
-                Iterable<Path> generated = SourceGenerator.generate(entities, sourceDirectory.toPath(),
+                ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors);
+                Iterable<Path> generated = SourceGenerator.generate(model, sourceDirectory.toPath(),
                         testSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
                 Path absBaseDir = baseDir.toPath().toAbsolutePath();
                 generated.foreach(p -> {
