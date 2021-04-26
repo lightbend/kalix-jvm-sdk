@@ -8,7 +8,7 @@ This example showcases the following eventing features:
 
 To run the example locally with the GooglePubSub emulator: (See below for instructions to run against real Pub/Sub)
 
-* Start the emulator: `gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085`
+* Start the pubsub emulator: `gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085`
 * Start the example:
   * from sbt: `sbt java-eventing-shopping-cart/run`
   * or mvn
@@ -18,8 +18,13 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
     cd samples/java-eventing-shopping-cart
     mvn exec:java
     ```
-* Start the proxy: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
-  * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`
+* Start the proxy
+  * with in-memory store: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
+    * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`
+  * or with local Spanner emulator:
+    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator` 
+    * `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-spanner/run`
+      * note that this overrides the akkaserverless.proxy.eventing.support defined in `spanner-dev-mode.conf`
 * Send an AddItem command: 
   `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartService/AddItem`
     * This will be published to the `shopping-cart-events` topic (via `TopicPublisherAction`) and received by the `ShoppingCartAnalyticsAction`.
