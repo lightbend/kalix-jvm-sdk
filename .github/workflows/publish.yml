@@ -52,13 +52,27 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-          server-id: bintray-lightbend-akkaserverless
-          server-username: BINTRAY_USER
-          server-password: BINTRAY_PASS
+          server-id: lightbend-akkaserverless
+          server-username: CLOUDSMITH_USER
+          server-password: CLOUDSMITH_PASS
+      - name: Get version from git tag
+        run: echo "::set-output name=PUBLISH_VERSION::$(git describe --abbrev=0 --tags|cut -c2-)"
+        id: version-tag
       - name: Set version
-        run: mvn -B versions:set -DnewVersion="$(git tag|cut -c2-)"
+        run: mvn -B versions:set -DnewVersion="${{ steps.version-tag.outputs.PUBLISH_VERSION }}"
       - name: Publish
         env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+          CLOUDSMITH_USER: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_PASS: ${{ secrets.CLOUDSMITH_PASS }}
         run: mvn -B -DskipTests=true deploy
+      - name: Publish Maven settings xml
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_PASS }}
+          command: "push"
+          format: "raw"
+          owner: "lightbend"
+          repo: "akkaserverless"
+          file: "maven-archetype-akkasls/maven-archetype-akkasls-settings.xml"
+          name: "maven-archetype-akkasls-settings.xml"
+          version: ${{ steps.version-tag.outputs.PUBLISH_VERSION }}

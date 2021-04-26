@@ -18,8 +18,8 @@
 
   <distributionManagement>
     <repository>
-      <id>bintray-lightbend-akkaserverless</id>
-      <url>https://api.bintray.com/maven/lightbend/akkaserverless/akkasls-maven-plugin/;publish=1</url>
+      <id>lightbend-akkaserverless</id>
+      <url>https://maven.cloudsmith.io/lightbend/akkaserverless/</url>
     </repository>
   </distributionManagement>
 
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>com.lightbend</groupId>
       <artifactId>akkasls-codegen-java_2.13</artifactId>
-      <version>0.17.1</version>
+      <version>0.19.1</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>

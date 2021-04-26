@@ -2,15 +2,15 @@
 
 ![Test](https://github.com/lightbend/akkaserverless-maven-archetype/workflows/Test/badge.svg)
 
-This archetype can be used to generate a project suitable for the general development of 
-[event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html) 
+This archetype can be used to generate a project suitable for the general development of
+[event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html)
 [Akka Serverless](https://www.lightbend.com/akka-serverless) applications.
 
 To use on Linux and macOS, noting the `CHANGEME=TO-VERSION-TO-USE`:
 
 ```
 curl \
-  "https://bintray.com/repo/downloadMavenRepoSettingsFile/downloadSettings?repoPath=%2Flightbend%2Fakkaserverless" > \
+  "https://dl.cloudsmith.io/public/lightbend/akkaserverless/raw/versions/latest/maven-archetype-akkasls-settings.xml" > \
    /tmp/maven-archetype-akkasls-settings.xml && \
 mvn \
   --settings /tmp/maven-archetype-akkasls-settings.xml \
@@ -24,7 +24,7 @@ To use on Windows 10 or later, also noting the `CHANGEME=TO-VERSION-TO-USE`:
 
 ```
 curl ^
-  "https://bintray.com/repo/downloadMavenRepoSettingsFile/downloadSettings?repoPath=%2Flightbend%2Fakkaserverless" ^
+  "https://dl.cloudsmith.io/public/lightbend/akkaserverless/raw/versions/latest/maven-archetype-akkasls-settings.xml" ^
    > %Temp%\maven-archetype-akkasls-settings.xml && ^
 mvn ^
   --settings %Temp%\maven-archetype-akkasls-settings.xml ^
