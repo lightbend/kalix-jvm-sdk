@@ -204,9 +204,9 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>bintray-lightbend-akkaserverless</id>
-      <name>bintray</name>
-      <url>https://lightbend.bintray.com/akkaserverless</url>
+      <id>lightbend-akkaserverless</id>
+      <name>cloudsmith</name>
+      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
     </pluginRepository>
   </pluginRepositories>
 
