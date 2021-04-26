@@ -40,6 +40,12 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
   private object ctx extends ActionContext {
     override def metadata(): Metadata = Metadata.EMPTY.add("scope", "call")
 
+    override def eventSubject(): Optional[String] =
+      if (metadata().isCloudEvent)
+        metadata().asCloudEvent().subject()
+      else
+        Optional.empty()
+
     override def serviceCallFactory(): ServiceCallFactory = ???
   }
 

@@ -4,6 +4,8 @@
 
 package com.akkaserverless.javasdk.impl.action
 
+import java.util.Optional
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Sink, Source}
@@ -207,6 +209,12 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
 
   class ActionContextImpl(override val metadata: Metadata) extends ActionContext {
     override val serviceCallFactory: ServiceCallFactory = rootContext.serviceCallFactory()
+
+    override def eventSubject(): Optional[String] =
+      if (metadata.isCloudEvent)
+        metadata.asCloudEvent().subject()
+      else
+        Optional.empty()
   }
 }
 

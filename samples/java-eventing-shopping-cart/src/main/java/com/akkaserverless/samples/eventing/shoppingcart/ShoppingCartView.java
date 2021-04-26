@@ -32,10 +32,10 @@ public class ShoppingCartView {
     } else {
       String userId =
           context
-              .sourceEntityId()
+              .eventSubject()
               .orElseGet(
                   () -> {
-                    throw new IllegalArgumentException("Unknown sourceEntityId");
+                    throw new IllegalArgumentException("Unknown eventSubject");
                   });
       int newNumberOfItems = event.getItem().getQuantity();
       LOG.info("New cart {} has {} items", userId, newNumberOfItems);

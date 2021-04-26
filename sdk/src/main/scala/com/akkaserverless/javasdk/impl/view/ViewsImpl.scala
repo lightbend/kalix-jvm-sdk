@@ -85,8 +85,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               val commandName = receiveEvent.commandName
               val msg = ScalaPbAny.toJavaProto(receiveEvent.payload.get)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val sourceEntityId = metadata.subject()
-              val context = new HandlerContextImpl(service.viewId, sourceEntityId, commandName, metadata, state)
+              val context = new HandlerContextImpl(service.viewId, commandName, metadata, state)
 
               val reply = try {
                 handler.handle(msg, context)
@@ -140,13 +139,19 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   }
 
   private final class HandlerContextImpl(override val viewId: String,
-                                         override val sourceEntityId: Optional[String],
                                          override val commandName: String,
                                          override val metadata: Metadata,
                                          override val state: Optional[JavaPbAny])
       extends UpdateHandlerContext
       with AbstractContext
-      with StateContext
+      with StateContext {
+
+    override def eventSubject(): Optional[String] =
+      if (metadata.isCloudEvent)
+        metadata.asCloudEvent().subject()
+      else
+        Optional.empty()
+  }
 
   private final class ViewContextImpl(override val viewId: String) extends ViewContext with AbstractContext
 

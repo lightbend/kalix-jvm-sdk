@@ -4,8 +4,11 @@
 
 package com.akkaserverless.javasdk.action;
 
+import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.MetadataContext;
+
+import java.util.Optional;
 
 /** Context for action calls. */
 public interface ActionContext extends MetadataContext {
@@ -20,4 +23,10 @@ public interface ActionContext extends MetadataContext {
    * @return The call level metadata.
    */
   Metadata metadata();
+
+  /**
+   * The origin subject of the {@link CloudEvent}. For example, the entity key when the event was
+   * emitted from an entity.
+   */
+  Optional<String> eventSubject();
 }

@@ -5,8 +5,11 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
+
+import akka.grpc.scaladsl.MetadataBuilder
 import com.akkaserverless.javasdk.{Reply, _}
 import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.ResolvedType
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
@@ -31,13 +34,17 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
   }
 
   class MockHandlerContext(override val commandName: String = "ProcessAdded",
-                           override val sourceEntityId: Optional[String] = Optional.of("entity-1"),
+                           override val metadata: Metadata = new MetadataImpl(Nil).withSubject("entity-1").asMetadata(),
                            override val state: Optional[JavaPbAny] = Optional.empty[JavaPbAny])
       extends UpdateHandlerContext
       with StateContext
       with BaseContext {
     override def viewId(): String = "foo"
-    override def metadata(): Metadata = ???
+    override def eventSubject(): Optional[String] =
+      if (metadata.isCloudEvent)
+        metadata.asCloudEvent().subject()
+      else
+        Optional.empty()
   }
 
   object StateResolvedType extends ResolvedType[State] {
