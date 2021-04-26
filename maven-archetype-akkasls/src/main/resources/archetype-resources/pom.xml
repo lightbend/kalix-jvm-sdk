@@ -8,9 +8,7 @@
   <packaging>jar</packaging>
 
   <name>${artifactId}</name>
-
   #set( $D = '$' )
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -181,7 +179,7 @@
         <artifactId>maven-deploy-plugin</artifactId>
         <version>3.0.0-M1</version>
         <configuration>
-            <skip>true</skip>
+          <skip>true</skip>
         </configuration>
       </plugin>
 
@@ -193,9 +191,9 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>bintray-lightbend-akkaserverless</id>
-      <name>bintray</name>
-      <url>https://lightbend.bintray.com/akkaserverless</url>
+      <id>lightbend-akkaserverless</id>
+      <name>cloudsmith</name>
+      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
     </repository>
   </repositories>
 
@@ -216,7 +214,7 @@
       <artifactId>akkaserverless-java-sdk</artifactId>
       <version>0.7.0-beta.1</version>
     </dependency>
-    <dependency> 
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.1</version>
