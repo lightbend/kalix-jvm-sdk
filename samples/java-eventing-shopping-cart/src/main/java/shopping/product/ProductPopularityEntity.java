@@ -2,15 +2,15 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+package shopping.product;
 
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
-import shopping.product.api.ProductApi;
-import shopping.product.model.Product;
+import shopping.product.api.ProductPopularityApi;
+import shopping.product.domain.ProductPopularityDomain;
 
 import java.util.Optional;
 
@@ -24,13 +24,13 @@ public class ProductPopularityEntity {
   }
 
   @CommandHandler
-  public ProductApi.Popularity getPopularity(CommandContext<Product.Popularity> ctx) {
+  public ProductPopularityApi.Popularity getPopularity(
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
     return convert(getStateOrNew(ctx.getState()));
   }
 
-  private ProductApi.Popularity convert(Product.Popularity popularity) {
-
-    return ProductApi.Popularity.newBuilder()
+  private ProductPopularityApi.Popularity convert(ProductPopularityDomain.Popularity popularity) {
+    return ProductPopularityApi.Popularity.newBuilder()
         .setProductId(productId)
         .setScore(popularity.getScore())
         .build();
@@ -38,32 +38,36 @@ public class ProductPopularityEntity {
 
   @CommandHandler
   public Empty increase(
-      ProductApi.IncreasePopularity increase, CommandContext<Product.Popularity> ctx) {
-    Product.Popularity.Builder builder = toBuilder(ctx.getState());
+      ProductPopularityApi.IncreasePopularity increase,
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
+    ProductPopularityDomain.Popularity.Builder builder = toBuilder(ctx.getState());
     int newScore = builder.getScore() + increase.getQuantity();
     builder.setProductId(increase.getProductId());
-    Product.Popularity updated = builder.setScore(newScore).build();
+    ProductPopularityDomain.Popularity updated = builder.setScore(newScore).build();
     ctx.updateState(updated);
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
   public Empty decrease(
-      ProductApi.DecreasePopularity decrease, CommandContext<Product.Popularity> ctx) {
+      ProductPopularityApi.DecreasePopularity decrease,
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
 
-    Product.Popularity.Builder builder = toBuilder(ctx.getState());
+    ProductPopularityDomain.Popularity.Builder builder = toBuilder(ctx.getState());
     int newScore = builder.getScore() - decrease.getQuantity();
     builder.setScore(newScore);
     ctx.updateState(builder.build());
     return Empty.getDefaultInstance();
   }
 
-  private Product.Popularity.Builder toBuilder(Optional<Product.Popularity> state) {
+  private ProductPopularityDomain.Popularity.Builder toBuilder(
+      Optional<ProductPopularityDomain.Popularity> state) {
     return state.map(s -> s.toBuilder()).orElse(newInstanceBuilder());
   }
 
   /** Either return the current state or create a new with popularity score set to 0 */
-  private Product.Popularity getStateOrNew(Optional<Product.Popularity> state) {
+  private ProductPopularityDomain.Popularity getStateOrNew(
+      Optional<ProductPopularityDomain.Popularity> state) {
     return state.orElse(newInstanceBuilder().build());
   }
 
@@ -71,7 +75,7 @@ public class ProductPopularityEntity {
    * Create a new ProductPopularity build with popularity score set to 0 and for the current
    * productId
    */
-  private Product.Popularity.Builder newInstanceBuilder() {
-    return Product.Popularity.newBuilder().setProductId(productId).setScore(0);
+  private ProductPopularityDomain.Popularity.Builder newInstanceBuilder() {
+    return ProductPopularityDomain.Popularity.newBuilder().setProductId(productId).setScore(0);
   }
 }

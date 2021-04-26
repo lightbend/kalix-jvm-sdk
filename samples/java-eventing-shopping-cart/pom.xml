@@ -16,7 +16,7 @@
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <akkasls.dockerImage>my-docker-repo/${project.artifactId}</akkasls.dockerImage>
     <akkasls.dockerTag>${project.version}</akkasls.dockerTag>
-    <akkasls.mainClass>com.akkaserverless.samples.eventing.shoppingcart.Main</akkasls.mainClass>
+    <akkasls.mainClass>shopping.Main</akkasls.mainClass>
     <jdk.target>11</jdk.target>
   </properties>
 

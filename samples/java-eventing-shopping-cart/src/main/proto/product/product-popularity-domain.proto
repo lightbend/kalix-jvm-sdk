@@ -4,7 +4,9 @@
 
 syntax = "proto3";
 
-package shopping.product.model;
+package shopping.product.domain;
+
+option java_outer_classname = "ProductPopularityDomain";
 
 import "akkaserverless/annotations.proto";
 
@@ -14,7 +16,6 @@ option (akkaserverless.file).value_entity = {
   state: { type: "Popularity" }
 };
 
-option java_outer_classname = "Product";
 
 message Popularity {
   string productId = 1;

@@ -1,30 +1,36 @@
 // Copyright 2019 Lightbend Inc.
 
+// tag::subscribing[]
 syntax = "proto3";
 
 package shopping.cart.actions;
 
 import "akkaserverless/annotations.proto";
-import "shoppingcart/persistence/shopping-cart-domain.proto";
+import "cart/shopping-cart-domain.proto";
 import "google/protobuf/empty.proto";
 
+// end::subscribing[]
 // Receiving events from the broker. The analytics action itself does nothing,
 // only logs what it receives.
+// tag::subscribing[]
 service ShoppingCartAnalyticsService {
   // get ItemAdded from the topic
-  rpc ProcessAdded(shopping.cart.model.ItemAdded) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
+  rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing = { // <1>
       in: {
-        topic: "shopping-cart-events"
+        topic: "shopping-cart-events" // <2>
       }
     };
   }
+  // end::subscribing[]
   // get ItemRemoved from the event-log
-  rpc ProcessRemoved(shopping.cart.model.ItemRemoved) returns (google.protobuf.Empty) {
+  rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
     option (akkaserverless.method).eventing = {
       in: {
         topic: "shopping-cart-events"
       }
     };
   }
+  // tag::subscribing[]
 }
+// end::subscribing[]

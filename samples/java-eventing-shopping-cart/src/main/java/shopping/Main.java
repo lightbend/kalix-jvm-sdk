@@ -2,34 +2,50 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+// tag::ToProductPopularityAction[]
+// tag::RegisterEventSourcedEntity[]
+package shopping;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import shopping.cart.actions.TopicPublisher;
+// end::RegisterEventSourcedEntity[]
+// end::ToProductPopularityAction[]
+import shopping.cart.ShoppingCartEntity;
+import shopping.cart.ShoppingCartAnalyticsAction;
+import shopping.cart.ShoppingCartTopicAction;
+import shopping.cart.ShoppingCartView;
+import shopping.cart.TopicPublisherAction;
+import shopping.cart.actions.EventsToTopicPublisher;
 import shopping.cart.actions.ShoppingCartAnalytics;
-import shopping.cart.actions.ToProductPopularity;
-import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.api.ShoppingCartTopic;
-import shopping.cart.model.ShoppingCart;
+import shopping.cart.api.ShoppingCartApi;
+import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
-import shopping.product.api.ProductApi;
-import shopping.product.model.Product;
+import shopping.product.ProductPopularityEntity;
+import shopping.product.ToProductPopularityAction;
+import shopping.product.actions.ToProductPopularity;
+import shopping.product.api.ProductPopularityApi;
+import shopping.product.domain.ProductPopularityDomain;
+// tag::ToProductPopularityAction[]
+// tag::RegisterEventSourcedEntity[]
 
 public final class Main {
   public static final void main(String[] args) throws Exception {
     new AkkaServerless()
+        // end::ToProductPopularityAction[]
         // event sourced shopping cart entity
         // receives commands from outside the service and persists events to its journal/event log
         .registerEventSourcedEntity(
             ShoppingCartEntity.class,
             ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-            ShoppingCart.getDescriptor())
+            ShoppingCartDomain.getDescriptor())
+        // end::RegisterEventSourcedEntity[]
 
         // consume shopping cart events emitted from the ShoppingCartEntity
         // and publish as is to 'shopping-cart-events' topic
         .registerAction(
             new TopicPublisherAction(),
-            TopicPublisher.getDescriptor().findServiceByName("TopicPublisherService"))
+            EventsToTopicPublisher.getDescriptor()
+                .findServiceByName("EventsToTopicPublisherService"))
         .registerAction(
             new ShoppingCartTopicAction(),
             ShoppingCartTopic.getDescriptor().findServiceByName("ShoppingCartTopicService"))
@@ -41,15 +57,17 @@ public final class Main {
 
         // consume shopping cart events emitted from the ShoppingCartEntity
         // and send as commands to ProductPopularityEntity
+        // tag::ToProductPopularityAction[]
         .registerAction(
             new ToProductPopularityAction(),
             ToProductPopularity.getDescriptor().findServiceByName("ToProductPopularityService"))
+        // end::ToProductPopularityAction[]
 
         // value entity tracking product popularity
         .registerValueEntity(
             ProductPopularityEntity.class,
-            ProductApi.getDescriptor().findServiceByName("ProductPopularityService"),
-            Product.getDescriptor())
+            ProductPopularityApi.getDescriptor().findServiceByName("ProductPopularityService"),
+            ProductPopularityDomain.getDescriptor())
 
         // view of the shopping carts
         .registerView(
@@ -57,10 +75,14 @@ public final class Main {
             shopping.cart.view.ShoppingCartViewModel.getDescriptor()
                 .findServiceByName("ShoppingCartViewService"),
             "carts",
-            ShoppingCart.getDescriptor(),
+            ShoppingCartDomain.getDescriptor(),
             ShoppingCartViewModel.getDescriptor())
+        // tag::ToProductPopularityAction[]
+        // tag::RegisterEventSourcedEntity[]
         .start()
         .toCompletableFuture()
         .get();
   }
 }
+// end::ToProductPopularityAction[]
+// end::RegisterEventSourcedEntity[]

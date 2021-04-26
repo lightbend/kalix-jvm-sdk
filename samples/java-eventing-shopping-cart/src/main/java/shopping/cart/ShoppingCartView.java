@@ -2,14 +2,14 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+package shopping.cart;
 
 import com.akkaserverless.javasdk.view.UpdateHandler;
 import com.akkaserverless.javasdk.view.UpdateHandlerContext;
 import com.akkaserverless.javasdk.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shopping.cart.model.ShoppingCart;
+import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
 
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class ShoppingCartView {
 
   @UpdateHandler
   public ShoppingCartViewModel.CartViewState processAdded(
-      ShoppingCart.ItemAdded event,
+      ShoppingCartDomain.ItemAdded event,
       Optional<ShoppingCartViewModel.CartViewState> state,
       UpdateHandlerContext context) {
     if (state.isPresent()) {
@@ -48,7 +48,7 @@ public class ShoppingCartView {
 
   @UpdateHandler
   public ShoppingCartViewModel.CartViewState processRemoved(
-      ShoppingCart.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
+      ShoppingCartDomain.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
     int newNumberOfItems = state.getNumberOfItems() - event.getQuantity();
     return state.toBuilder().setNumberOfItems(newNumberOfItems).build();
   }

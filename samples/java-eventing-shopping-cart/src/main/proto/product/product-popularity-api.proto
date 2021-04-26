@@ -6,7 +6,7 @@ syntax = "proto3";
 
 package shopping.product.api;
 
-option java_outer_classname = "ProductApi";
+option java_outer_classname = "ProductPopularityApi";
 
 import "akkaserverless/annotations.proto";
 import "google/protobuf/empty.proto";

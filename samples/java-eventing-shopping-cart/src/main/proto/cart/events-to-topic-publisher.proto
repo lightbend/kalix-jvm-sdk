@@ -5,14 +5,14 @@ syntax = "proto3";
 package shopping.cart.actions;
 
 import "akkaserverless/annotations.proto";
-import "shoppingcart/persistence/shopping-cart-domain.proto";
+import "cart/shopping-cart-domain.proto";
 
 // Currently this boiler-plate is needed as we need to have an action to publish
 // the actual event https://github.com/lightbend/akkaserverless-framework/issues/74
 // Typically this would transform the event from the private API to a public API
 // Right now this does nothing
-service TopicPublisherService {
-  rpc PublishAdded(shopping.cart.model.ItemAdded) returns (shopping.cart.model.ItemAdded) {
+service EventsToTopicPublisherService {
+  rpc PublishAdded(shopping.cart.domain.ItemAdded) returns (shopping.cart.domain.ItemAdded) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"
@@ -22,7 +22,7 @@ service TopicPublisherService {
       }
     };
   }
-  rpc PublishRemoved(shopping.cart.model.ItemRemoved) returns (shopping.cart.model.ItemRemoved) {
+  rpc PublishRemoved(shopping.cart.domain.ItemRemoved) returns (shopping.cart.domain.ItemRemoved) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"

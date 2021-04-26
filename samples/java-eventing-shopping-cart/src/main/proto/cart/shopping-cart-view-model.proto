@@ -7,11 +7,11 @@ package shopping.cart.view;
 option java_outer_classname = "ShoppingCartViewModel";
 
 import "akkaserverless/annotations.proto";
-import "shoppingcart/persistence/shopping-cart-domain.proto";
+import "cart/shopping-cart-domain.proto";
 import "google/api/annotations.proto";
 
 service ShoppingCartViewService {
-  rpc ProcessAdded(shopping.cart.model.ItemAdded) returns (CartViewState) {
+  rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (CartViewState) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"
@@ -22,7 +22,7 @@ service ShoppingCartViewService {
       transform_updates: true
     };
   }
-  rpc ProcessRemoved(shopping.cart.model.ItemRemoved) returns (CartViewState) {
+  rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (CartViewState) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"

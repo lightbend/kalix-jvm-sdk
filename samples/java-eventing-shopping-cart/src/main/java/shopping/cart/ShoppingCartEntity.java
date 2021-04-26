@@ -2,45 +2,72 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+// tag::class[]
+package shopping.cart;
 
+// end::class[]
 import com.akkaserverless.javasdk.EntityId;
+// tag::addItem[]
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
+// end::addItem[]
 import shopping.cart.api.ShoppingCartApi;
-import shopping.cart.model.ShoppingCart;
+import shopping.cart.domain.ShoppingCartDomain;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /** An event sourced entity. */
+// tag::class[]
+
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartEntity {
+  // tag::state[]
+  // tag::itemAdded[]
   private final String entityId;
   private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
+  // end::itemAdded[]
+  // end::state[]
 
+  // tag::constructor[]
   public ShoppingCartEntity(@EntityId String entityId) {
     this.entityId = entityId;
   }
+  // end::constructor[]
+  // end::class[]
 
+  // tag::snapshot[]
   @Snapshot
-  public ShoppingCart.CartState snapshot() {
-    return ShoppingCart.CartState.newBuilder()
+  public ShoppingCartDomain.CartState snapshot() {
+    return ShoppingCartDomain.CartState.newBuilder()
         .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
         .build();
   }
 
+  private ShoppingCartDomain.LineItem convert(ShoppingCartApi.LineItem item) {
+    return ShoppingCartDomain.LineItem.newBuilder()
+        .setProductId(item.getProductId())
+        .setName(item.getName())
+        .setQuantity(item.getQuantity())
+        .build();
+  }
+  // end::snapshot[]
+
+  // tag::handleSnapshot[]
   @SnapshotHandler
-  public void handleSnapshot(ShoppingCart.CartState cart) {
+  public void handleSnapshot(ShoppingCartDomain.CartState cart) {
     this.cart.clear();
-    for (ShoppingCart.LineItem item : cart.getItemsList()) {
+    for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
       this.cart.put(item.getProductId(), convert(item));
     }
   }
+  // end::handleSnapshot[]
+
+  // tag::itemAdded[]
 
   @EventHandler
-  public void itemAdded(ShoppingCart.ItemAdded itemAdded) {
+  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
     ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
     if (item == null) {
       item = convert(itemAdded.getItem());
@@ -53,8 +80,17 @@ public class ShoppingCartEntity {
     cart.put(item.getProductId(), item);
   }
 
+  private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
+    return ShoppingCartApi.LineItem.newBuilder()
+        .setProductId(item.getProductId())
+        .setName(item.getName())
+        .setQuantity(item.getQuantity())
+        .build();
+  }
+  // end::itemAdded[]
+
   @EventHandler
-  public void itemRemoved(ShoppingCart.ItemRemoved itemRemoved) {
+  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
     ShoppingCartApi.LineItem lineItem = cart.get(itemRemoved.getProductId());
     int newQty = lineItem.getQuantity() - itemRemoved.getQuantity();
 
@@ -66,27 +102,33 @@ public class ShoppingCartEntity {
     }
   }
 
+  // tag::getCart[]
   @CommandHandler
   public ShoppingCartApi.Cart getCart() {
     return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
   }
+  // end::getCart[]
+
+  // tag::addItem[]
 
   @CommandHandler
-  public Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
+  public Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext context) {
     if (item.getQuantity() <= 0) {
-      throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
+      throw context.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
-    ctx.emit(
-        ShoppingCart.ItemAdded.newBuilder()
+    ShoppingCartDomain.ItemAdded itemAddedEvent =
+        ShoppingCartDomain.ItemAdded.newBuilder()
             .setItem(
-                ShoppingCart.LineItem.newBuilder()
+                ShoppingCartDomain.LineItem.newBuilder()
                     .setProductId(item.getProductId())
                     .setName(item.getName())
                     .setQuantity(item.getQuantity())
                     .build())
-            .build());
+            .build();
+    context.emit(itemAddedEvent);
     return Empty.getDefaultInstance();
   }
+  // end::addItem[]
 
   @CommandHandler
   public Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
@@ -95,16 +137,16 @@ public class ShoppingCartEntity {
           "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     } else {
       ShoppingCartApi.LineItem lineItem = cart.get(item.getProductId());
-      ShoppingCart.ItemRemoved event = null;
+      ShoppingCartDomain.ItemRemoved event = null;
       if ((lineItem.getQuantity() - item.getQuantity()) > 0) {
         event =
-            ShoppingCart.ItemRemoved.newBuilder()
+            ShoppingCartDomain.ItemRemoved.newBuilder()
                 .setProductId(item.getProductId())
                 .setQuantity(item.getQuantity()) // only remove requested quantity
                 .build();
       } else {
         event =
-            ShoppingCart.ItemRemoved.newBuilder()
+            ShoppingCartDomain.ItemRemoved.newBuilder()
                 .setProductId(item.getProductId())
                 .setQuantity(lineItem.getQuantity()) // remove all
                 .build();
@@ -112,21 +154,5 @@ public class ShoppingCartEntity {
       ctx.emit(event);
     }
     return Empty.getDefaultInstance();
-  }
-
-  private ShoppingCartApi.LineItem convert(ShoppingCart.LineItem item) {
-    return ShoppingCartApi.LineItem.newBuilder()
-        .setProductId(item.getProductId())
-        .setName(item.getName())
-        .setQuantity(item.getQuantity())
-        .build();
-  }
-
-  private ShoppingCart.LineItem convert(ShoppingCartApi.LineItem item) {
-    return ShoppingCart.LineItem.newBuilder()
-        .setProductId(item.getProductId())
-        .setName(item.getName())
-        .setQuantity(item.getQuantity())
-        .build();
   }
 }

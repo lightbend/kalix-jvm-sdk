@@ -1,6 +1,6 @@
 # Eventing example
 
-This example show cases the following eventing features:
+This example showcases the following eventing features:
 
 * Publishing of events from an Event Sourced Entity to Google Pub Sub, see PublishAdded/PublishRemoved in [topic-publisher.proto](../../protocols/example/eventing/shoppingcart/topic-publisher.proto)
 * Reading of events from an Event Sourced Entity and forwarding to a ValueEntity, see ForwardAdded/ForwardRemoved in [to-product-popularity.proto](../../protocols/example/eventing/shoppingcart/to-product-popularity.proto)

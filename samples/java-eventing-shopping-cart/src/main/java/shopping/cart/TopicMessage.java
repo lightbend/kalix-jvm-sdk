@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+package shopping.cart;
 
 import com.akkaserverless.javasdk.Jsonable;
 

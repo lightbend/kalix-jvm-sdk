@@ -2,14 +2,14 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+package shopping.cart;
 
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shopping.cart.model.ShoppingCart;
+import shopping.cart.domain.ShoppingCartDomain;
 
 /**
  * This action illustrates the consumption from a topic (shopping-cart-events) Incoming messages are
@@ -21,13 +21,13 @@ public class ShoppingCartAnalyticsAction {
   private static final Logger LOG = LoggerFactory.getLogger(ShoppingCartAnalyticsAction.class);
 
   @Handler
-  public Empty processAdded(ShoppingCart.ItemAdded event) {
+  public Empty processAdded(ShoppingCartDomain.ItemAdded event) {
     LOG.info("Analytics: item added '{}'", event);
     return Empty.getDefaultInstance();
   }
 
   @Handler
-  public Empty processRemoved(ShoppingCart.ItemRemoved event) {
+  public Empty processRemoved(ShoppingCartDomain.ItemRemoved event) {
     LOG.info("Analytics: item removed '{}'", event);
     return Empty.getDefaultInstance();
   }

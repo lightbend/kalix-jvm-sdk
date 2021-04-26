@@ -2,7 +2,7 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventing.shoppingcart;
+package shopping.cart;
 
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
@@ -13,10 +13,7 @@ import com.google.protobuf.Empty;
 import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.api.ShoppingCartTopic;
 
-/**
- * This action illustrates the consumption from a topic (shopping-cart-operations) Incoming messages
- * are sent to log with no further processing.
- */
+/** This action illustrates the consumption from a topic (shopping-cart-operations). */
 @Action
 public class ShoppingCartTopicAction {
 
