@@ -22,13 +22,13 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Future
 
-final class ActionService(val actionHandler: ActionHandler,
+final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,
                           val anySupport: AnySupport)
     extends Service {
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
-    actionHandler match {
+    factory match {
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
       case _ => None
     }
@@ -41,6 +41,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
 
   import _system.dispatcher
   implicit val system: ActorSystem = _system
+
+  private object creationContext extends ActionCreationContext {
+    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
+  }
 
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
@@ -69,7 +73,8 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     services.get(in.serviceName) match {
       case Some(service) =>
         val context = createContext(in)
-        service.actionHandler
+        service.factory
+          .create(creationContext)
           .handleUnary(in.name, MessageEnvelope.of(toJavaPbAny(in.payload), context.metadata()), context)
           .toScala
           .map(replyToActionResponse)
@@ -111,7 +116,8 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              service.actionHandler
+              service.factory
+                .create(creationContext)
                 .handleStreamedIn(
                   call.name,
                   messages.map { message =>
@@ -142,7 +148,8 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     services.get(in.serviceName) match {
       case Some(service) =>
         val context = createContext(in)
-        service.actionHandler
+        service.factory
+          .create(creationContext)
           .handleStreamedOut(in.name, MessageEnvelope.of(toJavaPbAny(in.payload), context.metadata()), context)
           .asScala
           .map(replyToActionResponse)
@@ -184,7 +191,8 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              service.actionHandler
+              service.factory
+                .create(creationContext)
                 .handleStreamed(
                   call.name,
                   messages.map { message =>

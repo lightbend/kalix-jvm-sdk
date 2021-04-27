@@ -9,6 +9,7 @@ import com.akkaserverless.javasdk.ServiceCallRef;
 // tag::annotation[]
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
+import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
@@ -28,6 +29,15 @@ public class ToProductPopularityAction {
   private static final String POPULARITY_SERVICE = "shopping.product.api.ProductPopularityService";
   // end::forwardRemoved[]
 
+  private final ServiceCallRef<ProductPopularityApi.IncreasePopularity> increaseRef;
+
+  public ToProductPopularityAction(ActionCreationContext context) {
+    increaseRef =
+        context
+            .serviceCallFactory()
+            .lookup(POPULARITY_SERVICE, "Increase", ProductPopularityApi.IncreasePopularity.class);
+  }
+
   // tag::methods[]
   @Handler
   public Reply<Empty> forwardAdded(ShoppingCartDomain.ItemAdded in, ActionContext ctx) {
@@ -40,10 +50,7 @@ public class ToProductPopularityAction {
             .build();
 
     LOG.info("Received: '{}', publishing: {}", in, increase);
-    ServiceCallRef<ProductPopularityApi.IncreasePopularity> call =
-        ctx.serviceCallFactory()
-            .lookup(POPULARITY_SERVICE, "Increase", ProductPopularityApi.IncreasePopularity.class);
-    return Reply.forward(call.createCall(increase));
+    return Reply.forward(increaseRef.createCall(increase));
     // tag::methods[]
   }
   // tag::forwardRemoved[]

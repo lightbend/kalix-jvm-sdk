@@ -9,6 +9,7 @@ import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
+import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.action.ActionHandler;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityHandlerFactory;
@@ -310,34 +311,31 @@ public final class AkkaServerless {
    *
    * <p>The action class must be annotated with {@link Action}.
    *
-   * @param action The action object.
+   * @param actionClass The action class, its constructor may accept an {@link
+   *     ActionCreationContext}.
    * @param descriptor The descriptor for the service that this action implements.
    * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
    *     types when needed.
    * @return This Akka Serverless builder.
    */
   public AkkaServerless registerAction(
-      Object action,
+      Class<?> actionClass,
       Descriptors.ServiceDescriptor descriptor,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
-    Action actionAnnotation = action.getClass().getAnnotation(Action.class);
-    if (actionAnnotation == null) {
+    if (!actionClass.isAnnotationPresent(Action.class)) {
       throw new IllegalArgumentException(
-          action.getClass() + " does not declare an " + Action.class.getName() + " annotation!");
+          actionClass + " does not declare an " + Action.class.getName() + " annotation!");
     }
-
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
     services.put(
         descriptor.getFullName(),
         system ->
             new ActionService(
-                new AnnotationBasedActionSupport(
-                    action, anySupport, descriptor, Materializer.createMaterializer(system)),
+                AnnotationBasedActionSupport.forClass(
+                    actionClass, anySupport, descriptor, Materializer.matFromSystem(system)),
                 descriptor,
                 anySupport));
-
     return this;
   }
 
@@ -360,7 +358,7 @@ public final class AkkaServerless {
 
     final AnySupport anySupport = newAnySupport(additionalDescriptors);
 
-    ActionService service = new ActionService(actionHandler, descriptor, anySupport);
+    ActionService service = new ActionService(context -> actionHandler, descriptor, anySupport);
 
     services.put(descriptor.getFullName(), system -> service);
 

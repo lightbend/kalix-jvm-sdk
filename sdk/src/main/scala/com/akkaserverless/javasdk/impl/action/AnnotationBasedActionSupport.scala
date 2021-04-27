@@ -8,31 +8,77 @@ import akka.NotUsed
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import akka.stream.{javadsl, Materializer}
-import com.akkaserverless.javasdk.{Jsonable, Reply}
+import com.akkaserverless.javasdk.Reply
 import com.akkaserverless.javasdk.action._
-import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, ParameterHandler}
+import com.akkaserverless.javasdk.impl.ReflectionHelper.{
+  InvocationContext,
+  MainArgumentParameterHandler,
+  ParameterHandler
+}
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.reply.MessageReply
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import java.lang.reflect.{InvocationTargetException, Method, Type}
+import java.lang.reflect.{Constructor, InvocationTargetException, Method, Type}
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
 /**
- * Annotation based implementation of the [[ActionHandler]].
+ * Annotation based implementation to create [[ActionHandler]] via an [[ActionFactory]].
  */
-private[impl] class AnnotationBasedActionSupport(
-    action: AnyRef,
+private[impl] final class AnnotationBasedActionSupport private (
+    factory: ActionCreationContext => AnyRef,
     anySupport: AnySupport,
     override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]]
 )(implicit mat: Materializer)
-    extends ActionHandler
+    extends ActionFactory
     with ResolvedEntityFactory {
 
-  def this(action: AnyRef, anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor)(
-      implicit mat: Materializer
-  ) =
-    this(action, anySupport, anySupport.resolveServiceDescriptor(serviceDescriptor))
+  override def create(context: ActionCreationContext): ActionHandler =
+    new ActionHandlerImpl(factory(context), anySupport, resolvedMethods)
+}
 
+object AnnotationBasedActionSupport {
+  def forInstance(actionInstance: AnyRef, anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor)(
+      implicit mat: Materializer
+  ): AnnotationBasedActionSupport =
+    new AnnotationBasedActionSupport(factory = _ => actionInstance,
+                                     anySupport,
+                                     anySupport.resolveServiceDescriptor(serviceDescriptor))
+
+  def forClass(actionClass: Class[_], anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor)(
+      implicit mat: Materializer
+  ): AnnotationBasedActionSupport = {
+    val factory: ActionCreationContext => AnyRef = {
+      actionClass.getConstructors match {
+        case Array(single) =>
+          new ConstructorInvoker(ReflectionHelper.ensureAccessible(single))
+        case _ =>
+          throw new RuntimeException(
+            s"The Action class [${actionClass.getName}] may only declare a single constructor."
+          )
+      }
+    }
+    new AnnotationBasedActionSupport(factory, anySupport, anySupport.resolveServiceDescriptor(serviceDescriptor))
+  }
+}
+
+private final class ConstructorInvoker(constructor: Constructor[_]) extends (ActionCreationContext => AnyRef) {
+  private val parameters =
+    ReflectionHelper.getParameterHandlers[AnyRef, ActionCreationContext](constructor)()
+  parameters.foreach {
+    case MainArgumentParameterHandler(clazz) =>
+      throw new RuntimeException(s"Don't know how to handle argument of type ${clazz.getName} in constructor")
+    case _ =>
+  }
+
+  def apply(context: ActionCreationContext): AnyRef = {
+    val ctx = InvocationContext(null.asInstanceOf[AnyRef], context)
+    constructor.newInstance(parameters.map(_.apply(ctx)): _*).asInstanceOf[AnyRef]
+  }
+}
+
+final class ActionHandlerImpl(action: AnyRef,
+                              anySupport: AnySupport,
+                              resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])(implicit mat: Materializer)
+    extends ActionHandler {
   private val behavior = ActionReflection(action.getClass, resolvedMethods, anySupport)
 
   override def handleUnary(commandName: String,
@@ -92,6 +138,7 @@ private[impl] class AnnotationBasedActionSupport(
       case ite: InvocationTargetException if ite.getCause != null =>
         throw ite.getCause
     }
+
 }
 
 private class ActionReflection(

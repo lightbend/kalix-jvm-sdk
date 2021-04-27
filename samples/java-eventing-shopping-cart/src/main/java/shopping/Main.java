@@ -43,23 +43,23 @@ public final class Main {
         // consume shopping cart events emitted from the ShoppingCartEntity
         // and publish as is to 'shopping-cart-events' topic
         .registerAction(
-            new TopicPublisherAction(),
+            TopicPublisherAction.class,
             EventsToTopicPublisher.getDescriptor()
                 .findServiceByName("EventsToTopicPublisherService"))
         .registerAction(
-            new ShoppingCartTopicAction(),
+            ShoppingCartTopicAction.class,
             ShoppingCartTopic.getDescriptor().findServiceByName("ShoppingCartTopicService"))
 
         // consume shopping cart events published to 'shopping-cart-events' topic
         .registerAction(
-            new ShoppingCartAnalyticsAction(),
+            ShoppingCartAnalyticsAction.class,
             ShoppingCartAnalytics.getDescriptor().findServiceByName("ShoppingCartAnalyticsService"))
 
         // consume shopping cart events emitted from the ShoppingCartEntity
         // and send as commands to ProductPopularityEntity
         // tag::ToProductPopularityAction[]
         .registerAction(
-            new ToProductPopularityAction(),
+            ToProductPopularityAction.class,
             ToProductPopularity.getDescriptor().findServiceByName("ToProductPopularityService"))
         // end::ToProductPopularityAction[]
 

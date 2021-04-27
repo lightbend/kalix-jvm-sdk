@@ -11,7 +11,13 @@ import akka.stream.scaladsl.Sink
 import akkaserverless.javasdk.Actionspec
 import akkaserverless.javasdk.Actionspec.{In, Out}
 import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.action.{ActionContext, ActionHandler, MessageEnvelope}
+import com.akkaserverless.javasdk.action.{
+  ActionContext,
+  ActionCreationContext,
+  ActionFactory,
+  ActionHandler,
+  MessageEnvelope
+}
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
 import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
 import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
@@ -43,7 +49,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
   def create(handler: ActionHandler): Actions = {
     val service = new ActionService(
-      handler,
+      _ => handler,
       serviceDescriptor,
       new AnySupport(Array(Actionspec.getDescriptor), this.getClass.getClassLoader)
     )

@@ -35,11 +35,11 @@ public final class JavaSdkTck {
   public static void main(String[] args) throws Exception {
     new AkkaServerless()
         .registerAction(
-            new ActionTckModelBehavior(),
+            ActionTckModelBehavior.class,
             Action.getDescriptor().findServiceByName("ActionTckModel"),
             Action.getDescriptor())
         .registerAction(
-            new ActionTwoBehavior(),
+            ActionTwoBehavior.class,
             Action.getDescriptor().findServiceByName("ActionTwo"),
             Action.getDescriptor())
         .registerValueEntity(
@@ -79,7 +79,7 @@ public final class JavaSdkTck {
             EventSourcedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                 .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
         .registerAction(
-            new LocalPersistenceSubscriber(),
+            LocalPersistenceSubscriber.class,
             LocalPersistenceEventing.getDescriptor()
                 .findServiceByName("LocalPersistenceSubscriberModel"))
         .registerEventSourcedEntity(

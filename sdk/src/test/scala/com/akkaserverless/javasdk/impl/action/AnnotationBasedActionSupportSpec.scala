@@ -17,6 +17,7 @@ import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCallFactory}
 import com.google.protobuf
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers._
 import org.scalatest.matchers.should.Matchers
 import java.util.Optional
 import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
@@ -37,6 +38,10 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
   private val anySupport = new AnySupport(Array(Actionspec.getDescriptor), this.getClass.getClassLoader)
 
+  private object creationContext extends ActionCreationContext {
+    override def serviceCallFactory(): ServiceCallFactory = ???
+  }
+
   private object ctx extends ActionContext {
     override def metadata(): Metadata = Metadata.EMPTY.add("scope", "call")
 
@@ -49,12 +54,41 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
     override def serviceCallFactory(): ServiceCallFactory = ???
   }
 
-  private def create(handler: AnyRef): ActionHandler =
-    new AnnotationBasedActionSupport(handler,
-                                     anySupport,
-                                     Actionspec.getDescriptor.findServiceByName("ActionSpecService"))
+  private def create(actionInstance: AnyRef): ActionHandler =
+    AnnotationBasedActionSupport
+      .forInstance(
+        actionInstance,
+        anySupport,
+        Actionspec.getDescriptor.findServiceByName("ActionSpecService")
+      )
+      .create(creationContext)
+
+  private def create(actionClass: Class[_]): ActionHandler =
+    AnnotationBasedActionSupport
+      .forClass(
+        actionClass,
+        anySupport,
+        Actionspec.getDescriptor.findServiceByName("ActionSpecService")
+      )
+      .create(creationContext)
 
   "Annotation based action support" should {
+
+    "construct action instances" when {
+
+      "the constructor takes no arguments" in {
+        create(classOf[NoArgConstructorTest])
+      }
+      "the constructor takes a context argument" in {
+        create(classOf[CreationContextArgConstructorTest])
+      }
+      "fail if the constructor contains an unsupported parameter" in {
+        a[RuntimeException] should be thrownBy create(classOf[UnsupportedConstructorParameter])
+      }
+      "fail if the class has more than a single constructor" in {
+        a[RuntimeException] should be thrownBy create(classOf[TwoConstructors])
+      }
+    }
 
     "support invoking unary commands" when {
       def test(handler: AnyRef) = {
@@ -457,4 +491,20 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       case other =>
         fail(s"$reply is not a FailureReply")
     }
+}
+
+@Action
+private class NoArgConstructorTest() {}
+
+@Action
+private class CreationContextArgConstructorTest(context: ActionCreationContext) {
+  context should not be null
+}
+
+@Action
+private class UnsupportedConstructorParameter(foo: String)
+
+@Action
+private class TwoConstructors(foo: String) {
+  def this() = this("message")
 }
