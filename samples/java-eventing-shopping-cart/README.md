@@ -16,7 +16,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
     sbt java-sdk/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-eventing-shopping-cart
-    mvn exec:java
+    mvn compile exec:java
     ```
 * Start the proxy
   * with in-memory store: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`

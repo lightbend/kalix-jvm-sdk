@@ -1,0 +1,44 @@
+// Copyright 2019 Lightbend Inc.
+
+syntax = "proto3";
+
+package customer.api;
+
+option java_outer_classname = "CustomerApi";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "akkaserverless/annotations.proto";
+
+message Customer {
+  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string email = 2;
+  string name = 3;
+  Address address = 4;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+}
+
+message GetCustomerRequest {
+  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message ChangeNameRequest {
+  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string new_name = 2;
+}
+
+service CustomerService {
+  rpc Create(Customer) returns (google.protobuf.Empty) {
+  }
+
+  rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {
+  }
+
+  rpc GetCustomer(GetCustomerRequest) returns (Customer) {
+  }
+}
+
