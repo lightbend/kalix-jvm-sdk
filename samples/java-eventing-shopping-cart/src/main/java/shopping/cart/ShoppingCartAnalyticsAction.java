@@ -31,4 +31,10 @@ public class ShoppingCartAnalyticsAction {
     LOG.info("Analytics: item removed '{}'", event);
     return Empty.getDefaultInstance();
   }
+
+  @Handler
+  public Empty processCheckedOut(ShoppingCartDomain.CheckedOut event) {
+    LOG.info("Analytics: cart checked out '{}'", event);
+    return Empty.getDefaultInstance();
+  }
 }

@@ -25,4 +25,10 @@ public class TopicPublisherAction {
     LOG.info("Publishing: '{}' to topic", in);
     return in;
   }
+
+  @Handler
+  public ShoppingCartDomain.CheckedOut publishCheckedOut(ShoppingCartDomain.CheckedOut in) {
+    LOG.info("Publishing: '{}' to topic", in);
+    return in;
+  }
 }

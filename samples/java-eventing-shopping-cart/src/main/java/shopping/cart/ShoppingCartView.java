@@ -25,12 +25,12 @@ public class ShoppingCartView {
       Optional<ShoppingCartViewModel.CartViewState> state,
       UpdateHandlerContext context) {
     if (state.isPresent()) {
-      String userId = state.get().getUserId();
+      String cartId = state.get().getCartId();
       int newNumberOfItems = state.get().getNumberOfItems() + event.getItem().getQuantity();
-      LOG.info("Cart {} has {} items", userId, newNumberOfItems);
+      LOG.info("Cart {} has {} items", cartId, newNumberOfItems);
       return state.get().toBuilder().setNumberOfItems(newNumberOfItems).build();
     } else {
-      String userId =
+      String cartId =
           context
               .eventSubject()
               .orElseGet(
@@ -38,9 +38,9 @@ public class ShoppingCartView {
                     throw new IllegalArgumentException("Unknown eventSubject");
                   });
       int newNumberOfItems = event.getItem().getQuantity();
-      LOG.info("New cart {} has {} items", userId, newNumberOfItems);
+      LOG.info("New cart {} has {} items", cartId, newNumberOfItems);
       return ShoppingCartViewModel.CartViewState.newBuilder()
-          .setUserId(userId)
+          .setCartId(cartId)
           .setNumberOfItems(newNumberOfItems)
           .build();
     }
@@ -51,5 +51,11 @@ public class ShoppingCartView {
       ShoppingCartDomain.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
     int newNumberOfItems = state.getNumberOfItems() - event.getQuantity();
     return state.toBuilder().setNumberOfItems(newNumberOfItems).build();
+  }
+
+  @UpdateHandler
+  public ShoppingCartViewModel.CartViewState processCheckedOut(
+      ShoppingCartDomain.CheckedOut event, ShoppingCartViewModel.CartViewState state) {
+    return state.toBuilder().setCheckedOutTimestamp(event.getCheckedOutTimestamp()).build();
   }
 }

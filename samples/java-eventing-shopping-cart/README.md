@@ -25,18 +25,37 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
     * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator` 
     * `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-spanner/run`
       * note that this overrides the akkaserverless.proxy.eventing.support defined in `spanner-dev-mode.conf`
-* Send an AddItem command: 
-  `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartService/AddItem`
+* Send an AddItem command:
+  ```
+  grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartService/AddItem
+  ```
     * This will be published to the `shopping-cart-events` topic (via `TopicPublisherAction`) and received by the `ShoppingCartAnalyticsAction`.
     * This will be converted to commands and sent to `ProductPopularityEntity` via `ToProductPopularityAction`
-* Send a RemoveItem command: `grpcurl --plaintext -d '{"user_id": "foo", "product_id": "akka-tshirt", "quantity": -1}' localhost:9000 shopping.cart.api.ShoppingCartService/RemoveItem`
-* Check product popularity with `grpcurl --plaintext -d '{"productId": "akka-tshirt"}' localhost:9000  shopping.product.api.ProductPopularityService/GetPopularity` 
+* Send a GetCart command:
+  ```
+  grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.ShoppingCartService/GetCart
+  ```
+* Send a RemoveItem command:
+  ```
+  grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "quantity": -1}' localhost:9000 shopping.cart.api.ShoppingCartService/RemoveItem
+* Check product popularity with:
+  ```
+  grpcurl --plaintext -d '{"productId": "akka-tshirt"}' localhost:9000  shopping.product.api.ProductPopularityService/GetPopularity
+  ```
+* Send a CheckoutCart command:
+  ```
+  grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.ShoppingCartService/CheckoutCart
+  ```
+* Find carts checked out after a given time:
+  ```
+  grpcurl --plaintext -d '{"timestamp": "1619446995774"}' localhost:9000  shopping.cart.view.ShoppingCartViewService/GetCheckedOutCarts
+  ```
 * Simulate a JSON message from an external system via Google Cloud Pub/Sub:
   (JSON sent to the Pub/Sub HTTP API in base64 encoding, it gets parsed into `com.akkaserverless.samples.eventing.shoppingcart.TopicMessage`)
   ```json
   {
     "operation": "add",
-    "userId": "user-7539",
+    "cartId": "cart-7539",
     "productId": "akkaserverless-tshirt",
     "name": "Akka Serverless T-Shirt",
     "quantity": 5
@@ -66,7 +85,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
       .encodeToString(
           ShoppingCartTopic.TopicOperation.newBuilder()
               .setOperation("add")
-              .setUserId("user-0156")
+              .setCartId("cart-0156")
               .setProductId("akkaserverless-socks")
               .setName("Akka Serverless pair of socks")
               .setQuantity(2)

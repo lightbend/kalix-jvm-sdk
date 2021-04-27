@@ -13,20 +13,24 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 message AddLineItem {
-  string user_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string user_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
   string product_id = 2;
   int32 quantity = 3;
 }
 
 message GetShoppingCart {
-  string user_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message Checkout {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
 }
 
 message LineItem {
@@ -37,6 +41,7 @@ message LineItem {
 
 message Cart {
   repeated LineItem items = 1;
+  int64 checked_out_timestamp = 2;
 }
 
 service ShoppingCartService {
@@ -44,20 +49,26 @@ service ShoppingCartService {
 
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/cart/{user_id}/items/add"
+      post: "/cart/{cart_id}/items/add"
       body: "*"
     };
   }
   rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
-    option (google.api.http).post = "/cart/{user_id}/items/{product_id}/remove";
+    option (google.api.http).post = "/cart/{cart_id}/items/{product_id}/remove";
   }
   rpc GetCart(GetShoppingCart) returns (Cart) {
     option (google.api.http) = {
-      get: "/carts/{user_id}"
+      get: "/carts/{cart_id}"
       additional_bindings: {
-        get: "/carts/{user_id}/items"
+        get: "/carts/{cart_id}/items"
         response_body: "items"
       }
+    };
+  }
+  rpc CheckoutCart(Checkout) returns (Cart) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/checkout"
+      body: "*"
     };
   }
 }

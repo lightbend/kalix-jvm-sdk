@@ -15,6 +15,7 @@ option (akkaserverless.file).event_sourced_entity = {
   state: { type: "CartState" }
   event: { type: "ItemAdded" }
   event: { type: "ItemRemoved" }
+  event: { type: "CheckedOut" }
 };
 
 option java_outer_classname = "ShoppingCart";
@@ -36,7 +37,12 @@ message ItemRemoved {
   int32 quantity = 2;
 }
 
+message CheckedOut {
+  int64 checked_out_timestamp = 1;
+}
+
 // The shopping cart state.
 message CartState {
   repeated LineItem items = 1;
+  int64 checked_out_timestamp = 2;
 }

@@ -31,6 +31,13 @@ service ShoppingCartAnalyticsService {
       }
     };
   }
+  rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing = {
+      in: {
+        topic: "shopping-cart-events"
+      }
+    };
+  }
   // tag::subscribing[]
 }
 // end::subscribing[]

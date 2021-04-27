@@ -27,6 +27,7 @@ public class ShoppingCartEntity {
   // tag::itemAdded[]
   private final String entityId;
   private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
+  private long checkedOutTimestamp = 0L;
   // end::itemAdded[]
   // end::state[]
 
@@ -42,6 +43,7 @@ public class ShoppingCartEntity {
   public ShoppingCartDomain.CartState snapshot() {
     return ShoppingCartDomain.CartState.newBuilder()
         .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
+        .setCheckedOutTimestamp(checkedOutTimestamp)
         .build();
   }
 
@@ -61,6 +63,7 @@ public class ShoppingCartEntity {
     for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
       this.cart.put(item.getProductId(), convert(item));
     }
+    this.checkedOutTimestamp = cart.getCheckedOutTimestamp();
   }
   // end::handleSnapshot[]
 
@@ -102,10 +105,15 @@ public class ShoppingCartEntity {
     }
   }
 
+  @EventHandler
+  public void checkedOut(ShoppingCartDomain.CheckedOut checkedOut) {
+    checkedOutTimestamp = checkedOut.getCheckedOutTimestamp();
+  }
+
   // tag::getCart[]
   @CommandHandler
   public ShoppingCartApi.Cart getCart() {
-    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
+    return createApiCart();
   }
   // end::getCart[]
 
@@ -113,6 +121,9 @@ public class ShoppingCartEntity {
 
   @CommandHandler
   public Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot add item to checked out cart.");
+    }
     if (item.getQuantity() <= 0) {
       throw context.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
@@ -131,9 +142,12 @@ public class ShoppingCartEntity {
   // end::addItem[]
 
   @CommandHandler
-  public Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
+  public Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot remove item from checked out cart.");
+    }
     if (!cart.containsKey(item.getProductId())) {
-      throw ctx.fail(
+      throw context.fail(
           "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     } else {
       ShoppingCartApi.LineItem lineItem = cart.get(item.getProductId());
@@ -151,8 +165,28 @@ public class ShoppingCartEntity {
                 .setQuantity(lineItem.getQuantity()) // remove all
                 .build();
       }
-      ctx.emit(event);
+      context.emit(event);
     }
     return Empty.getDefaultInstance();
+  }
+
+  @CommandHandler
+  public ShoppingCartApi.Cart checkoutCart(
+      ShoppingCartApi.Checkout request, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot checkout an already checked out cart.");
+    }
+    context.emit(
+        ShoppingCartDomain.CheckedOut.newBuilder()
+            .setCheckedOutTimestamp(System.currentTimeMillis())
+            .build());
+    return createApiCart();
+  }
+
+  private ShoppingCartApi.Cart createApiCart() {
+    return ShoppingCartApi.Cart.newBuilder()
+        .addAllItems(cart.values())
+        .setCheckedOutTimestamp(checkedOutTimestamp)
+        .build();
   }
 }

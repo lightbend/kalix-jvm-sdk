@@ -32,4 +32,14 @@ service EventsToTopicPublisherService {
       }
     };
   }
+  rpc PublishCheckedOut(shopping.cart.domain.CheckedOut) returns (shopping.cart.domain.CheckedOut) {
+    option (akkaserverless.method).eventing = {
+      in: {
+        event_sourced_entity: "eventsourced-shopping-cart"
+      }
+      out: {
+        topic: "shopping-cart-events"
+      }
+    };
+  }
 }

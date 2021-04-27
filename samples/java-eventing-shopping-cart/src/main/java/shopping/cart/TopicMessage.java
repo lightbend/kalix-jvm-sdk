@@ -12,7 +12,7 @@ import java.beans.BeanProperty;
 @Jsonable
 public class TopicMessage {
   String operation;
-  String userId;
+  String cartId;
   String productId;
   String name;
   int quantity;
@@ -26,13 +26,13 @@ public class TopicMessage {
     this.operation = operation;
   }
 
-  public String getUserId() {
-    return userId;
+  public String getCartId() {
+    return cartId;
   }
 
   @BeanProperty
-  public void setUserId(String userId) {
-    this.userId = userId;
+  public void setCartId(String cartId) {
+    this.cartId = cartId;
   }
 
   public String getProductId() {

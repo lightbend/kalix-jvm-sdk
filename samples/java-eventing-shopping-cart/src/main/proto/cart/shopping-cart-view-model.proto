@@ -33,9 +33,20 @@ service ShoppingCartViewService {
       transform_updates: true
     };
   }
-  rpc GetAllCarts(GetAllCartsRequest) returns (stream CartViewState) {
+  rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (CartViewState) {
+    option (akkaserverless.method).eventing = {
+      in: {
+        event_sourced_entity: "eventsourced-shopping-cart"
+      }
+    };
+    option (akkaserverless.method).view.update = {
+      table: "carts"
+      transform_updates: true
+    };
+  }
+  rpc GetCheckedOutCarts(GetCheckedOutCartsRequest) returns (stream CartViewState) {
     option (akkaserverless.method).view.query = {
-      query: "select * from carts"
+      query: "select * from carts where checked_out_timestamp >= :timestamp"
     };
     option (google.api.http) = {
       get: "/carts"
@@ -44,8 +55,11 @@ service ShoppingCartViewService {
 }
 
 message CartViewState {
-  string user_id = 1;
+  string cart_id = 1;
   int32 number_of_items = 2;
+  int64 checked_out_timestamp = 3;
 }
 
-message GetAllCartsRequest {}
+message GetCheckedOutCartsRequest {
+  int64 timestamp = 1;
+}

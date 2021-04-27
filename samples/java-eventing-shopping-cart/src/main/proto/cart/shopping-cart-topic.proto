@@ -14,7 +14,7 @@ option java_outer_classname = "ShoppingCartTopic";
 // Read from a Pub/Sub message with CloudEvent metadata
 message TopicOperation {
     string operation = 1;
-    string user_id = 2;
+    string cart_id = 2;
     string product_id = 3;
     string name = 4;
     int32 quantity = 5;

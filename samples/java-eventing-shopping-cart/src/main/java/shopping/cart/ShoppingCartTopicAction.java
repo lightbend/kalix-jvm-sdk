@@ -26,7 +26,7 @@ public class ShoppingCartTopicAction {
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem increase =
           ShoppingCartApi.AddLineItem.newBuilder()
-              .setUserId(message.getUserId())
+              .setCartId(message.getCartId())
               .setProductId(message.getProductId())
               .setName(message.getName())
               .setQuantity(message.getQuantity())
@@ -49,7 +49,7 @@ public class ShoppingCartTopicAction {
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem add =
           ShoppingCartApi.AddLineItem.newBuilder()
-              .setUserId(message.getUserId())
+              .setCartId(message.getCartId())
               .setProductId(message.getProductId())
               .setName(message.getName())
               .setQuantity(message.getQuantity())
@@ -60,7 +60,7 @@ public class ShoppingCartTopicAction {
     } else if ("remove".equals(message.getOperation())) {
       ShoppingCartApi.RemoveLineItem remove =
           ShoppingCartApi.RemoveLineItem.newBuilder()
-              .setUserId(message.getUserId())
+              .setCartId(message.getCartId())
               .setProductId(message.getProductId())
               .setQuantity(message.getQuantity())
               .build();
