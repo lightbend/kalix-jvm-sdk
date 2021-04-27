@@ -161,7 +161,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.19.0</version>
+        <version>0.20.2</version>
         <executions>
           <execution>
             <goals>
@@ -192,9 +192,9 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>bintray-lightbend-akkaserverless</id>
-      <name>bintray</name>
-      <url>https://lightbend.bintray.com/akkaserverless</url>
+      <id>lightbend-akkaserverless</id>
+      <name>cloudsmith</name>
+      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
     </repository>
   </repositories>
 
@@ -203,9 +203,9 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>bintray-lightbend-akkaserverless</id>
-      <name>bintray</name>
-      <url>https://lightbend.bintray.com/akkaserverless</url>
+      <id>lightbend-akkaserverless</id>
+      <name>cloudsmith</name>
+      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
     </pluginRepository>
   </pluginRepositories>
 
