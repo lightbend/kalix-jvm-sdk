@@ -20,6 +20,29 @@ public class CustomerValueEntity {
       CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState state =
         context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
+    return convertToApi(state);
+  }
+
+  @CommandHandler
+  public Empty create(
+      CustomerApi.Customer customer, CommandContext<CustomerDomain.CustomerState> context) {
+    CustomerDomain.CustomerState state = convertToDomain(customer);
+    context.updateState(state);
+    return Empty.getDefaultInstance();
+  }
+
+  @CommandHandler
+  public Empty changeName(
+      CustomerApi.ChangeNameRequest request, CommandContext<CustomerDomain.CustomerState> context) {
+    if (context.getState().isEmpty())
+      throw context.fail("Customer must be created before name can be changed.");
+    CustomerDomain.CustomerState updatedState =
+        context.getState().get().toBuilder().setName(request.getNewName()).build();
+    context.updateState(updatedState);
+    return Empty.getDefaultInstance();
+  }
+
+  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
     CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
     if (state.hasAddress()) {
       address =
@@ -36,9 +59,7 @@ public class CustomerValueEntity {
         .build();
   }
 
-  @CommandHandler
-  public Empty create(
-      CustomerApi.Customer customer, CommandContext<CustomerDomain.CustomerState> context) {
+  private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
     CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
     if (customer.hasAddress()) {
       address =
@@ -47,25 +68,11 @@ public class CustomerValueEntity {
               .setCity(customer.getAddress().getCity())
               .build();
     }
-    CustomerDomain.CustomerState state =
-        CustomerDomain.CustomerState.newBuilder()
-            .setCustomerId(customer.getCustomerId())
-            .setEmail(customer.getEmail())
-            .setName(customer.getName())
-            .setAddress(address)
-            .build();
-    context.updateState(state);
-    return Empty.getDefaultInstance();
-  }
-
-  @CommandHandler
-  public Empty changeName(
-      CustomerApi.ChangeNameRequest request, CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer must be created before name can be changed.");
-    CustomerDomain.CustomerState updatedState =
-        context.getState().get().toBuilder().setName(request.getNewName()).build();
-    context.updateState(updatedState);
-    return Empty.getDefaultInstance();
+    return CustomerDomain.CustomerState.newBuilder()
+        .setCustomerId(customer.getCustomerId())
+        .setEmail(customer.getEmail())
+        .setName(customer.getName())
+        .setAddress(address)
+        .build();
   }
 }

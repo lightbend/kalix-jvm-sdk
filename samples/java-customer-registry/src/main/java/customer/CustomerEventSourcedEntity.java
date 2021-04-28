@@ -31,41 +31,15 @@ public class CustomerEventSourcedEntity {
 
   @CommandHandler
   public CustomerApi.Customer getCustomer() {
-    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
-    if (state.hasAddress()) {
-      address =
-          CustomerApi.Address.newBuilder()
-              .setStreet(state.getAddress().getStreet())
-              .setCity(state.getAddress().getCity())
-              .build();
-    }
-    return CustomerApi.Customer.newBuilder()
-        .setCustomerId(state.getCustomerId())
-        .setEmail(state.getEmail())
-        .setName(state.getName())
-        .setAddress(address)
-        .build();
+    return convertToApi(state);
   }
 
   @CommandHandler
   public Empty create(CustomerApi.Customer customer, CommandContext context) {
-    CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
-    if (customer.hasAddress()) {
-      address =
-          CustomerDomain.Address.newBuilder()
-              .setStreet(customer.getAddress().getStreet())
-              .setCity(customer.getAddress().getCity())
-              .build();
-    }
-    context.emit(
-        CustomerDomain.CustomerCreated.newBuilder()
-            .setCustomer(
-                CustomerDomain.CustomerState.newBuilder()
-                    .setCustomerId(customer.getCustomerId())
-                    .setEmail(customer.getEmail())
-                    .setName(customer.getName())
-                    .setAddress(address))
-            .build());
+    CustomerDomain.CustomerState domainCustomer = convertToDomain(customer);
+    CustomerDomain.CustomerCreated event =
+        CustomerDomain.CustomerCreated.newBuilder().setCustomer(domainCustomer).build();
+    context.emit(event);
     return Empty.getDefaultInstance();
   }
 
@@ -73,8 +47,9 @@ public class CustomerEventSourcedEntity {
   public Empty changeName(CustomerApi.ChangeNameRequest request, CommandContext context) {
     if (state.equals(CustomerDomain.CustomerState.getDefaultInstance()))
       throw context.fail("Customer must be created before name can be changed.");
-    context.emit(
-        CustomerDomain.CustomerNameChanged.newBuilder().setNewName(request.getNewName()).build());
+    CustomerDomain.CustomerNameChanged event =
+        CustomerDomain.CustomerNameChanged.newBuilder().setNewName(request.getNewName()).build();
+    context.emit(event);
     return Empty.getDefaultInstance();
   }
 
@@ -86,5 +61,39 @@ public class CustomerEventSourcedEntity {
   @EventHandler
   public void customerNameChanged(CustomerDomain.CustomerNameChanged event) {
     state = state.toBuilder().setName(event.getNewName()).build();
+  }
+
+  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {
+    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
+    if (s.hasAddress()) {
+      address =
+          CustomerApi.Address.newBuilder()
+              .setStreet(s.getAddress().getStreet())
+              .setCity(s.getAddress().getCity())
+              .build();
+    }
+    return CustomerApi.Customer.newBuilder()
+        .setCustomerId(s.getCustomerId())
+        .setEmail(s.getEmail())
+        .setName(s.getName())
+        .setAddress(address)
+        .build();
+  }
+
+  private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
+    CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
+    if (customer.hasAddress()) {
+      address =
+          CustomerDomain.Address.newBuilder()
+              .setStreet(customer.getAddress().getStreet())
+              .setCity(customer.getAddress().getCity())
+              .build();
+    }
+    return CustomerDomain.CustomerState.newBuilder()
+        .setCustomerId(customer.getCustomerId())
+        .setEmail(customer.getEmail())
+        .setName(customer.getName())
+        .setAddress(address)
+        .build();
   }
 }
