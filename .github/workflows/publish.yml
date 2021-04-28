@@ -65,14 +65,3 @@ jobs:
           CLOUDSMITH_USER: ${{ secrets.CLOUDSMITH_USER }}
           CLOUDSMITH_PASS: ${{ secrets.CLOUDSMITH_PASS }}
         run: mvn -B -DskipTests=true deploy
-      - name: Publish Maven settings xml
-        uses: cloudsmith-io/action@master
-        with:
-          api-key: ${{ secrets.CLOUDSMITH_PASS }}
-          command: "push"
-          format: "raw"
-          owner: "lightbend"
-          repo: "akkaserverless"
-          file: "maven-archetype-akkasls/maven-archetype-akkasls-settings.xml"
-          name: "maven-archetype-akkasls-settings.xml"
-          version: ${{ steps.version-tag.outputs.PUBLISH_VERSION }}
