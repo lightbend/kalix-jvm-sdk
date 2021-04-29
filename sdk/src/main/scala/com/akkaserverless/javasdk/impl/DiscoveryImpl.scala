@@ -120,11 +120,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       }
     }.toList
     val message = s"Error reported from Akka Serverless system: ${in.code} ${in.message}"
-    val messages = if (in.detail.nonEmpty) {
-      message :: in.detail :: sourceMsgs
-    } else {
-      message :: sourceMsgs
-    }
+    val detail = if (in.detail.isEmpty) Nil else List(in.detail)
+    val seeDocs = DocLinks.forErrorCode(in.code).map(link => s"See documentation: $link").toList
+    val messages = message :: detail ::: seeDocs ::: sourceMsgs
 
     log.error(messages.mkString("\n\n"))
 
