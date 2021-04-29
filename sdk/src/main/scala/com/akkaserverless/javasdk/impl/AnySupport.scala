@@ -204,9 +204,9 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       else if (options.hasJavaOuterClassname) options.getJavaOuterClassname + "$"
       else if (fileDescriptor.getName.nonEmpty) {
         val name = strippedFileName(fileDescriptor.getName)
-        if (name.contains('_') || !name(0).isUpper) {
-          // transform snake case into camel case
-          CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name) + "$"
+        if (name.contains('_') || name.contains('-') || !name(0).isUpper) {
+          // transform snake and kebab case into camel case
+          CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name.replace('-', '_')) + "$"
         } else {
           // keep name as is to keep already camel cased file name
           strippedFileName(fileDescriptor.getName) + "$"

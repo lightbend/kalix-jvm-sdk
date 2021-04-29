@@ -7,9 +7,7 @@ package com.akkaserverless.javasdk.impl.action
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.javadsl.Source
-import akka.stream.scaladsl.{JavaFlowSupport, Sink}
-import akkaserverless.javasdk.Actionspec
-import akkaserverless.javasdk.Actionspec.{In, Out}
+import akka.stream.scaladsl.Sink
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.reply.{FailureReply, MessageReply}
@@ -21,9 +19,12 @@ import org.scalatest.matchers.should.Matchers._
 import org.scalatest.matchers.should.Matchers
 import java.util.Optional
 import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
+
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+
+import com.akkaserverless.javasdk.actionspec.ActionspecApi
 
 class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -36,7 +37,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
     sys.terminate()
   }
 
-  private val anySupport = new AnySupport(Array(Actionspec.getDescriptor), this.getClass.getClassLoader)
+  private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
 
   private object creationContext extends ActionCreationContext {
     override def serviceCallFactory(): ServiceCallFactory = ???
@@ -59,7 +60,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       .forInstance(
         actionInstance,
         anySupport,
-        Actionspec.getDescriptor.findServiceByName("ActionSpecService")
+        ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
       )
       .create(creationContext)
 
@@ -68,7 +69,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       .forClass(
         actionClass,
         anySupport,
-        Actionspec.getDescriptor.findServiceByName("ActionSpecService")
+        ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
       )
       .create(creationContext)
 
@@ -107,32 +108,34 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         assertIsJsonReply(reply, "in")
       }
 
-      def inToOut(in: In): Out =
-        Out.newBuilder().setField("out: " + in.getField).build()
+      def inToOut(in: ActionspecApi.In): ActionspecApi.Out =
+        ActionspecApi.Out.newBuilder().setField("out: " + in.getField).build()
 
       "synchronous" in test(new {
         @Handler
-        def unary(in: In): Out = inToOut(in)
+        def unary(in: ActionspecApi.In): ActionspecApi.Out = inToOut(in)
       })
 
       "synchronous JSON reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): JsonOut = new JsonOut(in.getField)
+        def unaryJson(in: ActionspecApi.In): JsonOut = new JsonOut(in.getField)
       })
 
       "asynchronous" in test(new {
         @Handler
-        def unary(in: In): CompletionStage[Out] = CompletableFuture.completedFuture(inToOut(in))
+        def unary(in: ActionspecApi.In): CompletionStage[ActionspecApi.Out] =
+          CompletableFuture.completedFuture(inToOut(in))
       })
 
       "asynchronous JSON reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): CompletionStage[JsonOut] = CompletableFuture.completedFuture(new JsonOut(in.getField))
+        def unaryJson(in: ActionspecApi.In): CompletionStage[JsonOut] =
+          CompletableFuture.completedFuture(new JsonOut(in.getField))
       })
 
       "in wrapped in envelope" in test(new {
         @Handler
-        def unary(in: MessageEnvelope[In]): Out = {
+        def unary(in: MessageEnvelope[ActionspecApi.In]): ActionspecApi.Out = {
           in.metadata().get("scope") should ===(Optional.of("message"))
           inToOut(in.payload())
         }
@@ -140,29 +143,29 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "synchronous out wrapped in envelope" in test(new {
         @Handler
-        def unary(in: In): MessageEnvelope[Out] = MessageEnvelope.of(inToOut(in))
+        def unary(in: ActionspecApi.In): MessageEnvelope[ActionspecApi.Out] = MessageEnvelope.of(inToOut(in))
       })
 
       "asynchronous out wrapped in envelope" in test(new {
         @Handler
-        def unary(in: In): CompletionStage[MessageEnvelope[Out]] =
+        def unary(in: ActionspecApi.In): CompletionStage[MessageEnvelope[ActionspecApi.Out]] =
           CompletableFuture.completedFuture(MessageEnvelope.of(inToOut(in)))
       })
 
       "synchronous out wrapped in reply" in test(new {
         @Handler
-        def unary(in: In): Reply[Out] = Reply.message(inToOut(in))
+        def unary(in: ActionspecApi.In): Reply[ActionspecApi.Out] = Reply.message(inToOut(in))
       })
 
       "synchronous JSON out wrapped in reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): Reply[JsonOut] = Reply.message(new JsonOut(in.getField))
+        def unaryJson(in: ActionspecApi.In): Reply[JsonOut] = Reply.message(new JsonOut(in.getField))
       })
 
       "synchronous failure wrapped in reply" in {
         val handler = new {
           @Handler
-          def unary(in: In): Reply[Out] = Reply.failure("this should blow up")
+          def unary(in: ActionspecApi.In): Reply[ActionspecApi.Out] = Reply.failure("this should blow up")
         }
         val reply = create(handler)
           .handleUnary("Unary", createInEnvelope("in"), ctx)
@@ -173,19 +176,19 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "asynchronous out wrapped in reply" in test(new {
         @Handler
-        def unary(in: In): CompletionStage[Reply[Out]] =
+        def unary(in: ActionspecApi.In): CompletionStage[Reply[ActionspecApi.Out]] =
           CompletableFuture.completedFuture(Reply.message(inToOut(in)))
       })
 
       "asynchronous JSON out wrapped in reply" in testJson(new {
         @Handler
-        def unaryJson(in: In): CompletionStage[Reply[JsonOut]] =
+        def unaryJson(in: ActionspecApi.In): CompletionStage[Reply[JsonOut]] =
           CompletableFuture.completedFuture(Reply.message(new JsonOut(in.getField)))
       })
 
       "with metadata parameter" in test(new {
         @Handler
-        def unary(in: In, metadata: Metadata): Out = {
+        def unary(in: ActionspecApi.In, metadata: Metadata): ActionspecApi.Out = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in)
         }
@@ -193,7 +196,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "with context parameter" in test(new {
         @Handler
-        def unary(in: In, context: ActionContext): Out = inToOut(in)
+        def unary(in: ActionspecApi.In, context: ActionContext): ActionspecApi.Out = inToOut(in)
       })
 
     }
@@ -229,14 +232,14 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         }
       }
 
-      def inToOut(in: In): akka.stream.scaladsl.Source[Out, NotUsed] =
+      def inToOut(in: ActionspecApi.In): akka.stream.scaladsl.Source[ActionspecApi.Out, NotUsed] =
         akka.stream.scaladsl
           .Source(1 to 3)
           .map { idx =>
-            Out.newBuilder().setField(s"out $idx: " + in.getField).build()
+            ActionspecApi.Out.newBuilder().setField(s"out $idx: " + in.getField).build()
           }
 
-      def inToJsonOut(in: In): akka.stream.scaladsl.Source[JsonOut, NotUsed] =
+      def inToJsonOut(in: ActionspecApi.In): akka.stream.scaladsl.Source[JsonOut, NotUsed] =
         akka.stream.scaladsl
           .Source(1 to 3)
           .map { idx =>
@@ -245,40 +248,41 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "source" in test(new {
         @Handler
-        def streamedOut(in: In): Source[Out, NotUsed] = inToOut(in).asJava
+        def streamedOut(in: ActionspecApi.In): Source[ActionspecApi.Out, NotUsed] = inToOut(in).asJava
       })
 
       "JSON source" in testJson(new {
         @Handler
-        def streamedJsonOut(in: In): Source[JsonOut, NotUsed] = inToJsonOut(in).asJava
+        def streamedJsonOut(in: ActionspecApi.In): Source[JsonOut, NotUsed] = inToJsonOut(in).asJava
       })
 
       "reactive streams publisher" in test(new {
         @Handler
-        def streamedOut(in: In): org.reactivestreams.Publisher[Out] =
+        def streamedOut(in: ActionspecApi.In): org.reactivestreams.Publisher[ActionspecApi.Out] =
           inToOut(in).runWith(Sink.asPublisher(false))
       })
 
       "message envelope" in test(new {
         @Handler
-        def streamedOut(in: MessageEnvelope[In]): Source[Out, NotUsed] = inToOut(in.payload()).asJava
+        def streamedOut(in: MessageEnvelope[ActionspecApi.In]): Source[ActionspecApi.Out, NotUsed] =
+          inToOut(in.payload()).asJava
       })
 
       "source wrapped in envelope" in test(new {
         @Handler
-        def streamedOut(in: In): Source[MessageEnvelope[Out], NotUsed] =
+        def streamedOut(in: ActionspecApi.In): Source[MessageEnvelope[ActionspecApi.Out], NotUsed] =
           inToOut(in).map(MessageEnvelope.of(_)).asJava
       })
 
       "source wrapped in reply" in test(new {
         @Handler
-        def streamedOut(in: In): Source[Reply[Out], NotUsed] =
-          inToOut(in).map[Reply[Out]](Reply.message(_)).asJava
+        def streamedOut(in: ActionspecApi.In): Source[Reply[ActionspecApi.Out], NotUsed] =
+          inToOut(in).map[Reply[ActionspecApi.Out]](Reply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
         @Handler
-        def streamedOut(in: In, metadata: Metadata): Source[Out, NotUsed] = {
+        def streamedOut(in: ActionspecApi.In, metadata: Metadata): Source[ActionspecApi.Out, NotUsed] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in).asJava
         }
@@ -286,7 +290,8 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "with context parameter" in test(new {
         @Handler
-        def streamedOut(in: In, metadata: Metadata): Source[Out, NotUsed] = inToOut(in).asJava
+        def streamedOut(in: ActionspecApi.In, metadata: Metadata): Source[ActionspecApi.Out, NotUsed] =
+          inToOut(in).asJava
       })
 
     }
@@ -308,43 +313,45 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         assertIsOutReplyWithField(reply, "out: in 1, in 2, in 3")
       }
 
-      def inToOut(in: akka.stream.scaladsl.Source[In, NotUsed]): Future[Out] =
+      def inToOut(in: akka.stream.scaladsl.Source[ActionspecApi.In, NotUsed]): Future[ActionspecApi.Out] =
         in.runWith(Sink.seq).map { ins =>
-          Out.newBuilder().setField("out: " + ins.map(_.getField).mkString(", ")).build()
+          ActionspecApi.Out.newBuilder().setField("out: " + ins.map(_.getField).mkString(", ")).build()
         }
 
       "source" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed]): CompletionStage[Out] = inToOut(in.asScala).toJava
+        def streamedIn(in: Source[ActionspecApi.In, NotUsed]): CompletionStage[ActionspecApi.Out] =
+          inToOut(in.asScala).toJava
       })
 
       "reactive streams publisher" in test(new {
         @Handler
-        def streamedIn(in: org.reactivestreams.Publisher[In]): CompletionStage[Out] =
+        def streamedIn(in: org.reactivestreams.Publisher[ActionspecApi.In]): CompletionStage[ActionspecApi.Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).toJava
       })
 
       "source wrapped in envelope" in test(new {
         @Handler
-        def streamedIn(in: Source[MessageEnvelope[In], NotUsed]): CompletionStage[Out] =
+        def streamedIn(in: Source[MessageEnvelope[ActionspecApi.In], NotUsed]): CompletionStage[ActionspecApi.Out] =
           inToOut(in.asScala.map(_.payload)).toJava
       })
 
       "returns envelope" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed]): CompletionStage[MessageEnvelope[Out]] =
+        def streamedIn(in: Source[ActionspecApi.In, NotUsed]): CompletionStage[MessageEnvelope[ActionspecApi.Out]] =
           inToOut(in.asScala).map(MessageEnvelope.of(_)).toJava
       })
 
       "returns reply" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed]): CompletionStage[Reply[Out]] =
-          inToOut(in.asScala).map[Reply[Out]](Reply.message(_)).toJava
+        def streamedIn(in: Source[ActionspecApi.In, NotUsed]): CompletionStage[Reply[ActionspecApi.Out]] =
+          inToOut(in.asScala).map[Reply[ActionspecApi.Out]](Reply.message(_)).toJava
       })
 
       "with metadata parameter" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed], metadata: Metadata): CompletionStage[Out] = {
+        def streamedIn(in: Source[ActionspecApi.In, NotUsed],
+                       metadata: Metadata): CompletionStage[ActionspecApi.Out] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in.asScala).toJava
         }
@@ -352,7 +359,8 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "with context parameter" in test(new {
         @Handler
-        def streamedIn(in: Source[In, NotUsed], context: ActionContext): CompletionStage[Out] =
+        def streamedIn(in: Source[ActionspecApi.In, NotUsed],
+                       context: ActionContext): CompletionStage[ActionspecApi.Out] =
           inToOut(in.asScala).toJava
       })
 
@@ -382,67 +390,76 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         }
       }
 
-      def inToOut(stream: akka.stream.scaladsl.Source[In, NotUsed]): akka.stream.scaladsl.Source[Out, NotUsed] =
+      def inToOut(
+          stream: akka.stream.scaladsl.Source[ActionspecApi.In, NotUsed]
+      ): akka.stream.scaladsl.Source[ActionspecApi.Out, NotUsed] =
         stream.map { in =>
-          Out.newBuilder().setField("out: " + in.getField).build()
+          ActionspecApi.Out.newBuilder().setField("out: " + in.getField).build()
         }
 
       "source in source out" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed]): Source[Out, NotUsed] = inToOut(in.asScala).asJava
+        def streamed(in: Source[ActionspecApi.In, NotUsed]): Source[ActionspecApi.Out, NotUsed] =
+          inToOut(in.asScala).asJava
       })
 
       "reactive streams publisher in source out" in test(new {
         @Handler
-        def streamed(in: org.reactivestreams.Publisher[In]): Source[Out, NotUsed] =
+        def streamed(in: org.reactivestreams.Publisher[ActionspecApi.In]): Source[ActionspecApi.Out, NotUsed] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).asJava
       })
 
       "source in reactive streams publisher out" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed]): org.reactivestreams.Publisher[Out] =
+        def streamed(in: Source[ActionspecApi.In, NotUsed]): org.reactivestreams.Publisher[ActionspecApi.Out] =
           inToOut(in.asScala).runWith(Sink.asPublisher(false))
       })
 
       "reactive streams publisher in reactive streams publisher out" in test(new {
         @Handler
-        def streamed(in: org.reactivestreams.Publisher[In]): org.reactivestreams.Publisher[Out] =
+        def streamed(
+            in: org.reactivestreams.Publisher[ActionspecApi.In]
+        ): org.reactivestreams.Publisher[ActionspecApi.Out] =
           inToOut(akka.stream.scaladsl.Source.fromPublisher(in)).runWith(Sink.asPublisher(false))
       })
 
       "in wrapped in envelope" in test(new {
         @Handler
-        def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[Out, NotUsed] =
+        def streamed(in: Source[MessageEnvelope[ActionspecApi.In], NotUsed]): Source[ActionspecApi.Out, NotUsed] =
           inToOut(in.asScala.map(_.payload)).asJava
       })
 
       "out wrapped in envelope" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed]): Source[MessageEnvelope[Out], NotUsed] =
+        def streamed(in: Source[ActionspecApi.In, NotUsed]): Source[MessageEnvelope[ActionspecApi.Out], NotUsed] =
           inToOut(in.asScala).map(MessageEnvelope.of(_)).asJava
       })
 
       "in and out wrapped in envelope" in test(new {
         @Handler
-        def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[MessageEnvelope[Out], NotUsed] =
+        def streamed(
+            in: Source[MessageEnvelope[ActionspecApi.In], NotUsed]
+        ): Source[MessageEnvelope[ActionspecApi.Out], NotUsed] =
           inToOut(in.asScala.map(_.payload())).map(MessageEnvelope.of(_)).asJava
       })
 
       "out wrapped in reply" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed]): Source[Reply[Out], NotUsed] =
-          inToOut(in.asScala).map[Reply[Out]](Reply.message(_)).asJava
+        def streamed(in: Source[ActionspecApi.In, NotUsed]): Source[Reply[ActionspecApi.Out], NotUsed] =
+          inToOut(in.asScala).map[Reply[ActionspecApi.Out]](Reply.message(_)).asJava
       })
 
       "in wrapped in envelope out wrapped in reply" in test(new {
         @Handler
-        def streamed(in: Source[MessageEnvelope[In], NotUsed]): Source[Reply[Out], NotUsed] =
-          inToOut(in.asScala.map(_.payload())).map[Reply[Out]](Reply.message(_)).asJava
+        def streamed(
+            in: Source[MessageEnvelope[ActionspecApi.In], NotUsed]
+        ): Source[Reply[ActionspecApi.Out], NotUsed] =
+          inToOut(in.asScala.map(_.payload())).map[Reply[ActionspecApi.Out]](Reply.message(_)).asJava
       })
 
       "with metadata parameter" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed], metadata: Metadata): Source[Out, NotUsed] = {
+        def streamed(in: Source[ActionspecApi.In, NotUsed], metadata: Metadata): Source[ActionspecApi.Out, NotUsed] = {
           metadata.get("scope") should ===(Optional.of("call"))
           inToOut(in.asScala).asJava
         }
@@ -450,7 +467,8 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
       "with context parameter" in test(new {
         @Handler
-        def streamed(in: Source[In, NotUsed], context: ActionContext): Source[Out, NotUsed] =
+        def streamed(in: Source[ActionspecApi.In, NotUsed],
+                     context: ActionContext): Source[ActionspecApi.Out, NotUsed] =
           inToOut(in.asScala).asJava
       })
 
@@ -460,14 +478,14 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
   private def createInEnvelope(field: String) =
     MessageEnvelope.of(
-      protobuf.Any.pack(In.newBuilder().setField(field).build()),
+      protobuf.Any.pack(ActionspecApi.In.newBuilder().setField(field).build()),
       Metadata.EMPTY.add("scope", "message")
     )
 
   private def assertIsOutReplyWithField(reply: Reply[protobuf.Any], field: String) =
     reply match {
       case message: MessageReply[protobuf.Any] =>
-        val out = message.payload().unpack(classOf[Out])
+        val out = message.payload().unpack(classOf[ActionspecApi.Out])
         out.getField should ===(field)
       case other =>
         fail(s"$reply is not a MessageReply")

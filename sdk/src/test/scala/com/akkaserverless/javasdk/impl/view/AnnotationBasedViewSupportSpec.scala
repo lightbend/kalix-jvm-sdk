@@ -6,7 +6,7 @@ package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
 
-import akka.grpc.scaladsl.MetadataBuilder
+import com.akkaserverless.javasdk.shoppingcart.ShoppingCartViewModel
 import com.akkaserverless.javasdk.{Reply, _}
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.MetadataImpl
@@ -19,7 +19,6 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import shopping.cart.view.ShoppingCartViewModel
 
 class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {

@@ -2,9 +2,10 @@
 
 syntax = "proto3";
 
-import "google/protobuf/any.proto";
+package actionspec;
+option java_package = "com.akkaserverless.javasdk.actionspec";
 
-package akkaserverless.javasdk;
+import "google/protobuf/any.proto";
 
 message In {
     string field = 1;

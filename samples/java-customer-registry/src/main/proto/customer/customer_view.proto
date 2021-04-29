@@ -6,7 +6,7 @@ package customer.view;
 
 option java_outer_classname = "CustomerViewModel";
 
-import "customer/customer-domain.proto";
+import "customer/customer_domain.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "akkaserverless/annotations.proto";

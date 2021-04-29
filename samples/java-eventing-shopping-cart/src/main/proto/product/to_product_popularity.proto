@@ -7,7 +7,7 @@ syntax = "proto3";
 package shopping.product.actions;
 
 import "akkaserverless/annotations.proto";
-import "cart/shopping-cart-domain.proto";
+import "cart/shopping_cart_domain.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/any.proto";
 

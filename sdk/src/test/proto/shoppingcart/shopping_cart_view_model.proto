@@ -2,16 +2,16 @@
 
 syntax = "proto3";
 
-package shopping.cart.view;
-
+package shoppingcart;
+option java_package = "com.akkaserverless.javasdk.shoppingcart";
 option java_outer_classname = "ShoppingCartViewModel";
 
 import "akkaserverless/annotations.proto";
-import "cart/shopping-cart-domain.proto";
+import "shoppingcart/shopping_cart_domain.proto";
 import "google/api/annotations.proto";
 
 service ShoppingCartViewService {
-  rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (CartViewState) {
+  rpc ProcessAdded(ItemAdded) returns (CartViewState) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"
@@ -22,7 +22,7 @@ service ShoppingCartViewService {
       transform_updates: true
     };
   }
-  rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (CartViewState) {
+  rpc ProcessRemoved(ItemRemoved) returns (CartViewState) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"
@@ -33,7 +33,7 @@ service ShoppingCartViewService {
       transform_updates: true
     };
   }
-  rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (CartViewState) {
+  rpc ProcessCheckedOut(CheckedOut) returns (CartViewState) {
     option (akkaserverless.method).eventing = {
       in: {
         event_sourced_entity: "eventsourced-shopping-cart"
@@ -55,7 +55,7 @@ service ShoppingCartViewService {
 }
 
 message CartViewState {
-  string cart_id = 1;
+  string user_id = 1;
   int32 number_of_items = 2;
   int64 checked_out_timestamp = 3;
 }

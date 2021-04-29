@@ -5,7 +5,7 @@ syntax = "proto3";
 package shopping.cart.actions;
 
 import "akkaserverless/annotations.proto";
-import "cart/shopping-cart-domain.proto";
+import "cart/shopping_cart_domain.proto";
 
 // Currently this boiler-plate is needed as we need to have an action to publish
 // the actual event https://github.com/lightbend/akkaserverless-framework/issues/74

@@ -8,8 +8,6 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
-import akkaserverless.javasdk.Actionspec
-import akkaserverless.javasdk.Actionspec.{In, Out}
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.action.{
   ActionContext,
@@ -27,10 +25,13 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.util.concurrent.{CompletableFuture, CompletionStage}
+
 import org.scalatest.{BeforeAndAfterAll, Inside, OptionValues}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
+import com.akkaserverless.javasdk.actionspec.ActionspecApi
 
 class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 
@@ -39,7 +40,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   import system.dispatcher
 
   private val serviceDescriptor =
-    akkaserverless.javasdk.Actionspec.getDescriptor.findServiceByName("ActionSpecService")
+    ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
 
   override protected def afterAll(): Unit = {
@@ -51,7 +52,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
     val service = new ActionService(
       _ => handler,
       serviceDescriptor,
-      new AnySupport(Array(Actionspec.getDescriptor), this.getClass.getClassLoader)
+      new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
     )
 
     val services = Map(serviceName -> service)
@@ -173,19 +174,19 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   }
 
   private def createOutAny(field: String) =
-    protobuf.Any.pack(Out.newBuilder().setField(field).build())
+    protobuf.Any.pack(ActionspecApi.Out.newBuilder().setField(field).build())
 
   private def createOutReply(field: String): javasdk.Reply[protobuf.Any] =
     javasdk.Reply.message(createOutAny(field))
 
   private def extractInField(message: MessageEnvelope[protobuf.Any]) =
-    message.payload().unpack(classOf[In]).getField
+    message.payload().unpack(classOf[ActionspecApi.In]).getField
 
   private def createInPayload(field: String) =
-    Some(ScalaPbAny.fromJavaProto(protobuf.Any.pack(In.newBuilder().setField(field).build())))
+    Some(ScalaPbAny.fromJavaProto(protobuf.Any.pack(ActionspecApi.In.newBuilder().setField(field).build())))
 
   private def extractOutField(payload: Option[ScalaPbAny]) =
-    ScalaPbAny.toJavaProto(payload.value).unpack(classOf[Out]).getField
+    ScalaPbAny.toJavaProto(payload.value).unpack(classOf[ActionspecApi.Out]).getField
 
   private trait AbstractHandler extends ActionHandler {
     override def handleUnary(commandName: String,

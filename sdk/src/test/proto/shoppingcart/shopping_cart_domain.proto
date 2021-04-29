@@ -5,7 +5,8 @@
 
 syntax = "proto3";
 
-package shopping.cart.model;
+package shoppingcart;
+option java_package = "com.akkaserverless.javasdk.shoppingcart";
 
 import "akkaserverless/annotations.proto";
 
