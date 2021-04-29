@@ -44,34 +44,26 @@ message GetReport {
 service PingPongService {
 
   rpc Ping(PongSent) returns (PingSent) {
-    option (akkaserverless.method).eventing = {
-      out {
-        topic: "pings"
-      }
+    option (akkaserverless.method).eventing.out = {
+      topic: "pings"
     };
   }
 
   rpc Pong(PingSent) returns (PongSent) {
-    option (akkaserverless.method).eventing = {
-      out {
-        topic: "pongs"
-      }
+    option (akkaserverless.method).eventing.out = {
+      topic: "pongs"
     };
   }
 
   rpc SeenPong(PongSent) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
-      in {
-        topic: "pongs"
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "pongs"
     };
   }
 
   rpc SeenPing(PingSent) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
-      in {
-        topic: "pings"
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "pings"
     };
   }
 

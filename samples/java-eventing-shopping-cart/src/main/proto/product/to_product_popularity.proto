@@ -27,10 +27,8 @@ service ToProductPopularityService {
   // tag::actions[]
   rpc ForwardAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
     // end::actions[]
-    option (akkaserverless.method).eventing = { // <2>
-      in: {
-        event_sourced_entity: "eventsourced-shopping-cart" // <3>
-      }
+    option (akkaserverless.method).eventing.in = { // <2>
+      event_sourced_entity: "eventsourced-shopping-cart" // <3>
     };
     // tag::actions[]
   }
@@ -40,10 +38,8 @@ service ToProductPopularityService {
 
   rpc ForwardRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
     // end::actions[]
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "eventsourced-shopping-cart"
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "eventsourced-shopping-cart"
     };
   // tag::actions[]
   }
@@ -52,10 +48,8 @@ service ToProductPopularityService {
   // tag::catchOthers[]
   // handle other events which are not managed above
   rpc CatchOthers(google.protobuf.Any) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity:  "eventsourced-shopping-cart"
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity:  "eventsourced-shopping-cart"
     };
   }
   // end::catchOthers[]

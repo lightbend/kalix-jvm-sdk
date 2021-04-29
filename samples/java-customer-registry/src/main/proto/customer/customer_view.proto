@@ -14,10 +14,8 @@ import "akkaserverless/annotations.proto";
 // tag::service[]
 service CustomerByName {
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <1>
-    option (akkaserverless.method).eventing = { // <2>
-      in: {
-        value_entity: "customers"
-      }
+    option (akkaserverless.method).eventing.in = { // <2>
+      value_entity: "customers"
     };
     option (akkaserverless.method).view.update = { // <3>
       table: "customers"
@@ -38,10 +36,8 @@ message ByNameRequest {
 
 service CustomerByEmail {
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        value_entity: "customers"
-      }
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -75,10 +71,8 @@ service CustomerSummaryByName {
   }
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        value_entity: "customers"
-      }
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -100,10 +94,8 @@ service CustomersResponseByName {
   }
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        value_entity: "customers"
-      }
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -115,10 +107,8 @@ service CustomersResponseByName {
 // tag::service-event-sourced[]
 service CustomerByNameView {
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) { // <1>
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "customers" // <2>
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers" // <2>
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -127,10 +117,8 @@ service CustomerByNameView {
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) { // <4>
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "customers" // <5>
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers" // <5>
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -149,10 +137,8 @@ service CustomerByNameView {
 // tag::service-topic[]
 service CustomerByNameViewFromTopic {
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        topic: "customers" // <1>
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers" // <1>
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
@@ -161,10 +147,8 @@ service CustomerByNameViewFromTopic {
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        topic: "customers"
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers"
     };
     option (akkaserverless.method).view.update = {
       table: "customers"

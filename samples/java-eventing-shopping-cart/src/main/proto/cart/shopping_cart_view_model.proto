@@ -12,10 +12,8 @@ import "google/api/annotations.proto";
 
 service ShoppingCartViewService {
   rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (CartViewState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "eventsourced-shopping-cart"
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "eventsourced-shopping-cart"
     };
     option (akkaserverless.method).view.update = {
       table: "carts"
@@ -23,10 +21,8 @@ service ShoppingCartViewService {
     };
   }
   rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (CartViewState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "eventsourced-shopping-cart"
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "eventsourced-shopping-cart"
     };
     option (akkaserverless.method).view.update = {
       table: "carts"
@@ -34,10 +30,8 @@ service ShoppingCartViewService {
     };
   }
   rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (CartViewState) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        event_sourced_entity: "eventsourced-shopping-cart"
-      }
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "eventsourced-shopping-cart"
     };
     option (akkaserverless.method).view.update = {
       table: "carts"

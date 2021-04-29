@@ -16,26 +16,20 @@ import "google/protobuf/empty.proto";
 service ShoppingCartAnalyticsService {
   // get ItemAdded from the topic
   rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = { // <1>
-      in: {
-        topic: "shopping-cart-events" // <2>
-      }
+    option (akkaserverless.method).eventing.in = { // <1>
+      topic: "shopping-cart-events" // <2>
     };
   }
   // end::subscribing[]
   // get ItemRemoved from the event-log
   rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        topic: "shopping-cart-events"
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "shopping-cart-events"
     };
   }
   rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing = {
-      in: {
-        topic: "shopping-cart-events"
-      }
+    option (akkaserverless.method).eventing.in = {
+      topic: "shopping-cart-events"
     };
   }
   // tag::subscribing[]

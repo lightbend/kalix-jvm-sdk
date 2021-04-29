@@ -23,18 +23,14 @@ message TopicOperation {
 service ShoppingCartTopicService {
 
     rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) {
-        option (akkaserverless.method).eventing = {
-            in: {
-                topic:  "shopping-cart-protobuf-cloudevents"
-            }
+        option (akkaserverless.method).eventing.in = {
+            topic:  "shopping-cart-protobuf-cloudevents"
         };
     }
 
     rpc JsonFromTopic(google.protobuf.Any) returns (google.protobuf.Empty) {
-        option (akkaserverless.method).eventing = {
-            in: {
-                topic:  "shopping-cart-json"
-            }
+        option (akkaserverless.method).eventing.in = {
+            topic:  "shopping-cart-json"
         };
     }
 }
