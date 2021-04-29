@@ -9,6 +9,8 @@ package shopping;
 import com.akkaserverless.javasdk.AkkaServerless;
 // end::RegisterEventSourcedEntity[]
 // end::ToProductPopularityAction[]
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shopping.cart.ShoppingCartEntity;
 import shopping.cart.ShoppingCartAnalyticsAction;
 import shopping.cart.ShoppingCartTopicAction;
@@ -29,7 +31,10 @@ import shopping.product.domain.ProductPopularityDomain;
 // tag::RegisterEventSourcedEntity[]
 
 public final class Main {
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
   public static final void main(String[] args) throws Exception {
+    LOG.info("started");
     new AkkaServerless()
         // end::ToProductPopularityAction[]
         // event sourced shopping cart entity

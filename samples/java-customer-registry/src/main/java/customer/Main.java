@@ -8,9 +8,14 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import customer.view.CustomerViewModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Main {
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
   public static void main(String[] args) throws Exception {
+    LOG.info("started");
     if (args.length == 0) {
       // This is for value entity
       // tag::register[]

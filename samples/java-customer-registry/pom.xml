@@ -33,6 +33,9 @@
       <resource>
         <directory>${project.build.directory}/generated-resources</directory>
       </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
     </resources>
     <plugins>
       <plugin>
