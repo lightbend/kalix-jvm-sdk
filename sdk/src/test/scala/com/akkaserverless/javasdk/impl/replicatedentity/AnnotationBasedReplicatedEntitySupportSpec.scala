@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
-import com.example.shoppingcart.ShoppingCart
+import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
@@ -29,7 +29,7 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
     override protected def newEntity[C <: InternalReplicatedData](entity: C): C = entity
   }
 
-  val anySupport = new AnySupport(Array(ShoppingCart.getDescriptor), this.getClass.getClassLoader)
+  val anySupport = new AnySupport(Array(ShoppingCartApi.getDescriptor), this.getClass.getClassLoader)
 
   object MockCreationContext extends MockCreationContext(None)
   class MockCreationContext(replicatedData: Option[ReplicatedData] = None)
@@ -64,7 +64,7 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
   }
 
   case class Wrapped(value: String)
-  val serviceDescriptor = ShoppingCart.getDescriptor.findServiceByName("ShoppingCartService")
+  val serviceDescriptor = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService")
   val descriptor = serviceDescriptor.findMethodByName("AddItem")
   val method = ResolvedServiceMethod(descriptor, StringResolvedType, WrappedResolvedType)
 

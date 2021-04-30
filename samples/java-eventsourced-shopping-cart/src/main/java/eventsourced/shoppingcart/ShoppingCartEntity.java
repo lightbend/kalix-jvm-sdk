@@ -2,12 +2,12 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventsourced.shoppingcart;
+package eventsourced.shoppingcart;
 
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.example.shoppingcart.ShoppingCart;
-import com.example.shoppingcart.persistence.Domain;
+import com.example.shoppingcart.ShoppingCartApi;
+import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
 import java.util.LinkedHashMap;
@@ -18,30 +18,30 @@ import java.util.stream.Collectors;
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartEntity {
   private final String entityId;
-  private final Map<String, ShoppingCart.LineItem> cart = new LinkedHashMap<>();
+  private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
 
   public ShoppingCartEntity(@EntityId String entityId) {
     this.entityId = entityId;
   }
 
   @Snapshot
-  public Domain.Cart snapshot() {
-    return Domain.Cart.newBuilder()
+  public ShoppingCartDomain.Cart snapshot() {
+    return ShoppingCartDomain.Cart.newBuilder()
         .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
         .build();
   }
 
   @SnapshotHandler
-  public void handleSnapshot(Domain.Cart cart) {
+  public void handleSnapshot(ShoppingCartDomain.Cart cart) {
     this.cart.clear();
-    for (Domain.LineItem item : cart.getItemsList()) {
+    for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
       this.cart.put(item.getProductId(), convert(item));
     }
   }
 
   @EventHandler
-  public void itemAdded(Domain.ItemAdded itemAdded) {
-    ShoppingCart.LineItem item = cart.get(itemAdded.getItem().getProductId());
+  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
+    ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
     if (item == null) {
       item = convert(itemAdded.getItem());
     } else {
@@ -54,24 +54,24 @@ public class ShoppingCartEntity {
   }
 
   @EventHandler
-  public void itemRemoved(Domain.ItemRemoved itemRemoved) {
+  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
     cart.remove(itemRemoved.getProductId());
   }
 
   @CommandHandler
-  public ShoppingCart.Cart getCart() {
-    return ShoppingCart.Cart.newBuilder().addAllItems(cart.values()).build();
+  public ShoppingCartApi.Cart getCart() {
+    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
   }
 
   @CommandHandler
-  public Empty addItem(ShoppingCart.AddLineItem item, CommandContext ctx) {
+  public Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
       throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
     ctx.emit(
-        Domain.ItemAdded.newBuilder()
+        ShoppingCartDomain.ItemAdded.newBuilder()
             .setItem(
-                Domain.LineItem.newBuilder()
+                ShoppingCartDomain.LineItem.newBuilder()
                     .setProductId(item.getProductId())
                     .setName(item.getName())
                     .setQuantity(item.getQuantity())
@@ -81,25 +81,25 @@ public class ShoppingCartEntity {
   }
 
   @CommandHandler
-  public Empty removeItem(ShoppingCart.RemoveLineItem item, CommandContext ctx) {
+  public Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
     if (!cart.containsKey(item.getProductId())) {
       throw ctx.fail(
           "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     }
-    ctx.emit(Domain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
+    ctx.emit(ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
     return Empty.getDefaultInstance();
   }
 
-  private ShoppingCart.LineItem convert(Domain.LineItem item) {
-    return ShoppingCart.LineItem.newBuilder()
+  private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
+    return ShoppingCartApi.LineItem.newBuilder()
         .setProductId(item.getProductId())
         .setName(item.getName())
         .setQuantity(item.getQuantity())
         .build();
   }
 
-  private Domain.LineItem convert(ShoppingCart.LineItem item) {
-    return Domain.LineItem.newBuilder()
+  private ShoppingCartDomain.LineItem convert(ShoppingCartApi.LineItem item) {
+    return ShoppingCartDomain.LineItem.newBuilder()
         .setProductId(item.getProductId())
         .setName(item.getName())
         .setQuantity(item.getQuantity())

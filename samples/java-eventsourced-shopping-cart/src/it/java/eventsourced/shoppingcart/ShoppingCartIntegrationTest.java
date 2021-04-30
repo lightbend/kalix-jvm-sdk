@@ -2,12 +2,12 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.eventsourced.shoppingcart;
+package eventsourced.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.testkit.junit.jupiter.AkkaServerlessDescriptor;
 import com.akkaserverless.javasdk.testkit.junit.jupiter.AkkaServerlessTest;
-import com.example.shoppingcart.ShoppingCart;
+import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.ShoppingCartServiceClient;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 @AkkaServerlessTest
 class ShoppingCartIntegrationTest {
 
-  @AkkaServerlessDescriptor private static final AkkaServerless SHOPPING_CART = Main.shoppingCart;
+  @AkkaServerlessDescriptor private static final AkkaServerless SERVICE = Main.SERVICE;
 
   private final ShoppingCartServiceClient client;
 
@@ -27,18 +27,18 @@ class ShoppingCartIntegrationTest {
     this.client = client;
   }
 
-  ShoppingCart.Cart getCart(String userId) throws Exception {
+  ShoppingCartApi.Cart getCart(String cartId) throws Exception {
     return client
-        .getCart(ShoppingCart.GetShoppingCart.newBuilder().setUserId(userId).build())
+        .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
         .toCompletableFuture()
         .get();
   }
 
-  void addItem(String userId, String productId, String name, int quantity) throws Exception {
+  void addItem(String cartId, String productId, String name, int quantity) throws Exception {
     client
         .addItem(
-            ShoppingCart.AddLineItem.newBuilder()
-                .setUserId(userId)
+            ShoppingCartApi.AddLineItem.newBuilder()
+                .setCartId(cartId)
                 .setProductId(productId)
                 .setName(name)
                 .setQuantity(quantity)
@@ -47,19 +47,19 @@ class ShoppingCartIntegrationTest {
         .get();
   }
 
-  void removeItem(String userId, String productId) throws Exception {
+  void removeItem(String cartId, String productId) throws Exception {
     client
         .removeItem(
-            ShoppingCart.RemoveLineItem.newBuilder()
-                .setUserId(userId)
+            ShoppingCartApi.RemoveLineItem.newBuilder()
+                .setCartId(cartId)
                 .setProductId(productId)
                 .build())
         .toCompletableFuture()
         .get();
   }
 
-  ShoppingCart.LineItem item(String productId, String name, int quantity) {
-    return ShoppingCart.LineItem.newBuilder()
+  ShoppingCartApi.LineItem item(String productId, String name, int quantity) {
+    return ShoppingCartApi.LineItem.newBuilder()
         .setProductId(productId)
         .setName(name)
         .setQuantity(quantity)
@@ -73,10 +73,10 @@ class ShoppingCartIntegrationTest {
 
   @Test
   void addItemsToCart() throws Exception {
-    addItem("user2", "a", "Apple", 1);
-    addItem("user2", "b", "Banana", 2);
-    addItem("user2", "c", "Cantaloupe", 3);
-    ShoppingCart.Cart cart = getCart("user2");
+    addItem("cart2", "a", "Apple", 1);
+    addItem("cart2", "b", "Banana", 2);
+    addItem("cart2", "c", "Cantaloupe", 3);
+    ShoppingCartApi.Cart cart = getCart("cart2");
     assertEquals(3, cart.getItemsCount(), "shopping cart should have 3 items");
     assertIterableEquals(
         cart.getItemsList(),
@@ -86,16 +86,16 @@ class ShoppingCartIntegrationTest {
 
   @Test
   void removeItemsFromCart() throws Exception {
-    addItem("user3", "a", "Apple", 1);
-    addItem("user3", "b", "Banana", 2);
-    ShoppingCart.Cart cart1 = getCart("user3");
+    addItem("cart3", "a", "Apple", 1);
+    addItem("cart3", "b", "Banana", 2);
+    ShoppingCartApi.Cart cart1 = getCart("cart3");
     assertEquals(2, cart1.getItemsCount(), "shopping cart should have 2 items");
     assertIterableEquals(
         cart1.getItemsList(),
         List.of(item("a", "Apple", 1), item("b", "Banana", 2)),
         "shopping cart should have expected items");
-    removeItem("user3", "a");
-    ShoppingCart.Cart cart2 = getCart("user3");
+    removeItem("cart3", "a");
+    ShoppingCartApi.Cart cart2 = getCart("cart3");
     assertEquals(1, cart2.getItemsCount(), "shopping cart should have 1 item");
     assertIterableEquals(
         cart2.getItemsList(),

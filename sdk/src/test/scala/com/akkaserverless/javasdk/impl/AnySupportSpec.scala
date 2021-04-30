@@ -7,7 +7,7 @@ package com.akkaserverless.javasdk.impl
 import com.akkaserverless.javasdk.Jsonable
 import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
-import com.example.shoppingcart.ShoppingCart
+import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf.{ByteString, Empty}
 import org.scalatest.OptionValues
 import org.scalatest.wordspec.AnyWordSpec
@@ -18,11 +18,11 @@ import scala.beans.BeanProperty
 class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
   private val anySupport = new AnySupport(
-    Array(ShoppingCart.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
+    Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
     "com.example"
   )
-  private val addLineItem = ShoppingCart.AddLineItem
+  private val addLineItem = ShoppingCartApi.AddLineItem
     .newBuilder()
     .setName("item")
     .setProductId("id")
@@ -33,7 +33,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
     "support se/deserializing java protobufs" in {
       val any = anySupport.encodeScala(addLineItem)
-      any.typeUrl should ===("com.example/" + ShoppingCart.AddLineItem.getDescriptor.getFullName)
+      any.typeUrl should ===("com.example/" + ShoppingCartApi.AddLineItem.getDescriptor.getFullName)
       anySupport.decode(any) should ===(addLineItem)
     }
 
@@ -49,13 +49,13 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
     "support resolving a service descriptor" in {
       val methods =
-        anySupport.resolveServiceDescriptor(ShoppingCart.getDescriptor.findServiceByName("ShoppingCartService"))
+        anySupport.resolveServiceDescriptor(ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService"))
       methods should have size 3
       val method = methods("AddItem")
 
       // Input type
-      method.inputType.typeUrl should ===("com.example/" + ShoppingCart.AddLineItem.getDescriptor.getFullName)
-      method.inputType.typeClass should ===(classOf[ShoppingCart.AddLineItem])
+      method.inputType.typeUrl should ===("com.example/" + ShoppingCartApi.AddLineItem.getDescriptor.getFullName)
+      method.inputType.typeClass should ===(classOf[ShoppingCartApi.AddLineItem])
       val iBytes = method.inputType.asInstanceOf[ResolvedType[Any]].toByteString(addLineItem)
       method.inputType.parseFrom(iBytes) should ===(addLineItem)
 

@@ -6,8 +6,7 @@ package com.akkaserverless.samples
 
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
-import akka.stream.ActorMaterializer
-import com.example.shoppingcart.shoppingcart._
+import com.example.shoppingcart.shoppingcart_api._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -44,21 +43,18 @@ object ShoppingCartClient {
 
 /**
  * Designed for use in the REPL, run sbt console and then new com.akkaserverless.samples.ShoppingCartClient("localhost", 9000)
- * @param hostname
- * @param port
  */
 class ShoppingCartClient(hostname: String, port: Int, hostnameOverride: Option[String], sys: ActorSystem) {
   def this(hostname: String, port: Int, hostnameOverride: Option[String] = None) =
     this(hostname, port, hostnameOverride, ActorSystem())
-  private implicit val system = sys
-  private implicit val materializer = ActorMaterializer()
+  private implicit val system: ActorSystem = sys
 
   val settings = {
     val s = GrpcClientSettings.connectToServiceAt(hostname, port).withTls(false)
     hostnameOverride.fold(s)(host => s.withChannelBuilderOverrides(_.overrideAuthority(host)))
   }
   println(s"Connecting to $hostname:$port")
-  val service = com.example.shoppingcart.shoppingcart.ShoppingCartServiceClient(settings)
+  val service = ShoppingCartServiceClient(settings)
 
   def shutdown(): Unit = {
     await(service.close())

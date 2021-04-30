@@ -215,17 +215,17 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
 
 object EventSourcedEntitiesImplSpec {
   object ShoppingCart {
-    import com.example.shoppingcart.{ShoppingCart => ShoppingCartProto}
-    import com.example.shoppingcart.persistence.{Domain => DomainProto}
+    import com.example.shoppingcart.ShoppingCartApi
+    import com.example.shoppingcart.domain.ShoppingCartDomain
 
-    val Name: String = ShoppingCartProto.getDescriptor.findServiceByName("ShoppingCartService").getFullName
+    val Name: String = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService").getFullName
 
     def testService: TestEventSourcedService = service[TestCart]
 
     def service[T: ClassTag]: TestEventSourcedService =
       TestEventSourced.service[T](
-        ShoppingCartProto.getDescriptor.findServiceByName("ShoppingCartService"),
-        DomainProto.getDescriptor
+        ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService"),
+        ShoppingCartDomain.getDescriptor
       )
 
     case class Item(id: String, name: String, quantity: Int)
@@ -233,34 +233,34 @@ object EventSourcedEntitiesImplSpec {
     object Protocol {
       import scala.jdk.CollectionConverters._
 
-      val EmptyCart: ShoppingCartProto.Cart = ShoppingCartProto.Cart.newBuilder.build
+      val EmptyCart: ShoppingCartApi.Cart = ShoppingCartApi.Cart.newBuilder.build
 
-      def cart(items: Item*): ShoppingCartProto.Cart =
-        ShoppingCartProto.Cart.newBuilder.addAllItems(lineItems(items)).build
+      def cart(items: Item*): ShoppingCartApi.Cart =
+        ShoppingCartApi.Cart.newBuilder.addAllItems(lineItems(items)).build
 
-      def lineItems(items: Seq[Item]): java.lang.Iterable[ShoppingCartProto.LineItem] =
+      def lineItems(items: Seq[Item]): java.lang.Iterable[ShoppingCartApi.LineItem] =
         items.sortBy(_.id).map(item => lineItem(item.id, item.name, item.quantity)).asJava
 
-      def lineItem(id: String, name: String, quantity: Int): ShoppingCartProto.LineItem =
-        ShoppingCartProto.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def lineItem(id: String, name: String, quantity: Int): ShoppingCartApi.LineItem =
+        ShoppingCartApi.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def addItem(id: String, name: String, quantity: Int): ShoppingCartProto.AddLineItem =
-        ShoppingCartProto.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def addItem(id: String, name: String, quantity: Int): ShoppingCartApi.AddLineItem =
+        ShoppingCartApi.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def removeItem(id: String): ShoppingCartProto.RemoveLineItem =
-        ShoppingCartProto.RemoveLineItem.newBuilder.setProductId(id).build
+      def removeItem(id: String): ShoppingCartApi.RemoveLineItem =
+        ShoppingCartApi.RemoveLineItem.newBuilder.setProductId(id).build
 
-      def itemAdded(id: String, name: String, quantity: Int): DomainProto.ItemAdded =
-        DomainProto.ItemAdded.newBuilder.setItem(domainLineItem(id, name, quantity)).build
+      def itemAdded(id: String, name: String, quantity: Int): ShoppingCartDomain.ItemAdded =
+        ShoppingCartDomain.ItemAdded.newBuilder.setItem(domainLineItem(id, name, quantity)).build
 
-      def domainLineItems(items: Seq[Item]): java.lang.Iterable[DomainProto.LineItem] =
+      def domainLineItems(items: Seq[Item]): java.lang.Iterable[ShoppingCartDomain.LineItem] =
         items.sortBy(_.id).map(item => domainLineItem(item.id, item.name, item.quantity)).asJava
 
-      def domainLineItem(id: String, name: String, quantity: Int): DomainProto.LineItem =
-        DomainProto.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+      def domainLineItem(id: String, name: String, quantity: Int): ShoppingCartDomain.LineItem =
+        ShoppingCartDomain.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
 
-      def cartSnapshot(items: Item*): DomainProto.Cart =
-        DomainProto.Cart.newBuilder.addAllItems(domainLineItems(items)).build
+      def cartSnapshot(items: Item*): ShoppingCartDomain.Cart =
+        ShoppingCartDomain.Cart.newBuilder.addAllItems(domainLineItems(items)).build
     }
 
     val TestCartClass: Class[_] = classOf[TestCart]
@@ -270,10 +270,10 @@ object EventSourcedEntitiesImplSpec {
       val cart = mutable.Map.empty[String, Item]
 
       @CommandHandler
-      def getCart: ShoppingCartProto.Cart = Protocol.cart(cart.values.toSeq: _*)
+      def getCart: ShoppingCartApi.Cart = Protocol.cart(cart.values.toSeq: _*)
 
       @CommandHandler
-      def addItem(item: ShoppingCartProto.AddLineItem, ctx: CommandContext): Empty = {
+      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext): Empty = {
         if (item.getQuantity == -42) {
           // emit and then fail on magic negative quantity, for testing atomicity
           ctx.emit(Protocol.itemAdded(item.getProductId, item.getName, item.getQuantity))
@@ -284,7 +284,7 @@ object EventSourcedEntitiesImplSpec {
       }
 
       @EventHandler
-      def itemAdded(itemAdded: DomainProto.ItemAdded): Unit = {
+      def itemAdded(itemAdded: ShoppingCartDomain.ItemAdded): Unit = {
         if (itemAdded.getItem.getName == "FAIL") throw new RuntimeException("Boom: name is FAIL") // fail for testing
         val currentQuantity = cart.get(itemAdded.getItem.getProductId).map(_.quantity).getOrElse(0)
         cart.update(itemAdded.getItem.getProductId,
@@ -294,16 +294,16 @@ object EventSourcedEntitiesImplSpec {
       }
 
       @CommandHandler
-      def removeItem(item: ShoppingCartProto.RemoveLineItem): Empty = {
+      def removeItem(item: ShoppingCartApi.RemoveLineItem): Empty = {
         if (true) throw new RuntimeException("Boom: " + item.getProductId) // always fail for testing
         Empty.getDefaultInstance
       }
 
       @Snapshot
-      def snapshot: DomainProto.Cart = Protocol.cartSnapshot(cart.values.toSeq: _*)
+      def snapshot: ShoppingCartDomain.Cart = Protocol.cartSnapshot(cart.values.toSeq: _*)
 
       @SnapshotHandler
-      def handleSnapshot(cartSnapshot: DomainProto.Cart): Unit = {
+      def handleSnapshot(cartSnapshot: ShoppingCartDomain.Cart): Unit = {
         import scala.jdk.CollectionConverters._
         if (cartSnapshot.getItemsList.isEmpty) throw new RuntimeException("Boom: no items") // fail for testing
         cart.clear()
