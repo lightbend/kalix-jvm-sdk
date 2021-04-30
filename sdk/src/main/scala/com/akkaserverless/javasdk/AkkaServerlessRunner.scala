@@ -27,6 +27,8 @@ import com.akkaserverless.javasdk.impl.view.ViewService
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.util.Failure
+import scala.util.Success
 
 import com.akkaserverless.javasdk.impl.view.ViewsImpl
 import com.akkaserverless.protocol.view.ViewsHandler
@@ -139,17 +141,28 @@ final class AkkaServerlessRunner private[this] (
    * @return a CompletionStage which will be completed when the server has shut down.
    */
   def run(): CompletionStage[Done] = {
-    val serverBindingFuture = Http
+    import scala.concurrent.duration._
+    import system.dispatcher
+    val bound = Http
       .get(system)
       .newServerAt(configuration.userFunctionInterface, configuration.userFunctionPort)
       .bind(createRoutes())
-    // FIXME Register an onTerminate callback to unbind the Http server
-    FutureConverters
-      .toJava(serverBindingFuture)
-      .thenCompose(
-        binding => system.getWhenTerminated.thenCompose(_ => FutureConverters.toJava(binding.unbind()))
-      )
-      .thenApply(_ => Done)
+      .map(_.addToCoordinatedShutdown(3.seconds))
+
+    bound.onComplete {
+      case Success(binding) =>
+        val address = binding.localAddress
+        system.log.debug("gRPC server started {}:{}", address.getHostString, address.getPort)
+      case Failure(ex) =>
+        system.log.error("Failed to bind gRPC server {}:{}, terminating system. {}",
+                         configuration.userFunctionInterface,
+                         configuration.userFunctionPort,
+                         ex)
+        system.terminate()
+    }
+
+    // Complete the returned CompletionStage with bind failure or Done when system is terminated
+    FutureConverters.toJava(bound).thenCompose(_ => system.getWhenTerminated).thenApply(_ => Done)
   }
 
   /**
