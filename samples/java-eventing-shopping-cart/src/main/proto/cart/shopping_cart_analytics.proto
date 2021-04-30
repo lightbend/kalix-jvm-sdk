@@ -21,7 +21,6 @@ service ShoppingCartAnalyticsService {
     };
   }
   // end::subscribing[]
-  // get ItemRemoved from the event-log
   rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
     option (akkaserverless.method).eventing.in = {
       topic: "shopping-cart-events"
