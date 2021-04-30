@@ -8,7 +8,6 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
-import akka.stream.{ActorMaterializer, Materializer}
 import com.akkaserverless.javasdk.impl.action.{ActionService, ActionsImpl}
 import com.akkaserverless.javasdk.impl.replicatedentity.{ReplicatedEntityImpl, ReplicatedEntityStatefulService}
 import com.akkaserverless.javasdk.impl.valueentity.{ValueEntitiesImpl, ValueEntityService}
