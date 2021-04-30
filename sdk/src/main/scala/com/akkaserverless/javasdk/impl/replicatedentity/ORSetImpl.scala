@@ -10,7 +10,7 @@ import com.akkaserverless.protocol.replicated_entity.{ORSetDelta, ReplicatedEnti
 import com.google.protobuf.any.{Any => ScalaPbAny}
 
 import java.util
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private[replicatedentity] class ORSetImpl[T](anySupport: AnySupport)
     extends util.AbstractSet[T]

@@ -11,7 +11,7 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 
 import java.util
 import java.util.Collections
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private[replicatedentity] final class GSetImpl[T](anySupport: AnySupport)
     extends util.AbstractSet[T]

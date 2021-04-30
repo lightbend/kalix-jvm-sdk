@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 import java.util
 import java.util.{function, Map}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private object ORMapImpl {
   private val log = LoggerFactory.getLogger(classOf[ORMapImpl[_, _]])

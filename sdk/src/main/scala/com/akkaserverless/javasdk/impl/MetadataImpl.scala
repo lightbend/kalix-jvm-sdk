@@ -14,7 +14,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util
 import java.util.{Objects, Optional}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable
 import scala.compat.java8.OptionConverters._
 

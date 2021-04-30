@@ -25,7 +25,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.concurrent.TrieMap
 import scala.reflect.ClassTag
 import scala.util.Try
