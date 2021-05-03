@@ -2,10 +2,10 @@
  * Copyright 2019 Lightbend Inc.
  */
 
-package com.akkaserverless.samples.shoppingcart;
+package valueentity.shoppingcart;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-import com.example.valueentity.shoppingcart.ShoppingCart;
+import com.example.valueentity.shoppingcart.ShoppingCartApi;
 import com.example.valueentity.shoppingcart.ShoppingCartServiceClient;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class ShoppingCartIntegrationTest {
 
   @ClassRule
   public static final AkkaServerlessTestkitResource testkit =
-      new AkkaServerlessTestkitResource(Main.shoppingCart);
+      new AkkaServerlessTestkitResource(Main.SERVICE);
 
   private final ShoppingCartServiceClient client;
 
@@ -27,18 +27,18 @@ public class ShoppingCartIntegrationTest {
         ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
   }
 
-  ShoppingCart.Cart getCart(String userId) throws Exception {
+  ShoppingCartApi.Cart getCart(String cartId) throws Exception {
     return client
-        .getCart(ShoppingCart.GetShoppingCart.newBuilder().setUserId(userId).build())
+        .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
         .toCompletableFuture()
         .get();
   }
 
-  void addItem(String userId, String productId, String name, int quantity) throws Exception {
+  void addItem(String cartId, String productId, String name, int quantity) throws Exception {
     client
         .addItem(
-            ShoppingCart.AddLineItem.newBuilder()
-                .setUserId(userId)
+            ShoppingCartApi.AddLineItem.newBuilder()
+                .setCartId(cartId)
                 .setProductId(productId)
                 .setName(name)
                 .setQuantity(quantity)
@@ -47,26 +47,26 @@ public class ShoppingCartIntegrationTest {
         .get();
   }
 
-  void removeItem(String userId, String productId) throws Exception {
+  void removeItem(String cartId, String productId) throws Exception {
     client
         .removeItem(
-            ShoppingCart.RemoveLineItem.newBuilder()
-                .setUserId(userId)
+            ShoppingCartApi.RemoveLineItem.newBuilder()
+                .setCartId(cartId)
                 .setProductId(productId)
                 .build())
         .toCompletableFuture()
         .get();
   }
 
-  void removeCart(String userId) throws Exception {
+  void removeCart(String cartId) throws Exception {
     client
-        .removeCart(ShoppingCart.RemoveShoppingCart.newBuilder().setUserId(userId).build())
+        .removeCart(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
         .toCompletableFuture()
         .get();
   }
 
-  ShoppingCart.LineItem item(String productId, String name, int quantity) {
-    return ShoppingCart.LineItem.newBuilder()
+  ShoppingCartApi.LineItem item(String productId, String name, int quantity) {
+    return ShoppingCartApi.LineItem.newBuilder()
         .setProductId(productId)
         .setName(name)
         .setQuantity(quantity)
@@ -80,10 +80,10 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void addItemsToCart() throws Exception {
-    addItem("user2", "a", "Apple", 1);
-    addItem("user2", "b", "Banana", 2);
-    addItem("user2", "c", "Cantaloupe", 3);
-    ShoppingCart.Cart cart = getCart("user2");
+    addItem("cart2", "a", "Apple", 1);
+    addItem("cart2", "b", "Banana", 2);
+    addItem("cart2", "c", "Cantaloupe", 3);
+    ShoppingCartApi.Cart cart = getCart("cart2");
     assertEquals("shopping cart should have 3 items", 3, cart.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
@@ -93,16 +93,16 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void removeItemsFromCart() throws Exception {
-    addItem("user3", "a", "Apple", 1);
-    addItem("user3", "b", "Banana", 2);
-    ShoppingCart.Cart cart1 = getCart("user3");
+    addItem("cart3", "a", "Apple", 1);
+    addItem("cart3", "b", "Banana", 2);
+    ShoppingCartApi.Cart cart1 = getCart("cart3");
     assertEquals("shopping cart should have 2 items", 2, cart1.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
         cart1.getItemsList(),
         List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
-    removeItem("user3", "a");
-    ShoppingCart.Cart cart2 = getCart("user3");
+    removeItem("cart3", "a");
+    ShoppingCartApi.Cart cart2 = getCart("cart3");
     assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
@@ -112,14 +112,14 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void removeCart() throws Exception {
-    addItem("user4", "a", "Apple", 42);
-    ShoppingCart.Cart cart1 = getCart("user4");
+    addItem("cart4", "a", "Apple", 42);
+    ShoppingCartApi.Cart cart1 = getCart("cart4");
     assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
         cart1.getItemsList(),
         List.of(item("a", "Apple", 42)));
-    removeCart("user4");
-    assertEquals("shopping cart should be empty", 0, getCart("user4").getItemsCount());
+    removeCart("cart4");
+    assertEquals("shopping cart should be empty", 0, getCart("cart4").getItemsCount());
   }
 }

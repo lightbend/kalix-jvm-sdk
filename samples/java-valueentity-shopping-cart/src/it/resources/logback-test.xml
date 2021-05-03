@@ -7,6 +7,7 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="com.github.dockerjava" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>
 
     <root level="DEBUG">

@@ -8,7 +8,7 @@ import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk.{Reply, EntityContext => _, _}
-import com.example.valueentity.shoppingcart.ShoppingCart
+import com.example.valueentity.shoppingcart.ShoppingCartApi
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
@@ -59,8 +59,8 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
   case class Wrapped(value: String)
 
-  val anySupport = new AnySupport(Array(ShoppingCart.getDescriptor), this.getClass.getClassLoader)
-  val serviceDescriptor = ShoppingCart.getDescriptor.findServiceByName("ShoppingCartService")
+  val anySupport = new AnySupport(Array(ShoppingCartApi.getDescriptor), this.getClass.getClassLoader)
+  val serviceDescriptor = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService")
 
   def method(name: String = "AddItem"): ResolvedServiceMethod[String, Wrapped] =
     ResolvedServiceMethod(serviceDescriptor.findMethodByName(name), StringResolvedType, WrappedResolvedType)

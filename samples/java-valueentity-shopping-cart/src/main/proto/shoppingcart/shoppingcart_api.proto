@@ -1,0 +1,71 @@
+// Copyright 2019 Lightbend Inc.
+
+// This is the public API offered by the shopping cart Value Entity.
+
+syntax = "proto3";
+
+package com.example.valueentity.shoppingcart;
+
+option java_outer_classname = "ShoppingCartApi";
+
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+message AddLineItem {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string product_id = 2;
+  string name = 3;
+  int32 quantity = 4;
+}
+
+message RemoveLineItem {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string product_id = 2;
+}
+
+message GetShoppingCart {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message RemoveShoppingCart {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message LineItem {
+  string product_id = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+message Cart {
+  repeated LineItem items = 1;
+}
+
+service ShoppingCartService {
+  option (akkaserverless.service).entity.type = ".domain.Cart";
+
+  rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/ve/cart/{cart_id}/items/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/ve/cart/{cart_id}/items/{product_id}/remove";
+  }
+
+  rpc GetCart(GetShoppingCart) returns (Cart) {
+    option (google.api.http) = {
+      get: "/ve/carts/{cart_id}"
+      additional_bindings: {
+        get: "/ve/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
+  }
+  rpc RemoveCart(RemoveShoppingCart) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/ve/carts/{cart_id}/remove";
+  }
+}

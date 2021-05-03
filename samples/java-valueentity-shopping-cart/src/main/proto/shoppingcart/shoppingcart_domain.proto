@@ -1,0 +1,29 @@
+// Copyright 2019 Lightbend Inc.
+
+// These are the messages that get persisted - the current state (Cart).
+
+syntax = "proto3";
+
+package com.example.valueentity.shoppingcart.domain;
+
+option java_outer_classname = "ShoppingCartDomain";
+
+import "akkaserverless/annotations.proto";
+
+// Describes how this domain relates to a value entity
+option (akkaserverless.file).value_entity = {
+  name : "ShoppingCart"
+  entity_type : "ShoppingCart"
+  state : { type: "Cart" }
+};
+
+message LineItem {
+  string productId = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+// The shopping cart state.
+message Cart {
+  repeated LineItem items = 1;
+}
