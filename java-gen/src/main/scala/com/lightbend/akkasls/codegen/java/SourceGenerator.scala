@@ -240,7 +240,7 @@ object SourceGenerator extends PrettyPrinter {
               ),
               emptyDoc
             ) {
-              "throw ctx.fail(\"The command handler for `" <> command.fqn.name <> "` is not implemented, yet\")" <> semi
+              "throw ctx.fail" <> parens(notImplementedError("command", command.fqn)) <> semi
             }
           },
           line <> line
@@ -262,7 +262,9 @@ object SourceGenerator extends PrettyPrinter {
                     ),
                     emptyDoc
                   ) {
-                    "throw new RuntimeException(\"The event handler for `" <> event.fqn.name <> "` is not implemented, yet\")" <> semi
+                    "throw new RuntimeException" <> parens(
+                      notImplementedError("event", event.fqn)
+                    ) <> semi
                   }
                 },
                 line <> line
@@ -420,6 +422,10 @@ object SourceGenerator extends PrettyPrinter {
         "private" <+> implClassName <+> "entity" <> semi <> line <>
         "private" <+> "CommandContext" <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
+        "private class MockedContextFailure extends RuntimeException" <+> braces(
+          emptyDoc
+        ) <> semi <> line <>
+        line <>
         ssep(
           service.commands.toSeq.map { command =>
             "@Test" <> line <>
@@ -434,12 +440,25 @@ object SourceGenerator extends PrettyPrinter {
                 "entityId"
               ) <> semi <> line <>
               line <>
-              "// TODO: you may want to set fields in addition to the entity id" <> line <>
-              "//" <> indent(
-                "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
-                  qualifiedType(
-                    command.inputType
-                  ) <> dot <> "newBuilder().setEntityId(entityId).build(), context"
+              "Mockito.when" <> parens(
+                "context.fail" <> parens(notImplementedError("command", command.fqn))
+              ) <> line <>
+              indent(
+                dot <>
+                "thenReturn" <> parens("new MockedContextFailure" <> parens(emptyDoc))
+              ) <> semi <> line <>
+              line <>
+              "// TODO: set fields in command, and update assertions to match implementation" <> line <>
+              "assertThrows" <> parens(
+                "MockedContextFailure.class" <> comma <+>
+                parens(emptyDoc) <+> "->" <+> braces(
+                  nest(
+                    line <> "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
+                      qualifiedType(
+                        command.inputType
+                      ) <> dot <> "newBuilder().build(), context"
+                    ) <> semi
+                  ) <> line
                 )
               ) <> semi <>
               (entity match {
@@ -584,5 +603,9 @@ object SourceGenerator extends PrettyPrinter {
       case Some(c) => c.toLower.toString + text.drop(1)
       case None    => ""
     }
+
+  private def notImplementedError(handlerType: String, fqn: FullyQualifiedName) = dquotes(
+    "The" <+> handlerType <+> "handler for `" <> fqn.name <> "` is not implemented, yet"
+  )
 
 }
