@@ -45,22 +45,22 @@ Also ensure that the profile is active within the `settings.xml`:
   </activeProfiles>
 ```
 
-Then, to use on Linux and macOS, noting the `CHANGEME=TO-VERSION-TO-USE`:
+Then, to use on Linux and macOS:
 
 ```
 mvn \
   archetype:generate \
   -DarchetypeGroupId=com.lightbend \
   -DarchetypeArtifactId=maven-archetype-akkasls \
-  -DarchetypeVersion=<CHANGEME=TO-VERSION-TO-USE>
+  -DarchetypeVersion=LATEST
 ```
 
-To use on Windows 10 or later, also noting the `CHANGEME=TO-VERSION-TO-USE`:
+To use on Windows 10 or later:
 
 ```
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=com.lightbend ^
   -DarchetypeArtifactId=maven-archetype-akkasls ^
-  -DarchetypeVersion=<CHANGEME=TO-VERSION-TO-USE>
+  -DarchetypeVersion=LATEST
 ```
