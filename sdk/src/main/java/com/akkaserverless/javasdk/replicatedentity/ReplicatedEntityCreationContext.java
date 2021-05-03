@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Lightbend Inc.
+ * Copyright 2021 Lightbend Inc.
  */
 
 package com.akkaserverless.javasdk.replicatedentity;
