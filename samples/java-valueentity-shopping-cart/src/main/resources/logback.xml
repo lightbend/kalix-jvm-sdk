@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -7,8 +8,9 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="io.grpc" level="INFO"/>
 
     <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
