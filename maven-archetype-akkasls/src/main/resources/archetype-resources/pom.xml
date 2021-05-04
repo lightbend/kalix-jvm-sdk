@@ -192,8 +192,8 @@
         <enabled>false</enabled>
       </snapshots>
       <id>lightbend-akkaserverless</id>
-      <name>cloudsmith</name>
-      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
+      <name>repo-lightbend-com-akkaserverless</name>
+      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
     </repository>
   </repositories>
 
@@ -203,8 +203,8 @@
         <enabled>false</enabled>
       </snapshots>
       <id>lightbend-akkaserverless</id>
-      <name>cloudsmith</name>
-      <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
+      <name>repo-lightbend-com-akkaserverless</name>
+      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
     </pluginRepository>
   </pluginRepositories>
 
