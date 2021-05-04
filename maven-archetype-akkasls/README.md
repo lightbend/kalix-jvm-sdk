@@ -5,8 +5,8 @@
 This archetype can be used to generate a project suitable for the general development of
 [event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html) and Value-based entities using [Akka Serverless](https://www.lightbend.com/akka-serverless).
 
-The archetype is located at our Cloudsmith repo. Please ensure that
-your Maven's `settings.xml` file points at Cloudsmith. Here are the repository
+The archetype is located at Lightbend's Maven repository. Please ensure that
+your Maven's `settings.xml` file points at `repo.lightbend.com`. Here are the repository
 declarations you will require for your `settings.xml`:
 
 > `settings.xml` is a file to be found in your home directory and then within a sub-directory named `.m2`
@@ -22,7 +22,8 @@ declarations you will require for your `settings.xml`:
       <repositories>
         <repository>
           <id>lightbend-akkaserverless</id>
-          <url>https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven/</url>
+          <name>repo-lightbend-com-akkaserverless</name>
+          <url>https://repo.lightbend.com/public/lightbend/akkaserverless/maven/</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>always</updatePolicy>
@@ -43,6 +44,36 @@ Also ensure that the profile is active within the `settings.xml`:
   <activeProfiles>
     <activeProfile>lightbend</activeProfile>
   </activeProfiles>
+```
+
+A complete settings.xml should look like:
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <profiles>
+        <profile>
+            <id>lightbend</id>
+            <repositories>
+                <repository>
+                    <id>lightbend-akkaserverless</id>
+                    <name>repo-lightbend-com-akkaserverless</name>
+                    <url>https://repo.lightbend.com/public/lightbend/akkaserverless/maven/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>lightbend</activeProfile>
+    </activeProfiles>
+</settings>
 ```
 
 Then, to use on Linux and macOS:
