@@ -18,4 +18,5 @@ message MyState {
 
 message ValueSet {
     string entity_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
 }
