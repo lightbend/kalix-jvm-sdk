@@ -42,64 +42,74 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       configuredIntOrElse("akkaserverless.library.protocol-minor-version", BuildInfo.protocolMinorVersion)
   )
 
+  // detect hybrid proxy version probes when protocol version 0.0
+  private def isVersionProbe(info: ProxyInfo): Boolean = {
+    info.protocolMajorVersion == 0 && info.protocolMinorVersion == 0
+  }
+
   /**
    * Discover what components the user function wishes to serve.
    */
   override def discover(in: ProxyInfo): scala.concurrent.Future[Spec] = {
-    log.info(
-      "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
-      in.proxyName,
-      in.proxyVersion,
-      in.protocolMajorVersion,
-      in.protocolMinorVersion
-    )
-    log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
-
-    val unsupportedServices = services.values.filterNot { service =>
-      in.supportedEntityTypes.contains(service.componentType)
-    }
-
-    if (unsupportedServices.nonEmpty) {
-      log.error(
-        "Proxy doesn't support the entity types for the following services: {}",
-        unsupportedServices
-          .map(s => s.descriptor.getFullName + ": " + s.componentType)
-          .mkString(", ")
+    if (isVersionProbe(in)) {
+      // only (silently) send service info for hybrid proxy version probe
+      Future.successful(Spec(serviceInfo = Some(serviceInfo)))
+    } else {
+      log.info(
+        "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
+        in.proxyName,
+        in.proxyVersion,
+        in.protocolMajorVersion,
+        in.protocolMinorVersion
       )
-      // Don't fail though. The proxy may give us more information as to why it doesn't support them if we send back unsupported services.
-      // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
-    }
+      log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
-    val descriptorsWithSource = loadDescriptorsWithSource(
-      system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path")
-    )
-    val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
-    val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
-    allDescriptors.values.foreach { fd =>
-      val proto = fd.toProto
-      // We still use the descriptor as passed in by the user, but if we have one that we've read from the
-      // descriptors file that has the source info, we add that source info to the one passed in, and use that.
-      val protoWithSource = descriptorsWithSource.get(proto.getName).fold(proto) { withSource =>
-        proto.toBuilder.setSourceCodeInfo(withSource.getSourceCodeInfo).build()
+      val unsupportedServices = services.values.filterNot { service =>
+        in.supportedEntityTypes.contains(service.componentType)
       }
-      builder.addFile(protoWithSource)
-    }
-    val fileDescriptorSet = builder.build().toByteString
 
-    val components = services.map {
-      case (name, service) =>
-        service.componentType match {
-          case Actions.name =>
-            Component(service.componentType, name, Component.ComponentSettings.Empty)
-          case _ =>
-            val passivationStrategy = entityPassivationStrategy(service.entityOptions)
-            Component(service.componentType,
-                      name,
-                      Component.ComponentSettings.Entity(EntitySettings(service.entityType, passivationStrategy)))
+      if (unsupportedServices.nonEmpty) {
+        log.error(
+          "Proxy doesn't support the entity types for the following services: {}",
+          unsupportedServices
+            .map(s => s.descriptor.getFullName + ": " + s.componentType)
+            .mkString(", ")
+        )
+        // Don't fail though. The proxy may give us more information as to why it doesn't support them if we send back unsupported services.
+        // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
+      }
+
+      val descriptorsWithSource = loadDescriptorsWithSource(
+        system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path")
+      )
+      val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
+      val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
+      allDescriptors.values.foreach { fd =>
+        val proto = fd.toProto
+        // We still use the descriptor as passed in by the user, but if we have one that we've read from the
+        // descriptors file that has the source info, we add that source info to the one passed in, and use that.
+        val protoWithSource = descriptorsWithSource.get(proto.getName).fold(proto) { withSource =>
+          proto.toBuilder.setSourceCodeInfo(withSource.getSourceCodeInfo).build()
         }
-    }.toSeq
+        builder.addFile(protoWithSource)
+      }
+      val fileDescriptorSet = builder.build().toByteString
 
-    Future.successful(Spec(fileDescriptorSet, components, Some(serviceInfo)))
+      val components = services.map {
+        case (name, service) =>
+          service.componentType match {
+            case Actions.name =>
+              Component(service.componentType, name, Component.ComponentSettings.Empty)
+            case _ =>
+              val passivationStrategy = entityPassivationStrategy(service.entityOptions)
+              Component(service.componentType,
+                        name,
+                        Component.ComponentSettings.Entity(EntitySettings(service.entityType, passivationStrategy)))
+          }
+      }.toSeq
+
+      Future.successful(Spec(fileDescriptorSet, components, Some(serviceInfo)))
+    }
   }
 
   /**
