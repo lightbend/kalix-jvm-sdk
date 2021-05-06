@@ -160,7 +160,8 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
           } catch {
             case FailInvoked => Reply.noReply() // Ignore, error already captured
             case e: EntityException => throw e
-            case NonFatal(error) => throw EntityException(command, "Unexpected failure: " + error.getMessage)
+            case NonFatal(error) =>
+              throw EntityException(command, s"Unexpected failure: ${error}", Some(error))
           } finally {
             context.deactivate() // Very important!
           }

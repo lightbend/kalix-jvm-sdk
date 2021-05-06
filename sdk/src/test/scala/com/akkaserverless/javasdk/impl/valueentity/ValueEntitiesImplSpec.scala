@@ -125,7 +125,12 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(failure(1, "Value entity unexpected failure: Boom: foo"))
+        entity.expect(
+          failure(
+            1,
+            "Value entity unexpected failure: java.lang.RuntimeException: Boom: foo"
+          )
+        )
         entity.expectClosed()
       }
     }

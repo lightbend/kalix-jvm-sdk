@@ -267,7 +267,9 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
           def processAdded(): State = throw new RuntimeException("foo")
         }, method())
         val ex = the[RuntimeException] thrownBy handler.handle(command("nothing"), new MockHandlerContext)
-        ex.getMessage should ===("foo")
+        ex.getStackTrace()(0)
+          .toString should include regex """.*AnnotationBasedViewSupportSpec.*processAdded.*AnnotationBasedViewSupportSpec\.scala:\d+"""
+        ex.toString should ===("java.lang.RuntimeException: foo")
       }
 
       "fail if there's a action handler" in {

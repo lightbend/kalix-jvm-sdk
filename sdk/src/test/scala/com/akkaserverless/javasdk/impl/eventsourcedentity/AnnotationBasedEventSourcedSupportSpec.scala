@@ -323,7 +323,9 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           def addItem(): Wrapped = throw new RuntimeException("foo")
         }, method)
         val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), new MockCommandContext)
-        ex.getMessage should ===("foo")
+        ex.getStackTrace()(0)
+          .toString should include regex """.*AnnotationBasedEventSourcedSupportSpec.*addItem.*AnnotationBasedEventSourcedSupportSpec\.scala:\d+"""
+        ex.toString should ===("java.lang.RuntimeException: foo")
       }
 
       "receive Failure Reply" in {

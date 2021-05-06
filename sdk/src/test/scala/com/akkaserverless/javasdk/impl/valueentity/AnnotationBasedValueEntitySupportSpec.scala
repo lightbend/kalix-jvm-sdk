@@ -239,7 +239,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           def addItem(): Wrapped = throw new RuntimeException("foo")
         }, method())
         val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), new MockCommandContext)
-        ex.getMessage should ===("foo")
+        ex.getStackTrace()(0)
+          .toString should include regex """.*AnnotationBasedValueEntitySupportSpec.*addItem.*AnnotationBasedValueEntitySupportSpec\.scala:\d+"""
+        ex.toString should ===("java.lang.RuntimeException: foo")
       }
 
       "fail if there's a ReplicatedEntity command handler" in {

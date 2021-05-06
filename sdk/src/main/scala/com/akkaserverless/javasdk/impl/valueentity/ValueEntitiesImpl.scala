@@ -126,8 +126,13 @@ final class ValueEntitiesImpl(_system: ActorSystem,
           } catch {
             case FailInvoked => Reply.noReply() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
-            case NonFatal(error) =>
-              throw EntityException(command, s"Value entity unexpected failure: ${error.getMessage}")
+            case NonFatal(error) => {
+              throw EntityException(
+                command,
+                s"Value entity unexpected failure: ${error}",
+                Some(error)
+              )
+            }
           } finally {
             context.deactivate() // Very important!
           }

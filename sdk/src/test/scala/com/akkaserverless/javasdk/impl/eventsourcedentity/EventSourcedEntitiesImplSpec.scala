@@ -206,7 +206,12 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(failure(1, "Unexpected failure: Boom: foo"))
+        entity.expect(
+          failure(
+            1,
+            "Unexpected failure: java.lang.RuntimeException: Boom: foo"
+          )
+        )
         entity.expectClosed()
       }
     }

@@ -10,7 +10,16 @@ import com.akkaserverless.javasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.reply.MessageReply
 import com.google.protobuf.{Any => JavaPbAny}
 import java.lang.annotation.Annotation
-import java.lang.reflect.{AccessibleObject, Executable, Member, Method, ParameterizedType, Type, WildcardType}
+import java.lang.reflect.{
+  AccessibleObject,
+  Executable,
+  InvocationTargetException,
+  Member,
+  Method,
+  ParameterizedType,
+  Type,
+  WildcardType
+}
 import java.util.Optional
 import scala.reflect.ClassTag
 
@@ -288,8 +297,16 @@ private[impl] object ReflectionHelper {
     def invoke(obj: AnyRef, command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = {
       val decodedCommand = mainArgumentDecoder(command)
       val ctx = InvocationContext(decodedCommand, context)
-      val result = method.invoke(obj, parameters.map(_.apply(ctx)): _*)
-      handleResult(result)
+      try {
+        val result = method.invoke(obj, parameters.map(_.apply(ctx)): _*)
+        handleResult(result)
+      } catch {
+        case e: InvocationTargetException =>
+          e.getCause match {
+            case FailInvoked => throw e
+            case x => throw e.getCause()
+          }
+      }
     }
   }
 
