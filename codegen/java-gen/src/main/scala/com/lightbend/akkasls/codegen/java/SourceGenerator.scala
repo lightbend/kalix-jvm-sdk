@@ -47,8 +47,8 @@ object SourceGenerator extends PrettyPrinter {
 
     model.services.values.flatMap { case service: ModelBuilder.Service =>
       model.entities.get(service.entityFullName).toSeq.flatMap { case entity: ModelBuilder.Entity =>
-        val packageName = service.fqn.parent.javaPackage
-        val className   = service.fqn.name
+        val packageName = entity.fqn.parent.javaPackage
+        val className   = entity.fqn.name
         val packagePath = packageAsPath(packageName)
 
         val implClassName = className + "Impl"

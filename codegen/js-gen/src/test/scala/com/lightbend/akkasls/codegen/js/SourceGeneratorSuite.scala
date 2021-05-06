@@ -91,16 +91,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
             FileUtils.forceMkdir(protoSourceFile1.getParentFile)
             FileUtils.touch(protoSourceFile1)
 
-            val source1     = sourceDirectory.resolve("myservice1.js")
+            val source1     = sourceDirectory.resolve("myentity1.js")
             val sourceFile1 = source1.toFile
             FileUtils.forceMkdir(sourceFile1.getParentFile)
             FileUtils.touch(sourceFile1)
-            val typedefSource1     = generatedSourceDirectory.resolve("myservice1.d.ts")
+            val typedefSource1     = generatedSourceDirectory.resolve("myentity1.d.ts")
             val typedefSourceFile1 = typedefSource1.toFile
             FileUtils.forceMkdir(typedefSourceFile1.getParentFile)
             FileUtils.touch(typedefSourceFile1)
 
-            val testSource2     = testSourceDirectory.resolve("myservice2.test.js")
+            val testSource2     = testSourceDirectory.resolve("myvalueentity2.test.js")
             val testSourceFile2 = testSource2.toFile
             FileUtils.forceMkdir(testSourceFile2.getParentFile)
             FileUtils.touch(testSourceFile2)
@@ -135,12 +135,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
             assertEquals(
               sources,
               List(
-                generatedSourceDirectory.resolve("myservice1.d.ts"),
-                sourceDirectory.resolve("myservice2.js"),
-                generatedSourceDirectory.resolve("myservice2.d.ts"),
-                sourceDirectory.resolve("myservice3.js"),
-                generatedSourceDirectory.resolve("myservice3.d.ts"),
-                testSourceDirectory.resolve("myservice3.test.js"),
+                generatedSourceDirectory.resolve("myentity1.d.ts"),
+                sourceDirectory.resolve("myvalueentity2.js"),
+                generatedSourceDirectory.resolve("myvalueentity2.d.ts"),
+                sourceDirectory.resolve("myentity3.js"),
+                generatedSourceDirectory.resolve("myentity3.d.ts"),
+                testSourceDirectory.resolve("myentity3.test.js"),
                 sourceDirectory.resolve("index.js")
               )
             )
