@@ -59,10 +59,10 @@ object SourceGenerator extends PrettyPrinter {
       .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
     model.services.values.flatMap { case service: ModelBuilder.Service =>
       model.entities.get(service.entityFullName).toSeq.flatMap { case entity: ModelBuilder.Entity =>
-        val entityFilename = service.fqn.name.toLowerCase + ".js"
+        val entityFilename = entity.fqn.name.toLowerCase + ".js"
         val sourcePath     = sourceDirectory.resolve(entityFilename)
 
-        val typedefFilename   = service.fqn.name.toLowerCase + ".d.ts"
+        val typedefFilename   = entity.fqn.name.toLowerCase + ".d.ts"
         val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
         val _                 = typedefSourcePath.getParent.toFile.mkdirs()
         val _ = Files.write(

@@ -85,21 +85,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
       try {
 
-        val source1     = sourceDirectory.resolve("com/example/service/MyService1Impl.java")
+        val source1     = sourceDirectory.resolve("com/example/service/persistence/MyEntity1Impl.java")
         val sourceFile1 = source1.toFile
         FileUtils.forceMkdir(sourceFile1.getParentFile)
         FileUtils.touch(sourceFile1)
 
-        val testSource2     = testSourceDirectory.resolve("com/example/service/MyService2Test.java")
+        val testSource2 =
+          testSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Test.java")
         val testSourceFile2 = testSource2.toFile
         FileUtils.forceMkdir(testSourceFile2.getParentFile)
         FileUtils.touch(testSourceFile2)
 
         val implSource1 =
-          generatedSourceDirectory.resolve("com/example/service/MyService1.java")
+          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java")
         val implSourceFile1 = implSource1.toFile
         val implSource2 =
-          generatedSourceDirectory.resolve("com/example/service/MyService2.java")
+          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity2.java")
         val implSourceFile2 = implSource2.toFile
         FileUtils.forceMkdir(implSourceFile1.getParentFile)
         FileUtils.touch(implSourceFile1)
@@ -135,12 +136,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
         assertEquals(
           sources,
           List(
-            generatedSourceDirectory.resolve("com/example/service/MyService1.java"),
-            sourceDirectory.resolve("com/example/service/MyService2Impl.java"),
-            generatedSourceDirectory.resolve("com/example/service/MyService2.java"),
-            sourceDirectory.resolve("com/example/service/something/MyService3Impl.java"),
-            generatedSourceDirectory.resolve("com/example/service/something/MyService3.java"),
-            testSourceDirectory.resolve("com/example/service/something/MyService3Test.java"),
+            generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java"),
+            sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
+            generatedSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
+            sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
+            generatedSourceDirectory.resolve(
+              "com/example/service/persistence/MyEntity3.java"
+            ),
+            testSourceDirectory.resolve(
+              "com/example/service/persistence/MyEntity3Test.java"
+            ),
             sourceDirectory.resolve("com/example/service/Main.java")
           )
         )
