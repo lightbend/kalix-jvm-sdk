@@ -14,6 +14,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.Using
 import com.google.protobuf.ExtensionRegistry
 
+import scala.collection.mutable
+
 class ModelBuilderSuite extends munit.FunSuite {
   test("EventSourcedEntity introspection") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
@@ -28,7 +30,8 @@ class ModelBuilderSuite extends munit.FunSuite {
       val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
       val fileList    = fileDescSet.getFileList.asScala
 
-      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+      val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
+        fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
       val model = ModelBuilder.introspectProtobufClasses(
         descriptors
@@ -43,7 +46,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ),
           None,
           Some("ShoppingCart"),
-          false
+          javaMultipleFiles = false
         )
 
       val domainProto =
@@ -55,7 +58,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ),
           None,
           None,
-          false
+          javaMultipleFiles = false
         )
 
       val googleEmptyProto =
@@ -65,7 +68,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          true
+          javaMultipleFiles = true
         )
 
       val entity =
@@ -142,7 +145,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ),
           None,
           Some("ShoppingCart"),
-          false
+          javaMultipleFiles = false
         )
 
       val domainProto =
@@ -154,7 +157,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ),
           None,
           None,
-          false
+          javaMultipleFiles = false
         )
 
       val googleEmptyProto =
@@ -164,7 +167,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          true
+          javaMultipleFiles = true
         )
       val entity = ModelBuilder.ValueEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
@@ -217,11 +220,18 @@ class ModelBuilderSuite extends munit.FunSuite {
     val pkg  = "com.example"
 
     assertEquals(
-      PackageNaming(name, pkg, None, None, None, false).javaPackage,
+      PackageNaming(name, pkg, None, None, None, javaMultipleFiles = false).javaPackage,
       pkg
     )
     assertEquals(
-      PackageNaming(name, pkg, None, Some("override.package"), None, false).javaPackage,
+      PackageNaming(
+        name,
+        pkg,
+        None,
+        Some("override.package"),
+        None,
+        javaMultipleFiles = false
+      ).javaPackage,
       "override.package"
     )
   }

@@ -11,40 +11,43 @@ import org.apache.commons.io.FileUtils
 import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  def serviceProto(suffix: String = "") =
+  def serviceProto(suffix: String = ""): PackageNaming =
     PackageNaming(
       s"MyService$suffix",
       "com.example.service",
       None,
       None,
       Some(s"OuterClass$suffix"),
-      false
+      javaMultipleFiles = false
     )
 
-  val domainProto =
+  val domainProto: PackageNaming =
     PackageNaming(
       "Domain",
       "com.example.service.persistence",
       None,
       None,
       None,
-      false
+      javaMultipleFiles = false
     )
 
-  val externalProto =
+  val externalProto: PackageNaming =
     PackageNaming(
       "EXT",
       "com.external",
       None,
       None,
       None,
-      true
+      javaMultipleFiles = true
     )
 
-  def simpleService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+  def simpleService(
+      proto: PackageNaming = serviceProto(),
+      suffix: String = ""
+  ): ModelBuilder.Service =
     ModelBuilder.Service(
       FullyQualifiedName(s"MyService$suffix", proto),
-      s"com.example.Entity${suffix}",
+      s"com.example.Entity$suffix",
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
@@ -59,7 +62,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def eventSourcedEntity(suffix: String = "") =
+  def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto),
       s"MyEntity$suffix",
@@ -69,7 +72,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def valueEntity(suffix: String = "") =
+  def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
       s"MyValueEntity$suffix",
@@ -85,21 +88,22 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
       try {
 
-        val source1     = sourceDirectory.resolve("com/example/service/MyService1Impl.java")
+        val source1     = sourceDirectory.resolve("com/example/service/persistence/MyEntity1Impl.java")
         val sourceFile1 = source1.toFile
         FileUtils.forceMkdir(sourceFile1.getParentFile)
         FileUtils.touch(sourceFile1)
 
-        val testSource2     = testSourceDirectory.resolve("com/example/service/MyService2Test.java")
+        val testSource2 =
+          testSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Test.java")
         val testSourceFile2 = testSource2.toFile
         FileUtils.forceMkdir(testSourceFile2.getParentFile)
         FileUtils.touch(testSourceFile2)
 
         val implSource1 =
-          generatedSourceDirectory.resolve("com/example/service/MyService1.java")
+          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java")
         val implSourceFile1 = implSource1.toFile
         val implSource2 =
-          generatedSourceDirectory.resolve("com/example/service/MyService2.java")
+          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity2.java")
         val implSourceFile2 = implSource2.toFile
         FileUtils.forceMkdir(implSourceFile1.getParentFile)
         FileUtils.touch(implSourceFile1)
@@ -135,12 +139,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
         assertEquals(
           sources,
           List(
-            generatedSourceDirectory.resolve("com/example/service/MyService1.java"),
-            sourceDirectory.resolve("com/example/service/MyService2Impl.java"),
-            generatedSourceDirectory.resolve("com/example/service/MyService2.java"),
-            sourceDirectory.resolve("com/example/service/something/MyService3Impl.java"),
-            generatedSourceDirectory.resolve("com/example/service/something/MyService3.java"),
-            testSourceDirectory.resolve("com/example/service/something/MyService3Test.java"),
+            generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java"),
+            sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
+            generatedSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
+            sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
+            generatedSourceDirectory.resolve(
+              "com/example/service/persistence/MyEntity3.java"
+            ),
+            testSourceDirectory.resolve(
+              "com/example/service/persistence/MyEntity3Test.java"
+            ),
             sourceDirectory.resolve("com/example/service/Main.java")
           )
         )
@@ -163,7 +171,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         Some("OuterClass"),
-        false
+        javaMultipleFiles = false
       )
 
     val domainProto =
@@ -173,7 +181,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         None,
-        false
+        javaMultipleFiles = false
       )
 
     val entity  = eventSourcedEntity()
@@ -243,7 +251,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         Some("OuterClass"),
-        false
+        javaMultipleFiles = false
       )
 
     val domainProto =
@@ -253,7 +261,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         None,
-        false
+        javaMultipleFiles = false
       )
 
     val service = simpleService()
