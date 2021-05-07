@@ -57,8 +57,8 @@ object SourceGenerator extends PrettyPrinter {
       .collect(Collectors.toList())
       .asScala
       .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
-    model.services.values.flatMap { case service: ModelBuilder.Service =>
-      model.entities.get(service.entityFullName).toSeq.flatMap { case entity: ModelBuilder.Entity =>
+    model.services.values.flatMap { service: ModelBuilder.Service =>
+      model.entities.get(service.entityFullName).toSeq.flatMap { entity: ModelBuilder.Entity =>
         val entityFilename = entity.fqn.name.toLowerCase + ".js"
         val sourcePath     = sourceDirectory.resolve(entityFilename)
 
@@ -493,14 +493,14 @@ object SourceGenerator extends PrettyPrinter {
   ): Document =
     pretty(
       ssep(
-        services.map { case service: ModelBuilder.Service =>
+        services.map { service: ModelBuilder.Service =>
           val entityName = service.fqn.name.toLowerCase
           "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi
         }.toSeq,
         line
       ) <> line <> line <>
       ssep(
-        services.map { case service: ModelBuilder.Service =>
+        services.map { service: ModelBuilder.Service =>
           service.fqn.name.toLowerCase <> ".start()" <> semi
         }.toSeq,
         line
@@ -517,7 +517,7 @@ object SourceGenerator extends PrettyPrinter {
     parens(ssep(args.map(text), comma)) <+> "=>" <+> braces(nest(line <> body) <> line)
 
   private def typeReference(fqn: FullyQualifiedName): Doc = fqn match {
-    case FullyQualifiedName("Empty", parent) if (parent.pkg) == "google.protobuf" =>
+    case FullyQualifiedName("Empty", parent) if parent.pkg == "google.protobuf" =>
       "void"
     case FullyQualifiedName(name, parent) =>
       ProtoNs <> dot <> parent.pkg <> dot <> "I" <> name

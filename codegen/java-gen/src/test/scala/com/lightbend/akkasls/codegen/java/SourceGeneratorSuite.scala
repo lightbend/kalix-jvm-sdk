@@ -11,40 +11,43 @@ import org.apache.commons.io.FileUtils
 import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  def serviceProto(suffix: String = "") =
+  def serviceProto(suffix: String = ""): PackageNaming =
     PackageNaming(
       s"MyService$suffix",
       "com.example.service",
       None,
       None,
       Some(s"OuterClass$suffix"),
-      false
+      javaMultipleFiles = false
     )
 
-  val domainProto =
+  val domainProto: PackageNaming =
     PackageNaming(
       "Domain",
       "com.example.service.persistence",
       None,
       None,
       None,
-      false
+      javaMultipleFiles = false
     )
 
-  val externalProto =
+  val externalProto: PackageNaming =
     PackageNaming(
       "EXT",
       "com.external",
       None,
       None,
       None,
-      true
+      javaMultipleFiles = true
     )
 
-  def simpleService(proto: PackageNaming = serviceProto(), suffix: String = "") =
+  def simpleService(
+      proto: PackageNaming = serviceProto(),
+      suffix: String = ""
+  ): ModelBuilder.Service =
     ModelBuilder.Service(
       FullyQualifiedName(s"MyService$suffix", proto),
-      s"com.example.Entity${suffix}",
+      s"com.example.Entity$suffix",
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
@@ -59,7 +62,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def eventSourcedEntity(suffix: String = "") =
+  def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto),
       s"MyEntity$suffix",
@@ -69,7 +72,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       )
     )
 
-  def valueEntity(suffix: String = "") =
+  def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
       s"MyValueEntity$suffix",
@@ -168,7 +171,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         Some("OuterClass"),
-        false
+        javaMultipleFiles = false
       )
 
     val domainProto =
@@ -178,7 +181,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         None,
-        false
+        javaMultipleFiles = false
       )
 
     val entity  = eventSourcedEntity()
@@ -248,7 +251,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         Some("OuterClass"),
-        false
+        javaMultipleFiles = false
       )
 
     val domainProto =
@@ -258,7 +261,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         None,
         None,
         None,
-        false
+        javaMultipleFiles = false
       )
 
     val service = simpleService()
