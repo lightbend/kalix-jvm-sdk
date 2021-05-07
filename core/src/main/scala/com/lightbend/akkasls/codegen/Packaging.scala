@@ -19,26 +19,24 @@ case class FullyQualifiedName(
 }
 
 object FullyQualifiedName {
-  def from(descriptor: Descriptors.GenericDescriptor) = {
-    val fileDescriptor = descriptor.getFile()
+  def from(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
+    val fileDescriptor = descriptor.getFile
 
     val packageNaming =
-      if (
-        fileDescriptor.getName() == s"google.protobuf.${descriptor.getName()}.placeholder.proto"
-      ) {
+      if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
         // In the case of placeholders for standard google types, we need to assume the package naming
         // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
         PackageNaming(
-          descriptor.getName(),
-          fileDescriptor.getPackage(),
-          Some(s"google.golang.org/protobuf/types/known/${descriptor.getName().toLowerCase}pb"),
-          Some(s"com.${fileDescriptor.getPackage()}"),
-          Some(s"${descriptor.getName()}Proto"),
-          true
+          descriptor.getName,
+          fileDescriptor.getPackage,
+          Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
+          Some(s"com.${fileDescriptor.getPackage}"),
+          Some(s"${descriptor.getName}Proto"),
+          javaMultipleFiles = true
         )
       } else PackageNaming.from(fileDescriptor)
     FullyQualifiedName(
-      descriptor.getName(),
+      descriptor.getName,
       packageNaming
     )
   }
@@ -55,15 +53,14 @@ case class PackageNaming(
     javaOuterClassnameOption: Option[String],
     javaMultipleFiles: Boolean
 ) {
-  lazy val javaPackage        = javaPackageOption.getOrElse(pkg)
-  lazy val javaOuterClassname = javaOuterClassnameOption.getOrElse(name)
+  lazy val javaPackage: String        = javaPackageOption.getOrElse(pkg)
+  lazy val javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }
 
 object PackageNaming {
-  def from(descriptor: Descriptors.FileDescriptor) = {
+  def from(descriptor: Descriptors.FileDescriptor): PackageNaming = {
     val name =
-      descriptor
-        .getName()
+      descriptor.getName
         .split('/')
         .last
         .reverse
@@ -75,7 +72,7 @@ object PackageNaming {
         .mkString
 
     val generalOptions = descriptor.getOptions.getAllFields.asScala.map {
-      case (fieldDescriptor, field) => (fieldDescriptor.getFullName(), field)
+      case (fieldDescriptor, field) => (fieldDescriptor.getFullName, field)
     }
 
     val goPackage = generalOptions.get("google.protobuf.FileOptions.go_package").map(_.toString())
@@ -88,11 +85,11 @@ object PackageNaming {
         .map(_.toString())
 
     val javaMultipleFiles =
-      generalOptions.get("google.protobuf.FileOptions.java_multiple_files").exists(_ == true)
+      generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)
 
     PackageNaming(
       name,
-      descriptor.getPackage(),
+      descriptor.getPackage,
       goPackage,
       javaPackage,
       javaOuterClassname,

@@ -28,7 +28,7 @@ object SourceGenerator extends PrettyPrinter {
     *
     * Impure.
     *
-    * @param entities        The model of entity metadata to generate source file
+    * @param model The model of entity metadata to generate source file
     * @param sourceDirectory A directory to generate source files in, which can also containing existing source.
     * @param testSourceDirectory A directory to generate test source files in, which can also containing existing source.
     * @param mainClass  A fully qualified classname to be used as the main class
@@ -45,8 +45,8 @@ object SourceGenerator extends PrettyPrinter {
     def packageAsPath(packageName: String): Path =
       Paths.get(packageName.replace(".", "/"))
 
-    model.services.values.flatMap { case service: ModelBuilder.Service =>
-      model.entities.get(service.entityFullName).toSeq.flatMap { case entity: ModelBuilder.Entity =>
+    model.services.values.flatMap { service: ModelBuilder.Service =>
+      model.entities.get(service.entityFullName).toSeq.flatMap { entity: ModelBuilder.Entity =>
         val packageName = entity.fqn.parent.javaPackage
         val className   = entity.fqn.name
         val packagePath = packageAsPath(packageName)
@@ -178,7 +178,7 @@ object SourceGenerator extends PrettyPrinter {
               "entityType" <+> equal <+> dquotes(interfaceClassName)
             )
       }) <> line <>
-      `class`("public", s"${className} extends ${interfaceClassName}") {
+      `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
         line <>
@@ -595,7 +595,7 @@ object SourceGenerator extends PrettyPrinter {
     val name =
       if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
       else fullyQualifiedName.parent.javaOuterClassname
-    s"${fullyQualifiedName.parent.javaPackage}.${name}"
+    s"${fullyQualifiedName.parent.javaPackage}.$name"
   }
 
   private def lowerFirst(text: String): String =
