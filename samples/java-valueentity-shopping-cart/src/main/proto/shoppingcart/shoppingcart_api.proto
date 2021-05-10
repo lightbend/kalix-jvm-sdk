@@ -2,6 +2,7 @@
 
 // This is the public API offered by the shopping cart Value Entity.
 
+// tag:api[]
 syntax = "proto3";
 
 package com.example.valueentity.shoppingcart;
@@ -69,3 +70,4 @@ service ShoppingCartService {
     option (google.api.http).post = "/ve/carts/{cart_id}/remove";
   }
 }
+// end:api[]
