@@ -317,6 +317,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.eventsourcedentity.*;
       |import com.example.service.persistence.Domain;
       |import com.external.Empty;
@@ -329,11 +330,31 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    @SnapshotHandler
       |    public abstract void handleSnapshot(Domain.MyState snapshot);
       |    
-      |    @CommandHandler
-      |    public abstract Empty set(OuterClass.SetValue command, CommandContext ctx);
+      |    @CommandHandler(name = "set")
+      |    public Reply<Empty> setWithReply(OuterClass.SetValue command, CommandContext ctx) {
+      |        return Reply.message(set(command, ctx));
+      |    }
       |    
-      |    @CommandHandler
-      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx);
+      |    protected Empty set(OuterClass.SetValue command, CommandContext ctx) {
+      |        return set(command);
+      |    }
+      |    
+      |    protected Empty set(OuterClass.SetValue command) {
+      |        return null;
+      |    }
+      |    
+      |    @CommandHandler(name = "get")
+      |    public Reply<OuterClass.MyState> getWithReply(OuterClass.GetValue command, CommandContext ctx) {
+      |        return Reply.message(get(command, ctx));
+      |    }
+      |    
+      |    protected OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
+      |        return get(command);
+      |    }
+      |    
+      |    protected OuterClass.MyState get(OuterClass.GetValue command) {
+      |        return null;
+      |    }
       |    
       |    @EventHandler
       |    public abstract void setEvent(Domain.SetEvent event);
@@ -353,17 +374,38 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.valueentity.*;
       |import com.example.service.persistence.Domain;
       |import com.external.Empty;
       |
       |/** A value entity. */
       |public abstract class MyService {
-      |    @CommandHandler
-      |    public abstract Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx);
+      |    @CommandHandler(name = "set")
+      |    public Reply<Empty> setWithReply(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
+      |        return Reply.message(set(command, ctx));
+      |    }
       |    
-      |    @CommandHandler
-      |    public abstract OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx);
+      |    protected Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
+      |        return set(command);
+      |    }
+      |    
+      |    protected Empty set(OuterClass.SetValue command) {
+      |        return null;
+      |    }
+      |    
+      |    @CommandHandler(name = "get")
+      |    public Reply<OuterClass.MyState> getWithReply(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
+      |        return Reply.message(get(command, ctx));
+      |    }
+      |    
+      |    protected OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
+      |        return get(command);
+      |    }
+      |    
+      |    protected OuterClass.MyState get(OuterClass.GetValue command) {
+      |        return null;
+      |    }
       |}""".stripMargin
     )
   }
@@ -403,7 +445,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.set(OuterClass.SetValue.newBuilder().build(), context);
+        |            entity.setWithReply(OuterClass.SetValue.newBuilder().build(), context);
         |        });
         |        
         |        // TODO: if you wish to verify events:
@@ -419,7 +461,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.get(OuterClass.GetValue.newBuilder().build(), context);
+        |            entity.getWithReply(OuterClass.GetValue.newBuilder().build(), context);
         |        });
         |        
         |        // TODO: if you wish to verify events:
@@ -464,7 +506,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.set(OuterClass.SetValue.newBuilder().build(), context);
+        |            entity.setWithReply(OuterClass.SetValue.newBuilder().build(), context);
         |        });
         |    }
         |    
@@ -477,7 +519,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.get(OuterClass.GetValue.newBuilder().build(), context);
+        |            entity.getWithReply(OuterClass.GetValue.newBuilder().build(), context);
         |        });
         |    }
         |}""".stripMargin

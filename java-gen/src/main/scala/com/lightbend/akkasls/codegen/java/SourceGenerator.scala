@@ -103,7 +103,7 @@ object SourceGenerator extends PrettyPrinter {
     } ++ {
       if (model.services.nonEmpty) {
         // Generate a main source file is it is not there already
-        val (mainClassPackageName, mainClassName) = dissassembleClassName(mainClass)
+        val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
         val mainClassPackagePath                  = packageAsPath(mainClassPackageName)
 
         val mainClassPath =
@@ -292,15 +292,16 @@ object SourceGenerator extends PrettyPrinter {
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-      (entity match {
+      Seq(
+        "com.akkaserverless.javasdk.EntityId",
+        "com.akkaserverless.javasdk.Reply"
+      ) ++ (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
           Seq(
-            "com.akkaserverless.javasdk.EntityId",
             "com.akkaserverless.javasdk.eventsourcedentity.*"
           )
         case _: ModelBuilder.ValueEntity =>
           Seq(
-            "com.akkaserverless.javasdk.EntityId",
             "com.akkaserverless.javasdk.valueentity.*"
           )
       })).distinct.sorted
@@ -327,7 +328,7 @@ object SourceGenerator extends PrettyPrinter {
                 qualifiedType(state.fqn),
                 "snapshot",
                 List.empty
-              ) <> line <>
+              ) <> semi <> line <>
               line <>
               "@SnapshotHandler" <>
               line <>
@@ -338,16 +339,39 @@ object SourceGenerator extends PrettyPrinter {
                 List(
                   qualifiedType(state.fqn) <+> "snapshot"
                 )
-              ) <> line <>
+              ) <> semi <> line <>
               line
           case _ => emptyDoc
         }) <>
         ssep(
           service.commands.toSeq.map { command =>
-            "@CommandHandler" <>
+            "@CommandHandler" <> parens(
+              "name" <+> equal <+> dquotes(lowerFirst(command.fqn.name))
+            ) <>
             line <>
-            abstractMethod(
+            method(
               "public",
+              "Reply" <> angles(qualifiedType(command.outputType)),
+              lowerFirst(command.fqn.name) + "WithReply",
+              List(
+                qualifiedType(command.inputType) <+> "command",
+                (entity match {
+                  case ModelBuilder.ValueEntity(_, _, state) =>
+                    "CommandContext" <> angles(qualifiedType(state.fqn))
+                  case _ => text("CommandContext")
+                }) <+> "ctx"
+              ),
+              emptyDoc
+            )(
+              "return" <+> "Reply.message" <> parens(
+                lowerFirst(command.fqn.name) <> parens(
+                  "command" <> comma <+> "ctx"
+                )
+              ) <> semi
+            ) <> line <>
+            line <>
+            method(
+              "protected",
               qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
@@ -357,7 +381,23 @@ object SourceGenerator extends PrettyPrinter {
                     "CommandContext" <> angles(qualifiedType(state.fqn))
                   case _ => text("CommandContext")
                 }) <+> "ctx"
-              )
+              ),
+              emptyDoc
+            )(
+              "return" <+>
+              lowerFirst(command.fqn.name) <> parens("command") <> semi
+            ) <> line <>
+            line <>
+            method(
+              "protected",
+              qualifiedType(command.outputType),
+              lowerFirst(command.fqn.name),
+              List(
+                qualifiedType(command.inputType) <+> "command"
+              ),
+              emptyDoc
+            )(
+              "return" <+> "null" <> semi
             )
           },
           line <> line
@@ -377,7 +417,7 @@ object SourceGenerator extends PrettyPrinter {
                     List(
                       qualifiedType(event.fqn) <+> "event"
                     )
-                  )
+                  ) <> semi
                 },
                 line <> line
               )
@@ -453,7 +493,9 @@ object SourceGenerator extends PrettyPrinter {
                 "MockedContextFailure.class" <> comma <+>
                 parens(emptyDoc) <+> "->" <+> braces(
                   nest(
-                    line <> "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
+                    line <> "entity" <> dot <> lowerFirst(
+                      command.fqn.name
+                    ) <> "WithReply" <> parens(
                       qualifiedType(
                         command.inputType
                       ) <> dot <> "newBuilder().build(), context"
@@ -549,7 +591,7 @@ object SourceGenerator extends PrettyPrinter {
     )
   }
 
-  private def dissassembleClassName(fullClassName: String): (String, String) = {
+  private def disassembleClassName(fullClassName: String): (String, String) = {
     val className   = fullClassName.reverse.takeWhile(_ != '.').reverse
     val packageName = fullClassName.dropRight(className.length + 1)
     packageName -> className
@@ -569,7 +611,7 @@ object SourceGenerator extends PrettyPrinter {
 
   private def method(
       modifier: Doc,
-      returnType: String,
+      returnType: Doc,
       name: String,
       parameters: Seq[Doc],
       postModifier: Doc
@@ -579,13 +621,11 @@ object SourceGenerator extends PrettyPrinter {
 
   private def abstractMethod(
       modifier: Doc,
-      returnType: String,
+      returnType: Doc,
       name: String,
       parameters: Seq[Doc]
   ): Doc =
-    modifier <+> "abstract" <+> returnType <+> name <> parens(
-      ssep(parameters, comma <> space)
-    ) <> semi
+    modifier <+> "abstract" <+> returnType <+> name <> parens(ssep(parameters, comma <> space))
 
   private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
     if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
