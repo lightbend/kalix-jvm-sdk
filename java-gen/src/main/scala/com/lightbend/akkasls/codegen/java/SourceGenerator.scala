@@ -55,7 +55,7 @@ object SourceGenerator extends PrettyPrinter {
         val implSourcePath =
           sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-        val interfaceClassName = className
+        val interfaceClassName = className + "Interface"
         val interfaceSourcePath =
           generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -90,7 +90,14 @@ object SourceGenerator extends PrettyPrinter {
           val _ = implSourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
             implSourcePath,
-            source(service, entity, packageName, implClassName, interfaceClassName).layout.getBytes(
+            source(
+              service,
+              entity,
+              packageName,
+              implClassName,
+              interfaceClassName,
+              className
+            ).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -103,7 +110,7 @@ object SourceGenerator extends PrettyPrinter {
     } ++ {
       if (model.services.nonEmpty) {
         // Generate a main source file is it is not there already
-        val (mainClassPackageName, mainClassName) = dissassembleClassName(mainClass)
+        val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
         val mainClassPackagePath                  = packageAsPath(mainClassPackageName)
 
         val mainClassPath =
@@ -112,7 +119,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = mainClassPath.getParent.toFile.mkdirs()
           val _ = Files.write(
             mainClassPath,
-            mainSource(mainClassPackageName, mainClassName, model.services.values).layout
+            mainSource(mainClassPackageName, mainClassName, model).layout
               .getBytes(
                 Charsets.UTF_8
               )
@@ -132,7 +139,8 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String,
-      interfaceClassName: String
+      interfaceClassName: String,
+      entityType: String
   ): Document = {
     val messageTypes = service.commands.toSeq.flatMap(command =>
       Seq(command.inputType, command.outputType)
@@ -170,12 +178,12 @@ object SourceGenerator extends PrettyPrinter {
         case _: ModelBuilder.EventSourcedEntity =>
           "/** An event sourced entity. */" <> line <>
             "@EventSourcedEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(interfaceClassName)
+              "entityType" <+> equal <+> dquotes(entityType)
             )
         case _: ModelBuilder.ValueEntity =>
           "/** A value entity. */" <> line <>
             "@ValueEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(interfaceClassName)
+              "entityType" <+> equal <+> dquotes(entityType)
             )
       }) <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
@@ -227,7 +235,7 @@ object SourceGenerator extends PrettyPrinter {
             "@Override" <>
             line <>
             method(
-              "public",
+              "protected",
               qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
@@ -292,15 +300,16 @@ object SourceGenerator extends PrettyPrinter {
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-      (entity match {
+      Seq(
+        "com.akkaserverless.javasdk.EntityId",
+        "com.akkaserverless.javasdk.Reply"
+      ) ++ (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
           Seq(
-            "com.akkaserverless.javasdk.EntityId",
             "com.akkaserverless.javasdk.eventsourcedentity.*"
           )
         case _: ModelBuilder.ValueEntity =>
           Seq(
-            "com.akkaserverless.javasdk.EntityId",
             "com.akkaserverless.javasdk.valueentity.*"
           )
       })).distinct.sorted
@@ -317,7 +326,7 @@ object SourceGenerator extends PrettyPrinter {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
-      `class`("public abstract", className) {
+      `class`("public abstract", className + "Interface") {
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
             "@Snapshot" <>
@@ -327,7 +336,7 @@ object SourceGenerator extends PrettyPrinter {
                 qualifiedType(state.fqn),
                 "snapshot",
                 List.empty
-              ) <> line <>
+              ) <> semi <> line <>
               line <>
               "@SnapshotHandler" <>
               line <>
@@ -338,16 +347,39 @@ object SourceGenerator extends PrettyPrinter {
                 List(
                   qualifiedType(state.fqn) <+> "snapshot"
                 )
-              ) <> line <>
+              ) <> semi <> line <>
               line
           case _ => emptyDoc
         }) <>
         ssep(
           service.commands.toSeq.map { command =>
-            "@CommandHandler" <>
+            "@CommandHandler" <> parens(
+              "name" <+> equal <+> dquotes(lowerFirst(command.fqn.name))
+            ) <>
             line <>
-            abstractMethod(
+            method(
               "public",
+              "Reply" <> angles(qualifiedType(command.outputType)),
+              lowerFirst(command.fqn.name) + "WithReply",
+              List(
+                qualifiedType(command.inputType) <+> "command",
+                (entity match {
+                  case ModelBuilder.ValueEntity(_, _, state) =>
+                    "CommandContext" <> angles(qualifiedType(state.fqn))
+                  case _ => text("CommandContext")
+                }) <+> "ctx"
+              ),
+              emptyDoc
+            )(
+              "return" <+> "Reply.message" <> parens(
+                lowerFirst(command.fqn.name) <> parens(
+                  "command" <> comma <+> "ctx"
+                )
+              ) <> semi
+            ) <> line <>
+            line <>
+            method(
+              "protected",
               qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
@@ -357,7 +389,23 @@ object SourceGenerator extends PrettyPrinter {
                     "CommandContext" <> angles(qualifiedType(state.fqn))
                   case _ => text("CommandContext")
                 }) <+> "ctx"
-              )
+              ),
+              emptyDoc
+            )(
+              "return" <+>
+              lowerFirst(command.fqn.name) <> parens("command") <> semi
+            ) <> line <>
+            line <>
+            method(
+              "protected",
+              qualifiedType(command.outputType),
+              lowerFirst(command.fqn.name),
+              List(
+                qualifiedType(command.inputType) <+> "command"
+              ),
+              emptyDoc
+            )(
+              "return" <+> "null" <> semi
             )
           },
           line <> line
@@ -377,7 +425,7 @@ object SourceGenerator extends PrettyPrinter {
                     List(
                       qualifiedType(event.fqn) <+> "event"
                     )
-                  )
+                  ) <> semi
                 },
                 line <> line
               )
@@ -417,6 +465,8 @@ object SourceGenerator extends PrettyPrinter {
         line
       ) <> line <>
       line <>
+      "import" <+> "static" <+> "org.junit.Assert.assertThrows" <> semi <> line <>
+      line <>
       `class`("public", testClassName) {
         "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
         "private" <+> implClassName <+> "entity" <> semi <> line <>
@@ -453,7 +503,9 @@ object SourceGenerator extends PrettyPrinter {
                 "MockedContextFailure.class" <> comma <+>
                 parens(emptyDoc) <+> "->" <+> braces(
                   nest(
-                    line <> "entity" <> dot <> lowerFirst(command.fqn.name) <> parens(
+                    line <> "entity" <> dot <> lowerFirst(
+                      command.fqn.name
+                    ) <> "WithReply" <> parens(
                       qualifiedType(
                         command.inputType
                       ) <> dot <> "newBuilder().build(), context"
@@ -480,24 +532,31 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def mainSource(
       mainClassPackageName: String,
       mainClassName: String,
-      services: Iterable[ModelBuilder.Service]
+      model: ModelBuilder.Model
   ): Document = {
-    assert(services.nonEmpty) // Pointless to generate a main if empty, so don't try
+    assert(model.services.nonEmpty) // Pointless to generate a main if empty, so don't try
 
-    val serviceClasses = services.map { case ModelBuilder.Service(fqn, _, _) =>
-      (
-        Option(fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-        s"${fqn.name}Impl",
-        fqn.name,
-        fqn.parent.javaOuterClassnameOption
-      )
+    val entityServiceClasses = model.services.values.flatMap { service =>
+      model.entities.get(service.entityFullName).toSeq.map { entity: ModelBuilder.Entity =>
+        (
+          Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
+          s"${entity.fqn.name}Impl",
+          entity.fqn.parent.javaOuterClassnameOption,
+          service.fqn.name
+        )
+      }
     }
 
     val imports = List(
       "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
     ) ++
-      serviceClasses.toSeq.collect {
-        case (Some(packageName), implClassName, _, javaOuterClassName) =>
+      entityServiceClasses.toSeq.collect {
+        case (
+              Some(packageName),
+              implClassName,
+              javaOuterClassName,
+              _
+            ) =>
           javaOuterClassName.fold(emptyDoc)(ocn =>
             "import" <+> packageName <> dot <> ocn <> semi <> line
           ) <>
@@ -524,19 +583,19 @@ object SourceGenerator extends PrettyPrinter {
           "new" <+> "AkkaServerless()" <> line <>
           indent(
             ssep(
-              serviceClasses.map {
-                case (_, implClassName, entityName, Some(javaOuterClassName)) =>
+              entityServiceClasses.map {
+                case (_, implClassName, Some(javaOuterClassName), serviceName) =>
                   ".registerEventSourcedEntity" <> parens(
                     nest(
                       line <>
                       implClassName <> ".class" <> comma <> line <>
                       javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                        dquotes(entityName)
+                        dquotes(serviceName)
                       ) <> comma <> line <>
                       javaOuterClassName <> ".getDescriptor()"
                     ) <> line
                   )
-                case (_, _, entityName, None) =>
+                case (_, entityName, None, _) =>
                   "// FIXME: No Java outer class name specified - cannot register" <+> entityName <+> "- ensure you are generating protobuf for Java"
               }.toSeq,
               line
@@ -549,7 +608,7 @@ object SourceGenerator extends PrettyPrinter {
     )
   }
 
-  private def dissassembleClassName(fullClassName: String): (String, String) = {
+  private def disassembleClassName(fullClassName: String): (String, String) = {
     val className   = fullClassName.reverse.takeWhile(_ != '.').reverse
     val packageName = fullClassName.dropRight(className.length + 1)
     packageName -> className
@@ -569,7 +628,7 @@ object SourceGenerator extends PrettyPrinter {
 
   private def method(
       modifier: Doc,
-      returnType: String,
+      returnType: Doc,
       name: String,
       parameters: Seq[Doc],
       postModifier: Doc
@@ -579,13 +638,11 @@ object SourceGenerator extends PrettyPrinter {
 
   private def abstractMethod(
       modifier: Doc,
-      returnType: String,
+      returnType: Doc,
       name: String,
       parameters: Seq[Doc]
   ): Doc =
-    modifier <+> "abstract" <+> returnType <+> name <> parens(
-      ssep(parameters, comma <> space)
-    ) <> semi
+    modifier <+> "abstract" <+> returnType <+> name <> parens(ssep(parameters, comma <> space))
 
   private def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
     if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
