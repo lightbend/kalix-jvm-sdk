@@ -7,8 +7,7 @@ import "google/api/annotations.proto";
 
 package $package;
 
-option go_package = "$packageInPathFormat";
-option java_outer_classname = "MyEntity";
+option java_outer_classname = "MyEntityApi";
 
 message SetValueCommand {
     string entity_id = 1 [(akkaserverless.field).entity_key = true];
