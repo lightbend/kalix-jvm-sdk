@@ -119,7 +119,7 @@ object SourceGenerator extends PrettyPrinter {
           val _ = mainClassPath.getParent.toFile.mkdirs()
           val _ = Files.write(
             mainClassPath,
-            mainSource(mainClassPackageName, mainClassName, model.services.values).layout
+            mainSource(mainClassPackageName, mainClassName, model).layout
               .getBytes(
                 Charsets.UTF_8
               )
@@ -532,24 +532,31 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def mainSource(
       mainClassPackageName: String,
       mainClassName: String,
-      services: Iterable[ModelBuilder.Service]
+      model: ModelBuilder.Model
   ): Document = {
-    assert(services.nonEmpty) // Pointless to generate a main if empty, so don't try
+    assert(model.services.nonEmpty) // Pointless to generate a main if empty, so don't try
 
-    val serviceClasses = services.map { case ModelBuilder.Service(fqn, _, _) =>
-      (
-        Option(fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-        s"${fqn.name}Impl",
-        fqn.name,
-        fqn.parent.javaOuterClassnameOption
-      )
+    val entityServiceClasses = model.services.values.flatMap { service =>
+      model.entities.get(service.entityFullName).toSeq.map { entity: ModelBuilder.Entity =>
+        (
+          Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
+          s"${entity.fqn.name}Impl",
+          entity.fqn.parent.javaOuterClassnameOption,
+          service.fqn.name
+        )
+      }
     }
 
     val imports = List(
       "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
     ) ++
-      serviceClasses.toSeq.collect {
-        case (Some(packageName), implClassName, _, javaOuterClassName) =>
+      entityServiceClasses.toSeq.collect {
+        case (
+              Some(packageName),
+              implClassName,
+              javaOuterClassName,
+              _
+            ) =>
           javaOuterClassName.fold(emptyDoc)(ocn =>
             "import" <+> packageName <> dot <> ocn <> semi <> line
           ) <>
@@ -576,19 +583,19 @@ object SourceGenerator extends PrettyPrinter {
           "new" <+> "AkkaServerless()" <> line <>
           indent(
             ssep(
-              serviceClasses.map {
-                case (_, implClassName, entityName, Some(javaOuterClassName)) =>
+              entityServiceClasses.map {
+                case (_, implClassName, Some(javaOuterClassName), serviceName) =>
                   ".registerEventSourcedEntity" <> parens(
                     nest(
                       line <>
                       implClassName <> ".class" <> comma <> line <>
                       javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                        dquotes(entityName)
+                        dquotes(serviceName)
                       ) <> comma <> line <>
                       javaOuterClassName <> ".getDescriptor()"
                     ) <> line
                   )
-                case (_, _, entityName, None) =>
+                case (_, entityName, None, _) =>
                   "// FIXME: No Java outer class name specified - cannot register" <+> entityName <+> "- ensure you are generating protobuf for Java"
               }.toSeq,
               line
