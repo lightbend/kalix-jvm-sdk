@@ -60,7 +60,7 @@
         <repository>
             <id>lightbend-akkaserverless</id>
             <name>repo-lightbend-com-akkaserverless</name>
-            <url>https://repo.lightbend.com/public/lightbend/akkaserverless/maven/</url>
+            <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
         </repository>
     </distributionManagement>
 
