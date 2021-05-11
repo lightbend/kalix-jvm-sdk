@@ -100,10 +100,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
         FileUtils.touch(testSourceFile2)
 
         val implSource1 =
-          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java")
+          generatedSourceDirectory.resolve(
+            "com/example/service/persistence/MyEntity1Interface.java"
+          )
         val implSourceFile1 = implSource1.toFile
         val implSource2 =
-          generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity2.java")
+          generatedSourceDirectory.resolve(
+            "com/example/service/persistence/MyEntity2Interface.java"
+          )
         val implSourceFile2 = implSource2.toFile
         FileUtils.forceMkdir(implSourceFile1.getParentFile)
         FileUtils.touch(implSourceFile1)
@@ -139,12 +143,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
         assertEquals(
           sources,
           List(
-            generatedSourceDirectory.resolve("com/example/service/persistence/MyEntity1.java"),
+            generatedSourceDirectory.resolve(
+              "com/example/service/persistence/MyEntity1Interface.java"
+            ),
             sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
-            generatedSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
+            generatedSourceDirectory.resolve(
+              "com/example/service/persistence/MyValueEntity2Interface.java"
+            ),
             sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
             generatedSourceDirectory.resolve(
-              "com/example/service/persistence/MyEntity3.java"
+              "com/example/service/persistence/MyEntity3Interface.java"
             ),
             testSourceDirectory.resolve(
               "com/example/service/persistence/MyEntity3Test.java"
@@ -189,10 +197,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
-    val interfaceClassName = "MyServiceEntity"
+    val interfaceClassName = "MyServiceEntityInterface"
+    val entityType         = "MyServiceEntity"
 
     val sourceDoc =
-      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
+      SourceGenerator.source(
+        service,
+        entity,
+        packageName,
+        className,
+        interfaceClassName,
+        entityType
+      )
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -204,7 +220,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "MyServiceEntity")
-      |public class MyServiceEntityImpl extends MyServiceEntity {
+      |public class MyServiceEntityImpl extends MyServiceEntityInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -225,12 +241,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Empty set(OuterClass.SetValue command, CommandContext ctx) {
+      |    protected Empty set(OuterClass.SetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
+      |    protected OuterClass.MyState get(OuterClass.GetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |    
@@ -269,10 +285,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     val packageName        = "com.example.service"
     val className          = "MyServiceImpl"
-    val interfaceClassName = "MyService"
+    val interfaceClassName = "MyServiceInterface"
+    val entityType         = "MyService"
 
     val sourceDoc =
-      SourceGenerator.source(service, entity, packageName, className, interfaceClassName)
+      SourceGenerator.source(
+        service,
+        entity,
+        packageName,
+        className,
+        interfaceClassName,
+        entityType
+      )
     assertEquals(
       sourceDoc.layout,
       """package com.example.service;
@@ -284,7 +308,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |@ValueEntity(entityType = "MyService")
-      |public class MyServiceImpl extends MyService {
+      |public class MyServiceImpl extends MyServiceInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -293,12 +317,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
+      |    protected Empty set(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
+      |    protected OuterClass.MyState get(OuterClass.GetValue command, CommandContext<Domain.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -323,7 +347,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public abstract class MyServiceEntity {
+      |public abstract class MyServiceEntityInterface {
       |    @Snapshot
       |    public abstract Domain.MyState snapshot();
       |    
@@ -380,7 +404,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public abstract class MyService {
+      |public abstract class MyServiceInterface {
       |    @CommandHandler(name = "set")
       |    public Reply<Empty> setWithReply(OuterClass.SetValue command, CommandContext<Domain.MyState> ctx) {
       |        return Reply.message(set(command, ctx));

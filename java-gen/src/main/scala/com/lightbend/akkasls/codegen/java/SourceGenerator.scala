@@ -55,7 +55,7 @@ object SourceGenerator extends PrettyPrinter {
         val implSourcePath =
           sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-        val interfaceClassName = className
+        val interfaceClassName = className + "Interface"
         val interfaceSourcePath =
           generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -90,7 +90,14 @@ object SourceGenerator extends PrettyPrinter {
           val _ = implSourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
             implSourcePath,
-            source(service, entity, packageName, implClassName, interfaceClassName).layout.getBytes(
+            source(
+              service,
+              entity,
+              packageName,
+              implClassName,
+              interfaceClassName,
+              className
+            ).layout.getBytes(
               Charsets.UTF_8
             )
           )
@@ -132,7 +139,8 @@ object SourceGenerator extends PrettyPrinter {
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String,
-      interfaceClassName: String
+      interfaceClassName: String,
+      entityType: String
   ): Document = {
     val messageTypes = service.commands.toSeq.flatMap(command =>
       Seq(command.inputType, command.outputType)
@@ -170,12 +178,12 @@ object SourceGenerator extends PrettyPrinter {
         case _: ModelBuilder.EventSourcedEntity =>
           "/** An event sourced entity. */" <> line <>
             "@EventSourcedEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(interfaceClassName)
+              "entityType" <+> equal <+> dquotes(entityType)
             )
         case _: ModelBuilder.ValueEntity =>
           "/** A value entity. */" <> line <>
             "@ValueEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(interfaceClassName)
+              "entityType" <+> equal <+> dquotes(entityType)
             )
       }) <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
@@ -227,7 +235,7 @@ object SourceGenerator extends PrettyPrinter {
             "@Override" <>
             line <>
             method(
-              "public",
+              "protected",
               qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
@@ -318,7 +326,7 @@ object SourceGenerator extends PrettyPrinter {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
-      `class`("public abstract", className) {
+      `class`("public abstract", className + "Interface") {
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
             "@Snapshot" <>
