@@ -5,6 +5,8 @@ package ${package}.persistence;
 
 import "akkaserverless/annotations.proto";
 
+option java_outer_classname = "Domain";
+
 option (akkaserverless.file).event_sourced_entity = {
     name: "MyEntity"
     entity_type: "MyEntity"
