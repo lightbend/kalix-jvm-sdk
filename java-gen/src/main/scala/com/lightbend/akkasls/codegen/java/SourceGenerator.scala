@@ -465,6 +465,8 @@ object SourceGenerator extends PrettyPrinter {
         line
       ) <> line <>
       line <>
+      "import" <+> "static" <+> "org.junit.Assert.assertThrows" <> semi <> line <>
+      line <>
       `class`("public", testClassName) {
         "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
         "private" <+> implClassName <+> "entity" <> semi <> line <>

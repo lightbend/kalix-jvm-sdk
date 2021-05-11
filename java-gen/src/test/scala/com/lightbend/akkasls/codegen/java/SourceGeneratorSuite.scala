@@ -453,6 +453,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import org.junit.Test;
         |import org.mockito.*;
         |
+        |import static org.junit.Assert.assertThrows;
+        |
         |public class MyServiceEntityTest {
         |    private String entityId = "entityId1";
         |    private MyServiceEntityImpl entity;
@@ -513,6 +515,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.external.Empty;
         |import org.junit.Test;
         |import org.mockito.*;
+        |
+        |import static org.junit.Assert.assertThrows;
         |
         |public class MyServiceTest {
         |    private String entityId = "entityId1";
