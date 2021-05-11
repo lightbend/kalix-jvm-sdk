@@ -23,7 +23,7 @@ declarations you will require for your `settings.xml`:
         <repository>
           <id>lightbend-akkaserverless</id>
           <name>repo-lightbend-com-akkaserverless</name>
-          <url>https://repo.lightbend.com/public/lightbend/akkaserverless/maven/</url>
+          <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>always</updatePolicy>
@@ -57,7 +57,7 @@ A complete settings.xml should look like:
                 <repository>
                     <id>lightbend-akkaserverless</id>
                     <name>repo-lightbend-com-akkaserverless</name>
-                    <url>https://repo.lightbend.com/public/lightbend/akkaserverless/maven/</url>
+                    <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>always</updatePolicy>
@@ -75,6 +75,8 @@ A complete settings.xml should look like:
     </activeProfiles>
 </settings>
 ```
+
+For the latest release see [GitHub releases](https://github.com/lightbend/akkaserverless-maven-java/releases).
 
 Then, to use on Linux and macOS:
 
