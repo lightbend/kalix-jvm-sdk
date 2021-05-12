@@ -310,6 +310,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |public abstract class MyServiceEntityInterface {
+      |    
+      |    public class CommandNotImplementedException extends UnsupportedOperationException {
+      |        public CommandNotImplementedException() {
+      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
+      |        }
+      |    }
+      |    
       |    @Snapshot
       |    public abstract EntityOuterClass.MyState snapshot();
       |    
@@ -326,7 +333,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        return null;
+      |        throw new CommandNotImplementedException();
       |    }
       |    
       |    @CommandHandler(name = "get")
@@ -339,7 +346,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        return null;
+      |        throw new CommandNotImplementedException();
       |    }
       |    
       |    @EventHandler
@@ -367,6 +374,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |public abstract class MyServiceInterface {
+      |    
+      |    public class CommandNotImplementedException extends UnsupportedOperationException {
+      |        public CommandNotImplementedException() {
+      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
+      |        }
+      |    }
+      |    
       |    @CommandHandler(name = "set")
       |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        return Reply.message(set(command, ctx));
@@ -377,7 +391,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        return null;
+      |        throw new CommandNotImplementedException();
       |    }
       |    
       |    @CommandHandler(name = "get")
@@ -390,7 +404,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        return null;
+      |        throw new CommandNotImplementedException();
       |    }
       |}""".stripMargin
     )
