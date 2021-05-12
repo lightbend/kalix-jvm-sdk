@@ -552,8 +552,9 @@ object SourceGenerator extends PrettyPrinter {
         (
           Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
           s"${entity.fqn.name}Impl",
-          entity.fqn.parent.javaOuterClassnameOption,
-          service.fqn.name
+          entity.fqn.parent.javaOuterClassname,
+          service.fqn.name,
+          service.fqn.parent.javaOuterClassname
         )
       }
     }
@@ -566,11 +567,11 @@ object SourceGenerator extends PrettyPrinter {
               Some(packageName),
               implClassName,
               javaOuterClassName,
-              _
+              _,
+              serviceJavaOuterClassName
             ) =>
-          javaOuterClassName.fold(emptyDoc)(ocn =>
-            "import" <+> packageName <> dot <> ocn <> semi <> line
-          ) <>
+          "import" <+> packageName <> dot <> javaOuterClassName <> semi <> line <>
+            "import" <+> packageName <> dot <> serviceJavaOuterClassName <> semi <> line <>
             "import" <+> packageName <> dot <> implClassName <> semi
       }
 
@@ -595,19 +596,23 @@ object SourceGenerator extends PrettyPrinter {
           indent(
             ssep(
               entityServiceClasses.map {
-                case (_, implClassName, Some(javaOuterClassName), serviceName) =>
+                case (
+                      _,
+                      implClassName,
+                      javaOuterClassName,
+                      serviceName,
+                      serviceJavaOuterClassName
+                    ) =>
                   ".registerEventSourcedEntity" <> parens(
                     nest(
                       line <>
                       implClassName <> ".class" <> comma <> line <>
-                      javaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
+                      serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
                         dquotes(serviceName)
                       ) <> comma <> line <>
                       javaOuterClassName <> ".getDescriptor()"
                     ) <> line
                   )
-                case (_, entityName, None, _) =>
-                  "// FIXME: No Java outer class name specified - cannot register" <+> entityName <+> "- ensure you are generating protobuf for Java"
               }.toSeq,
               line
             ) <> line <>
