@@ -554,7 +554,13 @@ object SourceGenerator extends PrettyPrinter {
           s"${entity.fqn.name}Impl",
           entity.fqn.parent.javaOuterClassname,
           service.fqn.name,
-          service.fqn.parent.javaOuterClassname
+          service.fqn.parent.javaOuterClassname,
+          entity match {
+            case _: ModelBuilder.EventSourcedEntity =>
+              ".registerEventSourcedEntity"
+            case _: ModelBuilder.ValueEntity =>
+              ".registerValueEntity"
+          }
         )
       }
     }
@@ -568,7 +574,8 @@ object SourceGenerator extends PrettyPrinter {
               implClassName,
               javaOuterClassName,
               _,
-              serviceJavaOuterClassName
+              serviceJavaOuterClassName,
+              _
             ) =>
           "import" <+> packageName <> dot <> javaOuterClassName <> semi <> line <>
             "import" <+> packageName <> dot <> serviceJavaOuterClassName <> semi <> line <>
@@ -601,9 +608,10 @@ object SourceGenerator extends PrettyPrinter {
                       implClassName,
                       javaOuterClassName,
                       serviceName,
-                      serviceJavaOuterClassName
+                      serviceJavaOuterClassName,
+                      registrationMethod
                     ) =>
-                  ".registerEventSourcedEntity" <> parens(
+                  registrationMethod <> parens(
                     nest(
                       line <>
                       implClassName <> ".class" <> comma <> line <>
