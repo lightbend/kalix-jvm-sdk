@@ -488,6 +488,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.valueentity.CommandContext;
+        |import com.example.service.persistence.EntityOuterClass;
         |import com.external.Empty;
         |import org.junit.Test;
         |import org.mockito.*;
@@ -497,7 +498,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public class MyServiceTest {
         |    private String entityId = "entityId1";
         |    private MyServiceImpl entity;
-        |    private CommandContext context = Mockito.mock(CommandContext.class);
+        |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
         |    
         |    private class MockedContextFailure extends RuntimeException {};
         |    
