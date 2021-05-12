@@ -45,8 +45,9 @@
 
   <distributionManagement>
     <repository>
-      <id>lightbend-akkaserverless</id>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
+      <id>lightbend-akkaserverless-cloudsmith</id>
+      <name>Cloudsmith</name>
+      <url>https://maven.cloudsmith.io/lightbend/akkaserverless/</url>
     </repository>
   </distributionManagement>
 
