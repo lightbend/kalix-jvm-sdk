@@ -454,7 +454,13 @@ object SourceGenerator extends PrettyPrinter {
       testClassName: String
   ): Document = {
     val messageTypes =
-      service.commands.flatMap(command => Seq(command.inputType, command.outputType))
+      service.commands.flatMap(command =>
+        Seq(command.inputType, command.outputType)
+      ) ++ (entity match {
+        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
+          Seq.empty
+        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
+      })
 
     val imports = (messageTypes.toSeq
       .filterNot(_.parent.javaPackage == packageName)
@@ -481,7 +487,12 @@ object SourceGenerator extends PrettyPrinter {
       `class`("public", testClassName) {
         "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
         "private" <+> implClassName <+> "entity" <> semi <> line <>
-        "private" <+> "CommandContext" <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
+        "private" <+> (entity match {
+          case ModelBuilder.ValueEntity(_, _, state) =>
+            "CommandContext" <> angles(qualifiedType(state.fqn))
+          case _ =>
+            "CommandContext"
+        }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
         "private class MockedContextFailure extends RuntimeException" <+> braces(
           emptyDoc
