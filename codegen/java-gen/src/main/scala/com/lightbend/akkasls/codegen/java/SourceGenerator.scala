@@ -327,6 +327,17 @@ object SourceGenerator extends PrettyPrinter {
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
       `class`("public abstract", className + "Interface") {
+        line <>
+        `class`("public", "CommandNotImplementedException", Some("UnsupportedOperationException"))(
+          constructor("public", "CommandNotImplementedException", Seq.empty)(
+            "super" <> parens(
+              dquotes(
+                "You have either created a new command or removed the handling of an existing command. Please declare a method in your \\\"impl\\\" class for this command."
+              )
+            ) <> semi
+          )
+        ) <> line <>
+        line <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
             "@Snapshot" <>
@@ -405,7 +416,7 @@ object SourceGenerator extends PrettyPrinter {
               ),
               emptyDoc
             )(
-              "return" <+> "null" <> semi
+              "throw" <+> "new" <+> "CommandNotImplementedException" <> parens(emptyDoc) <> semi
             )
           },
           line <> line
@@ -615,7 +626,12 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private def `class`(modifier: Doc, name: String)(body: Doc): Doc =
-    modifier <+> "class" <+> name <+>
+    `class`(modifier, name, None)(body)
+
+  private def `class`(modifier: Doc, name: String, extension: Option[String])(body: Doc): Doc =
+    modifier <+> "class" <+> name <+> (
+      extension.fold(emptyDoc)(ext => "extends" <+> ext <> space)
+    ) <>
     braces(nest(line <> body) <> line)
 
   private def constructor(
