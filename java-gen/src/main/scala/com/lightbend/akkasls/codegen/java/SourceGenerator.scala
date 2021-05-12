@@ -365,7 +365,7 @@ object SourceGenerator extends PrettyPrinter {
         ssep(
           service.commands.toSeq.map { command =>
             "@CommandHandler" <> parens(
-              "name" <+> equal <+> dquotes(lowerFirst(command.fqn.name))
+              "name" <+> equal <+> dquotes(command.fqn.name)
             ) <>
             line <>
             method(
