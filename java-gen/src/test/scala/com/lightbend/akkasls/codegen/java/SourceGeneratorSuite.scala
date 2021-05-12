@@ -561,10 +561,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.example.service.persistence.EntityOuterClass1;
+        |import com.example.service.persistence.ServiceOuterClass1;
         |import com.example.service.persistence.MyEntity1Impl;
         |import com.example.service.persistence.EntityOuterClass2;
+        |import com.example.service.persistence.ServiceOuterClass2;
         |import com.example.service.persistence.MyValueEntity2Impl;
         |import com.example.service.persistence.EntityOuterClass3;
+        |import com.example.service.persistence.ServiceOuterClass3;
         |import com.example.service.persistence.MyEntity3Impl;
         |
         |public final class Main {
@@ -573,17 +576,17 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        new AkkaServerless()
         |            .registerEventSourcedEntity(
         |                MyEntity1Impl.class,
-        |                EntityOuterClass1.getDescriptor().findServiceByName("MyService1"),
+        |                ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
         |                EntityOuterClass1.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
         |                MyValueEntity2Impl.class,
-        |                EntityOuterClass2.getDescriptor().findServiceByName("MyService2"),
+        |                ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
         |                EntityOuterClass2.getDescriptor()
         |            )
         |            .registerEventSourcedEntity(
         |                MyEntity3Impl.class,
-        |                EntityOuterClass3.getDescriptor().findServiceByName("MyService3"),
+        |                ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
         |                EntityOuterClass3.getDescriptor()
         |            )
         |            .start().toCompletableFuture().get();
@@ -593,41 +596,4 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("main source with no outer class") {
-    val services = Map(
-      "com.example.Service1" -> simpleService(suffix = "1")
-    )
-
-    val entities = Map(
-      "com.example.Entity1" -> eventSourcedEntity("1").copy(fqn =
-        FullyQualifiedName(s"MyEntity1", domainProto("1").copy(javaOuterClassnameOption = None))
-      )
-    )
-
-    val mainPackageName = "com.example.service"
-    val mainClassName   = "Main"
-
-    val sourceDoc = SourceGenerator.mainSource(
-      mainPackageName,
-      mainClassName,
-      ModelBuilder.Model(services, entities)
-    )
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.AkkaServerless;
-        |import com.example.service.persistence.MyEntity1Impl;
-        |
-        |public final class Main {
-        |    
-        |    public static void main(String[] args) throws Exception {
-        |        new AkkaServerless()
-        |            // FIXME: No Java outer class name specified - cannot register MyEntity1Impl - ensure you are generating protobuf for Java
-        |            .start().toCompletableFuture().get();
-        |    }
-        |    
-        |}""".stripMargin
-    )
-  }
 }
