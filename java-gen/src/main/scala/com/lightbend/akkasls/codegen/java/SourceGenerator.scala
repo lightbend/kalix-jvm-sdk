@@ -564,6 +564,7 @@ object SourceGenerator extends PrettyPrinter {
           Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
           s"${entity.fqn.name}Impl",
           entity.fqn.parent.javaOuterClassname,
+          Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
           service.fqn.name,
           service.fqn.parent.javaOuterClassname,
           entity match {
@@ -579,18 +580,26 @@ object SourceGenerator extends PrettyPrinter {
     val imports = List(
       "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
     ) ++
-      entityServiceClasses.toSeq.collect {
+      entityServiceClasses.flatMap {
         case (
-              Some(packageName),
+              packageName,
               implClassName,
               javaOuterClassName,
+              servicePackageName,
               _,
               serviceJavaOuterClassName,
               _
             ) =>
-          "import" <+> packageName <> dot <> javaOuterClassName <> semi <> line <>
-            "import" <+> packageName <> dot <> serviceJavaOuterClassName <> semi <> line <>
-            "import" <+> packageName <> dot <> implClassName <> semi
+          packageName.fold(Seq.empty[Doc])(pn =>
+            Seq(
+              "import" <+> pn <> dot <> implClassName <> semi,
+              "import" <+> pn <> dot <> javaOuterClassName <> semi
+            )
+          ) ++
+            servicePackageName.fold(Seq.empty[Doc])(pn =>
+              Seq("import" <+> pn <> dot <> serviceJavaOuterClassName <> semi)
+            )
+
       }
 
     pretty(
@@ -618,6 +627,7 @@ object SourceGenerator extends PrettyPrinter {
                       _,
                       implClassName,
                       javaOuterClassName,
+                      _,
                       serviceName,
                       serviceJavaOuterClassName,
                       registrationMethod
@@ -653,9 +663,8 @@ object SourceGenerator extends PrettyPrinter {
     `class`(modifier, name, None)(body)
 
   private def `class`(modifier: Doc, name: String, extension: Option[String])(body: Doc): Doc =
-    modifier <+> "class" <+> name <+> (
-      extension.fold(emptyDoc)(ext => "extends" <+> ext <> space)
-    ) <>
+    modifier <+> "class" <+> name <+>
+    extension.fold(emptyDoc)(ext => "extends" <+> ext <> space) <>
     braces(nest(line <> body) <> line)
 
   private def constructor(
