@@ -323,7 +323,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |    @SnapshotHandler
       |    public abstract void handleSnapshot(EntityOuterClass.MyState snapshot);
       |    
-      |    @CommandHandler(name = "set")
+      |    @CommandHandler(name = "Set")
       |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext ctx) {
       |        return Reply.message(set(command, ctx));
       |    }
@@ -336,7 +336,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |        throw new CommandNotImplementedException();
       |    }
       |    
-      |    @CommandHandler(name = "get")
+      |    @CommandHandler(name = "Get")
       |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext ctx) {
       |        return Reply.message(get(command, ctx));
       |    }
@@ -381,7 +381,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |        }
       |    }
       |    
-      |    @CommandHandler(name = "set")
+      |    @CommandHandler(name = "Set")
       |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        return Reply.message(set(command, ctx));
       |    }
@@ -394,7 +394,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |        throw new CommandNotImplementedException();
       |    }
       |    
-      |    @CommandHandler(name = "get")
+      |    @CommandHandler(name = "Get")
       |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        return Reply.message(get(command, ctx));
       |    }
