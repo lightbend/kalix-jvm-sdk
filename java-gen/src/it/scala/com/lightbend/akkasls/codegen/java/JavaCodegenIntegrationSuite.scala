@@ -36,10 +36,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
   val logger        = LoggerFactory.getLogger(classOf[SourceGeneratorSuite]);
 
   val codegenImage =
-    new ImageFromDockerfile("akkasls-codegen-java-test", false)
+    new ImageFromDockerfile("akkasls-codegen-java-test", /* deleteOnExit */ false)
       .withFileFromClasspath("Dockerfile", "Dockerfile")
       .withFileFromClasspath("scripts", "scripts")
-      // .withFileFromClasspath("entrypoint.sh", "entrypoint.sh")
       .withFileFromPath("akkasls-codegen-java_2.13-1.0-SNAPSHOT.jar", jarPath)
       .withFileFromPath("akkaserverless-maven-java", mavenJavaPath)
 
@@ -137,8 +136,25 @@ class SourceGeneratorSuite extends munit.FunSuite {
           .fromInputStream(_)
           .getLines()
           .flatMap {
+            case """    private final String entityId;""" =>
+              Seq(
+                """    private final String entityId;""",
+                """    private int value;"""
+              )
             case """        throw ctx.fail("The command handler for `GetValue` is not implemented, yet");""" =>
-              Seq("""        throw ctx.fail("My modified error message!!!");""")
+              Seq(
+                """        MyEntityApi.MyResult result = MyEntityApi.MyResult.newBuilder().setValue(value).build();""",
+                """        return result;"""
+              )
+            case """        throw ctx.fail("The command handler for `SetValue` is not implemented, yet");""" =>
+              Seq(
+                """        ctx.emit(Domain.ValueSet.newBuilder().setValue(command.getValue()).build());""",
+                """        return Empty.getDefaultInstance();"""
+              )
+            case """        throw new RuntimeException("The event handler for `ValueSet` is not implemented, yet");""" =>
+              Seq(
+                """        value = event.getValue();"""
+              )
             case line => Seq(line)
           }
           .foreach { line =>
@@ -161,8 +177,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
     proxyContainer.start()
     val proxyUrl = s"http://${proxyContainer.getHost}:${proxyContainer.getMappedPort(9000)}"
 
-    // Eventually, a GetValue request should return a 500 error, with our generated error message
-    var getResult = retryUntil[requests.Response](_.statusCode == 500) {
+    // Eventually, a GetValue request should return a 200 OK
+    var getResult = retryUntil[requests.Response](_.statusCode == 200) {
       requests.post(
         s"$proxyUrl/com.example.MyServiceEntity/GetValue",
         check = false,
@@ -170,8 +186,28 @@ class SourceGeneratorSuite extends munit.FunSuite {
         headers = Map("Content-Type" -> "application/json")
       )
     }
-    assertEquals(getResult.statusCode, 500)
-    assertEquals(getResult.text(), "My modified error message!!!")
+    assertEquals(getResult.statusCode, 200)
+    assertEquals(getResult.text(), """{"value":0}""")
+
+    val newValue = 42;
+
+    val setResult = requests.post(
+      s"$proxyUrl/com.example.MyServiceEntity/SetValue",
+      check = false,
+      data = s"""{"entityId": "test-entity-id", "value": ${newValue}}""",
+      headers = Map("Content-Type" -> "application/json")
+    )
+    assertEquals(setResult.statusCode, 200)
+
+    val getAgainResult =
+      requests.post(
+        s"$proxyUrl/com.example.MyServiceEntity/GetValue",
+        check = false,
+        data = """{"entityId": "test-entity-id"}""",
+        headers = Map("Content-Type" -> "application/json")
+      )
+    assertEquals(getAgainResult.statusCode, 200)
+    assertEquals(getAgainResult.text(), s"""{"value":${newValue}}""")
 
     // Kill the gRPC server, and stop the proxy
     assertSuccessful(
@@ -206,8 +242,6 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val success = result.getExitCode() == 0
     if (!success) {
       logger.error(result.getStdout())
-    } else {
-      logger.info(result.getStdout())
     }
     assert(success, () => result.getStderr())
   }
