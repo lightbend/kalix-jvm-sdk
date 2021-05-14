@@ -35,14 +35,22 @@ lazy val `akkasls-codegen-core` =
 lazy val `akkasls-codegen-java` =
   project
     .in(file("java-gen"))
+    .configs(IntegrationTest)
     .enablePlugins(AutomateHeaderPlugin)
-    .settings(commonSettings)
+    .settings(commonSettings, Defaults.itSettings)
     .settings(
       libraryDependencies ++= Seq(
         library.kiama,
-        library.commonsIo       % Test,
-        library.munit           % Test,
-        library.munitScalaCheck % Test
+        library.commonsIo       % "it,test",
+        library.munit           % "it,test",
+        library.munitScalaCheck % "it,test",
+        library.logback         % "it",
+        library.requests        % "it",
+        library.testcontainers  % "it",
+        library.typesafeConfig  % "it"
+      ),
+      testOptions in IntegrationTest += Tests.Argument(
+        s"-Djava-codegen.jar=${assembly.value}"
       )
     )
     .dependsOn(`akkasls-codegen-core`)
@@ -77,12 +85,6 @@ lazy val `akkasls-codegen-js-cli` =
         *
         * This has been raised as an issue against the plugin: https://github.com/scalameta/sbt-native-image/issues/26
         */
-      assemblyMergeStrategy in assembly := {
-        case s if s.endsWith(".proto") =>
-          MergeStrategy.first
-        case "module-info.class" => MergeStrategy.discard
-        case s                   => MergeStrategy.defaultMergeStrategy(s)
-      },
       fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
       nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
@@ -110,17 +112,25 @@ lazy val library =
     object Version {
       val commonsIo      = "2.8.0"
       val kiama          = "2.4.0"
+      val logback        = "1.2.3"
       val munit          = "0.7.20"
       val protobufJava   = "3.13.0"
+      val requests       = "0.6.5"
       val scopt          = "4.0.0"
-      val akkaserverless = "0.7.0-beta.2"
+      val testcontainers = "1.15.3"
+      val typesafeConfig = "1.4.1"
+      val akkaserverless = "0.7.0-beta.6"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
+    val logback         = "ch.qos.logback"                 % "logback-classic"  % Version.logback
     val munit           = "org.scalameta"                 %% "munit"            % Version.munit
     val munitScalaCheck = "org.scalameta"                 %% "munit-scalacheck" % Version.munit
     val protobufJava    = "com.google.protobuf"            % "protobuf-java"    % Version.protobufJava
+    val requests        = "com.lihaoyi"                   %% "requests"         % Version.requests
     val scopt           = "com.github.scopt"              %% "scopt"            % Version.scopt
+    val testcontainers  = "org.testcontainers"             % "testcontainers"   % Version.testcontainers
+    val typesafeConfig  = "com.typesafe"                   % "config"           % Version.typesafeConfig
     val akkaserverless =
       "com.akkaserverless" % "akkaserverless-java-sdk" % Version.akkaserverless
   }
@@ -161,5 +171,12 @@ lazy val commonSettings =
       "maven.cloudsmith.io",
       sys.env.getOrElse("CLOUDSMITH_USER", ""),
       sys.env.getOrElse("CLOUDSMITH_PASS", "")
-    )
+    ),
+    // Assembly
+    assemblyMergeStrategy in assembly := {
+      case s if s.endsWith(".proto") =>
+        MergeStrategy.first
+      case "module-info.class" => MergeStrategy.discard
+      case s                   => MergeStrategy.defaultMergeStrategy(s)
+    }
   )
