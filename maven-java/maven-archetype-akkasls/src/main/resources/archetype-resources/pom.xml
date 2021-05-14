@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>${groupId}</groupId>
@@ -10,37 +11,44 @@
   <name>${artifactId}</name>
   #set( $D = '$' )
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <akkasls.dockerImage>my-docker-repo/${D}{project.artifactId}</akkasls.dockerImage>
-    <akkasls.dockerTag>${D}{project.version}</akkasls.dockerTag>
-    <akkasls.mainClass>${package}.Main</akkasls.mainClass>
+    <dockerImage>my-docker-repo/${D}{project.artifactId}</dockerImage>
+    <dockerTag>${D}{project.version}</dockerTag>
+    <mainClass>${package}.Main</mainClass>
+
     <jdk.target>11</jdk.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <akkaserverless-sdk.version>0.7.0-beta.5</akkaserverless-sdk.version>
+    <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
   <build>
+    <resources>
+      <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
+      <resource>
+        <directory>${D}{project.build.directory}/generated-resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
     <extensions>
       <extension>
         <groupId>kr.motd.maven</groupId>
         <artifactId>os-maven-plugin</artifactId>
-        <version>1.6.0</version>
+        <version>1.7.0</version>
       </extension>
     </extensions>
-    <resources>
-      <!-- Ensures that the generated protobuf descriptor is on the classpath,
-           to ensure source mapping works -->
-      <resource>
-        <directory>${D}{project.build.directory}/generated-resources</directory>
-      </resource>
-    </resources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <!-- java version -->
           <source>${D}{jdk.target}</source>
           <target>${D}{jdk.target}</target>
         </configuration>
@@ -50,20 +58,46 @@
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
-        <configuration>
-          <writeDescriptorSet>true</writeDescriptorSet>
-          <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-          <descriptorSetFileName>user-function.desc</descriptorSetFileName>
-          <checkStaleness>true</checkStaleness>
-          <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
-        </configuration>
         <executions>
           <execution>
+            <!-- generate Java code for protobuf types -->
+            <id>protobuf</id>
             <goals>
               <goal>compile</goal>
             </goals>
+            <configuration>
+              <writeDescriptorSet>true</writeDescriptorSet>
+              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+              <descriptorSetFileName>user-function.desc</descriptorSetFileName>
+              <checkStaleness>true</checkStaleness>
+              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
+            </configuration>
           </execution>
-        </executions>
+          <execution>
+            <!-- generate a gRPC client (with Akka gRPC) for integration testing -->
+            <id>grpc-client</id>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <writeDescriptorSet>true</writeDescriptorSet>
+              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
+              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
+              <checkStaleness>true</checkStaleness>
+              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
+              <protocPlugins>
+                <protocPlugin>
+                  <id>akka-grpc</id>
+                  <groupId>com.lightbend.akka.grpc</groupId>
+                  <artifactId>akka-grpc-scalapb-protoc-plugin_2.12</artifactId>
+                  <version>${D}{akka-grpc.version}</version>
+                  <mainClass>akka.grpc.gen.Main</mainClass>
+                </protocPlugin>
+              </protocPlugins>
+            </configuration>
+          </execution>
+      </executions>
       </plugin>
 
       <plugin>
@@ -82,8 +116,7 @@
                   <resource>reference.conf</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <!-- main entry class -->
-                  <mainClass>${D}{akkasls.mainClass}</mainClass>
+                  <mainClass>${D}{mainClass}</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -98,13 +131,13 @@
         <configuration>
           <images>
             <image>
-              <name>${D}{akkasls.dockerImage}:%l</name>
+              <name>${D}{dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
                 <from>docker.io/library/adoptopenjdk:${D}{jdk.target}-jre-hotspot</from>
                 <tags>
                   <!-- tag for generated image -->
-                  <tag>${D}{akkasls.dockerTag}</tag>
+                  <tag>${D}{dockerTag}</tag>
                 </tags>
                 <ports>
                   <!-- expose port in Docker container -->
@@ -153,8 +186,14 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>${D}{akkasls.mainClass}</mainClass>
+          <mainClass>${D}{mainClass}</mainClass>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
       </plugin>
 
       <plugin>
@@ -170,12 +209,13 @@
           </execution>
         </executions>
         <configuration>
-          <dockerImage>${D}{akkasls.dockerImage}:${D}{akkasls.dockerTag}</dockerImage>
-          <mainClass>${D}{akkasls.mainClass}</mainClass>
+          <dockerImage>${D}{dockerImage}:${D}{dockerTag}</dockerImage>
+          <mainClass>${D}{mainClass}</mainClass>
         </configuration>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
         <version>3.0.0-M1</version>
         <configuration>
@@ -212,7 +252,18 @@
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk</artifactId>
-      <version>0.7.0-beta.5</version>
+      <version>${D}{akkaserverless-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.akkaserverless</groupId>
+      <artifactId>akkaserverless-java-sdk-testkit</artifactId>
+      <version>${D}{akkaserverless-sdk.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

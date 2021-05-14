@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-option go_package = "$packageInPathFormat/persistence;persistence";
 package ${package}.persistence;
 
 import "akkaserverless/annotations.proto";
