@@ -11,21 +11,13 @@ import scala.util.Using
 
 import _root_.java.io.PrintWriter
 import _root_.java.nio.file.{ Files, Paths }
-import _root_.java.time.Duration
 import _root_.java.util.concurrent.TimeUnit.MINUTES
 
 import com.typesafe.config.ConfigFactory
-import org.scalacheck.Gen
 import org.slf4j.LoggerFactory
-import org.testcontainers.containers.Container.ExecResult
-import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.{ Container, GenericContainer, Network }
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.images.builder.ImageFromDockerfile
-import org.testcontainers.utility.LazyFuture
-import com.typesafe.config.ConfigException.Generic
-import org.testcontainers.containers.ExecInContainerPattern
-import org.testcontainers.containers.Network
-import requests.Requester
 import org.testcontainers.utility.MountableFile
 
 class SourceGeneratorSuite extends munit.FunSuite {
@@ -225,7 +217,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       artifactId: String,
       groupId: String = "com.example",
       version: String = "1.0-SNAPSHOT"
-  ): ExecResult =
+  ): Container.ExecResult =
     container.execInContainer(
       "mvn",
       "-B",
@@ -238,7 +230,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       s"-Dversion=${version}"
     )
 
-  def assertSuccessful(result: ExecResult) = {
+  def assertSuccessful(result: Container.ExecResult) = {
     val success = result.getExitCode() == 0
     if (!success) {
       logger.error(result.getStdout())
