@@ -4,14 +4,13 @@
  */
 
 package com.lightbend.akkasls.codegen
-package java
+package js
 
 import scala.io.Source
 import scala.util.Using
-
-import _root_.java.io.PrintWriter
-import _root_.java.nio.file.{ Files, Paths }
-import _root_.java.util.concurrent.TimeUnit.MINUTES
+import java.io.PrintWriter
+import java.nio.file.{ Files, Paths }
+import java.util.concurrent.TimeUnit.MINUTES
 
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
@@ -20,19 +19,19 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.images.builder.ImageFromDockerfile
 import org.testcontainers.utility.MountableFile
 
-class JavaCodegenIntegrationSuite extends munit.FunSuite {
-  val config        = ConfigFactory.load()
-  val mavenJavaPath = Paths.get(config.getString("akkaserverless-maven-java.path"))
-  val jarPath       = Paths.get(config.getString("java-codegen.jar"))
-  val proxyImage    = config.getString("akkaserverless-proxy.image")
-  val logger        = LoggerFactory.getLogger(classOf[JavaCodegenIntegrationSuite]);
-
+class JsCodegenIntegrationSuite extends munit.FunSuite {
+  val config       = ConfigFactory.load()
+  val npmJsPath    = Paths.get(config.getString("akkaserverless-npm-js.path"))
+  val cliImagePath = Paths.get(config.getString("js-codegen-cli.native-image"))
+  val proxyImage   = config.getString("akkaserverless-proxy.image")
+  val logger       = LoggerFactory.getLogger(classOf[JsCodegenIntegrationSuite])
+  logger.info(cliImagePath.toString)
   val codegenImage =
     new ImageFromDockerfile("akkasls-codegen-java-test", /* deleteOnExit */ false)
       .withFileFromClasspath("Dockerfile", "Dockerfile")
       .withFileFromClasspath("scripts", "scripts")
-      .withFileFromPath("akkasls-codegen-java_2.13-1.0-SNAPSHOT.jar", jarPath)
-      .withFileFromPath("akkaserverless-maven-java", mavenJavaPath)
+      .withFileFromPath("akkasls-codegen-js", cliImagePath)
+      .withFileFromPath("akkaserverless-npm-js", npmJsPath)
 
   class AkkaslsJavaCodegenContainer
       extends GenericContainer[AkkaslsJavaCodegenContainer](codegenImage)
@@ -66,8 +65,17 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     val entityName = "unmodified-entity"
 
     // Generate a new entity within the codegen container
-    assertSuccessful(generateEntity(codegenContainer)(entityName))
+    assertSuccessful(
+      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+    )
 
+    // Setup and build the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
     // Start the entity gRPC server
     assertSuccessful(
       codegenContainer.execInContainer(
@@ -106,21 +114,22 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     val entityName = "simple-impl-entity"
 
     // Generate a new entity within the codegen container
-    assertSuccessful(generateEntity(codegenContainer)(entityName))
+    assertSuccessful(
+      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+    )
 
-    // Build the initial implementation
+    // Setup and build the entity
     assertSuccessful(
       codegenContainer.execInContainer(
-        "bash",
-        "-c",
-        s"cd ${entityName} && mvn compile"
+        "./scripts/setup-entity.sh",
+        entityName
       )
     )
 
     // Stream generated MyEntityImpl, and replace function bodies with simple implementations
-    val implFile = Files.createTempFile("generated-entity-impl", ".java")
+    val implFile = Files.createTempFile("generated-entity-impl", ".js")
     val implContainerPath =
-      s"/home/${entityName}/src/main/java/com/example/persistence/MyEntityImpl.java"
+      s"/home/${entityName}/src/myserviceentity.js"
     Using(new PrintWriter(implFile.toFile())) { writer =>
       codegenContainer.copyFileFromContainer(
         implContainerPath,
@@ -128,25 +137,17 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
           .fromInputStream(_)
           .getLines()
           .flatMap {
-            case """    private final String entityId;""" =>
+            case """      return ctx.fail("The command handler for `GetValue` is not implemented, yet");""" =>
               Seq(
-                """    private final String entityId;""",
-                """    private int value;"""
+                """      return state;"""
               )
-            case """        throw ctx.fail("The command handler for `GetValue` is not implemented, yet");""" =>
+            case """      return ctx.fail("The command handler for `SetValue` is not implemented, yet");""" =>
               Seq(
-                """        MyEntityApi.MyResult result = MyEntityApi.MyResult.newBuilder().setValue(value).build();""",
-                """        return result;"""
+                """      ctx.emit({ type: "ValueSet", value: command.value });""",
+                """      return {};"""
               )
-            case """        throw ctx.fail("The command handler for `SetValue` is not implemented, yet");""" =>
-              Seq(
-                """        ctx.emit(Domain.ValueSet.newBuilder().setValue(command.getValue()).build());""",
-                """        return Empty.getDefaultInstance();"""
-              )
-            case """        throw new RuntimeException("The event handler for `ValueSet` is not implemented, yet");""" =>
-              Seq(
-                """        value = event.getValue();"""
-              )
+            case """      return state;""" =>
+              Seq("""        return { value: event.value };""")
             case line => Seq(line)
           }
           .foreach { line =>
@@ -210,25 +211,6 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     )
     proxyContainer.stop()
   }
-
-  def generateEntity(
-      container: AkkaslsJavaCodegenContainer
-  )(
-      artifactId: String,
-      groupId: String = "com.example",
-      version: String = "1.0-SNAPSHOT"
-  ): Container.ExecResult =
-    container.execInContainer(
-      "mvn",
-      "-B",
-      "archetype:generate",
-      "-DarchetypeGroupId=com.lightbend",
-      "-DarchetypeArtifactId=maven-archetype-akkasls",
-      "-DarchetypeVersion=1.0-SNAPSHOT",
-      s"-DgroupId=${groupId}",
-      s"-DartifactId=${artifactId}",
-      s"-Dversion=${version}"
-    )
 
   def assertSuccessful(result: Container.ExecResult) = {
     val success = result.getExitCode() == 0

@@ -73,8 +73,9 @@ lazy val `akkasls-codegen-js` =
 lazy val `akkasls-codegen-js-cli` =
   project
     .in(file("js-gen-cli"))
+    .configs(IntegrationTest)
     .enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin, NativeImagePlugin)
-    .settings(commonSettings)
+    .settings(commonSettings, Defaults.itSettings)
     .settings(
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
@@ -96,8 +97,15 @@ lazy val `akkasls-codegen-js-cli` =
       ),
       libraryDependencies ++= Seq(
         library.scopt,
-        library.munit           % Test,
-        library.munitScalaCheck % Test
+        library.munit           % "it,test",
+        library.munitScalaCheck % "it,test",
+        library.logback         % "it",
+        library.requests        % "it",
+        library.testcontainers  % "it",
+        library.typesafeConfig  % "it"
+      ),
+      testOptions in IntegrationTest += Tests.Argument(
+        s"-Djs-codegen-cli.native-image=${nativeImage.value}"
       ),
       skip in publish := true
     )
