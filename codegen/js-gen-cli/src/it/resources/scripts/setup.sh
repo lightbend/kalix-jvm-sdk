@@ -11,12 +11,14 @@ mv package.json original-package.json
 node /home/scripts/disable-download-cli.js original-package.json > package.json
 cp /home/akkasls-codegen-js bin/akkasls-codegen-js
 
-# Use NPM link to make this available within the contianer
+# Use NPM link to make this available within the container
+npm install
 npm link
 popd
 
 pushd create-akkasls-entity
 # Install create-akkasls-entity globally within the container
+npm install
 npm pack
 npm i -g lightbend-create-akkasls-entity-1.0.0.tgz
 popd
