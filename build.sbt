@@ -70,6 +70,8 @@ lazy val `akkasls-codegen-js` =
     )
     .dependsOn(`akkasls-codegen-core`)
 
+lazy val cachedNativeImage = taskKey[File]("A cached version of the nativeImage task key, that only rebuilds when required.")
+
 lazy val `akkasls-codegen-js-cli` =
   project
     .in(file("js-gen-cli"))
@@ -87,6 +89,24 @@ lazy val `akkasls-codegen-js-cli` =
         * This has been raised as an issue against the plugin: https://github.com/scalameta/sbt-native-image/issues/26
         */
       fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
+      cachedNativeImage := Def.taskDyn {
+        import sbt.util.CacheImplicits._
+
+        val store = streams.value.cacheStoreFactory.make("assembled-jar-info-cache")
+
+        val trackedNativeImage = Tracked.inputChanged[ModifiedFileInfo, Def.Initialize[Task[File]]](store) {
+          case (fatJarChanged, _) =>
+              if (fatJarChanged) {
+                // Assembled fat JAR has changed, rebuild native image
+                nativeImage
+              } else {
+                streams.value.log.info(s"Native image up to date: ${nativeImageOutput.value}")
+                nativeImageOutput.toTask
+              }
+            }
+
+        trackedNativeImage(FileInfo.lastModified(assembly.value))
+      }.value,
       nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
         "--no-fallback",
@@ -105,7 +125,7 @@ lazy val `akkasls-codegen-js-cli` =
         library.typesafeConfig  % "it"
       ),
       testOptions in IntegrationTest += Tests.Argument(
-        s"-Djs-codegen-cli.native-image=${nativeImage.value}"
+        s"-Djs-codegen-cli.native-image=${cachedNativeImage.value}"
       ),
       skip in publish := true
     )
