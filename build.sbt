@@ -70,11 +70,14 @@ lazy val `akkasls-codegen-js` =
     )
     .dependsOn(`akkasls-codegen-core`)
 
+lazy val cachedNativeImage = taskKey[File]("A cached version of the nativeImage task key, that only rebuilds when required.")
+
 lazy val `akkasls-codegen-js-cli` =
   project
     .in(file("js-gen-cli"))
+    .configs(IntegrationTest)
     .enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin, NativeImagePlugin)
-    .settings(commonSettings)
+    .settings(commonSettings, Defaults.itSettings)
     .settings(
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "com.lightbend.akkasls.codegen.js",
@@ -86,6 +89,24 @@ lazy val `akkasls-codegen-js-cli` =
         * This has been raised as an issue against the plugin: https://github.com/scalameta/sbt-native-image/issues/26
         */
       fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
+      cachedNativeImage := Def.taskDyn {
+        import sbt.util.CacheImplicits._
+
+        val store = streams.value.cacheStoreFactory.make("assembled-jar-info-cache")
+
+        val trackedNativeImage = Tracked.inputChanged[ModifiedFileInfo, Def.Initialize[Task[File]]](store) {
+          case (fatJarChanged, _) =>
+              if (fatJarChanged) {
+                // Assembled fat JAR has changed, rebuild native image
+                nativeImage
+              } else {
+                streams.value.log.info(s"Native image up to date: ${nativeImageOutput.value}")
+                nativeImageOutput.toTask
+              }
+            }
+
+        trackedNativeImage(FileInfo.lastModified(assembly.value))
+      }.value,
       nativeImageAgentMerge := true,
       nativeImageOptions ++= Seq(
         "--no-fallback",
@@ -96,8 +117,15 @@ lazy val `akkasls-codegen-js-cli` =
       ),
       libraryDependencies ++= Seq(
         library.scopt,
-        library.munit           % Test,
-        library.munitScalaCheck % Test
+        library.munit           % "it,test",
+        library.munitScalaCheck % "it,test",
+        library.logback         % "it",
+        library.requests        % "it",
+        library.testcontainers  % "it",
+        library.typesafeConfig  % "it"
+      ),
+      testOptions in IntegrationTest += Tests.Argument(
+        s"-Djs-codegen-cli.native-image=${cachedNativeImage.value}"
       ),
       skip in publish := true
     )
