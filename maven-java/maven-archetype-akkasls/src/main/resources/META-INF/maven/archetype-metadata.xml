@@ -12,6 +12,12 @@
                 <include>**/*</include>
             </includes>
         </fileSet>
+        <fileSet filtered="false">
+            <directory>src/test/resources</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
             <directory/>
             <includes>
