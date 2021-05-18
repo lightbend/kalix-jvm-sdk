@@ -62,6 +62,16 @@ public final class AkkaServerlessTestkitResource extends ExternalResource {
   }
 
   /**
+   * Get the host name/IP address where the Akka Serverless service is available. This is relevant
+   * in certain Continuous Integration environments.
+   *
+   * @return Akka Serverless host
+   */
+  public String getHost() {
+    return testkit.getHost();
+  }
+
+  /**
    * Get the local port where the Akka Serverless service is available.
    *
    * @return local Akka Serverless port

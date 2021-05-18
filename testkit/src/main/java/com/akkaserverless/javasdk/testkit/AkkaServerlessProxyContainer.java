@@ -4,8 +4,10 @@
 
 package com.akkaserverless.javasdk.testkit;
 
+import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -28,31 +30,50 @@ public class AkkaServerlessProxyContainer extends GenericContainer<AkkaServerles
   /** Default user function port (8080). */
   public static final int DEFAULT_USER_FUNCTION_PORT = 8080;
 
+  /** Default local port where the Google Pub/Sub emulator is available (8085). */
+  public static final int DEFAULT_GOOGLE_PUBSUB_PORT = 8085;
+
   private final int userFunctionPort;
+  private final int googlePubSubPort;
 
   public AkkaServerlessProxyContainer() {
     this(DEFAULT_USER_FUNCTION_PORT);
   }
 
   public AkkaServerlessProxyContainer(final int userFunctionPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort);
+    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
+  }
+
+  public AkkaServerlessProxyContainer(final int userFunctionPort, int googlePubSubPort) {
+    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, googlePubSubPort);
   }
 
   public AkkaServerlessProxyContainer(
-      final DockerImageName dockerImageName, final int userFunctionPort) {
+      final DockerImageName dockerImageName,
+      final int userFunctionPort,
+      final int googlePubSubPort) {
     super(dockerImageName);
     this.userFunctionPort = userFunctionPort;
+    this.googlePubSubPort = googlePubSubPort;
     withExposedPorts(DEFAULT_PROXY_PORT);
     withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
     withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
+    // connect to local Google Pub/Sub emulator
+    withEnv("EVENTING_SUPPORT", "google-pubsub-emulator");
+    withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal");
+    withEnv("PUBSUB_EMULATOR_PORT", String.valueOf(googlePubSubPort));
     waitingFor(Wait.forLogMessage(".*Akka Serverless proxy online.*", 1));
   }
 
   @Override
   public void start() {
     Testcontainers.exposeHostPorts(userFunctionPort);
+    Testcontainers.exposeHostPorts(googlePubSubPort);
     super.start();
+    // Debug tooling: pass the Proxy logs into the client SLF4J
+    // Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));
+    // followOutput(logConsumer);
   }
 
   /**

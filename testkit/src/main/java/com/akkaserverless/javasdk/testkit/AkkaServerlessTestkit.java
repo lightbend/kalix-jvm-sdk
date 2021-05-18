@@ -12,6 +12,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.Testcontainers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -124,13 +125,27 @@ public class AkkaServerlessTestkit {
   }
 
   /**
+   * Get the host name/IP address where the Akka Serverless service is available. This is relevant
+   * in certain Continuous Integration environments.
+   *
+   * @return Akka Serverless host
+   */
+  public String getHost() {
+    if (!started)
+      throw new IllegalStateException(
+          "Need to start AkkaServerlessTestkit before accessing the host name");
+    return proxyContainer.getHost();
+  }
+
+  /**
    * Get the local port where the Akka Serverless service is available.
    *
    * @return local Akka Serverless port
    */
   public int getPort() {
     if (!started)
-      throw new IllegalStateException("Need to start AkkaServerlessTestkit before accessing port");
+      throw new IllegalStateException(
+          "Need to start AkkaServerlessTestkit before accessing the port");
     return proxyContainer.getProxyPort();
   }
 
@@ -155,7 +170,7 @@ public class AkkaServerlessTestkit {
     if (!started)
       throw new IllegalStateException(
           "Need to start AkkaServerlessTestkit before accessing gRPC client settings");
-    return GrpcClientSettings.connectToServiceAt("127.0.0.1", getPort(), testSystem).withTls(false);
+    return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
   /** Stop the testkit and local Akka Serverless. */

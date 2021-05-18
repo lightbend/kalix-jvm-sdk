@@ -13,7 +13,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
   * from sbt: `sbt java-eventing-shopping-cart/run`
   * or mvn
     ```
-    sbt java-sdk/publishM2
+    sbt java-sdk/publishM2 java-sdk-testkit/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-eventing-shopping-cart
     mvn compile exec:java
@@ -144,4 +144,21 @@ Create the topics (subscriptions are auto-created)
 gcloud beta pubsub topics create shopping-cart-events
 gcloud beta pubsub topics create shopping-cart-protobuf-cloudevents
 gcloud beta pubsub topics create shopping-cart-json
+```
+
+## Running integration tests locally
+
+Start the pubsub emulator: 
+```
+gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
+```
+
+Publish the current proxy locally for use via the testkit and TestContainers
+```
+sbt proxy-core/Docker/publishLocal
+```
+
+Run the integration tests
+```
+sbt java-eventing-shopping-cart/It/test
 ```

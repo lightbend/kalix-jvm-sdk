@@ -33,60 +33,61 @@ import shopping.product.domain.ProductPopularityDomain;
 public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  public static final AkkaServerless SERVICE =
+      new AkkaServerless()
+          // end::ToProductPopularityAction[]
+          // event sourced shopping cart entity
+          // receives commands from outside the service and persists events to its journal/event log
+          .registerEventSourcedEntity(
+              ShoppingCartEntity.class,
+              ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
+              ShoppingCartDomain.getDescriptor())
+          // end::RegisterEventSourcedEntity[]
+
+          // consume shopping cart events emitted from the ShoppingCartEntity
+          // and publish as is to 'shopping-cart-events' topic
+          .registerAction(
+              TopicPublisherAction.class,
+              EventsToTopicPublisher.getDescriptor()
+                  .findServiceByName("EventsToTopicPublisherService"))
+          .registerAction(
+              ShoppingCartTopicAction.class,
+              ShoppingCartTopic.getDescriptor().findServiceByName("ShoppingCartTopicService"))
+
+          // consume shopping cart events published to 'shopping-cart-events' topic
+          .registerAction(
+              ShoppingCartAnalyticsAction.class,
+              ShoppingCartAnalytics.getDescriptor()
+                  .findServiceByName("ShoppingCartAnalyticsService"))
+
+          // consume shopping cart events emitted from the ShoppingCartEntity
+          // and send as commands to ProductPopularityEntity
+          // tag::ToProductPopularityAction[]
+          .registerAction(
+              ToProductPopularityAction.class,
+              ToProductPopularity.getDescriptor().findServiceByName("ToProductPopularityService"))
+          // end::ToProductPopularityAction[]
+
+          // value entity tracking product popularity
+          .registerValueEntity(
+              ProductPopularityEntity.class,
+              ProductPopularityApi.getDescriptor().findServiceByName("ProductPopularityService"),
+              ProductPopularityDomain.getDescriptor())
+
+          // view of the shopping carts
+          .registerView(
+              ShoppingCartView.class,
+              shopping.cart.view.ShoppingCartViewModel.getDescriptor()
+                  .findServiceByName("ShoppingCartViewService"),
+              "carts",
+              ShoppingCartDomain.getDescriptor(),
+              ShoppingCartViewModel.getDescriptor());
+  // tag::ToProductPopularityAction[]
+  // tag::RegisterEventSourcedEntity[]
+
   public static final void main(String[] args) throws Exception {
     LOG.info("started");
-    new AkkaServerless()
-        // end::ToProductPopularityAction[]
-        // event sourced shopping cart entity
-        // receives commands from outside the service and persists events to its journal/event log
-        .registerEventSourcedEntity(
-            ShoppingCartEntity.class,
-            ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-            ShoppingCartDomain.getDescriptor())
-        // end::RegisterEventSourcedEntity[]
-
-        // consume shopping cart events emitted from the ShoppingCartEntity
-        // and publish as is to 'shopping-cart-events' topic
-        .registerAction(
-            TopicPublisherAction.class,
-            EventsToTopicPublisher.getDescriptor()
-                .findServiceByName("EventsToTopicPublisherService"))
-        .registerAction(
-            ShoppingCartTopicAction.class,
-            ShoppingCartTopic.getDescriptor().findServiceByName("ShoppingCartTopicService"))
-
-        // consume shopping cart events published to 'shopping-cart-events' topic
-        .registerAction(
-            ShoppingCartAnalyticsAction.class,
-            ShoppingCartAnalytics.getDescriptor().findServiceByName("ShoppingCartAnalyticsService"))
-
-        // consume shopping cart events emitted from the ShoppingCartEntity
-        // and send as commands to ProductPopularityEntity
-        // tag::ToProductPopularityAction[]
-        .registerAction(
-            ToProductPopularityAction.class,
-            ToProductPopularity.getDescriptor().findServiceByName("ToProductPopularityService"))
-        // end::ToProductPopularityAction[]
-
-        // value entity tracking product popularity
-        .registerValueEntity(
-            ProductPopularityEntity.class,
-            ProductPopularityApi.getDescriptor().findServiceByName("ProductPopularityService"),
-            ProductPopularityDomain.getDescriptor())
-
-        // view of the shopping carts
-        .registerView(
-            ShoppingCartView.class,
-            shopping.cart.view.ShoppingCartViewModel.getDescriptor()
-                .findServiceByName("ShoppingCartViewService"),
-            "carts",
-            ShoppingCartDomain.getDescriptor(),
-            ShoppingCartViewModel.getDescriptor())
-        // tag::ToProductPopularityAction[]
-        // tag::RegisterEventSourcedEntity[]
-        .start()
-        .toCompletableFuture()
-        .get();
+    SERVICE.start().toCompletableFuture().get();
   }
 }
 // end::ToProductPopularityAction[]
