@@ -23,7 +23,7 @@ message MyResult {
 }
 
 service MyServiceEntity {
-    option (akkaserverless.service).entity.type = ".persistence.MyEntity";
+    option (akkaserverless.service).entity.type = ".domain.MyEntity";
     rpc SetValue(SetValueCommand) returns (google.protobuf.Empty);
     rpc GetValue(GetValueCommand) returns (MyResult);
 }
