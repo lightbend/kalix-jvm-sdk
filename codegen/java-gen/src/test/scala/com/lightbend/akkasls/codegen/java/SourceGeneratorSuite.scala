@@ -561,6 +561,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
+        |import org.slf4j.Logger;
+        |import org.slf4j.LoggerFactory;
         |import com.example.service.persistence.MyEntity1Impl;
         |import com.example.service.persistence.EntityOuterClass1;
         |import com.example.service.persistence.MyValueEntity2Impl;
@@ -571,7 +573,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |public final class Main {
         |    
-        |    public static void main(String[] args) throws Exception {
+        |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+        |    
+        |    public static final AkkaServerless SERVICE =
         |        new AkkaServerless()
         |            .registerEventSourcedEntity(
         |                MyEntity1Impl.class,
@@ -587,8 +591,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                MyEntity3Impl.class,
         |                ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
         |                EntityOuterClass3.getDescriptor()
-        |            )
-        |            .start().toCompletableFuture().get();
+        |            );
+        |    
+        |    public static void main(String[] args) throws Exception {
+        |        LOG.info("starting the Akka Serverless service");
+        |        SERVICE.start().toCompletableFuture().get();
         |    }
         |    
         |}""".stripMargin
