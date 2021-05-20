@@ -80,8 +80,11 @@ final class ValueEntitiesImpl(_system: ActorSystem,
       .flatMapConcat {
         case (Seq(ValueEntityStreamIn(InInit(init), _)), source) =>
           source.via(runEntity(init))
-        case _ =>
-          throw ProtocolException("Expected init message for Value entity")
+        case unexpected =>
+          throw ProtocolException(
+            s"Expected init message for Value entity (this is an Akka Serverless bug, please report). " +
+            s"Unexpected message: ${unexpected._1}"
+          )
       }
       .recover {
         case error =>

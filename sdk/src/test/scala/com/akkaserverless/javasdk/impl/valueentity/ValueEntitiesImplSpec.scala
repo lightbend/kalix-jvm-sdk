@@ -36,7 +36,9 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       service.expectLogError("Terminating entity due to unexpected failure") {
         val entity = protocol.valueEntity.connect()
         entity.send(command(1, "cart", "command"))
-        entity.expect(failure("Protocol error: Expected init message for Value entity"))
+        val message = entity.expectNext()
+        val failure = message.failure.get
+        failure.description should startWith("Protocol error: Expected init message for Value entity")
         entity.expectClosed()
       }
     }
