@@ -578,7 +578,9 @@ object SourceGenerator extends PrettyPrinter {
     }
 
     val imports = List(
-      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
+      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi <> line <>
+      "import" <+> "org.slf4j.Logger" <> semi <> line <>
+      "import" <+> "org.slf4j.LoggerFactory" <> semi
     ) ++
       entityServiceClasses.flatMap {
         case (
@@ -612,6 +614,50 @@ object SourceGenerator extends PrettyPrinter {
       line <>
       `class`("public" <+> "final", mainClassName) {
         line <>
+        field(
+          "private" <+> "static" <+> "final",
+          "Logger",
+          "LOG",
+          separator = " "
+        )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> linebreak <>
+        line <>
+        field(
+          "public" <+> "static" <+> "final",
+          "AkkaServerless",
+          "SERVICE",
+          separator = line
+        ) {
+          indent(
+            "new" <+> "AkkaServerless()" <> line <>
+            indent(
+              ssep(
+                entityServiceClasses.map {
+                  case (
+                        _,
+                        implClassName,
+                        javaOuterClassName,
+                        _,
+                        serviceName,
+                        serviceJavaOuterClassName,
+                        registrationMethod
+                      ) =>
+                    registrationMethod <> parens(
+                      nest(
+                        line <>
+                        implClassName <> ".class" <> comma <> line <>
+                        serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
+                          dquotes(serviceName)
+                        ) <> comma <> line <>
+                        javaOuterClassName <> ".getDescriptor()"
+                      ) <> line
+                    )
+                }.toSeq,
+                line
+              ) <> semi
+            )
+          )
+        } <> linebreak <>
+        line <>
         method(
           "public" <+> "static",
           "void",
@@ -619,34 +665,8 @@ object SourceGenerator extends PrettyPrinter {
           List("String[]" <+> "args"),
           "throws" <+> "Exception" <> space
         ) {
-          "new" <+> "AkkaServerless()" <> line <>
-          indent(
-            ssep(
-              entityServiceClasses.map {
-                case (
-                      _,
-                      implClassName,
-                      javaOuterClassName,
-                      _,
-                      serviceName,
-                      serviceJavaOuterClassName,
-                      registrationMethod
-                    ) =>
-                  registrationMethod <> parens(
-                    nest(
-                      line <>
-                      implClassName <> ".class" <> comma <> line <>
-                      serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                        dquotes(serviceName)
-                      ) <> comma <> line <>
-                      javaOuterClassName <> ".getDescriptor()"
-                    ) <> line
-                  )
-              }.toSeq,
-              line
-            ) <> line <>
-            ".start().toCompletableFuture().get()" <> semi
-          )
+          "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
+          "SERVICE.start().toCompletableFuture().get()" <> semi
         } <> line
 
       }
@@ -684,6 +704,15 @@ object SourceGenerator extends PrettyPrinter {
   )(body: Doc): Doc =
     modifier <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+> postModifier <>
     braces(nest(line <> body) <> line)
+
+  private def field(
+      modifier: Doc,
+      fieldType: Doc,
+      name: String,
+      separator: Doc
+  )(body: Doc): Doc =
+    modifier <+> fieldType <+> name <+> equal <> separator <>
+    nest(body)
 
   private def abstractMethod(
       modifier: Doc,
