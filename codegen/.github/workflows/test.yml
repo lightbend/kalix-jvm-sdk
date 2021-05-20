@@ -23,11 +23,13 @@ jobs:
         with:
           repository: lightbend/akkaserverless-maven-java
           path: akkaserverless-maven-java
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
       - name: Clone Maven/Java tooling
         uses: actions/checkout@v2
         with:
           repository: lightbend/akkaserverless-npm-js
           path: akkaserverless-npm-js
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
       - name: Run tests
         # The it:test task compiles, runs unit tests, and then runs integration tests
         run: sbt it:test
