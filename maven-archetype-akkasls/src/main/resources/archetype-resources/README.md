@@ -25,7 +25,9 @@ mvn compile
 #[[
 ## Running Locally
 ]]#
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application. To start the proxy, run the following command from this directory:
+In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
+To start the proxy, run the following command from this directory:
 
 ### macOS and Windows
 
