@@ -17,14 +17,14 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.matchers.should.Matchers
-import java.util.Optional
-import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
 
+import java.util.{Base64, Optional}
+import java.util.concurrent.{CompletableFuture, CompletionStage, TimeUnit}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
+import com.google.protobuf.ByteString
 
 class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -111,6 +111,37 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
       def inToOut(in: ActionspecApi.In): ActionspecApi.Out =
         ActionspecApi.Out.newBuilder().setField("out: " + in.getField).build()
 
+      def testAny(handler: AnyRef) = {
+        val innerAny = protobuf.Any
+          .newBuilder()
+          .setTypeUrl("types.googleapis.com/wirelessmesh.FooBar")
+          .setValue(
+            ByteString.copyFrom(
+              Base64.getDecoder.decode(
+                "ChFteS10aGlyZC1sb2NhdGlvbhIIYWJjZDEyMzQaDnNvbWVAZW1haWwuY29tIgUxMTExMQ=="
+              )
+            )
+          )
+          .build()
+        val outerAny = protobuf.Any
+          .newBuilder()
+          .setTypeUrl("types.googleapis.com/google.protobuf.Any")
+          .setValue(innerAny.toByteString)
+          .build()
+        val reply = create(handler)
+          .handleUnary(
+            "UnaryAny",
+            MessageEnvelope.of(
+              outerAny,
+              Metadata.EMPTY.add("scope", "message")
+            ),
+            ctx
+          )
+          .toCompletableFuture
+          .get(10, TimeUnit.SECONDS)
+        assertIsOutReplyWithField(reply, "type: types.googleapis.com/wirelessmesh.FooBar")
+      }
+
       "synchronous" in test(new {
         @Handler
         def unary(in: ActionspecApi.In): ActionspecApi.Out = inToOut(in)
@@ -131,6 +162,12 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
         @Handler
         def unaryJson(in: ActionspecApi.In): CompletionStage[JsonOut] =
           CompletableFuture.completedFuture(new JsonOut(in.getField))
+      })
+
+      "calling catch-all method" in testAny(new {
+        @Handler
+        def unaryAny(in: com.google.protobuf.Any): CompletionStage[ActionspecApi.Out] =
+          CompletableFuture.completedFuture(ActionspecApi.Out.newBuilder().setField("type: " + in.getTypeUrl).build())
       })
 
       "in wrapped in envelope" in test(new {

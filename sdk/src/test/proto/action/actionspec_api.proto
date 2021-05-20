@@ -18,6 +18,7 @@ message Out {
 service ActionSpecService {
     rpc Unary(In) returns (Out);
     rpc UnaryJson(In) returns (google.protobuf.Any);
+    rpc UnaryAny(google.protobuf.Any) returns (Out);
     rpc StreamedIn(stream In) returns (Out);
     rpc StreamedOut(In) returns (stream Out);
     rpc StreamedJsonOut(In) returns (stream google.protobuf.Any);
