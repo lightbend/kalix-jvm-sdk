@@ -3,8 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 pushd $1
-
-npm run start &
+node src/index.js &
 echo $! > .akkasls-pid
 
 popd

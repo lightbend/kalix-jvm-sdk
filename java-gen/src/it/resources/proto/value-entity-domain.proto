@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package com.example.persistence;
+
+import "akkaserverless/annotations.proto";
+
+option (akkaserverless.file).value_entity = {
+    name: "MyEntity"
+    entity_type: "MyEntity"
+    state: { type: "MyState" }
+};
+
+message MyState {
+    int32 value = 1;
+}
