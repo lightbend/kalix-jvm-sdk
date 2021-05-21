@@ -82,92 +82,110 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
 
   test("generate") {
-    val sourceDirectory          = Files.createTempDirectory("source-generator-test")
-    val generatedSourceDirectory = Files.createTempDirectory("generated-source-generator-test")
+    val sourceDirectory = Files.createTempDirectory("source-generator-test")
     try {
-
       val testSourceDirectory = Files.createTempDirectory("test-source-generator-test")
-
       try {
+        val integrationTestSourceDirectory =
+          Files.createTempDirectory("integration-test-source-generator-test")
+        try {
+          val generatedSourceDirectory =
+            Files.createTempDirectory("generated-source-generator-test")
+          try {
 
-        val source1     = sourceDirectory.resolve("com/example/service/persistence/MyEntity1Impl.java")
-        val sourceFile1 = source1.toFile
-        FileUtils.forceMkdir(sourceFile1.getParentFile)
-        FileUtils.touch(sourceFile1)
+            val source1 =
+              sourceDirectory.resolve("com/example/service/persistence/MyEntity1Impl.java")
+            val sourceFile1 = source1.toFile
+            FileUtils.forceMkdir(sourceFile1.getParentFile)
+            FileUtils.touch(sourceFile1)
 
-        val testSource2 =
-          testSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Test.java")
-        val testSourceFile2 = testSource2.toFile
-        FileUtils.forceMkdir(testSourceFile2.getParentFile)
-        FileUtils.touch(testSourceFile2)
+            val testSource2 =
+              testSourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Test.java")
+            val testSourceFile2 = testSource2.toFile
+            FileUtils.forceMkdir(testSourceFile2.getParentFile)
+            FileUtils.touch(testSourceFile2)
 
-        val implSource1 =
-          generatedSourceDirectory.resolve(
-            "com/example/service/persistence/MyEntity1Interface.java"
-          )
-        val implSourceFile1 = implSource1.toFile
-        val implSource2 =
-          generatedSourceDirectory.resolve(
-            "com/example/service/persistence/MyEntity2Interface.java"
-          )
-        val implSourceFile2 = implSource2.toFile
-        FileUtils.forceMkdir(implSourceFile1.getParentFile)
-        FileUtils.touch(implSourceFile1)
-        FileUtils.touch(implSourceFile2)
+            val integrationTestSource2 =
+              integrationTestSourceDirectory.resolve(
+                "com/example/service/persistence/MyValueEntity2IntegrationTest.java"
+              )
+            val integrationTestSourceFile2 = integrationTestSource2.toFile
+            FileUtils.forceMkdir(integrationTestSourceFile2.getParentFile)
+            FileUtils.touch(integrationTestSourceFile2)
 
-        val service1Proto = serviceProto("1")
-        val service2Proto = serviceProto("2")
-        val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
+            val implSource1 =
+              generatedSourceDirectory.resolve(
+                "com/example/service/persistence/MyEntity1Interface.java"
+              )
+            val implSourceFile1 = implSource1.toFile
+            val implSource2 =
+              generatedSourceDirectory.resolve(
+                "com/example/service/persistence/MyEntity2Interface.java"
+              )
+            val implSourceFile2 = implSource2.toFile
+            FileUtils.forceMkdir(implSourceFile1.getParentFile)
+            FileUtils.touch(implSourceFile1)
+            FileUtils.touch(implSourceFile2)
 
-        val services = Map(
-          "com.example.Service1" -> simpleService(service1Proto, "1"),
-          "com.example.Service2" -> simpleService(service2Proto, "2"),
-          "com.example.Service3" -> simpleService(service3Proto, "3")
-        )
+            val service1Proto = serviceProto("1")
+            val service2Proto = serviceProto("2")
+            val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
 
-        val entities = Map(
-          "com.example.Entity1" -> eventSourcedEntity(suffix = "1"),
-          "com.example.Entity2" -> valueEntity(suffix = "2"),
-          "com.example.Entity3" -> eventSourcedEntity(suffix = "3")
-        )
+            val services = Map(
+              "com.example.Service1" -> simpleService(service1Proto, "1"),
+              "com.example.Service2" -> simpleService(service2Proto, "2"),
+              "com.example.Service3" -> simpleService(service3Proto, "3")
+            )
 
-        val sources = SourceGenerator.generate(
-          ModelBuilder.Model(services, entities),
-          sourceDirectory,
-          testSourceDirectory,
-          generatedSourceDirectory,
-          "com.example.service.Main"
-        )
+            val entities = Map(
+              "com.example.Entity1" -> eventSourcedEntity(suffix = "1"),
+              "com.example.Entity2" -> valueEntity(suffix = "2"),
+              "com.example.Entity3" -> eventSourcedEntity(suffix = "3")
+            )
 
-        assertEquals(Files.size(source1), 0L)
-        assertEquals(Files.size(testSource2), 0L)
+            val sources = SourceGenerator.generate(
+              ModelBuilder.Model(services, entities),
+              sourceDirectory,
+              testSourceDirectory,
+              integrationTestSourceDirectory,
+              generatedSourceDirectory,
+              "com.example.service.Main"
+            )
 
-        assertEquals(
-          sources,
-          List(
-            generatedSourceDirectory.resolve(
-              "com/example/service/persistence/MyEntity1Interface.java"
-            ),
-            sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
-            generatedSourceDirectory.resolve(
-              "com/example/service/persistence/MyValueEntity2Interface.java"
-            ),
-            sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
-            generatedSourceDirectory.resolve(
-              "com/example/service/persistence/MyEntity3Interface.java"
-            ),
-            testSourceDirectory.resolve(
-              "com/example/service/persistence/MyEntity3Test.java"
-            ),
-            sourceDirectory.resolve("com/example/service/Main.java")
-          )
-        )
+            assertEquals(Files.size(source1), 0L)
+            assertEquals(Files.size(testSource2), 0L)
 
-        // Test that the main, source and test files are being written to
-        assertEquals(Files.readAllBytes(sources.head).head.toChar, 'p')
-        assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'p')
-        assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'p')
+            assertEquals(
+              sources,
+              List(
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1Interface.java"
+                ),
+                sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2Interface.java"
+                ),
+                sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3Interface.java"
+                ),
+                testSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3Test.java"
+                ),
+                integrationTestSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3IntegrationTest.java"
+                ),
+                sourceDirectory.resolve("com/example/service/Main.java")
+              )
+            )
 
+            // Test that the main, source and test files are being written to
+            assertEquals(Files.readAllBytes(sources.head).head.toChar, 'p')
+            assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'p')
+            assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'p')
+
+          } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
+        } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)
       } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
     } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
   }
@@ -531,6 +549,73 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("Integration test source") {
+    val mainPackageName = "com.example.service"
+    val mainClassName   = "SomeMain"
+
+    val service = simpleService()
+    val entity  = eventSourcedEntity()
+
+    val packageName              = "com.example.service"
+    val integrationTestClassName = "MyServiceEntityIntegrationTest"
+
+    val sourceDoc =
+      SourceGenerator.integrationTestSource(
+        mainPackageName,
+        mainClassName,
+        service,
+        entity,
+        packageName,
+        integrationTestClassName
+      )
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+        |
+        |import com.example.service.SomeMain;
+        |import com.example.service.MyServiceClient;
+        |import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+        |import org.junit.ClassRule;
+        |import org.junit.Test;
+        |
+        |import static java.util.concurrent.TimeUnit.*;
+        |
+        |// Example of an integration test calling our service via the Akka Serverless proxy
+        |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+        |public class MyServiceEntityIntegrationTest {
+        |    
+        |    /**
+        |     * The test kit starts both the service container and the Akka Serverless proxy.
+        |     */
+        |    @ClassRule
+        |    public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(SomeMain.SERVICE);
+        |    
+        |    /**
+        |     * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+        |     */
+        |    private final MyServiceClient client;
+        |    
+        |    public MyServiceEntityIntegrationTest() {
+        |        client = MyServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        |    }
+        |    
+        |    @Test
+        |    public void setOnNonExistingEntity() throws Exception {
+        |        // TODO: set fields in command, and provide assertions to match replies
+        |        // client.set(ServiceOuterClass.SetValue.newBuilder().build())
+        |        //         .toCompletableFuture().get(2, SECONDS);
+        |    }
+        |    
+        |    @Test
+        |    public void getOnNonExistingEntity() throws Exception {
+        |        // TODO: set fields in command, and provide assertions to match replies
+        |        // client.get(ServiceOuterClass.GetValue.newBuilder().build())
+        |        //         .toCompletableFuture().get(2, SECONDS);
+        |    }
+        |}""".stripMargin
+    )
+  }
+
   test("main source") {
     val service1Proto = serviceProto("1")
     val service2Proto = serviceProto("2")
@@ -549,7 +634,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
 
     val mainPackageName = "com.example.service"
-    val mainClassName   = "Main"
+    val mainClassName   = "SomeMain"
 
     val sourceDoc = SourceGenerator.mainSource(
       mainPackageName,
@@ -571,7 +656,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.EntityOuterClass3;
         |import com.example.service.something.ServiceOuterClass3;
         |
-        |public final class Main {
+        |public final class SomeMain {
         |    
         |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
         |    
