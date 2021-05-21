@@ -27,6 +27,10 @@ lightweight enough to be used regularly during development, and are configured i
 
 ### Integration Tests
 
+Integration tests are provided but they must be manually invoked. This is because downstream
+components may break as a result of changes made to codegen. Therefore, the integration tests
+are provided as a tool to understand in advance what may break.
+
 To be able to truly validate generated code, each language has a full integration test to generate and test the result in a dockerised environment.
 These tests spin up a generated entity alongside the Akka Serverless proxy in a Docker network, and then validate against the published service. These tests can take several minutes to run due to the overhead of installing dependencies in a containerised environment, so will only be run when necessary.
 
