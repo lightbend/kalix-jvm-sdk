@@ -58,6 +58,11 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "testSourceDirectory", required = true)
     private File testSourceDirectory;
 
+    // src/test/java
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "integrationTestSourceDirectory", required = true)
+    private File integrationTestSourceDirectory;
+
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.groupId}.Main", property = "mainClass", required = true)
     private String mainClass;
@@ -92,7 +97,7 @@ public class GenerateMojo extends AbstractMojo {
                 });
                 ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors);
                 Iterable<Path> generated = SourceGenerator.generate(model, sourceDirectory.toPath(),
-                        testSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
+                        testSourceDirectory.toPath(), integrationTestSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
                 Path absBaseDir = baseDir.toPath().toAbsolutePath();
                 generated.foreach(p -> {
                     log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
