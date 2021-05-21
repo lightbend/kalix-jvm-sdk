@@ -1,5 +1,5 @@
 version: "3"
 services:
-  as-proxy:
+  akka-serverless-proxy:
     extra_hosts:
       - "host.docker.internal:host-gateway"
