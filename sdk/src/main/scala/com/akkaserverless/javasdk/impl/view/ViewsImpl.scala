@@ -92,7 +92,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               } catch {
                 case e: ViewException => throw e
                 case NonFatal(error) =>
-                  throw ViewException(context, s"View unexpected failure: ${error.getMessage}")
+                  throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
               }
 
               Source.single(replyToOut(reply, receiveEvent))

@@ -65,7 +65,9 @@ private[impl] class AnnotationBasedViewSupport(
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(view, message, context)
       } getOrElse {
-        throw ViewException(context, s"No handler found for command [${context.commandName()}] on $behaviorsString")
+        throw ViewException(context,
+                            s"No handler found for command [${context.commandName()}] on $behaviorsString",
+                            None)
       }
     }
 
