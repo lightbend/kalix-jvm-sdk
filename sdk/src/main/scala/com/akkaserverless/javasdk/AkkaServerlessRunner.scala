@@ -74,7 +74,7 @@ final class AkkaServerlessRunner private[this] (
    * Creates an AkkaServerlessRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]]) {
-    this(ActorSystem("StatefulService", {
+    this(ActorSystem("akkaserverless", {
       val conf = ConfigFactory.load()
       conf.getConfig("akkaserverless.system").withFallback(conf)
     }), services.asScala.toMap)
@@ -86,7 +86,7 @@ final class AkkaServerlessRunner private[this] (
    * internal ActorSystem is in the `akkaserverless.system` section.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
-    this(ActorSystem("StatefulService", config.getConfig("akkaserverless.system").withFallback(config)),
+    this(ActorSystem("akkaserverless", config.getConfig("akkaserverless.system").withFallback(config)),
          services.asScala.toMap)
   }
 
