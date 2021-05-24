@@ -144,7 +144,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 sourceDirectory.resolve("myentity3.js"),
                 generatedSourceDirectory.resolve("myentity3.d.ts"),
                 testSourceDirectory.resolve("myentity3.test.js"),
-                sourceDirectory.resolve("index.js")
+                sourceDirectory.resolve("index.js"),
+                generatedSourceDirectory.resolve("index.js")
               )
             )
 
@@ -490,7 +491,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("index source") {
+  test("generated component index source") {
     val protoRef = serviceProto()
 
     val services = List(
@@ -499,16 +500,33 @@ class SourceGeneratorSuite extends munit.FunSuite {
       simpleService(protoRef, "3")
     )
 
-    val sourceDoc = SourceGenerator.indexSource(services)
+    val sourceDoc = SourceGenerator.generatedComponentIndex(services)
     assertEquals(
       sourceDoc.layout,
       """import myservice1 from "./myservice1.js";
         |import myservice2 from "./myservice2.js";
         |import myservice3 from "./myservice3.js";
         |
-        |myservice1.start();
-        |myservice2.start();
-        |myservice3.start();""".stripMargin
+        |export myservice1;
+        |export myservice2;
+        |export myservice3;
+        |
+        |export default [myservice1, myservice2, myservice3];""".stripMargin
+    )
+  }
+
+  test("index source") {
+    val generatedComponentIndexPath = Paths.get("./generated/my-generated-index.js")
+    val sourceDirectory             = Paths.get("./src/js")
+
+    val sourceDoc = SourceGenerator.indexSource(sourceDirectory, generatedComponentIndexPath)
+    assertEquals(
+      sourceDoc.layout,
+      """import generatedComponents from "../../generated/my-generated-index.js";
+        |
+        |generatedComponents.forEach((component) => {
+        |  component.start();
+        |});""".stripMargin
     )
   }
 
