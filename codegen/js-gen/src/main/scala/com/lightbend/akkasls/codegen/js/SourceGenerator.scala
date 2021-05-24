@@ -220,7 +220,7 @@ object SourceGenerator extends PrettyPrinter {
             ) <> line
           ) <> comma <> line <>
           dquotes(service.fqn.fullName) <> comma <> line <>
-          dquotes(service.fqn.name.toLowerCase()) <> comma <> line <>
+          dquotes(entity.entityType) <> comma <> line <>
           braces(
             nest(
               line <>
