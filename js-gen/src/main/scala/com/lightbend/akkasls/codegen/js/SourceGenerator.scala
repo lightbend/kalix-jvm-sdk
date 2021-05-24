@@ -122,7 +122,6 @@ object SourceGenerator extends PrettyPrinter {
             ).layout
               .getBytes(Charsets.UTF_8)
           )
-          println(sourcePath, testSourceFiles)
           List(sourcePath, typedefSourcePath)
         } else {
           List(typedefSourcePath)
