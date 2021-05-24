@@ -51,6 +51,7 @@ object SourceGenerator extends PrettyPrinter {
       generatedSourceDirectory: Path,
       indexFilename: String
   ): Iterable[Path] = {
+    val generatedIndexSourceFilename = "index.js"
     val allProtoSources = Files
       .walk(protobufSourceDirectory)
       .filter(p => Files.isRegularFile(p) && p.toString.endsWith(ProtoExt))
@@ -111,6 +112,16 @@ object SourceGenerator extends PrettyPrinter {
       }
     } ++ {
       if (model.services.nonEmpty) {
+        val generatedComponentIndexPath =
+          generatedSourceDirectory.resolve(generatedIndexSourceFilename)
+        val _ = generatedComponentIndexPath.getParent.toFile.mkdirs()
+        val _ = Files.write(
+          generatedComponentIndexPath,
+          generatedComponentIndex(model.services.values).layout.getBytes(
+            Charsets.UTF_8
+          )
+        )
+
         // Generate a main source file is it is not there already
         val indexPath =
           sourceDirectory.resolve(indexFilename)
@@ -118,13 +129,13 @@ object SourceGenerator extends PrettyPrinter {
           val _ = indexPath.getParent.toFile.mkdirs()
           val _ = Files.write(
             indexPath,
-            indexSource(model.services.values).layout.getBytes(
+            indexSource(sourceDirectory, generatedComponentIndexPath).layout.getBytes(
               Charsets.UTF_8
             )
           )
-          List(indexPath)
+          List(indexPath, generatedComponentIndexPath)
         } else {
-          List.empty
+          List(generatedComponentIndexPath)
         }
       } else {
         List.empty
@@ -489,6 +500,28 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def indexSource(
+      sourceDirectory: Path,
+      generatedComponentIndexPath: Path
+  ): Document = {
+    val generatedComponentIndexFilename =
+      sourceDirectory.toAbsolutePath
+        .relativize(generatedComponentIndexPath.toAbsolutePath)
+        .toString
+
+    val generatedComponentArray = "generatedComponents"
+
+    pretty(
+      "import" <+> generatedComponentArray <+> "from" <+> dquotes(
+        generatedComponentIndexFilename
+      ) <> semi
+      <> line <> line <>
+      generatedComponentArray <> dot <> "forEach" <> parens(
+        arrowFn(Seq("component"), "component" <> dot <> "start" <> parens(emptyDoc) <> semi)
+      ) <> semi
+    )
+  }
+
+  private[codegen] def generatedComponentIndex(
       services: Iterable[ModelBuilder.Service]
   ): Document =
     pretty(
@@ -498,13 +531,18 @@ object SourceGenerator extends PrettyPrinter {
           "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi
         }.toSeq,
         line
-      ) <> line <> line <>
+      ) <> line <>
+      line <>
       ssep(
         services.map { service: ModelBuilder.Service =>
-          service.fqn.name.toLowerCase <> ".start()" <> semi
+          "export" <+> service.fqn.name.toLowerCase <> semi
         }.toSeq,
         line
-      )
+      ) <> line <>
+      line <>
+      "export" <+> "default" <+> brackets(
+        ssep(services.map(service => text(service.fqn.name.toLowerCase)).toSeq, comma <> " ")
+      ) <> semi
     )
 
   private def lowerFirst(text: String): String =
