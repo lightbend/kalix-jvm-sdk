@@ -64,7 +64,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto),
-      s"MyEntity$suffix",
+      entityType = s"my-eventsourcedentity$suffix-persistence",
       Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
       List(
         ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
@@ -74,7 +74,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
-      s"MyValueEntity$suffix",
+      entityType = s"my-valueentity$suffix-persistence",
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
     )
 
@@ -206,7 +206,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    "someother.proto"
         |  ],
         |  "com.example.service.MyService",
-        |  "myservice",
+        |  "my-eventsourcedentity-persistence",
         |  {
         |    includeDirs: ["./src/proto"],
         |    serializeFallbackToJson: true
@@ -280,7 +280,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    "someother.proto"
         |  ],
         |  "com.example.service.MyService",
-        |  "myservice",
+        |  "my-valueentity-persistence",
         |  {
         |    includeDirs: ["./src/proto"],
         |    serializeFallbackToJson: true

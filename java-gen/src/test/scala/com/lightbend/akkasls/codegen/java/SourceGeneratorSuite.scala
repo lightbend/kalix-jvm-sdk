@@ -201,7 +201,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
     val interfaceClassName = "MyServiceEntityInterface"
-    val entityType         = "MyServiceEntity"
+    val entityType         = "my-eventsourcedentity-persistence"
 
     val sourceDoc =
       SourceGenerator.source(
@@ -222,7 +222,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |@EventSourcedEntity(entityType = "MyServiceEntity")
+      |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
       |public class MyServiceEntityImpl extends MyServiceEntityInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
@@ -269,7 +269,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val packageName        = "com.example.service"
     val className          = "MyServiceImpl"
     val interfaceClassName = "MyServiceInterface"
-    val entityType         = "MyService"
+    val entityType         = "my-valueentity-persistence"
 
     val sourceDoc =
       SourceGenerator.source(
@@ -290,7 +290,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |@ValueEntity(entityType = "MyService")
+      |@ValueEntity(entityType = "my-valueentity-persistence")
       |public class MyServiceImpl extends MyServiceInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;

@@ -6,7 +6,7 @@ import "akkaserverless/annotations.proto";
 
 option (akkaserverless.file).value_entity = {
     name: "MyEntity"
-    entity_type: "MyEntity"
+    entity_type: "my-entity-persistence"
     state: { type: "MyState" }
 };
 

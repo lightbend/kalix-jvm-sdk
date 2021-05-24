@@ -126,7 +126,7 @@ object SourceGenerator extends PrettyPrinter {
               packageName,
               implClassName,
               interfaceClassName,
-              className
+              entity.entityType
             ).layout.getBytes(
               Charsets.UTF_8
             )
