@@ -39,7 +39,7 @@ object AkkaServerlessRunner {
       this(
         userFunctionInterface = config.getString("user-function-interface"),
         userFunctionPort = config.getInt("user-function-port"),
-        snapshotEvery = config.getInt("eventsourced.snapshot-every")
+        snapshotEvery = config.getInt("event-sourced-entity.snapshot-every")
       )
     }
 
