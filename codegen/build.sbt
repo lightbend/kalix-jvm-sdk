@@ -147,7 +147,7 @@ lazy val library =
       val scopt          = "4.0.0"
       val testcontainers = "1.15.3"
       val typesafeConfig = "1.4.1"
-      val akkaserverless = "0.7.0-beta.7"
+      val akkaserverless = "0.7.0-beta.8"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
