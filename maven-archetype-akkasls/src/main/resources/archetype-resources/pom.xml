@@ -196,30 +196,10 @@
         <version>2.22.2</version>
         <configuration>
           <excludes>
-            <!-- ignore integration test classes (run by failsafe) -->
+            <!-- ignore integration test classes -->
             <exclude>**/*IntegrationTest</exclude>
           </excludes>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <!-- run integration tests with `mvn verify -Pfailsafe` -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.2</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>**/*IntegrationTest</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -237,6 +217,7 @@
         <configuration>
           <dockerImage>${D}{dockerImage}:${D}{dockerTag}</dockerImage>
           <mainClass>${D}{mainClass}</mainClass>
+          <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
       </plugin>
 
@@ -251,6 +232,36 @@
 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <!-- run Integration Tests in src/it/java with `mvn verify -Pit`-->
+      <id>it</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>2.22.2</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+                <configuration>
+                  <testSourceDirectory>src/it/java</testSourceDirectory>
+                  <includes>
+                    <include>**/*IntegrationTest</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <repositories>
     <repository>
