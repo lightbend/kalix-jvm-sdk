@@ -138,25 +138,37 @@ object SourceGenerator extends PrettyPrinter {
         }
       }
     } ++ {
-      if (model.services.nonEmpty) {
-        // Generate a main source file is it is not there already
-        val mainClassPackagePath = packageAsPath(mainClassPackageName)
+      val mainClassPackagePath = packageAsPath(mainClassPackageName)
 
-        val mainClassPath =
-          sourceDirectory.resolve(mainClassPackagePath.resolve(mainClassName + ".java"))
-        if (!mainClassPath.toFile.exists()) {
-          val _ = mainClassPath.getParent.toFile.mkdirs()
-          val _ = Files.write(
-            mainClassPath,
-            mainSource(mainClassPackageName, mainClassName, model).layout
-              .getBytes(
-                Charsets.UTF_8
-              )
+      val mainComponentRegistrationsClassName = mainClassName + "ComponentRegistrations"
+      val mainComponentRegistrationsSourcePath =
+        generatedSourceDirectory.resolve(
+          mainClassPackagePath.resolve(mainComponentRegistrationsClassName + ".java")
+        )
+
+      val _ = mainComponentRegistrationsSourcePath.getParent.toFile.mkdirs()
+      val _ = Files.write(
+        mainComponentRegistrationsSourcePath,
+        mainComponentRegistrationsSource(mainClassPackageName, mainClassName, model).layout
+          .getBytes(
+            Charsets.UTF_8
           )
-          List(mainClassPath)
-        } else {
-          List.empty
-        }
+      )
+
+      // Generate a main source file if it is not there already
+
+      val mainClassPath =
+        sourceDirectory.resolve(mainClassPackagePath.resolve(mainClassName + ".java"))
+      if (!mainClassPath.toFile.exists()) {
+        val _ = mainClassPath.getParent.toFile.mkdirs()
+        val _ = Files.write(
+          mainClassPath,
+          mainSource(mainClassPackageName, mainClassName).layout
+            .getBytes(
+              Charsets.UTF_8
+            )
+        )
+        List(mainComponentRegistrationsSourcePath, mainClassPath)
       } else {
         List.empty
       }
@@ -693,13 +705,11 @@ object SourceGenerator extends PrettyPrinter {
     )
   }
 
-  private[codegen] def mainSource(
+  private[codegen] def mainComponentRegistrationsSource(
       mainClassPackageName: String,
       mainClassName: String,
       model: ModelBuilder.Model
   ): Document = {
-    assert(model.services.nonEmpty) // Pointless to generate a main if empty, so don't try
-
     val entityServiceClasses = model.services.values.flatMap { service =>
       model.entities.get(service.entityFullName).toSeq.map { entity: ModelBuilder.Entity =>
         (
@@ -720,9 +730,7 @@ object SourceGenerator extends PrettyPrinter {
     }
 
     val imports = List(
-      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi <> line <>
-      "import" <+> "org.slf4j.Logger" <> semi <> line <>
-      "import" <+> "org.slf4j.LoggerFactory" <> semi
+      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi
     ) ++
       entityServiceClasses.flatMap {
         case (
@@ -754,6 +762,69 @@ object SourceGenerator extends PrettyPrinter {
         line
       ) <> line <>
       line <>
+      `class`("public" <+> "final", mainClassName + "ComponentRegistrations") {
+        line <>
+        method(
+          "public" <+> "static",
+          "AkkaServerless",
+          "withGeneratedComponentsAdded",
+          List("AkkaServerless" <+> "akkaServerless"),
+          emptyDoc
+        ) {
+          "return" <+> "akkaServerless" <> line <>
+          indent(
+            ssep(
+              entityServiceClasses.map {
+                case (
+                      _,
+                      implClassName,
+                      javaOuterClassName,
+                      _,
+                      serviceName,
+                      serviceJavaOuterClassName,
+                      registrationMethod
+                    ) =>
+                  registrationMethod <> parens(
+                    nest(
+                      line <>
+                      implClassName <> ".class" <> comma <> line <>
+                      serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
+                        dquotes(serviceName)
+                      ) <> comma <> line <>
+                      javaOuterClassName <> ".getDescriptor()"
+                    ) <> line
+                  )
+              }.toSeq,
+              line
+            ) <> semi,
+            8
+          )
+        }
+      }
+    )
+  }
+
+  private[codegen] def mainSource(
+      mainClassPackageName: String,
+      mainClassName: String
+  ): Document = {
+
+    val imports = List(
+      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi <> line <>
+      "import" <+> "org.slf4j.Logger" <> semi <> line <>
+      "import" <+> "org.slf4j.LoggerFactory" <> semi
+    )
+
+    pretty(
+      "package" <+> mainClassPackageName <> semi <> line <>
+      line <>
+      ssep(
+        imports,
+        line
+      ) <> line <>
+      line <>
+      "import" <+> "static" <+> mainClassPackageName <> dot <> (mainClassName + "ComponentRegistrations") <> dot <> "withGeneratedComponentsAdded" <> semi <> line <>
+      line <>
       `class`("public" <+> "final", mainClassName) {
         line <>
         field(
@@ -770,35 +841,14 @@ object SourceGenerator extends PrettyPrinter {
           assignmentSeparator = Some(line)
         ) {
           indent(
-            "new" <+> "AkkaServerless()" <> line <>
-            indent(
-              ssep(
-                entityServiceClasses.map {
-                  case (
-                        _,
-                        implClassName,
-                        javaOuterClassName,
-                        _,
-                        serviceName,
-                        serviceJavaOuterClassName,
-                        registrationMethod
-                      ) =>
-                    registrationMethod <> parens(
-                      nest(
-                        line <>
-                        implClassName <> ".class" <> comma <> line <>
-                        serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                          dquotes(serviceName)
-                        ) <> comma <> line <>
-                        javaOuterClassName <> ".getDescriptor()"
-                      ) <> line
-                    )
-                }.toSeq,
-                line
-              ) <> semi
-            )
+            "withGeneratedComponentsAdded" <> parens(
+              "new" <+> "AkkaServerless" <> parens(
+                emptyDoc
+              )
+            ) <> semi,
+            8
           )
-        } <> linebreak <>
+        } <> line <>
         line <>
         method(
           "public" <+> "static",
@@ -809,8 +859,7 @@ object SourceGenerator extends PrettyPrinter {
         ) {
           "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
           "SERVICE.start().toCompletableFuture().get()" <> semi
-        } <> line
-
+        }
       }
     )
   }
