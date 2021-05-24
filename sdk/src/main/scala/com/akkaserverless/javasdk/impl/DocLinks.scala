@@ -9,7 +9,7 @@ object DocLinks {
   private val baseUrl = "https://developer.lightbend.com/docs/akka-serverless"
 
   private val errorCodes = Map(
-    "AS-00112" -> s"$baseUrl/java-services/views.html#_changing_the_view",
+    "AS-00112" -> s"$baseUrl/java-services/views.html#changing",
     "AS-00402" -> s"$baseUrl/java-services/topic-eventing.html",
     "AS-00406" -> s"$baseUrl/java-services/topic-eventing.html"
   )
