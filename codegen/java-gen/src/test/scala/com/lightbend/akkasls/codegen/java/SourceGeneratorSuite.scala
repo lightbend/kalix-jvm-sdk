@@ -175,6 +175,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MainComponentRegistrations.java"
+                ),
                 sourceDirectory.resolve("com/example/service/Main.java")
               )
             )
@@ -616,7 +619,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("main source") {
+  test("generated main source") {
     val service1Proto = serviceProto("1")
     val service2Proto = serviceProto("2")
     val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
@@ -636,7 +639,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName   = "SomeMain"
 
-    val sourceDoc = SourceGenerator.mainSource(
+    val sourceDoc = SourceGenerator.mainComponentRegistrationsSource(
       mainPackageName,
       mainClassName,
       ModelBuilder.Model(services, entities)
@@ -646,8 +649,6 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
-        |import org.slf4j.Logger;
-        |import org.slf4j.LoggerFactory;
         |import com.example.service.persistence.MyEntity1Impl;
         |import com.example.service.persistence.EntityOuterClass1;
         |import com.example.service.persistence.MyValueEntity2Impl;
@@ -656,33 +657,59 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.EntityOuterClass3;
         |import com.example.service.something.ServiceOuterClass3;
         |
+        |public final class SomeMainComponentRegistrations {
+        |    
+        |    public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
+        |        return akkaServerless
+        |                .registerEventSourcedEntity(
+        |                    MyEntity1Impl.class,
+        |                    ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
+        |                    EntityOuterClass1.getDescriptor()
+        |                )
+        |                .registerValueEntity(
+        |                    MyValueEntity2Impl.class,
+        |                    ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
+        |                    EntityOuterClass2.getDescriptor()
+        |                )
+        |                .registerEventSourcedEntity(
+        |                    MyEntity3Impl.class,
+        |                    ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
+        |                    EntityOuterClass3.getDescriptor()
+        |                );
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  test("main source") {
+    val mainPackageName = "com.example.service"
+    val mainClassName   = "SomeMain"
+
+    val sourceDoc = SourceGenerator.mainSource(
+      mainPackageName,
+      mainClassName
+    )
+    assertEquals(
+      sourceDoc.layout,
+      """package com.example.service;
+        |
+        |import com.akkaserverless.javasdk.AkkaServerless;
+        |import org.slf4j.Logger;
+        |import org.slf4j.LoggerFactory;
+        |
+        |import static com.example.service.SomeMainComponentRegistrations.withGeneratedComponentsAdded;
+        |
         |public final class SomeMain {
         |    
         |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
         |    
         |    public static final AkkaServerless SERVICE =
-        |        new AkkaServerless()
-        |            .registerEventSourcedEntity(
-        |                MyEntity1Impl.class,
-        |                ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
-        |                EntityOuterClass1.getDescriptor()
-        |            )
-        |            .registerValueEntity(
-        |                MyValueEntity2Impl.class,
-        |                ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
-        |                EntityOuterClass2.getDescriptor()
-        |            )
-        |            .registerEventSourcedEntity(
-        |                MyEntity3Impl.class,
-        |                ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
-        |                EntityOuterClass3.getDescriptor()
-        |            );
+        |            withGeneratedComponentsAdded(new AkkaServerless());
         |    
         |    public static void main(String[] args) throws Exception {
         |        LOG.info("starting the Akka Serverless service");
         |        SERVICE.start().toCompletableFuture().get();
         |    }
-        |    
         |}""".stripMargin
     )
   }
