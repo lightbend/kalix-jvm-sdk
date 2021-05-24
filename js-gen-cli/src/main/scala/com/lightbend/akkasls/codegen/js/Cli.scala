@@ -25,7 +25,8 @@ object Cli {
       serviceNamesFilter: String = ".*ServiceEntity",
       sourceDirectory: Path = CWD,
       testSourceDirectory: Path = CWD,
-      generatedSourceDirectory: Path = CWD
+      generatedSourceDirectory: Path = CWD,
+      integrationTestSourceDirectory: Option[Path] = None
   )
 
   private val builder = OParser.builder[Config]
@@ -79,6 +80,11 @@ object Cli {
         .text(
           "The location of test source files in relation to the base directory - defaults to the current working directory"
         ),
+      opt[File]("integration-test-source-dir")
+        .action((x, c) => c.copy(integrationTestSourceDirectory = Some(x.toPath)))
+        .text(
+          "The location of integration test source files in relation to the base directory - defaults to the current working directory"
+        ),
       help("help").text("Prints this usage text")
     )
   }
@@ -114,6 +120,7 @@ object Cli {
                   config.sourceDirectory,
                   config.testSourceDirectory,
                   config.generatedSourceDirectory,
+                  config.integrationTestSourceDirectory,
                   config.indexFile
                 )
                 .foreach { p =>

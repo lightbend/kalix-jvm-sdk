@@ -49,6 +49,7 @@ object SourceGenerator extends PrettyPrinter {
       sourceDirectory: Path,
       testSourceDirectory: Path,
       generatedSourceDirectory: Path,
+      integrationTestSourceDirectory: Option[Path],
       indexFilename: String
   ): Iterable[Path] = {
     val generatedIndexSourceFilename = "index.js"
@@ -72,24 +73,41 @@ object SourceGenerator extends PrettyPrinter {
             Charsets.UTF_8
           )
         )
-        if (!sourcePath.toFile.exists()) {
-          // We're going to generate an entity - let's see if we can generate its test...
-          val entityTestFilename = entityFilename.replace(".js", ".test.js")
-          val testSourcePath =
-            testSourceDirectory.resolve(entityTestFilename)
-          val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-            val _ = testSourcePath.getParent.toFile.mkdirs()
-            val _ = Files.write(
-              testSourcePath,
-              testSource(service, entity, testSourceDirectory, sourceDirectory).layout.getBytes(
-                Charsets.UTF_8
-              )
+
+        // We're going to generate an entity - let's see if we can generate its test...
+        val entityTestFilename = entityFilename.replace(".js", ".test.js")
+        val testSourcePath =
+          testSourceDirectory.resolve(entityTestFilename)
+        val testSourceFiles = if (!testSourcePath.toFile.exists()) {
+          val _ = testSourcePath.getParent.toFile.mkdirs()
+          val _ = Files.write(
+            testSourcePath,
+            testSource(service, entity, testSourceDirectory, sourceDirectory).layout.getBytes(
+              Charsets.UTF_8
             )
-            List(testSourcePath)
-          } else {
-            List.empty
+          )
+          List(testSourcePath)
+        } else {
+          List.empty
+        }
+
+        // Next, if an integration test directory is configured, we generate integration tests...
+        val integrationTestSourceFiles = integrationTestSourceDirectory
+          .map(_.resolve(entityTestFilename))
+          .filterNot(_.toFile.exists())
+          .map { integrationTestSourcePath =>
+            val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
+            val _ = Files.write(
+              integrationTestSourcePath,
+              integrationTestSource(service, entity, testSourceDirectory, sourceDirectory).layout
+                .getBytes(
+                  Charsets.UTF_8
+                )
+            )
+            integrationTestSourcePath
           }
 
+        val sourceFiles = if (!sourcePath.toFile.exists()) {
           // Now we generate the entity
           val _ = sourcePath.getParent.toFile.mkdirs()
           val _ = Files.write(
@@ -104,11 +122,13 @@ object SourceGenerator extends PrettyPrinter {
             ).layout
               .getBytes(Charsets.UTF_8)
           )
-
-          List(sourcePath, typedefSourcePath) ++ testSourceFiles
+          println(sourcePath, testSourceFiles)
+          List(sourcePath, typedefSourcePath)
         } else {
           List(typedefSourcePath)
         }
+
+        sourceFiles ++ testSourceFiles ++ integrationTestSourceFiles
       }
     } ++ {
       if (model.services.nonEmpty) {
@@ -415,7 +435,6 @@ object SourceGenerator extends PrettyPrinter {
       }) <> semi <> line
     )
 
-  // TODO: Generate the test source
   private[codegen] def testSource(
       service: ModelBuilder.Service,
       entity: ModelBuilder.Entity,
@@ -423,7 +442,7 @@ object SourceGenerator extends PrettyPrinter {
       sourceDirectory: Path
   ): Document = {
 
-    val entityName = service.fqn.name.toLowerCase
+    val entityName = entity.fqn.name.toLowerCase
 
     val entityMockType = entity match {
       case _: ModelBuilder.EventSourcedEntity => "MockEventSourcedEntity"
@@ -494,6 +513,81 @@ object SourceGenerator extends PrettyPrinter {
             }.toSeq,
             line <> line
           )
+        )
+      ) <> semi
+    )
+  }
+
+  private[codegen] def integrationTestSource(
+      service: ModelBuilder.Service,
+      entity: ModelBuilder.Entity,
+      testSourceDirectory: Path,
+      sourceDirectory: Path
+  ): Document = {
+
+    val entityName = entity.fqn.name.toLowerCase
+
+    val entityMockType = entity match {
+      case _: ModelBuilder.EventSourcedEntity => "MockEventSourcedEntity"
+      case _: ModelBuilder.ValueEntity        => "MockValueEntity"
+    }
+
+    pretty(
+      "import" <+> "akkaserverless" <+> "from" <+> dquotes(
+        "@lightbend/akkaserverless-javascript-sdk"
+      ) <> semi <> line <>
+      """import { expect } from "chai"""" <> semi <> line <>
+      "import" <+> entityName <+> "from" <+> dquotes(
+        testSourceDirectory.toAbsolutePath
+          .relativize(sourceDirectory.toAbsolutePath)
+          .resolve(s"$entityName.js")
+          .toString
+      ) <> semi <> line <>
+      line <>
+      "const" <+> "testkit" <+> equal <+> "new" <+> "akkaserverless.IntegrationTestkit" <> parens(
+        emptyDoc
+      ) <> semi <> line <>
+      "testkit" <> dot <> "addComponent" <> parens(entityName) <> semi <> line <>
+      line <>
+      "const" <+> "client" <+> equal <+> parens(
+        emptyDoc
+      ) <+> "=>" <+> "testkit.clients" <> dot <> service.fqn.name <> semi <> line <>
+      line <>
+      "describe" <> parens(
+        dquotes(service.fqn.name) <> comma <+> "function" <> parens(emptyDoc) <+> braces(
+          nest(
+            line <>
+            "this.timeout" <> parens("60000") <> semi <> line <>
+            line <>
+            "before" <> parens(
+              "done" <+> "=>" <+> "testkit.start" <> parens("done")
+            ) <> semi <> line <>
+            "after" <> parens(
+              "done" <+> "=>" <+> "testkit.shutdown" <> parens("done")
+            ) <> semi <> line <>
+            line <>
+            ssep(
+              service.commands.map { command =>
+                "describe" <> parens(
+                  dquotes(command.fqn.name) <> comma <+> arrowFn(
+                    List.empty,
+                    "it" <> parens(
+                      dquotes("should...") <> comma <+> "async" <+> arrowFn(
+                        List.empty,
+                        "// TODO: populate command payload, and provide assertions to match replies" <> line <>
+                        "//" <+> "const" <+> "result" <+> equal <+> "await" <+> "client" <> parens(
+                          emptyDoc
+                        ) <> dot <> lowerFirst(
+                          command.fqn.name
+                        ) <> parens(braces(emptyDoc)) <> semi
+                      )
+                    ) <> semi
+                  )
+                ) <> semi
+              }.toSeq,
+              line
+            )
+          ) <> line
         )
       ) <> semi
     )

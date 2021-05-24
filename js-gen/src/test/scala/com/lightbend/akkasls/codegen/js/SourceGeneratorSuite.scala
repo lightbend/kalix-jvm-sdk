@@ -85,78 +85,131 @@ class SourceGeneratorSuite extends munit.FunSuite {
       try {
         val testSourceDirectory = Files.createTempDirectory("test-source-generator-test")
         try {
-          val generatedSourceDirectory =
-            Files.createTempDirectory("generated-source-generator-test")
-
+          val integrationTestSourceDirectory =
+            Files.createTempDirectory("integration-test-source-generator-test")
           try {
-            val protoSource1     = protoSourceDirectory.resolve("myservice1.proto")
-            val protoSourceFile1 = protoSource1.toFile
-            FileUtils.forceMkdir(protoSourceFile1.getParentFile)
-            FileUtils.touch(protoSourceFile1)
+            val generatedSourceDirectory =
+              Files.createTempDirectory("generated-source-generator-test")
 
-            val source1     = sourceDirectory.resolve("myentity1.js")
-            val sourceFile1 = source1.toFile
-            FileUtils.forceMkdir(sourceFile1.getParentFile)
-            FileUtils.touch(sourceFile1)
-            val typedefSource1     = generatedSourceDirectory.resolve("myentity1.d.ts")
-            val typedefSourceFile1 = typedefSource1.toFile
-            FileUtils.forceMkdir(typedefSourceFile1.getParentFile)
-            FileUtils.touch(typedefSourceFile1)
+            try {
+              val protoSource1     = protoSourceDirectory.resolve("myservice1.proto")
+              val protoSourceFile1 = protoSource1.toFile
+              FileUtils.forceMkdir(protoSourceFile1.getParentFile)
+              FileUtils.touch(protoSourceFile1)
 
-            val testSource2     = testSourceDirectory.resolve("myvalueentity2.test.js")
-            val testSourceFile2 = testSource2.toFile
-            FileUtils.forceMkdir(testSourceFile2.getParentFile)
-            FileUtils.touch(testSourceFile2)
+              val source1     = sourceDirectory.resolve("myentity1.js")
+              val sourceFile1 = source1.toFile
+              FileUtils.forceMkdir(sourceFile1.getParentFile)
+              FileUtils.touch(sourceFile1)
+              val typedefSource1     = generatedSourceDirectory.resolve("myentity1.d.ts")
+              val typedefSourceFile1 = typedefSource1.toFile
+              FileUtils.forceMkdir(typedefSourceFile1.getParentFile)
+              FileUtils.touch(typedefSourceFile1)
 
-            val protoRef = serviceProto()
+              val testSource2     = testSourceDirectory.resolve("myvalueentity2.test.js")
+              val testSourceFile2 = testSource2.toFile
+              FileUtils.forceMkdir(testSourceFile2.getParentFile)
+              FileUtils.touch(testSourceFile2)
 
-            val services = Map(
-              "com.example.Service1" -> simpleService(protoRef, "1"),
-              "com.example.Service2" -> simpleService(protoRef, "2"),
-              "com.example.Service3" -> simpleService(protoRef, "3")
-            )
+              val integrationTestSource3 =
+                integrationTestSourceDirectory.resolve("myentity3.test.js")
+              val integrationTestSourceFile3 = integrationTestSource3.toFile
+              FileUtils.forceMkdir(integrationTestSourceFile3.getParentFile)
+              FileUtils.touch(integrationTestSourceFile3)
 
-            val entities = Map(
-              "com.example.Entity1" -> eventSourcedEntity("1"),
-              "com.example.Entity2" -> valueEntity("2"),
-              "com.example.Entity3" -> eventSourcedEntity("3")
-            )
+              val protoRef = serviceProto()
 
-            val sources = SourceGenerator.generate(
-              sourceDirectory.resolve("some.desc"),
-              ModelBuilder.Model(services, entities),
-              protoSourceDirectory,
-              sourceDirectory,
-              testSourceDirectory,
-              generatedSourceDirectory,
-              "index.js"
-            )
-
-            assertEquals(Files.size(source1), 0L)
-            assertEquals(Files.size(testSource2), 0L)
-
-            assertEquals(
-              sources,
-              List(
-                generatedSourceDirectory.resolve("myentity1.d.ts"),
-                sourceDirectory.resolve("myvalueentity2.js"),
-                generatedSourceDirectory.resolve("myvalueentity2.d.ts"),
-                sourceDirectory.resolve("myentity3.js"),
-                generatedSourceDirectory.resolve("myentity3.d.ts"),
-                testSourceDirectory.resolve("myentity3.test.js"),
-                sourceDirectory.resolve("index.js"),
-                generatedSourceDirectory.resolve("index.js")
+              val services = Map(
+                "com.example.Service1" -> simpleService(protoRef, "1"),
+                "com.example.Service2" -> simpleService(protoRef, "2"),
+                "com.example.Service3" -> simpleService(protoRef, "3")
               )
-            )
 
-            // Test that all files are being written to (all files should start with at least one import)
-            sources.foreach(source =>
-              assertEquals(Files.readAllBytes(source).take(7).map(_.toChar).mkString, "import ")
-            )
-          } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
+              val entities = Map(
+                "com.example.Entity1" -> eventSourcedEntity("1"),
+                "com.example.Entity2" -> valueEntity("2"),
+                "com.example.Entity3" -> eventSourcedEntity("3")
+              )
+
+              val sources = SourceGenerator.generate(
+                sourceDirectory.resolve("some.desc"),
+                ModelBuilder.Model(services, entities),
+                protoSourceDirectory,
+                sourceDirectory,
+                testSourceDirectory,
+                generatedSourceDirectory,
+                Some(integrationTestSourceDirectory),
+                "index.js"
+              )
+
+              assertEquals(Files.size(source1), 0L)
+              assertEquals(Files.size(testSource2), 0L)
+
+              assertEquals(
+                sources,
+                List(
+                  generatedSourceDirectory.resolve("myentity1.d.ts"),
+                  testSourceDirectory.resolve("myentity1.test.js"),
+                  integrationTestSourceDirectory.resolve("myentity1.test.js"),
+                  sourceDirectory.resolve("myvalueentity2.js"),
+                  generatedSourceDirectory.resolve("myvalueentity2.d.ts"),
+                  integrationTestSourceDirectory.resolve("myvalueentity2.test.js"),
+                  sourceDirectory.resolve("myentity3.js"),
+                  generatedSourceDirectory.resolve("myentity3.d.ts"),
+                  testSourceDirectory.resolve("myentity3.test.js"),
+                  sourceDirectory.resolve("index.js"),
+                  generatedSourceDirectory.resolve("index.js")
+                )
+              )
+
+              // Test that all files are being written to (all files should start with at least one import)
+              sources.foreach(source =>
+                assertEquals(Files.readAllBytes(source).take(7).map(_.toChar).mkString, "import ")
+              )
+            } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
+          } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
       } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
     } finally FileUtils.deleteDirectory(protoSourceDirectory.toFile)
+  }
+
+  test("don't generate integration tests if no folder provided") {
+    val outDir = Files.createTempDirectory("generator-test")
+
+    try {
+      val protoRef = serviceProto()
+
+      val services = Map(
+        "com.example.Service1" -> simpleService(protoRef, "1")
+      )
+
+      val entities = Map(
+        "com.example.Entity1" -> eventSourcedEntity("1")
+      )
+
+      val sources = SourceGenerator.generate(
+        outDir.resolve("some.desc"),
+        ModelBuilder.Model(services, entities),
+        outDir,
+        outDir,
+        outDir.resolve("test"),
+        outDir.resolve("gen"),
+        None,
+        "index.js"
+      )
+
+      assertEquals(
+        sources,
+        List(
+          outDir.resolve("myentity1.js"),
+          outDir.resolve("gen/myentity1.d.ts"),
+          outDir.resolve("test/myentity1.test.js"),
+          outDir.resolve("index.js"),
+          outDir.resolve("gen/index.js")
+        )
+      )
+
+    } finally FileUtils.deleteDirectory(outDir.toFile)
   }
 
   test("EventSourcedEntity source") {
@@ -412,14 +465,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """import { MockEventSourcedEntity } from "./testkit.js";
         |import { expect } from "chai";
-        |import myservice1 from "../../src/js/myservice1.js";
+        |import myentity from "../../src/js/myentity.js";
         |
         |describe("MyService1", () => {
         |  const entityId = "entityId";
         |  
         |  describe("Set", () => {
         |    it("should...", () => {
-        |      const entity = new MockEventSourcedEntity(myservice1, entityId);
+        |      const entity = new MockEventSourcedEntity(myentity, entityId);
         |      // TODO: you may want to set fields in addition to the entity id
         |      // const result = entity.handleCommand("Set", { entityId });
         |      
@@ -432,7 +485,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  
         |  describe("Get", () => {
         |    it("should...", () => {
-        |      const entity = new MockEventSourcedEntity(myservice1, entityId);
+        |      const entity = new MockEventSourcedEntity(myentity, entityId);
         |      // TODO: you may want to set fields in addition to the entity id
         |      // const result = entity.handleCommand("Get", { entityId });
         |      
@@ -459,14 +512,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
       """import { MockValueEntity } from "./testkit.js";
         |import { expect } from "chai";
-        |import myservice1 from "../../src/js/myservice1.js";
+        |import myvalueentity from "../../src/js/myvalueentity.js";
         |
         |describe("MyService1", () => {
         |  const entityId = "entityId";
         |  
         |  describe("Set", () => {
         |    it("should...", () => {
-        |      const entity = new MockValueEntity(myservice1, entityId);
+        |      const entity = new MockValueEntity(myvalueentity, entityId);
         |      // TODO: you may want to set fields in addition to the entity id
         |      // const result = entity.handleCommand("Set", { entityId });
         |      
@@ -478,13 +531,55 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  
         |  describe("Get", () => {
         |    it("should...", () => {
-        |      const entity = new MockValueEntity(myservice1, entityId);
+        |      const entity = new MockValueEntity(myvalueentity, entityId);
         |      // TODO: you may want to set fields in addition to the entity id
         |      // const result = entity.handleCommand("Get", { entityId });
         |      
         |      // expect(result).to.deep.equal({});
         |      // expect(entity.error).to.be.undefined;
         |      // expect(entity.state).to.deep.equal({});
+        |    });
+        |  });
+        |});""".stripMargin
+    )
+  }
+
+  test("ValueEntity integration test source") {
+    val protoRef = serviceProto()
+    val service  = simpleService(protoRef, "1")
+    val entity   = valueEntity()
+
+    val testSourceDirectory = Paths.get("./test/js")
+    val sourceDirectory     = Paths.get("./src/js")
+    val sourceDoc =
+      SourceGenerator.integrationTestSource(service, entity, testSourceDirectory, sourceDirectory)
+    assertEquals(
+      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
+      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+        |import { expect } from "chai";
+        |import myvalueentity from "../../src/js/myvalueentity.js";
+        |
+        |const testkit = new akkaserverless.IntegrationTestkit();
+        |testkit.addComponent(myvalueentity);
+        |
+        |const client = () => testkit.clients.MyService1;
+        |
+        |describe("MyService1", function() {
+        |  this.timeout(60000);
+        |  
+        |  before(done => testkit.start(done));
+        |  after(done => testkit.shutdown(done));
+        |  
+        |  describe("Set", () => {
+        |    it("should...", async () => {
+        |      // TODO: populate command payload, and provide assertions to match replies
+        |      // const result = await client().set({});
+        |    });
+        |  });
+        |  describe("Get", () => {
+        |    it("should...", async () => {
+        |      // TODO: populate command payload, and provide assertions to match replies
+        |      // const result = await client().get({});
         |    });
         |  });
         |});""".stripMargin
@@ -502,7 +597,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     val sourceDoc = SourceGenerator.generatedComponentIndex(services)
     assertEquals(
-      sourceDoc.layout,
+      sourceDoc.layout.replace("\\", "/"),
       """import myservice1 from "./myservice1.js";
         |import myservice2 from "./myservice2.js";
         |import myservice3 from "./myservice3.js";
@@ -521,7 +616,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     val sourceDoc = SourceGenerator.indexSource(sourceDirectory, generatedComponentIndexPath)
     assertEquals(
-      sourceDoc.layout,
+      sourceDoc.layout.replace("\\", "/"),
       """import generatedComponents from "../../generated/my-generated-index.js";
         |
         |generatedComponents.forEach((component) => {
