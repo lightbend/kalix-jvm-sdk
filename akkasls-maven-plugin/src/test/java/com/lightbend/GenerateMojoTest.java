@@ -28,8 +28,7 @@ public class GenerateMojoTest {
         Path projectDirectory = Paths.get("target/test-classes/project-to-test/");
         assertTrue(projectDirectory.toFile().exists());
 
-        FileUtils.deleteDirectory(projectDirectory.resolve("src/main/java").toFile());
-        FileUtils.deleteDirectory(projectDirectory.resolve("src/test/java").toFile());
+        FileUtils.deleteDirectory(projectDirectory.resolve("src").toFile());
         FileUtils.deleteDirectory(projectDirectory.resolve("target").toFile());
 
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
@@ -41,6 +40,8 @@ public class GenerateMojoTest {
                 "target/generated-sources/akkaserverless/java/com/example/shoppingcart/persistence/ShoppingCartInterface.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/persistence/ShoppingCartTest.java")
+                .toFile().exists());
+        assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/persistence/ShoppingCartIntegrationTest.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
     }

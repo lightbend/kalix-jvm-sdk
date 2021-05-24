@@ -15,6 +15,7 @@
         <artifactId>akkasls-maven-plugin</artifactId>
         <configuration>
           <descriptorSetOutputDirectory>${project.basedir}</descriptorSetOutputDirectory>
+          <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
       </plugin>
     </plugins>
