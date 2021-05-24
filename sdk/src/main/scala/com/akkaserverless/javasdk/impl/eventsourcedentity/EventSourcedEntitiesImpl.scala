@@ -29,6 +29,8 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.util.control.NonFatal
 
+import akka.stream.scaladsl.Source
+
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
                                       val anySupport: AnySupport,
@@ -102,8 +104,14 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       .flatMapConcat {
         case (Seq(EventSourcedStreamIn(InInit(init), _)), source) =>
           source.via(runEntity(init))
-        case _ =>
-          throw ProtocolException("Expected Init message")
+        case (Seq(), _) =>
+          // if error during recovery in proxy the stream will be completed before init
+          log.warning("Event Sourced Entity stream closed before init.")
+          Source.empty[EventSourcedStreamOut]
+        case (Seq(EventSourcedStreamIn(other, _)), _) =>
+          throw ProtocolException(
+            s"Expected init message for Event Sourced Entity, but received [${other.getClass.getName}]"
+          )
       }
       .recover {
         case error =>

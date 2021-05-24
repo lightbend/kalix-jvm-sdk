@@ -12,10 +12,13 @@ import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 import java.util.Optional
+
 import scala.collection.mutable
 import scala.reflect.ClassTag
+
+import com.akkaserverless.protocol.component.Failure
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut
 
 class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import ValueEntitiesImplSpec._
@@ -38,7 +41,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         entity.send(command(1, "cart", "command"))
         val message = entity.expectNext()
         val failure = message.failure.get
-        failure.description should startWith("Protocol error: Expected init message for Value entity")
+        failure.description should startWith("Protocol error: Expected init message for Value Entity")
         entity.expectClosed()
       }
     }

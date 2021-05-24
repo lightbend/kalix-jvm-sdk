@@ -12,9 +12,11 @@ import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 import scala.collection.mutable
 import scala.reflect.ClassTag
+
+import com.akkaserverless.protocol.component.Failure
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut
 
 class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import EventSourcedEntitiesImplSpec._
@@ -62,7 +64,9 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       service.expectLogError("Terminating entity due to unexpected failure") {
         val entity = protocol.eventSourced.connect()
         entity.send(command(1, "cart", "command"))
-        entity.expect(failure("Protocol error: Expected Init message"))
+        val message = entity.expectMessage()
+        val failure = message.failure.get
+        failure.description should startWith("Protocol error: Expected init message for Event Sourced Entity")
         entity.expectClosed()
       }
     }

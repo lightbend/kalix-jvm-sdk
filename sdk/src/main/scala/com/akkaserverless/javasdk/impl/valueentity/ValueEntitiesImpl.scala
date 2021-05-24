@@ -25,8 +25,11 @@ import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.util.Optional
+
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
+
+import akka.stream.scaladsl.Source
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
@@ -80,11 +83,12 @@ final class ValueEntitiesImpl(_system: ActorSystem,
       .flatMapConcat {
         case (Seq(ValueEntityStreamIn(InInit(init), _)), source) =>
           source.via(runEntity(init))
-        case unexpected =>
-          throw ProtocolException(
-            s"Expected init message for Value entity (this is an Akka Serverless bug, please report). " +
-            s"Unexpected message: ${unexpected._1}"
-          )
+        case (Seq(), _) =>
+          // if error during recovery in proxy the stream will be completed before init
+          log.warning("Value Entity stream closed before init.")
+          Source.empty[ValueEntityStreamOut]
+        case (Seq(ValueEntityStreamIn(other, _)), _) =>
+          throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
       }
       .recover {
         case error =>

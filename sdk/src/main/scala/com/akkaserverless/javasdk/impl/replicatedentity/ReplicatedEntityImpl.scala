@@ -21,7 +21,10 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.util.function.Consumer
 import java.util.{function, Optional}
+
 import scala.jdk.CollectionConverters._
+
+import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandlerFactory,
@@ -70,9 +73,18 @@ class ReplicatedEntityImpl(system: ActorSystem,
       .flatMapConcat {
         case (Seq(ReplicatedEntityStreamIn(In.Init(init), _)), source) =>
           source.via(runEntity(init))
-        case _ =>
-          // todo better error
-          throw new RuntimeException("Expected Init message")
+        case (Seq(), _) =>
+          // if error during recovery in proxy the stream will be completed before init
+          log.warn("Replicated Entity stream closed before init.")
+          Source.empty[ReplicatedEntityStreamOut]
+        case (Seq(ReplicatedEntityStreamIn(other, _)), _) =>
+          throw ProtocolException(
+            s"Expected init message for Replicated Entity, but received [${other.getClass.getName}]"
+          )
+        case (Seq(other), _) =>
+          throw ProtocolException(
+            s"Expected ReplicatedEntityStreamIn init message for Replicated Entity, but received [${other.getClass.getName}]"
+          )
       }
       .recover {
         case e =>

@@ -103,20 +103,14 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               Source.failed(new RuntimeException(errMsg))
           }
 
-        case (Nil, _) =>
-          val errMsg =
-            "Akka Serverless protocol failure: expected ReceiveEvent message with service name and command name, but got empty stream"
-          log.error(errMsg)
-          Source.failed(
-            throw new RuntimeException(errMsg)
-          )
+        case (Seq(), _) =>
+          log.warn("View stream closed before init.")
+          Source.empty[pv.ViewStreamOut]
 
         case (Seq(pv.ViewStreamIn(other, _)), _) =>
           val errMsg =
             s"Akka Serverless protocol failure: expected ReceiveEvent message, but got ${other.getClass.getName}"
-          Source.failed(
-            throw new RuntimeException(errMsg)
-          )
+          Source.failed(new RuntimeException(errMsg))
       }
 
   private def replyToOut(reply: Reply[JavaPbAny], receiveEvent: pv.ReceiveEvent): pv.ViewStreamOut = {
