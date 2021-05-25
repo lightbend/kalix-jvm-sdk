@@ -19,7 +19,7 @@
         <jdk.target>11</jdk.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--
-        1. run `sbt java-sdk/publishM2` to publish locally
+        1. run `sbt sdk/publishM2` to publish locally
         2. export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta.2-4-883dd637-SNAPSHOT"
         3. mvn compile exec:java
         <akkaserverless-sdk.version>${env.AKKASERVERLESS_JAVA_SDK_VERSION}</akkaserverless-sdk.version>

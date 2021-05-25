@@ -42,9 +42,9 @@ attributes: ${cloudstate_antora}
 		> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd ${root_dir} && sbt java-sdk/doc
+	cd ${root_dir}/java-sdk && sbt sdk/doc
 	mkdir -p "${managed_attachments}"
-	rsync -a "${root_dir}/java-sdk/target/api/" "${managed_attachments}/api/"
+	rsync -a "${root_dir}/java-sdk/sdk/target/api/" "${managed_attachments}/api/"
 
 ${descriptor}: ${cloudstate_antora}
 	mkdir -p $$(dirname ${descriptor})

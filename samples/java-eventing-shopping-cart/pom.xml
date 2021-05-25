@@ -9,7 +9,7 @@
 
   <name>Shopping Cart with Eventing</name>
 
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -217,7 +217,7 @@
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk</artifactId>
       <!--
-      1. run `sbt java-sdk/publishM2` to publish locally
+      1. run `sbt sdk/publishM2` to publish locally
       2. export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta.2-4-883dd637-SNAPSHOT"
       3. mvn compile exec:java
       -->

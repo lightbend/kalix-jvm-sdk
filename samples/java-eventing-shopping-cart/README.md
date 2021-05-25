@@ -13,7 +13,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
   * from sbt: `sbt java-eventing-shopping-cart/run`
   * or mvn
     ```
-    sbt java-sdk/publishM2 java-sdk-testkit/publishM2
+    sbt sdk/publishM2 testkit/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-eventing-shopping-cart
     mvn compile exec:java
@@ -22,7 +22,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
   * with in-memory store: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
     * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`
   * or with local Spanner emulator:
-    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator` 
+    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator`
     * `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-spanner/run`
       * note that this overrides the akkaserverless.proxy.eventing.support defined in `spanner-dev-mode.conf`
 * Send an AddItem command:
@@ -61,7 +61,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
     "quantity": 5
   }
   ```
-  
+
   Sending the above message to the topic:
   ```
   curl -X POST \
@@ -104,7 +104,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
         "attributes": {
           "ce-specversion": "1.0",
           "Content-Type": "application/protobuf",
-          "ce-type": "shopping.cart.api.TopicOperation"  
+          "ce-type": "shopping.cart.api.TopicOperation"
         },
         "data": "CgNhZGQSCXVzZXItMDE1NhoUYWtrYXNlcnZlcmxlc3Mtc29ja3MiHUFra2EgU2VydmVybGVzcyBwYWlyIG9mIHNvY2tzKAI="
       }
@@ -148,7 +148,7 @@ gcloud beta pubsub topics create shopping-cart-json
 
 ## Running integration tests locally
 
-Start the pubsub emulator: 
+Start the pubsub emulator:
 ```
 gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
 ```

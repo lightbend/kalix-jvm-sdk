@@ -8,7 +8,7 @@ To run the example locally:
   * from sbt: `sbt java-customer-registry/run`
   * or mvn
     ```
-    sbt java-sdk/publishM2
+    sbt sdk/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-customer-registry
     mvn compile exec:java
@@ -16,7 +16,7 @@ To run the example locally:
 * Start the proxy
   * with in-memory store: `sbt proxy-core/run`
   * or with local Spanner emulator:
-    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator` 
+    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator`
     * `sbt proxy-spanner/run`
 * Create a customer with:
   ```
