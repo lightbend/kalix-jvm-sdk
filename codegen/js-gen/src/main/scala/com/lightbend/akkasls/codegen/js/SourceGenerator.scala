@@ -60,7 +60,7 @@ object SourceGenerator extends PrettyPrinter {
       .asScala
       .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
     model.services.values.flatMap {
-      case service: ModelBuilder.PublicApiService =>
+      case service: ModelBuilder.EntityService =>
         model.entities
           .get(service.componentFullName)
           .toSeq
@@ -121,7 +121,7 @@ object SourceGenerator extends PrettyPrinter {
 
   private[codegen] def generatePublicApiSources(
       entity: ModelBuilder.Entity,
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
       testSourceDirectory: Path,

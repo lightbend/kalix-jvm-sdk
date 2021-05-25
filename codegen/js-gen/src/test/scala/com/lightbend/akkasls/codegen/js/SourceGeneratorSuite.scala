@@ -43,8 +43,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
   def simpleService(
       proto: PackageNaming = serviceProto(),
       suffix: String = ""
-  ): ModelBuilder.PublicApiService =
-    ModelBuilder.PublicApiService(
+  ): ModelBuilder.EntityService =
+    ModelBuilder.EntityService(
       FullyQualifiedName(s"MyService$suffix", proto),
       List(
         ModelBuilder.Command(

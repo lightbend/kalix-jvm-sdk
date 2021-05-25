@@ -79,7 +79,7 @@ object ModelBuilder {
   /**
     * A Service backed by an Akka Serverless Entity
     */
-  case class PublicApiService(
+  case class EntityService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command],
       componentFullName: String
@@ -143,7 +143,7 @@ object ModelBuilder {
                       )
                     )
 
-                  serviceName.fullName -> PublicApiService(
+                  serviceName.fullName -> EntityService(
                     serviceName,
                     commands,
                     entityFullName

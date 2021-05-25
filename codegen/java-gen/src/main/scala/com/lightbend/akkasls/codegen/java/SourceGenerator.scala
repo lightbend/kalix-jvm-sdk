@@ -47,7 +47,7 @@ object SourceGenerator extends PrettyPrinter {
     val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
 
     model.services.values.flatMap {
-      case service: ModelBuilder.PublicApiService =>
+      case service: ModelBuilder.EntityService =>
         model.entities
           .get(service.componentFullName)
           .toSeq
@@ -104,7 +104,7 @@ object SourceGenerator extends PrettyPrinter {
 
   private[codegen] def generatePublicApiSources(
       entity: ModelBuilder.Entity,
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       sourceDirectory: Path,
       testSourceDirectory: Path,
       integrationTestSourceDirectory: Path,
@@ -200,7 +200,7 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def source(
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String,
@@ -349,7 +349,7 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def interfaceSource(
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String
@@ -512,7 +512,7 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def testSource(
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       implClassName: String,
@@ -619,7 +619,7 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def integrationTestSource(
       mainClassPackageName: String,
       mainClassName: String,
-      service: ModelBuilder.PublicApiService,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       testClassName: String
@@ -735,7 +735,7 @@ object SourceGenerator extends PrettyPrinter {
       model: ModelBuilder.Model
   ): Document = {
     val entityServiceClasses = model.services.values.flatMap {
-      case service: ModelBuilder.PublicApiService =>
+      case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
           (
             Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
