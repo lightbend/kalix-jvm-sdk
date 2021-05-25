@@ -87,7 +87,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         model.services,
         Map(
           "com.example.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.PublicApiService(
+          ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
               ModelBuilder.Command(
@@ -176,7 +176,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         model.services,
         Map(
           "com.example.valueentity.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.PublicApiService(
+          ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
               ModelBuilder.Command(
