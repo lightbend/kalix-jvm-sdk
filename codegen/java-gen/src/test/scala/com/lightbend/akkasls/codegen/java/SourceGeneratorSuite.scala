@@ -44,10 +44,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
   def simpleService(
       proto: PackageNaming = serviceProto(),
       suffix: String = ""
-  ): ModelBuilder.Service =
-    ModelBuilder.Service(
+  ): ModelBuilder.PublicApiService =
+    ModelBuilder.PublicApiService(
       FullyQualifiedName(s"MyService$suffix", proto),
-      s"com.example.Entity$suffix",
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
@@ -59,7 +58,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
           FullyQualifiedName("GetValue", proto),
           FullyQualifiedName("MyState", proto)
         )
-      )
+      ),
+      s"com.example.Entity$suffix"
     )
 
   def eventSourcedEntity(

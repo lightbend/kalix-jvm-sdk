@@ -87,9 +87,8 @@ class ModelBuilderSuite extends munit.FunSuite {
         model.services,
         Map(
           "com.example.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.Service(
+          ModelBuilder.PublicApiService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            entity.fqn.fullName,
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
@@ -106,7 +105,8 @@ class ModelBuilderSuite extends munit.FunSuite {
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
                 FullyQualifiedName("Cart", shoppingCartProto)
               )
-            )
+            ),
+            entity.fqn.fullName
           )
         )
       )
@@ -176,9 +176,8 @@ class ModelBuilderSuite extends munit.FunSuite {
         model.services,
         Map(
           "com.example.valueentity.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.Service(
+          ModelBuilder.PublicApiService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            entity.fqn.fullName,
             List(
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
@@ -200,7 +199,8 @@ class ModelBuilderSuite extends munit.FunSuite {
                 FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
                 FullyQualifiedName("Empty", googleEmptyProto)
               )
-            )
+            ),
+            entity.fqn.fullName
           )
         )
       )

@@ -51,13 +51,39 @@ object ModelBuilder {
   ) extends Entity(fqn, entityType)
 
   /**
-    * A Service backed by an Akka Serverless entity
+    * A Service backed by Akka Serverless; either an Action, View or Entity
     */
-  case class Service(
-      fqn: FullyQualifiedName,
-      entityFullName: String,
-      commands: Iterable[Command]
+  sealed abstract class Service(
+      val fqn: FullyQualifiedName,
+      val commands: Iterable[Command]
   )
+
+  /**
+    * A Service backed by an Action - a serverless function that is executed based on a trigger.
+    * The trigger could be an HTTP or gRPC request or a stream of messages or events.
+    */
+  case class ActionService(
+      override val fqn: FullyQualifiedName,
+      override val commands: Iterable[Command]
+  ) extends Service(fqn, commands)
+
+  /**
+    * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
+    * You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics.
+    */
+  case class ViewService(
+      override val fqn: FullyQualifiedName,
+      override val commands: Iterable[Command]
+  ) extends Service(fqn, commands)
+
+  /**
+    * A Service backed by an Akka Serverless Entity
+    */
+  case class PublicApiService(
+      override val fqn: FullyQualifiedName,
+      override val commands: Iterable[Command],
+      componentFullName: String
+  ) extends Service(fqn, commands)
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
@@ -117,10 +143,10 @@ object ModelBuilder {
                       )
                     )
 
-                  serviceName.fullName -> Service(
+                  serviceName.fullName -> PublicApiService(
                     serviceName,
-                    entityFullName,
-                    commands
+                    commands,
+                    entityFullName
                   )
                 }
 
