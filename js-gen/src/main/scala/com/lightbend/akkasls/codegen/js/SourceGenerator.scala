@@ -59,76 +59,25 @@ object SourceGenerator extends PrettyPrinter {
       .collect(Collectors.toList())
       .asScala
       .map(p => protobufSourceDirectory.toAbsolutePath.relativize(p.toAbsolutePath))
-    model.services.values.flatMap { service: ModelBuilder.Service =>
-      model.entities.get(service.entityFullName).toSeq.flatMap { entity: ModelBuilder.Entity =>
-        val entityFilename = entity.fqn.name.toLowerCase + ".js"
-        val sourcePath     = sourceDirectory.resolve(entityFilename)
-
-        val typedefFilename   = entity.fqn.name.toLowerCase + ".d.ts"
-        val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
-        val _                 = typedefSourcePath.getParent.toFile.mkdirs()
-        val _ = Files.write(
-          typedefSourcePath,
-          typedefSource(service, entity).layout.getBytes(
-            Charsets.UTF_8
-          )
-        )
-
-        // We're going to generate an entity - let's see if we can generate its test...
-        val entityTestFilename = entityFilename.replace(".js", ".test.js")
-        val testSourcePath =
-          testSourceDirectory.resolve(entityTestFilename)
-        val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-          val _ = testSourcePath.getParent.toFile.mkdirs()
-          val _ = Files.write(
-            testSourcePath,
-            testSource(service, entity, testSourceDirectory, sourceDirectory).layout.getBytes(
-              Charsets.UTF_8
-            )
-          )
-          List(testSourcePath)
-        } else {
-          List.empty
-        }
-
-        // Next, if an integration test directory is configured, we generate integration tests...
-        val integrationTestSourceFiles = integrationTestSourceDirectory
-          .map(_.resolve(entityTestFilename))
-          .filterNot(_.toFile.exists())
-          .map { integrationTestSourcePath =>
-            val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
-            val _ = Files.write(
-              integrationTestSourcePath,
-              integrationTestSource(service, entity, testSourceDirectory, sourceDirectory).layout
-                .getBytes(
-                  Charsets.UTF_8
-                )
-            )
-            integrationTestSourcePath
-          }
-
-        val sourceFiles = if (!sourcePath.toFile.exists()) {
-          // Now we generate the entity
-          val _ = sourcePath.getParent.toFile.mkdirs()
-          val _ = Files.write(
-            sourcePath,
-            source(
-              allProtoSources,
+    model.services.values.flatMap {
+      case service: ModelBuilder.PublicApiService =>
+        model.entities
+          .get(service.componentFullName)
+          .toSeq
+          .flatMap(entity =>
+            generatePublicApiSources(
+              entity,
+              service,
               protobufSourceDirectory,
               sourceDirectory,
+              testSourceDirectory,
               generatedSourceDirectory,
-              service,
-              entity
-            ).layout
-              .getBytes(Charsets.UTF_8)
+              integrationTestSourceDirectory,
+              indexFilename,
+              allProtoSources
+            )
           )
-          List(sourcePath, typedefSourcePath)
-        } else {
-          List(typedefSourcePath)
-        }
-
-        sourceFiles ++ testSourceFiles ++ integrationTestSourceFiles
-      }
+      case _ => Seq.empty
     } ++ {
       if (model.services.nonEmpty) {
         val entities = model.services.values.flatMap { service: ModelBuilder.Service =>
@@ -168,6 +117,87 @@ object SourceGenerator extends PrettyPrinter {
         List.empty
       }
     }
+  }
+
+  private[codegen] def generatePublicApiSources(
+      entity: ModelBuilder.Entity,
+      service: ModelBuilder.PublicApiService,
+      protobufSourceDirectory: Path,
+      sourceDirectory: Path,
+      testSourceDirectory: Path,
+      generatedSourceDirectory: Path,
+      integrationTestSourceDirectory: Option[Path],
+      indexFilename: String,
+      allProtoSources: Iterable[Path]
+  ) = {
+
+    val entityFilename = entity.fqn.name.toLowerCase + ".js"
+    val sourcePath     = sourceDirectory.resolve(entityFilename)
+
+    val typedefFilename   = entity.fqn.name.toLowerCase + ".d.ts"
+    val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
+    val _                 = typedefSourcePath.getParent.toFile.mkdirs()
+    val _ = Files.write(
+      typedefSourcePath,
+      typedefSource(service, entity).layout.getBytes(
+        Charsets.UTF_8
+      )
+    )
+
+    // We're going to generate an entity - let's see if we can generate its test...
+    val entityTestFilename = entityFilename.replace(".js", ".test.js")
+    val testSourcePath =
+      testSourceDirectory.resolve(entityTestFilename)
+    val testSourceFiles = if (!testSourcePath.toFile.exists()) {
+      val _ = testSourcePath.getParent.toFile.mkdirs()
+      val _ = Files.write(
+        testSourcePath,
+        testSource(service, entity, testSourceDirectory, sourceDirectory).layout.getBytes(
+          Charsets.UTF_8
+        )
+      )
+      List(testSourcePath)
+    } else {
+      List.empty
+    }
+
+    // Next, if an integration test directory is configured, we generate integration tests...
+    val integrationTestSourceFiles = integrationTestSourceDirectory
+      .map(_.resolve(entityTestFilename))
+      .filterNot(_.toFile.exists())
+      .map { integrationTestSourcePath =>
+        val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
+        val _ = Files.write(
+          integrationTestSourcePath,
+          integrationTestSource(service, entity, testSourceDirectory, sourceDirectory).layout
+            .getBytes(
+              Charsets.UTF_8
+            )
+        )
+        integrationTestSourcePath
+      }
+
+    val sourceFiles = if (!sourcePath.toFile.exists()) {
+      // Now we generate the entity
+      val _ = sourcePath.getParent.toFile.mkdirs()
+      val _ = Files.write(
+        sourcePath,
+        source(
+          allProtoSources,
+          protobufSourceDirectory,
+          sourceDirectory,
+          generatedSourceDirectory,
+          service,
+          entity
+        ).layout
+          .getBytes(Charsets.UTF_8)
+      )
+      List(sourcePath, typedefSourcePath)
+    } else {
+      List(typedefSourcePath)
+    }
+
+    sourceFiles ++ testSourceFiles ++ integrationTestSourceFiles
   }
 
   private[codegen] def source(
