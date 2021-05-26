@@ -1,7 +1,0 @@
-* xref:index.adoc[Implementing in Java]
-** xref:getting-started.adoc[Getting started]
-** xref:eventsourcedentities.adoc[Implementing Event Sourced Entities]
-** xref:replicatedentities.adoc[Implementing Replicated Entities]
-** xref:effects.adoc[Forwarding and effects]
-** xref:serialization.adoc[Serialization]
-** xref:api.adoc[Java API docs]

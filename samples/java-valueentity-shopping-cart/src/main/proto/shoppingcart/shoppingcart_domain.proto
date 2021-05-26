@@ -14,7 +14,7 @@
 
 // These are the messages that get persisted - the current state (Cart).
 
-// tag:domain[]
+// tag::domain[]
 syntax = "proto3";
 
 package com.example.valueentity.shoppingcart.domain;
@@ -40,4 +40,4 @@ message LineItem {
 message Cart {
   repeated LineItem items = 1;
 }
-// end:domain[]
+// end::domain[]

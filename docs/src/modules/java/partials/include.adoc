@@ -1,2 +1,0 @@
-:minimum-java-version: 8
-:recommended-java-version: 11

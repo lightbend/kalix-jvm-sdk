@@ -1,69 +1,45 @@
 # Make Akka Serverless Java SDK documentation
 
-# FIXME: set up new documentation building
-
-module   := java
+module   := java-services
 upstream := lightbend/akkaserverless-java-sdk
-branch   := java-sdk/docs/current
+branch   := docs/current
 sources  := src build/src/managed
 
-cloudstate_antora_download := https://github.com/cloudstateio/cloudstate-antora/raw/master/cloudstate-antora
-cloudstate_antora := .cache/bin/cloudstate-antora
-descriptor := build/site.yml
-root_dir := $(shell git rev-parse --show-toplevel)
 src_managed := build/src/managed
-managed_attachments := ${src_managed}/modules/java/attachments
-managed_partials := ${src_managed}/modules/java/partials
+managed_attachments := ${src_managed}/modules/${module}/attachments
+managed_examples := ${src_managed}/modules/${module}/examples
+managed_partials := ${src_managed}/modules/${module}/partials
 
 .SILENT:
 
-build: clean managed validate html
+build: clean managed
 
-${cloudstate_antora}:
-	mkdir -p $$(dirname ${cloudstate_antora})
-	curl -Lo ${cloudstate_antora} ${cloudstate_antora_download}
-	chmod +x ${cloudstate_antora}
+clean:
+	rm -rf build
 
-clean-cache:
-	rm -rf .cache
-
-update: clean-cache ${cloudstate_antora}
-
-clean: ${cloudstate_antora}
-	${cloudstate_antora} clean
-
-managed: attributes apidocs
+managed: attributes apidocs examples
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
-attributes: ${cloudstate_antora}
+attributes:
 	mkdir -p "${managed_partials}"
-	${cloudstate_antora} version --prefix "java-support-" | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
+	bin/version.sh | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
 		> "${managed_partials}/attributes.adoc"
+	echo ":minimum-java-version: 8" \
+		>> "${managed_partials}/attributes.adoc"
+	echo ":recommended-java-version: 11" \
+		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd ${root_dir}/java-sdk && sbt sdk/doc
+	cd .. && sbt sdk/doc
 	mkdir -p "${managed_attachments}"
-	rsync -a "${root_dir}/java-sdk/sdk/target/api/" "${managed_attachments}/api/"
+	rsync -a ../sdk/target/api/ "${managed_attachments}/api/"
 
-${descriptor}: ${cloudstate_antora}
-	mkdir -p $$(dirname ${descriptor})
-	${cloudstate_antora} source --preview --upstream ${upstream} ${sources} > build/source.yml
-	${cloudstate_antora} site --preview --exclude ${module} --exclude springboot build/source.yml > ${descriptor}
-
-validate: ${descriptor}
-	${cloudstate_antora} validate ${descriptor}
-
-html: ${descriptor}
-	${cloudstate_antora} build ${descriptor}
-
-build-author-mode: clean managed validate html-author-mode
-
-html-author-mode: ${descriptor}
-	${cloudstate_antora} build --author-mode ${descriptor}
-
-validate-links: ${cloudstate_antora}
-	${cloudstate_antora} validate --no-xrefs --links --links-config config/validate-links.json
+examples:
+	mkdir -p "${managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../samples/java-customer-registry/ "${managed_examples}/java-customer-registry/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
 
 deploy: clean managed
-	${cloudstate_antora} deploy --module ${module} --upstream ${upstream} --branch ${branch} ${sources}
+	bin/deploy.sh --module ${module} --upstream ${upstream} --branch ${branch} ${sources}
