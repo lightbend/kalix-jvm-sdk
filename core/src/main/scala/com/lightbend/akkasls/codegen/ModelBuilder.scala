@@ -101,8 +101,7 @@ object ModelBuilder {
               Option(
                 service.getOptions
                   .getExtension(com.akkaserverless.Annotations.service)
-                  .getEntity
-                  .getType
+                  .getComponent
               )
                 .filter(_.nonEmpty)
                 .map(resolveFullName(_, service.getFile.getPackage))
@@ -170,11 +169,11 @@ object ModelBuilder {
       EventSourcedEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
-        Option(rawEntity.getState.getType)
+        Option(rawEntity.getState)
           .filter(_.nonEmpty)
           .map(name => State(FullyQualifiedName(name, protoReference))),
-        rawEntity.getEventList.asScala
-          .map(event => Event(FullyQualifiedName(event.getType, protoReference)))
+        rawEntity.getEventsList.asScala
+          .map(event => Event(FullyQualifiedName(event, protoReference)))
       )
     }
   }
@@ -198,7 +197,7 @@ object ModelBuilder {
       ValueEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
-        State(FullyQualifiedName(rawEntity.getState.getType, protoReference))
+        State(FullyQualifiedName(rawEntity.getState, protoReference))
       )
     }
   }

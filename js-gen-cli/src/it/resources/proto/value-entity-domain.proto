@@ -7,7 +7,7 @@ import "akkaserverless/annotations.proto";
 option (akkaserverless.file).value_entity = {
     name: "MyEntity"
     entity_type: "MyEntity"
-    state: { type: "MyState" }
+    state: "MyState"
 };
 
 message MyState {

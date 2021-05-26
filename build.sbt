@@ -70,7 +70,8 @@ lazy val `akkasls-codegen-js` =
     )
     .dependsOn(`akkasls-codegen-core`)
 
-lazy val cachedNativeImage = taskKey[File]("A cached version of the nativeImage task key, that only rebuilds when required.")
+lazy val cachedNativeImage =
+  taskKey[File]("A cached version of the nativeImage task key, that only rebuilds when required.")
 
 lazy val `akkasls-codegen-js-cli` =
   project
@@ -94,8 +95,9 @@ lazy val `akkasls-codegen-js-cli` =
 
         val store = streams.value.cacheStoreFactory.make("assembled-jar-info-cache")
 
-        val trackedNativeImage = Tracked.inputChanged[ModifiedFileInfo, Def.Initialize[Task[File]]](store) {
-          case (fatJarChanged, _) =>
+        val trackedNativeImage =
+          Tracked.inputChanged[ModifiedFileInfo, Def.Initialize[Task[File]]](store) {
+            case (fatJarChanged, _) =>
               if (fatJarChanged) {
                 // Assembled fat JAR has changed, rebuild native image
                 nativeImage
@@ -103,7 +105,7 @@ lazy val `akkasls-codegen-js-cli` =
                 streams.value.log.info(s"Native image up to date: ${nativeImageOutput.value}")
                 nativeImageOutput.toTask
               }
-            }
+          }
 
         trackedNativeImage(FileInfo.lastModified(assembly.value))
       }.value,
@@ -147,7 +149,7 @@ lazy val library =
       val scopt          = "4.0.0"
       val testcontainers = "1.15.3"
       val typesafeConfig = "1.4.1"
-      val akkaserverless = "0.7.0-beta.8"
+      val akkaserverless = "0.7.0-beta.9"
     }
     val commonsIo       = "commons-io"                     % "commons-io"       % Version.commonsIo
     val kiama           = "org.bitbucket.inkytonik.kiama" %% "kiama"            % Version.kiama
