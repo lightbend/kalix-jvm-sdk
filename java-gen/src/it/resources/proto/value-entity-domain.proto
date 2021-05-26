@@ -1,8 +1,10 @@
 syntax = "proto3";
 
-package com.example.persistence;
+package com.example.domain;
 
 import "akkaserverless/annotations.proto";
+
+option java_outer_classname = "MyEntityDomain";
 
 option (akkaserverless.file).value_entity = {
     name: "MyEntity"

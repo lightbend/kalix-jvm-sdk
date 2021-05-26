@@ -27,14 +27,13 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
   val logger       = LoggerFactory.getLogger(classOf[JsCodegenIntegrationSuite])
   logger.info(cliImagePath.toString)
   val codegenImage =
-    new ImageFromDockerfile("akkasls-codegen-java-test", /* deleteOnExit */ false)
+    new ImageFromDockerfile("akkasls-codegen-js-test", /* deleteOnExit */ false)
       .withFileFromClasspath("Dockerfile", "Dockerfile")
       .withFileFromClasspath("scripts", "scripts")
       .withFileFromPath("akkasls-codegen-js", cliImagePath)
       .withFileFromPath("akkaserverless-npm-js", npmJsPath)
 
-  class AkkaslsJavaCodegenContainer
-      extends GenericContainer[AkkaslsJavaCodegenContainer](codegenImage)
+  class AkkaslsJsCodegenContainer extends GenericContainer[AkkaslsJsCodegenContainer](codegenImage)
 
   class AkkaslsProxyContainer extends GenericContainer[AkkaslsProxyContainer](proxyImage)
 
@@ -47,7 +46,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
   // Define simple dockerised deployment with proxy and container for generated project
   val network = Network.newNetwork()
   val codegenContainer =
-    new AkkaslsJavaCodegenContainer()
+    new AkkaslsJsCodegenContainer()
       .withNetwork(network)
       .withNetworkAliases("generated-entity")
       .withEnv("HOST", "0.0.0.0")
@@ -223,7 +222,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/proto/persistence/domain.proto"
+      s"/home/$entityName/src/main/proto/myentity_domain.proto"
     )
 
     // Setup and build the entity
@@ -282,7 +281,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/proto/persistence/domain.proto"
+      s"/home/$entityName/src/main/proto/myentity_domain.proto"
     )
 
     // Setup and build the entity

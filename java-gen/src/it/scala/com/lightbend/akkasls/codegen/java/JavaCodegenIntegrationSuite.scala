@@ -120,7 +120,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Stream generated MyEntityImpl, and replace function bodies with simple implementations
     val implFile = Files.createTempFile("generated-entity-impl", ".java")
     val implContainerPath =
-      s"/home/${entityName}/src/main/java/com/example/persistence/MyEntityImpl.java"
+      s"/home/${entityName}/src/main/java/com/example/domain/MyEntityImpl.java"
     Using(new PrintWriter(implFile.toFile())) { writer =>
       codegenContainer.copyFileFromContainer(
         implContainerPath,
@@ -140,7 +140,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
               )
             case """        throw ctx.fail("The command handler for `SetValue` is not implemented, yet");""" =>
               Seq(
-                """        ctx.emit(Domain.ValueSet.newBuilder().setValue(command.getValue()).build());""",
+                """        ctx.emit(MyEntityDomain.ValueSet.newBuilder().setValue(command.getValue()).build());""",
                 """        return Empty.getDefaultInstance();"""
               )
             case """        throw new RuntimeException("The event handler for `ValueSet` is not implemented, yet");""" =>
@@ -220,7 +220,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/src/main/proto/persistence/domain.proto"
+      s"/home/$entityName/src/main/proto/myentity_domain.proto"
     )
 
     // Start the entity gRPC server
@@ -266,7 +266,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/src/main/proto/persistence/domain.proto"
+      s"/home/$entityName/src/main/proto/myentity_domain.proto"
     )
 
     // Build the initial implementation
@@ -281,7 +281,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Stream generated MyEntityImpl, and replace function bodies with simple implementations
     val implFile = Files.createTempFile("generated-entity-impl", ".java")
     val implContainerPath =
-      s"/home/${entityName}/src/main/java/com/example/persistence/MyEntityImpl.java"
+      s"/home/${entityName}/src/main/java/com/example/domain/MyEntityImpl.java"
     Using(new PrintWriter(implFile.toFile())) { writer =>
       codegenContainer.copyFileFromContainer(
         implContainerPath,
@@ -296,13 +296,13 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
               )
             case """        throw ctx.fail("The command handler for `GetValue` is not implemented, yet");""" =>
               Seq(
-                """        Domain.MyState state = ctx.getState().orElse(Domain.MyState.newBuilder().build());""",
+                """        MyEntityDomain.MyState state = ctx.getState().orElse(MyEntityDomain.MyState.newBuilder().build());""",
                 """        MyEntityApi.MyResult result = MyEntityApi.MyResult.newBuilder().setValue(state.getValue()).build();""",
                 """        return result;"""
               )
             case """        throw ctx.fail("The command handler for `SetValue` is not implemented, yet");""" =>
               Seq(
-                """        ctx.updateState(Domain.MyState.newBuilder().setValue(command.getValue()).build());""",
+                """        ctx.updateState(MyEntityDomain.MyState.newBuilder().setValue(command.getValue()).build());""",
                 """        return Empty.getDefaultInstance();"""
               )
             case line => Seq(line)
