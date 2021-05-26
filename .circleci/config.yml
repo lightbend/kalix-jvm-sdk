@@ -1,0 +1,235 @@
+version: 2.1
+
+orbs:
+  build-tools: circleci/build-tools@2.9.0
+
+commands:
+  checkout-and-merge-to-main:
+    steps:
+      - checkout
+      - run:
+          name: Configure git user
+          command: |
+            # required by merge-with-parent (for some unknown reason)
+            git config user.email "circleci@example.com"
+            git config user.name "CircleCI"
+      - build-tools/merge-with-parent:
+          parent: main
+
+  install-java-11:
+    description: install openjdk-11
+    steps:
+      - run:
+          name: Install java 11
+          command: |
+            wget https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.8_10.tar.gz -O /tmp/openjdk-11.tar.gz
+
+            sudo mkdir -p /usr/lib/jvm
+            sudo tar xfvz /tmp/openjdk-11.tar.gz --directory /usr/lib/jvm
+            rm -f /tmp/openjdk-11.tar.gz
+
+            sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.8+10/bin/*; do update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin) $bin 100; done'
+            sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.8+10/bin/*; do update-alternatives --set $(basename $bin) $bin; done'
+
+  setup_sbt:
+    description: "Set up sbt"
+    parameters:
+      version:
+        type: string
+        default: "1.4.9"
+    steps:
+      - install-java-11
+      - run:
+          name: Install sbt
+          command: |
+            curl -L -o sbt-<< parameters.version >>.deb https://repo.scala-sbt.org/scalasbt/debian/sbt-<< parameters.version >>.deb
+            sudo dpkg -i sbt-<< parameters.version >>.deb
+            rm sbt-<< parameters.version >>.deb
+
+  save_sbt_cache:
+    description: "Save sbt cache"
+    steps:
+      - save_cache:
+          key: sbt-cache-01
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.cache/coursier"
+
+  restore_sbt_cache:
+    description: "Restore sbt cache"
+    steps:
+      - restore_cache:
+          key: sbt-cache-01
+
+jobs:
+  checks:
+    docker:
+      - image: cimg/openjdk:11.0
+    description: "Checks"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run:
+          name: Run scalafmt checks
+          command: |
+            sbt scalafmtCheckAll scalafmtSbtCheck || \
+              { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
+      - run:
+          name: Run javafmt checks
+          command: |
+            sbt javafmtCheckAll || \
+              { echo "[error] Code not formatted prior to commit. Run 'sbt javafmtAll' then commit the reformatted code."; false; }
+      - run:
+          name: Run header checks
+          command: |
+            sbt headerCheckAll || \
+              { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
+      - save_sbt_cache
+
+  tests:
+    docker:
+      - image: cimg/openjdk:11.0
+    description: "Tests"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run:
+          name: Run tests
+          command: sbt test
+      - save_sbt_cache
+
+  integration-tests:
+    machine: true
+    description: "Integration tests"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run:
+          name: Run integration tests
+          command: docker-compose -f .circleci/google-pubsub-emulator-docker-compose.yml up -d && sbt samples/It/test
+      - save_sbt_cache
+
+  tck-tests:
+    machine: true
+    description: "TCK tests"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run:
+          name: Run TCK tests
+          command: sbt tck/Test/run
+      - save_sbt_cache
+
+  validate-docs:
+    machine: true
+    description: "Validate docs"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run:
+          name: Validate docs
+          command: make -C docs
+      - save_sbt_cache
+
+  publish:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - checkout
+      - setup_sbt
+      - restore_sbt_cache
+      - run: sbt ci-release
+      - save_sbt_cache
+
+  publish-tck:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - checkout
+      - setup_remote_docker
+      - setup_sbt
+      - restore_sbt_cache
+      - run: bin/docker-login-public-gcr.sh
+      - run: sbt tck/Docker/publish
+      - save_sbt_cache
+
+  publish-docs:
+    machine: true
+    steps:
+      - checkout
+      - setup_sbt
+      - restore_sbt_cache
+      # deploy key for pushing docs to branch
+      - add_ssh_keys:
+          fingerprints:
+            - "fd:fd:d3:9d:88:2c:df:5c:5d:b9:c0:2f:43:c6:b8:82"
+      - run:
+          name: Publish docs
+          command: make -C docs deploy
+      - save_sbt_cache
+
+workflows:
+  CI:
+    jobs:
+      - checks:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/
+      - tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/
+      - integration-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/
+      - tck-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/
+      - validate-docs:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/
+      - publish:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checks
+            - tests
+            - integration-tests
+            - tck-tests
+            - validate-docs
+      - publish-tck:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checks
+            - tests
+            - integration-tests
+            - tck-tests
+            - validate-docs
+      - publish-docs:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checks
+            - tests
+            - integration-tests
+            - tck-tests
+            - validate-docs
