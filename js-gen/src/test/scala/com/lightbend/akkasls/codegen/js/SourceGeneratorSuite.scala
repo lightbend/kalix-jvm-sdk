@@ -589,24 +589,27 @@ class SourceGeneratorSuite extends munit.FunSuite {
   test("generated component index source") {
     val protoRef = serviceProto()
 
-    val services = List(
-      simpleService(protoRef, "1"),
-      simpleService(protoRef, "2"),
-      simpleService(protoRef, "3")
+    val generatedSourceDirectory = Paths.get("./generated/js")
+    val sourceDirectory          = Paths.get("./src/js")
+
+    val entities = List(
+      eventSourcedEntity("1"),
+      valueEntity("2"),
+      eventSourcedEntity("3")
     )
 
-    val sourceDoc = SourceGenerator.generatedComponentIndex(services)
+    val sourceDoc =
+      SourceGenerator.generatedComponentIndex(entities, generatedSourceDirectory, sourceDirectory)
+
     assertEquals(
       sourceDoc.layout.replace("\\", "/"),
-      """import myservice1 from "./myservice1.js";
-        |import myservice2 from "./myservice2.js";
-        |import myservice3 from "./myservice3.js";
+      """import myentity1 from "../../src/js/myentity1.js";
+        |import myvalueentity2 from "../../src/js/myvalueentity2.js";
+        |import myentity3 from "../../src/js/myentity3.js";
         |
-        |export myservice1;
-        |export myservice2;
-        |export myservice3;
+        |export { myentity1, myvalueentity2, myentity3 };
         |
-        |export default [myservice1, myservice2, myservice3];""".stripMargin
+        |export default [myentity1, myvalueentity2, myentity3];""".stripMargin
     )
   }
 

@@ -131,12 +131,20 @@ object SourceGenerator extends PrettyPrinter {
       }
     } ++ {
       if (model.services.nonEmpty) {
+        val entities = model.services.values.flatMap { service: ModelBuilder.Service =>
+          model.entities.get(service.entityFullName)
+        }
+
         val generatedComponentIndexPath =
           generatedSourceDirectory.resolve(generatedIndexSourceFilename)
         val _ = generatedComponentIndexPath.getParent.toFile.mkdirs()
         val _ = Files.write(
           generatedComponentIndexPath,
-          generatedComponentIndex(model.services.values).layout.getBytes(
+          generatedComponentIndex(
+            entities,
+            generatedSourceDirectory,
+            sourceDirectory
+          ).layout.getBytes(
             Charsets.UTF_8
           )
         )
@@ -615,26 +623,35 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def generatedComponentIndex(
-      services: Iterable[ModelBuilder.Service]
+      entities: Iterable[ModelBuilder.Entity],
+      generatedSourceDirectory: Path,
+      sourceDirectory: Path
   ): Document =
     pretty(
       ssep(
-        services.map { service: ModelBuilder.Service =>
-          val entityName = service.fqn.name.toLowerCase
-          "import" <+> entityName <+> "from" <+> dquotes(s"./$entityName.js") <> semi
+        entities.map { entity: ModelBuilder.Entity =>
+          val entityName = entity.fqn.name.toLowerCase
+          "import" <+> entityName <+> "from" <+> dquotes(
+            generatedSourceDirectory.toAbsolutePath
+              .relativize(sourceDirectory.toAbsolutePath)
+              .resolve(s"$entityName.js")
+              .toString
+          ) <> semi
         }.toSeq,
         line
       ) <> line <>
       line <>
-      ssep(
-        services.map { service: ModelBuilder.Service =>
-          "export" <+> service.fqn.name.toLowerCase <> semi
-        }.toSeq,
-        line
-      ) <> line <>
+      "export" <+> braces(
+        space <>
+        ssep(
+          entities.map(entity => text(entity.fqn.name.toLowerCase)).toSeq,
+          comma <> " "
+        ) <> space
+      ) <> semi
+      <> line <>
       line <>
       "export" <+> "default" <+> brackets(
-        ssep(services.map(service => text(service.fqn.name.toLowerCase)).toSeq, comma <> " ")
+        ssep(entities.map(entity => text(entity.fqn.name.toLowerCase)).toSeq, comma <> " ")
       ) <> semi
     )
 
