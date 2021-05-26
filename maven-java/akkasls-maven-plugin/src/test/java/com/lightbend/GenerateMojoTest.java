@@ -34,14 +34,16 @@ public class GenerateMojoTest {
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
-        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/persistence/ShoppingCartImpl.java")
+        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/domain/ShoppingCartImpl.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve(
-                "target/generated-sources/akkaserverless/java/com/example/shoppingcart/persistence/ShoppingCartInterface.java")
+                "target/generated-sources/akkaserverless/java/com/example/shoppingcart/domain/ShoppingCartInterface.java")
                 .toFile().exists());
-        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/persistence/ShoppingCartTest.java")
+        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java")
                 .toFile().exists());
-        assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/persistence/ShoppingCartIntegrationTest.java")
+        assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/domain/ShoppingCartIntegrationTest.java")
+                .toFile().exists());
+        assertTrue(projectDirectory.resolve("target/generated-sources/akkaserverless/java/com/lightbend/MainComponentRegistrations.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
     }
