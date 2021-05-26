@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk
 
+import java.lang.management.ManagementFactory
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl._
@@ -43,6 +45,7 @@ import scala.util.Success
 
 import com.akkaserverless.javasdk.impl.view.ViewsImpl
 import com.akkaserverless.protocol.view.ViewsHandler
+import org.slf4j.LoggerFactory
 
 object AkkaServerlessRunner {
   final case class Configuration(userFunctionInterface: String, userFunctionPort: Int, snapshotEvery: Int) {
@@ -73,7 +76,8 @@ final class AkkaServerlessRunner private[this] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]
 ) {
-  private[javasdk] implicit final val system = _system
+  private[javasdk] implicit val system: ActorSystem = _system
+  private val log = LoggerFactory.getLogger(getClass)
 
   private[this] final val configuration =
     new AkkaServerlessRunner.Configuration(system.settings.config.getConfig("akkaserverless"))
@@ -154,6 +158,9 @@ final class AkkaServerlessRunner private[this] (
   def run(): CompletionStage[Done] = {
     import scala.concurrent.duration._
     import system.dispatcher
+
+    logJvmInfo()
+
     val bound = Http
       .get(system)
       .newServerAt(configuration.userFunctionInterface, configuration.userFunctionPort)
@@ -183,6 +190,20 @@ final class AkkaServerlessRunner private[this] (
    */
   def terminate(): CompletionStage[Done] =
     FutureConverters.toJava(system.terminate()).thenApply(_ => Done)
+
+  private def logJvmInfo(): Unit = {
+    val osMBean = ManagementFactory.getOperatingSystemMXBean
+    val memoryMBean = ManagementFactory.getMemoryMXBean
+    val heap = memoryMBean.getHeapMemoryUsage
+    val jvmName = sys.props.get("java.runtime.name").orElse(sys.props.get("java.vm.name")).getOrElse("")
+    val jvmVersion = sys.props.get("java.runtime.version").orElse(sys.props.get("java.vm.version")).getOrElse("")
+
+    log.debug("JVM [{} {}], max heap [{} MB], processors [{}]",
+              jvmName,
+              jvmVersion,
+              heap.getMax / 1024 / 1024,
+              osMBean.getAvailableProcessors)
+  }
 }
 
 /**
