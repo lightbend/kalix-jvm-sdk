@@ -52,7 +52,7 @@ lazy val sdk = project
         akkaHttpDependency("akka-http2-support"),
         "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion,
         "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+        "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion % "compile;protobuf-src",
         "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
         akkaDependency("akka-testkit") % Test,
         akkaDependency("akka-stream-testkit") % Test,
