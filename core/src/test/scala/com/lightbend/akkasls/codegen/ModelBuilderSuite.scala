@@ -39,25 +39,21 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "Shoppingcart",
+          "ShoppingcartApi",
           "com.example.shoppingcart",
-          Some(
-            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart;shoppingcart"
-          ),
           None,
-          Some("ShoppingCart"),
+          None,
+          Some("ShoppingCartApi"),
           javaMultipleFiles = false
         )
 
       val domainProto =
         PackageNaming(
-          "Domain",
-          "com.example.shoppingcart.persistence",
-          Some(
-            "github.com/lightbend/akkaserverless-go-sdk/example/shoppingcart/persistence;persistence"
-          ),
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
           None,
           None,
+          Some("ShoppingCartDomain"),
           javaMultipleFiles = false
         )
 
@@ -74,7 +70,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val entity =
         ModelBuilder.EventSourcedEntity(
           FullyQualifiedName("ShoppingCart", domainProto),
-          "ShoppingCart",
+          "eventsourced-shopping-cart",
           Some(ModelBuilder.State(FullyQualifiedName("Cart", domainProto))),
           List(
             ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
@@ -138,25 +134,21 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "Shoppingcart",
+          "ShoppingcartApi",
           "com.example.valueentity.shoppingcart",
-          Some(
-            "github.com/lightbend/akkaserverless-go-sdk/example/valueentity/shoppingcart;shoppingcart"
-          ),
           None,
-          Some("ShoppingCart"),
+          None,
+          Some("ShoppingCartApi"),
           javaMultipleFiles = false
         )
 
       val domainProto =
         PackageNaming(
-          "Domain",
-          "com.example.valueentity.shoppingcart.persistence",
-          Some(
-            "github.com/lightbend/akkaserverless-go-sdk/example/valueentity/shoppingcart/persistence;persistence"
-          ),
+          "ShoppingcartDomain",
+          "com.example.valueentity.shoppingcart.domain",
           None,
           None,
+          Some("ShoppingCartDomain"),
           javaMultipleFiles = false
         )
 
@@ -171,7 +163,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         )
       val entity = ModelBuilder.ValueEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
-        "ShoppingCart",
+        "shopping-cart",
         ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
       )
 
