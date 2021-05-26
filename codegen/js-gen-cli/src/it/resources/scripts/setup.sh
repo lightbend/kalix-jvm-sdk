@@ -9,7 +9,7 @@ pushd akkasls-scripts
 # Disable download of codegen CLI, and manually add our version
 mv package.json original-package.json
 node /home/scripts/disable-download-cli.js original-package.json > package.json
-cp /home/akkasls-codegen-js bin/akkasls-codegen-js
+cp /home/akkasls-codegen-js bin/akkasls-codegen-js.bin
 
 # Use NPM link to make this available within the container
 npm install
