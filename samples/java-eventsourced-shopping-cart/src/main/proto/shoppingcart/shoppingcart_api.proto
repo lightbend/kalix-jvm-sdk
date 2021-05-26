@@ -51,26 +51,29 @@ message Cart {
 }
 
 service ShoppingCartService {
-    option (akkaserverless.service).entity.type = ".domain.Cart";
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: ".domain.ShoppingCart"
+  };
 
-    rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
-        option (google.api.http) = {
-            post: "/cart/{cart_id}/items/add"
-            body: "*"
-        };
-    }
+  rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
+    };
+  }
 
-    rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
-        option (google.api.http).post = "/cart/{cart_id}/items/{product_id}/remove";
-    }
+  rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/cart/{cart_id}/items/{product_id}/remove";
+  }
 
-    rpc GetCart(GetShoppingCart) returns (Cart) {
-        option (google.api.http) = {
-            get: "/carts/{cart_id}"
-            additional_bindings: {
-                get: "/carts/{cart_id}/items"
-                response_body: "items"
-            }
-        };
-    }
+  rpc GetCart(GetShoppingCart) returns (Cart) {
+    option (google.api.http) = {
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+        get: "/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
+  }
 }

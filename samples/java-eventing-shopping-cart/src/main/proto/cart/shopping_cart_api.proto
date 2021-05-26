@@ -57,7 +57,10 @@ message Cart {
 }
 
 service ShoppingCartService {
-  option (akkaserverless.service).entity.type = ".persistence.ShoppingCart";
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: ".domain.ShoppingCart"
+  };
 
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
     option (google.api.http) = {

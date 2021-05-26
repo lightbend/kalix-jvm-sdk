@@ -44,6 +44,11 @@ message Popularity {
 
 // service popularity
 service ProductPopularityService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: ".domain.ProductPopularity"
+  };
+
   rpc Increase(IncreasePopularity) returns (google.protobuf.Empty);
   rpc Decrease(DecreasePopularity) returns (google.protobuf.Empty);
   rpc GetPopularity(GetProductPopularity) returns (Popularity);

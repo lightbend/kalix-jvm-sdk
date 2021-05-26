@@ -25,9 +25,9 @@ import "akkaserverless/annotations.proto";
 
 // Describes how this domain relates to a value entity
 option (akkaserverless.file).value_entity = {
-  name : "ShoppingCart"
-  entity_type : "ShoppingCart"
-  state : { type: "Cart" }
+  name: "ShoppingCart"
+  entity_type: "shopping-cart"
+  state: "Cart"
 };
 
 message LineItem {

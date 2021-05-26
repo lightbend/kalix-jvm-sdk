@@ -55,8 +55,6 @@ message Cart {
 }
 
 service ShoppingCartService {
-  option (akkaserverless.service).entity.type = ".domain.Cart";
-
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/ve/cart/{cart_id}/items/add"
@@ -77,6 +75,7 @@ service ShoppingCartService {
       }
     };
   }
+
   rpc RemoveCart(RemoveShoppingCart) returns (google.protobuf.Empty) {
     option (google.api.http).post = "/ve/carts/{cart_id}/remove";
   }

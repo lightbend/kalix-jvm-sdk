@@ -18,10 +18,6 @@ package customer.domain;
 
 option java_outer_classname = "CustomerDomain";
 
-import "google/protobuf/empty.proto";
-import "google/api/annotations.proto";
-import "akkaserverless/annotations.proto";
-
 // tag::domain[]
 message CustomerState {
   string customer_id = 1;

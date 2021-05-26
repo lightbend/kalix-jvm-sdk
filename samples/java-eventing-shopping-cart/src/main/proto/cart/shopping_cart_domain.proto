@@ -27,12 +27,10 @@ import "akkaserverless/annotations.proto";
 // end::events-and-state[]
 
 option (akkaserverless.file).event_sourced_entity = {
-  name: "ShoppingCartEntity"
+  name: "ShoppingCart"
   entity_type: "eventsourced-shopping-cart"
-  state: { type: "CartState" }
-  event: { type: "ItemAdded" }
-  event: { type: "ItemRemoved" }
-  event: { type: "CheckedOut" }
+  state: "CartState"
+  events: ["ItemAdded", "ItemRemoved", "CheckedOut"]
 };
 
 // tag::events-and-state[]
