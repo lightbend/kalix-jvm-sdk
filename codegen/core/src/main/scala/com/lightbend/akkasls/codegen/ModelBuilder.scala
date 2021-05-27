@@ -7,6 +7,7 @@ package com.lightbend.akkasls.codegen
 
 import scala.jdk.CollectionConverters._
 import com.google.protobuf.Descriptors
+import com.akkaserverless.ServiceOptions.ServiceType
 
 /**
   * Builds a model of entities and their properties from a protobuf descriptor
@@ -119,39 +120,60 @@ object ModelBuilder {
       descriptors: Iterable[Descriptors.FileDescriptor]
   ): Model =
     descriptors.foldLeft(Model(Map.empty, Map.empty)) {
-      case (Model(services, entities), descriptor) =>
-        Model(
-          services ++ descriptors
-            .flatMap(_.getServices.asScala)
-            .flatMap { service =>
-              Option(
-                service.getOptions
-                  .getExtension(com.akkaserverless.Annotations.service)
-                  .getComponent
-              )
-                .filter(_.nonEmpty)
-                .map(resolveFullName(_, service.getFile.getPackage))
-                .map { entityFullName =>
-                  val serviceName = FullyQualifiedName.from(service)
-                  val methods     = service.getMethods.asScala
-                  val commands =
-                    methods.map(method =>
-                      Command(
-                        FullyQualifiedName.from(method),
-                        FullyQualifiedName.from(method.getInputType),
-                        FullyQualifiedName.from(method.getOutputType)
-                      )
-                    )
+      case (Model(existingServices, existingEntities), descriptor) =>
+        val services = for {
+          serviceDescriptor <- descriptor.getServices.asScala
+          options = serviceDescriptor
+            .getOptions()
+            .getExtension(com.akkaserverless.Annotations.service)
+          serviceType <- Option(options.getType())
+          serviceName = FullyQualifiedName.from(serviceDescriptor)
 
-                  serviceName.fullName -> EntityService(
+          methods = serviceDescriptor.getMethods.asScala
+          commands =
+            methods.map(method =>
+              Command(
+                FullyQualifiedName.from(method),
+                FullyQualifiedName.from(method.getInputType),
+                FullyQualifiedName.from(method.getOutputType)
+              )
+            )
+
+          service <- serviceType match {
+            case ServiceType.SERVICE_TYPE_ENTITY =>
+              Option(options.getComponent())
+                .filter(_.nonEmpty)
+                .map[Service] { componentName =>
+                  val componentFullName =
+                    resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+
+                  EntityService(
                     serviceName,
                     commands,
-                    entityFullName
+                    componentFullName
                   )
                 }
+            case ServiceType.SERVICE_TYPE_ACTION =>
+              Some(
+                ActionService(
+                  serviceName,
+                  commands
+                )
+              )
+            case ServiceType.SERVICE_TYPE_VIEW =>
+              Some(
+                ViewService(
+                  serviceName,
+                  commands
+                )
+              )
+            case _ => None
+          }
+        } yield serviceName.fullName -> service
 
-            },
-          entities ++
+        Model(
+          existingServices ++ services,
+          existingEntities ++
           extractEventSourcedEntityDefinition(descriptor).map(entity =>
             entity.fqn.fullName -> entity
           ) ++
