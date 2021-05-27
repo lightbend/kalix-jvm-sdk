@@ -1,0 +1,48 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// tag::subscribing[]
+syntax = "proto3";
+
+package shopping.cart.actions;
+
+import "akkaserverless/annotations.proto";
+import "cart/shopping_cart_domain.proto";
+import "google/protobuf/empty.proto";
+
+// end::subscribing[]
+// Receiving events from the broker. The analytics action itself does nothing,
+// only logs what it receives.
+// tag::subscribing[]
+service ShoppingCartAnalyticsService {
+  // get ItemAdded from the topic
+  rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = { // <1>
+      topic: "shopping-cart-events" // <2>
+    };
+  }
+  // end::subscribing[]
+  rpc ProcessRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "shopping-cart-events"
+    };
+  }
+  rpc ProcessCheckedOut(shopping.cart.domain.CheckedOut) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "shopping-cart-events"
+    };
+  }
+  // tag::subscribing[]
+}
+// end::subscribing[]

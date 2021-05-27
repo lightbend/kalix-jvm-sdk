@@ -1,0 +1,175 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package customer.view;
+
+option java_outer_classname = "CustomerViewModel";
+
+import "customer/customer_domain.proto";
+import "akkaserverless/annotations.proto";
+
+// tag::service[]
+service CustomerByName {
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <1>
+    option (akkaserverless.method).eventing.in = { // <2>
+      value_entity: "customers"
+    };
+    option (akkaserverless.method).view.update = { // <3>
+      table: "customers"
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) { // <4>
+    option (akkaserverless.method).view.query = { // <5>
+      query: "SELECT * FROM customers WHERE name = :customer_name"
+    };
+  }
+}
+
+message ByNameRequest {
+  string customer_name = 1;
+}
+// end::service[]
+
+service CustomerByEmail {
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+    };
+  }
+
+  // tag::unary[]
+  rpc GetCustomer(ByEmailRequest) returns (domain.CustomerState) { // <1>
+    option (akkaserverless.method).view.query = {
+      query: "SELECT * FROM customers WHERE email = :email"
+    };
+  }
+  // end::unary[]
+}
+
+message ByEmailRequest {
+  string email = 1;
+}
+
+// tag::summary[]
+message CustomerSummary {
+  string id = 1;
+  string name = 2;
+}
+
+service CustomerSummaryByName {
+  rpc GetCustomers(ByNameRequest) returns (stream CustomerSummary) {
+    option (akkaserverless.method).view.query = {
+      query: "SELECT customer_id AS id, name FROM customers WHERE name = :customer_name"
+    };
+  }
+
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+    };
+  }
+}
+// end::summary[]
+
+// tag::wrap-repeated[]
+message CustomersResponse {
+  repeated domain.CustomerState results = 1; // <1>
+}
+
+service CustomersResponseByName {
+  rpc GetCustomers(ByNameRequest) returns (CustomersResponse) { // <2>
+    option (akkaserverless.method).view.query = {
+      query: "SELECT * AS results FROM customers WHERE name = :customer_name" // <3>
+    };
+  }
+
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+    };
+  }
+}
+// end::wrap-repeated[]
+
+// tag::service-event-sourced[]
+service CustomerByNameView {
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) { // <1>
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers" // <2>
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true // <3>
+    };
+  }
+
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) { // <4>
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers" // <5>
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true // <6>
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
+    option (akkaserverless.method).view.query = {
+      query: "SELECT * FROM customers WHERE name = :customer_name"
+    };
+  }
+}
+// end::service-event-sourced[]
+
+// tag::service-topic[]
+service CustomerByNameViewFromTopic {
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers" // <1>
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
+    option (akkaserverless.method).view.query = {
+      query: "SELECT * FROM customers WHERE name = :customer_name"
+    };
+  }
+}
+// end::service-topic[]
