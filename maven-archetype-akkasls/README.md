@@ -11,7 +11,7 @@ declarations you will require for your `settings.xml`:
 
 > `settings.xml` is a file to be found in your home directory and then within a sub-directory named `.m2`
 
-> Your organization may have configured a proxy to be used to download Maven artifacts. 
+> Your organization may have configured a proxy to be used to download Maven artifacts.
 > If you have difficulties updating your `settings.xml` then please consult with your
 > systems administrator.
 

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package ${package}.domain;
+
+import "akkaserverless/annotations.proto";
+
+option java_outer_classname = "CounterDomain";
+
+option (akkaserverless.file).value_entity = {
+    name: "Counter"
+    entity_type: "counter"
+    state: "CounterState"
+    events: ["ValueIncreased"]
+};
+
+message CounterState {
+    int32 value = 1;
+}
+
+message ValueIncreased {
+    string counter_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
+}
