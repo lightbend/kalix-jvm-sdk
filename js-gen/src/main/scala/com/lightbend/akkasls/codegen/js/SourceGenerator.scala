@@ -80,8 +80,10 @@ object SourceGenerator extends PrettyPrinter {
       case _ => Seq.empty
     } ++ {
       if (model.services.nonEmpty) {
-        val entities = model.services.values.flatMap { service: ModelBuilder.Service =>
-          model.entities.get(service.entityFullName)
+        val entities = model.services.values.flatMap {
+          case service: ModelBuilder.EntityService =>
+            model.entities.get(service.componentFullName)
+          case _ => None
         }
 
         val generatedComponentIndexPath =
