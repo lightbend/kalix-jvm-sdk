@@ -22,7 +22,7 @@ message CurrentCounter {
     int32 value = 1;
 }
 
-service CounterEntity {
+service CounterService {
     option (akkaserverless.service) = {
         type : SERVICE_TYPE_ENTITY
         component : ".domain.Counter"
