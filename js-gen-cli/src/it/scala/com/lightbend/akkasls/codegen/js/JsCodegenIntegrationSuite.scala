@@ -128,7 +128,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Stream generated MyEntityImpl, and replace function bodies with simple implementations
     val implFile = Files.createTempFile("generated-entity-impl", ".js")
     val implContainerPath =
-      s"/home/${entityName}/src/myserviceentity.js"
+      s"/home/${entityName}/src/myentity.js"
     Using(new PrintWriter(implFile.toFile())) { writer =>
       codegenContainer.copyFileFromContainer(
         implContainerPath,
@@ -222,7 +222,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/src/main/proto/myentity_domain.proto"
+      s"/home/$entityName/proto/myentity_domain.proto"
     )
 
     // Setup and build the entity
@@ -281,7 +281,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Overwrite the domain with a value entity definition
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
-      s"/home/$entityName/src/main/proto/myentity_domain.proto"
+      s"/home/$entityName/proto/myentity_domain.proto"
     )
 
     // Setup and build the entity
@@ -295,7 +295,7 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     // Stream generated MyEntityImpl, and replace function bodies with simple implementations
     val implFile = Files.createTempFile("generated-entity-impl", ".js")
     val implContainerPath =
-      s"/home/${entityName}/src/myserviceentity.js"
+      s"/home/${entityName}/src/myentity.js"
     Using(new PrintWriter(implFile.toFile())) { writer =>
       codegenContainer.copyFileFromContainer(
         implContainerPath,
