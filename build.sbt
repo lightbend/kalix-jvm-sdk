@@ -187,6 +187,27 @@ lazy val `java-eventing-shopping-cart` = project
   )
   .settings(attachProtobufDescriptorSets)
 
+lazy val `java-car-metrics` = project
+  .in(file("samples/java-car-metrics"))
+  .dependsOn(`java-sdk`, `java-sdk-testkit` % IntegrationTest)
+  .dependsOn(`java-sdk`)
+  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
+  .settings(
+    name := "java-metrics-car",
+    Compile / mainClass := Some("metrics.Main"),
+    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
+    Compile / javacOptions ++= Seq("-encoding","UTF-8","-source","11","-target","11"),
+    libraryDependencies ++= Seq(
+        "ch.qos.logback" % "logback-classic" % LogbackVersion,
+        "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest
+      ),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-a"),
+    IntegrationTest / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
+    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
+  )
+  .settings(attachProtobufDescriptorSets)
+
 lazy val `java-customer-registry` = project
   .in(file("samples/java-customer-registry"))
   .dependsOn(sdk)
