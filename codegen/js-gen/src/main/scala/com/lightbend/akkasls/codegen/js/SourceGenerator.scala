@@ -65,7 +65,7 @@ object SourceGenerator extends PrettyPrinter {
           .get(service.componentFullName)
           .toSeq
           .flatMap(entity =>
-            generatePublicApiSources(
+            generateEntityServiceSources(
               entity,
               service,
               protobufSourceDirectory,
@@ -121,7 +121,7 @@ object SourceGenerator extends PrettyPrinter {
     }
   }
 
-  private[codegen] def generatePublicApiSources(
+  private[codegen] def generateEntityServiceSources(
       entity: ModelBuilder.Entity,
       service: ModelBuilder.EntityService,
       protobufSourceDirectory: Path,
