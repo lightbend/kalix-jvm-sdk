@@ -189,14 +189,13 @@ lazy val `java-eventing-shopping-cart` = project
 
 lazy val `java-car-metrics` = project
   .in(file("samples/java-car-metrics"))
-  .dependsOn(`java-sdk`, `java-sdk-testkit` % IntegrationTest)
-  .dependsOn(`java-sdk`)
+  .dependsOn(sdk, testkit % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
     name := "java-metrics-car",
     Compile / mainClass := Some("metrics.Main"),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Compile / javacOptions ++= Seq("-encoding","UTF-8","-source","11","-target","11"),
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     libraryDependencies ++= Seq(
         "ch.qos.logback" % "logback-classic" % LogbackVersion,
         "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest
