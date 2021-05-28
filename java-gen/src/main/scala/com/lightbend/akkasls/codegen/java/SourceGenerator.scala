@@ -46,97 +46,24 @@ object SourceGenerator extends PrettyPrinter {
 
     val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
 
-    def packageAsPath(packageName: String): Path =
-      Paths.get(packageName.replace(".", "/"))
-
-    model.services.values.flatMap { service: ModelBuilder.Service =>
-      model.entities.get(service.entityFullName).toSeq.flatMap { entity: ModelBuilder.Entity =>
-        val packageName = entity.fqn.parent.javaPackage
-        val className   = entity.fqn.name
-        val packagePath = packageAsPath(packageName)
-
-        val implClassName = className + "Impl"
-        val implSourcePath =
-          sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
-
-        val interfaceClassName = className + "Interface"
-        val interfaceSourcePath =
-          generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
-
-        val _ = interfaceSourcePath.getParent.toFile.mkdirs()
-        val _ = Files.write(
-          interfaceSourcePath,
-          interfaceSource(service, entity, packageName, className).layout.getBytes(
-            Charsets.UTF_8
-          )
-        )
-
-        if (!implSourcePath.toFile.exists()) {
-          // We're going to generate an entity - let's see if we can generate its test...
-          val testClassName = className + "Test"
-          val testSourcePath =
-            testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-          val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-            val _ = testSourcePath.getParent.toFile.mkdirs()
-            val _ = Files.write(
-              testSourcePath,
-              testSource(service, entity, packageName, implClassName, testClassName).layout
-                .getBytes(
-                  Charsets.UTF_8
-                )
-            )
-            List(testSourcePath)
-          } else {
-            List.empty
-          }
-
-          // ...and then its integration test
-          val integrationTestClassName = className + "IntegrationTest"
-          val integrationTestSourcePath =
-            integrationTestSourceDirectory
-              .resolve(packagePath.resolve(integrationTestClassName + ".java"))
-          val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
-            val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
-            val _ = Files.write(
-              integrationTestSourcePath,
-              integrationTestSource(
-                mainClassPackageName,
-                mainClassName,
-                service,
-                entity,
-                packageName,
-                integrationTestClassName
-              ).layout
-                .getBytes(
-                  Charsets.UTF_8
-                )
-            )
-            List(integrationTestSourcePath)
-          } else {
-            List.empty
-          }
-
-          // Now we generate the entity
-          val _ = implSourcePath.getParent.toFile.mkdirs()
-          val _ = Files.write(
-            implSourcePath,
-            source(
-              service,
+    model.services.values.flatMap {
+      case service: ModelBuilder.EntityService =>
+        model.entities
+          .get(service.componentFullName)
+          .toSeq
+          .flatMap(entity =>
+            generateEntityServiceSources(
               entity,
-              packageName,
-              implClassName,
-              interfaceClassName,
-              entity.entityType
-            ).layout.getBytes(
-              Charsets.UTF_8
+              service,
+              sourceDirectory,
+              testSourceDirectory,
+              integrationTestSourceDirectory,
+              generatedSourceDirectory,
+              mainClassPackageName,
+              mainClassName
             )
           )
-
-          List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles
-        } else {
-          List(interfaceSourcePath)
-        }
-      }
+      case _ => Seq.empty
     } ++ {
       val mainClassPackagePath = packageAsPath(mainClassPackageName)
 
@@ -175,8 +102,105 @@ object SourceGenerator extends PrettyPrinter {
     }
   }
 
+  private[codegen] def generateEntityServiceSources(
+      entity: ModelBuilder.Entity,
+      service: ModelBuilder.EntityService,
+      sourceDirectory: Path,
+      testSourceDirectory: Path,
+      integrationTestSourceDirectory: Path,
+      generatedSourceDirectory: Path,
+      mainClassPackageName: String,
+      mainClassName: String
+  ): Iterable[Path] = {
+    val packageName = entity.fqn.parent.javaPackage
+    val className   = entity.fqn.name
+    val packagePath = packageAsPath(packageName)
+
+    val implClassName = className + "Impl"
+    val implSourcePath =
+      sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
+
+    val interfaceClassName = className + "Interface"
+    val interfaceSourcePath =
+      generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
+
+    val _ = interfaceSourcePath.getParent.toFile.mkdirs()
+    val _ = Files.write(
+      interfaceSourcePath,
+      interfaceSource(service, entity, packageName, className).layout.getBytes(
+        Charsets.UTF_8
+      )
+    )
+
+    if (!implSourcePath.toFile.exists()) {
+      // We're going to generate an entity - let's see if we can generate its test...
+      val testClassName = className + "Test"
+      val testSourcePath =
+        testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
+      val testSourceFiles = if (!testSourcePath.toFile.exists()) {
+        val _ = testSourcePath.getParent.toFile.mkdirs()
+        val _ = Files.write(
+          testSourcePath,
+          testSource(service, entity, packageName, implClassName, testClassName).layout
+            .getBytes(
+              Charsets.UTF_8
+            )
+        )
+        List(testSourcePath)
+      } else {
+        List.empty
+      }
+
+      // ...and then its integration test
+      val integrationTestClassName = className + "IntegrationTest"
+      val integrationTestSourcePath =
+        integrationTestSourceDirectory
+          .resolve(packagePath.resolve(integrationTestClassName + ".java"))
+      val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
+        val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
+        val _ = Files.write(
+          integrationTestSourcePath,
+          integrationTestSource(
+            mainClassPackageName,
+            mainClassName,
+            service,
+            entity,
+            packageName,
+            integrationTestClassName
+          ).layout
+            .getBytes(
+              Charsets.UTF_8
+            )
+        )
+        List(integrationTestSourcePath)
+      } else {
+        List.empty
+      }
+
+      // Now we generate the entity
+      val _ = implSourcePath.getParent.toFile.mkdirs()
+      val _ = Files.write(
+        implSourcePath,
+        source(
+          service,
+          entity,
+          packageName,
+          implClassName,
+          interfaceClassName,
+          entity.entityType
+        ).layout.getBytes(
+          Charsets.UTF_8
+        )
+      )
+
+      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles
+    } else {
+      List(interfaceSourcePath)
+    }
+  }
+
   private[codegen] def source(
-      service: ModelBuilder.Service,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String,
@@ -325,7 +349,7 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def interfaceSource(
-      service: ModelBuilder.Service,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String
@@ -488,7 +512,7 @@ object SourceGenerator extends PrettyPrinter {
   }
 
   private[codegen] def testSource(
-      service: ModelBuilder.Service,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       implClassName: String,
@@ -595,7 +619,7 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def integrationTestSource(
       mainClassPackageName: String,
       mainClassName: String,
-      service: ModelBuilder.Service,
+      service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       testClassName: String
@@ -710,23 +734,25 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String,
       model: ModelBuilder.Model
   ): Document = {
-    val entityServiceClasses = model.services.values.flatMap { service =>
-      model.entities.get(service.entityFullName).toSeq.map { entity: ModelBuilder.Entity =>
-        (
-          Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-          s"${entity.fqn.name}Impl",
-          entity.fqn.parent.javaOuterClassname,
-          Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-          service.fqn.name,
-          service.fqn.parent.javaOuterClassname,
-          entity match {
-            case _: ModelBuilder.EventSourcedEntity =>
-              ".registerEventSourcedEntity"
-            case _: ModelBuilder.ValueEntity =>
-              ".registerValueEntity"
-          }
-        )
-      }
+    val entityServiceClasses = model.services.values.flatMap {
+      case service: ModelBuilder.EntityService =>
+        model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
+          (
+            Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
+            s"${entity.fqn.name}Impl",
+            entity.fqn.parent.javaOuterClassname,
+            Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
+            service.fqn.name,
+            service.fqn.parent.javaOuterClassname,
+            entity match {
+              case _: ModelBuilder.EventSourcedEntity =>
+                ".registerEventSourcedEntity"
+              case _: ModelBuilder.ValueEntity =>
+                ".registerValueEntity"
+            }
+          )
+        }
+      case _ => Seq.empty
     }
 
     val imports = List(
@@ -937,4 +963,6 @@ object SourceGenerator extends PrettyPrinter {
     "The" <+> handlerType <+> "handler for `" <> fqn.name <> "` is not implemented, yet"
   )
 
+  private def packageAsPath(packageName: String): Path =
+    Paths.get(packageName.replace(".", "/"))
 }
