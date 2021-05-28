@@ -189,8 +189,7 @@ lazy val `java-eventing-shopping-cart` = project
 
 lazy val `java-car-metrics` = project
   .in(file("samples/java-car-metrics"))
-  .dependsOn(`java-sdk`, `java-sdk-testkit` % IntegrationTest)
-  .dependsOn(`java-sdk`)
+  .dependsOn(`sdk`, `testkit` % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
     name := "java-metrics-car",
