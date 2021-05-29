@@ -56,5 +56,6 @@
   <modules>
     <module>akkasls-maven-plugin</module>
     <module>maven-archetype-akkasls</module>
+    <module>maven-archetype-akkasls-event-sourced-entity</module>
   </modules>
 </project>

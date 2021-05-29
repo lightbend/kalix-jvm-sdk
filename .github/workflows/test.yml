@@ -22,17 +22,30 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Set JDK version in files
-        run: sed -i "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
+        run: |
+          sed -i "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls/src/main/resources/archetype-resources/pom.xml
+          sed -i "s/<jdk.target>11<\/jdk.target>/<jdk.target>${{ matrix.java }}<\/jdk.target>/" maven-archetype-akkasls-event-sourced-entity/src/main/resources/archetype-resources/pom.xml
       - name: Build with Maven
         run: mvn install
-      - name: Generate sample project
-        run: mvn -B archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project
+      - name: Generate sample project (with a Value entity)
+        run: mvn -B archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=value-entity-project
         working-directory: ${{ runner.temp }}
       - name: Upload generated project as artifact
         uses: actions/upload-artifact@v1
         with:
+          name: value-entity-project
+          path: ${{ runner.temp }}/value-entity-project
+      - name: Validate Value entity project
+        run: mvn -B --update-snapshots verify
+        working-directory: ${{ runner.temp }}/value-entity-project
+      - name: Generate sample project (with an Event Sourced entity)
+        run: mvn -B archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project
+        working-directory: ${{ runner.temp }}
+      - name: Upload Event Sourced entity project as artifact
+        uses: actions/upload-artifact@v1
+        with:
           name: generated-project
           path: ${{ runner.temp }}/generated-project
-      - name: Validate generated project
+      - name: Validate Event Sourced entity project
         run: mvn -B --update-snapshots verify
         working-directory: ${{ runner.temp }}/generated-project
