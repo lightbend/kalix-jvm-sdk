@@ -1,11 +1,11 @@
-# maven-archetype-akkasls
+# maven-archetype-akkasls-event-sourced-entity
 
 ![Test](https://github.com/lightbend/akkaserverless-maven-archetype/workflows/Test/badge.svg)
 
 This archetype can be used to generate a project suitable for the general development of
 [event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html) and Value-based entities using [Akka Serverless](https://www.lightbend.com/akka-serverless).
 
-**The Maven project created from the archetype will contain a Value entity protobuf definition.**
+**The Maven project created from the archetype will contain an Event Sourced entity protobuf definition.**
 
 The archetype is located at Lightbend's Maven repository. Please ensure that
 your Maven's `settings.xml` file points at `repo.lightbend.com`. Here are the repository
@@ -86,7 +86,7 @@ Then, to use on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity \
   -DarchetypeVersion=LATEST
 ```
 
@@ -96,6 +96,6 @@ To use on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=com.lightbend ^
-  -DarchetypeArtifactId=maven-archetype-akkasls ^
+  -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity ^
   -DarchetypeVersion=LATEST
 ```
