@@ -381,7 +381,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
       "-B",
       "archetype:generate",
       "-DarchetypeGroupId=com.lightbend",
-      "-DarchetypeArtifactId=maven-archetype-akkasls",
+      "-DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity",
       "-DarchetypeVersion=1.0-SNAPSHOT",
       s"-DgroupId=${groupId}",
       s"-DartifactId=${artifactId}",
