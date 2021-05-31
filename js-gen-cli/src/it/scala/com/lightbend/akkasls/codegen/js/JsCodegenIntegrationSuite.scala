@@ -65,7 +65,12 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
 
     // Generate a new entity within the codegen container
     assertSuccessful(
-      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+      codegenContainer.execInContainer(
+        "create-akkasls-entity",
+        entityName,
+        "--template",
+        "event-sourced-entity"
+      )
     )
 
     // Setup and build the entity
@@ -114,7 +119,12 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
 
     // Generate a new entity within the codegen container
     assertSuccessful(
-      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+      codegenContainer.execInContainer(
+        "create-akkasls-entity",
+        entityName,
+        "--template",
+        "event-sourced-entity"
+      )
     )
 
     // Setup and build the entity
@@ -216,7 +226,12 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
 
     // Generate a new entity within the codegen container
     assertSuccessful(
-      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+      codegenContainer.execInContainer(
+        "create-akkasls-entity",
+        entityName,
+        "--template",
+        "event-sourced-entity"
+      )
     )
 
     // Overwrite the domain with a value entity definition
@@ -275,7 +290,12 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
 
     // Generate a new entity within the codegen container
     assertSuccessful(
-      codegenContainer.execInContainer("create-akkasls-entity", entityName)
+      codegenContainer.execInContainer(
+        "create-akkasls-entity",
+        entityName,
+        "--template",
+        "event-sourced-entity"
+      )
     )
 
     // Overwrite the domain with a value entity definition
