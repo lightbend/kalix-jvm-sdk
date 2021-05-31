@@ -1,6 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.akkaseverless.samples</groupId>
     <artifactId>valueentity-shoppingcart</artifactId>
@@ -10,22 +11,17 @@
     <name>Shopping Cart as Value Entity</name>
 
     <properties>
+      <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+      <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+      <dockerTag>${project.version}</dockerTag>
+      <mainClass>com.example.valueentity.shoppingcart.Main</mainClass>
 
-        <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-        <akkaserverless.dockerImage>my-docker-repo/${project.artifactId}</akkaserverless.dockerImage>
-        <akkaserverless.dockerTag>${project.version}</akkaserverless.dockerTag>
-        <mainClass>valueentity.shoppingcart.Main</mainClass>
+      <jdk.target>11</jdk.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jdk.target>11</jdk.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--
-        1. run `sbt sdk/publishM2` to publish locally
-        2. export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta.2-4-883dd637-SNAPSHOT"
-        3. mvn compile exec:java
-        <akkaserverless-sdk.version>${env.AKKASERVERLESS_JAVA_SDK_VERSION}</akkaserverless-sdk.version>
-        -->
-        <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
-        <akka-grpc.version>1.1.1</akka-grpc.version>
+      <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
+      <akkasls-maven-plugin.version>0.30.0</akkasls-maven-plugin.version>
+      <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
   <build>
@@ -101,7 +97,7 @@
               </protocPlugins>
             </configuration>
           </execution>
-      </executions>
+        </executions>
       </plugin>
 
       <plugin>
@@ -209,7 +205,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.29.0</version>
+        <version>${akkasls-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>

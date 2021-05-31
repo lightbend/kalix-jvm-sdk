@@ -138,7 +138,6 @@ lazy val samples = project
   .aggregate(
     `java-eventsourced-shopping-cart`,
     `java-eventing-shopping-cart`,
-    `java-valueentity-shopping-cart`,
     `java-pingpong`,
     `java-customer-registry`
   )
@@ -226,27 +225,6 @@ lazy val attachProtobufDescriptorSets = Seq(
   Compile / managedResources += protobufDescriptorSetOut.value,
   Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value
 )
-
-lazy val `java-valueentity-shopping-cart` = project
-  .in(file("samples/java-valueentity-shopping-cart"))
-  .dependsOn(sdk, testkit % IntegrationTest)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .settings(
-    name := "java-valueentity-shopping-cart",
-    libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest
-      ),
-    Compile / mainClass := Some("valueentity.shoppingcart.Main"),
-    // Akka gRPC only for IntegrationTest
-    Compile / akkaGrpcGeneratedSources := Seq.empty,
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-a"),
-    IntegrationTest / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
-  )
-  .settings(attachProtobufDescriptorSets)
 
 lazy val `java-pingpong` = project
   .in(file("samples/java-pingpong"))
