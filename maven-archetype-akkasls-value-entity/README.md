@@ -1,9 +1,8 @@
-# maven-archetype-akkasls
+# maven-archetype-akkasls-value-entity
 
 ![Test](https://github.com/lightbend/akkaserverless-maven-archetype/workflows/Test/badge.svg)
 
-This archetype can be used to generate a project suitable for the general development of
-[event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html) and Value-based entities using [Akka Serverless](https://www.lightbend.com/akka-serverless).
+This archetype can be used to generate a project suitable for the general development of Value-based entities using [Akka Serverless](https://www.lightbend.com/akka-serverless).
 
 **The Maven project created from the archetype will contain a Value entity protobuf definition.**
 
@@ -86,7 +85,7 @@ Then, to use on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeArtifactId=maven-archetype-akkasls-value-entity \
   -DarchetypeVersion=LATEST
 ```
 
@@ -96,6 +95,6 @@ To use on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=com.lightbend ^
-  -DarchetypeArtifactId=maven-archetype-akkasls ^
+  -DarchetypeArtifactId=maven-archetype-akkasls-value-entity ^
   -DarchetypeVersion=LATEST
 ```

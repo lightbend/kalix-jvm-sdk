@@ -58,7 +58,7 @@ jobs:
       - name: Build with Maven
         run: mvn install
       - name: Generate Value entity project
-        run: mvn -B archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project
+        run: mvn -B archetype:generate -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-value-entity -DarchetypeVersion=1.0-SNAPSHOT -DgroupId=com.example -DartifactId=generated-project
         working-directory: ${{ runner.temp }}
       - name: Compile sample project
         run: mvn -B compile
