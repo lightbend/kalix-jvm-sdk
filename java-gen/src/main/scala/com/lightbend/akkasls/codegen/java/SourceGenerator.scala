@@ -860,22 +860,6 @@ object SourceGenerator extends PrettyPrinter {
           assignmentSeparator = Some(" ")
         )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> linebreak <>
         line <>
-        field(
-          "public" <+> "static" <+> "final",
-          "AkkaServerless",
-          "SERVICE",
-          assignmentSeparator = Some(line)
-        ) {
-          indent(
-            "withGeneratedComponentsAdded" <> parens(
-              "new" <+> "AkkaServerless" <> parens(
-                emptyDoc
-              )
-            ) <> semi,
-            8
-          )
-        } <> line <>
-        line <>
         method(
           "public" <+> "static",
           "void",
@@ -884,7 +868,12 @@ object SourceGenerator extends PrettyPrinter {
           "throws" <+> "Exception" <> space
         ) {
           "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
-          "SERVICE.start().toCompletableFuture().get()" <> semi
+          "withGeneratedComponentsAdded" <> parens(
+            "new" <+> "AkkaServerless" <> parens(
+              emptyDoc
+            )
+          ) <> line <>
+          indent(".start().toCompletableFuture().get()", 8) <> semi
         }
       }
     )
