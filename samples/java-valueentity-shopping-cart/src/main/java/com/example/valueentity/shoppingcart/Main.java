@@ -22,14 +22,14 @@ import org.slf4j.LoggerFactory;
 import static com.example.valueentity.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
 
 public final class Main {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-    
-    public static final AkkaServerless SERVICE =
-            withGeneratedComponentsAdded(new AkkaServerless());
-    
-    public static void main(String[] args) throws Exception {
-        LOG.info("starting the Akka Serverless service");
-        SERVICE.start().toCompletableFuture().get();
-    }
+
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+  public static final AkkaServerless SERVICE =
+      withGeneratedComponentsAdded(new AkkaServerless());
+
+  public static void main(String[] args) throws Exception {
+    LOG.info("starting the Akka Serverless service");
+    SERVICE.start().toCompletableFuture().get();
+  }
 }
