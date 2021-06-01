@@ -53,9 +53,21 @@
     </repository>
   </distributionManagement>
 
+  <build>
+    <pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+      </plugin>
+    </plugins>
+    </pluginManagement>
+  </build>
+
   <modules>
     <module>akkasls-maven-plugin</module>
-    <module>maven-archetype-akkasls</module>
+    <module>maven-archetype-akkasls-value-entity</module>
     <module>maven-archetype-akkasls-event-sourced-entity</module>
   </modules>
 </project>
