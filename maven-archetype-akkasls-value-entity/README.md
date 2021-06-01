@@ -85,7 +85,7 @@ Then, to use on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls-value-entity \
+  -DarchetypeArtifactId=maven-archetype-akkasls \
   -DarchetypeVersion=LATEST
 ```
 
@@ -95,6 +95,6 @@ To use on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=com.lightbend ^
-  -DarchetypeArtifactId=maven-archetype-akkasls-value-entity ^
+  -DarchetypeArtifactId=maven-archetype-akkasls ^
   -DarchetypeVersion=LATEST
 ```
