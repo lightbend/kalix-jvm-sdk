@@ -1,8 +1,8 @@
 # Registering Car metrics and selling data to Suppliers
 
 ### Business logic
-A car emits data as an IoT device that we retrieve and then expose partially to suppliers. We provide the services for the cars to register its new data. Right now only the batery level (TODO add location and speed). 
-When new metrics are pushed through the API `car.metrics.api.CarMetricService/RecordChargeLevel` this data is not only recorded as an event in an EventSourcedEntity it is also forwarded to a Value Entity when the battery is lower than 25%. We represented this Value Entity as the data we sell and provide, through the API, to a supplier of batteries such only when the car is in LowBattery the supplier gains access to its data and it can act upon.   
+A car emits data as an IoT device that we retrieve and then expose partially to suppliers. We provide the services for the cars to register its new data. Right now only the battery level is handled (TODO add location and speed). 
+When new metrics are pushed through the API `car.metrics.api.CarMetricService/RecordChargeLevel`, this data is not only recorded as an event in an EventSourcedEntity, it is also forwarded to a Value Entity when the battery charge level is lower than 25%. We represented this Value Entity as the data we sell and provide, through an API, to suppliers of batteries. The supplier only gains access to data when the car battery is low.   
 
 ### I/O data
 
