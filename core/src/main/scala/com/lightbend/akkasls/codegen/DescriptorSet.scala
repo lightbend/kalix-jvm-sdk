@@ -47,6 +47,7 @@ object DescriptorSet {
       val registry = ExtensionRegistry.newInstance()
       registry.add(com.akkaserverless.Annotations.service)
       registry.add(com.akkaserverless.Annotations.file)
+      registry.add(com.akkaserverless.Annotations.method)
 
       Right(try {
         val descriptorProtos =

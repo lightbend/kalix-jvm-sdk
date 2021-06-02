@@ -207,6 +207,103 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
+  test("View introspection") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve("descriptor-sets/view-shoppingcart.desc")
+
+    val registry = ExtensionRegistry.newInstance()
+    registry.add(com.akkaserverless.Annotations.service)
+    registry.add(com.akkaserverless.Annotations.file)
+    registry.add(com.akkaserverless.Annotations.method)
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileList    = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.foldLeft(List.empty[Descriptors.FileDescriptor])((acc, file) =>
+        acc :+ Descriptors.FileDescriptor.buildFrom(file, acc.toArray, true)
+      )
+
+      val model = ModelBuilder.introspectProtobufClasses(
+        descriptors
+      )
+
+      val shoppingCartProto =
+        PackageNaming(
+          "ShoppingCartViewModel",
+          "shopping.cart.view",
+          None,
+          None,
+          Some("ShoppingCartViewModel"),
+          javaMultipleFiles = false
+        )
+
+      val domainProto =
+        PackageNaming(
+          "ShoppingCartDomain",
+          "shopping.cart.domain",
+          None,
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false
+        )
+
+      val googleEmptyProto =
+        PackageNaming(
+          "Empty",
+          "google.protobuf",
+          Some("google.golang.org/protobuf/types/known/emptypb"),
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true
+        )
+      val entity = ModelBuilder.ValueEntity(
+        FullyQualifiedName("ShoppingCart", domainProto),
+        "shopping-cart",
+        ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
+      )
+
+      val updates =
+        List(
+          ModelBuilder.Command(
+            FullyQualifiedName("ProcessAdded", shoppingCartProto),
+            FullyQualifiedName("ItemAdded", domainProto),
+            FullyQualifiedName("CartViewState", shoppingCartProto)
+          ),
+          ModelBuilder.Command(
+            FullyQualifiedName("ProcessRemoved", shoppingCartProto),
+            FullyQualifiedName("ItemRemoved", domainProto),
+            FullyQualifiedName("CartViewState", shoppingCartProto)
+          ),
+          ModelBuilder.Command(
+            FullyQualifiedName("ProcessCheckedOut", shoppingCartProto),
+            FullyQualifiedName("CheckedOut", domainProto),
+            FullyQualifiedName("CartViewState", shoppingCartProto)
+          )
+        )
+      val queries = List(
+        ModelBuilder.Command(
+          FullyQualifiedName("GetCheckedOutCarts", shoppingCartProto),
+          FullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartProto),
+          FullyQualifiedName("CartViewState", shoppingCartProto)
+        )
+      )
+      assertEquals(
+        model.services,
+        Map(
+          "shopping.cart.view.ShoppingCartViewService" ->
+          ModelBuilder.ViewService(
+            FullyQualifiedName("ShoppingCartViewService", shoppingCartProto),
+            updates ++ queries,
+            updates,
+            queries
+          )
+        )
+      )
+    }.get
+  }
+
   test("deriving java package from proto options") {
     val name = "Name"
     val pkg  = "com.example"
