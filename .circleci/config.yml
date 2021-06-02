@@ -147,10 +147,9 @@ jobs:
       - run: 
           name: "Publish local maven"
           command: | 
-            # tag the head with the hash
-            # dynver requires a version number prefix, ie: v0.0.1-
-            git tag v0.0.1-"$CIRCLE_SHA1"
-            echo 'export SDK_VERSION=0.0.1-${CIRCLE_SHA1}' >> $BASH_ENV
+            # tail 2 + head 1 because CircleCI adds an extra line
+            # the SDK_VERSION is later used to run the maven tests (see below)
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             sbt publishM2
       - run: 
           name: Run integration tests for Value Entities sample
