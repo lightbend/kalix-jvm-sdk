@@ -4,7 +4,7 @@
  */
 
 package com.lightbend.akkasls.codegen
-package java
+package js
 
 object TestData {
   def serviceProto(suffix: String = ""): PackageNaming =
@@ -27,10 +27,10 @@ object TestData {
       javaMultipleFiles = false
     )
 
-  val externalProto: PackageNaming =
+  val knownGoogleProto: PackageNaming =
     PackageNaming(
       "EXT",
-      "com.external",
+      "google.protobuf",
       None,
       None,
       None,
@@ -47,7 +47,7 @@ object TestData {
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
           FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)
+          FullyQualifiedName("Empty", knownGoogleProto)
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Get", proto),
@@ -97,7 +97,7 @@ object TestData {
   ): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
-      s"MyEntity$suffix",
+      entityType = s"my-eventsourcedentity$suffix-persistence",
       Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))),
       List(
         ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))
@@ -107,7 +107,7 @@ object TestData {
   def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
-      s"MyValueEntity$suffix",
+      entityType = s"my-valueentity$suffix-persistence",
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))
     )
 }

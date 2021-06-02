@@ -195,7 +195,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                .registerView(
         |                    MyService4Impl.class,
         |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
-        |                    "MyService4",
+        |                    "my-view-id4",
         |                    ServiceOuterClass4.getDescriptor()
         |                );
         |    }
