@@ -147,10 +147,8 @@ jobs:
       - run: 
           name: "Publish local maven"
           command: | 
-            # tag the head with the hash
-            # dynver requires a version number prefix, ie: v0.0.1-
-            git tag v0.0.1-"$CIRCLE_SHA1"
-            echo 'export SDK_VERSION=0.0.1-${CIRCLE_SHA1}' >> $BASH_ENV
+            # tail 2 + head 1 because CircleCI adds an extra line
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             sbt publishM2
       - run: 
           name: Run integration tests for Value Entities sample
@@ -200,64 +198,7 @@ jobs:
 workflows:
   CI:
     jobs:
-      - checks:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-      - tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-      - integration-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
       - samples-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
               only: /.*/ 
-      - tck-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-      - validate-docs:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-      - publish:
-          filters: # version tags only
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checks
-            - tests
-            - integration-tests
-            - samples-tests    
-            - tck-tests
-            - validate-docs   
-      - publish-tck:
-          filters: # version tags only
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checks
-            - tests
-            - integration-tests
-            - tck-tests
-            - validate-docs
-      - publish-docs:
-          filters: # version tags only
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checks
-            - tests
-            - integration-tests
-            - tck-tests
-            - validate-docs
