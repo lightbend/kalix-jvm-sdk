@@ -144,7 +144,7 @@ object SourceGenerator extends PrettyPrinter {
             service.fqn.name,
             service.fqn.parent.javaOuterClassname,
             ".registerView",
-            Some(service.fqn.name)
+            Some(service.viewId)
           )
         )
       case _ => Seq.empty

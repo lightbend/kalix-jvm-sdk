@@ -75,6 +75,7 @@ object ModelBuilder {
   case class ViewService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command],
+      viewId: String,
       updates: Iterable[Command],
       queries: Iterable[Command]
   ) extends Service(fqn, commands)
@@ -166,6 +167,7 @@ object ModelBuilder {
                 ViewService(
                   serviceName,
                   commands,
+                  viewId = serviceDescriptor.getName(),
                   updates = methodDetails
                     .collect {
                       case (method, viewOptions) if viewOptions.hasUpdate =>

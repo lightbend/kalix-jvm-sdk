@@ -10,73 +10,6 @@ import java.nio.file.{ Files, Paths }
 import org.apache.commons.io.FileUtils
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  def serviceProto(suffix: String = ""): PackageNaming =
-    PackageNaming(
-      s"MyService$suffix",
-      "com.example.service",
-      None,
-      None,
-      Some(s"OuterClass$suffix"),
-      javaMultipleFiles = false
-    )
-
-  val domainProto: PackageNaming =
-    PackageNaming(
-      "Domain",
-      "com.example.service.persistence",
-      None,
-      None,
-      None,
-      javaMultipleFiles = false
-    )
-
-  val knownGoogleProto: PackageNaming =
-    PackageNaming(
-      "EXT",
-      "google.protobuf",
-      None,
-      None,
-      None,
-      javaMultipleFiles = true
-    )
-
-  def simpleEntityService(
-      proto: PackageNaming = serviceProto(),
-      suffix: String = ""
-  ): ModelBuilder.EntityService =
-    ModelBuilder.EntityService(
-      FullyQualifiedName(s"MyService$suffix", proto),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", proto),
-          FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", knownGoogleProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", proto),
-          FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
-        )
-      ),
-      s"com.example.Entity$suffix"
-    )
-
-  def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
-    ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName(s"MyEntity$suffix", domainProto),
-      entityType = s"my-eventsourcedentity$suffix-persistence",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto))),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto))
-      )
-    )
-
-  def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
-    ModelBuilder.ValueEntity(
-      FullyQualifiedName(s"MyValueEntity$suffix", domainProto),
-      entityType = s"my-valueentity$suffix-persistence",
-      ModelBuilder.State(FullyQualifiedName("MyState", domainProto))
-    )
 
   test("generate") {
     val protoSourceDirectory = Files.createTempDirectory("proto-source-generator-test")
@@ -117,18 +50,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
               FileUtils.forceMkdir(integrationTestSourceFile3.getParentFile)
               FileUtils.touch(integrationTestSourceFile3)
 
-              val protoRef = serviceProto()
+              val protoRef = TestData.serviceProto()
 
               val services = Map(
-                "com.example.Service1" -> simpleEntityService(protoRef, "1"),
-                "com.example.Service2" -> simpleEntityService(protoRef, "2"),
-                "com.example.Service3" -> simpleEntityService(protoRef, "3")
+                "com.example.Service1" -> TestData.simpleEntityService(protoRef, "1"),
+                "com.example.Service2" -> TestData.simpleEntityService(protoRef, "2"),
+                "com.example.Service3" -> TestData.simpleEntityService(protoRef, "3")
               )
 
               val entities = Map(
-                "com.example.Entity1" -> eventSourcedEntity("1"),
-                "com.example.Entity2" -> valueEntity("2"),
-                "com.example.Entity3" -> eventSourcedEntity("3")
+                "com.example.Entity1" -> TestData.eventSourcedEntity("1"),
+                "com.example.Entity2" -> TestData.valueEntity("2"),
+                "com.example.Entity3" -> TestData.eventSourcedEntity("3")
               )
 
               val sources = SourceGenerator.generate(
@@ -177,14 +110,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val outDir = Files.createTempDirectory("generator-test")
 
     try {
-      val protoRef = serviceProto()
+      val protoRef = TestData.serviceProto()
 
       val services = Map(
-        "com.example.Service1" -> simpleEntityService(protoRef, "1")
+        "com.example.Service1" -> TestData.simpleEntityService(protoRef, "1")
       )
 
       val entities = Map(
-        "com.example.Entity1" -> eventSourcedEntity("1")
+        "com.example.Entity1" -> TestData.eventSourcedEntity("1")
       )
 
       val sources = SourceGenerator.generate(
@@ -212,404 +145,42 @@ class SourceGeneratorSuite extends munit.FunSuite {
     } finally FileUtils.deleteDirectory(outDir.toFile)
   }
 
-  test("EventSourcedEntity source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef)
-    val entity   = eventSourcedEntity()
-
-    val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
-    val protobufSourceDirectory  = Paths.get("./src/proto")
-    val sourceDirectory          = Paths.get("./src/js")
-    val generatedSourceDirectory = Paths.get("./lib/generated")
-
-    val sourceDoc =
-      SourceGenerator.source(
-        protoSources,
-        protobufSourceDirectory,
-        sourceDirectory,
-        generatedSourceDirectory,
-        service,
-        entity
-      )
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { EventSourcedEntity } from "@lightbend/akkaserverless-javascript-sdk";
-        |
-        |/**
-        | * Type definitions.
-        | * These types have been generated based on your proto source.
-        | * A TypeScript aware editor such as VS Code will be able to leverage them to provide hinting and validation.
-        | * 
-        | * State; the serialisable and persistable state of the entity
-        | * @typedef { import("../../lib/generated/myservice").State } State
-        | * 
-        | * Event; the union of all possible event types
-        | * @typedef { import("../../lib/generated/myservice").Event } Event
-        | * 
-        | * MyService; a strongly typed extension of EventSourcedEntity derived from your proto source
-        | * @typedef { import("../../lib/generated/myservice").MyService } MyService
-        | */
-        |
-        |/**
-        | * @type MyService
-        | */
-        |const entity = new EventSourcedEntity(
-        |  [
-        |    "myentity1.proto",
-        |    "someother.proto"
-        |  ],
-        |  "com.example.service.MyService",
-        |  "my-eventsourcedentity-persistence",
-        |  {
-        |    includeDirs: ["./src/proto"],
-        |    serializeFallbackToJson: true
-        |  }
-        |);
-        |
-        |entity.setInitial(entityId => ({}));
-        |
-        |entity.setBehavior(state => ({
-        |  commandHandlers: {
-        |    Set(command, state, ctx) {
-        |      return ctx.fail("The command handler for `Set` is not implemented, yet");
-        |    },
-        |    Get(command, state, ctx) {
-        |      return ctx.fail("The command handler for `Get` is not implemented, yet");
-        |    }
-        |  },
-        |  
-        |  eventHandlers: {
-        |    SetEvent(event, state) {
-        |      return state;
-        |    }
-        |  }
-        |}));
-        |
-        |export default entity;""".stripMargin
-    )
-  }
-
-  test("ValueEntity source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef)
-    val entity   = valueEntity()
-
-    val protoSources             = List(Paths.get("myentity1.proto"), Paths.get("someother.proto"))
-    val protobufSourceDirectory  = Paths.get("./src/proto")
-    val sourceDirectory          = Paths.get("./src/js")
-    val generatedSourceDirectory = Paths.get("./lib/generated")
-
-    val sourceDoc =
-      SourceGenerator.source(
-        protoSources,
-        protobufSourceDirectory,
-        sourceDirectory,
-        generatedSourceDirectory,
-        service,
-        entity
-      )
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { ValueEntity } from "@lightbend/akkaserverless-javascript-sdk";
-        |
-        |/**
-        | * Type definitions.
-        | * These types have been generated based on your proto source.
-        | * A TypeScript aware editor such as VS Code will be able to leverage them to provide hinting and validation.
-        | * 
-        | * State; the serialisable and persistable state of the entity
-        | * @typedef { import("../../lib/generated/myservice").State } State
-        | * 
-        | * MyService; a strongly typed extension of ValueEntity derived from your proto source
-        | * @typedef { import("../../lib/generated/myservice").MyService } MyService
-        | */
-        |
-        |/**
-        | * @type MyService
-        | */
-        |const entity = new ValueEntity(
-        |  [
-        |    "myentity1.proto",
-        |    "someother.proto"
-        |  ],
-        |  "com.example.service.MyService",
-        |  "my-valueentity-persistence",
-        |  {
-        |    includeDirs: ["./src/proto"],
-        |    serializeFallbackToJson: true
-        |  }
-        |);
-        |
-        |entity.setInitial(entityId => ({}));
-        |
-        |entity.setCommandHandlers({
-        |  Set(command, state, ctx) {
-        |    return ctx.fail("The command handler for `Set` is not implemented, yet");
-        |  },
-        |  Get(command, state, ctx) {
-        |    return ctx.fail("The command handler for `Get` is not implemented, yet");
-        |  }
-        |});
-        |
-        |export default entity;""".stripMargin
-    )
-  }
-
-  test("EventSourcedEntity typedef source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef)
-    val entity   = eventSourcedEntity()
-
-    val sourceDoc =
-      SourceGenerator.typedefSource(
-        service,
-        entity
-      )
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import {
-        |  TypedEventSourcedEntity,
-        |  EventSourcedCommandContext
-        |} from "../akkaserverless";
-        |import proto from "./proto";
-        |
-        |export type State = proto.com.example.service.persistence.IMyState;
-        |export type Event = proto.com.example.service.persistence.ISetEvent;
-        |export type Command =
-        |  | proto.com.example.service.ISetValue
-        |  | proto.com.example.service.IGetValue;
-        |
-        |export type EventHandlers = {
-        |  SetEvent: (
-        |    event: proto.com.example.service.persistence.ISetEvent,
-        |    state: State
-        |  ) => State;
-        |};
-        |
-        |export type CommandHandlers = {
-        |  Set: (
-        |    command: proto.com.example.service.ISetValue,
-        |    state: State,
-        |    ctx: EventSourcedCommandContext<Event>
-        |  ) => void;
-        |  Get: (
-        |    command: proto.com.example.service.IGetValue,
-        |    state: State,
-        |    ctx: EventSourcedCommandContext<Event>
-        |  ) => proto.com.example.service.IMyState;
-        |};
-        |
-        |export type MyService = TypedEventSourcedEntity<
-        |  State,
-        |  EventHandlers,
-        |  CommandHandlers
-        |>;
-        |""".stripMargin
-    )
-  }
-
-  test("ValueEntity typedef source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef)
-    val entity   = valueEntity()
-
-    val sourceDoc =
-      SourceGenerator.typedefSource(
-        service,
-        entity
-      )
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import {
-        |  TypedValueEntity,
-        |  ValueEntityCommandContext
-        |} from "../akkaserverless";
-        |import proto from "./proto";
-        |
-        |export type State = proto.com.example.service.persistence.IMyState;
-        |export type Command =
-        |  | proto.com.example.service.ISetValue
-        |  | proto.com.example.service.IGetValue;
-        |
-        |export type CommandHandlers = {
-        |  Set: (
-        |    command: proto.com.example.service.ISetValue,
-        |    state: State,
-        |    ctx: ValueEntityCommandContext<State>
-        |  ) => void;
-        |  Get: (
-        |    command: proto.com.example.service.IGetValue,
-        |    state: State,
-        |    ctx: ValueEntityCommandContext<State>
-        |  ) => proto.com.example.service.IMyState;
-        |};
-        |
-        |export type MyService = TypedValueEntity<
-        |  State,
-        |  CommandHandlers
-        |>;
-        |""".stripMargin
-    )
-  }
-
-  test("EventSourcedEntity test source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef, "1")
-    val entity   = eventSourcedEntity()
-
-    val testSourceDirectory = Paths.get("./test/js")
-    val sourceDirectory     = Paths.get("./src/js")
-    val sourceDoc =
-      SourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { MockEventSourcedEntity } from "./testkit.js";
-        |import { expect } from "chai";
-        |import myentity from "../../src/js/myentity.js";
-        |
-        |describe("MyService1", () => {
-        |  const entityId = "entityId";
-        |  
-        |  describe("Set", () => {
-        |    it("should...", () => {
-        |      const entity = new MockEventSourcedEntity(myentity, entityId);
-        |      // TODO: you may want to set fields in addition to the entity id
-        |      // const result = entity.handleCommand("Set", { entityId });
-        |      
-        |      // expect(result).to.deep.equal({});
-        |      // expect(entity.error).to.be.undefined;
-        |      // expect(entity.state).to.deep.equal({});
-        |      // expect(entity.events).to.deep.equal([]);
-        |    });
-        |  });
-        |  
-        |  describe("Get", () => {
-        |    it("should...", () => {
-        |      const entity = new MockEventSourcedEntity(myentity, entityId);
-        |      // TODO: you may want to set fields in addition to the entity id
-        |      // const result = entity.handleCommand("Get", { entityId });
-        |      
-        |      // expect(result).to.deep.equal({});
-        |      // expect(entity.error).to.be.undefined;
-        |      // expect(entity.state).to.deep.equal({});
-        |      // expect(entity.events).to.deep.equal([]);
-        |    });
-        |  });
-        |});""".stripMargin
-    )
-  }
-
-  test("ValueEntity test source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef, "1")
-    val entity   = valueEntity()
-
-    val testSourceDirectory = Paths.get("./test/js")
-    val sourceDirectory     = Paths.get("./src/js")
-    val sourceDoc =
-      SourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { MockValueEntity } from "./testkit.js";
-        |import { expect } from "chai";
-        |import myvalueentity from "../../src/js/myvalueentity.js";
-        |
-        |describe("MyService1", () => {
-        |  const entityId = "entityId";
-        |  
-        |  describe("Set", () => {
-        |    it("should...", () => {
-        |      const entity = new MockValueEntity(myvalueentity, entityId);
-        |      // TODO: you may want to set fields in addition to the entity id
-        |      // const result = entity.handleCommand("Set", { entityId });
-        |      
-        |      // expect(result).to.deep.equal({});
-        |      // expect(entity.error).to.be.undefined;
-        |      // expect(entity.state).to.deep.equal({});
-        |    });
-        |  });
-        |  
-        |  describe("Get", () => {
-        |    it("should...", () => {
-        |      const entity = new MockValueEntity(myvalueentity, entityId);
-        |      // TODO: you may want to set fields in addition to the entity id
-        |      // const result = entity.handleCommand("Get", { entityId });
-        |      
-        |      // expect(result).to.deep.equal({});
-        |      // expect(entity.error).to.be.undefined;
-        |      // expect(entity.state).to.deep.equal({});
-        |    });
-        |  });
-        |});""".stripMargin
-    )
-  }
-
-  test("ValueEntity integration test source") {
-    val protoRef = serviceProto()
-    val service  = simpleEntityService(protoRef, "1")
-    val entity   = valueEntity()
-
-    val testSourceDirectory = Paths.get("./test/js")
-    val sourceDirectory     = Paths.get("./src/js")
-    val sourceDoc =
-      SourceGenerator.integrationTestSource(service, entity, testSourceDirectory, sourceDirectory)
-    assertEquals(
-      sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
-        |import { expect } from "chai";
-        |import myvalueentity from "../../src/js/myvalueentity.js";
-        |
-        |const testkit = new akkaserverless.IntegrationTestkit();
-        |testkit.addComponent(myvalueentity);
-        |
-        |const client = () => testkit.clients.MyService1;
-        |
-        |describe("MyService1", function() {
-        |  this.timeout(60000);
-        |  
-        |  before(done => testkit.start(done));
-        |  after(done => testkit.shutdown(done));
-        |  
-        |  describe("Set", () => {
-        |    it("should...", async () => {
-        |      // TODO: populate command payload, and provide assertions to match replies
-        |      // const result = await client().set({});
-        |    });
-        |  });
-        |  describe("Get", () => {
-        |    it("should...", async () => {
-        |      // TODO: populate command payload, and provide assertions to match replies
-        |      // const result = await client().get({});
-        |    });
-        |  });
-        |});""".stripMargin
-    )
-  }
-
   test("generated component index source") {
-    val protoRef = serviceProto()
+    val protoRef = TestData.serviceProto()
 
     val generatedSourceDirectory = Paths.get("./generated/js")
     val sourceDirectory          = Paths.get("./src/js")
 
-    val entities = List(
-      eventSourcedEntity("1"),
-      valueEntity("2"),
-      eventSourcedEntity("3")
+    val services = Map(
+      "com.example.Service1" -> TestData.simpleEntityService(protoRef, "1"),
+      "com.example.Service2" -> TestData.simpleEntityService(protoRef, "2"),
+      "com.example.Service3" -> TestData.simpleEntityService(protoRef, "3"),
+      "com.example.Service4" -> TestData.simpleViewService(protoRef, "4")
+    )
+
+    val entities = Map(
+      "com.example.Entity1" -> TestData.eventSourcedEntity("1"),
+      "com.example.Entity2" -> TestData.valueEntity("2"),
+      "com.example.Entity3" -> TestData.eventSourcedEntity("3")
     )
 
     val sourceDoc =
-      SourceGenerator.generatedComponentIndex(entities, generatedSourceDirectory, sourceDirectory)
+      SourceGenerator.generatedComponentIndex(
+        ModelBuilder.Model(services, entities),
+        generatedSourceDirectory,
+        sourceDirectory
+      )
 
     assertEquals(
       sourceDoc.layout.replace("\\", "/"),
       """import myentity1 from "../../src/js/myentity1.js";
         |import myvalueentity2 from "../../src/js/myvalueentity2.js";
         |import myentity3 from "../../src/js/myentity3.js";
+        |import myservice4 from "../../src/js/myservice4.js";
         |
-        |export { myentity1, myvalueentity2, myentity3 };
+        |export { myentity1, myvalueentity2, myentity3, myservice4 };
         |
-        |export default [myentity1, myvalueentity2, myentity3];""".stripMargin
+        |export default [myentity1, myvalueentity2, myentity3, myservice4];""".stripMargin
     )
   }
 
@@ -620,11 +191,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val sourceDoc = SourceGenerator.indexSource(sourceDirectory, generatedComponentIndexPath)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"),
-      """import generatedComponents from "../../generated/my-generated-index.js";
+      """import { AkkaServerless } from "@lightbend/akkaserverless-javascript-sdk";
+        |import generatedComponents from "../../generated/my-generated-index.js";
         |
-        |generatedComponents.forEach((component) => {
-        |  component.start();
-        |});""".stripMargin
+        |const server = new AkkaServerless();
+        |generatedComponents.forEach(server.addComponent);
+        |
+        |server.start();""".stripMargin
     )
   }
 
