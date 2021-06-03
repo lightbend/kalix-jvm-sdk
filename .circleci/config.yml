@@ -152,9 +152,15 @@ jobs:
             echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             sbt publishM2
       - run: 
-          name: Run integration tests for Value Entities sample
+          name: Run integration tests for Value Entity sample
           command: |
             cd samples/java-valueentity-shopping-cart 
+            echo "Running mvn with syntetic SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+      - run: 
+          name: Run integration tests for Event Sourced Entity sample
+          command: |
+            cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with syntetic SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - save_sbt_cache
