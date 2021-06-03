@@ -264,7 +264,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
       )
 
-      val updates =
+      val transformedUpdates =
         List(
           ModelBuilder.Command(
             FullyQualifiedName("ProcessAdded", shoppingCartProto),
@@ -295,10 +295,9 @@ class ModelBuilderSuite extends munit.FunSuite {
           "shopping.cart.view.ShoppingCartViewService" ->
           ModelBuilder.ViewService(
             FullyQualifiedName("ShoppingCartViewService", shoppingCartProto),
-            updates ++ queries,
+            transformedUpdates ++ queries,
             "ShoppingCartViewService",
-            updates,
-            queries
+            transformedUpdates
           )
         )
       )

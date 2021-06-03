@@ -29,7 +29,7 @@ object TestData {
 
   val externalProto: PackageNaming =
     PackageNaming(
-      "EXT",
+      "ExternalDomain",
       "com.external",
       None,
       None,
@@ -67,12 +67,12 @@ object TestData {
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Created", proto),
-          FullyQualifiedName("EntityCreated", proto),
+          FullyQualifiedName("EntityCreated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto)
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Updated", proto),
-          FullyQualifiedName("EntityUpdated", proto),
+          FullyQualifiedName("EntityUpdated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto)
         )
       ),
@@ -80,16 +80,15 @@ object TestData {
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Created", proto),
-          FullyQualifiedName("EntityCreated", proto),
+          FullyQualifiedName("EntityCreated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto)
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Updated", proto),
-          FullyQualifiedName("EntityUpdated", proto),
+          FullyQualifiedName("EntityUpdated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto)
         )
-      ),
-      List.empty
+      )
     )
 
   def eventSourcedEntity(

@@ -77,6 +77,17 @@ object SourceGenerator extends PrettyPrinter {
               allProtoSources
             )
           )
+      case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
+        ViewServiceSourceGenerator.generate(
+          service,
+          protobufSourceDirectory,
+          sourceDirectory,
+          testSourceDirectory,
+          generatedSourceDirectory,
+          integrationTestSourceDirectory,
+          indexFilename,
+          allProtoSources
+        )
       case _ => Seq.empty
     } ++ {
       if (model.services.nonEmpty) {
@@ -139,7 +150,7 @@ object SourceGenerator extends PrettyPrinter {
         emptyDoc
       ) <> semi <> line <>
       generatedComponentArray <> dot <> "forEach" <> parens(
-        "server" <> dot <> "addComponent"
+        arrowFn(Seq("component"), "server" <> dot <> "addComponent" <> parens("component") <> semi)
       ) <> semi <> line <>
       line <>
       "server" <> dot <> "start" <> parens(emptyDoc) <> semi
@@ -163,7 +174,7 @@ object SourceGenerator extends PrettyPrinter {
               .toString
           )
         }
-      case ModelBuilder.ViewService(fqn, _, _, _, _) =>
+      case ModelBuilder.ViewService(fqn, _, _, transformedUpdates) if transformedUpdates.nonEmpty =>
         val serviceName = fqn.name.toLowerCase
         Some(
           (

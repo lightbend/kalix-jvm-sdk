@@ -76,8 +76,7 @@ object ModelBuilder {
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command],
       viewId: String,
-      updates: Iterable[Command],
-      queries: Iterable[Command]
+      transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands)
 
   /**
@@ -163,19 +162,24 @@ object ModelBuilder {
                   method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
                 ).map(viewOptions => (method, viewOptions))
               }
+              val relevantTypes = methods.flatMap(method =>
+                Seq(
+                  method.getInputType(),
+                  method.getOutputType()
+                )
+              )
+
               Some(
                 ViewService(
                   serviceName,
                   commands,
                   viewId = serviceDescriptor.getName(),
-                  updates = methodDetails
+                  transformedUpdates = methodDetails
                     .collect {
-                      case (method, viewOptions) if viewOptions.hasUpdate =>
-                        extractCommand(method)
-                    },
-                  queries = methodDetails
-                    .collect {
-                      case (method, viewOptions) if viewOptions.hasQuery =>
+                      case (method, viewOptions)
+                          if viewOptions.hasUpdate && viewOptions
+                            .getUpdate()
+                            .getTransformUpdates() =>
                         extractCommand(method)
                     }
                 )
