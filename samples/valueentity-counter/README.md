@@ -35,20 +35,20 @@ The integration test uses Docker via [TestContainers](https://www.testcontainers
 
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+In order to run your application locally, you must run the Akka Serverless proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
 To start the proxy, run the following command from this directory:
 
 
 ```shell
-docker-compose up
+docker compose up
 ```
 
 > On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
 > or for a `USER_FUNCTION_HOST` environment variable to be set manually.
 
 ```shell
-docker-compose -f docker-compose.yml -f docker-compose.linux.yml up
+docker compose -f docker-compose.yml -f docker-compose.linux.yml up
 ```
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
@@ -57,13 +57,17 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
+For further details see [Running a service locally](https://developer.lightbend.com/docs/akka-serverless/developing/running-service-locally.html) in the documentation.
+
+## Exercise the service
+
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/js-services/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```shell
 curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
 ```
 
-For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+Or, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
 grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter 
