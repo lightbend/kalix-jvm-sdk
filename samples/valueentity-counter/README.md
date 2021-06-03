@@ -83,7 +83,7 @@ You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
-Finally, you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
-to create a project and then deploy your service into the project either by using `mvn deploy`,
+Finally, you can use the [Akka Serverless Console](https://console.akkaserverless.com)
+to create an Akka Serverless project and then deploy your service into it either by using `mvn deploy`,
 through the `akkasls` CLI or via the web interface. When using `mvn deploy`, Maven will also
 conveniently package and publish your docker image prior to deployment.
