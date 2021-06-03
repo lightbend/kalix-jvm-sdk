@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.valueentity.shoppingcart.domain;
+package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.example.valueentity.shoppingcart.ShoppingCartApi;
+import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
 import java.util.Comparator;

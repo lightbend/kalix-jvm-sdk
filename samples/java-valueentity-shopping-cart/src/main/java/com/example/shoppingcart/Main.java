@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.valueentity.shoppingcart;
+package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.example.valueentity.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
+import static com.example.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
 
 public final class Main {
 

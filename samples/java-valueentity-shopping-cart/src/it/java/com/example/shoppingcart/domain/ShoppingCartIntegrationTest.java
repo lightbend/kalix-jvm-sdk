@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.valueentity.shoppingcart.domain;
+package com.example.shoppingcart.domain;
 
-import com.example.valueentity.shoppingcart.Main;
+import com.example.shoppingcart.Main;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-import com.example.valueentity.shoppingcart.ShoppingCartApi;
-import com.example.valueentity.shoppingcart.ShoppingCartServiceClient;
+import com.example.shoppingcart.ShoppingCartApi;
+import com.example.shoppingcart.ShoppingCartServiceClient;
 import org.junit.ClassRule;
 import org.junit.Test;
 

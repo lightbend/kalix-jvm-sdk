@@ -45,7 +45,7 @@ With both the proxy and your application running, any defined endpoints should b
 * Send an AddItem command:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.valueentity.shoppingcart.ShoppingCartService/AddItem -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.shoppingcart.ShoppingCartService/AddItem -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
 ```
 
 For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
@@ -53,19 +53,19 @@ For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 * Send an AddItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  com.example.valueentity.shoppingcart.ShoppingCartService/AddItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  com.example.shoppingcart.ShoppingCartService/AddItem
 ```
 
 * Send a GetCart command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  com.example.valueentity.shoppingcart.ShoppingCartService/GetCart
+grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  com.example.shoppingcart.ShoppingCartService/GetCart
 ```
 
 * Send a RemoveItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 com.example.valueentity.shoppingcart.ShoppingCartService/RemoveItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
 ```
 
 ## Running integration tests

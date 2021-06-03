@@ -14,7 +14,7 @@
       <!-- TODO Update to your own Docker repository or Docker Hub scope -->
       <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
       <dockerTag>${project.version}</dockerTag>
-      <mainClass>com.example.valueentity.shoppingcart.Main</mainClass>
+      <mainClass>com.example.shoppingcart.Main</mainClass>
 
       <jdk.target>11</jdk.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
