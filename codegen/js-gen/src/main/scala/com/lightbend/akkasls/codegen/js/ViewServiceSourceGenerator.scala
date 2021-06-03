@@ -23,7 +23,6 @@ object ViewServiceSourceGenerator {
   private val ProtoNs = "proto"
 
   def generate(
-      entity: ModelBuilder.Entity,
       service: ModelBuilder.ViewService,
       protobufSourceDirectory: Path,
       sourceDirectory: Path,
@@ -34,15 +33,15 @@ object ViewServiceSourceGenerator {
       allProtoSources: Iterable[Path]
   ) = {
 
-    val entityFilename = entity.fqn.name.toLowerCase + ".js"
-    val sourcePath     = sourceDirectory.resolve(entityFilename)
+    val serviceFilename = service.fqn.name.toLowerCase + ".js"
+    val sourcePath      = sourceDirectory.resolve(serviceFilename)
 
-    val typedefFilename   = entity.fqn.name.toLowerCase + ".d.ts"
+    val typedefFilename   = service.fqn.name.toLowerCase + ".d.ts"
     val typedefSourcePath = generatedSourceDirectory.resolve(typedefFilename)
     val _                 = typedefSourcePath.getParent.toFile.mkdirs()
     val _ = Files.write(
       typedefSourcePath,
-      typedefSource(service, entity).layout.getBytes(
+      typedefSource(service).layout.getBytes(
         Charsets.UTF_8
       )
     )
@@ -137,123 +136,70 @@ object ViewServiceSourceGenerator {
           )
         ) <> line
       ) <> semi <> line <>
-      line <>
-      "view.setUpdateHandlers" <> parens(
-        braces(
-          nest(
-            line <>
-            ssep(
-              service.updates.toSeq.map { update =>
-                update.fqn.name <> parens(
-                  "event, state, ctx"
-                ) <+> braces(
-                  nest(
-                    line <>
-                    "return ctx.fail(\"The update handler for `" <> update.fqn.name <> "` is not implemented, yet\")" <> semi
-                  ) <> line
-                )
-              },
-              comma <> line
-            )
-          ) <> line
-        )
-      ) <> semi <> line <>
-      line <>
+      line <> service.transformedUpdates.headOption.fold(emptyDoc)(_ =>
+        "view.setUpdateHandlers" <> parens(
+          braces(
+            nest(
+              line <>
+              ssep(
+                service.transformedUpdates.toSeq.map { update =>
+                  update.fqn.name <> parens(
+                    "event, state, ctx"
+                  ) <+> braces(
+                    nest(
+                      line <>
+                      "throw new Error" <> parens(
+                        dquotes(
+                          "The update handler for `" <> update.fqn.name <> "` is not implemented, yet"
+                        )
+                      ) <> semi
+                    ) <> line
+                  )
+                },
+                comma <> line
+              )
+            ) <> line
+          )
+        ) <> semi <> line <>
+        line
+      ) <>
       "export default view;"
     )
   }
 
   private[codegen] def typedefSource(
-      service: ModelBuilder.Service,
-      entity: ModelBuilder.Entity
+      service: ModelBuilder.ViewService
   ): Document =
     pretty(
       "import" <+> braces(
-        nest(line <> (entity match {
-          case _: ModelBuilder.EventSourcedEntity =>
-            "TypedEventSourcedEntity" <> comma <> line <>
-              "EventSourcedCommandContext"
-          case _: ModelBuilder.ValueEntity =>
-            "TypedValueEntity" <> comma <> line <>
-              "ValueEntityCommandContext"
-        })) <> line
+        nest(
+          line <>
+          "TypedView" <> comma <> line <>
+          "ViewUpdateHandlerContext"
+        ) <> line
       ) <+> "from" <+> dquotes("../akkaserverless") <> semi <> line <>
       "import" <+> ProtoNs <+> "from" <+> dquotes("./proto") <> semi <> line <>
       line <>
-      (entity match {
-        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
-          "export type State" <+> equal <+> state
-            .map(state => typeReference(state.fqn))
-            .getOrElse(text("unknown")) <> semi <> line <>
-            "export type Event" <+> equal <> typeUnion(
-              events.toSeq.map(_.fqn)
-            ) <> semi
-        case ModelBuilder.ValueEntity(_, _, state) =>
-          "export type State" <+> equal <+> typeReference(state.fqn) <> semi
-      }) <> line <>
-      "export type Command" <+> equal <> typeUnion(
-        service.commands.toSeq.map(_.inputType)
-      ) <> semi <> line <>
-      line <>
-      (entity match {
-        case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
-          "export type EventHandlers" <+> equal <+> braces(
-            nest(
-              line <>
-              ssep(
-                events.toSeq.map { event =>
-                  event.fqn.name <> colon <+> parens(
-                    nest(
-                      line <>
-                      "event" <> colon <+> typeReference(event.fqn) <> comma <> line <>
-                      "state" <> colon <+> "State"
-                    ) <> line
-                  ) <+> "=>" <+> "State" <> semi
-                },
-                line
-              )
-            ) <> line
-          ) <> semi <> line <>
-            line
-        case _: ModelBuilder.ValueEntity => emptyDoc
-      }) <>
-      "export type CommandHandlers" <+> equal <+> braces(
+      "export type UpdateHandlers" <+> equal <+> braces(
         nest(
           line <>
           ssep(
-            service.commands.toSeq.map { command =>
-              command.fqn.name <> colon <+> parens(
+            service.transformedUpdates.toSeq.map { update =>
+              update.fqn.name <> colon <+> parens(
                 nest(
                   line <>
-                  "command" <> colon <+> typeReference(command.inputType) <> comma <> line <>
-                  "state" <> colon <+> "State" <> comma <> line <>
-                  "ctx" <> colon <+> (entity match {
-                    case _: ModelBuilder.EventSourcedEntity => "EventSourcedCommandContext<Event>"
-                    case _: ModelBuilder.ValueEntity        => "ValueEntityCommandContext<State>"
-                  })
+                  "event" <> colon <+> typeReference(update.inputType) <> comma <> line <>
+                  "state?" <> colon <+> typeReference(update.outputType) <> comma <> line <>
+                  "ctx" <> colon <+> "ViewUpdateHandlerContext"
                 ) <> line
-              ) <+> "=>" <+> typeReference(command.outputType) <> semi
+              ) <+> "=>" <+> typeReference(update.outputType) <> semi
             },
             line
           )
         ) <> line
       ) <> semi <> line <>
       line <>
-      "export type" <+> service.fqn.name <+> equal <+> (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          "TypedEventSourcedEntity" <> angles(
-            nest(
-              line <>
-              ssep(Seq("State", "EventHandlers", "CommandHandlers"), comma <> line)
-            ) <> line
-          )
-        case _: ModelBuilder.ValueEntity =>
-          "TypedValueEntity" <> angles(
-            nest(
-              line <>
-              ssep(Seq("State", "CommandHandlers"), comma <> line)
-            ) <> line
-          )
-      }) <> semi <> line
+      "export type" <+> service.fqn.name <+> equal <+>
+      "TypedView" <> angles("UpdateHandlers") <> semi <> line
     )
 }

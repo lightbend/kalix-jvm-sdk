@@ -28,18 +28,19 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.view.*;
+      |import com.example.service.persistence.EntityOuterClass;
       |import java.util.Optional;
       |
       |/** A view. */
       |@View
       |public class MyServiceEntityImpl extends MyServiceEntityInterface {
       |    @Override
-      |    public ServiceOuterClass.ViewState created(ServiceOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state) {
+      |    public ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state) {
       |        throw new RuntimeException("The update handler for `Created` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public ServiceOuterClass.ViewState updated(ServiceOuterClass.EntityUpdated event, Optional<ServiceOuterClass.ViewState> state) {
+      |    public ServiceOuterClass.ViewState updated(EntityOuterClass.EntityUpdated event, Optional<ServiceOuterClass.ViewState> state) {
       |        throw new RuntimeException("The update handler for `Updated` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -58,15 +59,16 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.view.*;
+      |import com.example.service.persistence.EntityOuterClass;
       |import java.util.Optional;
       |
       |/** A view. */
       |public abstract class MyServiceEntityInterface {
       |    @UpdateHandler
-      |    public abstract ServiceOuterClass.ViewState created(ServiceOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state);
+      |    public abstract ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state);
       |    
       |    @UpdateHandler
-      |    public abstract ServiceOuterClass.ViewState updated(ServiceOuterClass.EntityUpdated event, Optional<ServiceOuterClass.ViewState> state);
+      |    public abstract ServiceOuterClass.ViewState updated(EntityOuterClass.EntityUpdated event, Optional<ServiceOuterClass.ViewState> state);
       |}""".stripMargin
     )
   }

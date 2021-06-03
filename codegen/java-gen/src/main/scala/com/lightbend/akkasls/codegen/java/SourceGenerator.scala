@@ -61,7 +61,7 @@ object SourceGenerator extends PrettyPrinter {
               mainClassName
             )
           )
-      case service: ModelBuilder.ViewService =>
+      case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
         ViewServiceSourceGenerator.generate(
           service,
           sourceDirectory,
@@ -115,63 +115,64 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String,
       model: ModelBuilder.Model
   ): Document = {
-    val entityServiceClasses = model.services.values.flatMap {
+    val serviceRegistrations = model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
           (
-            Option(entity.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-            s"${entity.fqn.name}Impl",
-            entity.fqn.parent.javaOuterClassname,
-            Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-            service.fqn.name,
-            service.fqn.parent.javaOuterClassname,
+            FullyQualifiedName(s"${entity.fqn.name}Impl", entity.fqn.parent),
             entity match {
               case _: ModelBuilder.EventSourcedEntity =>
-                ".registerEventSourcedEntity"
+                "registerEventSourcedEntity"
               case _: ModelBuilder.ValueEntity =>
-                ".registerValueEntity"
+                "registerValueEntity"
             },
-            None
+            Seq(
+              s"${entity.fqn.name}Impl" <> ".class",
+              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
+                dquotes(service.fqn.name)
+              )
+            ),
+            service.fqn.parent,
+            (entity match {
+              case ModelBuilder.EventSourcedEntity(fqn, _, state, events) =>
+                events.map(_.fqn) ++ state.map(_.fqn)
+              case ModelBuilder.ValueEntity(fqn, _, state) =>
+                Seq(state.fqn)
+            }) ++ service.commands.flatMap(command => Seq(command.inputType, command.outputType))
           )
         }
       case service: ModelBuilder.ViewService =>
-        Seq(
-          (
-            Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-            s"${service.fqn.name}Impl",
-            service.fqn.parent.javaOuterClassname,
-            Option(service.fqn.parent.javaPackage).filterNot(_ == mainClassPackageName),
-            service.fqn.name,
-            service.fqn.parent.javaOuterClassname,
-            ".registerView",
-            Some(service.viewId)
-          )
+        Some(
+          FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
+          "registerView",
+          (if (service.transformedUpdates.nonEmpty) {
+             Seq(s"${service.fqn.name}Impl" <> ".class")
+           } else Seq.empty) ++ Seq(
+            service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
+              dquotes(service.fqn.name)
+            ),
+            dquotes(service.viewId)
+          ),
+          service.fqn.parent,
+          service.commands.flatMap(command => Seq(command.inputType, command.outputType))
         )
-      case _ => Seq.empty
+      case _ => None
     }
 
     val imports = (List(
       "com.akkaserverless.javasdk.AkkaServerless"
     ) ++
-      entityServiceClasses.flatMap {
-        case (
-              packageName,
-              implClassName,
-              javaOuterClassName,
-              servicePackageName,
-              _,
-              serviceJavaOuterClassName,
-              _,
-              _
-            ) =>
-          packageName.toSeq.flatMap(pn =>
-            Seq(
-              s"$pn.$implClassName",
-              s"$pn.$javaOuterClassName"
-            )
-          ) ++
-            servicePackageName.map(pn => s"$pn.$serviceJavaOuterClassName")
-      }).distinct.sorted
+      serviceRegistrations
+        .flatMap { case (implType, _, _, _, relevantTypes) =>
+          Seq(implType.name -> implType.parent.javaPackage) ++ relevantTypes.map {
+            case FullyQualifiedName(_, parent) =>
+              parent.javaOuterClassname -> parent.javaPackage
+          }
+        }
+        .collect {
+          case (name, pn) if pn != mainClassPackageName =>
+            s"$pn.$name"
+        }).distinct.sorted
 
     pretty(
       "package" <+> mainClassPackageName <> semi <> line <>
@@ -193,28 +194,24 @@ object SourceGenerator extends PrettyPrinter {
           "return" <+> "akkaServerless" <> line <>
           indent(
             ssep(
-              entityServiceClasses.map {
-                case (
-                      _,
-                      implClassName,
-                      javaOuterClassName,
-                      _,
-                      serviceName,
-                      serviceJavaOuterClassName,
-                      registrationMethod,
-                      identifier
-                    ) =>
-                  registrationMethod <> parens(
-                    nest(
-                      line <>
-                      implClassName <> ".class" <> comma <> line <>
-                      serviceJavaOuterClassName <> ".getDescriptor().findServiceByName" <> parens(
-                        dquotes(serviceName)
-                      ) <> comma <> line <>
-                      identifier.fold(emptyDoc)(id => dquotes(id) <> comma <> line) <>
-                      javaOuterClassName <> ".getDescriptor()"
-                    ) <> line
-                  )
+              serviceRegistrations.map {
+                case (implType, registrationMethod, args, serviceDescriptor, relevantTypes) =>
+                  dot <>
+                    registrationMethod <> parens(
+                      nest(
+                        line <> ssep(
+                          args ++ relevantTypes
+                            .map(_.parent)
+                            .toSeq
+                            .distinct
+                            .filterNot(_ == serviceDescriptor)
+                            .map { descriptor =>
+                              descriptor.javaOuterClassname <> ".getDescriptor()"
+                            },
+                          comma <> line
+                        )
+                      ) <> line
+                    )
               }.toSeq,
               line
             ) <> semi,

@@ -81,7 +81,9 @@ object ViewServiceSourceGenerator {
       interfaceClassName: String
   ): Document = {
     val messageTypes =
-      service.updates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
+      service.transformedUpdates.toSeq.flatMap(command =>
+        Seq(command.inputType, command.outputType)
+      )
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -102,7 +104,7 @@ object ViewServiceSourceGenerator {
       "@View" <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         ssep(
-          service.updates.toSeq.map { update =>
+          service.transformedUpdates.toSeq.map { update =>
             "@Override" <>
             line <>
             method(
@@ -134,7 +136,9 @@ object ViewServiceSourceGenerator {
       className: String
   ): Document = {
     val messageTypes =
-      service.updates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
+      service.transformedUpdates.toSeq.flatMap(command =>
+        Seq(command.inputType, command.outputType)
+      )
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -155,7 +159,7 @@ object ViewServiceSourceGenerator {
       "/** A view. */" <> line <>
       `class`("public abstract", className + "Interface") {
         ssep(
-          service.updates.toSeq.map { update =>
+          service.transformedUpdates.toSeq.map { update =>
             "@UpdateHandler" <>
             line <>
             abstractMethod(

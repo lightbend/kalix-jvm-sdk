@@ -166,12 +166,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.EntityOuterClass1;
         |import com.example.service.persistence.EntityOuterClass2;
         |import com.example.service.persistence.EntityOuterClass3;
+        |import com.example.service.persistence.EntityOuterClass4;
         |import com.example.service.persistence.MyEntity1Impl;
         |import com.example.service.persistence.MyEntity3Impl;
         |import com.example.service.persistence.MyValueEntity2Impl;
         |import com.example.service.something.ServiceOuterClass3;
         |import com.example.service.view.MyService4Impl;
         |import com.example.service.view.ServiceOuterClass4;
+        |import com.external.ExternalDomain;
         |
         |public final class SomeMainComponentRegistrations {
         |    
@@ -180,23 +182,26 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                .registerEventSourcedEntity(
         |                    MyEntity1Impl.class,
         |                    ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
-        |                    EntityOuterClass1.getDescriptor()
+        |                    EntityOuterClass1.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerValueEntity(
         |                    MyValueEntity2Impl.class,
         |                    ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
-        |                    EntityOuterClass2.getDescriptor()
+        |                    EntityOuterClass2.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerEventSourcedEntity(
         |                    MyEntity3Impl.class,
         |                    ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
-        |                    EntityOuterClass3.getDescriptor()
+        |                    EntityOuterClass3.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerView(
         |                    MyService4Impl.class,
         |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
         |                    "my-view-id4",
-        |                    ServiceOuterClass4.getDescriptor()
+        |                    EntityOuterClass4.getDescriptor()
         |                );
         |    }
         |}""".stripMargin

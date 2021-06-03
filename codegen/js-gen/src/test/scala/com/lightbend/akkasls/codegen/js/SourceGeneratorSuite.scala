@@ -195,7 +195,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import generatedComponents from "../../generated/my-generated-index.js";
         |
         |const server = new AkkaServerless();
-        |generatedComponents.forEach(server.addComponent);
+        |generatedComponents.forEach((component) => {
+        |  server.addComponent(component);
+        |});
         |
         |server.start();""".stripMargin
     )
