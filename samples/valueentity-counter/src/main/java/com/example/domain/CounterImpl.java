@@ -28,7 +28,7 @@ public class CounterImpl extends CounterInterface {
         CounterDomain.CounterState state = ctx.getState() // <2>
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build()); // <3>
         CounterDomain.CounterState newState =  // <4>
-                state.toBuilder().setValue(state.getValue() + command.getValue()).build()
+                state.toBuilder().setValue(state.getValue() + command.getValue()).build();
         ctx.updateState(newState); // <5>
         return Empty.getDefaultInstance();
     }
