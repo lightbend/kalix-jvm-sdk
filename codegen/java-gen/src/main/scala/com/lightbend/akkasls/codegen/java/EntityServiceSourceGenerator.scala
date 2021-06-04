@@ -581,7 +581,7 @@ object EntityServiceSourceGenerator {
       "import" <+> "static" <+> "java.util.concurrent.TimeUnit.*" <> semi <> line <>
       line <>
       """// Example of an integration test calling our service via the Akka Serverless proxy""" <> line <>
-      """// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`""" <> line <>
+      """// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`""" <> line <>
       `class`("public", testClassName) {
         line <>
         "/**" <> line <>
