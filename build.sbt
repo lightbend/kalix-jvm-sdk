@@ -136,33 +136,9 @@ lazy val tck = project
 lazy val samples = project
   .in(file("samples"))
   .aggregate(
-    `java-eventsourced-shopping-cart`,
     `java-eventing-shopping-cart`,
     `java-pingpong`,
     `java-customer-registry`
-  )
-
-lazy val `java-eventsourced-shopping-cart` = project
-  .in(file("samples/java-eventsourced-shopping-cart"))
-  .dependsOn(sdk, testkit % IntegrationTest)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .settings(
-    name := "java-eventsourced-shopping-cart",
-    libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
-        "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest
-      ),
-    Compile / mainClass := Some("eventsourced.shoppingcart.Main"),
-    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Compile / akkaGrpcGeneratedSources := Seq.empty,
-    Compile / PB.protoSources += (ThisBuild / baseDirectory).value / "protocols" / "example",
-    Compile / PB.targets += PB.gens.java -> (Compile / sourceManaged).value,
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-    testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
-    inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
   )
 
 lazy val `java-eventing-shopping-cart` = project

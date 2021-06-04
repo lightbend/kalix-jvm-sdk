@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package eventsourced.shoppingcart;
+package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.example.shoppingcart.ShoppingCartApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.example.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
+
 public final class Main {
-  public static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static final AkkaServerless SERVICE =
-      new AkkaServerless()
-          .registerEventSourcedEntity(
-              ShoppingCartEntity.class,
-              ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-              com.example.shoppingcart.domain.ShoppingCartDomain.getDescriptor());
+      withGeneratedComponentsAdded(new AkkaServerless());
 
-  public static final void main(String[] args) throws Exception {
-    LOG.info("started");
+  public static void main(String[] args) throws Exception {
+    LOG.info("starting the Akka Serverless service");
     SERVICE.start().toCompletableFuture().get();
   }
 }

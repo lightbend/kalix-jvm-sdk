@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 
-package eventsourced.shoppingcart;
+package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.eventsourcedentity.*;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** An event sourced entity. */
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
-public class ShoppingCartEntity {
+public class ShoppingCartImpl extends ShoppingCartInterface {
+  @SuppressWarnings("unused")
   private final String entityId;
+
   private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
 
-  public ShoppingCartEntity(@EntityId String entityId) {
+  public ShoppingCartImpl(@EntityId String entityId) {
     this.entityId = entityId;
   }
 
-  @Snapshot
+  @Override
   public ShoppingCartDomain.Cart snapshot() {
     return ShoppingCartDomain.Cart.newBuilder()
         .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
         .build();
   }
 
-  @SnapshotHandler
+  @Override
   public void handleSnapshot(ShoppingCartDomain.Cart cart) {
     this.cart.clear();
     for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
@@ -51,32 +52,8 @@ public class ShoppingCartEntity {
     }
   }
 
-  @EventHandler
-  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
-    ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
-    if (item == null) {
-      item = convert(itemAdded.getItem());
-    } else {
-      item =
-          item.toBuilder()
-              .setQuantity(item.getQuantity() + itemAdded.getItem().getQuantity())
-              .build();
-    }
-    cart.put(item.getProductId(), item);
-  }
-
-  @EventHandler
-  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
-    cart.remove(itemRemoved.getProductId());
-  }
-
-  @CommandHandler
-  public ShoppingCartApi.Cart getCart() {
-    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
-  }
-
-  @CommandHandler
-  public Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
+  @Override
+  protected Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
       throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
@@ -92,8 +69,8 @@ public class ShoppingCartEntity {
     return Empty.getDefaultInstance();
   }
 
-  @CommandHandler
-  public Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
+  @Override
+  protected Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
     if (!cart.containsKey(item.getProductId())) {
       throw ctx.fail(
           "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
@@ -101,6 +78,31 @@ public class ShoppingCartEntity {
     ctx.emit(ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
     return Empty.getDefaultInstance();
   }
+
+  @Override
+  protected ShoppingCartApi.Cart getCart(ShoppingCartApi.GetShoppingCart command, CommandContext ctx) {
+    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
+  }
+
+  @Override
+  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
+    ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
+    if (item == null) {
+      item = convert(itemAdded.getItem());
+    } else {
+      item =
+          item.toBuilder()
+              .setQuantity(item.getQuantity() + itemAdded.getItem().getQuantity())
+              .build();
+    }
+    cart.put(item.getProductId(), item);
+  }
+
+  @Override
+  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
+    cart.remove(itemRemoved.getProductId());
+  }
+
 
   private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
     return ShoppingCartApi.LineItem.newBuilder()
