@@ -58,9 +58,9 @@ service ShoppingCartService {
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-            post: "/cart/{cart_id}/items/add"
-            body: "*"
-        };
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
+    };
   }
 
   rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty) {
@@ -69,10 +69,10 @@ service ShoppingCartService {
 
   rpc GetCart (GetShoppingCart) returns (Cart) {
     option (google.api.http) = {
-            get: "/carts/{cart_id}"
-            additional_bindings: {
-                get: "/carts/{cart_id}/items"
-                response_body: "items"
-            } };
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+          get: "/carts/{cart_id}/items"
+          response_body: "items"
+      } };
   }
 }
