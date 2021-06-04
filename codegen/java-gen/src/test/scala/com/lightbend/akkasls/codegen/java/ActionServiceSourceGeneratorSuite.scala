@@ -28,7 +28,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import akka.NotUsed;
-      |import akka.stream.javadsl.Stream;
+      |import akka.stream.javadsl.Source;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.action.*;
       |import com.external.Empty;
       |
@@ -41,8 +42,13 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Source<Reply<Empty>, NotUsed> streamedMethod(ServiceOuterClass.MyRequest event, ActionContext ctx) {
-      |        throw new RuntimeException("The command handler for `StreamedMethod` is not implemented, yet");
+      |    public Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest event, ActionContext ctx) {
+      |        throw new RuntimeException("The command handler for `StreamedOutputMethod` is not implemented, yet");
+      |    }
+      |    
+      |    @Override
+      |    public Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> event, ActionContext ctx) {
+      |        throw new RuntimeException("The command handler for `FullStreamedMethod` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
@@ -60,7 +66,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import akka.NotUsed;
-      |import akka.stream.javadsl.Stream;
+      |import akka.stream.javadsl.Source;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.action.*;
       |import com.external.Empty;
       |
@@ -70,7 +77,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       |    public abstract Reply<Empty> simpleMethod(ServiceOuterClass.MyRequest event, ActionContext ctx);
       |    
       |    @Handler
-      |    public abstract Source<Reply<Empty>, NotUsed> streamedMethod(ServiceOuterClass.MyRequest event, ActionContext ctx);
+      |    public abstract Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest event, ActionContext ctx);
+      |    
+      |    @Handler
+      |    public abstract Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> event, ActionContext ctx);
       |}""".stripMargin
     )
   }

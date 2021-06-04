@@ -86,10 +86,11 @@ object ActionServiceSourceGenerator {
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++ Seq(
-      "com.akkaserverless.javasdk.action.*"
+      "com.akkaserverless.javasdk.action.*",
+      "com.akkaserverless.javasdk.Reply"
     ) ++ (if (service.commands.exists(_.streamedOutput)) {
             Seq(
-              "akka.stream.javadsl.Stream",
+              "akka.stream.javadsl.Source",
               "akka.NotUsed"
             )
           } else Seq.empty)).distinct.sorted
@@ -111,14 +112,16 @@ object ActionServiceSourceGenerator {
             line <>
             method(
               "public",
-              if (command.streamedOutput)
-                "Source" <> angles(
-                  "Reply" <> angles(qualifiedType(command.outputType)) <> comma <+> "NotUsed"
-                )
-              else "Reply" <> angles(qualifiedType(command.outputType)),
+              maybeStreamed(
+                "Reply" <> angles(qualifiedType(command.outputType)),
+                streamed = command.streamedOutput
+              ),
               lowerFirst(command.fqn.name),
               List(
-                qualifiedType(command.inputType) <+> "event",
+                maybeStreamed(
+                  qualifiedType(command.inputType),
+                  streamed = command.streamedInput
+                ) <+> "event",
                 "ActionContext" <+> "ctx"
               ),
               emptyDoc
@@ -170,14 +173,16 @@ object ActionServiceSourceGenerator {
             line <>
             abstractMethod(
               "public",
-              if (command.streamedOutput)
-                "Source" <> angles(
-                  "Reply" <> angles(qualifiedType(command.outputType)) <> comma <+> "NotUsed"
-                )
-              else "Reply" <> angles(qualifiedType(command.outputType)),
+              maybeStreamed(
+                "Reply" <> angles(qualifiedType(command.outputType)),
+                streamed = command.streamedOutput
+              ),
               lowerFirst(command.fqn.name),
               List(
-                qualifiedType(command.inputType) <+> "event",
+                maybeStreamed(
+                  qualifiedType(command.inputType),
+                  streamed = command.streamedInput
+                ) <+> "event",
                 "ActionContext" <+> "ctx"
               )
             ) <> semi
@@ -187,5 +192,12 @@ object ActionServiceSourceGenerator {
       }
     )
   }
+
+  private def maybeStreamed(wrappedType: Doc, streamed: Boolean): Doc =
+    if (streamed) {
+      "Source" <> angles(
+        wrappedType <> comma <+> "NotUsed"
+      )
+    } else wrappedType
 
 }
