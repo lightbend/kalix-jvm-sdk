@@ -12,7 +12,7 @@
 
     <properties>
         <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-        <dockerImage>gcr.io/akkaserverless-public/samples-java-shopping-cart-event-sourced</dockerImage>
+        <dockerImage>gcr.io/akkaserverless-public/samples-java-event-sourced-shopping-cart</dockerImage>
         <dockerTag>${project.version}</dockerTag>
         <mainClass>com.example.shoppingcart.Main</mainClass>
 
