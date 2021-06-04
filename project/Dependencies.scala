@@ -12,7 +12,7 @@ object Dependencies {
 
   // Note: sync with Protobuf version in Akka gRPC and ScalaPB
   // https://github.com/akka/akka-grpc/blob/v2.0.0/project/Dependencies.scala#L26
-  val ProtobufVersion = "3.17.1"
+  val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
   val AkkaVersion = "2.6.14"
   val AkkaHttpVersion = "10.2.4" // Note: should at least the Akka HTTP version required by Akka gRPC
