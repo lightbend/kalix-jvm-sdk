@@ -22,8 +22,8 @@ import "akkaserverless/annotations.proto";
 option (akkaserverless.file).event_sourced_entity = {
 	name: "CarMetricsEntity"
 	entity_type: "eventsourced-car-metrics"	
-	state: { type: "CarMetricsState"} 			
-	event: { type: "ChargeLevelRecorded"}
+	state: "CarMetricsState" 			
+	events: ["ChargeLevelRecorded"]
 };
 
 

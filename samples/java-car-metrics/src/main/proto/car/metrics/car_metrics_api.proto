@@ -50,7 +50,10 @@ message CarMetrics {
 
 service CarMetricsService {
 
-	option (akkaserverless.service).entity.type = ".persistence.CarMetrics";
+	option (akkaserverless.service) = {
+    	type: SERVICE_TYPE_ENTITY
+    	component: ".domain.CarMetricsEntity"
+  	};
 
 	rpc RecordChargeLevel(ChargeLevel) returns (google.protobuf.Empty) {
 		option (google.api.http) = {

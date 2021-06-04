@@ -24,7 +24,7 @@ import "akkaserverless/annotations.proto";
 option (akkaserverless.file).value_entity = {
 	name: "ChargeSupplierEntity"
 	entity_type: "valueentity_charge_supplier"
-	state: { type: "CustomerBatteryState" }
+	state: "CustomerBatteryState" 
 };
 
 message CustomerBatteryState {
