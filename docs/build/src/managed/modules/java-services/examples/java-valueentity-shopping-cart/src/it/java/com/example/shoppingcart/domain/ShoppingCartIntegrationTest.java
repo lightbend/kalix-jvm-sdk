@@ -13,30 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.shoppingcart.domain;
 
-package valueentity.shoppingcart;
-
+import com.example.shoppingcart.Main;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-import com.example.valueentity.shoppingcart.ShoppingCartApi;
-import com.example.valueentity.shoppingcart.ShoppingCartServiceClient;
+import com.example.shoppingcart.ShoppingCartApi;
+import com.example.shoppingcart.ShoppingCartServiceClient;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static java.util.concurrent.TimeUnit.*;
 
+// Example of an integration test calling our service via the Akka Serverless proxy
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
 public class ShoppingCartIntegrationTest {
 
+  /**
+   * The test kit starts both the service container and the Akka Serverless proxy.
+   */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit =
-      new AkkaServerlessTestkitResource(Main.SERVICE);
+  public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(Main.SERVICE);
 
+  /**
+   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+   */
   private final ShoppingCartServiceClient client;
 
   public ShoppingCartIntegrationTest() {
-    this.client =
-        ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
@@ -84,6 +91,7 @@ public class ShoppingCartIntegrationTest {
         .setQuantity(quantity)
         .build();
   }
+
 
   @Test
   public void emptyCartByDefault() throws Exception {

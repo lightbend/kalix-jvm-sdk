@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// tag::main-class[]
-package valueentity.shoppingcart;
+package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.example.valueentity.shoppingcart.ShoppingCartApi;
-import com.example.valueentity.shoppingcart.domain.ShoppingCartDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.example.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
+
 public final class Main {
+
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static final AkkaServerless SERVICE =
-      new AkkaServerless()
-          .registerValueEntity(
-              ShoppingCartEntity.class,
-              ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-              ShoppingCartDomain.getDescriptor());
+      withGeneratedComponentsAdded(new AkkaServerless());
 
-  public static final void main(String[] args) throws Exception {
-    LOG.info("started");
+  public static void main(String[] args) throws Exception {
+    LOG.info("starting the Akka Serverless service");
     SERVICE.start().toCompletableFuture().get();
   }
 }
-// end::main-class[]
