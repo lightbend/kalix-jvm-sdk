@@ -8,6 +8,7 @@ package com.lightbend.akkasls.codegen
 import scala.jdk.CollectionConverters._
 import com.google.protobuf.Descriptors
 import com.akkaserverless.ServiceOptions.ServiceType
+import akka.protobufv3.internal.Descriptors.MethodDescriptor
 
 /**
   * Builds a model of entities and their properties from a protobuf descriptor
@@ -88,14 +89,30 @@ object ModelBuilder {
       componentFullName: String
   ) extends Service(fqn, commands)
 
+  case class InputType(
+      fqn: FullyQualifiedName
+  )
+
   /**
     * A command is used to express the intention to alter the state of an Entity.
     */
   case class Command(
       fqn: FullyQualifiedName,
       inputType: FullyQualifiedName,
-      outputType: FullyQualifiedName
+      outputType: FullyQualifiedName,
+      streamedInput: Boolean,
+      streamedOutput: Boolean
   )
+
+  object Command {
+    def from(method: Descriptors.MethodDescriptor): Command = Command(
+      FullyQualifiedName.from(method),
+      FullyQualifiedName.from(method.getInputType),
+      FullyQualifiedName.from(method.getOutputType),
+      streamedInput = method.isClientStreaming,
+      streamedOutput = method.isServerStreaming
+    )
+  }
 
   /**
     * An event indicates that a change has occurred to an entity. Events are stored in a journal,
@@ -133,7 +150,7 @@ object ModelBuilder {
 
           methods = serviceDescriptor.getMethods.asScala
           commands =
-            methods.map(extractCommand)
+            methods.map(Command.from(_))
 
           service <- serviceType match {
             case ServiceType.SERVICE_TYPE_ENTITY =>
@@ -180,7 +197,7 @@ object ModelBuilder {
                           if viewOptions.hasUpdate && viewOptions
                             .getUpdate()
                             .getTransformUpdates() =>
-                        extractCommand(method)
+                        Command.from(method)
                     }
                 )
               )
@@ -267,9 +284,4 @@ object ModelBuilder {
     }
   }
 
-  private def extractCommand(method: Descriptors.MethodDescriptor): Command = Command(
-    FullyQualifiedName.from(method),
-    FullyQualifiedName.from(method.getInputType),
-    FullyQualifiedName.from(method.getOutputType)
-  )
 }
