@@ -11,8 +11,8 @@ object Dependencies {
   val ScalaVersion = "2.13.5"
 
   // Note: sync with Protobuf version in Akka gRPC and ScalaPB
-  // https://github.com/akka/akka-grpc/blob/v1.1.1/project/Dependencies.scala#L77
-  val ProtobufVersion = "3.15.1"
+  // https://github.com/akka/akka-grpc/blob/v2.0.0/project/Dependencies.scala#L26
+  val ProtobufVersion = "3.17.1"
 
   val AkkaVersion = "2.6.14"
   val AkkaHttpVersion = "10.2.4" // Note: should at least the Akka HTTP version required by Akka gRPC
