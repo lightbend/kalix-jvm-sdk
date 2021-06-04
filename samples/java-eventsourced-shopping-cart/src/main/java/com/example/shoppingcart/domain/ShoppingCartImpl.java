@@ -26,13 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * An event sourced entity.
- */
-
-/**
- * An event sourced entity.
- */
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartImpl extends ShoppingCartInterface {
   @SuppressWarnings("unused")
