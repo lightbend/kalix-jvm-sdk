@@ -74,7 +74,9 @@ object ModelBuilder {
     */
   case class ViewService(
       override val fqn: FullyQualifiedName,
-      override val commands: Iterable[Command]
+      override val commands: Iterable[Command],
+      viewId: String,
+      transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands)
 
   /**
@@ -131,13 +133,7 @@ object ModelBuilder {
 
           methods = serviceDescriptor.getMethods.asScala
           commands =
-            methods.map(method =>
-              Command(
-                FullyQualifiedName.from(method),
-                FullyQualifiedName.from(method.getInputType),
-                FullyQualifiedName.from(method.getOutputType)
-              )
-            )
+            methods.map(extractCommand)
 
           service <- serviceType match {
             case ServiceType.SERVICE_TYPE_ENTITY =>
@@ -161,10 +157,31 @@ object ModelBuilder {
                 )
               )
             case ServiceType.SERVICE_TYPE_VIEW =>
+              val methodDetails = methods.flatMap { method =>
+                Option(
+                  method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
+                ).map(viewOptions => (method, viewOptions))
+              }
+              val relevantTypes = methods.flatMap(method =>
+                Seq(
+                  method.getInputType(),
+                  method.getOutputType()
+                )
+              )
+
               Some(
                 ViewService(
                   serviceName,
-                  commands
+                  commands,
+                  viewId = serviceDescriptor.getName(),
+                  transformedUpdates = methodDetails
+                    .collect {
+                      case (method, viewOptions)
+                          if viewOptions.hasUpdate && viewOptions
+                            .getUpdate()
+                            .getTransformUpdates() =>
+                        extractCommand(method)
+                    }
                 )
               )
             case _ => None
@@ -249,4 +266,10 @@ object ModelBuilder {
       )
     }
   }
+
+  private def extractCommand(method: Descriptors.MethodDescriptor): Command = Command(
+    FullyQualifiedName.from(method),
+    FullyQualifiedName.from(method.getInputType),
+    FullyQualifiedName.from(method.getOutputType)
+  )
 }

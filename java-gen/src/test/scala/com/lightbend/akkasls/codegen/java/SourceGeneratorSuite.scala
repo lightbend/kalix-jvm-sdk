@@ -11,75 +11,6 @@ import org.apache.commons.io.FileUtils
 import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  def serviceProto(suffix: String = ""): PackageNaming =
-    PackageNaming(
-      s"MyService$suffix",
-      "com.example.service",
-      None,
-      None,
-      Some(s"ServiceOuterClass$suffix"),
-      javaMultipleFiles = false
-    )
-
-  def domainProto(suffix: String = ""): PackageNaming =
-    PackageNaming(
-      s"Domain$suffix",
-      "com.example.service.persistence",
-      None,
-      None,
-      Some(s"EntityOuterClass$suffix"),
-      javaMultipleFiles = false
-    )
-
-  val externalProto: PackageNaming =
-    PackageNaming(
-      "EXT",
-      "com.external",
-      None,
-      None,
-      None,
-      javaMultipleFiles = true
-    )
-
-  def simpleService(
-      proto: PackageNaming = serviceProto(),
-      suffix: String = ""
-  ): ModelBuilder.EntityService =
-    ModelBuilder.EntityService(
-      FullyQualifiedName(s"MyService$suffix", proto),
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Set", proto),
-          FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Get", proto),
-          FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
-        )
-      ),
-      s"com.example.Entity$suffix"
-    )
-
-  def eventSourcedEntity(
-      suffix: String = ""
-  ): ModelBuilder.EventSourcedEntity =
-    ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
-      s"MyEntity$suffix",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))
-      )
-    )
-
-  def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
-    ModelBuilder.ValueEntity(
-      FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
-      s"MyValueEntity$suffix",
-      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))
-    )
 
   test("generate") {
     val sourceDirectory = Files.createTempDirectory("source-generator-test")
@@ -127,20 +58,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
             FileUtils.touch(implSourceFile1)
             FileUtils.touch(implSourceFile2)
 
-            val service1Proto = serviceProto("1")
-            val service2Proto = serviceProto("2")
-            val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
+            val service1Proto = TestData.serviceProto("1")
+            val service2Proto = TestData.serviceProto("2")
+            val service3Proto =
+              TestData.serviceProto("3").copy(pkg = "com.example.service.something")
+            val service4Proto = TestData.serviceProto("4")
 
             val services = Map(
-              "com.example.Service1" -> simpleService(service1Proto, "1"),
-              "com.example.Service2" -> simpleService(service2Proto, "2"),
-              "com.example.Service3" -> simpleService(service3Proto, "3")
+              "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
+              "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
+              "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
+              "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4")
             )
 
             val entities = Map(
-              "com.example.Entity1" -> eventSourcedEntity(suffix = "1"),
-              "com.example.Entity2" -> valueEntity(suffix = "2"),
-              "com.example.Entity3" -> eventSourcedEntity(suffix = "3")
+              "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
+              "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
+              "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3")
             )
 
             val sources = SourceGenerator.generate(
@@ -175,6 +109,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
+                sourceDirectory.resolve("com/example/service/MyService4Impl.java"),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MyService4Interface.java"
+                ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/MainComponentRegistrations.java"
                 ),
@@ -193,447 +131,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
     } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
   }
 
-  test("EventSourcedEntity source") {
-
-    val entity  = eventSourcedEntity()
-    val service = simpleService()
-
-    val packageName        = "com.example.service"
-    val className          = "MyServiceEntityImpl"
-    val interfaceClassName = "MyServiceEntityInterface"
-    val entityType         = "my-eventsourcedentity-persistence"
-
-    val sourceDoc =
-      SourceGenerator.source(
-        service,
-        entity,
-        packageName,
-        className,
-        interfaceClassName,
-        entityType
-      )
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.eventsourcedentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** An event sourced entity. */
-      |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
-      |public class MyServiceEntityImpl extends MyServiceEntityInterface {
-      |    @SuppressWarnings("unused")
-      |    private final String entityId;
-      |    
-      |    public MyServiceEntityImpl(@EntityId String entityId) {
-      |        this.entityId = entityId;
-      |    }
-      |    
-      |    @Override
-      |    public EntityOuterClass.MyState snapshot() {
-      |        // TODO: produce state snapshot here
-      |        return EntityOuterClass.MyState.newBuilder().build();
-      |    }
-      |    
-      |    @Override
-      |    public void handleSnapshot(EntityOuterClass.MyState snapshot) {
-      |        // TODO: restore state from snapshot here
-      |        
-      |    }
-      |    
-      |    @Override
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
-      |    }
-      |    
-      |    @Override
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
-      |    }
-      |    
-      |    @Override
-      |    public void setEvent(EntityOuterClass.SetEvent event) {
-      |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
-      |    }
-      |}""".stripMargin
-    )
-  }
-
-  test("ValueEntity source") {
-
-    val service = simpleService()
-    val entity  = valueEntity()
-
-    val packageName        = "com.example.service"
-    val className          = "MyServiceImpl"
-    val interfaceClassName = "MyServiceInterface"
-    val entityType         = "my-valueentity-persistence"
-
-    val sourceDoc =
-      SourceGenerator.source(
-        service,
-        entity,
-        packageName,
-        className,
-        interfaceClassName,
-        entityType
-      )
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.valueentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** A value entity. */
-      |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyServiceImpl extends MyServiceInterface {
-      |    @SuppressWarnings("unused")
-      |    private final String entityId;
-      |    
-      |    public MyServiceImpl(@EntityId String entityId) {
-      |        this.entityId = entityId;
-      |    }
-      |    
-      |    @Override
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
-      |    }
-      |    
-      |    @Override
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
-      |    }
-      |}""".stripMargin
-    )
-  }
-
-  test("EventSourcedEntity interface source") {
-    val service     = simpleService()
-    val entity      = eventSourcedEntity()
-    val packageName = "com.example.service"
-    val className   = "MyServiceEntity"
-
-    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.eventsourcedentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** An event sourced entity. */
-      |public abstract class MyServiceEntityInterface {
-      |    
-      |    public class CommandNotImplementedException extends UnsupportedOperationException {
-      |        public CommandNotImplementedException() {
-      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-      |        }
-      |    }
-      |    
-      |    @Snapshot
-      |    public abstract EntityOuterClass.MyState snapshot();
-      |    
-      |    @SnapshotHandler
-      |    public abstract void handleSnapshot(EntityOuterClass.MyState snapshot);
-      |    
-      |    @CommandHandler(name = "Set")
-      |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        return Reply.message(set(command, ctx));
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        return set(command);
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |    
-      |    @CommandHandler(name = "Get")
-      |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        return Reply.message(get(command, ctx));
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        return get(command);
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |    
-      |    @EventHandler
-      |    public abstract void setEvent(EntityOuterClass.SetEvent event);
-      |}""".stripMargin
-    )
-  }
-
-  test("ValueEntity interface source") {
-    val service     = simpleService()
-    val entity      = valueEntity()
-    val packageName = "com.example.service"
-    val className   = "MyService"
-
-    val sourceDoc = SourceGenerator.interfaceSource(service, entity, packageName, className)
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.valueentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** A value entity. */
-      |public abstract class MyServiceInterface {
-      |    
-      |    public class CommandNotImplementedException extends UnsupportedOperationException {
-      |        public CommandNotImplementedException() {
-      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-      |        }
-      |    }
-      |    
-      |    @CommandHandler(name = "Set")
-      |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.message(set(command, ctx));
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return set(command);
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |    
-      |    @CommandHandler(name = "Get")
-      |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.message(get(command, ctx));
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return get(command);
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |}""".stripMargin
-    )
-  }
-
-  test("EventSourcedEntity test source") {
-    val service = simpleService()
-    val entity  = eventSourcedEntity()
-
-    val packageName   = "com.example.service"
-    val implClassName = "MyServiceEntityImpl"
-    val testClassName = "MyServiceEntityTest"
-
-    val sourceDoc =
-      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-        |import com.external.Empty;
-        |import org.junit.Test;
-        |import org.mockito.*;
-        |
-        |import static org.junit.Assert.assertThrows;
-        |
-        |public class MyServiceEntityTest {
-        |    private String entityId = "entityId1";
-        |    private MyServiceEntityImpl entity;
-        |    private CommandContext context = Mockito.mock(CommandContext.class);
-        |    
-        |    private class MockedContextFailure extends RuntimeException {};
-        |    
-        |    @Test
-        |    public void setTest() {
-        |        entity = new MyServiceEntityImpl(entityId);
-        |        
-        |        Mockito.when(context.fail("The command handler for `Set` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
-        |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.setWithReply(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        });
-        |        
-        |        // TODO: if you wish to verify events:
-        |        //    Mockito.verify(context).emit(event);
-        |    }
-        |    
-        |    @Test
-        |    public void getTest() {
-        |        entity = new MyServiceEntityImpl(entityId);
-        |        
-        |        Mockito.when(context.fail("The command handler for `Get` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
-        |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.getWithReply(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        });
-        |        
-        |        // TODO: if you wish to verify events:
-        |        //    Mockito.verify(context).emit(event);
-        |    }
-        |}""".stripMargin
-    )
-  }
-
-  test("ValueEntity test source") {
-    val service = simpleService()
-    val entity  = valueEntity()
-
-    val packageName   = "com.example.service"
-    val implClassName = "MyServiceImpl"
-    val testClassName = "MyServiceTest"
-
-    val sourceDoc =
-      SourceGenerator.testSource(service, entity, packageName, implClassName, testClassName)
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.valueentity.CommandContext;
-        |import com.example.service.persistence.EntityOuterClass;
-        |import com.external.Empty;
-        |import org.junit.Test;
-        |import org.mockito.*;
-        |
-        |import static org.junit.Assert.assertThrows;
-        |
-        |public class MyServiceTest {
-        |    private String entityId = "entityId1";
-        |    private MyServiceImpl entity;
-        |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
-        |    
-        |    private class MockedContextFailure extends RuntimeException {};
-        |    
-        |    @Test
-        |    public void setTest() {
-        |        entity = new MyServiceImpl(entityId);
-        |        
-        |        Mockito.when(context.fail("The command handler for `Set` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
-        |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.setWithReply(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        });
-        |    }
-        |    
-        |    @Test
-        |    public void getTest() {
-        |        entity = new MyServiceImpl(entityId);
-        |        
-        |        Mockito.when(context.fail("The command handler for `Get` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
-        |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.getWithReply(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        });
-        |    }
-        |}""".stripMargin
-    )
-  }
-
-  test("Integration test source") {
-    val mainPackageName = "com.example.service"
-    val mainClassName   = "SomeMain"
-
-    val service = simpleService()
-    val entity  = eventSourcedEntity()
-
-    val packageName              = "com.example.service"
-    val integrationTestClassName = "MyServiceEntityIntegrationTest"
-
-    val sourceDoc =
-      SourceGenerator.integrationTestSource(
-        mainPackageName,
-        mainClassName,
-        service,
-        entity,
-        packageName,
-        integrationTestClassName
-      )
-    assertEquals(
-      sourceDoc.layout,
-      """package com.example.service;
-        |
-        |import com.example.service.SomeMain;
-        |import com.example.service.MyServiceClient;
-        |import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-        |import org.junit.ClassRule;
-        |import org.junit.Test;
-        |
-        |import static java.util.concurrent.TimeUnit.*;
-        |
-        |// Example of an integration test calling our service via the Akka Serverless proxy
-        |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
-        |public class MyServiceEntityIntegrationTest {
-        |    
-        |    /**
-        |     * The test kit starts both the service container and the Akka Serverless proxy.
-        |     */
-        |    @ClassRule
-        |    public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(SomeMain.SERVICE);
-        |    
-        |    /**
-        |     * Use the generated gRPC client to call the service through the Akka Serverless proxy.
-        |     */
-        |    private final MyServiceClient client;
-        |    
-        |    public MyServiceEntityIntegrationTest() {
-        |        client = MyServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
-        |    }
-        |    
-        |    @Test
-        |    public void setOnNonExistingEntity() throws Exception {
-        |        // TODO: set fields in command, and provide assertions to match replies
-        |        // client.set(ServiceOuterClass.SetValue.newBuilder().build())
-        |        //         .toCompletableFuture().get(2, SECONDS);
-        |    }
-        |    
-        |    @Test
-        |    public void getOnNonExistingEntity() throws Exception {
-        |        // TODO: set fields in command, and provide assertions to match replies
-        |        // client.get(ServiceOuterClass.GetValue.newBuilder().build())
-        |        //         .toCompletableFuture().get(2, SECONDS);
-        |    }
-        |}""".stripMargin
-    )
-  }
-
   test("generated main source") {
-    val service1Proto = serviceProto("1")
-    val service2Proto = serviceProto("2")
-    val service3Proto = serviceProto("3").copy(pkg = "com.example.service.something")
+    val service1Proto = TestData.serviceProto("1")
+    val service2Proto = TestData.serviceProto("2")
+    val service3Proto = TestData.serviceProto("3").copy(pkg = "com.example.service.something")
+    val service4Proto = TestData.serviceProto("4").copy(pkg = "com.example.service.view")
 
     val services = Map(
-      "com.example.Service1" -> simpleService(service1Proto, "1"),
-      "com.example.Service2" -> simpleService(service2Proto, "2"),
-      "com.example.Service3" -> simpleService(service3Proto, "3")
+      "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
+      "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
+      "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
+      "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4")
     )
 
     val entities = Map(
-      "com.example.Entity1" -> eventSourcedEntity(suffix = "1"),
-      "com.example.Entity2" -> valueEntity(suffix = "2"),
-      "com.example.Entity3" -> eventSourcedEntity(suffix = "3")
+      "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
+      "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
+      "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3")
     )
 
     val mainPackageName = "com.example.service"
@@ -649,13 +163,17 @@ class SourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
-        |import com.example.service.persistence.MyEntity1Impl;
         |import com.example.service.persistence.EntityOuterClass1;
-        |import com.example.service.persistence.MyValueEntity2Impl;
         |import com.example.service.persistence.EntityOuterClass2;
-        |import com.example.service.persistence.MyEntity3Impl;
         |import com.example.service.persistence.EntityOuterClass3;
+        |import com.example.service.persistence.EntityOuterClass4;
+        |import com.example.service.persistence.MyEntity1Impl;
+        |import com.example.service.persistence.MyEntity3Impl;
+        |import com.example.service.persistence.MyValueEntity2Impl;
         |import com.example.service.something.ServiceOuterClass3;
+        |import com.example.service.view.MyService4Impl;
+        |import com.example.service.view.ServiceOuterClass4;
+        |import com.external.ExternalDomain;
         |
         |public final class SomeMainComponentRegistrations {
         |    
@@ -664,17 +182,26 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                .registerEventSourcedEntity(
         |                    MyEntity1Impl.class,
         |                    ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
-        |                    EntityOuterClass1.getDescriptor()
+        |                    EntityOuterClass1.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerValueEntity(
         |                    MyValueEntity2Impl.class,
         |                    ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
-        |                    EntityOuterClass2.getDescriptor()
+        |                    EntityOuterClass2.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerEventSourcedEntity(
         |                    MyEntity3Impl.class,
         |                    ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
-        |                    EntityOuterClass3.getDescriptor()
+        |                    EntityOuterClass3.getDescriptor(),
+        |                    ExternalDomain.getDescriptor()
+        |                )
+        |                .registerView(
+        |                    MyService4Impl.class,
+        |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
+        |                    "my-view-id4",
+        |                    EntityOuterClass4.getDescriptor()
         |                );
         |    }
         |}""".stripMargin
