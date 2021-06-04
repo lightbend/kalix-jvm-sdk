@@ -40,6 +40,7 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/java-customer-registry/ "${managed_examples}/java-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 
 deploy: clean managed
 	bin/deploy.sh --module ${module} --upstream ${upstream} --branch ${branch} ${sources}
