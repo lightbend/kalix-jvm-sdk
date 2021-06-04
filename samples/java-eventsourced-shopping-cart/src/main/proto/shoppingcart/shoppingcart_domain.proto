@@ -32,22 +32,22 @@ option (akkaserverless.file).event_sourced_entity = {
 };
 
 message LineItem {
-    string productId = 1;
-    string name = 2;
-    int32 quantity = 3;
+  string productId = 1;
+  string name = 2;
+  int32 quantity = 3;
 }
 
 // The item added event.
 message ItemAdded {
-    LineItem item = 1;
+  LineItem item = 1;
 }
 
 // The item removed event.
 message ItemRemoved {
-    string productId = 1;
+  string productId = 1;
 }
 
 // The shopping cart state.
 message Cart {
-    repeated LineItem items = 1;
+  repeated LineItem items = 1;
 }
