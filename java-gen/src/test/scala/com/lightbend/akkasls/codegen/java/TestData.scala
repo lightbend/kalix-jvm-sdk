@@ -77,10 +77,17 @@ object TestData {
           streamedOutput = false
         ),
         ModelBuilder.Command(
-          FullyQualifiedName("StreamedMethod", proto),
+          FullyQualifiedName("StreamedOutputMethod", proto),
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
           streamedInput = false,
+          streamedOutput = true
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("FullStreamedMethod", proto),
+          FullyQualifiedName("MyRequest", proto),
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = true,
           streamedOutput = true
         )
       )
