@@ -137,6 +137,28 @@ jobs:
           command: make -C docs
       - save_sbt_cache
 
+  samples-tests:
+    machine: true
+    description: "Maven Samples Integreation Tests"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_sbt_cache
+      - run: 
+          name: "Publish local maven"
+          command: | 
+            # tail 2 + head 1 because CircleCI adds an extra line
+            # the SDK_VERSION is later used to run the maven tests (see below)
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            sbt publishM2
+      - run: 
+          name: Run integration tests for Value Entities sample
+          command: |
+            cd samples/java-valueentity-shopping-cart 
+            echo "Running mvn with syntetic SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+      - save_sbt_cache
+
   publish:
     docker:
       - image: circleci/openjdk:11
@@ -189,6 +211,10 @@ workflows:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
               only: /.*/
+      - samples-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/ 
       - tck-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
@@ -207,8 +233,9 @@ workflows:
             - checks
             - tests
             - integration-tests
+            - samples-tests    
             - tck-tests
-            - validate-docs
+            - validate-docs   
       - publish-tck:
           filters: # version tags only
             tags:

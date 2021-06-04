@@ -3,25 +3,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.akkaseverless.samples</groupId>
-    <artifactId>valueentity-shoppingcart</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+  <groupId>com.example</groupId>
+  <artifactId>valueentity-counter</artifactId>
+  <version>0.1</version>
+  <packaging>jar</packaging>
 
-    <name>Shopping Cart as Value Entity</name>
-
+  <name>first-service</name>
     <properties>
-      <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-      <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
-      <dockerTag>${project.version}</dockerTag>
-      <mainClass>com.example.shoppingcart.Main</mainClass>
 
-      <jdk.target>11</jdk.target>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerTag>${project.version}</dockerTag>
+    <mainClass>com.example.Main</mainClass>
 
-      <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
-      <akkasls-maven-plugin.version>0.30.0</akkasls-maven-plugin.version>
-      <akka-grpc.version>1.1.1</akka-grpc.version>
+    <jdk.target>11</jdk.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
+    <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
   <build>
@@ -97,7 +96,7 @@
               </protocPlugins>
             </configuration>
           </execution>
-        </executions>
+      </executions>
       </plugin>
 
       <plugin>
@@ -127,7 +126,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.26.1</version>
+        <version>0.36.0</version>
         <configuration>
           <images>
             <image>
@@ -205,7 +204,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>${akkasls-maven-plugin.version}</version>
+        <version>0.30.0</version>
         <executions>
           <execution>
             <goals>

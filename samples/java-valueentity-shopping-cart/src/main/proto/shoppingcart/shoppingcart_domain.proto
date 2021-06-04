@@ -17,7 +17,7 @@
 // tag::domain[]
 syntax = "proto3";
 
-package com.example.valueentity.shoppingcart.domain;
+package com.example.shoppingcart.domain;
 
 option java_outer_classname = "ShoppingCartDomain";
 
