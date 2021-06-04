@@ -13,5 +13,5 @@ option (akkaserverless.file).value_entity = { // <4>
 };
 
 message CounterState { // <8>
-    int32 value = 1;
+  int32 value = 1;
 }
