@@ -31,7 +31,8 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { EventSourcedEntity } from "@lightbend/akkaserverless-javascript-sdk";
+      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+        |const EventSourcedEntity = akkaserverless.EventSourcedEntity;
         |
         |/**
         | * Type definitions.
@@ -108,7 +109,8 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { ValueEntity } from "@lightbend/akkaserverless-javascript-sdk";
+      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+        |const ValueEntity = akkaserverless.ValueEntity;
         |
         |/**
         | * Type definitions.

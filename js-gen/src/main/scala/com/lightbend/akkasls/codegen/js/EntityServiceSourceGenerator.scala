@@ -122,9 +122,11 @@ object EntityServiceSourceGenerator {
       case _: ModelBuilder.ValueEntity        => "ValueEntity"
     }
     pretty(
-      "import" <+> braces(" " <> entityType <> " ") <+> "from" <+> dquotes(
+      "import" <+> "akkaserverless" <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
+      "const" <+> entityType <+> equal <+> "akkaserverless." <> entityType
+      <> semi <> line <>
       line <>
       blockComment(
         Seq[Doc](
