@@ -25,17 +25,30 @@ import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
+import akka.Done
+import akka.actor.CoordinatedShutdown
+import com.google.protobuf.empty.Empty
 import org.slf4j.LoggerFactory
 
 class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
 
   private val log = LoggerFactory.getLogger(getClass)
+
+  // Delay CoordinatedShutdown until the proxy has been terminated.
+  // This is updated from the `discover` call with a new Promise. Completed in the `proxyTerminated` call.
+  private val proxyTerminatedRef = new AtomicReference[Promise[Done]](Promise.successful(Done))
+
+  CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "wait-for-proxy-terminated") { () =>
+    proxyTerminatedRef.get().future
+  }
 
   private def configuredOrElse(key: String, default: String): String =
     if (system.settings.config.hasPath(key)) system.settings.config.getString(key) else default
@@ -67,6 +80,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       // only (silently) send service info for hybrid proxy version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
     } else {
+      proxyTerminatedRef.getAndSet(Promise[Done]()).trySuccess(Done)
       log.info(
         "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
         in.proxyName,
@@ -243,4 +257,10 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         }
       }
     }
+
+  override def proxyTerminated(in: Empty): Future[Empty] = {
+    log.debug("Proxy terminated")
+    proxyTerminatedRef.get().trySuccess(Done)
+    Future.successful(Empty.defaultInstance)
+  }
 }
