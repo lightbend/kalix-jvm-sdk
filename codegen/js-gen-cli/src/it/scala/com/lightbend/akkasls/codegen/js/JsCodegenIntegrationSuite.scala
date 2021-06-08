@@ -405,6 +405,132 @@ class JsCodegenIntegrationSuite extends munit.FunSuite {
     proxyContainer.stop()
   }
 
+  /**
+    * Action Services
+    *
+    * note: since an action without implementation can't gracefully report errors,
+    * we simply check it compiles before making changes rather than running a
+    * dedicated unmodified action test
+    */
+
+  test("verify simple implementation of action") {
+    val entityName = "simple-impl-action"
+
+    // Generate a new entity within the codegen container
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "create-akkasls-entity",
+        entityName,
+        "--template",
+        "event-sourced-entity"
+      )
+    )
+
+    // Remove default proto definitions
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "rm",
+        s"/home/$entityName/proto/myentity_api.proto",
+        s"/home/$entityName/proto/myentity_domain.proto"
+      )
+    )
+
+    // Replace proto with an action definition
+    codegenContainer.copyFileToContainer(
+      MountableFile.forClasspathResource("proto/action-service.proto"),
+      s"/home/$entityName/proto/myactionservice_action.proto"
+    )
+
+    // Setup and build the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
+
+    // Stream generated action, and replace function bodies with simple implementations
+    val implFile = Files.createTempFile("generated-service-impl", ".js")
+    val implContainerPath =
+      s"/home/${entityName}/src/myactionservice.js"
+    Using(new PrintWriter(implFile.toFile())) { writer =>
+      codegenContainer.copyFileFromContainer(
+        implContainerPath,
+        Source
+          .fromInputStream(_)
+          .getLines()
+          .flatMap {
+            case """    throw new Error("The command handler for `SingleMethod` is not implemented, yet");""" =>
+              Seq(
+                """    return { type: "Response", value: request.value + 1 };"""
+              )
+            case """    throw new Error("The command handler for `StreamedMethod` is not implemented, yet");""" =>
+              Seq(
+                """    [...Array(request.value).keys()].forEach(i =>""",
+                """      ctx.write({ type: "Response", value: i })""",
+                """    );""",
+                """    ctx.end();"""
+              )
+            case line => Seq(line)
+          }
+          .foreach { line =>
+            println(line)
+            writer.write(s"${line}\n")
+          }
+      )
+    }
+    codegenContainer.copyFileToContainer(MountableFile.forHostPath(implFile), implContainerPath)
+
+    // Start the entity gRPC server
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/start-entity.sh",
+        entityName
+      )
+    )
+
+    // Start the proxy
+    proxyContainer.start()
+    val proxyUrl = s"http://${proxyContainer.getHost}:${proxyContainer.getMappedPort(9000)}"
+
+    // Eventually, a SingleMethod request should return a 200 OK
+    var getResult = retryUntil[requests.Response](_.statusCode == 200) {
+      requests.post(
+        s"$proxyUrl/com.example.MyActionService/SingleMethod",
+        check = false,
+        data = """{"value": 99}""",
+        headers = Map("Content-Type" -> "application/json")
+      )
+    }
+    assertEquals(getResult.statusCode, 200)
+    assertEquals(getResult.text(), """{"value":100}""")
+
+    val streamedResult = requests.post(
+      s"$proxyUrl/com.example.MyActionService/StreamedMethod",
+      check = false,
+      data = """{"value": 3}""",
+      headers = Map("Content-Type" -> "application/json")
+    )
+    assertEquals(streamedResult.statusCode, 200)
+
+    assertEquals(
+      streamedResult.text(),
+      """|{"value":0}
+         |{"value":1}
+         |{"value":2}
+         |""".stripMargin
+    )
+
+    // Kill the gRPC server, and stop the proxy
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/stop-entity.sh",
+        entityName
+      )
+    )
+    proxyContainer.stop()
+  }
+
   def assertSuccessful(result: Container.ExecResult) = {
     val success = result.getExitCode() == 0
     if (!success) {

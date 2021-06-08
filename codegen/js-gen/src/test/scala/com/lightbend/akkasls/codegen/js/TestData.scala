@@ -110,6 +110,44 @@ object TestData {
       )
     )
 
+  def simpleActionService(
+      proto: PackageNaming = serviceProto(),
+      suffix: String = ""
+  ): ModelBuilder.ActionService =
+    ModelBuilder.ActionService(
+      FullyQualifiedName(s"MyService$suffix", proto),
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("Simple", proto),
+          FullyQualifiedName("Request", domainProto(suffix)),
+          FullyQualifiedName("Response", proto),
+          streamedInput = false,
+          streamedOutput = false
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("StreamedIn", proto),
+          FullyQualifiedName("Request", domainProto(suffix)),
+          FullyQualifiedName("Response", proto),
+          streamedInput = true,
+          streamedOutput = false
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("StreamedOut", proto),
+          FullyQualifiedName("Request", domainProto(suffix)),
+          FullyQualifiedName("Response", proto),
+          streamedInput = false,
+          streamedOutput = true
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("FullyStreamed", proto),
+          FullyQualifiedName("Request", domainProto(suffix)),
+          FullyQualifiedName("Response", proto),
+          streamedInput = true,
+          streamedOutput = true
+        )
+      )
+    )
+
   def eventSourcedEntity(
       suffix: String = ""
   ): ModelBuilder.EventSourcedEntity =
