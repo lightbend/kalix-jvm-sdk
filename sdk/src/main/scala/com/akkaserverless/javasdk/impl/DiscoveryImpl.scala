@@ -80,7 +80,10 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       // only (silently) send service info for hybrid proxy version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
     } else {
-      proxyTerminatedRef.getAndSet(Promise[Done]()).trySuccess(Done)
+      // don't wait for proxy termination in dev-mode, because the user function may be stopped without stopping the proxy
+      val proxyTerminatedPromise = if (in.devMode) Promise.successful[Done](Done) else Promise[Done]()
+      proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
+
       log.info(
         "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
         in.proxyName,
