@@ -145,7 +145,7 @@ object ModelBuilder {
 
           methods = serviceDescriptor.getMethods.asScala
           commands =
-            methods.map(Command.from(_))
+            methods.map(Command.from)
 
           service <- serviceType match {
             case ServiceType.SERVICE_TYPE_ENTITY =>
