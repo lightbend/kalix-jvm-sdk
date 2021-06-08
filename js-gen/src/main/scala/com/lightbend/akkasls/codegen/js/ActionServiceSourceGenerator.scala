@@ -171,7 +171,9 @@ object ActionServiceSourceGenerator {
         nest(
           line <>
           "TypedAction" <> comma <> line <>
-          "ActionCommandHandlerContext"
+          "ActionCommandContext" <> comma <> line <>
+          "StreamedInCommandContext" <> comma <> line <>
+          "StreamedOutCommandContext"
         ) <> line
       ) <+> "from" <+> dquotes("../akkaserverless") <> semi <> line <>
       "import" <+> ProtoNs <+> "from" <+> dquotes("./proto") <> semi <> line <>
@@ -180,15 +182,32 @@ object ActionServiceSourceGenerator {
         nest(
           line <>
           ssep(
-            service.transformedUpdates.toSeq.map { update =>
-              update.fqn.name <> colon <+> parens(
+            service.commands.toSeq.map { command =>
+              command.fqn.name <> colon <+> parens(
                 nest(
                   line <>
-                  "event" <> colon <+> typeReference(update.inputType) <> comma <> line <>
-                  "state?" <> colon <+> typeReference(update.outputType) <> comma <> line <>
-                  "ctx" <> colon <+> "ActionCommandHandlerContext"
+                  (if (command.streamedInput) emptyDoc
+                   else {
+                     "request" <> colon <+> typeReference(command.inputType) <> comma <> line
+                   }) <>
+                  "ctx" <> colon <+> ssep(
+                    Seq(text("ActionCommandContext")) ++
+                    Seq("StreamedInCommandContext" <> angles(typeReference(command.inputType)))
+                      .filter(_ => command.streamedInput)
+                    ++
+                    Seq("StreamedOutCommandContext" <> angles(typeReference(command.outputType)))
+                      .filter(_ => command.streamedOutput),
+                    " & "
+                  )
                 ) <> line
-              ) <+> "=>" <+> typeReference(update.outputType) <> semi
+              ) <+> "=>" <+>
+              ssep(
+                (if (command.streamedOutput) Seq(text("void"))
+                 else Seq(typeReference(command.outputType), text("void"))).flatMap(returnType =>
+                  Seq(returnType, "Promise" <> angles(returnType))
+                ),
+                " | "
+              ) <> semi
             },
             line
           )

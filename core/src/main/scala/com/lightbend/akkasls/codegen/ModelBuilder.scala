@@ -8,7 +8,6 @@ package com.lightbend.akkasls.codegen
 import scala.jdk.CollectionConverters._
 import com.google.protobuf.Descriptors
 import com.akkaserverless.ServiceOptions.ServiceType
-import akka.protobufv3.internal.Descriptors.MethodDescriptor
 
 /**
   * Builds a model of entities and their properties from a protobuf descriptor
@@ -88,10 +87,6 @@ object ModelBuilder {
       override val commands: Iterable[Command],
       componentFullName: String
   ) extends Service(fqn, commands)
-
-  case class InputType(
-      fqn: FullyQualifiedName
-  )
 
   /**
     * A command is used to express the intention to alter the state of an Entity.
