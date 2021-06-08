@@ -71,6 +71,16 @@ object SourceGenerator extends PrettyPrinter {
           mainClassPackageName,
           mainClassName
         )
+      case service: ModelBuilder.ActionService =>
+        ActionServiceSourceGenerator.generate(
+          service,
+          sourceDirectory,
+          testSourceDirectory,
+          integrationTestSourceDirectory,
+          generatedSourceDirectory,
+          mainClassPackageName,
+          mainClassName
+        )
       case _ => Seq.empty
     } ++ {
       val mainClassPackagePath = packageAsPath(mainClassPackageName)
@@ -143,18 +153,35 @@ object SourceGenerator extends PrettyPrinter {
         }
       case service: ModelBuilder.ViewService =>
         Some(
-          FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
-          "registerView",
-          (if (service.transformedUpdates.nonEmpty) {
-             Seq(s"${service.fqn.name}Impl" <> ".class")
-           } else Seq.empty) ++ Seq(
-            service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-              dquotes(service.fqn.name)
+          (
+            FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
+            "registerView",
+            (if (service.transformedUpdates.nonEmpty) {
+               Seq(s"${service.fqn.name}Impl" <> ".class")
+             } else Seq.empty) ++ Seq(
+              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
+                dquotes(service.fqn.name)
+              ),
+              dquotes(service.viewId)
             ),
-            dquotes(service.viewId)
-          ),
-          service.fqn.parent,
-          service.commands.flatMap(command => Seq(command.inputType, command.outputType))
+            service.fqn.parent,
+            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
+          )
+        )
+      case service: ModelBuilder.ActionService =>
+        Some(
+          (
+            FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
+            "registerAction",
+            Seq(
+              s"${service.fqn.name}Impl" <> ".class",
+              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
+                dquotes(service.fqn.name)
+              )
+            ),
+            service.fqn.parent,
+            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
+          )
         )
       case _ => None
     }

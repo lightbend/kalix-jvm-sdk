@@ -4,7 +4,6 @@ IFS=$'\n\t'
 
 pushd $1
 
-mvn compile
 mvn exec:java > entity-logs.txt 2>&1 &
 echo $! > .akkasls-pid
 

@@ -88,6 +88,17 @@ object SourceGenerator extends PrettyPrinter {
           indexFilename,
           allProtoSources
         )
+      case service: ModelBuilder.ActionService =>
+        ActionServiceSourceGenerator.generate(
+          service,
+          protobufSourceDirectory,
+          sourceDirectory,
+          testSourceDirectory,
+          generatedSourceDirectory,
+          integrationTestSourceDirectory,
+          indexFilename,
+          allProtoSources
+        )
       case _ => Seq.empty
     } ++ {
       if (model.services.nonEmpty) {
@@ -175,6 +186,17 @@ object SourceGenerator extends PrettyPrinter {
           )
         }
       case ModelBuilder.ViewService(fqn, _, _, transformedUpdates) if transformedUpdates.nonEmpty =>
+        val serviceName = fqn.name.toLowerCase
+        Some(
+          (
+            serviceName,
+            generatedSourceDirectory.toAbsolutePath
+              .relativize(sourceDirectory.toAbsolutePath)
+              .resolve(s"$serviceName.js")
+              .toString
+          )
+        )
+      case ModelBuilder.ActionService(fqn, _) =>
         val serviceName = fqn.name.toLowerCase
         Some(
           (

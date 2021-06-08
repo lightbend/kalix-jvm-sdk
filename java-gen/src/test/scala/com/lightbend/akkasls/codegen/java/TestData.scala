@@ -47,15 +47,50 @@ object TestData {
         ModelBuilder.Command(
           FullyQualifiedName("Set", proto),
           FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = false,
+          streamedOutput = false
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Get", proto),
           FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
+          FullyQualifiedName("MyState", proto),
+          streamedInput = false,
+          streamedOutput = false
         )
       ),
       s"com.example.Entity$suffix"
+    )
+
+  def simpleActionService(
+      proto: PackageNaming = serviceProto(),
+      suffix: String = ""
+  ): ModelBuilder.ActionService =
+    ModelBuilder.ActionService(
+      FullyQualifiedName(s"MyService$suffix", proto),
+      List(
+        ModelBuilder.Command(
+          FullyQualifiedName("SimpleMethod", proto),
+          FullyQualifiedName("MyRequest", proto),
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = false,
+          streamedOutput = false
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("StreamedOutputMethod", proto),
+          FullyQualifiedName("MyRequest", proto),
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = false,
+          streamedOutput = true
+        ),
+        ModelBuilder.Command(
+          FullyQualifiedName("FullStreamedMethod", proto),
+          FullyQualifiedName("MyRequest", proto),
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = true,
+          streamedOutput = true
+        )
+      )
     )
 
   def simpleViewService(
@@ -68,12 +103,16 @@ object TestData {
         ModelBuilder.Command(
           FullyQualifiedName("Created", proto),
           FullyQualifiedName("EntityCreated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
+          FullyQualifiedName("ViewState", proto),
+          streamedInput = false,
+          streamedOutput = false
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Updated", proto),
           FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
+          FullyQualifiedName("ViewState", proto),
+          streamedInput = false,
+          streamedOutput = false
         )
       ),
       s"my-view-id$suffix",
@@ -81,12 +120,16 @@ object TestData {
         ModelBuilder.Command(
           FullyQualifiedName("Created", proto),
           FullyQualifiedName("EntityCreated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
+          FullyQualifiedName("ViewState", proto),
+          streamedInput = false,
+          streamedOutput = false
         ),
         ModelBuilder.Command(
           FullyQualifiedName("Updated", proto),
           FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
+          FullyQualifiedName("ViewState", proto),
+          streamedInput = false,
+          streamedOutput = false
         )
       )
     )

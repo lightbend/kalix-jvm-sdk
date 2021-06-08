@@ -62,11 +62,25 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
   // Start the codegen container (the proxy fails its health checks until a service is available)
   codegenContainer.start()
 
+  /**
+    * 
+    * Event Sourced Entity Services
+    * 
+    */
+
   test("verify unmodified generated event sourced entity") {
     val entityName = "unmodified-eventsourced-entity"
 
     // Generate a new entity within the codegen container
     assertSuccessful(generateEntity(codegenContainer)(entityName))
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
 
     // Start the entity gRPC server
     assertSuccessful(
@@ -111,9 +125,8 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Build the initial implementation
     assertSuccessful(
       codegenContainer.execInContainer(
-        "bash",
-        "-c",
-        s"cd ${entityName} && mvn compile"
+        "./scripts/setup-entity.sh",
+        entityName
       )
     )
 
@@ -156,6 +169,14 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
       )
     }
     codegenContainer.copyFileToContainer(MountableFile.forHostPath(implFile), implContainerPath)
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
 
     // Start the entity gRPC server
     assertSuccessful(
@@ -210,6 +231,12 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     )
     proxyContainer.stop()
   }
+  
+  /**
+   * 
+    * Value Entity Services
+    * 
+    */
 
   test("verify unmodified generated value entity") {
     val entityName = "unmodified-value-entity"
@@ -221,6 +248,14 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     codegenContainer.copyFileToContainer(
       MountableFile.forClasspathResource("proto/value-entity-domain.proto"),
       s"/home/$entityName/src/main/proto/myentity_domain.proto"
+    )
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
     )
 
     // Start the entity gRPC server
@@ -272,9 +307,8 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     // Build the initial implementation
     assertSuccessful(
       codegenContainer.execInContainer(
-        "bash",
-        "-c",
-        s"cd ${entityName} && mvn compile"
+        "./scripts/setup-entity.sh",
+        entityName
       )
     )
 
@@ -314,6 +348,14 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
       )
     }
     codegenContainer.copyFileToContainer(MountableFile.forHostPath(implFile), implContainerPath)
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
 
     // Start the entity gRPC server
     assertSuccessful(
@@ -368,6 +410,138 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     )
     proxyContainer.stop()
   }
+
+  /**
+    *
+    * Action Services
+    * 
+    * note: since an action without implementation can't gracefully report errors,
+    * we simply check it compiles before making changes rather than running a
+    * dedicated unmodified action test
+    */
+
+  test("verify simple implementation for a generated action".only) {
+    val entityName = "simple-impl-action"
+
+    // Generate a new entity within the codegen container
+    assertSuccessful(generateEntity(codegenContainer)(entityName))
+
+    // Remove default proto definitions
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "rm",
+        s"/home/$entityName/src/main/proto/myentity_api.proto",
+        s"/home/$entityName/src/main/proto/myentity_domain.proto",
+      )
+    )
+
+    // Replace proto with an action definition
+    codegenContainer.copyFileToContainer(
+      MountableFile.forClasspathResource("proto/action-service.proto"),
+      s"/home/$entityName/src/main/proto/myactionservice_action.proto"
+    )
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
+
+    // Stream generated MyEntityImpl, and replace function bodies with simple implementations
+    val implFile = Files.createTempFile("generated-entity-impl", ".java")
+    val implContainerPath =
+      s"/home/${entityName}/src/main/java/com/example/MyActionServiceImpl.java"
+    Using(new PrintWriter(implFile.toFile())) { writer =>
+      codegenContainer.copyFileFromContainer(
+        implContainerPath,
+        Source
+          .fromInputStream(_)
+          .getLines()
+          .flatMap {
+            case """        throw new RuntimeException("The command handler for `SingleMethod` is not implemented, yet");""" =>
+              Seq(
+                """        int i = event.getValue()+1;""",
+                """        MyAction.Response response = MyAction.Response.newBuilder().setValue(i).build();""",
+                """        return Reply.message(response);"""
+              )
+            case """        throw new RuntimeException("The command handler for `StreamedMethod` is not implemented, yet");""" =>
+              Seq(
+                """        return Source.range(1, event.getValue()).map(i -> {""",
+                """            MyAction.Response response = MyAction.Response.newBuilder().setValue(i).build();""",
+                """            return Reply.message(response);""",
+                """        });"""
+              )
+            case line => Seq(line)
+          }
+          .foreach { line =>
+            println(line)
+            writer.write(s"${line}\n")
+          }
+      )
+    }
+    codegenContainer.copyFileToContainer(MountableFile.forHostPath(implFile), implContainerPath)
+
+    // Generate and compile the entity
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/setup-entity.sh",
+        entityName
+      )
+    )
+  
+    // Start the entity gRPC server
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/start-entity.sh",
+        entityName
+      )
+    )
+
+    // Start the proxy
+    proxyContainer.start()
+    val proxyUrl = s"http://${proxyContainer.getHost}:${proxyContainer.getMappedPort(9000)}"
+
+    // Eventually, a SingleMethod request should return a 200 OK
+    var getResult = retryUntil[requests.Response](_.statusCode == 200) {
+      requests.post(
+        s"$proxyUrl/com.example.MyActionService/SingleMethod",
+        check = false,
+        data = """{"value": 99}""",
+        headers = Map("Content-Type" -> "application/json")
+      )
+    }
+    assertEquals(getResult.statusCode, 200)
+    assertEquals(getResult.text(), """{"value":100}""")
+
+
+    val streamedResult = requests.post(
+        s"$proxyUrl/com.example.MyActionService/StreamedMethod",
+        check = false,
+        data = """{"value": 3}""",
+        headers = Map("Content-Type" -> "application/json")
+      )
+    assertEquals(streamedResult.statusCode, 200)
+    
+    assertEquals(
+      streamedResult.text(), 
+      """|{"value":1}
+         |{"value":2}
+         |{"value":3}
+         |""".stripMargin
+    )
+    
+    // Kill the gRPC server, and stop the proxy
+    assertSuccessful(
+      codegenContainer.execInContainer(
+        "./scripts/stop-entity.sh",
+        entityName
+      )
+    )
+    proxyContainer.stop()
+  }
+
 
   def generateEntity(
       container: AkkaslsJavaCodegenContainer

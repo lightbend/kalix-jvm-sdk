@@ -93,17 +93,23 @@ class ModelBuilderSuite extends munit.FunSuite {
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
+                FullyQualifiedName("Empty", googleEmptyProto),
+                streamedInput = false,
+                streamedOutput = false
               ),
               ModelBuilder.Command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
+                FullyQualifiedName("Empty", googleEmptyProto),
+                streamedInput = false,
+                streamedOutput = false
               ),
               ModelBuilder.Command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto)
+                FullyQualifiedName("Cart", shoppingCartProto),
+                streamedInput = false,
+                streamedOutput = false
               )
             ),
             entity.fqn.fullName
@@ -182,22 +188,30 @@ class ModelBuilderSuite extends munit.FunSuite {
               ModelBuilder.Command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
+                FullyQualifiedName("Empty", googleEmptyProto),
+                streamedInput = false,
+                streamedOutput = false
               ),
               ModelBuilder.Command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
+                FullyQualifiedName("Empty", googleEmptyProto),
+                streamedInput = false,
+                streamedOutput = false
               ),
               ModelBuilder.Command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto)
+                FullyQualifiedName("Cart", shoppingCartProto),
+                streamedInput = false,
+                streamedOutput = false
               ),
               ModelBuilder.Command(
                 FullyQualifiedName("RemoveCart", shoppingCartProto),
                 FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
+                FullyQualifiedName("Empty", googleEmptyProto),
+                streamedInput = false,
+                streamedOutput = false
               )
             ),
             entity.fqn.fullName
@@ -269,24 +283,32 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.Command(
             FullyQualifiedName("ProcessAdded", shoppingCartProto),
             FullyQualifiedName("ItemAdded", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
+            FullyQualifiedName("CartViewState", shoppingCartProto),
+            streamedInput = false,
+            streamedOutput = false
           ),
           ModelBuilder.Command(
             FullyQualifiedName("ProcessRemoved", shoppingCartProto),
             FullyQualifiedName("ItemRemoved", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
+            FullyQualifiedName("CartViewState", shoppingCartProto),
+            streamedInput = false,
+            streamedOutput = false
           ),
           ModelBuilder.Command(
             FullyQualifiedName("ProcessCheckedOut", shoppingCartProto),
             FullyQualifiedName("CheckedOut", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
+            FullyQualifiedName("CartViewState", shoppingCartProto),
+            streamedInput = false,
+            streamedOutput = false
           )
         )
       val queries = List(
         ModelBuilder.Command(
           FullyQualifiedName("GetCheckedOutCarts", shoppingCartProto),
           FullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartProto),
-          FullyQualifiedName("CartViewState", shoppingCartProto)
+          FullyQualifiedName("CartViewState", shoppingCartProto),
+          streamedInput = false,
+          streamedOutput = true
         )
       )
       assertEquals(
