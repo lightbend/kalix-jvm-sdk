@@ -1,6 +1,5 @@
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.4")
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
-// Note: check synced Protobuf version in Dependencies.scala when updating sbt-akka-grpc
 addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.0.0")
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.6.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
