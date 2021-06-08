@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>${groupId}</groupId>
@@ -22,6 +21,8 @@
 
     <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
+    <akka-streams.version>2.6.14</akka-streams.version>
+    <scala.binary.version>2.13</scala.binary.version>
   </properties>
 
   <build>
@@ -97,7 +98,7 @@
               </protocPlugins>
             </configuration>
           </execution>
-      </executions>
+        </executions>
       </plugin>
 
       <plugin>
@@ -320,6 +321,18 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-bom_${scala.binary.version}</artifactId>
+        <version>${akka-streams.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>com.akkaserverless</groupId>
@@ -342,6 +355,10 @@
       <groupId>ch.qos.logback.contrib</groupId>
       <artifactId>logback-jackson</artifactId>
       <version>0.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-stream_${scala.binary.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>com.akkaserverless</groupId>
