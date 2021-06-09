@@ -420,7 +420,7 @@ class JavaCodegenIntegrationSuite extends munit.FunSuite {
     * dedicated unmodified action test
     */
 
-  test("verify simple implementation for a generated action".only) {
+  test("verify simple implementation for a generated action") {
     val entityName = "simple-impl-action"
 
     // Generate a new entity within the codegen container
