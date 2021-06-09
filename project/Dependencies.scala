@@ -10,9 +10,7 @@ object Dependencies {
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.5"
 
-  // Note: sync with Protobuf version in Akka gRPC and ScalaPB
-  // https://github.com/akka/akka-grpc/blob/v1.1.1/project/Dependencies.scala#L77
-  val ProtobufVersion = "3.15.1"
+  val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
   val AkkaVersion = "2.6.14"
   val AkkaHttpVersion = "10.2.4" // Note: should at least the Akka HTTP version required by Akka gRPC
