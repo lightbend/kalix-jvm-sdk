@@ -22,7 +22,7 @@ jobs:
           repository: lightbend/akkaserverless-maven-java
           path: akkaserverless-maven-java
           token: ${{ secrets.ACCESS_TOKEN }}
-      - name: Clone Maven/Java tooling
+      - name: Clone NPM/Javascript tooling
         uses: actions/checkout@v2
         with:
           repository: lightbend/akkaserverless-npm-js
