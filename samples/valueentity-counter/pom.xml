@@ -204,7 +204,7 @@
       <plugin>
         <groupId>com.lightbend</groupId>
         <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.30.0</version>
+        <version>0.31.0</version>
         <executions>
           <execution>
             <goals>
