@@ -5,14 +5,14 @@
 
     <groupId>com.example</groupId>
     <artifactId>valueentity-shoppingcart</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Shopping Cart as Value Entity</name>
 
     <properties>
       <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-      <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+      <dockerImage>gcr.io/akkaserverless-public/samples-java-value-entity-shopping-cart</dockerImage>
       <dockerTag>${project.version}</dockerTag>
       <mainClass>com.example.shoppingcart.Main</mainClass>
 
@@ -20,7 +20,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
       <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
-      <akkasls-maven-plugin.version>0.30.0</akkasls-maven-plugin.version>
+      <akkasls-maven-plugin.version>0.31.0</akkasls-maven-plugin.version>
       <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
