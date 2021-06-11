@@ -27,59 +27,25 @@ package com.akkaserverless.javasdk.replicatedentity;
  * deltas synced to and from the proxy.
  */
 public interface ReplicatedDataFactory {
-  /**
-   * Create a new GCounter.
-   *
-   * @return The new GCounter.
-   */
-  GCounter newGCounter();
 
-  /**
-   * Create a new PNCounter.
-   *
-   * @return The new PNCounter.
-   */
-  PNCounter newPNCounter();
+  /** Create a new counter. */
+  ReplicatedCounter newCounter();
 
-  /**
-   * Create a new GSet.
-   *
-   * @return The new GSet.
-   */
-  <T> GSet<T> newGSet();
+  /** Create a new map of counters. */
+  <K> ReplicatedCounterMap<K> newReplicatedCounterMap();
 
-  /**
-   * Create a new ORSet.
-   *
-   * @return The new ORSet.
-   */
-  <T> ORSet<T> newORSet();
+  /** Create a new ReplicatedSet. */
+  <T> ReplicatedSet<T> newReplicatedSet();
 
-  /**
-   * Create a new Flag.
-   *
-   * @return The new Flag.
-   */
-  Flag newFlag();
+  /** Create a new ReplicatedRegister. */
+  <T> ReplicatedRegister<T> newRegister(T value);
 
-  /**
-   * Create a new LWWRegister.
-   *
-   * @return The new LWWRegister.
-   */
-  <T> LWWRegister<T> newLWWRegister(T value);
+  /** Create a new map of registers. */
+  <K, V> ReplicatedRegisterMap<K, V> newReplicatedRegisterMap();
 
-  /**
-   * Create a new ORMap.
-   *
-   * @return The new ORMap.
-   */
-  <K, V extends ReplicatedData> ORMap<K, V> newORMap();
+  /** Create a new ReplicatedMap. */
+  <K, V extends ReplicatedData> ReplicatedMap<K, V> newReplicatedMap(); // FIXME make internal
 
-  /**
-   * Create a new Vote.
-   *
-   * @return The new Vote.
-   */
+  /** Create a new Vote. */
   Vote newVote();
 }

@@ -29,7 +29,7 @@ package com.akkaserverless.javasdk.replicatedentity;
  *
  * @param <T>
  */
-public interface LWWRegister<T> extends ReplicatedData {
+public interface ReplicatedRegister<T> extends ReplicatedData {
 
   /**
    * Get the current value of the register.
@@ -79,7 +79,7 @@ public interface LWWRegister<T> extends ReplicatedData {
      * A custom clock.
      *
      * <p>The custom clock value is passed by using the <code>customClockValue</code> parameter on
-     * the {@link LWWRegister#set(Object, Clock, long)} method. The value should be a domain
+     * the {@link ReplicatedRegister#set(Object, Clock, long)} method. The value should be a domain
      * specific monotonically increasing value. For example, if the source of the value for this
      * register is a single device, that device may attach a sequence number to each update, that
      * sequence number can be used to guarantee that the register will converge to the last update

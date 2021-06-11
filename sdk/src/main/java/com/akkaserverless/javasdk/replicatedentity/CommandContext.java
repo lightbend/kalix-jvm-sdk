@@ -54,7 +54,7 @@ public interface CommandContext
    * <p>When a replicated entity is deleted, it may not be created again. Additionally, replicated
    * entity deletion results in tombstones that get accumulated for the life of the cluster. If you
    * expect to delete replicated entities frequently, it's recommended that you store them in a
-   * single or sharded {@link ORMap}, rather than individual replicated entities.
+   * single or sharded {@link ReplicatedMap}, rather than individual replicated entities.
    */
   void delete();
 }

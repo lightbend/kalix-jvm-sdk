@@ -22,19 +22,20 @@ import com.akkaserverless.javasdk.impl.AnySupport
 trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
   protected def anySupport: AnySupport
   protected def newEntity[E <: InternalReplicatedData](entity: E): E
-  override def newGCounter(): GCounter = newEntity(new GCounterImpl)
-  override def newPNCounter(): PNCounter = newEntity(new PNCounterImpl)
-  override def newGSet[T](): GSet[T] = newEntity(new GSetImpl[T](anySupport))
-  override def newORSet[T](): ORSet[T] = newEntity(new ORSetImpl[T](anySupport))
-  override def newFlag(): Flag = newEntity(new FlagImpl)
-  override def newLWWRegister[T](value: T): LWWRegister[T] = {
-    val register = newEntity(new LWWRegisterImpl[T](anySupport))
+  override def newCounter(): ReplicatedCounter = newEntity(new ReplicatedCounterImpl)
+  override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(newReplicatedMap[K, ReplicatedCounter]())
+  override def newReplicatedSet[T](): ReplicatedSet[T] = newEntity(new ReplicatedSetImpl[T](anySupport))
+  override def newRegister[T](value: T): ReplicatedRegister[T] = {
+    val register = newEntity(new ReplicatedRegisterImpl[T](anySupport))
     if (value != null) {
       register.set(value)
     }
     register
   }
-  override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] =
-    newEntity(new ORMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ORMap[K, V]]
+  override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] =
+    new ReplicatedRegisterMap(newReplicatedMap[K, ReplicatedRegister[V]]())
+  override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] =
+    newEntity(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
   override def newVote(): Vote = newEntity(new VoteImpl)
 }
