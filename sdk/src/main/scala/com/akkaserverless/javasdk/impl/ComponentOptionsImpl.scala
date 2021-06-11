@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions
+import com.akkaserverless.javasdk.ComponentOptions
 
-import java.util.Collections
 import java.util
+import java.util.Collections
 
-private[impl] case class ReplicatedEntityOptionsImpl(
-    override val passivationStrategy: PassivationStrategy,
-    override val forwardHeaders: java.util.Set[String]
-) extends ReplicatedEntityOptions {
+private[impl] final case class ComponentOptionsImpl(override val forwardHeaders: java.util.Set[String]) extends ComponentOptions {
 
-  override def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions =
-    copy(passivationStrategy = strategy)
-
-
-  override def withForwardHeaders(headers: util.Set[String]): ReplicatedEntityOptions =
+  override def withForwardHeaders(headers: util.Set[String]): ComponentOptions =
     copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
 }

@@ -231,9 +231,9 @@ trait Service {
   def entityType: String = descriptor.getName
 
   /**
-   * @return the options [[EntityOptions]] used by this service
+   * @return the options [[ComponentOptions]] or [[EntityOptions]] used by this service
    */
-  def entityOptions: Option[EntityOptions] = None
+  def componentOptions: Option[ComponentOptions] = None
 
   /**
    * @return a dictionary of service methods (Protobuf Descriptors.MethodDescriptor) classified by method name.

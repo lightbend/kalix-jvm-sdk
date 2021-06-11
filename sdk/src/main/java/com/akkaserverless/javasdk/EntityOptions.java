@@ -16,8 +16,10 @@
 
 package com.akkaserverless.javasdk;
 
+import java.util.Set;
+
 /** Options used for configuring an entity. */
-public interface EntityOptions {
+public interface EntityOptions extends ComponentOptions {
 
   /** @return the passivation strategy for an entity */
   PassivationStrategy passivationStrategy();

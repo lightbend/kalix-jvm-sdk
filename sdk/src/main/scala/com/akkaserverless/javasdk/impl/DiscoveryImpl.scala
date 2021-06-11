@@ -17,13 +17,14 @@
 package com.akkaserverless.javasdk.impl
 
 import java.nio.file.Files
-
 import akka.actor.ActorSystem
 import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
+import com.google.protobuf.empty.Empty
+
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
 
@@ -126,14 +127,19 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
 
       val components = services.map {
         case (name, service) =>
+          val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
           service.componentType match {
             case Actions.name =>
-              Component(service.componentType, name, Component.ComponentSettings.Empty)
+              Component(service.componentType, name, Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
             case _ =>
-              val passivationStrategy = entityPassivationStrategy(service.entityOptions)
+              val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect { case e: EntityOptions => e })
               Component(service.componentType,
                         name,
-                        Component.ComponentSettings.Entity(EntitySettings(service.entityType, passivationStrategy)))
+                        Component.ComponentSettings.Entity(EntitySettings(
+                          service.entityType,
+                          passivationStrategy,
+                          service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil)
+                          )))
           }
       }.toSeq
 

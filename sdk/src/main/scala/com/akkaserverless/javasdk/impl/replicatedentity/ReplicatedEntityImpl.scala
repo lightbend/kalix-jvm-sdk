@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Source}
+import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.replicatedentity.{ReplicatedData => _, _}
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
@@ -31,18 +32,17 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{M
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
+
 import java.util.function.Consumer
-import java.util.{function, Optional}
-
+import java.util.{Optional, function}
 import scala.jdk.CollectionConverters._
-
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandlerFactory,
                                             override val descriptor: Descriptors.ServiceDescriptor,
                                             val anySupport: AnySupport,
-                                            override val entityOptions: Option[ReplicatedEntityOptions])
+                                            val entityOptions: Option[ReplicatedEntityOptions])
     extends Service {
 
   def this(factory: ReplicatedEntityHandlerFactory,
@@ -60,6 +60,8 @@ final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandler
 
   private val streamed = descriptor.getMethods.asScala.filter(_.toProto.getServerStreaming).map(_.getName).toSet
   def isStreamed(command: String): Boolean = streamed(command)
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
 object ReplicatedEntityImpl {
