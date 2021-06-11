@@ -13,11 +13,11 @@ import com.google.protobuf.Empty;
 public class CounterImpl extends CounterInterface {
     @SuppressWarnings("unused")
     private final String entityId;
-    private final GCounter counter;
+    private final PNCounter counter;
 
     public CounterImpl(ReplicatedEntityCreationContext context) { // <2>
         this.entityId = context.entityId();
-        this.counter = context.state(GCounter.class).orElseGet(context::newGCounter);
+        this.counter = context.state(PNCounter.class).orElseGet(context::newPNCounter);
     }
     // end::class[]
 
@@ -40,7 +40,7 @@ public class CounterImpl extends CounterInterface {
             throw ctx.fail("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
 
-        counter.increment(-command.getValue());
+        counter.decrement(command.getValue());
 
         return Reply.message(Empty.getDefaultInstance());
     }
