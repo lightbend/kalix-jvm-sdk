@@ -19,31 +19,26 @@ package com.akkaserverless.javasdk.replicatedentity;
 import java.util.Map;
 
 /**
- * Convenience wrapper class for {@link ORMap} that uses {@link PNCounter}'s for values.
- *
- * <p>This offers a few extra methods for interacting with the map.
+ * A Map of counters. Uses {@link ReplicatedCounter}'s as values.
  *
  * @param <K> The type for keys.
  */
-public final class PNCounterMap<K> extends AbstractORMapWrapper<K, Long, PNCounter>
+public final class ReplicatedCounterMap<K> extends AbstractORMapWrapper<K, Long, ReplicatedCounter>
     implements Map<K, Long> {
 
-  public PNCounterMap(ORMap<K, PNCounter> ormap) {
+  public ReplicatedCounterMap(ORMap<K, ReplicatedCounter> ormap) {
     super(ormap);
   }
 
   /**
-   * Get the value for the given key.
-   *
-   * <p>This differs from {@link Map#get(Object)} in that it returns a primitive <code>long</code>,
-   * and thus avoids an allocation.
+   * Get the counter value for the given key.
    *
    * @param key The key to get the value for.
    * @return The current value of the counter at that key, or zero if no counter exists for that
    *     key.
    */
   public long getValue(Object key) {
-    PNCounter counter = ormap.get(key);
+    ReplicatedCounter counter = ormap.get(key);
     if (counter != null) {
       return counter.getValue();
     } else {
@@ -85,22 +80,22 @@ public final class PNCounterMap<K> extends AbstractORMapWrapper<K, Long, PNCount
   }
 
   @Override
-  Long getValue(PNCounter pnCounter) {
-    return pnCounter.getValue();
+  Long getValue(ReplicatedCounter counter) {
+    return counter.getValue();
   }
 
   @Override
-  void setValue(PNCounter pnCounter, Long value) {
+  void setValue(ReplicatedCounter counter, Long value) {
     throw new UnsupportedOperationException(
         "Using value mutating methods on PNCounterMap is not supported, use increment or decrement instead");
   }
 
   @Override
-  PNCounter getOrUpdateEntity(K key, Long value) {
-    return ormap.getOrCreate(key, ReplicatedDataFactory::newPNCounter);
+  ReplicatedCounter getOrUpdateEntity(K key, Long value) {
+    return ormap.getOrCreate(key, ReplicatedDataFactory::newCounter);
   }
 
-  private PNCounter getOrUpdate(Object key) {
-    return ormap.getOrCreate((K) key, ReplicatedDataFactory::newPNCounter);
+  private ReplicatedCounter getOrUpdate(Object key) {
+    return ormap.getOrCreate((K) key, ReplicatedDataFactory::newCounter);
   }
 }

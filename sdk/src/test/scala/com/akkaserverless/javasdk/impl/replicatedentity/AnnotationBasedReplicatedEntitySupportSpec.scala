@@ -111,7 +111,7 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
 
       "there is an optional replicated entity constructor and the replicated data has the wrong type" in {
         an[IllegalStateException] should be thrownBy create(classOf[OptionalEntityConstructorTest],
-                                                            Some(MockCreationContext.newGCounter()))
+                                                            Some(MockCreationContext.newCounter()))
       }
 
       "there is a replicated entity constructor and the entity is non empty" in {
@@ -124,7 +124,7 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
 
       "there is a replicated entity constructor and the relicated data has the wrong type" in {
         an[IllegalStateException] should be thrownBy create(classOf[ReplicatedEntityConstructorTest],
-                                                            Some(MockCreationContext.newGCounter()))
+                                                            Some(MockCreationContext.newCounter()))
       }
 
       "there is a provided entity factory" in {

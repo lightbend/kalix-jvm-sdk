@@ -22,8 +22,7 @@ import com.akkaserverless.javasdk.impl.AnySupport
 trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
   protected def anySupport: AnySupport
   protected def newEntity[E <: InternalReplicatedData](entity: E): E
-  override def newGCounter(): GCounter = newEntity(new GCounterImpl)
-  override def newPNCounter(): PNCounter = newEntity(new PNCounterImpl)
+  override def newCounter(): ReplicatedCounter = newEntity(new ReplicatedCounterImpl)
   override def newGSet[T](): GSet[T] = newEntity(new GSetImpl[T](anySupport))
   override def newORSet[T](): ORSet[T] = newEntity(new ORSetImpl[T](anySupport))
   override def newFlag(): Flag = newEntity(new FlagImpl)

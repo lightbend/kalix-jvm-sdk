@@ -53,10 +53,8 @@ public class TckModelReplicatedEntity {
       String name, ReplicatedEntityContext context) {
     String dataType = replicatedDataType(name);
     switch (dataType) {
-      case "GCounter":
-        return context.state(GCounter.class);
-      case "PNCounter":
-        return context.state(PNCounter.class);
+      case "ReplicatedCounter":
+        return context.state(ReplicatedCounter.class);
       case "GSet":
         return context.state(GSet.class);
       case "ORSet":
@@ -77,10 +75,8 @@ public class TckModelReplicatedEntity {
   private static ReplicatedData createReplicatedData(String name, ReplicatedDataFactory factory) {
     String dataType = replicatedDataType(name);
     switch (dataType) {
-      case "GCounter":
-        return factory.newGCounter();
-      case "PNCounter":
-        return factory.newPNCounter();
+      case "ReplicatedCounter":
+        return factory.newCounter();
       case "GSet":
         return factory.<String>newGSet();
       case "ORSet":
@@ -162,11 +158,8 @@ public class TckModelReplicatedEntity {
 
   private void applyUpdate(ReplicatedData replicatedData, Update update) {
     switch (update.getUpdateCase()) {
-      case GCOUNTER:
-        ((GCounter) replicatedData).increment(update.getGcounter().getIncrement());
-        break;
-      case PNCOUNTER:
-        ((PNCounter) replicatedData).increment(update.getPncounter().getChange());
+      case COUNTER:
+        ((ReplicatedCounter) replicatedData).increment(update.getCounter().getChange());
         break;
       case GSET:
         @SuppressWarnings("unchecked")
@@ -252,12 +245,9 @@ public class TckModelReplicatedEntity {
 
   private State dataState(ReplicatedData replicatedData) {
     State.Builder builder = State.newBuilder();
-    if (replicatedData instanceof GCounter) {
-      GCounter gcounter = (GCounter) replicatedData;
-      builder.setGcounter(GCounterValue.newBuilder().setValue(gcounter.getValue()));
-    } else if (replicatedData instanceof PNCounter) {
-      PNCounter pncounter = (PNCounter) replicatedData;
-      builder.setPncounter(PNCounterValue.newBuilder().setValue(pncounter.getValue()));
+    if (replicatedData instanceof ReplicatedCounter) {
+      ReplicatedCounter pncounter = (ReplicatedCounter) replicatedData;
+      builder.setCounter(ReplicatedCounterValue.newBuilder().setValue(pncounter.getValue()));
     } else if (replicatedData instanceof GSet) {
       @SuppressWarnings("unchecked")
       GSet<String> gset = (GSet<String>) replicatedData;

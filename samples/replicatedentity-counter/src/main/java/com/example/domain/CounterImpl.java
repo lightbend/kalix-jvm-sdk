@@ -13,11 +13,11 @@ import com.google.protobuf.Empty;
 public class CounterImpl extends CounterInterface {
     @SuppressWarnings("unused")
     private final String entityId;
-    private final PNCounter counter;
+    private final ReplicatedCounter counter;
 
     public CounterImpl(ReplicatedEntityCreationContext context) { // <2>
         this.entityId = context.entityId();
-        this.counter = context.state(PNCounter.class).orElseGet(context::newPNCounter);
+        this.counter = context.state(ReplicatedCounter.class).orElseGet(context::newCounter);
     }
     // end::class[]
 

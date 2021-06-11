@@ -4,7 +4,7 @@ object Dependencies {
   object AkkaServerless {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 7
-    val FrameworkVersion = "0.7.0-beta.10"
+    val FrameworkVersion = "0.7.0-beta.10-1-6939ea95-dev-SNAPSHOT"
   }
 
   // changing the Scala version of the Java SDK affects end users

@@ -158,8 +158,7 @@ private object ReplicatedEntityAnnotationHelper {
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
 
   private val injectorMap: Map[Class[_], ReplicatedEntityInjector[ReplicatedData, AnyRef]] = Map(
-    simple(_.newGCounter()),
-    simple(_.newPNCounter()),
+    simple(_.newCounter()),
     simple(_.newGSet()),
     simple(_.newORSet()),
     simple(_.newFlag()),
@@ -167,7 +166,7 @@ private object ReplicatedEntityAnnotationHelper {
     simple(_.newORMap()),
     simple(_.newVote()),
     orMapWrapper[LWWRegisterMap[AnyRef, AnyRef], LWWRegister[AnyRef]](new LWWRegisterMap(_)),
-    orMapWrapper[PNCounterMap[AnyRef], PNCounter](new PNCounterMap(_))
+    orMapWrapper[ReplicatedCounterMap[AnyRef], ReplicatedCounter](new ReplicatedCounterMap(_))
   )
 
   private def injector[D <: ReplicatedData, T](clazz: Class[T]): ReplicatedEntityInjector[D, T] =
@@ -253,8 +252,7 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
   override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
 
-  override def newGCounter(): GCounter = delegate.newGCounter()
-  override def newPNCounter(): PNCounter = delegate.newPNCounter()
+  override def newCounter(): ReplicatedCounter = delegate.newCounter()
   override def newGSet[T](): GSet[T] = delegate.newGSet()
   override def newORSet[T](): ORSet[T] = delegate.newORSet()
   override def newFlag(): Flag = delegate.newFlag()

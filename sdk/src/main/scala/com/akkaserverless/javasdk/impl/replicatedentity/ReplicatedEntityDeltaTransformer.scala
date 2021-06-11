@@ -23,10 +23,8 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
 
   def create(delta: ReplicatedEntityDelta, anySupport: AnySupport): InternalReplicatedData = {
     val entity = delta.delta match {
-      case ReplicatedEntityDelta.Delta.Gcounter(_) =>
-        new GCounterImpl
-      case ReplicatedEntityDelta.Delta.Pncounter(_) =>
-        new PNCounterImpl
+      case ReplicatedEntityDelta.Delta.Counter(_) =>
+        new ReplicatedCounterImpl
       case ReplicatedEntityDelta.Delta.Gset(_) =>
         new GSetImpl[Any](anySupport)
       case ReplicatedEntityDelta.Delta.Orset(_) =>

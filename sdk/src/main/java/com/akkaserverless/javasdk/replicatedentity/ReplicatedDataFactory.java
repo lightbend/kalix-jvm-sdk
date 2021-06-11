@@ -27,19 +27,9 @@ package com.akkaserverless.javasdk.replicatedentity;
  * deltas synced to and from the proxy.
  */
 public interface ReplicatedDataFactory {
-  /**
-   * Create a new GCounter.
-   *
-   * @return The new GCounter.
-   */
-  GCounter newGCounter();
 
-  /**
-   * Create a new PNCounter.
-   *
-   * @return The new PNCounter.
-   */
-  PNCounter newPNCounter();
+  /** Create a new counter. */
+  ReplicatedCounter newCounter();
 
   /**
    * Create a new GSet.
