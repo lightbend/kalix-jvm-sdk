@@ -4,16 +4,16 @@ package ${package}.domain;
 
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "MyEntityDomain";
+option java_outer_classname = "CounterDomain";
 
 option (akkaserverless.file).event_sourced_entity = {
-    name: "MyEntity"
-    entity_type: "my-entity-data"
-    state: "MyState"
+    name: "Counter"
+    entity_type: "counter"
+    state: "CounterState"
     events: ["ValueSet"]
 };
 
-message MyState {
+message CounterState {
     int32 value = 1;
 }
 
