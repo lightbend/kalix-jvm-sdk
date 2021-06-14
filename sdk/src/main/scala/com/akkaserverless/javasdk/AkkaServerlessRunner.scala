@@ -165,6 +165,8 @@ final class AkkaServerlessRunner private[this] (
       .get(system)
       .newServerAt(configuration.userFunctionInterface, configuration.userFunctionPort)
       .bind(createRoutes())
+      // note that DiscoveryImpl will add a task in PhaseBeforeServiceUnbind to wait
+      // for proxy termination
       .map(_.addToCoordinatedShutdown(3.seconds))
 
     bound.onComplete {
