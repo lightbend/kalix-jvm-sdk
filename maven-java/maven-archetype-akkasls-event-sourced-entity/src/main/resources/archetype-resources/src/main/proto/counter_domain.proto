@@ -10,14 +10,21 @@ option (akkaserverless.file).event_sourced_entity = {
     name: "Counter"
     entity_type: "counter"
     state: "CounterState"
-    events: ["ValueSet"]
+    events: ["ValueIncreased","ValueDecreased","ValueReset"]
 };
 
 message CounterState {
     int32 value = 1;
 }
 
-message ValueSet {
+message ValueIncreased {
     string entity_id = 1 [(akkaserverless.field).entity_key = true];
-    int32 value = 2;
+}
+
+message ValueDecreased {
+    string entity_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message ValueReset {
+    string entity_id = 1 [(akkaserverless.field).entity_key = true];
 }
