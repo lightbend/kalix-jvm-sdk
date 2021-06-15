@@ -57,6 +57,8 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   private object creationContext extends ActionCreationContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
+  private val actionHandlers: Map[String, ActionHandler] =
+    services.view.mapValues(_.factory.create(creationContext)).toMap
 
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
@@ -82,11 +84,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
    * side effects.
    */
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
-    services.get(in.serviceName) match {
-      case Some(service) =>
+    actionHandlers.get(in.serviceName) match {
+      case Some(handler) =>
         val context = createContext(in)
-        service.factory
-          .create(creationContext)
+        handler
           .handleUnary(in.name, MessageEnvelope.of(toJavaPbAny(in.payload), context.metadata()), context)
           .toScala
           .map(replyToActionResponse)
