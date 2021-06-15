@@ -9,7 +9,7 @@ mvn archetype:generate \
   -DarchetypeVersion=LATEST
 ```
 
-See the [Kickstart a Maven project](https://developer.lightbend.com/docs/akka-serverless/java-services/kickstart.html) in the documentation for details.
+See the [Kickstart a Maven project](https://developer.lightbend.com/docs/akka-serverless/java/kickstart.html) in the documentation for details.
 
 ## Building and running unit tests
 

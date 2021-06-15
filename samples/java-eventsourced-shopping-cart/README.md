@@ -8,7 +8,7 @@ This example project implements an API for a shopping cart using an Akka Serverl
   read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
 * developing - it may be useful to read up
   on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html) and in particular
-  the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
+  the [Java section](https://developer.lightbend.com/docs/akka-serverless/java/index.html)
 
 ## Building
 
@@ -44,7 +44,7 @@ mvn compile exec:java
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
-see [Transcoding HTTP](https://docs.lbcs.dev/js-services/proto.html#_transcoding_http)), this endpoint accepts POST
+see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST
 requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Send an AddItem command:
@@ -75,8 +75,8 @@ grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' loca
 
 ## Running integration tests
 
-The integration tests in `src/it` are added by setting it as test source directory. To Integration Tests in src/it/java
-with
+The integration tests in `src/it` are added by setting `it` as test source directory.
+To run the Integration Tests in `src/it/java` use
 
 ```shell
 mvn verify -Pit
@@ -93,6 +93,6 @@ You will need to update the `akkasls.dockerImage` property in the `pom.xml` and 
 for more information on how to make your docker image available to Akka Serverless.
 
 Finally, you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
-to create a project and then deploy your service into the project either by using `mvn deploy`, through the `akkasls`
-CLI or via the web interface. When using `mvn deploy`, Maven will also conveniently package and publish your docker
-image prior to deployment.
+to create a project and then deploy your service into the project either by using `mvn deploy`,
+through the `akkasls` CLI or via the web interface. When using `mvn deploy`, Maven will also
+conveniently package and publish your docker image prior to deployment.
