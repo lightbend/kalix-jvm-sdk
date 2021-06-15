@@ -1,6 +1,6 @@
 # Make Akka Serverless Java SDK documentation
 
-module   := java-services
+module   := java
 upstream := lightbend/akkaserverless-java-sdk
 branch   := docs/current
 sources  := src build/src/managed
@@ -20,6 +20,9 @@ clean:
 managed: attributes apidocs examples
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
+	# FIXME: remove after module renaming transition
+	# Copy the module to the old `java-services` as well
+	cp -r ${src_managed}/modules/${module} ${src_managed}/modules/java-services
 
 attributes:
 	mkdir -p "${managed_partials}"
