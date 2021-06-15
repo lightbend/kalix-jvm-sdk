@@ -1,0 +1,9 @@
+com.akkaserverless.javasdk
+com.akkaserverless.javasdk.action
+com.akkaserverless.javasdk.eventsourcedentity
+com.akkaserverless.javasdk.impl
+com.akkaserverless.javasdk.logging
+com.akkaserverless.javasdk.replicatedentity
+com.akkaserverless.javasdk.reply
+com.akkaserverless.javasdk.valueentity
+com.akkaserverless.javasdk.view
