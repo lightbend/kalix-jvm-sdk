@@ -46,21 +46,22 @@ commands:
             sudo dpkg -i sbt-<< parameters.version >>.deb
             rm sbt-<< parameters.version >>.deb
 
-  save_sbt_cache:
-    description: "Save sbt cache"
+  save_deps_cache:
+    description: "Save dependency cache"
     steps:
       - save_cache:
-          key: sbt-cache-01
+          key: deps-cache-01
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.cache/coursier"
+            - "~/.m2"
 
-  restore_sbt_cache:
-    description: "Restore sbt cache"
+  restore_deps_cache:
+    description: "Restore dependency cache"
     steps:
       - restore_cache:
-          key: sbt-cache-01
+          key: deps-cache-01
 
 jobs:
   checks:
@@ -70,7 +71,7 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run scalafmt checks
           command: |
@@ -86,7 +87,7 @@ jobs:
           command: |
             sbt headerCheckAll || \
               { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
-      - save_sbt_cache
+      - save_deps_cache
 
   tests:
     docker:
@@ -95,11 +96,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run tests
           command: sbt test
-      - save_sbt_cache
+      - save_deps_cache
 
   integration-tests:
     machine: true
@@ -107,11 +108,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run integration tests
           command: docker-compose -f .circleci/google-pubsub-emulator-docker-compose.yml up -d && sbt samples/It/test
-      - save_sbt_cache
+      - save_deps_cache
 
   tck-tests:
     machine: true
@@ -119,11 +120,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run TCK tests
           command: sbt tck/Test/run
-      - save_sbt_cache
+      - save_deps_cache
 
   validate-docs:
     machine: true
@@ -131,11 +132,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Validate docs
           command: make -C docs
-      - save_sbt_cache
+      - save_deps_cache
 
   samples-tests:
     machine: true
@@ -143,7 +144,7 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run: 
           name: "Publish local maven"
           command: | 
@@ -175,7 +176,7 @@ jobs:
             cd samples/replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
-      - save_sbt_cache
+      - save_deps_cache
 
   publish:
     docker:
@@ -183,9 +184,9 @@ jobs:
     steps:
       - checkout
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run: sbt ci-release
-      - save_sbt_cache
+      - save_deps_cache
 
   publish-tck:
     docker:
@@ -194,17 +195,17 @@ jobs:
       - checkout
       - setup_remote_docker
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
       - run: sbt tck/Docker/publish
-      - save_sbt_cache
+      - save_deps_cache
 
   publish-docs:
     machine: true
     steps:
       - checkout
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       # deploy key for pushing docs to branch
       - add_ssh_keys:
           fingerprints:
@@ -212,7 +213,7 @@ jobs:
       - run:
           name: Publish docs
           command: make -C docs deploy
-      - save_sbt_cache
+      - save_deps_cache
 
 workflows:
   CI:
