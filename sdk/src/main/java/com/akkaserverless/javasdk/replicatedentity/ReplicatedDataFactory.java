@@ -34,13 +34,6 @@ public interface ReplicatedDataFactory {
   /** Create a new ReplicatedSet. */
   <T> ReplicatedSet<T> newReplicatedSet();
 
-  /**
-   * Create a new Flag.
-   *
-   * @return The new Flag.
-   */
-  Flag newFlag();
-
   /** Create a new ReplicatedRegister. */
   <T> ReplicatedRegister<T> newRegister(T value);
 

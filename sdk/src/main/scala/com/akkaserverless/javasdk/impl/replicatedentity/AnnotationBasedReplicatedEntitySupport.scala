@@ -160,7 +160,6 @@ private object ReplicatedEntityAnnotationHelper {
   private val injectorMap: Map[Class[_], ReplicatedEntityInjector[ReplicatedData, AnyRef]] = Map(
     simple(_.newCounter()),
     simple(_.newReplicatedSet()),
-    simple(_.newFlag()),
     simple(_.newRegister()),
     simple(_.newORMap()),
     simple(_.newVote()),
@@ -253,7 +252,6 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
 
   override def newCounter(): ReplicatedCounter = delegate.newCounter()
   override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
-  override def newFlag(): Flag = delegate.newFlag()
   override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
   override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] = delegate.newORMap()
   override def newVote(): Vote = delegate.newVote()

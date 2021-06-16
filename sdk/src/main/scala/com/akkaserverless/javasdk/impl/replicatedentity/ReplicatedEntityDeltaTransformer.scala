@@ -27,8 +27,6 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
         new ReplicatedCounterImpl
       case ReplicatedEntityDelta.Delta.ReplicatedSet(_) =>
         new ReplicatedSetImpl[Any](anySupport)
-      case ReplicatedEntityDelta.Delta.Flag(_) =>
-        new FlagImpl
       case ReplicatedEntityDelta.Delta.Register(_) =>
         new ReplicatedRegisterImpl[Any](anySupport)
       case ReplicatedEntityDelta.Delta.Ormap(_) =>

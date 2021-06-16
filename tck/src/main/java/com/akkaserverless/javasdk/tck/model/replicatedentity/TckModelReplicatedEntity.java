@@ -59,8 +59,6 @@ public class TckModelReplicatedEntity {
         return context.state(ReplicatedSet.class);
       case "ReplicatedRegister":
         return context.state(ReplicatedRegister.class);
-      case "Flag":
-        return context.state(Flag.class);
       case "ORMap":
         return context.state(ORMap.class);
       case "Vote":
@@ -79,8 +77,6 @@ public class TckModelReplicatedEntity {
         return factory.<String>newReplicatedSet();
       case "ReplicatedRegister":
         return factory.newRegister("");
-      case "Flag":
-        return factory.newFlag();
       case "ORMap":
         return factory.<String, ReplicatedData>newORMap();
       case "Vote":
@@ -199,9 +195,6 @@ public class TckModelReplicatedEntity {
           register.set(newValue);
         }
         break;
-      case FLAG:
-        ((Flag) replicatedData).enable();
-        break;
       case ORMAP:
         @SuppressWarnings("unchecked")
         ORMap<String, ReplicatedData> ormap = (ORMap<String, ReplicatedData>) replicatedData;
@@ -251,8 +244,6 @@ public class TckModelReplicatedEntity {
       @SuppressWarnings("unchecked")
       ReplicatedRegister<String> register = (ReplicatedRegister<String>) replicatedData;
       builder.setRegister(ReplicatedRegisterValue.newBuilder().setValue(register.get()));
-    } else if (replicatedData instanceof Flag) {
-      builder.setFlag(FlagValue.newBuilder().setValue(((Flag) replicatedData).isEnabled()));
     } else if (replicatedData instanceof ORMap) {
       @SuppressWarnings("unchecked")
       ORMap<String, ReplicatedData> ormap = (ORMap<String, ReplicatedData>) replicatedData;
