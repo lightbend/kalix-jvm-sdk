@@ -157,7 +157,10 @@ jobs:
       - checkout-and-merge-to-main
       - restore_deps_cache
       - set-sdk-version
-      - install-java-11
+      - setup_sbt
+      - run: 
+          name: publish m2
+          command: sbt publishM2
       - run: 
           name: Build maven-java
           command: |
