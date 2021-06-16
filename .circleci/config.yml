@@ -14,7 +14,7 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          parent: rgc/feature-branch-maven-java
 
   install-java-11:
     description: install openjdk-11
@@ -46,21 +46,32 @@ commands:
             sudo dpkg -i sbt-<< parameters.version >>.deb
             rm sbt-<< parameters.version >>.deb
 
-  save_sbt_cache:
-    description: "Save sbt cache"
+  save_deps_cache:
+    description: "Save dependency cache"
     steps:
       - save_cache:
-          key: sbt-cache-01
+          key: deps-cache-01
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
+            - "~/.m2"
             - "~/.cache/coursier"
 
-  restore_sbt_cache:
-    description: "Restore sbt cache"
+  restore_deps_cache:
+    description: "Restore dependency cache"
     steps:
       - restore_cache:
-          key: sbt-cache-01
+          key: deps-cache-01
+
+  set-sdk-version: 
+    description: "Grab current SDK version"
+    steps: 
+      - run: 
+          name: "Set SDK version"
+          command: |
+            # tail 2 + head 1 because CircleCI adds an extra line
+            # the SDK_VERSION is later used to run the maven tests (see below)
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
 
 jobs:
   checks:
@@ -70,7 +81,7 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run scalafmt checks
           command: |
@@ -86,7 +97,7 @@ jobs:
           command: |
             sbt headerCheckAll || \
               { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
-      - save_sbt_cache
+      - save_deps_cache
 
   tests:
     docker:
@@ -95,11 +106,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run tests
           command: sbt test
-      - save_sbt_cache
+      - save_deps_cache
 
   integration-tests:
     machine: true
@@ -107,11 +118,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run integration tests
           command: docker-compose -f .circleci/google-pubsub-emulator-docker-compose.yml up -d && sbt samples/It/test
-      - save_sbt_cache
+      - save_deps_cache
 
   tck-tests:
     machine: true
@@ -119,11 +130,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Run TCK tests
           command: sbt tck/Test/run
-      - save_sbt_cache
+      - save_deps_cache
 
   validate-docs:
     machine: true
@@ -131,11 +142,43 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run:
           name: Validate docs
           command: make -C docs
-      - save_sbt_cache
+      - save_deps_cache
+     
+
+  maven-java-tests:
+    machine: true
+    description: "Maven Java (plugin and archetype tests)"
+    steps:
+      - checkout-and-merge-to-main
+      - restore_deps_cache
+      - set-sdk-version
+      - install-java-11
+      - run: 
+          name: Build maven-java
+          command: |
+            cd maven-java
+            echo "Running maven-java with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION 
+            mvn verify install
+      - run: 
+          name: Run integration tests for Value Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate -DgroupId=com.example -DartifactId=generated-project-ve -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=$SDK_VERSION
+            cd generated-project-ve
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile       
+      - run: 
+          name: Run integration tests for Event Sourced Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=generated-project-es -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+            cd generated-project-es
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile              
+      - save_deps_cache          
 
   samples-tests:
     machine: true
@@ -143,14 +186,11 @@ jobs:
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
+      - set-sdk-version
       - run: 
-          name: "Publish local maven"
-          command: | 
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
-            sbt publishM2
+          name: publish m2
+          command: sbt publishM2
       - run: 
           name: Run integration tests for Shopping Cart Value Entity sample
           command: |
@@ -168,8 +208,8 @@ jobs:
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit            
-      - save_sbt_cache
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit    
+      - save_deps_cache                    
 
   publish:
     docker:
@@ -177,9 +217,9 @@ jobs:
     steps:
       - checkout
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run: sbt ci-release
-      - save_sbt_cache
+      - save_deps_cache
 
   publish-tck:
     docker:
@@ -188,17 +228,17 @@ jobs:
       - checkout
       - setup_remote_docker
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
       - run: sbt tck/Docker/publish
-      - save_sbt_cache
+      - save_deps_cache
 
   publish-docs:
     machine: true
     steps:
       - checkout
       - setup_sbt
-      - restore_sbt_cache
+      - restore_deps_cache
       # deploy key for pushing docs to branch
       - add_ssh_keys:
           fingerprints:
@@ -206,7 +246,7 @@ jobs:
       - run:
           name: Publish docs
           command: make -C docs deploy
-      - save_sbt_cache
+      - save_deps_cache
 
 workflows:
   CI:
@@ -222,7 +262,11 @@ workflows:
       - integration-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
-              only: /.*/
+              only: /.*/          
+      - maven-java-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/ 
       - samples-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
@@ -245,6 +289,7 @@ workflows:
             - checks
             - tests
             - integration-tests
+            - maven-java-tests
             - samples-tests    
             - tck-tests
             - validate-docs   
