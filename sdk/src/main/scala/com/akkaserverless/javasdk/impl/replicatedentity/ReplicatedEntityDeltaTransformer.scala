@@ -25,10 +25,8 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
     val entity = delta.delta match {
       case ReplicatedEntityDelta.Delta.Counter(_) =>
         new ReplicatedCounterImpl
-      case ReplicatedEntityDelta.Delta.Gset(_) =>
-        new GSetImpl[Any](anySupport)
-      case ReplicatedEntityDelta.Delta.Orset(_) =>
-        new ORSetImpl[Any](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedSet(_) =>
+        new ReplicatedSetImpl[Any](anySupport)
       case ReplicatedEntityDelta.Delta.Flag(_) =>
         new FlagImpl
       case ReplicatedEntityDelta.Delta.Lwwregister(_) =>

@@ -16,19 +16,20 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.ORSet
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.protocol.replicated_entity.{ORSetDelta, ReplicatedEntityDelta}
+import com.akkaserverless.protocol.replicated_entity.{ReplicatedEntityDelta, ReplicatedSetDelta}
 import com.google.protobuf.any.{Any => ScalaPbAny}
-
 import java.util
+
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] class ORSetImpl[T](anySupport: AnySupport)
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
+
+private[replicatedentity] class ReplicatedSetImpl[T](anySupport: AnySupport)
     extends util.AbstractSet[T]
     with InternalReplicatedData
-    with ORSet[T] {
-  override final val name = "ORSet"
+    with ReplicatedSet[T] {
+  override final val name = "ReplicatedSet"
   private val value = new util.HashSet[T]()
   private val added = new util.HashSet[ScalaPbAny]()
   private val removed = new util.HashSet[ScalaPbAny]()
@@ -103,8 +104,8 @@ private[replicatedentity] class ORSetImpl[T](anySupport: AnySupport)
   override def hasDelta: Boolean = cleared || !added.isEmpty || !removed.isEmpty
 
   override def delta: ReplicatedEntityDelta.Delta =
-    ReplicatedEntityDelta.Delta.Orset(
-      ORSetDelta(cleared, removed = removed.asScala.toVector, added = added.asScala.toVector)
+    ReplicatedEntityDelta.Delta.ReplicatedSet(
+      ReplicatedSetDelta(cleared, removed = removed.asScala.toVector, added = added.asScala.toVector)
     )
 
   override def resetDelta(): Unit = {
@@ -114,7 +115,7 @@ private[replicatedentity] class ORSetImpl[T](anySupport: AnySupport)
   }
 
   override val applyDelta = {
-    case ReplicatedEntityDelta.Delta.Orset(ORSetDelta(cleared, removed, added, _)) =>
+    case ReplicatedEntityDelta.Delta.ReplicatedSet(ReplicatedSetDelta(cleared, removed, added, _)) =>
       if (cleared) {
         value.clear()
       }
@@ -122,5 +123,5 @@ private[replicatedentity] class ORSetImpl[T](anySupport: AnySupport)
       value.addAll(added.map(e => anySupport.decode(e).asInstanceOf[T]).asJava)
   }
 
-  override def toString = s"ORSet(${value.asScala.mkString(",")})"
+  override def toString = s"ReplicatedSet(${value.asScala.mkString(",")})"
 }

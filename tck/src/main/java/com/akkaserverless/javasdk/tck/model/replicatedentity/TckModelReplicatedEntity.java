@@ -55,10 +55,8 @@ public class TckModelReplicatedEntity {
     switch (dataType) {
       case "ReplicatedCounter":
         return context.state(ReplicatedCounter.class);
-      case "GSet":
-        return context.state(GSet.class);
-      case "ORSet":
-        return context.state(ORSet.class);
+      case "ReplicatedSet":
+        return context.state(ReplicatedSet.class);
       case "LWWRegister":
         return context.state(LWWRegister.class);
       case "Flag":
@@ -77,10 +75,8 @@ public class TckModelReplicatedEntity {
     switch (dataType) {
       case "ReplicatedCounter":
         return factory.newCounter();
-      case "GSet":
-        return factory.<String>newGSet();
-      case "ORSet":
-        return factory.<String>newORSet();
+      case "ReplicatedSet":
+        return factory.<String>newReplicatedSet();
       case "LWWRegister":
         return factory.newLWWRegister("");
       case "Flag":
@@ -161,23 +157,18 @@ public class TckModelReplicatedEntity {
       case COUNTER:
         ((ReplicatedCounter) replicatedData).increment(update.getCounter().getChange());
         break;
-      case GSET:
+      case REPLICATED_SET:
         @SuppressWarnings("unchecked")
-        GSet<String> gset = (GSet<String>) replicatedData;
-        gset.add(update.getGset().getAdd());
-        break;
-      case ORSET:
-        @SuppressWarnings("unchecked")
-        ORSet<String> orset = (ORSet<String>) replicatedData;
-        switch (update.getOrset().getActionCase()) {
+        ReplicatedSet<String> replicatedSet = (ReplicatedSet<String>) replicatedData;
+        switch (update.getReplicatedSet().getActionCase()) {
           case ADD:
-            orset.add(update.getOrset().getAdd());
+            replicatedSet.add(update.getReplicatedSet().getAdd());
             break;
           case REMOVE:
-            orset.remove(update.getOrset().getRemove());
+            replicatedSet.remove(update.getReplicatedSet().getRemove());
             break;
           case CLEAR:
-            if (update.getOrset().getClear()) orset.clear();
+            if (update.getReplicatedSet().getClear()) replicatedSet.clear();
             break;
         }
         break;
@@ -248,18 +239,12 @@ public class TckModelReplicatedEntity {
     if (replicatedData instanceof ReplicatedCounter) {
       ReplicatedCounter pncounter = (ReplicatedCounter) replicatedData;
       builder.setCounter(ReplicatedCounterValue.newBuilder().setValue(pncounter.getValue()));
-    } else if (replicatedData instanceof GSet) {
+    } else if (replicatedData instanceof ReplicatedSet) {
       @SuppressWarnings("unchecked")
-      GSet<String> gset = (GSet<String>) replicatedData;
-      List<String> elements = new ArrayList<>(gset);
-      Collections.sort(elements);
-      builder.setGset(GSetValue.newBuilder().addAllElements(elements));
-    } else if (replicatedData instanceof ORSet) {
-      @SuppressWarnings("unchecked")
-      ORSet<String> orset = (ORSet<String>) replicatedData;
+      ReplicatedSet<String> orset = (ReplicatedSet<String>) replicatedData;
       List<String> elements = new ArrayList<>(orset);
       Collections.sort(elements);
-      builder.setOrset(ORSetValue.newBuilder().addAllElements(elements));
+      builder.setReplicatedSet(ReplicatedSetValue.newBuilder().addAllElements(elements));
     } else if (replicatedData instanceof LWWRegister) {
       @SuppressWarnings("unchecked")
       LWWRegister<String> lwwRegister = (LWWRegister<String>) replicatedData;

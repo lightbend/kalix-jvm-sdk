@@ -31,19 +31,8 @@ public interface ReplicatedDataFactory {
   /** Create a new counter. */
   ReplicatedCounter newCounter();
 
-  /**
-   * Create a new GSet.
-   *
-   * @return The new GSet.
-   */
-  <T> GSet<T> newGSet();
-
-  /**
-   * Create a new ORSet.
-   *
-   * @return The new ORSet.
-   */
-  <T> ORSet<T> newORSet();
+  /** Create a new ReplicatedSet. */
+  <T> ReplicatedSet<T> newReplicatedSet();
 
   /**
    * Create a new Flag.
