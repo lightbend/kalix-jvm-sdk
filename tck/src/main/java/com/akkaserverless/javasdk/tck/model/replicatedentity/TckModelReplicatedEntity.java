@@ -61,6 +61,10 @@ public class TckModelReplicatedEntity {
         return context.state(ReplicatedRegister.class);
       case "ORMap":
         return context.state(ORMap.class);
+      case "ReplicatedCounterMap":
+        return context.state(ReplicatedCounterMap.class);
+      case "ReplicatedRegisterMap":
+        return context.state(ReplicatedRegisterMap.class);
       case "Vote":
         return context.state(Vote.class);
       default:
@@ -79,6 +83,10 @@ public class TckModelReplicatedEntity {
         return factory.newRegister("");
       case "ORMap":
         return factory.<String, ReplicatedData>newORMap();
+      case "ReplicatedCounterMap":
+        return factory.<String>newReplicatedCounterMap();
+      case "ReplicatedRegisterMap":
+        return factory.<String, String>newReplicatedRegisterMap();
       case "Vote":
         return factory.newVote();
       default:

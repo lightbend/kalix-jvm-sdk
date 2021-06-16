@@ -17,17 +17,19 @@
 package com.akkaserverless.javasdk.replicatedentity;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A Map of counters. Uses {@link ReplicatedCounter}'s as values.
  *
  * @param <K> The type for keys.
  */
-public final class ReplicatedCounterMap<K> extends AbstractORMapWrapper<K, Long, ReplicatedCounter>
-    implements Map<K, Long> {
+public final class ReplicatedCounterMap<K> implements ReplicatedData {
+
+  private final ORMap<K, ReplicatedCounter> ormap;
 
   public ReplicatedCounterMap(ORMap<K, ReplicatedCounter> ormap) {
-    super(ormap);
+    this.ormap = ormap;
   }
 
   /**
@@ -37,7 +39,7 @@ public final class ReplicatedCounterMap<K> extends AbstractORMapWrapper<K, Long,
    * @return The current value of the counter at that key, or zero if no counter exists for that
    *     key.
    */
-  public long getValue(Object key) {
+  public long get(K key) {
     ReplicatedCounter counter = ormap.get(key);
     if (counter != null) {
       return counter.getValue();
@@ -55,8 +57,8 @@ public final class ReplicatedCounterMap<K> extends AbstractORMapWrapper<K, Long,
    * @param by The amount to increment by.
    * @return The new value of the counter.
    */
-  public long increment(Object key, long by) {
-    return getOrUpdate(key).increment(by);
+  public long increment(K key, long by) {
+    return getOrCreate(key).increment(by);
   }
 
   /**
@@ -68,34 +70,31 @@ public final class ReplicatedCounterMap<K> extends AbstractORMapWrapper<K, Long,
    * @param by The amount to decrement by.
    * @return The new value of the counter.
    */
-  public long decrement(Object key, long by) {
-    return getOrUpdate(key).decrement(by);
+  public long decrement(K key, long by) {
+    return getOrCreate(key).decrement(by);
   }
 
-  /** Not supported on PNCounter, use increment/decrement instead. */
-  @Override
-  public Long put(K key, Long value) {
-    throw new UnsupportedOperationException(
-        "Put is not supported on PNCounterMap, use increment or decrement instead");
-  }
-
-  @Override
-  Long getValue(ReplicatedCounter counter) {
-    return counter.getValue();
-  }
-
-  @Override
-  void setValue(ReplicatedCounter counter, Long value) {
-    throw new UnsupportedOperationException(
-        "Using value mutating methods on PNCounterMap is not supported, use increment or decrement instead");
-  }
-
-  @Override
-  ReplicatedCounter getOrUpdateEntity(K key, Long value) {
+  private ReplicatedCounter getOrCreate(K key) {
     return ormap.getOrCreate(key, ReplicatedDataFactory::newCounter);
   }
 
-  private ReplicatedCounter getOrUpdate(Object key) {
-    return ormap.getOrCreate((K) key, ReplicatedDataFactory::newCounter);
+  public Set<K> keySet() {
+    return ormap.keySet();
+  }
+
+  public int size() {
+    return ormap.size();
+  }
+
+  public boolean isEmpty() {
+    return ormap.isEmpty();
+  }
+
+  public boolean containsKey(K key) {
+    return ormap.containsKey(key);
+  }
+
+  public void remove(K key) {
+    ormap.remove(key);
   }
 }

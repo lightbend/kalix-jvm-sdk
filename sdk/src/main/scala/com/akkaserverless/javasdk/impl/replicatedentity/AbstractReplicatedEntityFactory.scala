@@ -23,6 +23,8 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
   protected def anySupport: AnySupport
   protected def newEntity[E <: InternalReplicatedData](entity: E): E
   override def newCounter(): ReplicatedCounter = newEntity(new ReplicatedCounterImpl)
+  override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(newORMap[K, ReplicatedCounter]())
   override def newReplicatedSet[T](): ReplicatedSet[T] = newEntity(new ReplicatedSetImpl[T](anySupport))
   override def newRegister[T](value: T): ReplicatedRegister[T] = {
     val register = newEntity(new ReplicatedRegisterImpl[T](anySupport))
@@ -31,6 +33,8 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
     }
     register
   }
+  override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] =
+    new ReplicatedRegisterMap(newORMap[K, ReplicatedRegister[V]]())
   override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] =
     newEntity(new ORMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ORMap[K, V]]
   override def newVote(): Vote = newEntity(new VoteImpl)

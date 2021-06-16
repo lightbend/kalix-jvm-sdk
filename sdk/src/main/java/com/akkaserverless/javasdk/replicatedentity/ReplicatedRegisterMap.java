@@ -16,36 +16,52 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * Convenience wrapper class for {@link ORMap} that uses {@link ReplicatedRegister}'s for values.
- *
- * <p>This is useful as it allows the map to be used more idiomatically, with plain {@link
- * Map#get(Object)} and {@link Map#put(Object, Object)} calls for values.
+ * A Map of registers. Uses {@link ReplicatedRegister}'s as values.
  *
  * @param <K> The type for keys.
  * @param <V> The type for values.
  */
-public final class ReplicatedRegisterMap<K, V>
-    extends AbstractORMapWrapper<K, V, ReplicatedRegister<V>> implements Map<K, V> {
+public final class ReplicatedRegisterMap<K, V> implements ReplicatedData {
+
+  private final ORMap<K, ReplicatedRegister<V>> ormap;
 
   public ReplicatedRegisterMap(ORMap<K, ReplicatedRegister<V>> ormap) {
-    super(ormap);
+    this.ormap = ormap;
   }
 
-  @Override
-  V getValue(ReplicatedRegister<V> register) {
-    return register.get();
+  Optional<V> getValue(K key) {
+    ReplicatedRegister<V> register = ormap.get(key);
+    if (register == null) return Optional.empty();
+    else return Optional.ofNullable(register.get());
   }
 
-  @Override
-  void setValue(ReplicatedRegister<V> register, V value) {
-    register.set(value);
+  void setValue(K key, V value) {
+    ReplicatedRegister<V> register = ormap.get(key);
+    if (register == null) ormap.getOrCreate(key, f -> f.newRegister(value));
+    else register.set(value);
   }
 
-  @Override
-  ReplicatedRegister<V> getOrUpdateEntity(K key, V value) {
-    return ormap.getOrCreate(key, f -> f.newRegister(value));
+  public Set<K> keySet() {
+    return ormap.keySet();
+  }
+
+  public int size() {
+    return ormap.size();
+  }
+
+  public boolean isEmpty() {
+    return ormap.isEmpty();
+  }
+
+  public boolean containsKey(K key) {
+    return ormap.containsKey(key);
+  }
+
+  public void remove(K key) {
+    ormap.remove(key);
   }
 }

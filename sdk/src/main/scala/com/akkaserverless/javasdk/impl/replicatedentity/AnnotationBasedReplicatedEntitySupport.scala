@@ -152,6 +152,8 @@ private object ReplicatedEntityAnnotationHelper {
     clazz -> ReplicatedEntityInjector[D, D](clazz, create, identity)
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
   }
+
+  // FIXME remove if we don't expose ORMap
   private def orMapWrapper[W: ClassTag, D <: ReplicatedData](wrap: ORMap[AnyRef, D] => W) =
     implicitly[ClassTag[W]].runtimeClass
       .asInstanceOf[Class[D]] -> ReplicatedEntityInjector(classOf[ORMap[AnyRef, D]], f => wrap(f.newORMap()), wrap)
@@ -161,10 +163,9 @@ private object ReplicatedEntityAnnotationHelper {
     simple(_.newCounter()),
     simple(_.newReplicatedSet()),
     simple(_.newRegister()),
-    simple(_.newORMap()),
-    simple(_.newVote()),
-    orMapWrapper[ReplicatedRegisterMap[AnyRef, AnyRef], ReplicatedRegister[AnyRef]](new ReplicatedRegisterMap(_)),
-    orMapWrapper[ReplicatedCounterMap[AnyRef], ReplicatedCounter](new ReplicatedCounterMap(_))
+    simple(_.newReplicatedCounterMap()),
+    simple(_.newReplicatedRegisterMap()),
+    simple(_.newVote())
   )
 
   private def injector[D <: ReplicatedData, T](clazz: Class[T]): ReplicatedEntityInjector[D, T] =
@@ -251,8 +252,10 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
 
   override def newCounter(): ReplicatedCounter = delegate.newCounter()
+  override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] = delegate.newReplicatedCounterMap()
   override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
   override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
+  override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] = delegate.newReplicatedRegisterMap()
   override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] = delegate.newORMap()
   override def newVote(): Vote = delegate.newVote()
 

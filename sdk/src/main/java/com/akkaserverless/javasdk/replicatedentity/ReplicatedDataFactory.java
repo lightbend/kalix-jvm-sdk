@@ -31,23 +31,21 @@ public interface ReplicatedDataFactory {
   /** Create a new counter. */
   ReplicatedCounter newCounter();
 
+  /** Create a new map of counters. */
+  <K> ReplicatedCounterMap<K> newReplicatedCounterMap();
+
   /** Create a new ReplicatedSet. */
   <T> ReplicatedSet<T> newReplicatedSet();
 
   /** Create a new ReplicatedRegister. */
   <T> ReplicatedRegister<T> newRegister(T value);
 
-  /**
-   * Create a new ORMap.
-   *
-   * @return The new ORMap.
-   */
-  <K, V extends ReplicatedData> ORMap<K, V> newORMap();
+  /** Create a new map of registers. */
+  <K, V> ReplicatedRegisterMap<K, V> newReplicatedRegisterMap();
 
-  /**
-   * Create a new Vote.
-   *
-   * @return The new Vote.
-   */
+  /** Create a new ORMap. */
+  <K, V extends ReplicatedData> ORMap<K, V> newORMap(); // FIXME make internal
+
+  /** Create a new Vote. */
   Vote newVote();
 }

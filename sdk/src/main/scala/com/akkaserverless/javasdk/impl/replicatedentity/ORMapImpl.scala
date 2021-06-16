@@ -21,10 +21,13 @@ import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.protocol.replicated_entity.{ORMapDelta, ORMapEntryDelta, ReplicatedEntityDelta}
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.slf4j.LoggerFactory
-
 import java.util
 import java.util.{function, Map}
+
 import scala.jdk.CollectionConverters._
+
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap
 
 private object ORMapImpl {
   private val log = LoggerFactory.getLogger(classOf[ORMapImpl[_, _]])
