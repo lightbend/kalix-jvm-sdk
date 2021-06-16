@@ -25,8 +25,8 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
   override def newCounter(): ReplicatedCounter = newEntity(new ReplicatedCounterImpl)
   override def newReplicatedSet[T](): ReplicatedSet[T] = newEntity(new ReplicatedSetImpl[T](anySupport))
   override def newFlag(): Flag = newEntity(new FlagImpl)
-  override def newLWWRegister[T](value: T): LWWRegister[T] = {
-    val register = newEntity(new LWWRegisterImpl[T](anySupport))
+  override def newRegister[T](value: T): ReplicatedRegister[T] = {
+    val register = newEntity(new ReplicatedRegisterImpl[T](anySupport))
     if (value != null) {
       register.set(value)
     }

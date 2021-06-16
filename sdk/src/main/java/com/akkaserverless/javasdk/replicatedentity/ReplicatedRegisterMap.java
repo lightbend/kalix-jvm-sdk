@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 import java.util.Map;
 
 /**
- * Convenience wrapper class for {@link ORMap} that uses {@link LWWRegister}'s for values.
+ * Convenience wrapper class for {@link ORMap} that uses {@link ReplicatedRegister}'s for values.
  *
  * <p>This is useful as it allows the map to be used more idiomatically, with plain {@link
  * Map#get(Object)} and {@link Map#put(Object, Object)} calls for values.
@@ -27,25 +27,25 @@ import java.util.Map;
  * @param <K> The type for keys.
  * @param <V> The type for values.
  */
-public final class LWWRegisterMap<K, V> extends AbstractORMapWrapper<K, V, LWWRegister<V>>
-    implements Map<K, V> {
+public final class ReplicatedRegisterMap<K, V>
+    extends AbstractORMapWrapper<K, V, ReplicatedRegister<V>> implements Map<K, V> {
 
-  public LWWRegisterMap(ORMap<K, LWWRegister<V>> ormap) {
+  public ReplicatedRegisterMap(ORMap<K, ReplicatedRegister<V>> ormap) {
     super(ormap);
   }
 
   @Override
-  V getValue(LWWRegister<V> lwwRegister) {
-    return lwwRegister.get();
+  V getValue(ReplicatedRegister<V> register) {
+    return register.get();
   }
 
   @Override
-  void setValue(LWWRegister<V> lwwRegister, V value) {
-    lwwRegister.set(value);
+  void setValue(ReplicatedRegister<V> register, V value) {
+    register.set(value);
   }
 
   @Override
-  LWWRegister<V> getOrUpdateEntity(K key, V value) {
-    return ormap.getOrCreate(key, f -> f.newLWWRegister(value));
+  ReplicatedRegister<V> getOrUpdateEntity(K key, V value) {
+    return ormap.getOrCreate(key, f -> f.newRegister(value));
   }
 }

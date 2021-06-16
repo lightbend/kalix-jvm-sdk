@@ -57,8 +57,8 @@ public class TckModelReplicatedEntity {
         return context.state(ReplicatedCounter.class);
       case "ReplicatedSet":
         return context.state(ReplicatedSet.class);
-      case "LWWRegister":
-        return context.state(LWWRegister.class);
+      case "ReplicatedRegister":
+        return context.state(ReplicatedRegister.class);
       case "Flag":
         return context.state(Flag.class);
       case "ORMap":
@@ -77,8 +77,8 @@ public class TckModelReplicatedEntity {
         return factory.newCounter();
       case "ReplicatedSet":
         return factory.<String>newReplicatedSet();
-      case "LWWRegister":
-        return factory.newLWWRegister("");
+      case "ReplicatedRegister":
+        return factory.newRegister("");
       case "Flag":
         return factory.newFlag();
       case "ORMap":
@@ -172,29 +172,31 @@ public class TckModelReplicatedEntity {
             break;
         }
         break;
-      case LWWREGISTER:
+      case REGISTER:
         @SuppressWarnings("unchecked")
-        LWWRegister<String> lwwRegister = (LWWRegister<String>) replicatedData;
-        String newValue = update.getLwwregister().getValue();
-        if (update.getLwwregister().hasClock()) {
-          LWWRegisterClock clock = update.getLwwregister().getClock();
+        ReplicatedRegister<String> register = (ReplicatedRegister<String>) replicatedData;
+        String newValue = update.getRegister().getValue();
+        if (update.getRegister().hasClock()) {
+          ReplicatedRegisterClock clock = update.getRegister().getClock();
           switch (clock.getClockType()) {
-            case LWW_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
-              lwwRegister.set(newValue);
+            case REPLICATED_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
+              register.set(newValue);
               break;
-            case LWW_REGISTER_CLOCK_TYPE_REVERSE:
-              lwwRegister.set(newValue, LWWRegister.Clock.REVERSE, 0);
+            case REPLICATED_REGISTER_CLOCK_TYPE_REVERSE:
+              register.set(newValue, ReplicatedRegister.Clock.REVERSE, 0);
               break;
-            case LWW_REGISTER_CLOCK_TYPE_CUSTOM:
-              lwwRegister.set(newValue, LWWRegister.Clock.CUSTOM, clock.getCustomClockValue());
+            case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM:
+              register.set(newValue, ReplicatedRegister.Clock.CUSTOM, clock.getCustomClockValue());
               break;
-            case LWW_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
-              lwwRegister.set(
-                  newValue, LWWRegister.Clock.CUSTOM_AUTO_INCREMENT, clock.getCustomClockValue());
+            case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
+              register.set(
+                  newValue,
+                  ReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT,
+                  clock.getCustomClockValue());
               break;
           }
         } else {
-          lwwRegister.set(newValue);
+          register.set(newValue);
         }
         break;
       case FLAG:
@@ -245,10 +247,10 @@ public class TckModelReplicatedEntity {
       List<String> elements = new ArrayList<>(orset);
       Collections.sort(elements);
       builder.setReplicatedSet(ReplicatedSetValue.newBuilder().addAllElements(elements));
-    } else if (replicatedData instanceof LWWRegister) {
+    } else if (replicatedData instanceof ReplicatedRegister) {
       @SuppressWarnings("unchecked")
-      LWWRegister<String> lwwRegister = (LWWRegister<String>) replicatedData;
-      builder.setLwwregister(LWWRegisterValue.newBuilder().setValue(lwwRegister.get()));
+      ReplicatedRegister<String> register = (ReplicatedRegister<String>) replicatedData;
+      builder.setRegister(ReplicatedRegisterValue.newBuilder().setValue(register.get()));
     } else if (replicatedData instanceof Flag) {
       builder.setFlag(FlagValue.newBuilder().setValue(((Flag) replicatedData).isEnabled()));
     } else if (replicatedData instanceof ORMap) {

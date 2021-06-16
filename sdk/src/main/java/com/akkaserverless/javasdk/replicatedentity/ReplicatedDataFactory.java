@@ -41,12 +41,8 @@ public interface ReplicatedDataFactory {
    */
   Flag newFlag();
 
-  /**
-   * Create a new LWWRegister.
-   *
-   * @return The new LWWRegister.
-   */
-  <T> LWWRegister<T> newLWWRegister(T value);
+  /** Create a new ReplicatedRegister. */
+  <T> ReplicatedRegister<T> newRegister(T value);
 
   /**
    * Create a new ORMap.

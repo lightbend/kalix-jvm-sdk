@@ -161,10 +161,10 @@ private object ReplicatedEntityAnnotationHelper {
     simple(_.newCounter()),
     simple(_.newReplicatedSet()),
     simple(_.newFlag()),
-    simple(_.newLWWRegister()),
+    simple(_.newRegister()),
     simple(_.newORMap()),
     simple(_.newVote()),
-    orMapWrapper[LWWRegisterMap[AnyRef, AnyRef], LWWRegister[AnyRef]](new LWWRegisterMap(_)),
+    orMapWrapper[ReplicatedRegisterMap[AnyRef, AnyRef], ReplicatedRegister[AnyRef]](new ReplicatedRegisterMap(_)),
     orMapWrapper[ReplicatedCounterMap[AnyRef], ReplicatedCounter](new ReplicatedCounterMap(_))
   )
 
@@ -254,7 +254,7 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def newCounter(): ReplicatedCounter = delegate.newCounter()
   override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
   override def newFlag(): Flag = delegate.newFlag()
-  override def newLWWRegister[T](value: T): LWWRegister[T] = delegate.newLWWRegister(value)
+  override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
   override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] = delegate.newORMap()
   override def newVote(): Vote = delegate.newVote()
 
