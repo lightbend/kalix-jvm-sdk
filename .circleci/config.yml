@@ -172,15 +172,15 @@ jobs:
           name: Run integration tests for Value Entity Archetype
           command: |
             cd maven-java
-            mvn -B archetype:generate -DgroupId=com.example -DartifactId=generated-project-ve -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=$SDK_VERSION
-            cd generated-project-ve
+            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=$SDK_VERSION
+            cd counter-value-entity
             mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile       
       - run: 
           name: Run integration tests for Event Sourced Entity Archetype
           command: |
             cd maven-java
-            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=generated-project-es -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
-            cd generated-project-es
+            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+            cd counter-event-sourced-entity
             mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile              
       - save_deps_cache          
 
