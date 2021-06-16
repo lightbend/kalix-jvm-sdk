@@ -1,3 +1,5 @@
+This project is now archived. The code migrated under https://github.com/lightbend/akkaserverless-java-sdk.
+
 # akkaserverless-maven-java
 
 This repository provides projects to support the Apache Maven/Java toolchain.
