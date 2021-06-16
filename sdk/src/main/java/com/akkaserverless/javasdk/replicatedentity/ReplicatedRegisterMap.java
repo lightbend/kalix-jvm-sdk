@@ -27,41 +27,45 @@ import java.util.Set;
  */
 public final class ReplicatedRegisterMap<K, V> implements ReplicatedData {
 
-  private final ORMap<K, ReplicatedRegister<V>> ormap;
+  private final ReplicatedMap<K, ReplicatedRegister<V>> replicatedMap;
 
-  public ReplicatedRegisterMap(ORMap<K, ReplicatedRegister<V>> ormap) {
-    this.ormap = ormap;
+  public ReplicatedRegisterMap(ReplicatedMap<K, ReplicatedRegister<V>> replicatedMap) {
+    this.replicatedMap = replicatedMap;
   }
 
   Optional<V> getValue(K key) {
-    ReplicatedRegister<V> register = ormap.get(key);
+    ReplicatedRegister<V> register = replicatedMap.get(key);
     if (register == null) return Optional.empty();
     else return Optional.ofNullable(register.get());
   }
 
   void setValue(K key, V value) {
-    ReplicatedRegister<V> register = ormap.get(key);
-    if (register == null) ormap.getOrCreate(key, f -> f.newRegister(value));
+    ReplicatedRegister<V> register = replicatedMap.get(key);
+    if (register == null) replicatedMap.getOrCreate(key, f -> f.newRegister(value));
     else register.set(value);
   }
 
   public Set<K> keySet() {
-    return ormap.keySet();
+    return replicatedMap.keySet();
   }
 
   public int size() {
-    return ormap.size();
+    return replicatedMap.size();
   }
 
   public boolean isEmpty() {
-    return ormap.isEmpty();
+    return replicatedMap.isEmpty();
   }
 
   public boolean containsKey(K key) {
-    return ormap.containsKey(key);
+    return replicatedMap.containsKey(key);
   }
 
   public void remove(K key) {
-    ormap.remove(key);
+    replicatedMap.remove(key);
+  }
+
+  public void clear() {
+    replicatedMap.clear();
   }
 }

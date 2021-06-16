@@ -153,10 +153,12 @@ private object ReplicatedEntityAnnotationHelper {
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
   }
 
-  // FIXME remove if we don't expose ORMap
-  private def orMapWrapper[W: ClassTag, D <: ReplicatedData](wrap: ORMap[AnyRef, D] => W) =
+  // FIXME remove if we don't expose ReplicatedMap
+  private def replicatedMapWrapper[W: ClassTag, D <: ReplicatedData](wrap: ReplicatedMap[AnyRef, D] => W) =
     implicitly[ClassTag[W]].runtimeClass
-      .asInstanceOf[Class[D]] -> ReplicatedEntityInjector(classOf[ORMap[AnyRef, D]], f => wrap(f.newORMap()), wrap)
+      .asInstanceOf[Class[D]] -> ReplicatedEntityInjector(classOf[ReplicatedMap[AnyRef, D]],
+                                                          f => wrap(f.newReplicatedMap()),
+                                                          wrap)
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
 
   private val injectorMap: Map[Class[_], ReplicatedEntityInjector[ReplicatedData, AnyRef]] = Map(
@@ -256,7 +258,7 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
   override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
   override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] = delegate.newReplicatedRegisterMap()
-  override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] = delegate.newORMap()
+  override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] = delegate.newReplicatedMap()
   override def newVote(): Vote = delegate.newVote()
 
   override def getWriteConsistency: WriteConsistency = delegate.getWriteConsistency

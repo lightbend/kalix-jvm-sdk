@@ -16,21 +16,22 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.{ORMap, ReplicatedDataFactory}
+import com.akkaserverless.javasdk.replicatedentity.{ReplicatedDataFactory, ReplicatedMap}
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.protocol.replicated_entity.{ORMapDelta, ORMapEntryDelta, ReplicatedEntityDelta}
+import com.akkaserverless.protocol.replicated_entity.{
+  ReplicatedEntityDelta,
+  ReplicatedMapDelta,
+  ReplicatedMapEntryDelta
+}
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.slf4j.LoggerFactory
 import java.util
-import java.util.{function, Map}
+import java.util.function
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap
-
-private object ORMapImpl {
-  private val log = LoggerFactory.getLogger(classOf[ORMapImpl[_, _]])
+private object ReplicatedMapImpl {
+  private val log = LoggerFactory.getLogger(classOf[ReplicatedMapImpl[_, _]])
 }
 
 /**
@@ -46,13 +47,12 @@ private object ORMapImpl {
  *   efficiently implement operations that it implements in O(n) time that we can do in O(1) time, such as
  *   get/remove/containsKey.
  */
-private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](anySupport: AnySupport)
-    extends util.AbstractMap[K, V]
-    with InternalReplicatedData
-    with ORMap[K, V] {
-  import ORMapImpl.log
+private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicatedData](anySupport: AnySupport)
+    extends ReplicatedMap[K, V]
+    with InternalReplicatedData {
+  import ReplicatedMapImpl.log
 
-  override final val name = "ORMap"
+  override final val name = "ReplicatedMap"
   private val value = new util.HashMap[K, V]()
   private val added = new util.HashMap[K, (ScalaPbAny, V)]()
   private val removed = new util.HashSet[ScalaPbAny]()
@@ -65,7 +65,7 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
       val encodedKey = anySupport.encodeScala(key)
       var internalData: InternalReplicatedData = null
       val data = create(new AbstractReplicatedEntityFactory {
-        override protected def anySupport: AnySupport = ORMapImpl.this.anySupport
+        override protected def anySupport: AnySupport = ReplicatedMapImpl.this.anySupport
         override protected def newEntity[C <: InternalReplicatedData](entity: C): C = {
           if (internalData != null) {
             throw new IllegalStateException(
@@ -89,14 +89,11 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
       data
     }
 
-  override def containsKey(key: Any): Boolean = value.containsKey(key)
+  override def containsKey(key: K): Boolean = value.containsKey(key)
 
-  override def get(key: Any): V = value.get(key)
+  override def get(key: K): V = value.get(key)
 
-  override def put(key: K, value: V): V =
-    throw new UnsupportedOperationException("Cannot put on an ORMap, use getOrCreate instead.")
-
-  override def remove(key: Any): V = {
+  override def remove(key: K): Unit = {
     if (value.containsKey(key)) {
       val encodedKey = anySupport.encodeScala(key)
       if (added.containsKey(key)) {
@@ -108,42 +105,11 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
     value.remove(key)
   }
 
-  // Most methods in AbstractMap build on this. Most important thing is to get the mutability aspects right.
-  override def entrySet(): util.Set[util.Map.Entry[K, V]] = new EntrySet
-
-  private class EntrySet extends util.AbstractSet[util.Map.Entry[K, V]] {
-    override def size(): Int = value.size()
-    override def iterator(): util.Iterator[util.Map.Entry[K, V]] = new util.Iterator[util.Map.Entry[K, V]] {
-      private val iter = value.entrySet().iterator()
-      private var lastNext: util.Map.Entry[K, V] = _
-      override def hasNext: Boolean = iter.hasNext
-      override def next(): Map.Entry[K, V] = {
-        lastNext = iter.next()
-        new util.Map.Entry[K, V] {
-          private val entry = lastNext
-          override def getKey: K = entry.getKey
-          override def getValue: V = entry.getValue
-          override def setValue(value: V): V = throw new UnsupportedOperationException()
-        }
-      }
-      override def remove(): Unit = {
-        if (lastNext != null) {
-          val encodedKey = anySupport.encodeScala(lastNext.getKey)
-          if (added.containsKey(lastNext.getKey)) {
-            added.remove(lastNext.getKey)
-          } else {
-            removed.add(encodedKey)
-          }
-        }
-        iter.remove()
-      }
-    }
-    override def clear(): Unit = ORMapImpl.this.clear()
-  }
+  override def keySet(): util.Set[K] = value.keySet()
 
   override def size(): Int = value.size()
 
-  override def isEmpty: Boolean = super.isEmpty
+  override def isEmpty: Boolean = value.isEmpty
 
   override def clear(): Unit = {
     value.clear()
@@ -162,14 +128,14 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
   override def delta: ReplicatedEntityDelta.Delta = {
     val updated = (value.asScala -- this.added.keySet().asScala).collect {
       case (key, changed) if changed.hasDelta =>
-        ORMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(changed.delta)))
+        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(changed.delta)))
     }
     val added = this.added.asScala.values.map {
-      case (key, value) => ORMapEntryDelta(Some(key), Some(ReplicatedEntityDelta(value.delta)))
+      case (key, value) => ReplicatedMapEntryDelta(Some(key), Some(ReplicatedEntityDelta(value.delta)))
     }
 
-    ReplicatedEntityDelta.Delta.Ormap(
-      ORMapDelta(
+    ReplicatedEntityDelta.Delta.ReplicatedMap(
+      ReplicatedMapDelta(
         cleared = cleared,
         removed = removed.asScala.toVector,
         updated = updated.toVector,
@@ -186,26 +152,26 @@ private[replicatedentity] final class ORMapImpl[K, V <: InternalReplicatedData](
   }
 
   override val applyDelta = {
-    case ReplicatedEntityDelta.Delta.Ormap(ORMapDelta(cleared, removed, updated, added, _)) =>
+    case ReplicatedEntityDelta.Delta.ReplicatedMap(ReplicatedMapDelta(cleared, removed, updated, added, _)) =>
       if (cleared) {
         value.clear()
       }
       removed.foreach(key => value.remove(anySupport.decode(key)))
       updated.foreach {
-        case ORMapEntryDelta(Some(key), Some(delta), _) =>
+        case ReplicatedMapEntryDelta(Some(key), Some(delta), _) =>
           val data = value.get(anySupport.decode(key))
           if (data == null) {
-            log.warn("ORMap entry to update with key [{}] not found in map", key)
+            log.warn("ReplicatedMap entry to update with key [{}] not found in map", key)
           } else {
             data.applyDelta(delta.delta)
           }
       }
       added.foreach {
-        case ORMapEntryDelta(Some(key), Some(delta), _) =>
+        case ReplicatedMapEntryDelta(Some(key), Some(delta), _) =>
           value.put(anySupport.decode(key).asInstanceOf[K],
                     ReplicatedEntityDeltaTransformer.create(delta, anySupport).asInstanceOf[V])
       }
   }
 
-  override def toString = s"ORMap(${value.asScala.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString = s"ReplicatedMap(${value.asScala.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 }

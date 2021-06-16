@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,10 +25,10 @@ import java.util.Set;
  */
 public final class ReplicatedCounterMap<K> implements ReplicatedData {
 
-  private final ORMap<K, ReplicatedCounter> ormap;
+  private final ReplicatedMap<K, ReplicatedCounter> replicatedMap;
 
-  public ReplicatedCounterMap(ORMap<K, ReplicatedCounter> ormap) {
-    this.ormap = ormap;
+  public ReplicatedCounterMap(ReplicatedMap<K, ReplicatedCounter> replicatedMap) {
+    this.replicatedMap = replicatedMap;
   }
 
   /**
@@ -40,7 +39,7 @@ public final class ReplicatedCounterMap<K> implements ReplicatedData {
    *     key.
    */
   public long get(K key) {
-    ReplicatedCounter counter = ormap.get(key);
+    ReplicatedCounter counter = replicatedMap.get(key);
     if (counter != null) {
       return counter.getValue();
     } else {
@@ -75,26 +74,30 @@ public final class ReplicatedCounterMap<K> implements ReplicatedData {
   }
 
   private ReplicatedCounter getOrCreate(K key) {
-    return ormap.getOrCreate(key, ReplicatedDataFactory::newCounter);
+    return replicatedMap.getOrCreate(key, ReplicatedDataFactory::newCounter);
   }
 
   public Set<K> keySet() {
-    return ormap.keySet();
+    return replicatedMap.keySet();
   }
 
   public int size() {
-    return ormap.size();
+    return replicatedMap.size();
   }
 
   public boolean isEmpty() {
-    return ormap.isEmpty();
+    return replicatedMap.isEmpty();
   }
 
   public boolean containsKey(K key) {
-    return ormap.containsKey(key);
+    return replicatedMap.containsKey(key);
   }
 
   public void remove(K key) {
-    ormap.remove(key);
+    replicatedMap.remove(key);
+  }
+
+  public void clear() {
+    replicatedMap.clear();
   }
 }

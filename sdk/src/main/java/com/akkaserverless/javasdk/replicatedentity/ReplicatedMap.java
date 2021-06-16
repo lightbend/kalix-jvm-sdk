@@ -16,25 +16,26 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
- * An Observed-Removed Map.
+ * A Replicated Map that allows both the addition and removal of objects in a map.
  *
- * <p>An Observed-Removed Map allows both the addition and removal of objects in a map. A removal
- * can only be done if all of the additions that caused the key to be in the map have been seen by
- * this node. This means that, for example, if node 1 adds key A, and node 2 also adds key A, then
- * node 1's addition is replicated to node 3, and node 3 deletes it before node 2's addition is
- * replicated, then the item will still be in the map because node 2's addition had not yet been
- * observed by node 3. However, if both additions had been replicated to node 3, then the key will
- * be removed.
+ * <p>Use the more specialized maps if possible, such as {@link ReplicatedCounterMap} and {@link
+ * ReplicatedRegisterMap}.
+ *
+ * <p>A removal can only be done if all of the additions that caused the key to be in the map have
+ * been seen by this node. This means that, for example, if node 1 adds key A, and node 2 also adds
+ * key A, then node 1's addition is replicated to node 3, and node 3 deletes it before node 2's
+ * addition is replicated, then the item will still be in the map because node 2's addition had not
+ * yet been observed by node 3. However, if both additions had been replicated to node 3, then the
+ * key will be removed.
  *
  * <p>The values of the map are themselves replicated data types, and hence allow concurrent updates
  * that will eventually converge. Values may only be inserted using the {@link
- * ORMap#getOrCreate(Object, Function)} function, using the {@link ReplicatedDataFactory} passed in
- * to the creation callback. Invoking {@link ORMap#put(Object, ReplicatedData)} or any other
- * insertion method will throw a {@link UnsupportedOperationException}.
+ * ReplicatedMap#getOrCreate(Object, Function)} function, using the {@link ReplicatedDataFactory}
+ * passed in to the creation callback.
  *
  * <p>While removing entries from the map is supported, if the entries are added back again, it is
  * possible that the value of the deleted entry may be merged into the value of the current entry,
@@ -56,7 +57,11 @@ import java.util.function.Function;
  * @param <K> The type of keys.
  * @param <V> The replicated data type to be used for values.
  */
-public interface ORMap<K, V extends ReplicatedData> extends ReplicatedData, Map<K, V> {
+public interface ReplicatedMap<K, V extends ReplicatedData> extends ReplicatedData {
+
+  /** Get the ReplicatedData value with the given key. */
+  V get(K key);
+
   /**
    * Get or create an entry in the map with the given key.
    *
@@ -67,10 +72,15 @@ public interface ORMap<K, V extends ReplicatedData> extends ReplicatedData, Map<
    */
   V getOrCreate(K key, Function<ReplicatedDataFactory, V> create);
 
-  /** Not supported on ORMap. Use {@link ORMap#getOrCreate(Object, Function)} instead. */
-  @Override
-  default V put(K key, V value) {
-    throw new UnsupportedOperationException(
-        "put is not supported on ORMap, use getOrCreate instead");
-  }
+  Set<K> keySet();
+
+  int size();
+
+  boolean isEmpty();
+
+  boolean containsKey(K key);
+
+  void remove(K key);
+
+  void clear();
 }

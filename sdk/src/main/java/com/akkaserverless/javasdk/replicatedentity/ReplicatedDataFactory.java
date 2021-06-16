@@ -43,8 +43,8 @@ public interface ReplicatedDataFactory {
   /** Create a new map of registers. */
   <K, V> ReplicatedRegisterMap<K, V> newReplicatedRegisterMap();
 
-  /** Create a new ORMap. */
-  <K, V extends ReplicatedData> ORMap<K, V> newORMap(); // FIXME make internal
+  /** Create a new ReplicatedMap. */
+  <K, V extends ReplicatedData> ReplicatedMap<K, V> newReplicatedMap(); // FIXME make internal
 
   /** Create a new Vote. */
   Vote newVote();

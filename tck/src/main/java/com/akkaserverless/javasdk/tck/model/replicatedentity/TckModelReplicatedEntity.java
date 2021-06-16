@@ -59,8 +59,8 @@ public class TckModelReplicatedEntity {
         return context.state(ReplicatedSet.class);
       case "ReplicatedRegister":
         return context.state(ReplicatedRegister.class);
-      case "ORMap":
-        return context.state(ORMap.class);
+      case "ReplicatedMap":
+        return context.state(ReplicatedMap.class);
       case "ReplicatedCounterMap":
         return context.state(ReplicatedCounterMap.class);
       case "ReplicatedRegisterMap":
@@ -81,8 +81,8 @@ public class TckModelReplicatedEntity {
         return factory.<String>newReplicatedSet();
       case "ReplicatedRegister":
         return factory.newRegister("");
-      case "ORMap":
-        return factory.<String, ReplicatedData>newORMap();
+      case "ReplicatedMap":
+        return factory.<String, ReplicatedData>newReplicatedMap();
       case "ReplicatedCounterMap":
         return factory.<String>newReplicatedCounterMap();
       case "ReplicatedRegisterMap":
@@ -203,27 +203,29 @@ public class TckModelReplicatedEntity {
           register.set(newValue);
         }
         break;
-      case ORMAP:
+      case REPLICATED_MAP:
         @SuppressWarnings("unchecked")
-        ORMap<String, ReplicatedData> ormap = (ORMap<String, ReplicatedData>) replicatedData;
-        switch (update.getOrmap().getActionCase()) {
+        ReplicatedMap<String, ReplicatedData> replicatedMap =
+            (ReplicatedMap<String, ReplicatedData>) replicatedData;
+        switch (update.getReplicatedMap().getActionCase()) {
           case ADD:
-            String addKey = update.getOrmap().getAdd();
-            ormap.getOrCreate(addKey, factory -> createReplicatedData(addKey, factory));
+            String addKey = update.getReplicatedMap().getAdd();
+            replicatedMap.getOrCreate(addKey, factory -> createReplicatedData(addKey, factory));
             break;
           case UPDATE:
-            String updateKey = update.getOrmap().getUpdate().getKey();
-            Update entryUpdate = update.getOrmap().getUpdate().getUpdate();
+            String updateKey = update.getReplicatedMap().getUpdate().getKey();
+            Update entryUpdate = update.getReplicatedMap().getUpdate().getUpdate();
             ReplicatedData dataValue =
-                ormap.getOrCreate(updateKey, factory -> createReplicatedData(updateKey, factory));
+                replicatedMap.getOrCreate(
+                    updateKey, factory -> createReplicatedData(updateKey, factory));
             applyUpdate(dataValue, entryUpdate);
             break;
           case REMOVE:
-            String removeKey = update.getOrmap().getRemove();
-            ormap.remove(removeKey);
+            String removeKey = update.getReplicatedMap().getRemove();
+            replicatedMap.remove(removeKey);
             break;
           case CLEAR:
-            ormap.clear();
+            replicatedMap.clear();
             break;
         }
         break;
@@ -252,19 +254,20 @@ public class TckModelReplicatedEntity {
       @SuppressWarnings("unchecked")
       ReplicatedRegister<String> register = (ReplicatedRegister<String>) replicatedData;
       builder.setRegister(ReplicatedRegisterValue.newBuilder().setValue(register.get()));
-    } else if (replicatedData instanceof ORMap) {
+    } else if (replicatedData instanceof ReplicatedMap) {
       @SuppressWarnings("unchecked")
-      ORMap<String, ReplicatedData> ormap = (ORMap<String, ReplicatedData>) replicatedData;
-      List<ORMapEntryValue> entries = new ArrayList<>();
-      for (Map.Entry<String, ReplicatedData> entry : ormap.entrySet()) {
+      ReplicatedMap<String, ReplicatedData> replicatedMap =
+          (ReplicatedMap<String, ReplicatedData>) replicatedData;
+      List<ReplicatedMapEntryValue> entries = new ArrayList<>();
+      for (String key : replicatedMap.keySet()) {
         entries.add(
-            ORMapEntryValue.newBuilder()
-                .setKey(entry.getKey())
-                .setValue(dataState(entry.getValue()))
+            ReplicatedMapEntryValue.newBuilder()
+                .setKey(key)
+                .setValue(dataState(replicatedMap.get(key)))
                 .build());
       }
-      entries.sort(Comparator.comparing(ORMapEntryValue::getKey));
-      builder.setOrmap(ORMapValue.newBuilder().addAllEntries(entries));
+      entries.sort(Comparator.comparing(ReplicatedMapEntryValue::getKey));
+      builder.setReplicatedMap(ReplicatedMapValue.newBuilder().addAllEntries(entries));
     } else if (replicatedData instanceof Vote) {
       Vote vote = (Vote) replicatedData;
       builder.setVote(
