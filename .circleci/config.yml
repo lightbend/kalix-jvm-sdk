@@ -14,7 +14,7 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          parent: rgc/feature-branch-maven-java
 
   install-java-11:
     description: install openjdk-11
@@ -54,6 +54,7 @@ commands:
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
+            - "~/.m2"
             - "~/.cache/coursier"
             - "~/.m2"
 
@@ -62,6 +63,16 @@ commands:
     steps:
       - restore_cache:
           key: deps-cache-01
+
+  set-sdk-version: 
+    description: "Grab current SDK version"
+    steps: 
+      - run: 
+          name: "Set SDK version"
+          command: |
+            # tail 2 + head 1 because CircleCI adds an extra line
+            # the SDK_VERSION is later used to run the maven tests (see below)
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
 
 jobs:
   checks:
@@ -137,6 +148,38 @@ jobs:
           name: Validate docs
           command: make -C docs
       - save_deps_cache
+     
+
+  maven-java-tests:
+    machine: true
+    description: "Maven Java (plugin and archetype tests)"
+    steps:
+      - checkout-and-merge-to-main
+      - restore_deps_cache
+      - set-sdk-version
+      - install-java-11
+      - run: 
+          name: Build maven-java
+          command: |
+            cd maven-java
+            echo "Running maven-java with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION 
+            mvn verify install
+      - run: 
+          name: Run integration tests for Value Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate -DgroupId=com.example -DartifactId=generated-project-ve -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls -DarchetypeVersion=$SDK_VERSION
+            cd generated-project-ve
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile       
+      - run: 
+          name: Run integration tests for Event Sourced Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=generated-project-es -DarchetypeGroupId=com.lightbend -DarchetypeArtifactId=maven-archetype-akkasls-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+            cd generated-project-es
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile              
+      - save_deps_cache          
 
   samples-tests:
     machine: true
@@ -145,13 +188,10 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
+      - set-sdk-version
       - run: 
-          name: "Publish local maven"
-          command: | 
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
-            sbt publishM2
+          name: publish m2
+          command: sbt publishM2
       - run: 
           name: Run integration tests for Shopping Cart Value Entity sample
           command: |
@@ -229,7 +269,11 @@ workflows:
       - integration-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
-              only: /.*/
+              only: /.*/          
+      - maven-java-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/ 
       - samples-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
@@ -252,6 +296,7 @@ workflows:
             - checks
             - tests
             - integration-tests
+            - maven-java-tests
             - samples-tests    
             - tck-tests
             - validate-docs   
