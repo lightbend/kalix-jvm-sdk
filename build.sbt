@@ -124,7 +124,8 @@ lazy val tck = project
   .settings(
     name := "akkaserverless-tck-java-sdk",
     libraryDependencies ++= Seq(
-        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src"
+        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+        "ch.qos.logback" % "logback-classic" % LogbackVersion
       ),
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
