@@ -1,4 +1,4 @@
-package com.lightbend;
+package com.akkaserverless;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

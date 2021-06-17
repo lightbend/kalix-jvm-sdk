@@ -1,4 +1,4 @@
-package com.lightbend;
+package com.akkaserverless;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FileDescriptor;
