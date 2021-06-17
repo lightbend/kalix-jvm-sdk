@@ -35,7 +35,7 @@ that have been introduced.
 
 ## Configuration
 
-- `akkaslsPath` path and name of the `akkasls` commmand line tool
+- `akkaslsPath` path and name of the `akkasls` command line tool
 - `akkaslsContext` selects the context when calling `akkasls` if set
 - `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
 
