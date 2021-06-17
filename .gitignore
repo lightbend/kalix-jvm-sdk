@@ -39,3 +39,4 @@ src_managed
 storage
 tags
 target
+dependency-reduced-pom.xml
