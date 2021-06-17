@@ -204,7 +204,7 @@
       </plugin>
 
       <plugin>
-        <groupId>com.lightbend</groupId>
+        <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
         <version>@project.version@</version>
         <executions>
