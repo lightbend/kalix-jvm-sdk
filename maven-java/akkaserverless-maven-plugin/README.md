@@ -1,4 +1,4 @@
-# akkasls-maven-plugin
+# akkaserverless-maven-plugin
 
 ![Test](https://github.com/lightbend/akkaserverless-maven-plugin/workflows/Test/badge.svg)
 
@@ -17,7 +17,7 @@ To use the plugin (substitute the version accordingly):
 ```xml
 <plugin>
 <groupId>com.lightbend</groupId>
-<artifactId>akkasls-maven-plugin</artifactId>
+<artifactId>akkaserverless-maven-plugin</artifactId>
 <version>1.0-SNAPSHOT</version>
 <executions>
   <execution>
