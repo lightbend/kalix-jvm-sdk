@@ -11,7 +11,7 @@ To run the example locally:
     sbt sdk/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-customer-registry
-    mvn compile exec:java
+    mvn compile exec:java  -DmainClass="customer.Main"
     ```
 * Start the proxy
   * with in-memory store: `sbt proxy-core/run`
