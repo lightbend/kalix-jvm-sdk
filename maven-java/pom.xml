@@ -3,7 +3,7 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
  
-  <groupId>com.lightbend</groupId>
+  <groupId>com.akkaserverless</groupId>
   <artifactId>akkaserverless-maven-java</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -75,8 +75,8 @@
   </build>
 
   <modules>
-    <module>akkasls-maven-plugin</module>
-    <module>maven-archetype-akkasls-value-entity</module>
-    <module>maven-archetype-akkasls-event-sourced-entity</module>
+    <module>akkaserverless-maven-plugin</module>
+    <module>akkaserverless-maven-archetype-value-entity</module>
+    <module>akkaserverless-maven-archetype-event-sourced-entity</module>
   </modules>
 </project>

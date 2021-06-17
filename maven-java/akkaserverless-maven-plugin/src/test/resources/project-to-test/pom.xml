@@ -11,8 +11,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.lightbend</groupId>
-        <artifactId>akkasls-maven-plugin</artifactId>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-maven-plugin</artifactId>
         <configuration>
           <descriptorSetOutputDirectory>${project.basedir}</descriptorSetOutputDirectory>
           <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
