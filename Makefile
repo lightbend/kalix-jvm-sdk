@@ -19,10 +19,14 @@ run-all: init-project cp-all fix-main test-all
 # removes project if exists
 # creates archetype
 # runs the archetype to create trinity
-# copy the files from integration test, unit test, but not CounterImpl
+# copy the file CounterImpl
 # fixes the Main (from missing SERVICE variable)
 # runs integration and unit tests
-run-test-no-impl: init-project cp-tests fix-main test-all
+### this verifies that the unit test created by codegen
+### calls to methods that exist in the CounterImpl.
+### Proving each of the proto api method used to build the 
+### unit test are in sync with the the implementation in samples  
+run-test-impl: init-project cp-counter-impl fix-main test-all
 
 
 init-project: clean create-archetype create-project
