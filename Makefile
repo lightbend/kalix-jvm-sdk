@@ -1,6 +1,12 @@
 
 projectname = trinity
 
+# removes project if exists
+# creates archetype
+# runs the archetype to create trinity
+# fixes the Main (from missing SERVICE variable)
+# runs integration and unit tests
+run-init: init-project fix-main test-all
 
 # removes project if exists
 # creates archetype
@@ -8,7 +14,18 @@ projectname = trinity
 # copy the files from integration test, unit test, the CounterImpl 
 # fixes the Main (from missing SERVICE variable)
 # runs integration and unit tests
-run-all: clean create-archetype create-project cp-all-and-fix-and-test
+run-all: init-project cp-all fix-main test-all
+
+# removes project if exists
+# creates archetype
+# runs the archetype to create trinity
+# copy the files from integration test, unit test, but not CounterImpl
+# fixes the Main (from missing SERVICE variable)
+# runs integration and unit tests
+run-test-no-impl: init-project cp-tests fix-main test-all
+
+
+init-project: clean create-archetype create-project
 
 clean:
 	@echo "### removing project $(projectname)"
@@ -33,20 +50,16 @@ create-project:
 	-DarchetypeVersion=1.0-SNAPSHOT -Darchetype.catalog=local
 
 
-# copy the files from integration test, unit test, the CounterImpl 
-# runs integration and unit tests
-cp-all-and-test: cp-counter-impl cp-it-test cp-unit-test test-it test-unit
-
-# copy the files from integration test, unit test, the CounterImpl 
-# fixes the Main (from missing SERVICE variable)
-# runs integration and unit tests
-cp-all-and-fix-and-test: cp-counter-impl cp-it-test cp-unit-test fix-main test-it test-unit
 
 fix-main:
 	@echo "### copying Main from samples/valueentity-counter"
 	@echo "### bear in mind the Main has the package com.example"
+	mkdir -p $(projectname)/src/main/java/com/example/
 	cp samples/valueentity-counter/src/main/java/com/example/Main.java \
 	$(projectname)/src/main/java/com/example/Main.java 
+
+
+test-all: test-it test-unit
 
 test-it:
 	@echo "### running integration tests for $(projectname)"
@@ -55,6 +68,11 @@ test-it:
 test-unit:
 	@echo "### running unit tests for $(projectname)"
 	cd $(projectname) && mvn verify
+
+
+cp-tests: cp-it-test cp-unit-test
+
+cp-all: cp-tests cp-counter-impl
 
 cp-it-test:
 	@echo "### copying integration test solution from samples/valueentity-counter"
