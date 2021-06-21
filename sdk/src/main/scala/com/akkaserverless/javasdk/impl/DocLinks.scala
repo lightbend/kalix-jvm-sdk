@@ -21,17 +21,17 @@ object DocLinks {
   private val baseUrl = "https://developer.lightbend.com/docs/akka-serverless"
 
   private val errorCodes = Map(
-    "AS-00112" -> s"$baseUrl/java-services/views.html#changing",
-    "AS-00402" -> s"$baseUrl/java-services/topic-eventing.html",
-    "AS-00406" -> s"$baseUrl/java-services/topic-eventing.html"
+    "AS-00112" -> s"$baseUrl/java/views.html#changing",
+    "AS-00402" -> s"$baseUrl/java/topic-eventing.html",
+    "AS-00406" -> s"$baseUrl/java/topic-eventing.html"
   )
 
   // fallback if not defined in errorCodes
   private val errorCodeCategories = Map(
-    "AS-001" -> s"$baseUrl/java-services/views.html",
-    "AS-002" -> s"$baseUrl/java-services/value-entity.html",
-    "AS-003" -> s"$baseUrl/java-services/eventsourced.html",
-    "AS-004" -> s"$baseUrl/java-services/" // no single page for eventing
+    "AS-001" -> s"$baseUrl/java/views.html",
+    "AS-002" -> s"$baseUrl/java/value-entity.html",
+    "AS-003" -> s"$baseUrl/java/eventsourced.html",
+    "AS-004" -> s"$baseUrl/java/" // no single page for eventing
   )
 
   def forErrorCode(code: String): Option[String] =

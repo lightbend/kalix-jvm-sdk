@@ -4,8 +4,11 @@ This example project implements an API for a shopping cart using an Akka Serverl
 
 ## See also
 
-* designing - while designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
-* developing - it may be useful to read up on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html) and in particular the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
+* designing - while designing your service it is useful to
+  read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
+* developing - it may be useful to read up
+  on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html) and in particular
+  the [Java section](https://developer.lightbend.com/docs/akka-serverless/java/index.html)
 
 ## Building
 
@@ -15,13 +18,12 @@ To build, at a minimum you need to generate and process sources, particularly wh
 mvn compile
 ```
 
-
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
-To start the proxy, run the following command from this directory:
-
+In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file
+contains the configuration required to run the proxy for a locally running application. It also contains the
+configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to. To start the
+proxy, run the following command from this directory:
 
 ```shell
 docker-compose up
@@ -40,7 +42,10 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/js-services/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
+In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
+see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST
+requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Send an AddItem command:
 
@@ -70,8 +75,8 @@ grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' loca
 
 ## Running integration tests
 
-The integration tests in `src/it` are added by setting it as test source directory.
-To  Integration Tests in src/it/java with
+The integration tests in `src/it` are added by setting `it` as test source directory.
+To run the Integration Tests in `src/it/java` use
 
 ```shell
 mvn verify -Pit
