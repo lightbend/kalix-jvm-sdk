@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.akkaserverless;
 
 import com.google.protobuf.Descriptors;
@@ -21,97 +37,126 @@ import scala.collection.Iterable;
 import scala.util.Either;
 
 /**
- * Goal which reads in protobuf files and produces entities given their
- * commands, events and states. Entities are produced in the source file
- * directory for Java, unless they already exist, in which case they will be
- * modified appropriately. Only type declarations associated with commands,
- * events and state are affected i.e. not tbe body of existing methods.
+ * Goal which reads in protobuf files and produces entities given their commands, events and states.
+ * Entities are produced in the source file directory for Java, unless they already exist, in which
+ * case they will be modified appropriately. Only type declarations associated with commands, events
+ * and state are affected i.e. not tbe body of existing methods.
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMojo extends AbstractMojo {
-    @Parameter(defaultValue = "${project}")
-    private MavenProject project;
+  @Parameter(defaultValue = "${project}")
+  private MavenProject project;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.basedir}", property = "baseDir", required = true)
-    private File baseDir;
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = "${project.basedir}", property = "baseDir", required = true)
+  private File baseDir;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "user-function.desc", required = true)
-    private String descriptorSetFileName;
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = "user-function.desc", required = true)
+  private String descriptorSetFileName;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.directory}/generated-resources/protobuf/descriptor-sets", required = true)
-    private File descriptorSetOutputDirectory;
+  @SuppressWarnings("unused")
+  @Parameter(
+      defaultValue = "${project.build.directory}/generated-resources/protobuf/descriptor-sets",
+      required = true)
+  private File descriptorSetOutputDirectory;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java", required = true)
-    private File generatedSourceDirectory;
+  @SuppressWarnings("unused")
+  @Parameter(
+      defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java",
+      required = true)
+  private File generatedSourceDirectory;
 
-    // src/main/java
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sourceDirectory", required = true)
-    private File sourceDirectory;
+  // src/main/java
+  @SuppressWarnings("unused")
+  @Parameter(
+      defaultValue = "${project.build.sourceDirectory}",
+      property = "sourceDirectory",
+      required = true)
+  private File sourceDirectory;
 
-    // src/test/java
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "testSourceDirectory", required = true)
-    private File testSourceDirectory;
+  // src/test/java
+  @SuppressWarnings("unused")
+  @Parameter(
+      defaultValue = "${project.build.testSourceDirectory}",
+      property = "testSourceDirectory",
+      required = true)
+  private File testSourceDirectory;
 
-    // src/test/java
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "integrationTestSourceDirectory", required = true)
-    private File integrationTestSourceDirectory;
+  // src/test/java
+  @SuppressWarnings("unused")
+  @Parameter(
+      defaultValue = "${project.build.testSourceDirectory}",
+      property = "integrationTestSourceDirectory",
+      required = true)
+  private File integrationTestSourceDirectory;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.groupId}.Main", property = "mainClass", required = true)
-    private String mainClass;
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = "${project.groupId}.Main", property = "mainClass", required = true)
+  private String mainClass;
 
-    @SuppressWarnings("unused")
-    @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
-    private String serviceNamesFilter;
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
+  private String serviceNamesFilter;
 
-    private final Log log = getLog();
+  private final Log log = getLog();
 
-    /**
-     * Given a protobuf descriptor, we inspect it and search for entities, commands,
-     * events and state declarations, storing them in an appropriate structure. That
-     * structure then drives the code generation phase.
-     */
-    public void execute() throws MojoExecutionException {
-        File protobufDescriptor = descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName).toFile();
-        if (protobufDescriptor.exists()) {
-            log.info("Inspecting proto file descriptor for entity generation...");
-            Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors = DescriptorSet
-                    .fileDescriptors(protobufDescriptor);
-            if (descriptors.isRight()) {
+  /**
+   * Given a protobuf descriptor, we inspect it and search for entities, commands, events and state
+   * declarations, storing them in an appropriate structure. That structure then drives the code
+   * generation phase.
+   */
+  public void execute() throws MojoExecutionException {
+    File protobufDescriptor =
+        descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName).toFile();
+    if (protobufDescriptor.exists()) {
+      log.info("Inspecting proto file descriptor for entity generation...");
+      Either<
+              DescriptorSet.CannotOpen,
+              Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>>
+          descriptors = DescriptorSet.fileDescriptors(protobufDescriptor);
+      if (descriptors.isRight()) {
 
-                Iterable<FileDescriptor> fileDescriptors = descriptors.right().get().map(descriptor -> {
-                    if (descriptor.isRight()) {
+        Iterable<FileDescriptor> fileDescriptors =
+            descriptors
+                .right()
+                .get()
+                .map(
+                    descriptor -> {
+                      if (descriptor.isRight()) {
                         return descriptor.right().get();
-                    } else {
-                        throw new RuntimeException(new MojoExecutionException(
+                      } else {
+                        throw new RuntimeException(
+                            new MojoExecutionException(
                                 "There was a problem building the file descriptor from its protobuf: "
-                                        + descriptor.left().get().toString()));
-                    }
-                });
-                ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors);
-                Iterable<Path> generated = SourceGenerator.generate(model, sourceDirectory.toPath(),
-                        testSourceDirectory.toPath(), integrationTestSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
-                Path absBaseDir = baseDir.toPath().toAbsolutePath();
-                generated.foreach(p -> {
-                    log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
-                    return null;
-                });
+                                    + descriptor.left().get().toString()));
+                      }
+                    });
+        ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors);
+        Iterable<Path> generated =
+            SourceGenerator.generate(
+                model,
+                sourceDirectory.toPath(),
+                testSourceDirectory.toPath(),
+                integrationTestSourceDirectory.toPath(),
+                generatedSourceDirectory.toPath(),
+                mainClass);
+        Path absBaseDir = baseDir.toPath().toAbsolutePath();
+        generated.foreach(
+            p -> {
+              log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
+              return null;
+            });
 
-                project.addCompileSourceRoot(generatedSourceDirectory.toString());
+        project.addCompileSourceRoot(generatedSourceDirectory.toString());
 
-            } else {
-                throw new MojoExecutionException("There was a problem opening the protobuf descriptor file",
-                        descriptors.left().get().e());
-            }
-        } else {
-            log.info("Skipping generation because there is no protobuf descriptor found.");
-        }
+      } else {
+        throw new MojoExecutionException(
+            "There was a problem opening the protobuf descriptor file",
+            descriptors.left().get().e());
+      }
+    } else {
+      log.info("Skipping generation because there is no protobuf descriptor found.");
     }
+  }
 }

@@ -5,6 +5,7 @@ object Dependencies {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 7
     val FrameworkVersion = "0.7.0-beta.10"
+    val CodegenVersion = "0.29.0"
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -19,6 +20,9 @@ object Dependencies {
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.3"
   val LogbackContribVersion = "0.1.5"
+
+  val MavenVersion = "3.8.1"
+
   val TestContainersVersion = "1.15.3"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
