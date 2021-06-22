@@ -13,9 +13,7 @@ lazy val `akkasls-codegen` =
     )
     .aggregate(
       `akkasls-codegen-core`,
-      `akkasls-codegen-java`,
-      `akkasls-codegen-js`,
-      `akkasls-codegen-js-cli`
+      `akkasls-codegen-java`
     )
 
 lazy val `akkasls-codegen-core` =
@@ -54,84 +52,6 @@ lazy val `akkasls-codegen-java` =
       )
     )
     .dependsOn(`akkasls-codegen-core`)
-
-lazy val `akkasls-codegen-js` =
-  project
-    .in(file("js-gen"))
-    .enablePlugins(AutomateHeaderPlugin)
-    .settings(commonSettings)
-    .settings(
-      libraryDependencies ++= Seq(
-        library.kiama,
-        library.commonsIo       % Test,
-        library.munit           % Test,
-        library.munitScalaCheck % Test
-      )
-    )
-    .dependsOn(`akkasls-codegen-core`)
-
-lazy val cachedNativeImage =
-  taskKey[File]("A cached version of the nativeImage task key, that only rebuilds when required.")
-
-lazy val `akkasls-codegen-js-cli` =
-  project
-    .in(file("js-gen-cli"))
-    .configs(IntegrationTest)
-    .enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin, NativeImagePlugin)
-    .settings(commonSettings, Defaults.itSettings)
-    .settings(
-      buildInfoKeys := Seq[BuildInfoKey](version),
-      buildInfoPackage := "com.lightbend.akkasls.codegen.js",
-      name in NativeImage := "akkasls-codegen-js",
-      /**
-        * Due to limitations of the Windows command prompt/PowerShell, with a the native-image command fails with a long classpath
-        * By using sbt-assembly, we first build a fat JAR which is then able to be used in place of the full classpath
-        *
-        * This has been raised as an issue against the plugin: https://github.com/scalameta/sbt-native-image/issues/26
-        */
-      fullClasspath in Compile := Seq(Attributed(assembly.value)(AttributeMap.empty)),
-      cachedNativeImage := Def.taskDyn {
-        import sbt.util.CacheImplicits._
-
-        val store = streams.value.cacheStoreFactory.make("assembled-jar-info-cache")
-
-        val trackedNativeImage =
-          Tracked.inputChanged[ModifiedFileInfo, Def.Initialize[Task[File]]](store) {
-            case (fatJarChanged, _) =>
-              if (fatJarChanged) {
-                // Assembled fat JAR has changed, rebuild native image
-                nativeImage
-              } else {
-                streams.value.log.info(s"Native image up to date: ${nativeImageOutput.value}")
-                nativeImageOutput.toTask
-              }
-          }
-
-        trackedNativeImage(FileInfo.lastModified(assembly.value))
-      }.value,
-      nativeImageAgentMerge := true,
-      nativeImageOptions ++= Seq(
-        "--no-fallback",
-        "-H:JNIConfigurationFiles=" + (resourceDirectory in Compile).value / "jni-config.json",
-        "-H:DynamicProxyConfigurationFiles=" + (resourceDirectory in Compile).value / "proxy-config.json",
-        "-H:ReflectionConfigurationFiles=" + (resourceDirectory in Compile).value / "reflect-config.json",
-        "-H:ResourceConfigurationFiles=" + (resourceDirectory in Compile).value / "resource-config.json"
-      ),
-      libraryDependencies ++= Seq(
-        library.scopt,
-        library.munit           % "it,test",
-        library.munitScalaCheck % "it,test",
-        library.logback         % "it",
-        library.requests        % "it",
-        library.testcontainers  % "it",
-        library.typesafeConfig  % "it"
-      ),
-      testOptions in IntegrationTest += Tests.Argument(
-        s"-Djs-codegen-cli.native-image=${cachedNativeImage.value}"
-      ),
-      skip in publish := true
-    )
-    .dependsOn(`akkasls-codegen-js`)
 
 // *****************************************************************************
 // Library dependencies
