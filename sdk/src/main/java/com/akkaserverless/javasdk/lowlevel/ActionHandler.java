@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk.lowlevel;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.action.ActionContext;
+import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.google.protobuf.Any;
 
 import java.util.concurrent.CompletionStage;

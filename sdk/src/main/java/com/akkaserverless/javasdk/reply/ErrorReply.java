@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package com.akkaserverless.javasdk.reply;
 
+import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Reply;
-import com.google.protobuf.Any;
 
-/**
- * Low level interface for handling commands on a value based entity.
- *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * CommandHandler} and similar annotations should be used.
- */
-public interface ValueEntityHandler {
+import java.util.Collection;
+
+/** An error reply. */
+public interface ErrorReply<T> extends Reply<T>, Effect<T> {
 
   /**
-   * Handle the given command.
+   * The description of the error.
    *
-   * @param command The command to handle.
-   * @param context The command context.
-   * @return The reply to the command, if the command isn't being forwarded elsewhere.
+   * @return The error description.
    */
-  Reply<Any> handleCommand(Any command, CommandContext<Any> context);
+  String description();
+
+  ErrorReply<T> addSideEffects(Collection<SideEffect> effects);
+
+  ErrorReply<T> addSideEffects(SideEffect... effects);
 }

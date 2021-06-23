@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package com.akkaserverless.javasdk.lowlevel;
+
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.google.protobuf.Any;
 
 /**
  * Low level interface for handling commands on a value based entity.
  *
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
- * be used.
+ * CommandHandler} and similar annotations should be used.
  */
-public interface ValueEntityFactory {
+public interface ValueEntityHandler {
+
   /**
-   * Create an entity handler for the given context.
+   * Handle the given command.
    *
-   * @param context The context.
-   * @return The handler for the given context.
+   * @param command The command to handle.
+   * @param context The command context.
+   * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  ValueEntityHandler create(ValueEntityContext context);
+  Reply<Any> handleCommand(Any command, CommandContext<Any> context);
 }

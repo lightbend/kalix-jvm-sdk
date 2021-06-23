@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.SnapshotContext;
 import com.google.protobuf.Any;
 
 import java.util.Optional;

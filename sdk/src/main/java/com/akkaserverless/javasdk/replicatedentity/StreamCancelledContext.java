@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.EffectContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 import java.util.function.Consumer;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * <p>This is sent to callbacks registered by {@link StreamedCommandContext#onCancel(Consumer)}.
  */
 public interface StreamCancelledContext
-    extends ReplicatedEntityContext, EffectContext, MetadataContext {
+    extends ReplicatedEntityContext, SideEffectContext, MetadataContext {
   /**
    * The id of the command that the stream was for.
    *

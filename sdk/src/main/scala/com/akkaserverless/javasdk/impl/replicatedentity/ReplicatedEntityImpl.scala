@@ -23,7 +23,6 @@ import com.akkaserverless.javasdk.replicatedentity.{ReplicatedData => _, _}
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
 import com.akkaserverless.protocol.entity.Command
@@ -37,6 +36,8 @@ import java.util.{function, Optional}
 import scala.jdk.CollectionConverters._
 
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
+import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory
+import com.akkaserverless.javasdk.reply.ErrorReply
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandlerFactory,
@@ -206,7 +207,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
 
       val clientAction = ctx.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
-      if (ctx.hasError && !reply.isInstanceOf[FailureReply[_]]) {
+      if (ctx.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
         verifyNoDelta("failed command handling")
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(
@@ -315,7 +316,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
                 )
               )
             } else if (clientAction.isDefined || context.isEnded ||
-                       context.sideEffects.nonEmpty || !reply.effects().isEmpty) {
+                       context.sideEffects.nonEmpty || !reply.sideEffects().isEmpty) {
               if (context.isEnded) {
                 subscribers -= id
                 cancelListeners -= id
@@ -367,7 +368,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         extends CommandContext
         with AbstractReplicatedEntityContext
         with CapturingReplicatedEntityFactory
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with AbstractClientActionContext
         with DeletableContext
         with ActivatableContext {
@@ -383,7 +384,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
     class ReplicatedEntityStreamCancelledContext(cancelled: StreamCancelled, override val metadata: Metadata)
         extends StreamCancelledContext
         with CapturingReplicatedEntityFactory
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with ActivatableContext {
       override final def commandId(): Long = cancelled.id
     }
@@ -392,7 +393,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         extends SubscriptionContext
         with AbstractReplicatedEntityContext
         with AbstractClientActionContext
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with ActivatableContext {
       private final var ended = false
 

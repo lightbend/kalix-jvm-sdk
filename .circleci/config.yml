@@ -14,7 +14,8 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          # FIXME change back to main
+          parent: sdk-codegen-dev
 
   install-java-11:
     description: install openjdk-11
