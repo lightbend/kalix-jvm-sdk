@@ -19,7 +19,7 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.example.shoppingcart.MainComponentRegistrations.withGeneratedComponentsAdded;
+import static com.example.shoppingcart.MainComponentRegistrations2.withGeneratedComponentsAdded;
 
 public final class Main {
 

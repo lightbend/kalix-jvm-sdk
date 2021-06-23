@@ -16,93 +16,110 @@
 
 package com.example.shoppingcart.domain;
 
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityEffect;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
-public class ShoppingCartImpl extends ShoppingCartInterface {
+public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @SuppressWarnings("unused")
   private final String entityId;
-
-  private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
 
   public ShoppingCartImpl(@EntityId String entityId) {
     this.entityId = entityId;
   }
 
   @Override
-  public ShoppingCartDomain.Cart snapshot() {
-    return ShoppingCartDomain.Cart.newBuilder()
-        .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
-        .build();
+  protected ShoppingCartDomain.Cart emptyState() {
+    return ShoppingCartDomain.Cart.getDefaultInstance();
   }
 
   @Override
-  public void handleSnapshot(ShoppingCartDomain.Cart cart) {
-    this.cart.clear();
-    for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
-      this.cart.put(item.getProductId(), convert(item));
+  public Effect<Empty> addItem(
+          ShoppingCartApi.AddLineItem command,
+          ShoppingCartDomain.Cart currentState,
+          EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
+          CommandContext ctx) {
+    if (command.getQuantity() <= 0) {
+      return effectBuilder.failure("Cannot add negative quantity of to item" + command.getProductId());
     }
-  }
 
-  @Override
-  protected Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
-    if (item.getQuantity() <= 0) {
-      throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
-    }
-    ctx.emit(
-        ShoppingCartDomain.ItemAdded.newBuilder()
+    ShoppingCartDomain.ItemAdded event = ShoppingCartDomain.ItemAdded.newBuilder()
             .setItem(
-                ShoppingCartDomain.LineItem.newBuilder()
-                    .setProductId(item.getProductId())
-                    .setName(item.getName())
-                    .setQuantity(item.getQuantity())
-                    .build())
-            .build());
-    return Empty.getDefaultInstance();
+                    ShoppingCartDomain.LineItem.newBuilder()
+                            .setProductId(command.getProductId())
+                            .setName(command.getName())
+                            .setQuantity(command.getQuantity())
+                            .build())
+            .build();
+
+    return effectBuilder
+            .emitEvent(event)
+            .thenReply(newState -> Empty.getDefaultInstance());
   }
 
   @Override
-  protected Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
-    if (!cart.containsKey(item.getProductId())) {
-      throw ctx.fail(
-          "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
+  public Effect<Empty> removeItem(
+          ShoppingCartApi.RemoveLineItem command,
+          ShoppingCartDomain.Cart currentState,
+          EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
+          CommandContext ctx) {
+    if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
+      return effectBuilder.failure(
+          "Cannot remove item " + command.getProductId() + " because it is not in the cart.");
     }
-    ctx.emit(ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
-    return Empty.getDefaultInstance();
+
+    ShoppingCartDomain.ItemRemoved event =
+            ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(command.getProductId()).build();
+
+    return effectBuilder
+            .emitEvent(event)
+            .thenReply(newState -> Empty.getDefaultInstance());
   }
 
   @Override
-  protected ShoppingCartApi.Cart getCart(ShoppingCartApi.GetShoppingCart command, CommandContext ctx) {
-    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
+  public Effect<ShoppingCartApi.Cart> getCart(
+          ShoppingCartApi.GetShoppingCart command,
+          ShoppingCartDomain.Cart currentState,
+          EventSourcedEntityEffect.Builder<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> effectBuilder,
+          CommandContext ctx) {
+    List<ShoppingCartApi.LineItem> apiItems =
+            currentState.getItemsList().stream()
+            .map(this::convert)
+            .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
+            .collect(Collectors.toList());
+    ShoppingCartApi.Cart apiCart = ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems).build();
+    return effectBuilder.message(apiCart);
   }
 
   @Override
-  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
-    ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
-    if (item == null) {
-      item = convert(itemAdded.getItem());
-    } else {
-      item =
-          item.toBuilder()
-              .setQuantity(item.getQuantity() + itemAdded.getItem().getQuantity())
-              .build();
-    }
-    cart.put(item.getProductId(), item);
+  protected ShoppingCartDomain.Cart itemAdded(ShoppingCartDomain.ItemAdded itemAdded, ShoppingCartDomain.Cart currentState) {
+    ShoppingCartDomain.LineItem item = itemAdded.getItem();
+    ShoppingCartDomain.LineItem lineItem = updateItem(item, currentState);
+    List<ShoppingCartDomain.LineItem> lineItems = removeItemByProductId(currentState, item.getProductId());
+    lineItems.add(lineItem);
+    lineItems.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
+    return ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build();
   }
 
   @Override
-  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
-    cart.remove(itemRemoved.getProductId());
+  protected ShoppingCartDomain.Cart itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved, ShoppingCartDomain.Cart currentState) {
+    List<ShoppingCartDomain.LineItem> items = removeItemByProductId(currentState, itemRemoved.getProductId());
+    items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
+    return ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build();
   }
-
 
   private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
     return ShoppingCartApi.LineItem.newBuilder()
@@ -112,11 +129,25 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
         .build();
   }
 
-  private ShoppingCartDomain.LineItem convert(ShoppingCartApi.LineItem item) {
-    return ShoppingCartDomain.LineItem.newBuilder()
-        .setProductId(item.getProductId())
-        .setName(item.getName())
-        .setQuantity(item.getQuantity())
-        .build();
+  private ShoppingCartDomain.LineItem updateItem(
+          ShoppingCartDomain.LineItem item, ShoppingCartDomain.Cart cart) {
+    return findItemByProductId(cart, item.getProductId())
+        .map(li -> li.toBuilder().setQuantity(li.getQuantity() + item.getQuantity()).build())
+        .orElse(item);
   }
+
+  private Optional<ShoppingCartDomain.LineItem> findItemByProductId(
+      ShoppingCartDomain.Cart cart, String productId) {
+    Predicate<ShoppingCartDomain.LineItem> lineItemExists =
+        lineItem -> lineItem.getProductId().equals(productId);
+    return cart.getItemsList().stream().filter(lineItemExists).findFirst();
+  }
+
+  private List<ShoppingCartDomain.LineItem> removeItemByProductId(
+      ShoppingCartDomain.Cart cart, String productId) {
+    return cart.getItemsList().stream()
+        .filter(lineItem -> !lineItem.getProductId().equals(productId))
+        .collect(Collectors.toList());
+  }
+
 }

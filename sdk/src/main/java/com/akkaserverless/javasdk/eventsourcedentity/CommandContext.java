@@ -55,6 +55,8 @@ public interface CommandContext
    * current behavior will immediately be executed to pick it up.
    *
    * @param event The event to emit.
+   * @deprecated Use EventSourcedEffect.emitEvent instead.
    */
+  @Deprecated
   void emit(Object event);
 }
