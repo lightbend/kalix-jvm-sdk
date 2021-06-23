@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.reply;
 
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
@@ -23,7 +24,7 @@ import com.akkaserverless.javasdk.ServiceCall;
 import java.util.Collection;
 
 /** A forward reply. */
-public interface ForwardReply<T> extends Reply<T> {
+public interface ForwardReply<T> extends Reply<T>, Effect<T> {
 
   /**
    * The service call that is being forwarded to.

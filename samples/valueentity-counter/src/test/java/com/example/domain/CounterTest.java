@@ -1,6 +1,7 @@
 package com.example.domain;
 
 import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.reply.FailureReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityEffect;
@@ -11,7 +12,7 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -65,13 +66,9 @@ public class CounterTest {
         ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder =
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
-        Mockito.when(context.fail(anyString()))
-                .thenReturn(new MockedContextFailure());
-
-        assertThrows(MockedContextFailure.class, () -> {
-            CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
-            entity.increase(message, currentState, effectBuilder, context);
-        });
+        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
+        Effect<Empty> reply = entity.increase(message, currentState, effectBuilder, context);
+        assertThat(reply,  is(instanceOf(FailureReply.class)));
     }
 
     @Test

@@ -30,7 +30,7 @@ public class CounterImpl extends CounterInterface2 {
             ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         if (command.getValue() < 0) { // <1>
-            throw ctx.fail("Increase requires a positive value. It was [" + command.getValue() + "].");
+            return effectBuilder.failure("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState state = currentState // <2>
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build()); // <3>
@@ -49,7 +49,7 @@ public class CounterImpl extends CounterInterface2 {
             ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         if (command.getValue() < 0) {
-            throw ctx.fail("Decrease requires a positive value. It was [" + command.getValue() + "].");
+            return effectBuilder.failure("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState state = currentState
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
