@@ -2,15 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
  
   <groupId>com.akkaserverless</groupId>
   <artifactId>akkaserverless-maven-java</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <url>https://www.lightbend.com/akka-serverless</url>
+  <url>https://www.lightbend.com/akkaserverless</url>
   <scm>
-    <url>https://github.com/lightbend/akkaserverless-maven-java</url>
+    <url>https://github.com/lightbend/akkaserverless-java-sdk</url>
   </scm>
 
   <developers>
@@ -46,31 +52,35 @@
   </repositories>
 
   <distributionManagement>
-    <repository>
-      <id>lightbend-akkaserverless-cloudsmith</id>
-      <name>Cloudsmith</name>
-      <url>https://maven.cloudsmith.io/lightbend/akkaserverless/</url>
-    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <build>
     <pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-      </plugin>
-      <plugin>
-        <!-- 
-          this plugin allow us to change the version of this projects and submodules
-          we use it in CI to align the project with the current SDK version
-        -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>2.8.1</version>
-      </plugin>
-    </plugins>
+      <plugins>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.7</version>
+	</plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <!-- 
+            this plugin allow us to change the version of this projects and submodules
+            we use it in CI to align the project with the current SDK version
+          -->
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.8.1</version>
+        </plugin>
+      </plugins>
     </pluginManagement>
   </build>
 

@@ -230,6 +230,19 @@ jobs:
       - run: sbt ci-release
       - save_deps_cache
 
+  publish-maven:
+    docker:
+      - image: circleci/openjdk:8
+    steps:
+      - checkout
+      - set-sdk-version
+      - run:
+          name: Publish maven plugin and archetype
+          command: |
+            cd maven-java
+          mvn -B versions:set -DnewVersion=$SDK_VERSSION
+          mvn -B deploy
+
   publish-tck:
     docker:
       - image: circleci/openjdk:11
@@ -289,6 +302,20 @@ workflows:
             tags:
               only: /.*/
       - publish:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checks
+            - tests
+            - integration-tests
+            - maven-java-tests
+            - samples-tests    
+            - tck-tests
+            - validate-docs   
+      - publish-maven-plugin:
           filters: # version tags only
             tags:
               only: /^v.*/
