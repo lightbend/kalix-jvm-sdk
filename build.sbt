@@ -3,6 +3,7 @@ import Dependencies._
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
   .aggregate(
+    `maven-plugin`,
     sdk,
     testkit,
     docs,
