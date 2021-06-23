@@ -52,16 +52,25 @@ public interface CommandContext<T>
    * @return the current state or empty if none have been created.
    * @throws IllegalStateException If the current entity state have been deleted in the command
    *     invocation.
+   * @deprecated Use state method parameter instead.
    */
+  @Deprecated
   Optional<T> getState();
 
   /**
    * Update the entity with the new state. The state will be persisted.
    *
    * @param state The state to persist.
+   * @deprecated Use ValueEntityEffect.updateState instead.
    */
+  @Deprecated
   void updateState(T state);
 
-  /** Delete the entity state. */
+  /**
+   * Delete the entity state.
+   *
+   * @deprecated Use ValueEntityEffect.deleteState instead.
+   */
+  @Deprecated
   void deleteState();
 }

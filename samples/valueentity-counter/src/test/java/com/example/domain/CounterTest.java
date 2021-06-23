@@ -25,57 +25,72 @@ public class CounterTest {
     @Test
     public void increaseNoPriorState() {
         entity = new CounterImpl(entityId); // <1>
-        CommandContext<CounterDomain.CounterState> context = contextWithoutState(); // <2>
+
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class); // <2>
+        Optional<CounterDomain.CounterState> currentState = Optional.empty();
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
-        entity.increase(message, context); // <4>
+        entity.increase(message, currentState, context); // <4>
 
+        // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <5>
     }
     // end::increase[]
     @Test
     public void increaseWithPriorState() {
         entity = new CounterImpl(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
+
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
+        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
-        entity.increase(message, context);
+        entity.increase(message, currentState, context);
 
+        // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(13 + 42).build());
     }
 
     @Test
     public void increaseShouldFailWithNegativeValue() {
         entity = new CounterImpl(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(27);
+
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
+        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(27).build());
+
         Mockito.when(context.fail(anyString()))
                 .thenReturn(new MockedContextFailure());
 
         assertThrows(MockedContextFailure.class, () -> {
             CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
-            entity.increase(message, context);
+            entity.increase(message, currentState, context);
         });
     }
 
     @Test
     public void decreaseNoPriorState() {
         entity = new CounterImpl(entityId);
-        CommandContext<CounterDomain.CounterState> context = contextWithoutState();
+
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
+        Optional<CounterDomain.CounterState> currentState = Optional.empty();
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
-        entity.decrease(message, context);
+        entity.decrease(message, currentState, context);
 
+        // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(-42).build());
     }
     
     @Test
     public void resetTest() {
         entity = new CounterImpl(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
+
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
+        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
-        entity.reset(message, context);
+        entity.reset(message, currentState, context);
 
+        // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(0).build());
     }
     
@@ -83,25 +98,13 @@ public class CounterTest {
     public void getCurrentCounterTest() {
         entity = new CounterImpl(entityId);
 
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
+        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
+        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(message, context);
+        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(message, currentState, context);
 
         assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
-    }
-    // tag::contextWithoutState[]
-    private CommandContext<CounterDomain.CounterState> contextWithoutState() {
-        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
-        Mockito.when(context.getState()).thenReturn(Optional.empty());
-        return context;
-    }
-    // end::contextWithoutState[]
-
-    private CommandContext<CounterDomain.CounterState> getCounterStateCommandContext(int value) {
-        CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
-        Mockito.when(context.getState()).thenReturn(Optional.of(CounterDomain.CounterState.newBuilder().setValue(value).build()));
-        return context;
     }
 
 }

@@ -33,7 +33,15 @@ import com.akkaserverless.javasdk.reply.MessageReply;
  *
  * @param <T> The type of the message that must be returned by this call.
  */
-public interface ValueEntityEffect<T> extends Effect<T> {
+public abstract class ValueEntityEffect<T> implements Effect<T> {
+
+  public static <T, S> ValueEntityEffect<T> updateState(S newState) {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
+
+  public static <T, S> ValueEntityEffect<T> deleteState() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
 
   /**
    * Create a message reply.
@@ -41,7 +49,7 @@ public interface ValueEntityEffect<T> extends Effect<T> {
    * @param payload The payload of the reply.
    * @return A message reply.
    */
-  static <T> MessageReply<T> message(T payload) {
+  public static <T> MessageReply<T> message(T payload) { // FIXME rename to reply? Note thenReply
     return message(payload, Metadata.EMPTY);
   }
 
@@ -52,7 +60,7 @@ public interface ValueEntityEffect<T> extends Effect<T> {
    * @param metadata The metadata for the message.
    * @return A message reply.
    */
-  static <T> MessageReply<T> message(T payload, Metadata metadata) {
+  public static <T> MessageReply<T> message(T payload, Metadata metadata) {
     return new MessageReplyImpl<>(payload, metadata);
   }
 
@@ -62,7 +70,7 @@ public interface ValueEntityEffect<T> extends Effect<T> {
    * @param serviceCall The service call representing the forward.
    * @return A forward reply.
    */
-  static <T> ForwardReply<T> forward(ServiceCall serviceCall) {
+  public static <T> ForwardReply<T> forward(ServiceCall serviceCall) {
     return new ForwardReplyImpl<>(serviceCall);
   }
 
@@ -72,7 +80,7 @@ public interface ValueEntityEffect<T> extends Effect<T> {
    * @param description The description of the failure.
    * @return A failure reply.
    */
-  static <T> FailureReply<T> failure(String description) {
+  public static <T> FailureReply<T> failure(String description) {
     return new FailureReplyImpl<>(description);
   }
 
@@ -83,7 +91,30 @@ public interface ValueEntityEffect<T> extends Effect<T> {
    *
    * @return The reply.
    */
-  static <T> Reply<T> noReply() {
+  public static <T> Reply<T> noReply() {
     return NoReply.apply();
   }
+
+  /**
+   * Reply after for example {@link ValueEntityEffect#updateState}.
+   *
+   * @param payload The payload of the reply.
+   * @return A message reply.
+   */
+  public MessageReply<T> thenReply(T payload) {
+    return thenReply(payload, Metadata.EMPTY);
+  }
+
+  /**
+   * Reply after for example {@link ValueEntityEffect#updateState}.
+   *
+   * @param payload The payload of the reply.
+   * @param metadata The metadata for the message.
+   * @return A message reply.
+   */
+  public MessageReply<T> thenReply(T payload, Metadata metadata) {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
+
+  // FIXME thenForward
 }

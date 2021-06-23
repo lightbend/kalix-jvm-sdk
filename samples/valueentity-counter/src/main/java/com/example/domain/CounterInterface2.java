@@ -6,6 +6,8 @@ import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
+import java.util.Optional;
+
 /** A value entity. */
 public abstract class CounterInterface2 {
     
@@ -16,15 +18,15 @@ public abstract class CounterInterface2 {
     }
     
     @CommandHandler(name = "Increase")
-    public abstract Effect<Empty> increase(CounterApi.IncreaseValue command, CommandContext<CounterDomain.CounterState> ctx);
+    public abstract Effect<Empty> increase(CounterApi.IncreaseValue command, Optional<CounterDomain.CounterState> currentState, CommandContext<CounterDomain.CounterState> ctx);
 
     @CommandHandler(name = "Decrease")
-    public abstract Effect<Empty> decrease(CounterApi.DecreaseValue command, CommandContext<CounterDomain.CounterState> ctx);
+    public abstract Effect<Empty> decrease(CounterApi.DecreaseValue command, Optional<CounterDomain.CounterState> currentState, CommandContext<CounterDomain.CounterState> ctx);
 
     @CommandHandler(name = "Reset")
-    public abstract Effect<Empty> reset(CounterApi.ResetValue command, CommandContext<CounterDomain.CounterState> ctx);
+    public abstract Effect<Empty> reset(CounterApi.ResetValue command, Optional<CounterDomain.CounterState> currentState, CommandContext<CounterDomain.CounterState> ctx);
 
     @CommandHandler(name = "GetCurrentCounter")
-    public abstract Effect<CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter command, CommandContext<CounterDomain.CounterState> ctx);
+    public abstract Effect<CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter command, Optional<CounterDomain.CounterState> currentState, CommandContext<CounterDomain.CounterState> ctx);
 
 }
