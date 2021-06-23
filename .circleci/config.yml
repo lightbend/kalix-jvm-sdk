@@ -338,7 +338,7 @@ workflows:
             - samples-tests    
             - tck-tests
             - validate-docs   
-      - publish-maven-plugin:
+      - publish-maven:
           filters: # version tags only
             tags:
               only: /^v.*/
