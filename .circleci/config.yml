@@ -240,8 +240,19 @@ jobs:
           name: Publish maven plugin and archetype
           command: |
             cd maven-java
-          mvn -B versions:set -DnewVersion=$SDK_VERSSION
-          mvn -B -pl akkaserverless-maven-plugin deploy
+            cat >~/.m2/settings.xml <<EOF;
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+            <servers>
+              <server>
+                <id>ossrh</id>
+                <username>$SONATYPE_USERNAME</username>
+                <password>$SONATYPE_PASSWORD</password>
+              </server>
+            </servers>
+            EOF
+            mvn -B versions:set -DnewVersion=$SDK_VERSSION
+            mvn -B -pl akkaserverless-maven-plugin deploy
 
   publish-tck:
     docker:
