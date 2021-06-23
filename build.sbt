@@ -15,6 +15,7 @@ lazy val `maven-plugin` = project
   .in(file("maven-java/akkaserverless-maven-plugin"))
   .enablePlugins(PublishSonatype)
   .settings(
+    name := "akkaserverless-maven-plugin",
     publishMavenStyle := true,
     crossPaths := false,
     // for codegen
