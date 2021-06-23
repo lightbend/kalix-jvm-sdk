@@ -19,18 +19,18 @@ lazy val `maven-plugin` = project
     // for codegen
     resolvers += "Cloudsmith" at "https://dl.cloudsmith.io/public/lightbend/akkaserverless/maven",
     libraryDependencies ++= Seq(
-      "com.lightbend" %% "akkasls-codegen-java" % AkkaServerless.CodegenVersion,
-      "org.apache.maven" % "maven-plugin-api" % MavenVersion % Provided,
-      "org.apache.maven" % "maven-core" % MavenVersion % Provided,
-      "org.apache.maven" % "maven-artifact" % MavenVersion % Provided,
-      "org.apache.maven.plugin-tools" % "maven-plugin-annotations" % "3.6.0",
-      // TODO update to 4.13.2
-      "junit" % "junit" % "4.12" % Test,
-      "org.apache.maven.plugin-testing" % "maven-plugin-testing-harness" % "3.3.0" % Test,
-      "com.github.sbt" % "junit-interface" % "0.12" % Test,
-      "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
-      "ch.qos.logback" % "logback-classic" % LogbackVersion % Provided
-    ),
+        "com.lightbend" %% "akkasls-codegen-java" % AkkaServerless.CodegenVersion,
+        "org.apache.maven" % "maven-plugin-api" % MavenVersion % Provided,
+        "org.apache.maven" % "maven-core" % MavenVersion % Provided,
+        "org.apache.maven" % "maven-artifact" % MavenVersion % Provided,
+        "org.apache.maven.plugin-tools" % "maven-plugin-annotations" % "3.6.0",
+        // TODO update to 4.13.2
+        "junit" % "junit" % "4.12" % Test,
+        "org.apache.maven.plugin-testing" % "maven-plugin-testing-harness" % "3.3.0" % Test,
+        "com.github.sbt" % "junit-interface" % "0.12" % Test,
+        "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
+        "ch.qos.logback" % "logback-classic" % LogbackVersion % Provided
+      ),
     testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))
   )
 
