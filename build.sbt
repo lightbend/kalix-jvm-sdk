@@ -13,7 +13,7 @@ lazy val `akkaserverless-java-sdk` = project
 
 lazy val `maven-plugin` = project
   .in(file("maven-java/akkaserverless-maven-plugin"))
-  .enablePlugins(PublishSonatype)
+  .enablePlugins(SbtMavenPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-maven-plugin",
     publishMavenStyle := true,

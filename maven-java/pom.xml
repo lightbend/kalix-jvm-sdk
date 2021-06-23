@@ -75,6 +75,7 @@
   </build>
 
   <modules>
+    <module>akkaserverless-maven-plugin</module>
     <module>akkaserverless-maven-archetype-value-entity</module>
     <module>akkaserverless-maven-archetype-event-sourced-entity</module>
   </modules>
