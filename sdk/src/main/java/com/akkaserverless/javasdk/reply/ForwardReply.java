@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.reply;
 
-import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 
@@ -32,7 +32,7 @@ public interface ForwardReply<T> extends Reply<T> {
    */
   ServiceCall serviceCall();
 
-  ForwardReply<T> addEffects(Collection<Effect> effects);
+  ForwardReply<T> addSideEffects(Collection<SideEffect> effects);
 
-  ForwardReply<T> addEffects(Effect... effects);
+  ForwardReply<T> addSideEffects(SideEffect... effects);
 }

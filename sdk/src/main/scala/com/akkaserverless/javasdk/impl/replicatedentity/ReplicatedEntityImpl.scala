@@ -315,7 +315,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
                 )
               )
             } else if (clientAction.isDefined || context.isEnded ||
-                       context.sideEffects.nonEmpty || !reply.effects().isEmpty) {
+                       context.sideEffects.nonEmpty || !reply.sideEffects().isEmpty) {
               if (context.isEnded) {
                 subscribers -= id
                 cancelListeners -= id
@@ -367,7 +367,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         extends CommandContext
         with AbstractReplicatedEntityContext
         with CapturingReplicatedEntityFactory
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with AbstractClientActionContext
         with DeletableContext
         with ActivatableContext {
@@ -383,7 +383,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
     class ReplicatedEntityStreamCancelledContext(cancelled: StreamCancelled, override val metadata: Metadata)
         extends StreamCancelledContext
         with CapturingReplicatedEntityFactory
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with ActivatableContext {
       override final def commandId(): Long = cancelled.id
     }
@@ -392,7 +392,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         extends SubscriptionContext
         with AbstractReplicatedEntityContext
         with AbstractClientActionContext
-        with AbstractEffectContext
+        with AbstractSideEffectContext
         with ActivatableContext {
       private final var ended = false
 

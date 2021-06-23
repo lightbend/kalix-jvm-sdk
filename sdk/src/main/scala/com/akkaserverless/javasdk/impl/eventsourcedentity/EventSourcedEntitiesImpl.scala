@@ -249,7 +249,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
-      with AbstractEffectContext
+      with AbstractSideEffectContext
       with ActivatableContext {
 
     final var events: Vector[ScalaPbAny] = Vector.empty

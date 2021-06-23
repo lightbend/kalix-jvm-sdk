@@ -18,8 +18,8 @@ package com.akkaserverless.javasdk;
 
 import com.akkaserverless.javasdk.impl.reply.EffectImpl;
 
-/** An effect. */
-public interface Effect {
+/** A side effect. */
+public interface SideEffect {
 
   /** The service call that is executed as this effect. */
   ServiceCall serviceCall();
@@ -34,7 +34,7 @@ public interface Effect {
    * @param synchronous Whether this effect should be executed synchronously.
    * @return The effect.
    */
-  static Effect of(ServiceCall serviceCall, boolean synchronous) {
+  static SideEffect of(ServiceCall serviceCall, boolean synchronous) {
     return new EffectImpl(serviceCall, synchronous);
   }
 
@@ -44,7 +44,7 @@ public interface Effect {
    * @param serviceCall The service call to effect.
    * @return The effect.
    */
-  static Effect of(ServiceCall serviceCall) {
+  static SideEffect of(ServiceCall serviceCall) {
     return new EffectImpl(serviceCall, false);
   }
 }

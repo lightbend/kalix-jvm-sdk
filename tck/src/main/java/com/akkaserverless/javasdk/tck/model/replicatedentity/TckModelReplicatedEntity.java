@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.tck.model.replicatedentity;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.replicatedentity.*;
 import com.akkaserverless.tck.model.ReplicatedEntity.*;
 
@@ -101,7 +102,7 @@ public class TckModelReplicatedEntity {
   @CommandHandler
   public Reply<Response> process(Request request, CommandContext context) {
     Reply<Response> reply = null;
-    List<com.akkaserverless.javasdk.Effect> e = new ArrayList<>();
+    List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
@@ -126,9 +127,7 @@ public class TckModelReplicatedEntity {
           break;
         case EFFECT:
           Effect effect = action.getEffect();
-          e.add(
-              com.akkaserverless.javasdk.Effect.of(
-                  serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
           reply = Reply.failure(action.getFail().getMessage());
@@ -138,7 +137,7 @@ public class TckModelReplicatedEntity {
     if (reply == null) {
       reply = Reply.message(responseValue());
     }
-    return reply.addEffects(e);
+    return reply.addSideEffects(e);
   }
 
   @CommandHandler

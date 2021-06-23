@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.reply;
 
-import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Reply;
 
 import java.util.Collection;
@@ -31,7 +31,7 @@ public interface FailureReply<T> extends Reply<T> {
    */
   String description();
 
-  FailureReply<T> addEffects(Collection<Effect> effects);
+  FailureReply<T> addSideEffects(Collection<SideEffect> effects);
 
-  FailureReply<T> addEffects(Effect... effects);
+  FailureReply<T> addSideEffects(SideEffect... effects);
 }

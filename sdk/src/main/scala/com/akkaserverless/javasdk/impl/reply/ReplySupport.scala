@@ -24,6 +24,8 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 import scala.jdk.CollectionConverters._
 
+import com.akkaserverless.javasdk.SideEffect
+
 object ReplySupport {
   private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
     metadata match {
@@ -49,11 +51,11 @@ object ReplySupport {
     )
 
   def effectsFrom(reply: javasdk.Reply[JavaPbAny]): List[component.SideEffect] = {
-    val replyEffects: List[javasdk.Effect] = reply match {
+    val replyEffects: List[SideEffect] = reply match {
       case impl: ReplyImpl[_] =>
         impl._effects
       case other =>
-        other.effects().asScala.toList
+        other.sideEffects().asScala.toList
     }
 
     val encodedEffects = replyEffects.map { effect =>

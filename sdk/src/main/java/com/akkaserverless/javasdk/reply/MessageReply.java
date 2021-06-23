@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.reply;
 
-import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.Reply;
 
@@ -39,7 +39,7 @@ public interface MessageReply<T> extends Reply<T> {
    */
   Metadata metadata();
 
-  MessageReply<T> addEffects(Collection<Effect> effects);
+  MessageReply<T> addSideEffects(Collection<SideEffect> effects);
 
-  MessageReply<T> addEffects(Effect... effects);
+  MessageReply<T> addSideEffects(SideEffect... effects);
 }

@@ -208,7 +208,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
       extends CommandContext[JavaPbAny]
       with AbstractContext
       with AbstractClientActionContext
-      with AbstractEffectContext
+      with AbstractSideEffectContext
       with ActivatableContext {
 
     final var action: Option[ValueEntityAction] = None

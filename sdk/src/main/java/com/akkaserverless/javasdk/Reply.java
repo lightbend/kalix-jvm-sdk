@@ -44,7 +44,15 @@ public interface Reply<T> {
    *
    * @return The effects.
    */
-  Collection<Effect> effects();
+  Collection<SideEffect> sideEffects();
+
+  /**
+   * Attach the given side effects to this reply.
+   *
+   * @param sideEffects The effects to attach.
+   * @return A new reply with the attached effects.
+   */
+  Reply<T> addSideEffects(Collection<SideEffect> sideEffects);
 
   /**
    * Attach the given effects to this reply.
@@ -52,15 +60,7 @@ public interface Reply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  Reply<T> addEffects(Collection<Effect> effects);
-
-  /**
-   * Attach the given effects to this reply.
-   *
-   * @param effects The effects to attach.
-   * @return A new reply with the attached effects.
-   */
-  Reply<T> addEffects(Effect... effects);
+  Reply<T> addSideEffects(SideEffect... effects);
 
   /**
    * Create a message reply.
