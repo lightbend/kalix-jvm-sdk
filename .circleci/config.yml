@@ -169,8 +169,9 @@ jobs:
             # Temporary key to sign local artifact with
             sudo apt-get -y update
             sudo apt-get -y install gnupg2
-            gpg2 --version
-            gpg2 --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
+            # '--pinentry-mode loopback' needed from gpg 2.1 onwards,
+            # but circleci is still on 2.0:
+            gpg2 --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
           name: Run integration tests for Value Entity Archetype
