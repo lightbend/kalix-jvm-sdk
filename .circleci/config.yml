@@ -167,7 +167,7 @@ jobs:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             # Temporary key to sign local artifact with
-            gpg --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
+            gpg --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
           name: Run integration tests for Value Entity Archetype
