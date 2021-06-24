@@ -167,7 +167,7 @@ jobs:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             # Temporary key to sign local artifact with
-            apt-get -y install gnupg2
+            sudo apt-get -y install gnupg2
             gpg2 --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
