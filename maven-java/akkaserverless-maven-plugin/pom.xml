@@ -130,7 +130,7 @@
         <extensions>true</extensions>
         <configuration>
           <serverId>ossrh</serverId>
-	  <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+          <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
           <autoReleaseAfterClose>false</autoReleaseAfterClose>
         </configuration>
       </plugin>
@@ -143,15 +143,20 @@
             <phase>verify</phase>
             <goals>
               <goal>sign</goal>
-	    </goals>
-	    <configuration>
+            </goals>
+            <configuration>
               <gpgArguments>
+                <!--
+                  Needs gpg 2.1
+                  Needed to avoid using the TTY
+                  to ask for the password.
+                -->
                 <arg>--pinentry-mode</arg>
                 <arg>loopback</arg>
-	      </gpgArguments>
-	    </configuration>
-	  </execution>
-	</executions>
+              </gpgArguments>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

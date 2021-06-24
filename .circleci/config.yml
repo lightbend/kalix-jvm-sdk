@@ -275,9 +275,6 @@ jobs:
             </settings>
             EOF
             mvn -B versions:set -DnewVersion=$SDK_VERSION
-            export GPG_TTY=$(tty)
-            export GPG_PASSPHRASE=$PGP_PASSPHRASE
-            echo 'go'
             mvn -B -pl akkaserverless-maven-plugin deploy
 
   publish-tck:
