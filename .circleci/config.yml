@@ -242,6 +242,7 @@ jobs:
       - image: circleci/openjdk:8
     steps:
       - checkout
+      - restore_deps_cache
       - set-sdk-version
       - run:
           name: Publish maven plugin and archetype
