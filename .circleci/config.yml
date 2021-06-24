@@ -171,7 +171,8 @@ jobs:
             sudo apt-get -y install gnupg2
             # '--pinentry-mode loopback' needed from gpg 2.1 onwards,
             # but circleci is still on 2.0:
-            gpg2 --passphrase=geheim --batch --quick-generate-key circleci
+            # '--quick-generate-key' would also be useful then
+            gpg2 --passphrase=geheim --batch --gen-key < ../.circleci/key-gen-options.txt
             mvn verify install
       - run: 
           name: Run integration tests for Value Entity Archetype
