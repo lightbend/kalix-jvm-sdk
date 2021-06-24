@@ -268,7 +268,7 @@ jobs:
             </settings>
             EOF
             mvn -B versions:set -DnewVersion=$SDK_VERSION
-            mvn -P release -B -pl akkaserverless-maven-plugin deploy
+            mvn -P release -B deploy
 
   publish-tck:
     docker:
