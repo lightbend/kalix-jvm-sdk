@@ -267,6 +267,34 @@ jobs:
                 <activation>
                   <activeByDefault>true</activeByDefault>
                 </activation>
+                <build>
+                  <plugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-gpg-plugin</artifactId>
+                      <executions>
+                        <execution>
+                          <id>sign-artifacts</id>
+                          <phase>verify</phase>
+                          <goals>
+                            <goal>sign</goal>
+                          </goals>
+                          <configuration>
+                            <gpgArguments>
+                              <!--
+                                Needs gpg 2.1
+                                Needed to avoid using the TTY
+                                to ask for the password.
+                              -->
+                              <arg>--pinentry-mode</arg>
+                              <arg>loopback</arg>
+                            </gpgArguments>
+                          </configuration>
+                        </execution>
+                      </executions>
+                    </plugin>
+                  </plugins>
+                </build>
                 <properties>
                   <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
                 </properties>
