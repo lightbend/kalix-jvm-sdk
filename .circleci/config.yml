@@ -248,8 +248,11 @@ jobs:
           name: Publish maven plugin and archetype
           command: |
             cd maven-java
+            gpg --version
             sudo apt-get -y update
             sudo apt-get -y install gnupg2
+            gpg --version
+            gpg2 --version
             echo "x"
             echo $SONATYPE_USERNAME
             echo "y"
