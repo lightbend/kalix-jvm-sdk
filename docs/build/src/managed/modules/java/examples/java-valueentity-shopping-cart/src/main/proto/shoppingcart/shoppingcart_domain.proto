@@ -47,5 +47,5 @@ message LineItem {
 message Cart {
   repeated LineItem items = 1;
 }
-// tag::proto_messages[]
+// end::proto_messages[]
 // end::domain[]
