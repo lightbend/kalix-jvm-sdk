@@ -16,14 +16,6 @@
 
   <name>Akka Serverless Maven Plugin</name>
 
-  <distributionManagement>
-    <repository>
-      <id>lightbend-akkaserverless-cloudsmith</id>
-      <name>Cloudsmith</name>
-      <url>https://maven.cloudsmith.io/lightbend/akkaserverless/</url>
-    </repository>
-  </distributionManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
