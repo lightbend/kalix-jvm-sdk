@@ -279,6 +279,7 @@ jobs:
                 </properties>
               </profile>
             </profiles>
+            </settings>
             EOF
             mvn -B versions:set -DnewVersion=$SDK_VERSSION
             mvn -B -pl akkaserverless-maven-plugin deploy
