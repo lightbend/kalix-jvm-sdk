@@ -167,6 +167,7 @@ jobs:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             # Temporary key to sign local artifact with
+            gpg --version
             gpg2 --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
@@ -260,7 +261,6 @@ jobs:
                   <activeByDefault>true</activeByDefault>
                 </activation>
                 <properties>
-                  <gpg.executable>gpg2</gpg.executable>
                   <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
                 </properties>
               </profile>
