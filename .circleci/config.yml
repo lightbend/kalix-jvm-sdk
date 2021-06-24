@@ -167,7 +167,7 @@ jobs:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             # Temporary key to sign local artifact with
-            gpg --version
+            apt-get -y install gnupg2
             gpg2 --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
@@ -243,7 +243,8 @@ jobs:
           name: Publish maven plugin and archetype
           command: |
             cd maven-java
-            echo $PGP_SECRET | base64 -d | gpg --import --batch
+            apt-get -y install gnupg2
+            echo $PGP_SECRET | base64 -d | gpg2 --import --batch
             cat >~/.m2/settings.xml \<<EOF;
             <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
@@ -261,6 +262,7 @@ jobs:
                   <activeByDefault>true</activeByDefault>
                 </activation>
                 <properties>
+                  <gpg.executable>gpg2</gpg.executable>
                   <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
                 </properties>
               </profile>
