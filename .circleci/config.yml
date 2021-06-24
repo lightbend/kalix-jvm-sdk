@@ -248,16 +248,7 @@ jobs:
           name: Publish maven plugin and archetype
           command: |
             cd maven-java
-            gpg --version
-            sudo apt-get -y update
-            sudo apt-get -y install gnupg2
-            gpg --version
-            gpg2 --version
-            echo "x"
-            echo $SONATYPE_USERNAME
-            echo "y"
-            echo $PGP_SECRET | base64 -d | gpg2 --import --batch
-            echo "z"
+            echo $PGP_SECRET | base64 -d | gpg --import --batch
             # It seems ~/.m2 is not actually restored from the cache?
             mkdir -p ~/.m2
             cat >~/.m2/settings.xml \<<EOF;
@@ -277,7 +268,6 @@ jobs:
                   <activeByDefault>true</activeByDefault>
                 </activation>
                 <properties>
-                  <gpg.executable>gpg2</gpg.executable>
                   <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
                 </properties>
               </profile>
