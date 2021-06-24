@@ -343,19 +343,19 @@ workflows:
             - tck-tests
             - validate-docs   
       - publish-maven:
-          #filters: # version tags only
-          #  tags:
-          #    only: /^v.*/
-          #  branches:
-          #    ignore: /.*/
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
             - checks
-          #  - tests
-          #  - integration-tests
-          #  - maven-java-tests
-          #  - samples-tests    
-          #  - tck-tests
-          #  - validate-docs   
+            - tests
+            - integration-tests
+            - maven-java-tests
+            - samples-tests    
+            - tck-tests
+            - validate-docs   
       - publish-tck:
           filters: # version tags only
             tags:
