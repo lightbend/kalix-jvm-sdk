@@ -12,40 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// These are the messages that get persisted - the current state (Cart).
+// this defines the state model for the Product Popularity Value Entity
 
-// tag::domain[]
-// tag::proto_syntax[]
 syntax = "proto3";
-// end::proto_syntax[]
 
-package com.example.shoppingcart.domain;
+package shopping.product.domain;
 
-option java_outer_classname = "ShoppingCartDomain";
+option java_outer_classname = "ProductPopularityDomain";
 
-// tag::proto_imports[]
 import "akkaserverless/annotations.proto";
-// end::proto_imports[]
 
-// tag::proto_state[]
-// Describes how this domain relates to a value entity
 option (akkaserverless.file).value_entity = {
-  name: "ShoppingCart"
-  entity_type: "shopping-cart"
-  state: "Cart"
+  name: "ProductPopularity"
+  entity_type: "product-popularity"
+  state: "Popularity"
 };
-// end::proto_state[]
 
-// tag::proto_messages[]
-message LineItem {
+message Popularity {
   string productId = 1;
-  string name = 2;
-  int32 quantity = 3;
+  int32 score = 2;
 }
-
-// The shopping cart state.
-message Cart {
-  repeated LineItem items = 1;
-}
-// tag::proto_messages[]
-// end::domain[]

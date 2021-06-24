@@ -12,40 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// These are the messages that get persisted - the current state (Cart).
+// These are the messages that get persisted - the events, plus the current
+// state (CartState) for snapshots.
 
-// tag::domain[]
-// tag::proto_syntax[]
+// tag::events-and-state[]
 syntax = "proto3";
-// end::proto_syntax[]
 
-package com.example.shoppingcart.domain;
+package shopping.cart.domain;
 
 option java_outer_classname = "ShoppingCartDomain";
 
-// tag::proto_imports[]
 import "akkaserverless/annotations.proto";
-// end::proto_imports[]
 
-// tag::proto_state[]
-// Describes how this domain relates to a value entity
-option (akkaserverless.file).value_entity = {
+// end::events-and-state[]
+
+option (akkaserverless.file).event_sourced_entity = {
   name: "ShoppingCart"
-  entity_type: "shopping-cart"
-  state: "Cart"
+  entity_type: "eventsourced-shopping-cart"
+  state: "CartState"
+  events: ["ItemAdded", "ItemRemoved", "CheckedOut"]
 };
-// end::proto_state[]
 
-// tag::proto_messages[]
+// tag::events-and-state[]
 message LineItem {
   string productId = 1;
   string name = 2;
   int32 quantity = 3;
 }
 
-// The shopping cart state.
-message Cart {
-  repeated LineItem items = 1;
+// The item added event.
+message ItemAdded {
+  LineItem item = 1;
 }
-// tag::proto_messages[]
-// end::domain[]
+
+// The item removed event.
+message ItemRemoved {
+  string productId = 1;
+  int32 quantity = 2;
+}
+
+// The checked out event.
+message CheckedOut {
+  int64 checked_out_timestamp = 1;
+}
+
+// The shopping cart state.
+message CartState {
+  repeated LineItem items = 1;
+  int64 checked_out_timestamp = 2;
+}
+// end::events-and-state[]

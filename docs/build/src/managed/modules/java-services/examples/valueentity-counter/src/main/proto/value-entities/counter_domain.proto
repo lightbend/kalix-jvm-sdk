@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.example.domain; // <1>
+
+import "akkaserverless/annotations.proto"; // <2>
+
+option java_outer_classname = "CounterDomain"; // <3>
+
+option (akkaserverless.file).value_entity = { // <4>
+    name: "Counter" // <5>
+    entity_type: "counter" // <6>
+    state: "CounterState" // <7>
+};
+
+message CounterState { // <8>
+  int32 value = 1;
+}
