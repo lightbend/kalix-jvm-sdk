@@ -169,6 +169,7 @@ jobs:
             # Temporary key to sign local artifact with
             sudo apt-get -y update
             sudo apt-get -y install gnupg2
+            gpg2 --version
             gpg2 --pinentry-mode loopback --passphrase=geheim --batch --quick-generate-key circleci
             mvn verify install
       - run: 
