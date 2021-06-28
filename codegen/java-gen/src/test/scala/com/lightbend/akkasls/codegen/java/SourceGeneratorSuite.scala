@@ -230,10 +230,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    
         |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
         |    
+        |    public static final AkkaServerless SERVICE =
+        |        withGeneratedComponentsAdded(new AkkaServerless());
+        |    
         |    public static void main(String[] args) throws Exception {
         |        LOG.info("starting the Akka Serverless service");
-        |        withGeneratedComponentsAdded(new AkkaServerless())
-        |                .start().toCompletableFuture().get();
+        |        SERVICE.start().toCompletableFuture().get();
         |    }
         |}""".stripMargin
     )

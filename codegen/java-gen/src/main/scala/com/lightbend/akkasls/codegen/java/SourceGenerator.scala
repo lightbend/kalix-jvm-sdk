@@ -277,7 +277,16 @@ object SourceGenerator extends PrettyPrinter {
           "Logger",
           "LOG",
           assignmentSeparator = Some(" ")
-        )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> linebreak <>
+        )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> line <>
+        line <>
+        field(
+          "public" <+> "static" <+> "final",
+          "AkkaServerless",
+          "SERVICE",
+          assignmentSeparator = Some(linebreak)
+        )(
+          indent("withGeneratedComponentsAdded", 4) <> parens("new AkkaServerless()") <> semi
+        ) <> line <>
         line <>
         method(
           "public" <+> "static",
@@ -287,12 +296,7 @@ object SourceGenerator extends PrettyPrinter {
           "throws" <+> "Exception" <> space
         ) {
           "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
-          "withGeneratedComponentsAdded" <> parens(
-            "new" <+> "AkkaServerless" <> parens(
-              emptyDoc
-            )
-          ) <> line <>
-          indent(".start().toCompletableFuture().get()", 8) <> semi
+          "SERVICE.start().toCompletableFuture().get()" <> semi
         }
       }
     )
@@ -303,6 +307,10 @@ object SourceGenerator extends PrettyPrinter {
     val packageName = fullClassName.dropRight(className.length + 1)
     packageName -> className
   }
+
+  private[java] def `interface`(modifier: Doc, name: String)(body: Doc): Doc =
+    modifier <+> "interface" <+> name <+>
+    braces(nest(line <> body) <> line)
 
   private[java] def `class`(modifier: Doc, name: String)(body: Doc): Doc =
     `class`(modifier, name, None)(body)

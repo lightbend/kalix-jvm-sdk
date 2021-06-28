@@ -38,7 +38,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
-      |public class MyServiceEntityImpl extends MyServiceEntityInterface {
+      |public class MyServiceEntityImpl implements MyServiceEntityInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -59,12 +59,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
+      |    public Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
+      |    public ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |    
@@ -106,7 +106,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyServiceImpl extends MyServiceInterface {
+      |public class MyServiceImpl implements MyServiceInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -115,12 +115,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -146,13 +146,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public abstract class MyServiceEntityInterface {
-      |    
-      |    public class CommandNotImplementedException extends UnsupportedOperationException {
-      |        public CommandNotImplementedException() {
-      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-      |        }
-      |    }
+      |public interface MyServiceEntityInterface {
       |    
       |    @Snapshot
       |    public abstract EntityOuterClass.MyState snapshot();
@@ -160,31 +154,9 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    @SnapshotHandler
       |    public abstract void handleSnapshot(EntityOuterClass.MyState snapshot);
       |    
-      |    @CommandHandler(name = "Set")
-      |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        return Reply.message(set(command, ctx));
-      |    }
+      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx);
       |    
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        return set(command);
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |    
-      |    @CommandHandler(name = "Get")
-      |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        return Reply.message(get(command, ctx));
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        return get(command);
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
+      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx);
       |    
       |    @EventHandler
       |    public abstract void setEvent(EntityOuterClass.SetEvent event);
@@ -211,39 +183,11 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public abstract class MyServiceInterface {
+      |public interface MyServiceInterface {
       |    
-      |    public class CommandNotImplementedException extends UnsupportedOperationException {
-      |        public CommandNotImplementedException() {
-      |            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-      |        }
-      |    }
+      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
       |    
-      |    @CommandHandler(name = "Set")
-      |    public Reply<Empty> setWithReply(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.message(set(command, ctx));
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return set(command);
-      |    }
-      |    
-      |    protected Empty set(ServiceOuterClass.SetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
-      |    
-      |    @CommandHandler(name = "Get")
-      |    public Reply<ServiceOuterClass.MyState> getWithReply(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.message(get(command, ctx));
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return get(command);
-      |    }
-      |    
-      |    protected ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command) {
-      |        throw new CommandNotImplementedException();
-      |    }
+      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx);
       |}""".stripMargin
     )
   }
@@ -291,7 +235,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.setWithReply(ServiceOuterClass.SetValue.newBuilder().build(), context);
+        |            entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
         |        });
         |        
         |        // TODO: if you wish to verify events:
@@ -307,7 +251,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.getWithReply(ServiceOuterClass.GetValue.newBuilder().build(), context);
+        |            entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
         |        });
         |        
         |        // TODO: if you wish to verify events:
@@ -361,7 +305,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.setWithReply(ServiceOuterClass.SetValue.newBuilder().build(), context);
+        |            entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
         |        });
         |    }
         |    
@@ -374,7 +318,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: set fields in command, and update assertions to match implementation
         |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.getWithReply(ServiceOuterClass.GetValue.newBuilder().build(), context);
+        |            entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
         |        });
         |    }
         |}""".stripMargin

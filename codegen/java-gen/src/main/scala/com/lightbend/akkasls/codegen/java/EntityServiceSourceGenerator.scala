@@ -177,7 +177,7 @@ object EntityServiceSourceGenerator {
               "entityType" <+> equal <+> dquotes(entityType)
             )
       }) <> line <>
-      `class`("public", s"$className extends $interfaceClassName") {
+      `class`("public", s"$className implements $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
         line <>
@@ -226,7 +226,7 @@ object EntityServiceSourceGenerator {
             "@Override" <>
             line <>
             method(
-              "protected",
+              "public",
               qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
@@ -317,17 +317,7 @@ object EntityServiceSourceGenerator {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
-      `class`("public abstract", className + "Interface") {
-        line <>
-        `class`("public", "CommandNotImplementedException", Some("UnsupportedOperationException"))(
-          constructor("public", "CommandNotImplementedException", Seq.empty)(
-            "super" <> parens(
-              dquotes(
-                "You have either created a new command or removed the handling of an existing command. Please declare a method in your \\\"impl\\\" class for this command."
-              )
-            ) <> semi
-          )
-        ) <> line <>
+      `interface`("public", className + "Interface") {
         line <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
@@ -355,34 +345,9 @@ object EntityServiceSourceGenerator {
         }) <>
         ssep(
           service.commands.toSeq.map { command =>
-            "@CommandHandler" <> parens(
-              "name" <+> equal <+> dquotes(command.fqn.name)
-            ) <>
-            line <>
-            method(
+            abstractMethod(
               "public",
               "Reply" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name) + "WithReply",
-              List(
-                qualifiedType(command.inputType) <+> "command",
-                (entity match {
-                  case ModelBuilder.ValueEntity(_, _, state) =>
-                    "CommandContext" <> angles(qualifiedType(state.fqn))
-                  case _ => text("CommandContext")
-                }) <+> "ctx"
-              ),
-              emptyDoc
-            )(
-              "return" <+> "Reply.message" <> parens(
-                lowerFirst(command.fqn.name) <> parens(
-                  "command" <> comma <+> "ctx"
-                )
-              ) <> semi
-            ) <> line <>
-            line <>
-            method(
-              "protected",
-              qualifiedType(command.outputType),
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
@@ -391,24 +356,8 @@ object EntityServiceSourceGenerator {
                     "CommandContext" <> angles(qualifiedType(state.fqn))
                   case _ => text("CommandContext")
                 }) <+> "ctx"
-              ),
-              emptyDoc
-            )(
-              "return" <+>
-              lowerFirst(command.fqn.name) <> parens("command") <> semi
-            ) <> line <>
-            line <>
-            method(
-              "protected",
-              qualifiedType(command.outputType),
-              lowerFirst(command.fqn.name),
-              List(
-                qualifiedType(command.inputType) <+> "command"
-              ),
-              emptyDoc
-            )(
-              "throw" <+> "new" <+> "CommandNotImplementedException" <> parens(emptyDoc) <> semi
-            )
+              )
+            ) <> semi
           },
           line <> line
         ) <>
@@ -518,7 +467,7 @@ object EntityServiceSourceGenerator {
                   nest(
                     line <> "entity" <> dot <> lowerFirst(
                       command.fqn.name
-                    ) <> "WithReply" <> parens(
+                    ) <> parens(
                       qualifiedType(
                         command.inputType
                       ) <> dot <> "newBuilder().build(), context"
