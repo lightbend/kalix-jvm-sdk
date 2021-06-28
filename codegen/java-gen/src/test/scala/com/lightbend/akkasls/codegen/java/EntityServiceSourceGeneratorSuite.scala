@@ -32,6 +32,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.eventsourcedentity.*;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
@@ -59,12 +60,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Empty set(ServiceOuterClass.SetValue command, CommandContext ctx) {
+      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext ctx) {
+      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |    
@@ -100,6 +101,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
+      |import com.akkaserverless.javasdk.Reply;
       |import com.akkaserverless.javasdk.valueentity.*;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
@@ -115,12 +117,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Empty set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public ServiceOuterClass.MyState get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
       |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin

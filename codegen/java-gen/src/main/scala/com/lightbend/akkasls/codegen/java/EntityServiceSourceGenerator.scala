@@ -148,11 +148,13 @@ object EntityServiceSourceGenerator {
         case _: ModelBuilder.EventSourcedEntity =>
           Seq(
             "com.akkaserverless.javasdk.EntityId",
+            "com.akkaserverless.javasdk.Reply",
             "com.akkaserverless.javasdk.eventsourcedentity.*"
           )
         case _: ModelBuilder.ValueEntity =>
           Seq(
             "com.akkaserverless.javasdk.EntityId",
+            "com.akkaserverless.javasdk.Reply",
             "com.akkaserverless.javasdk.valueentity.*"
           )
       })).distinct.sorted
@@ -227,7 +229,7 @@ object EntityServiceSourceGenerator {
             line <>
             method(
               "public",
-              qualifiedType(command.outputType),
+              "Reply" <> angles(qualifiedType(command.outputType)),
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
