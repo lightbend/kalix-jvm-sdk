@@ -150,6 +150,7 @@ object SourceGenerator extends PrettyPrinter {
     val generatedComponentArray = "generatedComponents"
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> braces(" AkkaServerless ") <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
@@ -159,7 +160,10 @@ object SourceGenerator extends PrettyPrinter {
       <> line <> line <>
       "const" <+> "server" <+> equal <+> "new" <+> "AkkaServerless" <> parens(
         emptyDoc
-      ) <> semi <> line <>
+      ) <> semi <> line <> line <>
+      "//" <+> "This generatedComponentArray array contains all generated Actions, Views or Entities," <> line <>
+      "//" <+> "and is kept up-to-date with any changes in your protobuf definitions." <> line <>
+      "//" <+> "If you prefer, you may remove this line and manually register these components." <> line <>
       generatedComponentArray <> dot <> "forEach" <> parens(
         arrowFn(Seq("component"), "server" <> dot <> "addComponent" <> parens("component") <> semi)
       ) <> semi <> line <>
@@ -210,6 +214,7 @@ object SourceGenerator extends PrettyPrinter {
       case _ => None
     }
     pretty(
+      managedCodeComment <> line <> line <>
       ssep(
         components.map { case (name, path) =>
           "import" <+> name <+> "from" <+> dquotes(path) <> semi
@@ -269,4 +274,16 @@ object SourceGenerator extends PrettyPrinter {
     lines.map(" *" <+> _),
     line
   ) <> line <> " */"
+
+  private[js] val initialisedCodeComment: Doc =
+    "/*" <+> "This code was initialised by Akka Serverless tooling." <> line <>
+    " *" <+> "As long as this file exists it will not be re-generated." <> line <>
+    " *" <+> "You are free to make changes to this file." <> line <>
+    " */"
+
+  private[js] val managedCodeComment: Doc =
+    "/*" <+> "This code is managed by Akka Serverless tooling." <> line <>
+    " *" <+> "It will be re-generated to reflect any changes to your protobuf definitions." <> line <>
+    " *" <+> "DO NOT EDIT" <> line <>
+    " */"
 }

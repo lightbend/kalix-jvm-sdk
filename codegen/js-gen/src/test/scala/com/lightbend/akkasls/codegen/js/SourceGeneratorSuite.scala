@@ -97,7 +97,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
               // Test that all files are being written to (all files should start with at least one import)
               sources.foreach(source =>
-                assertEquals(Files.readAllBytes(source).take(7).map(_.toChar).mkString, "import ")
+                assertEquals(Files.readAllBytes(source).take(3).map(_.toChar).mkString, "/* ")
               )
             } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
           } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)
@@ -173,7 +173,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
     assertEquals(
       sourceDoc.layout.replace("\\", "/"),
-      """import myentity1 from "../../src/js/myentity1.js";
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |import myentity1 from "../../src/js/myentity1.js";
         |import myvalueentity2 from "../../src/js/myvalueentity2.js";
         |import myentity3 from "../../src/js/myentity3.js";
         |import myservice4 from "../../src/js/myservice4.js";
@@ -191,10 +196,19 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val sourceDoc = SourceGenerator.indexSource(sourceDirectory, generatedComponentIndexPath)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"),
-      """import { AkkaServerless } from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import { AkkaServerless } from "@lightbend/akkaserverless-javascript-sdk";
         |import generatedComponents from "../../generated/my-generated-index.js";
         |
         |const server = new AkkaServerless();
+        |
+        |// This generatedComponentArray array contains all generated Actions, Views or Entities,
+        |// and is kept up-to-date with any changes in your protobuf definitions.
+        |// If you prefer, you may remove this line and manually register these components.
         |generatedComponents.forEach((component) => {
         |  server.addComponent(component);
         |});

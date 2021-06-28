@@ -29,7 +29,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { View } from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import { View } from "@lightbend/akkaserverless-javascript-sdk";
         |
         |/**
         | * Type definitions.
@@ -91,7 +96,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { View } from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import { View } from "@lightbend/akkaserverless-javascript-sdk";
         |
         |/**
         | * Type definitions.
@@ -132,7 +142,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import {
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |import {
         |  TypedView,
         |  ViewUpdateHandlerContext
         |} from "../akkaserverless";

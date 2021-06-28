@@ -31,7 +31,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
         |const EventSourcedEntity = akkaserverless.EventSourcedEntity;
         |
         |/**
@@ -109,7 +114,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
         |const ValueEntity = akkaserverless.ValueEntity;
         |
         |/**
@@ -167,7 +177,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import {
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |import {
         |  TypedEventSourcedEntity,
         |  EventSourcedCommandContext
         |} from "../akkaserverless";
@@ -220,7 +235,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import {
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |import {
         |  TypedValueEntity,
         |  ValueEntityCommandContext
         |} from "../akkaserverless";
@@ -263,7 +283,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { MockEventSourcedEntity } from "./testkit.js";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import { MockEventSourcedEntity } from "./testkit.js";
         |import { expect } from "chai";
         |import myentity from "../../src/js/myentity.js";
         |
@@ -310,7 +335,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.testSource(service, entity, testSourceDirectory, sourceDirectory)
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import { MockValueEntity } from "./testkit.js";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import { MockValueEntity } from "./testkit.js";
         |import { expect } from "chai";
         |import myvalueentity from "../../src/js/myvalueentity.js";
         |
@@ -360,7 +390,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout.replace("\\", "/"), // Cope with windows testing
-      """import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |import akkaserverless from "@lightbend/akkaserverless-javascript-sdk";
         |import { expect } from "chai";
         |import myvalueentity from "../../src/js/myvalueentity.js";
         |

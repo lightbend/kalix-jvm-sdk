@@ -80,6 +80,7 @@ object ViewServiceSourceGenerator {
         .toString
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> braces(" View ") <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
@@ -171,6 +172,7 @@ object ViewServiceSourceGenerator {
       service: ModelBuilder.ViewService
   ): Document =
     pretty(
+      managedCodeComment <> line <> line <>
       "import" <+> braces(
         nest(
           line <>

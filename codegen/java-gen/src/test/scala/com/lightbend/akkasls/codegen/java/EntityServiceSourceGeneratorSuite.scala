@@ -29,7 +29,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+      | * As long as this file exists it will not be re-generated.
+      | * You are free to make changes to this file.
+      | */
+      |
+      |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.Reply;
@@ -98,7 +103,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+      | * As long as this file exists it will not be re-generated.
+      | * You are free to make changes to this file.
+      | */
+      |
+      |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.Reply;
@@ -139,7 +149,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code is managed by Akka Serverless tooling.
+      | * It will be re-generated to reflect any changes to your protobuf definitions.
+      | * DO NOT EDIT
+      | */
+      |
+      |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.Reply;
@@ -176,7 +191,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code is managed by Akka Serverless tooling.
+      | * It will be re-generated to reflect any changes to your protobuf definitions.
+      | * DO NOT EDIT
+      | */
+      |
+      |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.Reply;
@@ -212,7 +232,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |package com.example.service;
         |
         |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
         |import com.external.Empty;
@@ -279,7 +304,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |package com.example.service;
         |
         |import com.akkaserverless.javasdk.valueentity.CommandContext;
         |import com.example.service.persistence.EntityOuterClass;
@@ -344,7 +374,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |package com.example.service;
         |
         |import com.example.service.SomeMain;
         |import com.example.service.MyServiceClient;

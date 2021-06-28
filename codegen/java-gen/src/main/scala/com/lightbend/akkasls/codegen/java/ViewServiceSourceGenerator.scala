@@ -93,6 +93,7 @@ object ViewServiceSourceGenerator {
     )).distinct.sorted
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
@@ -149,6 +150,7 @@ object ViewServiceSourceGenerator {
       )).distinct.sorted
 
     pretty(
+      managedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(

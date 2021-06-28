@@ -160,6 +160,7 @@ object EntityServiceSourceGenerator {
       })).distinct.sorted
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
@@ -308,6 +309,7 @@ object EntityServiceSourceGenerator {
       })).distinct.sorted
 
     pretty(
+      managedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
@@ -417,6 +419,7 @@ object EntityServiceSourceGenerator {
     })).distinct.sorted
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
@@ -509,6 +512,7 @@ object EntityServiceSourceGenerator {
       ).distinct.sorted
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(

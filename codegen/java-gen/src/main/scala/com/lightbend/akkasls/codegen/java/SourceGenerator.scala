@@ -202,6 +202,7 @@ object SourceGenerator extends PrettyPrinter {
         }).distinct.sorted
 
     pretty(
+      managedCodeComment <> line <> line <>
       "package" <+> mainClassPackageName <> semi <> line <>
       line <>
       ssep(
@@ -261,6 +262,7 @@ object SourceGenerator extends PrettyPrinter {
     )
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> mainClassPackageName <> semi <> line <>
       line <>
       ssep(
@@ -285,6 +287,9 @@ object SourceGenerator extends PrettyPrinter {
           "SERVICE",
           assignmentSeparator = Some(linebreak)
         )(
+          "//" <+> "This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities," <> line <>
+          "//" <+> "and is kept up-to-date with any changes in your protobuf definitions." <> line <>
+          "//" <+> "If you prefer, you may remove this wrapper and manually register these components." <> line <>
           indent("withGeneratedComponentsAdded", 4) <> parens("new AkkaServerless()") <> semi
         ) <> line <>
         line <>
@@ -383,4 +388,16 @@ object SourceGenerator extends PrettyPrinter {
 
   private[java] def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
+
+  private[java] val initialisedCodeComment: Doc =
+    "/*" <+> "This code was initialised by Akka Serverless tooling." <> line <>
+    " *" <+> "As long as this file exists it will not be re-generated." <> line <>
+    " *" <+> "You are free to make changes to this file." <> line <>
+    " */"
+
+  private[java] val managedCodeComment: Doc =
+    "/*" <+> "This code is managed by Akka Serverless tooling." <> line <>
+    " *" <+> "It will be re-generated to reflect any changes to your protobuf definitions." <> line <>
+    " *" <+> "DO NOT EDIT" <> line <>
+    " */"
 }

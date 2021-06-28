@@ -80,6 +80,7 @@ object ActionServiceSourceGenerator {
         .toString
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> braces(" Action ") <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
@@ -167,6 +168,7 @@ object ActionServiceSourceGenerator {
       service: ModelBuilder.ActionService
   ): Document =
     pretty(
+      managedCodeComment <> line <> line <>
       "import" <+> braces(
         nest(
           line <>

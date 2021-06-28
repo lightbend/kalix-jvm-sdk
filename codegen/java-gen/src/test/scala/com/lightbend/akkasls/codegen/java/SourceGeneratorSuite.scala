@@ -121,9 +121,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
             )
 
             // Test that the main, source and test files are being written to
-            assertEquals(Files.readAllBytes(sources.head).head.toChar, 'p')
-            assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, 'p')
-            assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, 'p')
+            assertEquals(Files.readAllBytes(sources.head).head.toChar, '/')
+            assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, '/')
+            assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, '/')
 
           } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)
@@ -160,7 +160,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.example.service.persistence.EntityOuterClass1;
@@ -218,7 +223,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
     assertEquals(
       sourceDoc.layout,
-      """package com.example.service;
+      """/* This code was initialised by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */
+        |
+        |package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
@@ -231,6 +241,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
         |    
         |    public static final AkkaServerless SERVICE =
+        |        // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
+        |        // and is kept up-to-date with any changes in your protobuf definitions.
+        |        // If you prefer, you may remove this wrapper and manually register these components.
         |        withGeneratedComponentsAdded(new AkkaServerless());
         |    
         |    public static void main(String[] args) throws Exception {

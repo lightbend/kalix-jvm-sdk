@@ -96,6 +96,7 @@ object ActionServiceSourceGenerator {
           } else Seq.empty)).distinct.sorted
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
@@ -158,6 +159,7 @@ object ActionServiceSourceGenerator {
           } else Seq.empty)).distinct.sorted
 
     pretty(
+      managedCodeComment <> line <> line <>
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(

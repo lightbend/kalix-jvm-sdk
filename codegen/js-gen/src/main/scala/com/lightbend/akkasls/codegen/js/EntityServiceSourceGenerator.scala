@@ -122,6 +122,7 @@ object EntityServiceSourceGenerator {
       case _: ModelBuilder.ValueEntity        => "ValueEntity"
     }
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> "akkaserverless" <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
@@ -288,6 +289,7 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.Entity
   ): Document =
     pretty(
+      managedCodeComment <> line <> line <>
       "import" <+> braces(
         nest(line <> (entity match {
           case _: ModelBuilder.EventSourcedEntity =>
@@ -392,6 +394,7 @@ object EntityServiceSourceGenerator {
     }
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> braces(
         " " <> entityMockType <> " "
       ) <+> "from" <+> dquotes("./testkit.js") <> semi <> line <>
@@ -475,6 +478,7 @@ object EntityServiceSourceGenerator {
     }
 
     pretty(
+      initialisedCodeComment <> line <> line <>
       "import" <+> "akkaserverless" <+> "from" <+> dquotes(
         "@lightbend/akkaserverless-javascript-sdk"
       ) <> semi <> line <>
