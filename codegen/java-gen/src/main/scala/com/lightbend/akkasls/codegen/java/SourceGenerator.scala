@@ -296,7 +296,7 @@ object SourceGenerator extends PrettyPrinter {
           "throws" <+> "Exception" <> space
         ) {
           "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
-          "SERVICE.start().toCompletableFuture().get()" <> semi
+          "SERVICE.start()" <> semi
         }
       }
     )

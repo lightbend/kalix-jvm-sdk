@@ -235,7 +235,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    
         |    public static void main(String[] args) throws Exception {
         |        LOG.info("starting the Akka Serverless service");
-        |        SERVICE.start().toCompletableFuture().get();
+        |        SERVICE.start();
         |    }
         |}""".stripMargin
     )

@@ -179,7 +179,7 @@ object EntityServiceSourceGenerator {
               "entityType" <+> equal <+> dquotes(entityType)
             )
       }) <> line <>
-      `class`("public", s"$className implements $interfaceClassName") {
+      `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
         line <>
@@ -241,7 +241,7 @@ object EntityServiceSourceGenerator {
               ),
               emptyDoc
             ) {
-              "throw ctx.fail" <> parens(notImplementedError("command", command.fqn)) <> semi
+              "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
             }
           },
           line <> line
@@ -319,7 +319,7 @@ object EntityServiceSourceGenerator {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
-      `interface`("public", className + "Interface") {
+      `class`("public abstract", className + "Interface") {
         line <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>

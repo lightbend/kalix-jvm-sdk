@@ -39,7 +39,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
-      |public class MyServiceEntityImpl implements MyServiceEntityInterface {
+      |public class MyServiceEntityImpl extends MyServiceEntityInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -61,12 +61,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @Override
       |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
+      |        return Reply.failure("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
       |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
+      |        return Reply.failure("The command handler for `Get` is not implemented, yet");
       |    }
       |    
       |    @Override
@@ -108,7 +108,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyServiceImpl implements MyServiceInterface {
+      |public class MyServiceImpl extends MyServiceInterface {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -118,12 +118,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @Override
       |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        throw ctx.fail("The command handler for `Set` is not implemented, yet");
+      |        return Reply.failure("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
       |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        throw ctx.fail("The command handler for `Get` is not implemented, yet");
+      |        return Reply.failure("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
@@ -148,7 +148,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public interface MyServiceEntityInterface {
+      |public abstract class MyServiceEntityInterface {
       |    
       |    @Snapshot
       |    public abstract EntityOuterClass.MyState snapshot();
@@ -185,7 +185,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public interface MyServiceInterface {
+      |public abstract class MyServiceInterface {
       |    
       |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
       |    
