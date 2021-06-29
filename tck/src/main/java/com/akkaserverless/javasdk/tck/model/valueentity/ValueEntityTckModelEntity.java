@@ -44,7 +44,7 @@ public class ValueEntityTckModelEntity {
   }
 
   @CommandHandler
-  public Reply<Response> process(Request request, CommandContext<Persisted> context) {
+  public Reply<Response> process(Request request, CommandContext<Response, Persisted> context) {
     Reply<Response> reply = null;
     List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {

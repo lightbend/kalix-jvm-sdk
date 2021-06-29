@@ -41,10 +41,11 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   }
 
   class MockCommandContext(override val commandName: String = "AddItem", state: Option[JavaPbAny] = None)
-      extends CommandContext[JavaPbAny]
+      extends CommandContext[JavaPbAny, JavaPbAny]
       with BaseContext {
     var currentState: Option[JavaPbAny] = state
     override def commandId(): Long = 20
+    override def effectBuilder(): ValueEntityEffect.Builder[JavaPbAny, JavaPbAny] = ??? // FIXME
     override def getState(): Optional[JavaPbAny] = currentState.asJava
     override def updateState(newState: JavaPbAny): Unit = currentState = Some(newState)
     override def deleteState(): Unit = currentState = None
@@ -157,7 +158,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @CommandHandler
-            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext[Wrapped, JavaPbAny]): Wrapped = {
               eid should ===("foo")
               ctx.commandName() should ===("AddItem")
               Wrapped(msg)
@@ -172,7 +173,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @CommandHandler
-            def getCart(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def getCart(msg: String, ctx: CommandContext[Wrapped, JavaPbAny]): Wrapped = {
               ctx.getState().asScala.get.asInstanceOf[String] should ===("state")
               ctx.commandName() should ===("GetCart")
               Wrapped(msg)
@@ -188,7 +189,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @CommandHandler
-            def addItem(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def addItem(msg: String, ctx: CommandContext[Wrapped, JavaPbAny]): Wrapped = {
               ctx.updateState(state(msg + " state"))
               ctx.commandName() should ===("AddItem")
               Wrapped(msg)
@@ -205,7 +206,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @CommandHandler
-            def removeCart(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def removeCart(msg: String, ctx: CommandContext[Wrapped, JavaPbAny]): Wrapped = {
               ctx.deleteState()
               ctx.commandName() should ===("RemoveCart")
               Wrapped(msg)
@@ -227,14 +228,17 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
       }
 
       "fail if there's two command handlers for the same command" in {
-        a[RuntimeException] should be thrownBy create(new {
-          @CommandHandler
-          def addItem(msg: String, ctx: CommandContext[JavaPbAny]) =
-            Wrapped(msg)
-          @CommandHandler
-          def addItem(msg: String) =
-            Wrapped(msg)
-        }, method())
+        a[RuntimeException] should be thrownBy create(
+          new {
+            @CommandHandler
+            def addItem(msg: String, ctx: CommandContext[Wrapped, JavaPbAny]) =
+              Wrapped(msg)
+            @CommandHandler
+            def addItem(msg: String) =
+              Wrapped(msg)
+          },
+          method()
+        )
       }
 
       "fail if there's no command with that name" in {

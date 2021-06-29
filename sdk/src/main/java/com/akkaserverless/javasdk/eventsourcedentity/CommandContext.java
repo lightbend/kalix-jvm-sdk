@@ -26,9 +26,15 @@ import com.akkaserverless.javasdk.MetadataContext;
  * <p>Methods annotated with {@link CommandHandler} may take this is a parameter. It allows emitting
  * new events in response to a command, along with forwarding the result to other entities, and
  * performing side effects on other entities.
+ *
+ * @param <T> The type of the message that must be returned by this call.
+ * @param <S> The type of the state for this entity.
  */
-public interface CommandContext
+public interface CommandContext<T, S>
     extends EventSourcedContext, ClientActionContext, SideEffectContext, MetadataContext {
+
+  EventSourcedEntityEffect.Builder<T, S> effectBuilder();
+
   /**
    * The current sequence number of events in this entity.
    *

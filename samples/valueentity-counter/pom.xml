@@ -19,7 +19,7 @@
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <akkaserverless-sdk.version>0.7.0-beta.10-1-11-cc0c0273-SNAPSHOT</akkaserverless-sdk.version>
+    <akkaserverless-sdk.version>0.7.0-beta.10-1-18-9017436c-dev-SNAPSHOT</akkaserverless-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
@@ -211,7 +211,7 @@
         <executions>
           <execution>
             <goals>
-              <goal>generate</goal>
+              <!-- FIXME <goal>generate</goal>-->
               <goal>deploy</goal>
             </goals>
           </execution>

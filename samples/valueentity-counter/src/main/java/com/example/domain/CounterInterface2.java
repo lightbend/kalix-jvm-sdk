@@ -3,7 +3,6 @@ package com.example.domain;
 import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -16,28 +15,24 @@ public abstract class CounterInterface2 {
     public abstract Effect<Empty> increase(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.IncreaseValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx);
+            CommandContext<Empty, CounterDomain.CounterState> context);
 
     @CommandHandler(name = "Decrease")
     public abstract Effect<Empty> decrease(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.DecreaseValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx);
+            CommandContext<Empty, CounterDomain.CounterState> context);
 
     @CommandHandler(name = "Reset")
     public abstract Effect<Empty> reset(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.ResetValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx);
+            CommandContext<Empty, CounterDomain.CounterState> context);
 
     @CommandHandler(name = "GetCurrentCounter")
     public abstract Effect<CounterApi.CurrentCounter> getCurrentCounter(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.GetCounter command,
-            ValueEntityEffect.Builder<CounterApi.CurrentCounter, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx);
+            CommandContext<CounterApi.CurrentCounter, CounterDomain.CounterState> context);
 
 }

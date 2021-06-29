@@ -83,7 +83,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
       }
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny, context: CommandContext[_, _]): Reply[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         handler.invoke(entity, command, context)
       } getOrElse {
@@ -138,7 +138,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
 
 private class EventBehaviorReflection(
     eventHandlers: Map[Class[_], EventHandlerInvoker],
-    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext]],
+    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext[_, _]]],
     snapshotHandlers: Map[Class[_], SnapshotHandlerInvoker],
     val snapshotInvoker: Option[SnapshotInvoker]
 ) {
@@ -204,9 +204,9 @@ private object EventBehaviorReflection {
           )
         })
 
-        new ReflectionHelper.CommandHandlerInvoker[CommandContext](ReflectionHelper.ensureAccessible(method),
-                                                                   serviceMethod,
-                                                                   anySupport)
+        new ReflectionHelper.CommandHandlerInvoker[CommandContext[_, _]](ReflectionHelper.ensureAccessible(method),
+                                                                         serviceMethod,
+                                                                         anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {

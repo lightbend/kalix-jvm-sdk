@@ -294,7 +294,7 @@ object EventSourcedEntitiesImplSpec {
       def getCart: ShoppingCartApi.Cart = Protocol.cart(cart.values.toSeq: _*)
 
       @CommandHandler
-      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext): Empty = {
+      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[Empty, ShoppingCartDomain.Cart]): Empty = {
         if (item.getQuantity == -42) {
           // emit and then fail on magic negative quantity, for testing atomicity
           ctx.emit(Protocol.itemAdded(item.getProductId, item.getName, item.getQuantity))

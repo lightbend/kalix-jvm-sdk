@@ -1,13 +1,9 @@
 package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.Effect;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityEffect;
-import com.akkaserverless.javasdk.eventsourcedentity.Snapshot;
-import com.akkaserverless.javasdk.eventsourcedentity.SnapshotHandler;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
@@ -20,22 +16,19 @@ public abstract class ShoppingCartInterface2 {
     public abstract Effect<Empty> addItem(
             ShoppingCartDomain.Cart currentState,
             ShoppingCartApi.AddLineItem command,
-            EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
-            CommandContext ctx);
+            CommandContext<Empty, ShoppingCartDomain.Cart> context);
 
     @CommandHandler(name = "RemoveItem")
     public abstract Effect<Empty> removeItem(
             ShoppingCartDomain.Cart currentState,
             ShoppingCartApi.RemoveLineItem command,
-            EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
-            CommandContext ctx);
+            CommandContext<Empty, ShoppingCartDomain.Cart> context);
 
     @CommandHandler(name = "GetCart")
     public abstract Effect<ShoppingCartApi.Cart> getCart(
             ShoppingCartDomain.Cart currentState,
             ShoppingCartApi.GetShoppingCart command,
-            EventSourcedEntityEffect.Builder<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> effectBuilder,
-            CommandContext ctx);
+            CommandContext<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> context);
 
     @EventHandler
     protected abstract ShoppingCartDomain.Cart itemAdded(

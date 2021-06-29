@@ -257,7 +257,7 @@ object ValueEntitiesImplSpec {
       import scala.jdk.OptionConverters._
 
       @CommandHandler
-      def getCart(ctx: CommandContext[ShoppingCartDomain.Cart]): ShoppingCartApi.Cart =
+      def getCart(ctx: CommandContext[ShoppingCartApi.Cart, ShoppingCartDomain.Cart]): ShoppingCartApi.Cart =
         ctx.getState.toScala
           .map { c =>
             val items = c.getItemsList.asScala.map(i => Item(i.getProductId, i.getName, i.getQuantity)).toSeq
@@ -266,7 +266,7 @@ object ValueEntitiesImplSpec {
           .getOrElse(Protocol.EmptyCart)
 
       @CommandHandler
-      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
+      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[Empty, ShoppingCartDomain.Cart]): Empty = {
         // update and then fail on negative quantities, for testing atomicity
         val cart = updateCart(item, asMap(ctx.getState))
         val items =
@@ -286,13 +286,15 @@ object ValueEntitiesImplSpec {
       }
 
       @CommandHandler
-      def removeItem(item: ShoppingCartApi.RemoveLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
+      def removeItem(item: ShoppingCartApi.RemoveLineItem,
+                     ctx: CommandContext[Empty, ShoppingCartDomain.Cart]): Empty = {
         if (true) throw new RuntimeException("Boom: " + item.getProductId) // always fail for testing
         Empty.getDefaultInstance
       }
 
       @CommandHandler
-      def removeCart(item: ShoppingCartApi.RemoveShoppingCart, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
+      def removeCart(item: ShoppingCartApi.RemoveShoppingCart,
+                     ctx: CommandContext[Empty, ShoppingCartDomain.Cart]): Empty = {
         ctx.deleteState()
         Empty.getDefaultInstance
       }
