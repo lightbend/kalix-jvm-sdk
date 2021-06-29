@@ -137,7 +137,6 @@ lazy val samples = project
   .in(file("samples"))
   .aggregate(
     `java-eventing-shopping-cart`,
-    `java-pingpong`,
     `java-customer-registry`
   )
 
@@ -201,17 +200,3 @@ lazy val attachProtobufDescriptorSets = Seq(
   Compile / managedResources += protobufDescriptorSetOut.value,
   Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value
 )
-
-lazy val `java-pingpong` = project
-  .in(file("samples/java-pingpong"))
-  .dependsOn(sdk)
-  .enablePlugins(AkkaGrpcPlugin, LocalDockerImage)
-  .settings(
-    name := "java-pingpong",
-    libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion
-      ),
-    Compile / mainClass := Some("com.akkaserverless.samples.pingpong.Main"),
-    Compile / PB.targets := Seq(PB.gens.java -> (Compile / sourceManaged).value),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11")
-  )
