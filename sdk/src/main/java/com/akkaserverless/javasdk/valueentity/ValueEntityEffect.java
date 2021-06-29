@@ -56,22 +56,22 @@ public abstract class ValueEntityEffect<T> implements Effect<T> {
     /**
      * Create a message reply.
      *
-     * @param payload The payload of the reply.
+     * @param message The payload of the reply.
      * @return A message reply.
      */
-    public MessageReply<T> message(T payload) { // FIXME rename to reply? Note thenReply
-      return message(payload, Metadata.EMPTY);
+    public MessageReply<T> reply(T message) {
+      return reply(message, Metadata.EMPTY);
     }
 
     /**
      * Create a message reply.
      *
-     * @param payload The payload of the reply.
+     * @param message The payload of the reply.
      * @param metadata The metadata for the message.
      * @return A message reply.
      */
-    public MessageReply<T> message(T payload, Metadata metadata) {
-      return new MessageReplyImpl<>(payload, metadata);
+    public MessageReply<T> reply(T message, Metadata metadata) {
+      return new MessageReplyImpl<>(message, metadata);
     }
 
     /**
