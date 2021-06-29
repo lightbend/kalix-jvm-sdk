@@ -13,12 +13,6 @@ import com.google.protobuf.Empty;
 
 /** An event sourced entity. */
 public abstract class ShoppingCartInterface2 {
-    
-    public class CommandNotImplementedException extends UnsupportedOperationException {
-        public CommandNotImplementedException() {
-            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-        }
-    }
 
     protected abstract ShoppingCartDomain.Cart emptyState();
 

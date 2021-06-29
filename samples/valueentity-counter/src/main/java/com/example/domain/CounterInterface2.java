@@ -11,12 +11,6 @@ import java.util.Optional;
 
 /** A value entity. */
 public abstract class CounterInterface2 {
-    
-    public class CommandNotImplementedException extends UnsupportedOperationException {
-        public CommandNotImplementedException() {
-            super("You have either created a new command or removed the handling of an existing command. Please declare a method in your \"impl\" class for this command.");
-        }
-    }
 
     @CommandHandler(name = "Increase")
     public abstract Effect<Empty> increase(
