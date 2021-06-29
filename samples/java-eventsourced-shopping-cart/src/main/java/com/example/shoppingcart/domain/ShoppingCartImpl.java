@@ -48,8 +48,8 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<Empty> addItem(
-          ShoppingCartApi.AddLineItem command,
           ShoppingCartDomain.Cart currentState,
+          ShoppingCartApi.AddLineItem command,
           EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
           CommandContext ctx) {
     if (command.getQuantity() <= 0) {
@@ -72,8 +72,8 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<Empty> removeItem(
-          ShoppingCartApi.RemoveLineItem command,
           ShoppingCartDomain.Cart currentState,
+          ShoppingCartApi.RemoveLineItem command,
           EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
           CommandContext ctx) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
@@ -91,8 +91,8 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
-          ShoppingCartApi.GetShoppingCart command,
           ShoppingCartDomain.Cart currentState,
+          ShoppingCartApi.GetShoppingCart command,
           EventSourcedEntityEffect.Builder<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> effectBuilder,
           CommandContext ctx) {
     List<ShoppingCartApi.LineItem> apiItems =
@@ -105,7 +105,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   }
 
   @Override
-  protected ShoppingCartDomain.Cart itemAdded(ShoppingCartDomain.ItemAdded itemAdded, ShoppingCartDomain.Cart currentState) {
+  protected ShoppingCartDomain.Cart itemAdded(
+          ShoppingCartDomain.Cart currentState,
+          ShoppingCartDomain.ItemAdded itemAdded) {
     ShoppingCartDomain.LineItem item = itemAdded.getItem();
     ShoppingCartDomain.LineItem lineItem = updateItem(item, currentState);
     List<ShoppingCartDomain.LineItem> lineItems = removeItemByProductId(currentState, item.getProductId());
@@ -115,7 +117,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   }
 
   @Override
-  protected ShoppingCartDomain.Cart itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved, ShoppingCartDomain.Cart currentState) {
+  protected ShoppingCartDomain.Cart itemRemoved(
+          ShoppingCartDomain.Cart currentState,
+          ShoppingCartDomain.ItemRemoved itemRemoved) {
     List<ShoppingCartDomain.LineItem> items = removeItemByProductId(currentState, itemRemoved.getProductId());
     items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     return ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build();

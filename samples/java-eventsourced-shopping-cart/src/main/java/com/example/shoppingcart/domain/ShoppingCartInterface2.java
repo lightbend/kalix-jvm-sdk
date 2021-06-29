@@ -18,28 +18,32 @@ public abstract class ShoppingCartInterface2 {
 
     @CommandHandler(name = "AddItem")
     public abstract Effect<Empty> addItem(
-            ShoppingCartApi.AddLineItem command,
             ShoppingCartDomain.Cart currentState,
+            ShoppingCartApi.AddLineItem command,
             EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
             CommandContext ctx);
 
     @CommandHandler(name = "RemoveItem")
     public abstract Effect<Empty> removeItem(
-            ShoppingCartApi.RemoveLineItem command,
             ShoppingCartDomain.Cart currentState,
+            ShoppingCartApi.RemoveLineItem command,
             EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
             CommandContext ctx);
 
     @CommandHandler(name = "GetCart")
     public abstract Effect<ShoppingCartApi.Cart> getCart(
-            ShoppingCartApi.GetShoppingCart command,
             ShoppingCartDomain.Cart currentState,
+            ShoppingCartApi.GetShoppingCart command,
             EventSourcedEntityEffect.Builder<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> effectBuilder,
             CommandContext ctx);
 
     @EventHandler
-    protected abstract ShoppingCartDomain.Cart itemAdded(ShoppingCartDomain.ItemAdded event, ShoppingCartDomain.Cart currentState);
+    protected abstract ShoppingCartDomain.Cart itemAdded(
+            ShoppingCartDomain.Cart currentState,
+            ShoppingCartDomain.ItemAdded event);
     
     @EventHandler
-    protected abstract ShoppingCartDomain.Cart itemRemoved(ShoppingCartDomain.ItemRemoved event, ShoppingCartDomain.Cart currentState);
+    protected abstract ShoppingCartDomain.Cart itemRemoved(
+            ShoppingCartDomain.Cart currentState,
+            ShoppingCartDomain.ItemRemoved event);
 }

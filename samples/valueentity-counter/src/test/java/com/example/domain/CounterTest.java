@@ -14,8 +14,6 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
 
 // tag::class[]
 public class CounterTest {
@@ -35,7 +33,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
-        entity.increase(message, currentState, effectBuilder, context); // <4>
+        entity.increase(currentState, message, effectBuilder, context); // <4>
 
         // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <5>
@@ -51,7 +49,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
-        entity.increase(message, currentState, effectBuilder, context);
+        entity.increase(currentState, message, effectBuilder, context);
 
         // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(13 + 42).build());
@@ -67,7 +65,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
-        Effect<Empty> reply = entity.increase(message, currentState, effectBuilder, context);
+        Effect<Empty> reply = entity.increase(currentState, message, effectBuilder, context);
         assertThat(reply,  is(instanceOf(FailureReply.class)));
     }
 
@@ -81,7 +79,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
-        entity.decrease(message, currentState, effectBuilder, context);
+        entity.decrease(currentState, message, effectBuilder, context);
 
         // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(-42).build());
@@ -97,7 +95,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(Empty.class, CounterDomain.CounterState.class);
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
-        entity.reset(message, currentState, effectBuilder, context);
+        entity.reset(currentState, message, effectBuilder, context);
 
         // FIXME
         Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(0).build());
@@ -113,7 +111,7 @@ public class CounterTest {
                 ValueEntityEffect.newBuilder(CounterApi.CurrentCounter.class, CounterDomain.CounterState.class);
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(message, currentState, effectBuilder, context);
+        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message, effectBuilder, context);
 
         assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }

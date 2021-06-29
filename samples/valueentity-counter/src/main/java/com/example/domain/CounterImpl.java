@@ -25,8 +25,8 @@ public class CounterImpl extends CounterInterface2 {
     // tag::increase[]
     @Override
     public Effect<Empty> increase(
-            CounterApi.IncreaseValue command,
             Optional<CounterDomain.CounterState> currentState,
+            CounterApi.IncreaseValue command,
             ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         if (command.getValue() < 0) { // <1>
@@ -44,8 +44,8 @@ public class CounterImpl extends CounterInterface2 {
 
     @Override
     public Effect<Empty> decrease(
-            CounterApi.DecreaseValue command,
             Optional<CounterDomain.CounterState> currentState,
+            CounterApi.DecreaseValue command,
             ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         if (command.getValue() < 0) {
@@ -62,8 +62,8 @@ public class CounterImpl extends CounterInterface2 {
 
     @Override
     public Effect<Empty> reset(
-            CounterApi.ResetValue command,
             Optional<CounterDomain.CounterState> currentState,
+            CounterApi.ResetValue command,
             ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         CounterDomain.CounterState state = currentState
@@ -78,8 +78,8 @@ public class CounterImpl extends CounterInterface2 {
     // tag::getCurrentCounter[]
     @Override
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(
-            CounterApi.GetCounter command,
             Optional<CounterDomain.CounterState> currentState,
+            CounterApi.GetCounter command,
             ValueEntityEffect.Builder<CounterApi.CurrentCounter, CounterDomain.CounterState> effectBuilder,
             CommandContext<CounterDomain.CounterState> ctx) {
         CounterApi.CurrentCounter current = currentState // <1>
