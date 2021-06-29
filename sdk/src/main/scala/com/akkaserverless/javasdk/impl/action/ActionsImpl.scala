@@ -34,6 +34,9 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Future
 
+import com.akkaserverless.javasdk.lowlevel.ActionFactory
+import com.akkaserverless.javasdk.lowlevel.ActionHandler
+
 final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,
                           val anySupport: AnySupport)

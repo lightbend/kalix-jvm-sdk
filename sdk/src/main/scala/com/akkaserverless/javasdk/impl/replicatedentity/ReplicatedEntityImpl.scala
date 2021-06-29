@@ -37,6 +37,7 @@ import java.util.{function, Optional}
 import scala.jdk.CollectionConverters._
 
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
+import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandlerFactory,

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package com.akkaserverless.javasdk.lowlevel;
+
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
 
 /**
  * Low level interface for handling events and commands on an entity.

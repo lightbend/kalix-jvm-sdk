@@ -32,6 +32,9 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.lang.reflect.{Constructor, InvocationTargetException, Method, Type}
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
+import com.akkaserverless.javasdk.lowlevel.ActionFactory
+import com.akkaserverless.javasdk.lowlevel.ActionHandler
+
 /**
  * Annotation based implementation to create [[ActionHandler]] via an [[ActionFactory]].
  */

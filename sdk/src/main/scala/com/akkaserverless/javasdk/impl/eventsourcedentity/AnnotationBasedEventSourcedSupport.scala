@@ -24,7 +24,11 @@ import com.akkaserverless.javasdk.{EntityFactory, Reply, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
+
 import scala.collection.concurrent.TrieMap
+
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 
 /**
  * Annotation based implementation of the [[EventSourcedEntityFactory]].

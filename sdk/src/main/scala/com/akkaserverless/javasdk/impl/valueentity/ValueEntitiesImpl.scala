@@ -42,6 +42,7 @@ import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.google.protobuf.Any;
 
 /**

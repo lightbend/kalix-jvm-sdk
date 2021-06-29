@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package com.akkaserverless.javasdk.lowlevel;
+
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.view.UpdateHandler;
+import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.google.protobuf.Any;
 
 /**
- * Low level interface for handling commands on a value based entity.
+ * Low level interface for handling messages on views.
  *
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
- * be used.
+ * UpdateHandler @UpdateHandler} and similar annotations should be used.
  */
-public interface ValueEntityFactory {
+public interface ViewUpdateHandler {
+
   /**
-   * Create an entity handler for the given context.
+   * Handle the given message.
    *
+   * @param message The message to handle.
    * @param context The context.
-   * @return The handler for the given context.
+   * @return The updated state.
    */
-  ValueEntityHandler create(ValueEntityContext context);
+  Reply<Any> handle(Any message, UpdateHandlerContext context);
 }

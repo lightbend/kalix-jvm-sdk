@@ -42,6 +42,8 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.util.control.NonFatal
 
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.valueentity.{ValueEntityContext, ValueEntityFactory, ValueEntityHandler, _}
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, MainArgumentParameterHandler}
 import com.akkaserverless.javasdk.impl.{AnySupport, ReflectionHelper, ResolvedEntityFactory, ResolvedServiceMethod}
@@ -24,6 +24,10 @@ import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCall, ServiceCallFact
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.lang.reflect.{Constructor, InvocationTargetException}
 import java.util.Optional
+
+import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
+import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
+import com.akkaserverless.javasdk.valueentity._
 
 /**
  * Annotation based implementation of the [[EntityFactory]].
@@ -118,9 +122,11 @@ private object EntityBehaviorReflection {
           }
         )
 
-        new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef, AnyRef]](ReflectionHelper.ensureAccessible(method),
-                                                                           serviceMethod,
-                                                                           anySupport)
+        new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef, AnyRef]](
+          ReflectionHelper.ensureAccessible(method),
+          serviceMethod,
+          anySupport
+        )
       }
       .groupBy(_.serviceMethod.name)
       .map {

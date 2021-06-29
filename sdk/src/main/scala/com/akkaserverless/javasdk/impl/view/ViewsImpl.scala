@@ -17,16 +17,18 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
+
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
+
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
+import com.akkaserverless.javasdk.lowlevel.ViewFactory
 import com.akkaserverless.javasdk.view.UpdateHandlerContext
 import com.akkaserverless.javasdk.view.ViewContext
-import com.akkaserverless.javasdk.view.ViewFactory
 import com.akkaserverless.protocol.{view => pv}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{Any => ScalaPbAny}

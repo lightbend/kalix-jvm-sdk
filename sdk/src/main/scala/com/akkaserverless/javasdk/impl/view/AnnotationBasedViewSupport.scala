@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.impl.view
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.util.Optional
+
 import com.akkaserverless.javasdk.{Reply, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.ReflectionHelper
@@ -28,13 +29,13 @@ import com.akkaserverless.javasdk.impl.ReflectionHelper.MethodParameter
 import com.akkaserverless.javasdk.impl.ReflectionHelper.ParameterHandler
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
+import com.akkaserverless.javasdk.lowlevel.ViewFactory
+import com.akkaserverless.javasdk.lowlevel.ViewUpdateHandler
 import com.akkaserverless.javasdk.view.UpdateHandler
 import com.akkaserverless.javasdk.view.UpdateHandlerContext
 import com.akkaserverless.javasdk.view.View
 import com.akkaserverless.javasdk.view.ViewContext
 import com.akkaserverless.javasdk.view.ViewCreationContext
-import com.akkaserverless.javasdk.view.ViewFactory
-import com.akkaserverless.javasdk.view.ViewUpdateHandler
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{Any => JavaPbAny}
 
