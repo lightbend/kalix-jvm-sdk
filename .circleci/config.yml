@@ -54,7 +54,6 @@ commands:
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
-            - "~/.m2"
             - "~/.cache/coursier"
             - "~/.m2"
 

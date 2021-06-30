@@ -16,7 +16,7 @@ and in particular the [Java section](https://developer.lightbend.com/docs/akka-s
 ## Building
 ]]#
 To build, at a minimum you need to generate and process sources, particularly when using an IDE.
-A convenience is compile your project:
+To compile your project:
 
 ```
 mvn compile
@@ -57,7 +57,7 @@ With both the proxy and your application running, any defined endpoints should b
 The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
 > grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 ${package}.CounterService/GetCurrentCounter 
