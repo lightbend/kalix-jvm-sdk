@@ -2,7 +2,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-include::developing:partial$forwarding.adoc[]
+include::partial$forwarding.adoc[]
 
 == Looking up service call references
 
@@ -59,7 +59,7 @@ public class ToProductPopularityAction {
 }
 ----
 
-include::developing:partial$forwarding-effects.adoc[]
+include::partial$forwarding-effects.adoc[]
 
 == Emitting an effect
 

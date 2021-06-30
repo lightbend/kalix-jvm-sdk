@@ -1,0 +1,6 @@
+
+include::ROOT:partial$include.adoc[]
+
+You do not need to handle serialization for messages. Akka Serverless functions serve gRPC interfaces, and the input and output messages are `protobuf` messages that get serialized to the `protobuf` format. However, for objects to be persisted such as Event Sourced xref:reference:glossary.adoc#event[_events_] and xref:reference:glossary.adoc#snapshot[_snapshots_] you have a choice.
+
+By default, Akka Serverless will automatically detect if an emitted event or snapshot is a `protobuf` and handle them correctly, so we recommend using the default behavior. However, if you have specific requirements, you also can choose between primitive type and JSON (JavaScript Object Notation) serialization.

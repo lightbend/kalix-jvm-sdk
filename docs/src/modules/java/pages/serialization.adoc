@@ -1,7 +1,7 @@
 = Serialization options for Java services
 
 include::ROOT:partial$include.adoc[]
-include::developing:partial$serialization.adoc[]
+include::partial$serialization.adoc[]
 
 Akka Serverless functions serve gRPC interfaces, and the input and output messages get serialized to the `protobuf` format. However, in addition to these messages, Akka Serverless serializes other objects for persistence such as Event Sourced events and Entity snapshots. Akka Serverless supports `protobuf`, primitive type, and JSON serialization options for these values.
 

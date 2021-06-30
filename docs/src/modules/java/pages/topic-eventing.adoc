@@ -1,7 +1,7 @@
 = Publishing and subscribing to topics on a broker
 
 include::ROOT:partial$include.adoc[]
-include::developing:partial$topic-eventing.adoc[]
+include::partial$topic-eventing.adoc[]
 
 The Java implementation of the method can be declared with a regular Java class as parameter.
 
@@ -39,4 +39,4 @@ public class TopicMessage {
 }
 ----
 
-include::developing:partial$topic-eventing-cloudevent.adoc[]
+include::partial$topic-eventing-cloudevent.adoc[]

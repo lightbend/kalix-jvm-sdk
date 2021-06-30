@@ -2,4 +2,4 @@
 :Java: ""
 
 include::ROOT:partial$include.adoc[]
-include::developing:partial$running-service-locally.adoc[]
+include::partial$running-service-locally.adoc[]

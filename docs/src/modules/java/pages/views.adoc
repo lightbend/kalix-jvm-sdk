@@ -1,7 +1,7 @@
 = Implementing Views
 
 include::ROOT:partial$include.adoc[]
-include::developing:partial$views.adoc[]
+include::partial$views.adoc[]
 
 [#value-entity]
 == Creating a View from a Value Entity

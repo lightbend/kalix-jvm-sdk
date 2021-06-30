@@ -1,0 +1,234 @@
+
+include::ROOT:partial$include.adoc[]
+
+Running a service locally is helpful to test and debug. The following sections provide commands for starting and stopping a single service locally.
+
+In order to run your service locally, you must run the Akka Serverless proxy, which we provide as a Docker image. The examples include `docker compose` files with the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to when you make use of
+ifdef::JavaScript[]
+xref:javascript:topic-eventing.adoc[]
+endif::[]
+ifdef::Java[]
+xref:java:topic-eventing.adoc[] in your service
+endif::[]
+.
+
+== Pre-requisites
+
+* Docker {minimum_docker_version} or higher installed and accessible on your local computer
+* Access to the `gcr.io/akkaserverless-public` docker registry from your local computer
+* Your service container image.
+
+== Starting the service
+
+To start the proxy, run the following command from the directory with the `docker-compose.yml` file:
+
+. Start the proxy
++
+[.tabset]
+Mac and Windows::
++
+--
+[source, command line]
+----
+docker compose up
+----
+--
+
+Linux::
++
+--
+[source, command line]
+----
+docker-compose -f docker-compose.yml -f docker-compose.linux.yml up
+----
+--
+
++
+. Start the service
++
+[source, command line]
+----
+ifdef::JavaScript[npm run]
+ifdef::Java[mvn compile exec:java]
+----
+
+== Exercise the service
+
+Now the service is ready to accept commands on `localhost:9000`.
+
+Use curl to call your service via HTTP, or https://github.com/fullstorydev/grpcurl[grpcurl] to use the gRPC endpoints directly.
+
+This `curl` command calls the "CounterService" from the kickstart example, you will need to adapt it depending on the API of your service.
+
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+curl \
+  -XPOST \ <1>
+  -H "Content-Type: application/json" \ <2>
+  -d '{"counterId": "foo"}' \ <3>
+  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+curl ^
+  -XPOST ^ <1>
+  -H "Content-Type: application/json" ^ <2>
+  -d '{"counterId": "foo"}' ^ <3>
+  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
+----
+--
+
+The `curl` command takes
+
+<1> a flag to send a POST request,
+<2> set the content type to JSON,
+<3> the message in JSON format,
+<4> the URL with the RPC procedure name which deducts from the protobuf definition of the component we're calling.
+
+All Akka Serverless APIs are exposed as regular HTTP endpoints which you can call with `curl`. Protobuf annotations allow controlling the mapping to HTTP as discussed in
+ifdef::JavaScript[]
+xref:javascript:proto.adoc#_transcoding_http[Transcoding HTTP]
+endif::[]
+ifdef::Java[]
+xref:java:proto.adoc#_transcoding_http[Transcoding HTTP]
+endif::[]
+.
+
+This `grpcurl` command line calls the same "Counter Service", from the kickstart example, you will need to adapt it depending on the API of your service.
+
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+grpcurl \
+  -d '{"counterId": "foo"}' \ <1>
+  -plaintext localhost:9000 \ <2>
+  com.example.CounterService/GetCurrentCounter <3>
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+grpcurl ^
+  -d '{"counterId": "foo"}' ^ <1>
+  -plaintext localhost:9000 ^ <2>
+  com.example.CounterService/GetCurrentCounter <3>
+----
+--
+
+The `grpcurl` command takes
+
+<1> the message in JSON format with `-d`,
+<2> the address to the proxy (using plain text instead of TLS),
+<3> and the RPC procedure name which deducts from the protobuf definition of the component we're calling.
+
+
+== Shut down the proxy
+
+The command below shows how to shut down the proxy. Shutting down the proxy removes all data, which is kept in memory.
+
+[source, command line]
+----
+docker stop akkaserverless-proxy
+----
+
+To delete the proxy container
+
+[source, command line]
+----
+docker rm akkaserverless-proxy
+----
+
+////
+Replacing quick and easy but leaving the detailed step through for now - maybe another doc?
+From a command prompt, create Docker network. The following creates a network named `akkasls-lan`, but you can use any name.
+
+[source, command line]
+----
+docker network create -d bridge akkasls-lan
+----
+
+Retrieve the image id of your service image with the `docker images` command:
+
+[source, command line]
+----
+$ docker images | grep shopping-cart
+myuser/shopping-cart           1.32     f30694769aab   2 hours ago    177MB
+myuser/shopping-cart           latest   f30694769aab   2 hours ago    177MB
+----
+
+
+Run your service container in Docker. In the following example, the container name is `shopping-cart`, the service container image id is `f30694769aab`, and it connects to the `akkasls-lan` network we created earlier.
+
+[source, command line]
+----
+docker run -d --name shopping-cart --network akkasls-lan f30694769aab
+----
+
+Use Docker inspect to retrieve the address of the running container in the range of the `akkasls-lan` network.
+
+[source, command line]
+----
+service_address=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' shopping-cart)
+----
+
+Start the xref:reference:glossary.adoc#_proxy_[_proxy_].
+
+[source, command line, subs="attributes+"]
+----
+docker run -d --name akkaserverless-proxy --network akkasls-lan -p 9000:9000 \
+  --env USER_FUNCTION_HOST=$service_address \
+  gcr.io/akkaserverless-public/akkaserverless-proxy:{akkaserverless-proxy-version}
+
+----
+
+
+The parameters to this command include:
+
+- The proxy image that contains the functional sub-set we need for local testing.
+- A connection to the `akkasls-lan` network that exposes the proxy to the 9000 port of the docker host.
+- The environment variable `USER_FUNCTION_HOST`, set to the service container's address. The proxy uses this IP to connect to the user function.
+
+Now we can inspect the logs of the proxy to see if it found the service `order`:
+
+[source, command line]
+----
+docker logs akkaserverless-proxy
+----
+
+The following line in the log is written when the proxy registers the Entities of the service.
+
+[source, text]
+----
+2021-01-08 07:11:03.779 com.akkaserverless.proxy.DiscoveryManager - Received Spec from user function with info...
+----
+
+The following line, which should be at the bottom of the startup portion of the log, shows that the proxy now accepts connections on the address '0.0.0.0:9000'
+
+[source, text]
+----
+2021-01-08 07:11:04.290 INFO io.akkaserverless.proxy.DiscoveryManager - Akka Serverless proxy online at /0.0.0.0:9000
+
+----
+
+
+Finally, delete the `akkasls-lan` network used by the containers.
+
+[source, command line]
+----
+docker network rm akkasls-lan
+----
+////

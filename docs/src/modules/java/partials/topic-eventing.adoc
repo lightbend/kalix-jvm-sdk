@@ -1,0 +1,45 @@
+include::ROOT:partial$include.adoc[]
+
+Akka Serverless integrates with https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] to enable asynchronous messaging. Consumers of published messages are guaranteed to receive them at least once. This means that receivers must be able to handle duplicate messages. If you are new to the world of Pub/Sub, many online resources provide tips on handling duplicate messages.
+
+This page describes how to subscribe to published events, but you also need to configure Google Cloud Pub/Sub access for your Akka Serverless project as explained in xref:how-to:message-broker.adoc[How to configure a broker].
+
+NOTE: It is your responsibility to create the topics in Google Cloud Pub/Sub before configuring publishers or subscribers.
+
+== Subscribing to a topic's messages
+
+To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `(akkaserverless.method).eventing` annotation. Specify the topic name in the `in` section of the annotation:
+
+[source,protobuf,indent=0]
+----
+include::java:example$java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_analytics.proto[tag=subscribing]
+----
+<1> annotate the Protobuf rpc method with `(akkaserverless.method).eventing`
+<2> use `in` and `topic` to subscribe to a topic
+
+There is nothing specific required in the implementation of `ProcessAdded`. The implementation will in most cases be an Action and forward a converted message to a different component (eg. an Event Sourced Entity).
+
+== Receiving JSON messages
+
+Your Akka Serverless service may subscribe to topics that use messages in JSON format. The messages must have the `Content-Type` attribute stating `application/json`.
+
+The Protobuf rpc method receiving these JSON messages must be set up to receive `Any`.
+
+[source,protobuf,indent=0]
+----
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "akkaserverless/annotations.proto";
+
+package shopping.cart.actions;
+
+service ShoppingCartTopicService {
+    rpc JsonFromTopic(google.protobuf.Any) returns (google.protobuf.Empty) {
+        option (akkaserverless.method).eventing.in = {
+            topic:  "shopping-cart-json"
+        };
+    }
+}
+----

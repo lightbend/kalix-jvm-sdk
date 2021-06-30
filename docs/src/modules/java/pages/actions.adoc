@@ -1,7 +1,7 @@
 = Actions
 
 include::ROOT:partial$include.adoc[]
-include::developing:partial$actions.adoc[]
+include::partial$actions.adoc[]
 
 == Implementing Actions
 
