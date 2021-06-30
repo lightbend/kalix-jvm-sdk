@@ -44,7 +44,7 @@ TIP: To learn more about Akka Serverless entities see xref:java:value-entity.ado
 
 If you would like to update multiple Entities from a single command, you can use forwarding and effects. 
 
-TIP: For more information see xref:java:forwarding[Forwarding and effects in Java].
+TIP: For more information see xref:java:forwarding.adoc[Forwarding and effects in Java].
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
@@ -52,7 +52,7 @@ For more details and examples take a look at the following topics:
 
 * Event Sourced Entities in xref:java:eventsourced.adoc[Java]
 * Value Entities in xref:java:value-entity.adoc[Java]
-* Subscribe to a journal in xref:java:eventlog-adoc[Java]
+* Subscribe to a journal in xref:java:entity-eventing.adoc[Java]
 * Set up pub/sub for xref:java:topic-eventing.adoc[Java]
 
 [#_create_unit_tests]
