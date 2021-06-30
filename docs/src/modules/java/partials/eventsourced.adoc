@@ -1,10 +1,10 @@
 include::ROOT:partial$include.adoc[]
 
-Event Sourced Entities persist their state with https://en.wikipedia.org/wiki/ACID[ACID semantics {tab-icon}, window="new"], scale horizontally, and isolate failures. They use the Event Sourcing Model--rather than persisting the current state, they persist all of the events that led to the current state. Akka Serverless stores these events in a xref:reference:glossary.adoc#journal[journal].
+Event Sourced Entities persist their state with https://en.wikipedia.org/wiki/ACID[ACID semantics {tab-icon}, window="new"], scale horizontally, and isolate failures. They use the Event Sourcing Model--rather than persisting the current state, they persist all of the events that led to the current state. Akka Serverless stores these events in a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#journal[journal].
 
-An Event Sourced Entity must not update its in-memory state directly as a result of a xref:reference:glossary.adoc#command[_command_]. The handling of a command, if it results in changes being required to state, should emit xref:reference:glossary.adoc#event[_events_]. These events will then be received, at which point the in-memory state can and should be changed in response.
+An Event Sourced Entity must not update its in-memory state directly as a result of a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command[_command_]. The handling of a command, if it results in changes being required to state, should emit https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event[_events_]. These events will then be received, at which point the in-memory state can and should be changed in response.
 
-When you need to read state in your service, ask yourself _what events should I be listening to_?. When you need to write state, ask yourself _what events should I be emitting_? See Event Sourcing for xref:javascript:eventsourced.adoc[JavaScript] or xref:java:eventsourced.adoc[Java] for more information.
+When you need to read state in your service, ask yourself _what events should I be listening to_?. When you need to write state, ask yourself _what events should I be emitting_?
 
 ifdef::todo[TODO: add an illustration]
 

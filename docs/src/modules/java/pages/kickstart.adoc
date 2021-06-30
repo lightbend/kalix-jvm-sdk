@@ -22,10 +22,10 @@ Before running the code generation tools, make sure you have the following:
 
 To deploy the generated service, you will need:
 
-* An xref:getting-started:lightbend-account.adoc[Akka Serverless account]
-* An xref:getting-started:projects.adoc#_create_a_project[Akka Serverless project]
-* The xref:getting-started:set-up-development-env.adoc#_akka_serverless_cli[akkasls] CLI
-* A configured registry in which to publish the service container image. Refer to xref:deploying:registries.adoc[] for more information on how to make your Docker registry available to Akka Serverless.
+* An https://developer.lightbend.com/docs/akka-serverless/getting-started/lightbend-account.html[Akka Serverless account]
+* An https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html#_create_a_project[Akka Serverless project]
+* The https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html#_akka_serverless_cli[akkasls] CLI
+* A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
 
 :sectnums:
 == Configure Maven
@@ -91,7 +91,7 @@ The archetype created the source files outlined in xref:developing:development-p
 
 === Descriptors for the service interface and domain model
 
-Akka Serverless uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a xref:reference:glossary.adoc#value_entity[Value Entity]. The entity descriptors include:
+Akka Serverless uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity]. The entity descriptors include:
 
 - `src/main/proto/value-entities/counter_api.proto` the service API to be used by clients
 - `src/main/proto/value-entities/counter_domain.proto` the domain model of the Value Entity's state

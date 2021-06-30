@@ -17,7 +17,7 @@ base_path := $(shell git rev-parse --show-prefix)
 
 .SILENT:
 
-build: clean managed
+build: dev
 
 clean:
 	rm -rf build

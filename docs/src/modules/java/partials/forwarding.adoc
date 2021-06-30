@@ -1,6 +1,6 @@
 include::ROOT:partial$include.adoc[]
 
-A command can only act on one xref:reference:glossary.adoc#component[_component_] at a time--the component that received the command. For certain use cases, you might want a different component to handle the command.  Rather than sending an immediate reply to a command, the receiving component can _forward_ the command to another component. In cases where you want other components to be aware that a component processed a command, you can emit an _effect_.
+A command can only act on one https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#component[_component_] at a time--the component that received the command. For certain use cases, you might want a different component to handle the command.  Rather than sending an immediate reply to a command, the receiving component can _forward_ the command to another component. In cases where you want other components to be aware that a component processed a command, you can emit an _effect_.
 
 Handle forwarding and emit effects by wrapping the return value into a reply. The reply holds a regular return message or a forward to another component. Both can carry effects that notify other components.
 
@@ -19,9 +19,9 @@ TIP: See the documentation on xref:topic-eventing.adoc[Publishing and subscribin
 
 == Forwarding control to another component
 
-To forward a command return a forward reply that includes the call to invoke, and the message to invoke it with. The command is not forwarded until any state actions requested by the xref:reference:glossary.adoc#command_handler[_command handler_] are successfully completed. It is the responsibility of the component receiving the forward to return a reply that matches the type of the original command. Forwards can be chained arbitrarily long.
+To forward a command return a forward reply that includes the call to invoke, and the message to invoke it with. The command is not forwarded until any state actions requested by the https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handler_] are successfully completed. It is the responsibility of the component receiving the forward to return a reply that matches the type of the original command. Forwards can be chained arbitrarily long.
 
 .Use case: processing messages and triggering commands
 ****
-An xref:reference:glossary.adoc#action[_action_] might listen to a journal or an external topic and trigger commands on entities based on the incoming messages.
+An https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[_action_] might listen to a journal or an external topic and trigger commands on entities based on the incoming messages.
 ****

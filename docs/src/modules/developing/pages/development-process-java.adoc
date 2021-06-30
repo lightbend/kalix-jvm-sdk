@@ -16,9 +16,9 @@ The main steps in developing a service include:
 
 The main components of an Akka Serverless service are:
 
-* Stateful xref:reference:glossary.adoc#entity[Entities]
-* Stateless xref:reference:glossary.adoc#action[Actions]
-* xref:reference:glossary.adoc#view[Views], which return the state of multiple instances of a stateful entity.
+* Stateful https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entities]
+* Stateless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Actions]
+* https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views], which return the state of multiple instances of a stateful entity.
 
 We recommend that you separate the service API and Entity domain data model in individual `.proto` files, as https://grpc.io[gRPC] descriptors. Separating the service interface and data model in different files allows you to evolve them independently.
 
@@ -30,7 +30,7 @@ TIP: Kickstart a project using the xref:java:kickstart.adoc[Java code generation
 [#_implement_components]
 == Implement components
 
-Stateful services can implement xref:reference:glossary.adoc#value_entity[Value Entity] or xref:reference:glossary.adoc#event_sourced_entity[Event Sourced Entity] components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions.
+Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions.
 
 === Actions
 
@@ -65,10 +65,10 @@ It is good practice to write unit tests as you implement your services. The kick
 
 Use Docker to package your service and any of its dependencies. See the following pages for more information:
 
-* xref:getting-started:set-up-development-env.adoc#_docker[Installing Docker]
-* xref:deploying:docker.adoc[]
-* xref:deploying:registries.adoc[]
-* xref:tutorial:node-cart-package-deploy.adoc[Example of how to package a service]
+* https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html#_docker[Installing Docker]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/docker.html[Packaging with Docker]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries]
+* https://developer.lightbend.com/docs/akka-serverless/tutorial/node-cart-package-deploy.html[Example of how to package a service]
 
 [#_run_locally]
 == Run locally
@@ -80,6 +80,6 @@ xref:java:run-locally.adoc[running them locally] before deploying to Akka Server
 
 After testing locally, deploy your service to Akka Serverless using the CLI or the Console. The following pages provide information about deployment:
 
-* xref:getting-started:projects.adoc[]
-* xref:deploying:deploying.adoc[]
-* xref:tutorial:index.adoc[Examples of how to deploy]
+* https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html[Working with Akka Serverless deployment projects]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/deploying.html[Deploying a packaged service]
+* https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[Examples of how to deploy]

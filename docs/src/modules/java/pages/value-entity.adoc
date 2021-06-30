@@ -1,7 +1,7 @@
 = Implementing Value Entities in Java
 include::ROOT:partial$include.adoc[]
 
-xref:reference:glossary.adoc#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store. The most straightforward way to persist the state is with Protocol Buffers using `protobuf` types. Akka Serverless automatically detects if an updated state is `protobuf`, and serializes it using `protobuf`. For other serialization options, including JSON, see xref:java:serialization.adoc[Serialization options for Java services].
+https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store. The most straightforward way to persist the state is with Protocol Buffers using `protobuf` types. Akka Serverless automatically detects if an updated state is `protobuf`, and serializes it using `protobuf`. For other serialization options, including JSON, see xref:java:serialization.adoc[Serialization options for Java services].
 
 While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's `protobuf` messages. While this may introduce some overhead to convert from one type to the other, it allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
@@ -67,7 +67,7 @@ include::java:example$valueentity-counter/src/main/java/com/example/domain/Count
 <1> The `@ValueEntity` annotation sets the `entityType` as a unique identifier of the "state storage". The class name may be changed even after data has been created, the `entityType` can't.
 <2> The constructor accepts a parameter marked as the `@EntityId` and we keep the value in a field.
 
-We need to implement all methods our Value Entity offers as xref:reference:glossary.adoc#command_handler[_command handlers_].
+We need to implement all methods our Value Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
 
 In our case, the code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 

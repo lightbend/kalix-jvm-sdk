@@ -1,6 +1,6 @@
 
 
-You can access a single xref:reference:glossary.adoc#entity[Entity] with its xref:reference:glossary.adoc#entity_key[Entity key]. You might want to retrieve multiple Entities, and retrieve them using an attribute other than the key. Akka Serverless xref:reference:glossary.adoc#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+You can access a single https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entity] with its https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, and retrieve them using an attribute other than the key. Akka Serverless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
 
 Views can be defined from all of the following:
 

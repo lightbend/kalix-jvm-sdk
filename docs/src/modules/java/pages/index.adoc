@@ -7,7 +7,7 @@ The Akka Serverless Java SDK offers an idiomatic, annotation-based Java language
 
 Your development project needs to include the Akka Serverless Java SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
-To save the work of starting from scratch, the Java xref:java:kickstart.adoc[code generation tool] creates a project, complete with descriptors and implementations. Or, you can start from one of our xref:tutorial:index.adoc[example applications].
+To save the work of starting from scratch, the Java xref:java:kickstart.adoc[code generation tool] creates a project, complete with descriptors and implementations. Or, you can start from one of our https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[example applications].
 
 == Prerequisites
 
@@ -68,7 +68,7 @@ libraryDependencies ++= Seq(
 Akka Serverless supports JSON formatted logging to provide multi-line messages formatted in readable JSON syntax. Always use JSON formatted logging for your Akka Serverless projects to efficiently analyze and easily leverage journal data.
 
 [TIP]
- xref:tutorial:iotexample-learn.adoc[Build and deploy the IoT example] to see JSON formatted logging in action.
+ https://developer.lightbend.com/docs/akka-serverless/tutorial/iotexample-learn.html[Build and deploy the IoT example] to see JSON formatted logging in action.
 
 [NOTE]
 JSON formatted logging is available for Java only. Support for JavaScript and other languages is planned for future releases.
@@ -172,7 +172,7 @@ ifdef::review[REVIEWERS: the following was removed from two pages on Replicated 
 
 include::ROOT:partial$include.adoc[]
 
-This page documents how to implement  Replicated Entities in Java. For information on what Replicated Entities are, please read how to xref:designing:choose-state-model.adoc[choose a state model] and the general xref:developing:replicatedentities.adoc[Replicated Entity] information first.
+This page documents how to implement  Replicated Entities in Java. For information on what Replicated Entities are, please read how to https://developer.lightbend.com/docs/akka-serverless/designing/state-model.html[choose a state model] and the general xref:developing:replicatedentities.adoc[Replicated Entity] information first.
 
 A Replicated Entity can be created by annotating it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html[`@ReplicatedEntity`{tab-icon}, window="new"] annotation.
 

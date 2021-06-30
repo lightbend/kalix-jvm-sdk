@@ -185,7 +185,7 @@ Use Docker inspect to retrieve the address of the running container in the range
 service_address=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' shopping-cart)
 ----
 
-Start the xref:reference:glossary.adoc#_proxy_[_proxy_].
+Start the https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#_proxy_[_proxy_].
 
 [source, command line, subs="attributes+"]
 ----

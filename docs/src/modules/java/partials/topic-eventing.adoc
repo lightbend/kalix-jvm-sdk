@@ -2,7 +2,7 @@ include::ROOT:partial$include.adoc[]
 
 Akka Serverless integrates with https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] to enable asynchronous messaging. Consumers of published messages are guaranteed to receive them at least once. This means that receivers must be able to handle duplicate messages. If you are new to the world of Pub/Sub, many online resources provide tips on handling duplicate messages.
 
-This page describes how to subscribe to published events, but you also need to configure Google Cloud Pub/Sub access for your Akka Serverless project as explained in xref:how-to:message-broker.adoc[How to configure a broker].
+This page describes how to subscribe to published events, but you also need to configure Google Cloud Pub/Sub access for your Akka Serverless project as explained in https://developer.lightbend.com/docs/akka-serverless/how-to/message-broker.html[How to configure a broker].
 
 NOTE: It is your responsibility to create the topics in Google Cloud Pub/Sub before configuring publishers or subscribers.
 
