@@ -2,7 +2,7 @@
 
 module   := java
 upstream := lightbend/akkaserverless-java-sdk
-branch   := docs/current
+branch   := docs/tmp/current
 sources  := src build/src/managed
 
 src_managed := build/src/managed
