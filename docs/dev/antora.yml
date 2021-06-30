@@ -1,0 +1,26 @@
+site:
+  title: "Akka Serverless Documentation"
+
+content:
+  sources:
+  - url: ..
+    branches: [HEAD]
+    start_paths: [docs/src, docs/build/src/managed, docs/dev/src]
+
+ui:
+  bundle:
+    url: https://lightbend.github.io/antora-supplemental-ui-lightbend-theme/default_ui/ui-bundle-1023155878.zip
+    snapshot: true
+
+runtime:
+  fetch: true
+
+asciidoc:
+  attributes:
+    review: ''
+    todo: ''
+    page-pagination: ''
+    page-toctitle: 'On This Page'
+
+output:
+  clean: true
