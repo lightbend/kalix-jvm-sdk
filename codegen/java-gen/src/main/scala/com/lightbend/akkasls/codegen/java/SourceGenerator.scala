@@ -287,10 +287,13 @@ object SourceGenerator extends PrettyPrinter {
           "SERVICE",
           assignmentSeparator = Some(linebreak)
         )(
-          "//" <+> "This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities," <> line <>
-          "//" <+> "and is kept up-to-date with any changes in your protobuf definitions." <> line <>
-          "//" <+> "If you prefer, you may remove this wrapper and manually register these components." <> line <>
-          indent("withGeneratedComponentsAdded", 4) <> parens("new AkkaServerless()") <> semi
+          indent(
+            "// This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities," <> line <>
+            "// and is kept up-to-date with any changes in your protobuf definitions." <> line <>
+            "// If you prefer, you may remove this wrapper and manually register these components." <> line <>
+            "withGeneratedComponentsAdded" <> parens("new AkkaServerless()") <> semi,
+            4
+          )
         ) <> line <>
         line <>
         method(
