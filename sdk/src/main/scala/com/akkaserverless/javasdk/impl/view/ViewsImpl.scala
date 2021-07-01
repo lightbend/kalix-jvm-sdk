@@ -84,8 +84,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               if (!service.factory.isPresent)
                 throw new IllegalArgumentException(
                   s"Unexpected call to service [${receiveEvent.serviceName}] with viewId [${service.viewId}]: " +
-                    "this view has `transform_updates=false` set, so updates should be handled entirely by the proxy " +
-                    "and not reach the user function"
+                  "this view has `transform_updates=false` set, so updates should be handled entirely by the proxy " +
+                  "and not reach the user function"
                 )
 
               val handler = service.factory.get.create(new ViewContextImpl(service.viewId))
