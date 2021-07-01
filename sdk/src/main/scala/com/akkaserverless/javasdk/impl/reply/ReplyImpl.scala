@@ -45,13 +45,13 @@ final case class ForwardReplyImpl[T](serviceCall: ServiceCall, _effects: List[Si
   private def addEffects(effects: Iterable[SideEffect]): ForwardReply[T] = copy(_effects = _effects ++ effects)
 }
 
-final case class FailureReplyImpl[T](description: String, _effects: List[SideEffect])
-    extends FailureReply[T]
+final case class ErrorReplyImpl[T](description: String, _effects: List[SideEffect])
+    extends ErrorReply[T]
     with ReplyImpl[T] {
   def this(description: String) = this(description, Nil)
-  override def addSideEffects(effects: util.Collection[SideEffect]): FailureReply[T] = addEffects(effects.asScala)
-  override def addSideEffects(effects: SideEffect*): FailureReply[T] = addEffects(effects)
-  private def addEffects(effects: Iterable[SideEffect]): FailureReply[T] = copy(_effects = _effects ++ effects)
+  override def addSideEffects(effects: util.Collection[SideEffect]): ErrorReply[T] = addEffects(effects.asScala)
+  override def addSideEffects(effects: SideEffect*): ErrorReply[T] = addEffects(effects)
+  private def addEffects(effects: Iterable[SideEffect]): ErrorReply[T] = copy(_effects = _effects ++ effects)
 }
 
 final case class NoReply[T](_effects: List[SideEffect]) extends ReplyImpl[T] {

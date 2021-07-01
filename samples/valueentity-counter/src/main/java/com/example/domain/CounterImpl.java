@@ -29,7 +29,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
             CounterDomain.CounterState currentState,
             CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
-            return effects().failure("Increase requires a positive value. It was [" + command.getValue() + "].");
+            return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState newState =  // <4>
                 currentState.toBuilder().setValue(currentState.getValue() + command.getValue()).build();
@@ -44,7 +44,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
             CounterDomain.CounterState currentState,
             CounterApi.DecreaseValue command) {
         if (command.getValue() < 0) {
-            return effects().failure("Decrease requires a positive value. It was [" + command.getValue() + "].");
+            return effects().error("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState newState =
                 currentState.toBuilder().setValue(currentState.getValue() - command.getValue()).build();

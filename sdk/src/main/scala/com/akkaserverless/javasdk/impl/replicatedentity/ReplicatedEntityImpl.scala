@@ -23,7 +23,6 @@ import com.akkaserverless.javasdk.replicatedentity.{ReplicatedData => _, _}
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
 import com.akkaserverless.protocol.entity.Command
@@ -38,6 +37,7 @@ import scala.jdk.CollectionConverters._
 
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory
+import com.akkaserverless.javasdk.reply.ErrorReply
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandlerFactory,
@@ -207,7 +207,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
 
       val clientAction = ctx.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
-      if (ctx.hasError && !reply.isInstanceOf[FailureReply[_]]) {
+      if (ctx.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
         verifyNoDelta("failed command handling")
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(

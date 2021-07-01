@@ -29,7 +29,7 @@ public interface ClientActionContext extends Context {
    * @throws RuntimeException after recording the error message for response, upon invocation to
    *     signal failure
    * @throws IllegalStateException if fail was already called
-   * @deprecated Use failure in returned Effect instead.
+   * @deprecated Use error in returned Effect instead.
    */
   @Deprecated
   RuntimeException fail(String errorMessage);

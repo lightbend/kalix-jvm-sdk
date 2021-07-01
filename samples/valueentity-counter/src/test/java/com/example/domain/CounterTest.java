@@ -1,7 +1,7 @@
 package com.example.domain;
 
 import com.akkaserverless.javasdk.Effect;
-import com.akkaserverless.javasdk.reply.FailureReply;
+import com.akkaserverless.javasdk.reply.ErrorReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
@@ -51,7 +51,7 @@ public class CounterTest {
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
         Effect<Empty> reply = entity.increase(currentState, message);
-        assertThat(reply,  is(instanceOf(FailureReply.class)));
+        assertThat(reply,  is(instanceOf(ErrorReply.class)));
     }
 
     @Test

@@ -22,7 +22,7 @@ import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.reply.{FailureReply, MessageReply}
+import com.akkaserverless.javasdk.reply.{ErrorReply, MessageReply}
 import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCallFactory}
 import com.google.protobuf
 import org.scalatest.BeforeAndAfterAll
@@ -555,7 +555,7 @@ class AnnotationBasedActionSupportSpec extends AnyWordSpec with Matchers with Be
 
   private def assertIsFailure(reply: Reply[protobuf.Any], failureDescription: String) =
     reply match {
-      case message: FailureReply[protobuf.Any] =>
+      case message: ErrorReply[protobuf.Any] =>
         message.description() should ===(failureDescription)
       case other =>
         fail(s"$reply is not a FailureReply")

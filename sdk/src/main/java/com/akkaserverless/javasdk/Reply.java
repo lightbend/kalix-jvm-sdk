@@ -16,11 +16,11 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.ErrorReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.NoReply;
-import com.akkaserverless.javasdk.reply.FailureReply;
+import com.akkaserverless.javasdk.reply.ErrorReply;
 import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
@@ -33,7 +33,7 @@ import java.util.Collection;
  */
 public interface Reply<T> {
   /**
-   * Whether this reply is empty: does not have a message, forward, or failure.
+   * Whether this reply is empty: does not have a message, forward, or error.
    *
    * @return Whether the reply is empty.
    */
@@ -99,8 +99,8 @@ public interface Reply<T> {
    * @param description The description of the failure.
    * @return A failure reply.
    */
-  static <T> FailureReply<T> failure(String description) {
-    return new FailureReplyImpl<>(description);
+  static <T> ErrorReply<T> failure(String description) {
+    return new ErrorReplyImpl<>(description);
   }
 
   /**

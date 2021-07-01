@@ -101,7 +101,7 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
             Some(ClientAction(ClientAction.Action.Reply(ReplySupport.asProtocol(message))))
           case forward: ForwardReply[JavaPbAny] =>
             Some(ClientAction(ClientAction.Action.Forward(ReplySupport.asProtocol(forward))))
-          case failure: FailureReply[JavaPbAny] =>
+          case failure: ErrorReply[JavaPbAny] =>
             Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description(), restartOnFailure))))
           case _: NoReply[_] =>
             if (forward.isDefined) {

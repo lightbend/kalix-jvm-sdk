@@ -16,14 +16,6 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.NoReply;
-import com.akkaserverless.javasdk.reply.FailureReply;
-import com.akkaserverless.javasdk.reply.ForwardReply;
-import com.akkaserverless.javasdk.reply.MessageReply;
-
 import java.util.Collection;
 
 /**
@@ -33,7 +25,7 @@ import java.util.Collection;
  */
 public interface Effect<T> {
   /**
-   * Whether this reply is empty: does not have a message, forward, or failure.
+   * Whether this reply is empty: does not have a message, forward, or error.
    *
    * @return Whether the reply is empty.
    */

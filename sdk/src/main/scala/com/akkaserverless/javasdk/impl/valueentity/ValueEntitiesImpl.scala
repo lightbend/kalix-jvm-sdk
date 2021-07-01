@@ -24,7 +24,6 @@ import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
-import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.{Delete, Update}
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{
@@ -43,6 +42,7 @@ import scala.util.control.NonFatal
 
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
+import com.akkaserverless.javasdk.reply.ErrorReply
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
@@ -158,7 +158,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
           }
 
           val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
-          if (!context.hasError && !reply.isInstanceOf[FailureReply[_]]) {
+          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
             val nextState = context.currentState()
             (nextState,
              Some(

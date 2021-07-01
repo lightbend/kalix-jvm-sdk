@@ -44,7 +44,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
           ShoppingCartDomain.Cart currentState,
           ShoppingCartApi.AddLineItem command) {
     if (command.getQuantity() <= 0) {
-      return effects().failure("Cannot add negative quantity of to item" + command.getProductId());
+      return effects().error("Cannot add negative quantity of to item" + command.getProductId());
     }
 
     ShoppingCartDomain.ItemAdded event = ShoppingCartDomain.ItemAdded.newBuilder()
@@ -66,7 +66,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
           ShoppingCartDomain.Cart currentState,
           ShoppingCartApi.RemoveLineItem command) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
-      return effects().failure(
+      return effects().error(
           "Cannot remove item " + command.getProductId() + " because it is not in the cart.");
     }
 

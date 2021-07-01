@@ -19,11 +19,11 @@ package com.akkaserverless.javasdk.eventsourcedentity;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.ErrorReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.NoReply;
-import com.akkaserverless.javasdk.reply.FailureReply;
+import com.akkaserverless.javasdk.reply.ErrorReply;
 import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
@@ -114,18 +114,18 @@ public abstract class EventSourcedEntityBase<S> {
     }
 
     /**
-     * Create a failure reply.
+     * Create an error reply.
      *
-     * @param description The description of the failure.
-     * @return A failure reply.
+     * @param description The description of the error.
+     * @return An error reply.
      * @param <T> The type of the message that must be returned by this call.
      */
-    public <T> FailureReply<T> failure(String description) {
-      return new FailureReplyImpl<>(description);
+    public <T> ErrorReply<T> error(String description) {
+      return new ErrorReplyImpl<>(description);
     }
 
     /**
-     * Create a reply that contains neither a message nor a forward nor a failure.
+     * Create a reply that contains neither a message nor a forward nor an error.
      *
      * <p>This may be useful for emitting effects without sending a message.
      *

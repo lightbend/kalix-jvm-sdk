@@ -22,17 +22,17 @@ import com.akkaserverless.javasdk.Reply;
 
 import java.util.Collection;
 
-/** A failure reply. */
-public interface FailureReply<T> extends Reply<T>, Effect<T> {
+/** An error reply. */
+public interface ErrorReply<T> extends Reply<T>, Effect<T> {
 
   /**
-   * The description of the failure.
+   * The description of the error.
    *
-   * @return The failure description.
+   * @return The error description.
    */
   String description();
 
-  FailureReply<T> addSideEffects(Collection<SideEffect> effects);
+  ErrorReply<T> addSideEffects(Collection<SideEffect> effects);
 
-  FailureReply<T> addSideEffects(SideEffect... effects);
+  ErrorReply<T> addSideEffects(SideEffect... effects);
 }
