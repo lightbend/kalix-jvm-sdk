@@ -17,17 +17,14 @@
 package customer;
 
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 
-@ValueEntity(entityType = "customers")
-public class CustomerValueEntity extends ValueEntityBase<CustomerDomain.CustomerState> {
+import java.util.Optional;
 
-  @CommandHandler
+public class CustomerValueEntity extends CustomerValueEntityInterface {
+
   public Effect<CustomerApi.Customer> getCustomer(
       CustomerApi.GetCustomerRequest request,
       CustomerDomain.CustomerState currentState,
@@ -35,7 +32,6 @@ public class CustomerValueEntity extends ValueEntityBase<CustomerDomain.Customer
     return effects().reply(convertToApi(currentState));
   }
 
-  @CommandHandler
   public Effect<Empty> create(
       CustomerApi.Customer customer,
       CustomerDomain.CustomerState currentState,
@@ -44,11 +40,13 @@ public class CustomerValueEntity extends ValueEntityBase<CustomerDomain.Customer
     return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
-  @CommandHandler
   public Effect<Empty> changeName(
       CustomerApi.ChangeNameRequest request,
       CustomerDomain.CustomerState currentState,
       CommandContext<CustomerDomain.CustomerState> context) {
+    if (currentState.getCustomerId() == null)
+      return effects().error("Customer must be created before name can be changed.");
+
     CustomerDomain.CustomerState updatedState =
         currentState.toBuilder().setName(request.getNewName()).build();
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());

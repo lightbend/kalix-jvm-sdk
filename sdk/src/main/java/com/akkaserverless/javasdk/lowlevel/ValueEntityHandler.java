@@ -37,5 +37,6 @@ public interface ValueEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  ValueEntityBase.Effect<Any> handleCommand(Any command, CommandContext<Any> context);
+  ValueEntityBase.Effect<Any> handleCommand(Any command, CommandContext<Any> context)
+      throws Throwable;
 }

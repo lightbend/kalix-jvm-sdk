@@ -89,7 +89,7 @@ private[impl] class AnnotationBasedEntitySupport(
                                context: CommandContext[JavaPbAny]): ValueEntityBase.Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
-          new AdaptedCommandContext(context, anySupport)
+          new AdaptedCommandContext[AnyRef](context, anySupport)
         handler.valueEntityInvoke(entity, command, adaptedContext)
       } getOrElse {
         throw EntityException(
@@ -235,12 +235,12 @@ private class EntityConstructorInvoker(constructor: Constructor[_]) extends (Val
  * This class is a conversion bridge between CommandContext[JavaPbAny] and CommandContext[AnyRef].
  * It helps for making the conversion from JavaPbAny to AnyRef and backward.
  */
-private class AdaptedCommandContext(val delegate: CommandContext[JavaPbAny], anySupport: AnySupport)
-    extends CommandContext[AnyRef] {
+private class AdaptedCommandContext[S](val delegate: CommandContext[JavaPbAny], anySupport: AnySupport)
+    extends CommandContext[S] {
 
-  override def getState(): Optional[AnyRef] = {
+  override def getState(): Optional[S] = {
     val result = delegate.getState
-    result.map(anySupport.decode(_).asInstanceOf[AnyRef])
+    result.map(anySupport.decode(_).asInstanceOf[S])
   }
 
   override def commandName(): String = delegate.commandName()

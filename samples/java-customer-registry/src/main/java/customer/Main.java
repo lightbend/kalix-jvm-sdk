@@ -17,6 +17,18 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.impl.AnySupport;
+import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory;
+import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
+import com.akkaserverless.javasdk.lowlevel.ViewFactory;
+import com.akkaserverless.javasdk.lowlevel.ViewUpdateHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
+import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.akkaserverless.javasdk.view.ViewContext;
+import com.google.protobuf.Any;
+import com.google.protobuf.Descriptors;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import customer.view.CustomerViewModel;
@@ -28,6 +40,10 @@ public final class Main {
 
   public static void main(String[] args) throws Exception {
     LOG.info("started");
+    ClassLoader classLoader = Main.class.getClassLoader();
+    String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
+    AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
+
     if (args.length == 0) {
       // This is for value entity
       // tag::register[]
@@ -37,6 +53,24 @@ public final class Main {
               "customerByName",
               CustomerDomain.getDescriptor())
           // end::register[]
+          .lowLevel()
+          .registerValueEntity(
+              // TODO this factory probably can disappear, we can pass in the handler directly?
+              context ->
+                  new CustomerValueEntityHandler(
+                      // TODO I guess construction the Entity should somehow remain part of the
+                      // customer API, so they can pass
+                      // in  anything they like in the constructor, including the context?
+                      new CustomerValueEntity(),
+                      new AnySupport(
+                          new Descriptors.FileDescriptor[] {CustomerDomain.getDescriptor()},
+                          classLoader,
+                          typeUrlPrefix,
+                          prefer)),
+              CustomerApi.getDescriptor().findServiceByName("CustomerService"),
+              "customers",
+              ValueEntityOptions.defaults(),
+              CustomerDomain.getDescriptor())
           .registerValueEntity(
               CustomerValueEntity.class,
               CustomerApi.getDescriptor().findServiceByName("CustomerService"),
