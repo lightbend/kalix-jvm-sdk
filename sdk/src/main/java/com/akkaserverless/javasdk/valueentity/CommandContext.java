@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.valueentity;
 
 import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.EffectContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ import java.util.Optional;
  * entities, and performing side effects on other entities.
  */
 public interface CommandContext<T>
-    extends ValueEntityContext, ClientActionContext, EffectContext, MetadataContext {
+    extends ValueEntityContext, ClientActionContext, SideEffectContext, MetadataContext {
 
   /**
    * The name of the command being executed.
@@ -52,16 +52,25 @@ public interface CommandContext<T>
    * @return the current state or empty if none have been created.
    * @throws IllegalStateException If the current entity state have been deleted in the command
    *     invocation.
+   * @deprecated Use state method parameter instead.
    */
+  @Deprecated
   Optional<T> getState();
 
   /**
    * Update the entity with the new state. The state will be persisted.
    *
    * @param state The state to persist.
+   * @deprecated Use ValueEntityEffect.updateState instead.
    */
+  @Deprecated
   void updateState(T state);
 
-  /** Delete the entity state. */
+  /**
+   * Delete the entity state.
+   *
+   * @deprecated Use ValueEntityEffect.deleteState instead.
+   */
+  @Deprecated
   void deleteState();
 }

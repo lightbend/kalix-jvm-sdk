@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk.lowlevel;
+
+import com.akkaserverless.javasdk.action.Action;
+import com.akkaserverless.javasdk.action.ActionCreationContext;
 
 /**
  * Low level interface to implement {@link Action} components.

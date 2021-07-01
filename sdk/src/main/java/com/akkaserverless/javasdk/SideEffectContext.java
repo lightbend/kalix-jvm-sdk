@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk;
 
 /** A context that allows instructing the proxy to perform a side effect. */
-public interface EffectContext extends Context {
+public interface SideEffectContext extends Context {
 
   /**
    * Invoke the referenced service call as an effect once this action is completed.

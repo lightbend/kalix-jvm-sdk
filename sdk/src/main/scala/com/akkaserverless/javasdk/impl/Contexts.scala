@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.reply.{NoReply, ReplySupport}
-import com.akkaserverless.javasdk.{ClientActionContext, Context, EffectContext, ServiceCall}
+import com.akkaserverless.javasdk.{ClientActionContext, Context, ServiceCall, SideEffectContext}
 import com.akkaserverless.javasdk.reply._
 import com.akkaserverless.protocol.component._
 import com.google.protobuf.any.{Any => ScalaPbAny}
@@ -31,22 +31,22 @@ private[impl] trait ActivatableContext extends Context {
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
 }
 
-private[impl] trait AbstractEffectContext extends EffectContext {
+private[impl] trait AbstractSideEffectContext extends SideEffectContext {
   self: ActivatableContext =>
 
-  private final var effects = List.empty[SideEffect]
+  private final var _sideEffects = List.empty[SideEffect]
 
   override final def effect(effect: ServiceCall, synchronous: Boolean): Unit = {
     checkActive()
-    effects = SideEffect(
+    _sideEffects = SideEffect(
         serviceName = effect.ref().method().getService.getFullName,
         commandName = effect.ref().method().getName,
         payload = Some(ScalaPbAny.fromJavaProto(effect.message())),
         synchronous = synchronous
-      ) :: effects
+      ) :: _sideEffects
   }
 
-  final def sideEffects: List[SideEffect] = effects.reverse
+  final def sideEffects: List[SideEffect] = _sideEffects.reverse
 }
 
 private[impl] trait AbstractClientActionContext extends ClientActionContext {
@@ -101,7 +101,7 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
             Some(ClientAction(ClientAction.Action.Reply(ReplySupport.asProtocol(message))))
           case forward: ForwardReply[JavaPbAny] =>
             Some(ClientAction(ClientAction.Action.Forward(ReplySupport.asProtocol(forward))))
-          case failure: FailureReply[JavaPbAny] =>
+          case failure: ErrorReply[JavaPbAny] =>
             Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description(), restartOnFailure))))
           case _: NoReply[_] =>
             if (forward.isDefined) {

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package com.akkaserverless.javasdk.lowlevel;
+
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityCreationContext;
 
 /**
  * Low level interface for handling commands for replicated entities.

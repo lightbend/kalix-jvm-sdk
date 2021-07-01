@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.eventsourcedentity;
 
 import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.EffectContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 /**
@@ -28,7 +28,7 @@ import com.akkaserverless.javasdk.MetadataContext;
  * performing side effects on other entities.
  */
 public interface CommandContext
-    extends EventSourcedContext, ClientActionContext, EffectContext, MetadataContext {
+    extends EventSourcedContext, ClientActionContext, SideEffectContext, MetadataContext {
   /**
    * The current sequence number of events in this entity.
    *
@@ -55,6 +55,8 @@ public interface CommandContext
    * current behavior will immediately be executed to pick it up.
    *
    * @param event The event to emit.
+   * @deprecated Use EventSourcedEffect.emitEvent instead.
    */
+  @Deprecated
   void emit(Object event);
 }

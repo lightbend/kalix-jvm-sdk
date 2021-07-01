@@ -116,8 +116,9 @@ lazy val codegenJava =
 lazy val samples = project
   .in(file("samples"))
   .aggregate(
-    `java-eventing-shopping-cart`,
-    `java-customer-registry`
+    // FIXME include samples again
+//    `java-eventing-shopping-cart`,
+//    `java-customer-registry`
   )
 
 lazy val `java-eventing-shopping-cart` = project

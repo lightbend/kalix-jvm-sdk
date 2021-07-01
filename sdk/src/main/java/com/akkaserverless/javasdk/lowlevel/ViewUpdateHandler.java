@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.reply;
+package com.akkaserverless.javasdk.lowlevel;
 
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.view.UpdateHandler;
+import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.google.protobuf.Any;
 
-import java.util.Collection;
-
-/** A failure reply. */
-public interface FailureReply<T> extends Reply<T> {
+/**
+ * Low level interface for handling messages on views.
+ *
+ * <p>Generally, this should not be needed, instead, a class annotated with the {@link
+ * UpdateHandler @UpdateHandler} and similar annotations should be used.
+ */
+public interface ViewUpdateHandler {
 
   /**
-   * The description of the failure.
+   * Handle the given message.
    *
-   * @return The failure description.
+   * @param message The message to handle.
+   * @param context The context.
+   * @return The updated state.
    */
-  String description();
-
-  FailureReply<T> addEffects(Collection<Effect> effects);
-
-  FailureReply<T> addEffects(Effect... effects);
+  Reply<Any> handle(Any message, UpdateHandlerContext context);
 }

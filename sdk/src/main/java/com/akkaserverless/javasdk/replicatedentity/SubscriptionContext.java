@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.replicatedentity;
 
 import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.EffectContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 
 import java.util.function.Function;
 
@@ -26,7 +26,7 @@ import java.util.function.Function;
  * StreamedCommandContext#onChange(Function)} callback.
  */
 public interface SubscriptionContext
-    extends ReplicatedEntityContext, EffectContext, ClientActionContext {
+    extends ReplicatedEntityContext, SideEffectContext, ClientActionContext {
   /** End this stream. */
   void endStream();
 }

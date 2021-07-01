@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -45,7 +46,7 @@ public class ValueEntityTckModelEntity {
   @CommandHandler
   public Reply<Response> process(Request request, CommandContext<Persisted> context) {
     Reply<Response> reply = null;
-    List<com.akkaserverless.javasdk.Effect> e = new ArrayList<>();
+    List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
@@ -61,9 +62,7 @@ public class ValueEntityTckModelEntity {
           break;
         case EFFECT:
           Effect effect = action.getEffect();
-          e.add(
-              com.akkaserverless.javasdk.Effect.of(
-                  serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
           reply = Reply.failure(action.getFail().getMessage());
@@ -73,7 +72,7 @@ public class ValueEntityTckModelEntity {
     if (reply == null) {
       reply = Reply.message(Response.newBuilder().setMessage(state).build());
     }
-    return reply.addEffects(e);
+    return reply.addSideEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {
