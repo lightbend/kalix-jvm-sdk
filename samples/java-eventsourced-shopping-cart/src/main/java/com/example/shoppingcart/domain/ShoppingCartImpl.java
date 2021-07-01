@@ -17,9 +17,6 @@
 package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.Effect;
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
@@ -29,12 +26,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCartImpl(@EntityId String entityId) {
+  public ShoppingCartImpl(String entityId) {
     this.entityId = entityId;
   }
 
@@ -46,8 +42,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @Override
   public Effect<Empty> addItem(
           ShoppingCartDomain.Cart currentState,
-          ShoppingCartApi.AddLineItem command,
-          CommandContext context) {
+          ShoppingCartApi.AddLineItem command) {
     if (command.getQuantity() <= 0) {
       return effects().failure("Cannot add negative quantity of to item" + command.getProductId());
     }
@@ -69,8 +64,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @Override
   public Effect<Empty> removeItem(
           ShoppingCartDomain.Cart currentState,
-          ShoppingCartApi.RemoveLineItem command,
-          CommandContext context) {
+          ShoppingCartApi.RemoveLineItem command) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
       return effects().failure(
           "Cannot remove item " + command.getProductId() + " because it is not in the cart.");
@@ -87,8 +81,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
           ShoppingCartDomain.Cart currentState,
-          ShoppingCartApi.GetShoppingCart command,
-          CommandContext context) {
+          ShoppingCartApi.GetShoppingCart command) {
     List<ShoppingCartApi.LineItem> apiItems =
             currentState.getItemsList().stream()
             .map(this::convert)

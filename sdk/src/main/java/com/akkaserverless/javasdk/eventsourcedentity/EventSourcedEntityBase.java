@@ -35,6 +35,36 @@ import java.util.function.Function;
 public abstract class EventSourcedEntityBase<S> {
 
   /**
+   * Implement by returning the initial empty state object. This object will be passed into the
+   * command and event handlers, until a new state replaces it.
+   *
+   * <p>Also known as "zero state" or "neutral state".
+   */
+  protected abstract S emptyState();
+
+  /**
+   * Additional context and meta data for a command handler.
+   *
+   * <p>It will throw an exception if accessed from constructor or event handler.
+   */
+  protected CommandContext commandContext() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
+
+  /**
+   * Additional context and meta data for an event handler.
+   *
+   * <p>It will throw an exception if accessed from constructor or command handler.
+   */
+  protected EventContext eventContext() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
+
+  protected Effects<S> effects() {
+    return new Effects<>();
+  }
+
+  /**
    * Construct the effect that is returned by the command handler. The effect describes next
    * processing actions, such as emitting events and sending a reply.
    *
@@ -133,16 +163,4 @@ public abstract class EventSourcedEntityBase<S> {
 
     // FIXME thenForward
   }
-
-  protected Effects<S> effects() {
-    return new Effects<>();
-  }
-
-  /**
-   * Implement by returning the initial empty state object. This object will be passed into the
-   * command and event handlers, until a new state replaces it.
-   *
-   * <p>Also known as "zero state" or "neutral state".
-   */
-  protected abstract S emptyState();
 }

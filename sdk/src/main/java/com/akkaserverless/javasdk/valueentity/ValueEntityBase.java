@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.valueentity;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
@@ -31,6 +32,19 @@ import com.akkaserverless.javasdk.reply.MessageReply;
 
 /** @param <S> The type of the state for this entity. */
 public abstract class ValueEntityBase<S> {
+
+  /**
+   * Additional context and meta data for a command handler.
+   *
+   * <p>It will throw an exception if accessed from constructor.
+   */
+  protected CommandContext commandContext() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  }
+
+  protected Effects<S> effects() {
+    return new Effects<>();
+  }
 
   /**
    * Construct the effect that is returned by the command handler. The effect describes next
@@ -134,9 +148,5 @@ public abstract class ValueEntityBase<S> {
     }
 
     // FIXME thenForward
-  }
-
-  protected Effects<S> effects() {
-    return new Effects<>();
   }
 }

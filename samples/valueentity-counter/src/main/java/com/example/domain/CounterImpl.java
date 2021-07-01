@@ -2,7 +2,6 @@ package com.example.domain;
 
 import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.valueentity.*;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -12,8 +11,7 @@ import java.util.Optional;
 /**
  * A Counter represented as a value entity.
  */
-@ValueEntity(entityType = "counter") // <1>
-public class CounterImpl extends CounterInterface2 {
+public class CounterImpl extends CounterInterface2 { // <1>
     @SuppressWarnings("unused")
     private final String entityId;
 
@@ -26,8 +24,7 @@ public class CounterImpl extends CounterInterface2 {
     @Override
     public Effect<Empty> increase(
             Optional<CounterDomain.CounterState> currentState,
-            CounterApi.IncreaseValue command,
-            CommandContext<CounterDomain.CounterState> context) {
+            CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
             return effects().failure("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
@@ -44,8 +41,7 @@ public class CounterImpl extends CounterInterface2 {
     @Override
     public Effect<Empty> decrease(
             Optional<CounterDomain.CounterState> currentState,
-            CounterApi.DecreaseValue command,
-            CommandContext<CounterDomain.CounterState> context) {
+            CounterApi.DecreaseValue command) {
         if (command.getValue() < 0) {
             return effects().failure("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
@@ -61,8 +57,7 @@ public class CounterImpl extends CounterInterface2 {
     @Override
     public Effect<Empty> reset(
             Optional<CounterDomain.CounterState> currentState,
-            CounterApi.ResetValue command,
-            CommandContext<CounterDomain.CounterState> context) {
+            CounterApi.ResetValue command) {
         CounterDomain.CounterState state = currentState
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
         CounterDomain.CounterState newState =
@@ -76,8 +71,7 @@ public class CounterImpl extends CounterInterface2 {
     @Override
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(
             Optional<CounterDomain.CounterState> currentState,
-            CounterApi.GetCounter command,
-            CommandContext<CounterDomain.CounterState> context) {
+            CounterApi.GetCounter command) {
         CounterApi.CurrentCounter current = currentState // <1>
                 .map((state) -> CounterApi.CurrentCounter.newBuilder().setValue(state.getValue()).build()) // <2>
                 .orElseGet(() -> CounterApi.CurrentCounter.newBuilder().setValue(0).build()); // <3>
