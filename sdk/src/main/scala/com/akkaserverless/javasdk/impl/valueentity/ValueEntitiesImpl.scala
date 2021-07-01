@@ -41,6 +41,8 @@ import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.impl.effect.EffectSupport
+import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
 
@@ -141,10 +143,10 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             service.anySupport,
             log
           )
-          val reply: Reply[JavaPbAny] = try {
+          val effect: ValueEntityEffect[JavaPbAny] = try {
             handler.handleCommand(cmd, context)
           } catch {
-            case FailInvoked => Reply.noReply() //Option.empty[JavaPbAny].asJava
+            case FailInvoked => new ValueEntityEffectImpl[JavaPbAny].noReply()
             case e: EntityException => throw e
             case NonFatal(error) => {
               throw EntityException(
@@ -157,8 +159,13 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
-          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
+          val effectImpl = effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+
+          // FIXME handle effectImpl.primaryEffect
+
+          val clientAction =
+            context.replyToClientAction(effectImpl.secondaryEffect, allowNoReply = false, restartOnFailure = false)
+          if (!context.hasError && !effect.isInstanceOf[ErrorReply[_]]) {
             val nextState = context.currentState()
             (nextState,
              Some(
@@ -166,7 +173,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
                  ValueEntityReply(
                    command.id,
                    clientAction,
-                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
+                   context.sideEffects ++ EffectSupport.sideEffectsFrom(effectImpl.secondaryEffect),
                    context.action
                  )
                )

@@ -16,17 +16,8 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.impl.reply.ErrorReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.reply.NoReply;
-import com.akkaserverless.javasdk.reply.ErrorReply;
-import com.akkaserverless.javasdk.reply.ForwardReply;
-import com.akkaserverless.javasdk.reply.MessageReply;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
 // FIXME rename to ValueEntity when the old annotation is removed
 
@@ -52,111 +43,7 @@ public abstract class ValueEntityBase<S> {
     throw new UnsupportedOperationException("Not implemented yet"); // FIXME
   }
 
-  protected Effects<S> effects() {
-    return new Effects<>();
-  }
-
-  /**
-   * Construct the effect that is returned by the command handler. The effect describes next
-   * processing actions, such as emitting events and sending a reply.
-   *
-   * @param <S> The type of the state for this entity.
-   */
-  public static class Effects<S> {
-    private Effects() {}
-
-    public SecondaryEffects<S> updateState(S newState) {
-      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
-    }
-
-    public SecondaryEffects<S> deleteState() {
-      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
-    }
-
-    /**
-     * Create a message reply.
-     *
-     * @param message The payload of the reply.
-     * @return A message reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> MessageReply<T> reply(T message) {
-      return reply(message, Metadata.EMPTY);
-    }
-
-    /**
-     * Create a message reply.
-     *
-     * @param message The payload of the reply.
-     * @param metadata The metadata for the message.
-     * @return A message reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> MessageReply<T> reply(T message, Metadata metadata) {
-      return new MessageReplyImpl<>(message, metadata);
-    }
-
-    /**
-     * Create a forward reply.
-     *
-     * @param serviceCall The service call representing the forward.
-     * @return A forward reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> ForwardReply<T> forward(ServiceCall serviceCall) {
-      return new ForwardReplyImpl<>(serviceCall);
-    }
-
-    /**
-     * Create an error reply.
-     *
-     * @param description The description of the error.
-     * @return An error reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> ErrorReply<T> error(String description) {
-      return new ErrorReplyImpl<>(description);
-    }
-
-    /**
-     * Create a reply that contains neither a message nor a forward nor an error.
-     *
-     * <p>This may be useful for emitting effects without sending a message.
-     *
-     * @return The reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> Reply<T> noReply() {
-      return NoReply.apply();
-    }
-  }
-
-  public static class SecondaryEffects<S> {
-    private SecondaryEffects() {}
-
-    /**
-     * Reply after for example <code>updateState</code>.
-     *
-     * @param message The payload of the reply.
-     * @return A message reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> MessageReply<T> thenReply(T message) {
-      return thenReply(message, Metadata.EMPTY);
-    }
-
-    /**
-     * Reply after for example <code>updateState</code>.
-     *
-     * @param message The payload of the reply.
-     * @param metadata The metadata for the message.
-     * @return A message reply.
-     * @param <T> The type of the message that must be returned by this call.
-     */
-    public <T> MessageReply<T> thenReply(T message, Metadata metadata) {
-      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
-    }
-
-    // FIXME thenForward
+  protected ValueEntityEffect.Builder<S> effects() {
+    return new ValueEntityEffectImpl<S>();
   }
 }

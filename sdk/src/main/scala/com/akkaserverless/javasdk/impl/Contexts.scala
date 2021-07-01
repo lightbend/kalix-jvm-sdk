@@ -25,6 +25,9 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 import scala.util.control.NoStackTrace
 
+import com.akkaserverless.javasdk.impl.effect.EffectSupport
+import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+
 private[impl] trait ActivatableContext extends Context {
   private final var active = true
   final def deactivate(): Unit = active = false
@@ -113,6 +116,36 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
             }
         }
     }
+
+  final def replyToClientAction(secondaryEffect: SecondaryEffectImpl,
+                                allowNoReply: Boolean,
+                                restartOnFailure: Boolean): Option[ClientAction] = {
+    error match {
+      case Some(msg) => Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, msg, restartOnFailure))))
+      case None =>
+        secondaryEffect match {
+          case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
+            if (forward.isDefined) {
+              throw new IllegalStateException(
+                "Both a reply was returned, and a forward message was sent, choose one or the other."
+              )
+            }
+            Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
+          case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
+            Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(forward))))
+          case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
+            Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description, restartOnFailure))))
+          case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
+            if (forward.isDefined) {
+              Some(ClientAction(ClientAction.Action.Forward(forward.get)))
+            } else if (allowNoReply) {
+              None
+            } else {
+              throw new RuntimeException("No reply or forward returned by command handler!")
+            }
+        }
+    }
+  }
 
 }
 

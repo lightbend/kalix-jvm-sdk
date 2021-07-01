@@ -1,8 +1,8 @@
 package com.example.domain;
 
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.reply.ErrorReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
+import com.akkaserverless.javasdk.valueentity.ValueEntityEffect;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class CounterTest {
         CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(27).build();
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
-        Effect<Empty> reply = entity.increase(currentState, message);
+        ValueEntityEffect<Empty> reply = entity.increase(currentState, message);
         assertThat(reply,  is(instanceOf(ErrorReply.class)));
     }
 
@@ -85,7 +85,7 @@ public class CounterTest {
         CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message);
+        ValueEntityEffect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message);
 
         assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }
