@@ -143,7 +143,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
           override protected def emptyState(): String = ""
         }, method())
-        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("nothing"), null, new MockCommandContext)) should ===(
+          Wrapped("blah")
+        )
       }
 
       "no arg command handler with Reply" in {
@@ -156,7 +158,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("nothing"), null, new MockCommandContext)) should ===(
+          Wrapped("blah")
+        )
       }
 
       "single arg command handler" in {
@@ -169,7 +173,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
@@ -186,7 +190,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "read state" in {
@@ -204,7 +208,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method("GetCart")
         )
         val ctx = new MockCommandContext("GetCart", Some(state("state")))
-        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), null, ctx)) should ===(Wrapped("blah"))
       }
 
       "update state" in {
@@ -221,7 +225,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method()
         )
         val ctx = new MockCommandContext
-        val effect = handler.handleCommand(command("blah"), ctx)
+        val effect = handler.handleCommand(command("blah"), null, ctx)
         decodeWrapped(effect) should ===(Wrapped("blah"))
         decodeUpdatedState(effect) should ===(state("blah state"))
       }
@@ -240,7 +244,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method("RemoveCart")
         )
         val ctx = new MockCommandContext("RemoveCart")
-        val effect = handler.handleCommand(command("blah"), ctx)
+        val effect = handler.handleCommand(command("blah"), null, ctx)
         decodeWrapped(effect) should ===(Wrapped("blah"))
         effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect should ===(DeleteState)
       }
@@ -277,7 +281,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(): Wrapped = throw new RuntimeException("foo")
         }, method())
-        val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), new MockCommandContext)
+        val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), null, new MockCommandContext)
         ex.getStackTrace()(0)
           .toString should include regex """.*AnnotationBasedValueEntitySupportSpec.*addItem.*AnnotationBasedValueEntitySupportSpec\.scala:\d+"""
         ex.toString should ===("java.lang.RuntimeException: foo")

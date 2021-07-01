@@ -42,7 +42,7 @@ import com.akkaserverless.javasdk.impl.{
   ResolvedServiceMethod
 }
 import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCall, ServiceCallFactory}
-import com.google.protobuf.{Descriptors, Any => JavaPbAny}
+import com.google.protobuf.{Descriptors, any, Any => JavaPbAny}
 
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
@@ -85,7 +85,11 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
+    // FIXME the annotation-based implementation is going away before we release anyway
+    override def emptyState(): any.Any = null
+
     override def handleCommand(command: JavaPbAny,
+                               state: JavaPbAny,
                                context: CommandContext[JavaPbAny]): ValueEntityBase.Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
