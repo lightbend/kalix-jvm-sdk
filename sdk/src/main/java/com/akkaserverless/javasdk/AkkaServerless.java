@@ -477,7 +477,8 @@ public final class AkkaServerless {
   }
 
   /**
-   * Experimental API: Register a view.
+   * Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
+   * by the proxy.
    *
    * @param descriptor The descriptor of the view.
    * @param viewId The id of this view, used for persistence.
