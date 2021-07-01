@@ -34,6 +34,16 @@ import com.akkaserverless.javasdk.reply.MessageReply;
 public abstract class ValueEntityBase<S> {
 
   /**
+   * Implement by returning the initial empty state object. This object will be passed into the
+   * command and event handlers, until a new state replaces it.
+   *
+   * <p>Also known as "zero state" or "neutral state".
+   *
+   * <p><code>null</code> is an allowed value.
+   */
+  protected abstract S emptyState();
+
+  /**
    * Additional context and meta data for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor.

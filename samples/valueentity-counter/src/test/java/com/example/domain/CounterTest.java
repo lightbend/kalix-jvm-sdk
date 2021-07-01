@@ -7,8 +7,6 @@ import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,7 +23,7 @@ public class CounterTest {
     public void increaseNoPriorState() {
         entity = new CounterImpl(entityId); // <1>
 
-        Optional<CounterDomain.CounterState> currentState = Optional.empty();
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
         entity.increase(currentState, message); // <4>
@@ -37,7 +35,7 @@ public class CounterTest {
     public void increaseWithPriorState() {
         entity = new CounterImpl(entityId);
 
-        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
         entity.increase(currentState, message);
@@ -49,7 +47,7 @@ public class CounterTest {
     public void increaseShouldFailWithNegativeValue() {
         entity = new CounterImpl(entityId);
 
-        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(27).build());
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(27).build();
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
         Effect<Empty> reply = entity.increase(currentState, message);
@@ -60,7 +58,7 @@ public class CounterTest {
     public void decreaseNoPriorState() {
         entity = new CounterImpl(entityId);
 
-        Optional<CounterDomain.CounterState> currentState = Optional.empty();
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
         entity.decrease(currentState, message);
@@ -72,7 +70,7 @@ public class CounterTest {
     public void resetTest() {
         entity = new CounterImpl(entityId);
 
-        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
         entity.reset(currentState, message);
@@ -84,7 +82,7 @@ public class CounterTest {
     public void getCurrentCounterTest() {
         entity = new CounterImpl(entityId);
 
-        Optional<CounterDomain.CounterState> currentState = Optional.of(CounterDomain.CounterState.newBuilder().setValue(13).build());
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
         Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message);

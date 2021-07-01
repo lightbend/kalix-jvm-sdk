@@ -39,6 +39,8 @@ public abstract class EventSourcedEntityBase<S> {
    * command and event handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
+   *
+   * <p><code>null</code> is an allowed value.
    */
   protected abstract S emptyState();
 
