@@ -5,7 +5,6 @@ lazy val `akkaserverless-java-sdk` = project
   .aggregate(
     sdk,
     testkit,
-    docs,
     tck,
     samples
   )
@@ -99,22 +98,6 @@ lazy val testkit = project
     Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala"))
-  )
-
-lazy val docs = project
-  .in(file("docs"))
-  .dependsOn(sdk % Test)
-  .enablePlugins(AkkaGrpcPlugin)
-  .settings(
-    name := "akkaserverless-java-sdk-docs",
-    akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Test / unmanagedSourceDirectories += sourceDirectory.value / "modules" / "java" / "examples",
-    Test / PB.protoSources += sourceDirectory.value / "modules" / "java" / "examples" / "proto",
-    Test / PB.targets := Seq(PB.gens.java -> (Test / sourceManaged).value),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-    libraryDependencies ++= Seq(
-        "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src"
-      )
   )
 
 lazy val tck = project

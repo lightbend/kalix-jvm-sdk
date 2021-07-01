@@ -1,0 +1,51 @@
+= Serialization options for Java services
+
+include::ROOT:partial$include.adoc[]
+include::partial$serialization.adoc[]
+
+Akka Serverless functions serve gRPC interfaces, and the input and output messages get serialized to the `protobuf` format. However, in addition to these messages, Akka Serverless serializes other objects for persistence such as Event Sourced events and Entity snapshots. Akka Serverless supports `protobuf`, primitive type, and JSON serialization options for these values.
+
+By default, Akka Serverless detects and handles `protobuf`, so we recommend using that unless you have requirements that are better met by using JSON.
+
+
+== Primitive types
+
+Akka Serverless supports serializing the following primitive types:
+
+[cols="a,a"]
+|===
+| Protobuf type | Java type
+
+| string
+| java.lang.String
+
+| bytes
+| com.google.protobuf.ByteString
+
+| int32
+| java.lang.Integer
+
+| int64
+| java.lang.Long
+
+| float
+| java.lang.Float
+
+| double
+| java.lang.Double
+
+| bool
+| java.lang.Boolean
+
+|===
+
+== JSON
+
+Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON. Any classes that are annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/Jsonable.html[`@Jsonable`] will be serialized to and from JSON using Jackson.
+
+
+
+
+////
+Note that if you are using JSON values in CRDT sets or maps, the serialization of these values **must** be stable. This means you must not use maps or sets in your value, and you should define an explicit ordering for the fields in your objects, using the http://fasterxml.github.io/jackson-annotations/javadoc/2.9/com/fasterxml/jackson/annotation/JsonPropertyOrder.html[`@JsonPropertyOrder`] annotation. This constraint is explained in xref:developing:crdts.adoc[Using Replicated Entities].
+////

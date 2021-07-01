@@ -1,0 +1,43 @@
+include::ROOT:partial$include.adoc[]
+
+== Receiving CloudEvents
+
+Akka Serverless uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
+
+Describing the structure of the message payload is the CloudEvents feature most important to Akka Serverless.
+
+An example of that is the capability to send serialized Protobuf messages and have Akka Serverless deserialize them accordingly.
+
+To allow proper reading of Protobuf messages from topics, the messages need to specify the message attributes:
+
+- `Content-Type` = `application/protobuf`
+- `ce-specversion` = `1.0`
+- `ce-type` = fully qualified protobuf message name (eg. `shopping.cart.api.TopicOperation`)
+
+(The `ce-` prefixed attributes are part of the CloudEvents specification.)
+
+The Protobuf rpc declaration uses the expected Protobuf message type and specifies the topic to subscribe to. You'll normally want to share the exact Protobuf message declaration with the sending system.
+
+[source,protobuf,indent=0]
+----
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "akkaserverless/annotations.proto";
+
+package shopping.cart.api;
+
+message TopicOperation {
+    string operation = 1;
+}
+
+service ShoppingCartTopicService {
+
+    rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) {
+        option (akkaserverless.method).eventing.in = {
+            topic:  "shopping-cart-protobuf-cloudevents"
+        };
+    }
+}
+----

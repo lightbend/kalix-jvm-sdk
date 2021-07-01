@@ -1,0 +1,3 @@
+:minimum_docker_version: 19.03
+
+:tab-icon: image:ROOT:new-tab.svg[width=12]

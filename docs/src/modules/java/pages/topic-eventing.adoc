@@ -1,0 +1,42 @@
+= Publishing and subscribing to topics on a broker
+
+include::ROOT:partial$include.adoc[]
+include::partial$topic-eventing.adoc[]
+
+The Java implementation of the method can be declared with a regular Java class as parameter.
+
+[source,java,indent=0]
+----
+@Action
+public class ShoppingCartTopicAction {
+
+    @Handler
+    public ActionReply<Empty> jsonFromTopic(TopicMessage message, ActionContext ctx) {
+        ...
+    }
+}
+----
+
+The parameter class needs to be annotated as `@Jsonable` and prepared for Jackson JSON parsing by `@BeanProperty` annotations.
+
+[source,java,indent=0]
+----
+import com.akkaserverless.javasdk.Jsonable;
+import java.beans.BeanProperty;
+
+@Jsonable
+public class TopicMessage {
+  String operation;
+
+  public String getOperation() {
+    return operation;
+  }
+
+  @BeanProperty
+  public void setOperation(String operation) {
+    this.operation = operation;
+  }
+}
+----
+
+include::partial$topic-eventing-cloudevent.adoc[]

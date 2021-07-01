@@ -1,0 +1,18 @@
+include::ROOT:partial$include.adoc[]
+
+Event Sourced Entities persist their state with https://en.wikipedia.org/wiki/ACID[ACID semantics {tab-icon}, window="new"], scale horizontally, and isolate failures. They use the Event Sourcing Model--rather than persisting the current state, they persist all of the events that led to the current state. Akka Serverless stores these events in a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#journal[journal].
+
+An Event Sourced Entity must not update its in-memory state directly as a result of a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command[_command_]. The handling of a command, if it results in changes being required to state, should emit https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event[_events_]. These events will then be received, at which point the in-memory state can and should be changed in response.
+
+When you need to read state in your service, ask yourself _what events should I be listening to_?. When you need to write state, ask yourself _what events should I be emitting_?
+
+ifdef::todo[TODO: add an illustration]
+
+To load an Entity, Akka Serverless reads the journal and replays events to compute the Entity's current state. As an optimization, by default, Event Sourced Entities persist state snapshots periodically. This allows Akka Serverless to recreate an Entity from the most recent snapshot plus any events saved after the snapshot.
+
+In contrast with typical create, read, update (CRUD) systems, event sourcing allows the state of the Entity to be reliably replicated to other services. Event Sourced Entities use offset tracking in the journal to record which portions of the system have replicated which events.
+
+[sidebar]
+Event Sourced Entities offer strong consistency guarantees. Akka Serverless distributes Entities across every node in a stateful service deployment--at any given time, each Entity will live on exactly one node. If a command for an Entity arrives to a node not hosting that Entity, the command is forwarded by the proxy to the node that contains that particular Entity. This forwarding is done transparently, your code does not need to know. Because each Entity lives on exactly one node, that node can handle messages for each Entity sequentially. Hence, there are no concurrency concerns relating to Event Sourced Entities, each Entity handles one message at a time.
+
+TIP: To learn more about event sourcing, check out the free Lightbend Academy course, https://academy.lightbend.com/courses/course-v1:lightbend+LRA-CQRSandEventSourcing+v1/about[Reactive Architecture: CQRS & Event Sourcing {tab-icon}, window="new"].

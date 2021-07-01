@@ -1,0 +1,11 @@
+
+
+You can access a single https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entity] with its https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, and retrieve them using an attribute other than the key. Akka Serverless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+
+Views can be defined from all of the following:
+
+* Event Sourced Entity events
+* Value Entities state changes
+* Messages received from subscribing to topics on a broker
+
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Akka Serverless does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
