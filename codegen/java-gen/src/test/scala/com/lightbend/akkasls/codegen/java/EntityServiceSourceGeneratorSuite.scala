@@ -226,19 +226,17 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |    private MyServiceEntityImpl entity;
         |    private CommandContext context = Mockito.mock(CommandContext.class);
         |    
-        |    private class MockedContextFailure extends RuntimeException {};
-        |    
         |    @Test
         |    public void setTest() {
         |        entity = new MyServiceEntityImpl(entityId);
         |        
-        |        Mockito.when(context.fail("The command handler for `Set` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
+        |        // TODO: write your mock here
+        |        // Mockito.when(context.[...]).thenReturn([...]);
         |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        });
+        |        // TODO: set fields in command, and update assertions to verify implementation
+        |        // assertEquals([expected],
+        |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
+        |        // );
         |        
         |        // TODO: if you wish to verify events:
         |        //    Mockito.verify(context).emit(event);
@@ -248,13 +246,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |    public void getTest() {
         |        entity = new MyServiceEntityImpl(entityId);
         |        
-        |        Mockito.when(context.fail("The command handler for `Get` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
+        |        // TODO: write your mock here
+        |        // Mockito.when(context.[...]).thenReturn([...]);
         |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        });
+        |        // TODO: set fields in command, and update assertions to verify implementation
+        |        // assertEquals([expected],
+        |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
+        |        // );
         |        
         |        // TODO: if you wish to verify events:
         |        //    Mockito.verify(context).emit(event);
@@ -296,32 +294,30 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |    private MyServiceImpl entity;
         |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
         |    
-        |    private class MockedContextFailure extends RuntimeException {};
-        |    
         |    @Test
         |    public void setTest() {
         |        entity = new MyServiceImpl(entityId);
         |        
-        |        Mockito.when(context.fail("The command handler for `Set` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
+        |        // TODO: write your mock here
+        |        // Mockito.when(context.[...]).thenReturn([...]);
         |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        });
+        |        // TODO: set fields in command, and update assertions to verify implementation
+        |        // assertEquals([expected],
+        |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
+        |        // );
         |    }
         |    
         |    @Test
         |    public void getTest() {
         |        entity = new MyServiceImpl(entityId);
         |        
-        |        Mockito.when(context.fail("The command handler for `Get` is not implemented, yet"))
-        |            .thenReturn(new MockedContextFailure());
+        |        // TODO: write your mock here
+        |        // Mockito.when(context.[...]).thenReturn([...]);
         |        
-        |        // TODO: set fields in command, and update assertions to match implementation
-        |        assertThrows(MockedContextFailure.class, () -> {
-        |            entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        });
+        |        // TODO: set fields in command, and update assertions to verify implementation
+        |        // assertEquals([expected],
+        |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
+        |        // );
         |    }
         |}""".stripMargin
     )

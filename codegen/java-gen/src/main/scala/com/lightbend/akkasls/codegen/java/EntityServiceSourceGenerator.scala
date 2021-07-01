@@ -436,10 +436,6 @@ object EntityServiceSourceGenerator {
             "CommandContext"
         }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
-        "private class MockedContextFailure extends RuntimeException" <+> braces(
-          emptyDoc
-        ) <> semi <> line <>
-        line <>
         ssep(
           service.commands.toSeq.map { command =>
             "@Test" <> line <>
@@ -454,29 +450,20 @@ object EntityServiceSourceGenerator {
                 "entityId"
               ) <> semi <> line <>
               line <>
-              "Mockito.when" <> parens(
-                "context.fail" <> parens(notImplementedError("command", command.fqn))
-              ) <> line <>
-              indent(
-                dot <>
-                "thenReturn" <> parens("new MockedContextFailure" <> parens(emptyDoc))
-              ) <> semi <> line <>
+              "// TODO: write your mock here" <> line <>
+              "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
               line <>
-              "// TODO: set fields in command, and update assertions to match implementation" <> line <>
-              "assertThrows" <> parens(
-                "MockedContextFailure.class" <> comma <+>
-                parens(emptyDoc) <+> "->" <+> braces(
-                  nest(
-                    line <> "entity" <> dot <> lowerFirst(
-                      command.fqn.name
-                    ) <> parens(
-                      qualifiedType(
-                        command.inputType
-                      ) <> dot <> "newBuilder().build(), context"
-                    ) <> semi
-                  ) <> line
-                )
-              ) <> semi <>
+              "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
+              "//" <+> "assertEquals" <> parens(
+                "[expected]" <> comma <>
+                line <> "//" <> indent("entity") <> dot <> lowerFirst(
+                  command.fqn.name
+                ) <> lparen <>
+                qualifiedType(
+                  command.inputType
+                ) <> dot <> "newBuilder().build(), context"
+              ) <> semi <> line <>
+              "//" <+> rparen <> semi <>
               (entity match {
                 case _: ModelBuilder.EventSourcedEntity =>
                   line <>
