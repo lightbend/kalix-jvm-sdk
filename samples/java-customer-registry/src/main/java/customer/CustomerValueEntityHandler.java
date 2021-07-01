@@ -23,12 +23,12 @@ import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Any;
-import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import scala.None$;
 import scala.Option;
+import scalapb.UnknownFieldSet;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -43,13 +43,16 @@ public class CustomerValueEntityHandler implements ValueEntityHandler {
   }
 
   @Override
-  public ValueEntityBase.Effect<Any> handleCommand(Any command, CommandContext<Any> context) throws Throwable {
+  public ValueEntityBase.Effect<Any> handleCommand(Any command, Any state, CommandContext<Any> context)
+      throws Throwable {
     AdaptedCommandContext<CustomerDomain.CustomerState> adaptedContext =
         new AdaptedCommandContext(context, anySupport);
     try {
+      CustomerDomain.CustomerState parsedState =
+          CustomerDomain.CustomerState.parseFrom(state.getValue());
       // TODO we used to support passing in the command as Jackson-parsed model object
       // or as ScalaPB class as well. With this change we tie ourselves to Java protobuf.
-      ValueEntityBase.Effect<? extends GeneratedMessageV3> effect = invoke(command, adaptedContext);
+      ValueEntityBase.Effect<? extends GeneratedMessageV3> effect = invoke(command, parsedState, adaptedContext);
       // TODO we used to support accepting ScalaPB and Jackson objects as responses as well.
       //  Are we OK with losing that? I guess we could have separate methods for that on the
       //  builder, though it's not obvious how to achieve type-safety for those then.
@@ -57,42 +60,49 @@ public class CustomerValueEntityHandler implements ValueEntityHandler {
       // FIXME probably ValueEntityHandler should be adapted to expect an `Effect<? extends
       // GenerateMessageV3>`?
       return null;
-    } catch (Throwable t) {
+    } catch (Exception e) {
       Throwable unwrapped;
-      if (t.getClass().isAssignableFrom(InvocationTargetException.class) && t.getCause() != null) {
-        unwrapped = t.getCause();
+      if (e.getClass().isAssignableFrom(InvocationTargetException.class) && e.getCause() != null) {
+        unwrapped = e.getCause();
       } else {
-        unwrapped = t;
+        unwrapped = e;
       }
       if (unwrapped.getClass().isAssignableFrom(FailInvoked$.class)) {
-        throw t;
+        throw unwrapped;
       } else {
         throw unwrapped.getCause();
       }
     }
   }
 
+  @Override
+  public com.google.protobuf.any.Any emptyState() {
+    return com.google.protobuf.any.Any.apply(
+        AnySupport.DefaultTypeUrlPrefix()
+            + "/"
+            + CustomerDomain.CustomerState.getDescriptor().getFullName(),
+        entity.emptyState().toByteString(),
+        UnknownFieldSet.empty());
+  }
+
   public ValueEntityBase.Effect<? extends GeneratedMessageV3> invoke(
-      Any command, CommandContext<CustomerDomain.CustomerState> context) throws Throwable {
-    // TODO still getting the state from the context here, should probably be a parameter
-    // of 'invoke'
+      Any command,
+      CustomerDomain.CustomerState state,
+      CommandContext<CustomerDomain.CustomerState> context)
+      throws Throwable {
     switch (context.commandName()) {
       case "Create":
         return entity.create(
             // TODO we used to support any 'Jsonable' class here as well, parsing them with Jackson,
             // and also ScalaPB classes.
             // are we OK with restriction ourselves to actual Java protobuf classes?
-            CustomerApi.Customer.parseFrom(command.getValue()), context.getState().get(), context);
+            CustomerApi.Customer.parseFrom(command.getValue()), state, context);
       case "ChangeName":
         return entity.changeName(
-            CustomerApi.ChangeNameRequest.parseFrom(command.getValue()),
-            context.getState().get(),
-            context);
+            CustomerApi.ChangeNameRequest.parseFrom(command.getValue()), state, context);
       case "GetCustomer":
         return entity.getCustomer(
-            CustomerApi.GetCustomerRequest.parseFrom(command.getValue()),
-            context.getState().get(),
-            context);
+            CustomerApi.GetCustomerRequest.parseFrom(command.getValue()), state, context);
       default:
         Option<?> noneOption = None$.MODULE$;
         throw new EntityExceptions.EntityException(

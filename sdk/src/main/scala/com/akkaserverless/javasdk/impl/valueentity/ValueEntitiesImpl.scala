@@ -116,9 +116,13 @@ final class ValueEntitiesImpl(_system: ActorSystem,
     val handler = service.factory.create(new EntityContextImpl(init.entityId))
     val thisEntityId = init.entityId
 
-    val initState = init.state match {
-      case Some(ValueEntityInitState(state, _)) => state
-      case _ => None // should not happen!!!
+    val initState: Option[ScalaPbAny] = init.state match {
+      case Some(ValueEntityInitState(stateOpt, _)) =>
+        stateOpt match {
+          case Some(state) => Some(state)
+          case None => Option(handler.emptyState())
+        }
+      case None => throw new IllegalStateException("ValueEntityInit state is mandatory")
     }
 
     Flow[ValueEntityStreamIn]
@@ -143,7 +147,9 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             log
           )
           val effect: ValueEntityEffectImpl[JavaPbAny] = try {
-            handler.handleCommand(cmd, context).asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+            handler
+              .handleCommand(cmd, state.map(ScalaPbAny.toJavaProto).orNull, context)
+              .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
           } catch {
             case FailInvoked => new ValueEntityEffectImpl() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
