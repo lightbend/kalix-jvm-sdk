@@ -47,17 +47,15 @@ import com.akkaserverless.javasdk.reply.ErrorReply
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
-                               val anySupport: AnySupport,
                                override val entityType: String,
                                override val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
   def this(factory: ValueEntityFactory,
            descriptor: Descriptors.ServiceDescriptor,
-           anySupport: AnySupport,
            entityType: String,
            entityOptions: ValueEntityOptions) =
-    this(factory, descriptor, anySupport, entityType, Some(entityOptions))
+    this(factory, descriptor, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -143,7 +141,6 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             command.id,
             metadata,
             state,
-            service.anySupport,
             log
           )
           val effect: ValueEntityEffectImpl[JavaPbAny] = try {
@@ -221,7 +218,6 @@ final class ValueEntitiesImpl(_system: ActorSystem,
                                          override val commandId: Long,
                                          override val metadata: Metadata,
                                          val state: Option[ScalaPbAny],
-                                         val anySupport: AnySupport,
                                          val log: LoggingAdapter)
       extends CommandContext[JavaPbAny]
       with AbstractContext
