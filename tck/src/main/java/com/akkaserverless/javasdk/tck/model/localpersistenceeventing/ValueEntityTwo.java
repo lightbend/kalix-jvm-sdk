@@ -26,7 +26,7 @@ import com.google.protobuf.Empty;
 public class ValueEntityTwo {
   @CommandHandler
   public Empty updateJsonValue(
-      LocalPersistenceEventing.JsonValue value, CommandContext<Empty, Object> ctx) {
+      LocalPersistenceEventing.JsonValue value, CommandContext<Object> ctx) {
     ctx.updateState(new JsonMessage(value.getMessage()));
     return Empty.getDefaultInstance();
   }

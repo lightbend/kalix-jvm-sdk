@@ -64,19 +64,18 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny, JavaPbAny]): Reply[JavaPbAny] =
-      unwrap {
-        behavior.commandHandlers.get(context.commandName()).map { handler =>
-          val adaptedContext =
-            new AdaptedCommandContext(context, anySupport)
-          handler.invoke(entity, command, adaptedContext)
-        } getOrElse {
-          throw EntityException(
-            context,
-            s"No command handler found for command [${context.commandName()}] on $behaviorsString"
-          )
-        }
+    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
+      behavior.commandHandlers.get(context.commandName()).map { handler =>
+        val adaptedContext =
+          new AdaptedCommandContext(context, anySupport)
+        handler.invoke(entity, command, adaptedContext)
+      } getOrElse {
+        throw EntityException(
+          context,
+          s"No command handler found for command [${context.commandName()}] on $behaviorsString"
+        )
       }
+    }
 
     private def unwrap[T](block: => T): T =
       try {
@@ -96,7 +95,7 @@ private[impl] class AnnotationBasedEntitySupport(
 }
 
 private class EntityBehaviorReflection(
-    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef, AnyRef]]]
+    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]]]
 ) {}
 
 private object EntityBehaviorReflection {
@@ -122,11 +121,9 @@ private object EntityBehaviorReflection {
           }
         )
 
-        new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef, AnyRef]](
-          ReflectionHelper.ensureAccessible(method),
-          serviceMethod,
-          anySupport
-        )
+        new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]](ReflectionHelper.ensureAccessible(method),
+                                                                           serviceMethod,
+                                                                           anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {
@@ -165,10 +162,8 @@ private class EntityConstructorInvoker(constructor: Constructor[_]) extends (Val
  * This class is a conversion bridge between CommandContext[JavaPbAny] and CommandContext[AnyRef].
  * It helps for making the conversion from JavaPbAny to AnyRef and backward.
  */
-private class AdaptedCommandContext(val delegate: CommandContext[_, JavaPbAny], anySupport: AnySupport)
-    extends CommandContext[AnyRef, AnyRef] {
-
-  override def effectBuilder(): ValueEntityEffect.Builder[AnyRef, AnyRef] = ??? // FIXME
+private class AdaptedCommandContext(val delegate: CommandContext[JavaPbAny], anySupport: AnySupport)
+    extends CommandContext[AnyRef] {
 
   override def getState(): Optional[AnyRef] = {
     val result = delegate.getState

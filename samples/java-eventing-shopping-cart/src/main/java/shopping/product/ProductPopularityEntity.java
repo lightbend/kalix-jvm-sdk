@@ -37,7 +37,7 @@ public class ProductPopularityEntity {
 
   @CommandHandler
   public ProductPopularityApi.Popularity getPopularity(
-      CommandContext<ProductPopularityApi.Popularity, ProductPopularityDomain.Popularity> ctx) {
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
     return convert(getStateOrNew(ctx.getState()));
   }
 
@@ -51,7 +51,7 @@ public class ProductPopularityEntity {
   @CommandHandler
   public Empty increase(
       ProductPopularityApi.IncreasePopularity increase,
-      CommandContext<Empty, ProductPopularityDomain.Popularity> ctx) {
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
     ProductPopularityDomain.Popularity.Builder builder = toBuilder(ctx.getState());
     int newScore = builder.getScore() + increase.getQuantity();
     builder.setProductId(increase.getProductId());
@@ -63,7 +63,7 @@ public class ProductPopularityEntity {
   @CommandHandler
   public Empty decrease(
       ProductPopularityApi.DecreasePopularity decrease,
-      CommandContext<Empty, ProductPopularityDomain.Popularity> ctx) {
+      CommandContext<ProductPopularityDomain.Popularity> ctx) {
 
     ProductPopularityDomain.Popularity.Builder builder = toBuilder(ctx.getState());
     int newScore = builder.getScore() - decrease.getQuantity();

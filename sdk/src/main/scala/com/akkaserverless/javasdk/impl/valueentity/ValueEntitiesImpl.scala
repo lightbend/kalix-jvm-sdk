@@ -206,7 +206,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
                                          val state: Option[ScalaPbAny],
                                          val anySupport: AnySupport,
                                          val log: LoggingAdapter)
-      extends CommandContext[JavaPbAny, JavaPbAny]
+      extends CommandContext[JavaPbAny]
       with AbstractContext
       with AbstractClientActionContext
       with AbstractSideEffectContext
@@ -214,8 +214,6 @@ final class ValueEntitiesImpl(_system: ActorSystem,
 
     final var action: Option[ValueEntityAction] = None
     private var _state: Option[ScalaPbAny] = state
-
-    override def effectBuilder(): ValueEntityEffect.Builder[JavaPbAny, JavaPbAny] = ??? // FIXME
 
     override def getState(): Optional[JavaPbAny] = {
       checkActive()

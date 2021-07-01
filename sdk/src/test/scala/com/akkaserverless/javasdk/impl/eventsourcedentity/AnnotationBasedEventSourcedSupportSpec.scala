@@ -41,12 +41,11 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
     override def entityId(): String = "foo"
   }
 
-  class MockCommandContext extends CommandContext[AnyRef, AnyRef] with BaseContext {
+  class MockCommandContext extends CommandContext with BaseContext {
     var emited = Seq.empty[AnyRef]
     override def sequenceNumber(): Long = 10
     override def commandName(): String = "AddItem"
     override def commandId(): Long = 20
-    override def effectBuilder(): EventSourcedEntityEffect.Builder[AnyRef, AnyRef] = ??? // FIXME
     override def emit(event: AnyRef): Unit = emited :+= event
     override def entityId(): String = "foo"
     override def fail(errorMessage: String): RuntimeException = ???
@@ -208,7 +207,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       "fail if there's a bad context type" in {
         a[RuntimeException] should be thrownBy create(new {
           @EventHandler
-          def handle(event: String, ctx: CommandContext[_, _]) = ()
+          def handle(event: String, ctx: CommandContext) = ()
         })
       }
 
@@ -268,7 +267,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @CommandHandler
-            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext[_, _]) = {
+            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext) = {
               eid should ===("foo")
               ctx.commandName() should ===("AddItem")
               Wrapped(msg)
@@ -282,7 +281,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       "allow emitting events" in {
         val handler = create(new {
           @CommandHandler
-          def addItem(msg: String, ctx: CommandContext[_, _]) = {
+          def addItem(msg: String, ctx: CommandContext) = {
             ctx.emit(msg + " event")
             ctx.commandName() should ===("AddItem")
             Wrapped(msg)
@@ -304,7 +303,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       "fail if there's two command handlers for the same command" in {
         a[RuntimeException] should be thrownBy create(new {
           @CommandHandler
-          def addItem(msg: String, ctx: CommandContext[_, _]) =
+          def addItem(msg: String, ctx: CommandContext) =
             Wrapped(msg)
           @CommandHandler
           def addItem(msg: String) =

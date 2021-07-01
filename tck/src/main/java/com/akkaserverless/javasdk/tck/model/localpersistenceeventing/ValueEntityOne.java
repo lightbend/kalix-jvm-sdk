@@ -26,7 +26,7 @@ import com.google.protobuf.Empty;
 public class ValueEntityOne {
   @CommandHandler
   public Empty updateValue(
-      LocalPersistenceEventing.UpdateValueRequest value, CommandContext<Empty, Object> ctx) {
+      LocalPersistenceEventing.UpdateValueRequest value, CommandContext<Object> ctx) {
     if (value.hasValueOne()) {
       ctx.updateState(value.getValueOne());
     } else {

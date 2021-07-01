@@ -28,14 +28,9 @@ import java.util.Optional;
  * <p>Methods annotated with {@link CommandHandler} may take this is a parameter. It allows updating
  * or deleting the entity state in response to a command, along with forwarding the result to other
  * entities, and performing side effects on other entities.
- *
- * @param <T> The type of the message that must be returned by this call.
- * @param <S> The type of the state for this entity.
  */
-public interface CommandContext<T, S>
+public interface CommandContext<T>
     extends ValueEntityContext, ClientActionContext, SideEffectContext, MetadataContext {
-
-  ValueEntityEffect.Builder<T, S> effectBuilder();
 
   /**
    * The name of the command being executed.
@@ -60,7 +55,7 @@ public interface CommandContext<T, S>
    * @deprecated Use state method parameter instead.
    */
   @Deprecated
-  Optional<S> getState();
+  Optional<T> getState();
 
   /**
    * Update the entity with the new state. The state will be persisted.
@@ -69,7 +64,7 @@ public interface CommandContext<T, S>
    * @deprecated Use ValueEntityEffect.updateState instead.
    */
   @Deprecated
-  void updateState(S state);
+  void updateState(T state);
 
   /**
    * Delete the entity state.

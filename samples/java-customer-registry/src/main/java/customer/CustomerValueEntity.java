@@ -29,7 +29,7 @@ public class CustomerValueEntity {
   @CommandHandler
   public CustomerApi.Customer getCustomer(
       CustomerApi.GetCustomerRequest request,
-      CommandContext<CustomerApi.Customer, CustomerDomain.CustomerState> context) {
+      CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState state =
         context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
     return convertToApi(state);
@@ -37,7 +37,7 @@ public class CustomerValueEntity {
 
   @CommandHandler
   public Empty create(
-      CustomerApi.Customer customer, CommandContext<Empty, CustomerDomain.CustomerState> context) {
+      CustomerApi.Customer customer, CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState state = convertToDomain(customer);
     context.updateState(state);
     return Empty.getDefaultInstance();
@@ -45,8 +45,7 @@ public class CustomerValueEntity {
 
   @CommandHandler
   public Empty changeName(
-      CustomerApi.ChangeNameRequest request,
-      CommandContext<Empty, CustomerDomain.CustomerState> context) {
+      CustomerApi.ChangeNameRequest request, CommandContext<CustomerDomain.CustomerState> context) {
     if (context.getState().isEmpty())
       throw context.fail("Customer must be created before name can be changed.");
     CustomerDomain.CustomerState updatedState =

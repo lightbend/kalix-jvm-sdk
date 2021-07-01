@@ -248,7 +248,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                            val handler: EventSourcedEntityHandler,
                            val snapshotEvery: Int,
                            val log: LoggingAdapter)
-      extends CommandContext[AnyRef, AnyRef]
+      extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
       with AbstractSideEffectContext
@@ -256,8 +256,6 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
 
     final var events: Vector[ScalaPbAny] = Vector.empty
     final var performSnapshot: Boolean = false
-
-    override def effectBuilder(): EventSourcedEntityEffect.Builder[AnyRef, AnyRef] = ??? // FIXME
 
     override def emit(event: AnyRef): Unit = {
       checkActive()
