@@ -24,7 +24,6 @@ import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
-import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
   Command => InCommand,
@@ -42,6 +41,9 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.util.control.NonFatal
 
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
+import com.akkaserverless.javasdk.reply.ErrorReply
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
@@ -189,7 +191,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
           val clientAction =
             context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = context.events.nonEmpty)
 
-          if (!context.hasError && !reply.isInstanceOf[FailureReply[_]]) {
+          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
             val endSequenceNumber = sequence + context.events.size
             val snapshot =
               if (context.performSnapshot) {
@@ -249,7 +251,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
-      with AbstractEffectContext
+      with AbstractSideEffectContext
       with ActivatableContext {
 
     final var events: Vector[ScalaPbAny] = Vector.empty

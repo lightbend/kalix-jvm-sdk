@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package com.akkaserverless.javasdk.lowlevel;
 
-import com.akkaserverless.javasdk.Reply;
-import com.google.protobuf.Any;
+import com.akkaserverless.javasdk.view.ViewContext;
 
 /**
- * Low level interface for handling messages on views.
+ * Low level interface for handling messages in views.
  *
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * UpdateHandler @UpdateHandler} and similar annotations should be used.
+ * com.akkaserverless.javasdk.view.View @View} and similar annotations should be used.
  */
-public interface ViewUpdateHandler {
-
+public interface ViewFactory {
   /**
-   * Handle the given message.
+   * Create a view handler for the given context.
    *
-   * @param message The message to handle.
    * @param context The context.
-   * @return The updated state.
+   * @return The handler for the given context.
    */
-  Reply<Any> handle(Any message, UpdateHandlerContext context);
+  ViewUpdateHandler create(ViewContext context);
 }

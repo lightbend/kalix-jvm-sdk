@@ -26,7 +26,10 @@ import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.util.Optional
+
 import scala.compat.java8.OptionConverters._
+
+import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {

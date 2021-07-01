@@ -1,7 +1,7 @@
 package com.example.domain;
 
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.valueentity.*;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -9,8 +9,7 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-@ValueEntity(entityType = "counter") // <1>
-public class CounterImpl extends CounterInterface {
+public class CounterImpl extends CounterInterface2 { // <1>
     @SuppressWarnings("unused")
     private final String entityId;
 
@@ -19,47 +18,61 @@ public class CounterImpl extends CounterInterface {
     }
 // end::class[]
 
+    @Override
+    protected CounterDomain.CounterState emptyState() {
+        return CounterDomain.CounterState.getDefaultInstance();
+    }
+
     // tag::increase[]
     @Override
-    protected Empty increase(CounterApi.IncreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
+    public Effect<Empty> increase(
+            CounterDomain.CounterState currentState,
+            CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
-            throw ctx.fail("Increase requires a positive value. It was [" + command.getValue() + "].");
+            return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
-        CounterDomain.CounterState state = ctx.getState() // <2>
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build()); // <3>
         CounterDomain.CounterState newState =  // <4>
-                state.toBuilder().setValue(state.getValue() + command.getValue()).build();
-        ctx.updateState(newState); // <5>
-        return Empty.getDefaultInstance();
+                currentState.toBuilder().setValue(currentState.getValue() + command.getValue()).build();
+        return effects()
+                .updateState(newState) // <5>
+                .thenReply(Empty.getDefaultInstance()); // FIXME add convenience shortcut for reply Empty?
     }
 // end::increase[]
 
     @Override
-    protected Empty decrease(CounterApi.DecreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
+    public Effect<Empty> decrease(
+            CounterDomain.CounterState currentState,
+            CounterApi.DecreaseValue command) {
         if (command.getValue() < 0) {
-            throw ctx.fail("Decrease requires a positive value. It was [" + command.getValue() + "].");
+            return effects().error("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
-        CounterDomain.CounterState state = ctx.getState()
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
-        ctx.updateState(state.toBuilder().setValue(state.getValue() - command.getValue()).build());
-        return Empty.getDefaultInstance();
+        CounterDomain.CounterState newState =
+                currentState.toBuilder().setValue(currentState.getValue() - command.getValue()).build();
+        return effects()
+                .updateState(newState)
+                .thenReply(Empty.getDefaultInstance());
     }
 
     @Override
-    protected Empty reset(CounterApi.ResetValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        CounterDomain.CounterState state = ctx.getState()
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
-        ctx.updateState(state.toBuilder().setValue(0).build());
-        return Empty.getDefaultInstance();
+    public Effect<Empty> reset(
+            CounterDomain.CounterState currentState,
+            CounterApi.ResetValue command) {
+        CounterDomain.CounterState newState =
+                currentState.toBuilder().setValue(0).build();
+        return effects()
+                .updateState(newState)
+                .thenReply(Empty.getDefaultInstance());
     }
 
     // tag::getCurrentCounter[]
     @Override
-    protected CounterApi.CurrentCounter getCurrentCounter(CounterApi.GetCounter command, CommandContext<CounterDomain.CounterState> ctx) {
-        CounterApi.CurrentCounter current = ctx.getState() // <1>
-                .map((state) -> CounterApi.CurrentCounter.newBuilder().setValue(state.getValue()).build()) // <2>
-                .orElseGet(() -> CounterApi.CurrentCounter.newBuilder().setValue(0).build()); // <3>
-        return current;
+    public Effect<CounterApi.CurrentCounter> getCurrentCounter(
+            CounterDomain.CounterState currentState,
+            CounterApi.GetCounter command) {
+        CounterApi.CurrentCounter current =
+                CounterApi.CurrentCounter.newBuilder().setValue(currentState.getValue()).build();
+        return effects().reply(current);
     }
+
     // end::getCurrentCounter[]
 }

@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.replicatedentity;
 
 import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.EffectContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 /**
@@ -28,7 +28,7 @@ import com.akkaserverless.javasdk.MetadataContext;
 public interface CommandContext
     extends ReplicatedEntityContext,
         ReplicatedDataFactory,
-        EffectContext,
+        SideEffectContext,
         ClientActionContext,
         MetadataContext {
   /**

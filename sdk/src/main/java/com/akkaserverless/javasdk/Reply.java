@@ -16,11 +16,11 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.reply.FailureReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.ErrorReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
 import com.akkaserverless.javasdk.impl.reply.NoReply;
-import com.akkaserverless.javasdk.reply.FailureReply;
+import com.akkaserverless.javasdk.reply.ErrorReply;
 import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
@@ -33,7 +33,7 @@ import java.util.Collection;
  */
 public interface Reply<T> {
   /**
-   * Whether this reply is empty: does not have a message, forward, or failure.
+   * Whether this reply is empty: does not have a message, forward, or error.
    *
    * @return Whether the reply is empty.
    */
@@ -44,7 +44,15 @@ public interface Reply<T> {
    *
    * @return The effects.
    */
-  Collection<Effect> effects();
+  Collection<SideEffect> sideEffects();
+
+  /**
+   * Attach the given side effects to this reply.
+   *
+   * @param sideEffects The effects to attach.
+   * @return A new reply with the attached effects.
+   */
+  Reply<T> addSideEffects(Collection<SideEffect> sideEffects);
 
   /**
    * Attach the given effects to this reply.
@@ -52,15 +60,7 @@ public interface Reply<T> {
    * @param effects The effects to attach.
    * @return A new reply with the attached effects.
    */
-  Reply<T> addEffects(Collection<Effect> effects);
-
-  /**
-   * Attach the given effects to this reply.
-   *
-   * @param effects The effects to attach.
-   * @return A new reply with the attached effects.
-   */
-  Reply<T> addEffects(Effect... effects);
+  Reply<T> addSideEffects(SideEffect... effects);
 
   /**
    * Create a message reply.
@@ -99,8 +99,8 @@ public interface Reply<T> {
    * @param description The description of the failure.
    * @return A failure reply.
    */
-  static <T> FailureReply<T> failure(String description) {
-    return new FailureReplyImpl<>(description);
+  static <T> ErrorReply<T> failure(String description) {
+    return new ErrorReplyImpl<>(description);
   }
 
   /**

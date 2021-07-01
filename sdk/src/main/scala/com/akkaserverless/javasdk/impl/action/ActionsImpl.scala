@@ -26,13 +26,16 @@ import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
-import com.akkaserverless.javasdk.reply.{FailureReply, ForwardReply, MessageReply}
+import com.akkaserverless.javasdk.reply.{ErrorReply, ForwardReply, MessageReply}
 import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
 import com.akkaserverless.protocol.component.Failure
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.Future
+
+import com.akkaserverless.javasdk.lowlevel.ActionFactory
+import com.akkaserverless.javasdk.lowlevel.ActionHandler
 
 final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,
@@ -69,7 +72,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         ActionResponse.Response.Reply(ReplySupport.asProtocol(message))
       case forward: ForwardReply[JavaPbAny] =>
         ActionResponse.Response.Forward(ReplySupport.asProtocol(forward))
-      case failure: FailureReply[JavaPbAny] =>
+      case failure: ErrorReply[JavaPbAny] =>
         ActionResponse.Response.Failure(Failure(description = failure.description()))
       // ie, NoReply
       case _ => ActionResponse.Response.Empty

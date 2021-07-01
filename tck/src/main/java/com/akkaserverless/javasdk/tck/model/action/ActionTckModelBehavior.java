@@ -25,7 +25,6 @@ import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.action.*;
 import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.tck.model.Action.*;
 import com.akkaserverless.tck.model.ActionTwo;
 
@@ -74,21 +73,24 @@ public class ActionTckModelBehavior {
         case REPLY:
           reply =
               Reply.message(Response.newBuilder().setMessage(step.getReply().getMessage()).build())
-                  .addEffects(reply.effects());
+                  .addSideEffects(reply.sideEffects());
           break;
         case FORWARD:
           reply =
               Reply.<Response>forward(serviceTwoRequest(context, step.getForward().getId()))
-                  .addEffects(reply.effects());
+                  .addSideEffects(reply.sideEffects());
           break;
         case EFFECT:
           SideEffect effect = step.getEffect();
           reply =
-              reply.addEffects(
-                  Effect.of(serviceTwoRequest(context, effect.getId()), effect.getSynchronous()));
+              reply.addSideEffects(
+                  com.akkaserverless.javasdk.SideEffect.of(
+                      serviceTwoRequest(context, effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          reply = Reply.<Response>failure(step.getFail().getMessage()).addEffects(reply.effects());
+          reply =
+              Reply.<Response>failure(step.getFail().getMessage())
+                  .addSideEffects(reply.sideEffects());
       }
     }
     return reply;
@@ -98,7 +100,9 @@ public class ActionTckModelBehavior {
     return Sink.fold(
         Reply.noReply(),
         (reply, next) ->
-            next.isEmpty() ? reply.addEffects(next.effects()) : next.addEffects(reply.effects()));
+            next.isEmpty()
+                ? reply.addSideEffects(next.sideEffects())
+                : next.addSideEffects(reply.sideEffects()));
   }
 
   private ServiceCall serviceTwoRequest(Context context, String id) {

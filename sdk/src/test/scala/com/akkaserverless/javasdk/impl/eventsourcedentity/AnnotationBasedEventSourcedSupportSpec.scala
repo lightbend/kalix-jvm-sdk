@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
-import com.akkaserverless.javasdk.reply.FailureReply
+import com.akkaserverless.javasdk.reply.ErrorReply
 import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
@@ -459,7 +459,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   private def assertIsFailure(reply: Reply[protobuf.Any], failureDescription: String) =
     reply match {
-      case message: FailureReply[protobuf.Any] =>
+      case message: ErrorReply[protobuf.Any] =>
         message.description() should ===(failureDescription)
       case other =>
         fail(s"$reply is not a FailureReply")

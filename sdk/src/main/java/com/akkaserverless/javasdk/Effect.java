@@ -16,35 +16,41 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.reply.EffectImpl;
+import java.util.Collection;
 
-/** An effect. */
-public interface Effect {
-
-  /** The service call that is executed as this effect. */
-  ServiceCall serviceCall();
-
-  /** Whether this effect should be executed synchronously or not. */
-  boolean synchronous();
+/**
+ * A return type to allow returning forwards or failures, and attaching effects to messages.
+ *
+ * @param <T> The type of the message that must be returned by this call.
+ */
+public interface Effect<T> {
+  /**
+   * Whether this reply is empty: does not have a message, forward, or error.
+   *
+   * @return Whether the reply is empty.
+   */
+  boolean isEmpty();
 
   /**
-   * Create an effect of the given service call.
+   * The effects attached to this reply.
    *
-   * @param serviceCall The service call to effect.
-   * @param synchronous Whether this effect should be executed synchronously.
-   * @return The effect.
+   * @return The effects.
    */
-  static Effect of(ServiceCall serviceCall, boolean synchronous) {
-    return new EffectImpl(serviceCall, synchronous);
-  }
+  Collection<SideEffect> sideEffects();
 
   /**
-   * Create an effect of the given service call.
+   * Attach the given side effects to this reply.
    *
-   * @param serviceCall The service call to effect.
-   * @return The effect.
+   * @param sideEffects The effects to attach.
+   * @return A new reply with the attached effects.
    */
-  static Effect of(ServiceCall serviceCall) {
-    return new EffectImpl(serviceCall, false);
-  }
+  Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
+
+  /**
+   * Attach the given effects to this reply.
+   *
+   * @param effects The effects to attach.
+   * @return A new reply with the attached effects.
+   */
+  Effect<T> addSideEffects(SideEffect... effects);
 }

@@ -25,6 +25,7 @@ import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.ResolvedType
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
+import com.akkaserverless.javasdk.lowlevel.ViewUpdateHandler
 import com.akkaserverless.javasdk.view._
 import com.google.protobuf.ByteString
 import com.google.protobuf.any.{Any => ScalaPbAny}

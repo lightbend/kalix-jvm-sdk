@@ -21,13 +21,7 @@ import akka.actor.ActorSystem
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.action.{
-  ActionContext,
-  ActionCreationContext,
-  ActionFactory,
-  ActionHandler,
-  MessageEnvelope
-}
+import com.akkaserverless.javasdk.action.{ActionContext, ActionCreationContext, MessageEnvelope}
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
 import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
 import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
@@ -44,6 +38,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
+import com.akkaserverless.javasdk.lowlevel.ActionHandler
 
 class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 

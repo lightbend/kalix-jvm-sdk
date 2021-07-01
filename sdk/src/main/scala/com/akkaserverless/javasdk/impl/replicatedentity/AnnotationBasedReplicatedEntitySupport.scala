@@ -24,7 +24,11 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import java.lang.reflect.{Constructor, Executable, InvocationTargetException}
 import java.util.function.Consumer
 import java.util.{function, Optional}
+
 import scala.reflect.ClassTag
+
+import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandler
+import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory
 
 /**
  * Annotation based implementation of the [[ReplicatedEntityHandlerFactory]].
