@@ -63,6 +63,16 @@ commands:
       - restore_cache:
           key: deps-cache-01
 
+  set-sdk-version: 
+    description: "Grab current SDK version"
+    steps: 
+      - run: 
+          name: "Set SDK version"
+          command: |
+            # tail 2 + head 1 because CircleCI adds an extra line
+            # the SDK_VERSION is later used to run the maven tests (see below)
+            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+
 jobs:
   checks:
     docker:
@@ -137,6 +147,41 @@ jobs:
           name: Validate docs
           command: make -C docs
       - save_deps_cache
+     
+
+  maven-java-tests:
+    machine: true
+    description: "Maven Java (plugin and archetype tests)"
+    steps:
+      - checkout-and-merge-to-main
+      - restore_deps_cache
+      - set-sdk-version
+      - setup_sbt
+      - run: 
+          name: publish m2
+          command: sbt publishM2
+      - run: 
+          name: Build maven-java
+          command: |
+            cd maven-java
+            echo "Running maven-java with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION
+            mvn verify install
+      - run: 
+          name: Run integration tests for Value Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype -DarchetypeVersion=$SDK_VERSION
+            cd counter-value-entity
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile
+      - run: 
+          name: Run integration tests for Event Sourced Entity Archetype
+          command: |
+            cd maven-java
+            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+            cd counter-event-sourced-entity
+            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile
+      - save_deps_cache
 
   samples-tests:
     machine: true
@@ -145,17 +190,14 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
+      - set-sdk-version
       - run: 
-          name: "Publish local maven"
-          command: | 
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
-            sbt publishM2
+          name: publish m2
+          command: sbt publishM2
       - run: 
           name: Run integration tests for Shopping Cart Value Entity sample
           command: |
-            cd samples/java-valueentity-shopping-cart 
+            cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run: 
@@ -187,6 +229,46 @@ jobs:
       - restore_deps_cache
       - run: sbt ci-release
       - save_deps_cache
+
+  publish-maven:
+    docker:
+      - image: circleci/openjdk:8
+    steps:
+      - checkout
+      - restore_deps_cache
+      - set-sdk-version
+      - run:
+          name: Publish maven plugin and archetype
+          command: |
+            cd maven-java
+            echo $PGP_SECRET | base64 -d | gpg --import --batch
+            # It seems ~/.m2 is not actually restored from the cache?
+            mkdir -p ~/.m2
+            cat >~/.m2/settings.xml \<<EOF;
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+            <servers>
+              <server>
+                <id>ossrh</id>
+                <username>$SONATYPE_USERNAME</username>
+                <password>$SONATYPE_PASSWORD</password>
+              </server>
+            </servers>
+            <profiles>
+              <profile>
+                <id>ossrh</id>
+                <activation>
+                  <activeByDefault>true</activeByDefault>
+                </activation>
+                <properties>
+                  <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
+                </properties>
+              </profile>
+            </profiles>
+            </settings>
+            EOF
+            mvn -B versions:set -DnewVersion=$SDK_VERSION
+            mvn -P release -B deploy
 
   publish-tck:
     docker:
@@ -229,7 +311,11 @@ workflows:
       - integration-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
-              only: /.*/
+              only: /.*/          
+      - maven-java-tests:
+          filters: # required since publish jobs have tag filters and dependencies
+            tags:
+              only: /.*/ 
       - samples-tests:
           filters: # required since publish jobs have tag filters and dependencies
             tags:
@@ -252,6 +338,21 @@ workflows:
             - checks
             - tests
             - integration-tests
+            - maven-java-tests
+            - samples-tests    
+            - tck-tests
+            - validate-docs   
+      - publish-maven:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checks
+            - tests
+            - integration-tests
+            - maven-java-tests
             - samples-tests    
             - tck-tests
             - validate-docs   
