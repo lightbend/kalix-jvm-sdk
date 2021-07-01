@@ -182,13 +182,7 @@ public final class AkkaServerless {
 
       services.put(
           descriptor.getFullName(),
-          system ->
-              new ValueEntityService(
-                  factory,
-                  descriptor,
-                  newAnySupport(additionalDescriptors),
-                  entityType,
-                  entityOptions));
+          system -> new ValueEntityService(factory, descriptor, entityType, entityOptions));
 
       return AkkaServerless.this;
     }
@@ -496,7 +490,6 @@ public final class AkkaServerless {
         new ValueEntityService(
             new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
             descriptor,
-            anySupport,
             entityType,
             entityOptions);
 
