@@ -35,7 +35,7 @@ object CommonSettings extends AutoPlugin {
       scalaVersion := Dependencies.ScalaVersion,
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
-      },
+      }
     )
 
   override def projectSettings = Seq(

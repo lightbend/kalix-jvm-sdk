@@ -72,7 +72,7 @@ lazy val sdk = project
     Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test",
+    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test"
   )
 
 lazy val testkit = project
