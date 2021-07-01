@@ -20,14 +20,11 @@ import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityEffect;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -50,10 +47,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   public Effect<Empty> addItem(
           ShoppingCartDomain.Cart currentState,
           ShoppingCartApi.AddLineItem command,
-          EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
-          CommandContext ctx) {
+          CommandContext context) {
     if (command.getQuantity() <= 0) {
-      return effectBuilder.failure("Cannot add negative quantity of to item" + command.getProductId());
+      return effects().failure("Cannot add negative quantity of to item" + command.getProductId());
     }
 
     ShoppingCartDomain.ItemAdded event = ShoppingCartDomain.ItemAdded.newBuilder()
@@ -65,7 +61,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
                             .build())
             .build();
 
-    return effectBuilder
+    return effects()
             .emitEvent(event)
             .thenReply(newState -> Empty.getDefaultInstance());
   }
@@ -74,17 +70,16 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   public Effect<Empty> removeItem(
           ShoppingCartDomain.Cart currentState,
           ShoppingCartApi.RemoveLineItem command,
-          EventSourcedEntityEffect.Builder<Empty, ShoppingCartDomain.Cart> effectBuilder,
-          CommandContext ctx) {
+          CommandContext context) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
-      return effectBuilder.failure(
+      return effects().failure(
           "Cannot remove item " + command.getProductId() + " because it is not in the cart.");
     }
 
     ShoppingCartDomain.ItemRemoved event =
             ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(command.getProductId()).build();
 
-    return effectBuilder
+    return effects()
             .emitEvent(event)
             .thenReply(newState -> Empty.getDefaultInstance());
   }
@@ -93,15 +88,14 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
   public Effect<ShoppingCartApi.Cart> getCart(
           ShoppingCartDomain.Cart currentState,
           ShoppingCartApi.GetShoppingCart command,
-          EventSourcedEntityEffect.Builder<ShoppingCartApi.Cart, ShoppingCartDomain.Cart> effectBuilder,
-          CommandContext ctx) {
+          CommandContext context) {
     List<ShoppingCartApi.LineItem> apiItems =
             currentState.getItemsList().stream()
             .map(this::convert)
             .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
             .collect(Collectors.toList());
     ShoppingCartApi.Cart apiCart = ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems).build();
-    return effectBuilder.message(apiCart);
+    return effects().reply(apiCart);
   }
 
   @Override

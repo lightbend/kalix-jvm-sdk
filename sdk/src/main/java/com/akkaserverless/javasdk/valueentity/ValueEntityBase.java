@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
@@ -28,19 +27,25 @@ import com.akkaserverless.javasdk.reply.FailureReply;
 import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
-import java.util.function.Function;
+// FIXME rename to ValueEntity when the old annotation is removed
 
-/**
- * A return type to allow returning forwards or failures, and attaching effects to messages.
- *
- * @param <T> The type of the message that must be returned by this call.
- */
-public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
+/** @param <S> The type of the state for this entity. */
+public abstract class ValueEntityBase<S> {
 
-  public static class Builder<T, S> {
-    private Builder() {}
+  /**
+   * Construct the effect that is returned by the command handler. The effect describes next
+   * processing actions, such as emitting events and sending a reply.
+   *
+   * @param <S> The type of the state for this entity.
+   */
+  public static class Effects<S> {
+    private Effects() {}
 
-    public Builder2<T, S> emitEvent(Object event) {
+    public SecondaryEffects<S> updateState(S newState) {
+      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+    }
+
+    public SecondaryEffects<S> deleteState() {
       throw new UnsupportedOperationException("Not implemented yet"); // FIXME
     }
 
@@ -49,8 +54,9 @@ public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
      *
      * @param message The payload of the reply.
      * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public MessageReply<T> reply(T message) {
+    public <T> MessageReply<T> reply(T message) {
       return reply(message, Metadata.EMPTY);
     }
 
@@ -60,8 +66,9 @@ public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
      * @param message The payload of the reply.
      * @param metadata The metadata for the message.
      * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public MessageReply<T> reply(T message, Metadata metadata) {
+    public <T> MessageReply<T> reply(T message, Metadata metadata) {
       return new MessageReplyImpl<>(message, metadata);
     }
 
@@ -70,8 +77,9 @@ public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
      *
      * @param serviceCall The service call representing the forward.
      * @return A forward reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public ForwardReply<T> forward(ServiceCall serviceCall) {
+    public <T> ForwardReply<T> forward(ServiceCall serviceCall) {
       return new ForwardReplyImpl<>(serviceCall);
     }
 
@@ -80,8 +88,9 @@ public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
      *
      * @param description The description of the failure.
      * @return A failure reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public FailureReply<T> failure(String description) {
+    public <T> FailureReply<T> failure(String description) {
       return new FailureReplyImpl<>(description);
     }
 
@@ -91,40 +100,43 @@ public abstract class EventSourcedEntityEffect<T> implements Effect<T> {
      * <p>This may be useful for emitting effects without sending a message.
      *
      * @return The reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public Reply<T> noReply() {
+    public <T> Reply<T> noReply() {
       return NoReply.apply();
     }
   }
 
-  public static class Builder2<T, S> {
-    private Builder2() {}
+  public static class SecondaryEffects<S> {
+    private SecondaryEffects() {}
 
     /**
-     * Reply after for example <code>emitEvent</code>.
+     * Reply after for example <code>updateState</code>.
      *
-     * @param replyMessage Function to create the reply message from the new state.
+     * @param message The payload of the reply.
      * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public MessageReply<T> thenReply(Function<S, T> replyMessage) {
-      return thenReply(replyMessage, Metadata.EMPTY);
+    public <T> MessageReply<T> thenReply(T message) {
+      return thenReply(message, Metadata.EMPTY);
     }
 
     /**
-     * Reply after for example <code>emitEvent</code>.
+     * Reply after for example <code>updateState</code>.
      *
-     * @param replyMessage Function to create the reply message from the new state.
+     * @param message The payload of the reply.
      * @param metadata The metadata for the message.
      * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    public MessageReply<T> thenReply(Function<S, T> replyMessage, Metadata metadata) {
+    public <T> MessageReply<T> thenReply(T message, Metadata metadata) {
       throw new UnsupportedOperationException("Not implemented yet"); // FIXME
     }
 
     // FIXME thenForward
   }
 
-  public static <T, S> Builder<T, S> newBuilder(Class<T> replyClass, Class<S> stateClass) {
-    return new Builder<>();
+  protected Effects<S> effects() {
+    return new Effects<>();
   }
 }

@@ -27,16 +27,15 @@ public class CounterImpl extends CounterInterface2 {
     public Effect<Empty> increase(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.IncreaseValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx) {
+            CommandContext<CounterDomain.CounterState> context) {
         if (command.getValue() < 0) { // <1>
-            return effectBuilder.failure("Increase requires a positive value. It was [" + command.getValue() + "].");
+            return effects().failure("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState state = currentState // <2>
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build()); // <3>
         CounterDomain.CounterState newState =  // <4>
                 state.toBuilder().setValue(state.getValue() + command.getValue()).build();
-        return effectBuilder
+        return effects()
                 .updateState(newState) // <5>
                 .thenReply(Empty.getDefaultInstance()); // FIXME add convenience shortcut for reply Empty?
     }
@@ -46,16 +45,15 @@ public class CounterImpl extends CounterInterface2 {
     public Effect<Empty> decrease(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.DecreaseValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx) {
+            CommandContext<CounterDomain.CounterState> context) {
         if (command.getValue() < 0) {
-            return effectBuilder.failure("Decrease requires a positive value. It was [" + command.getValue() + "].");
+            return effects().failure("Decrease requires a positive value. It was [" + command.getValue() + "].");
         }
         CounterDomain.CounterState state = currentState
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
         CounterDomain.CounterState newState =
                 state.toBuilder().setValue(state.getValue() - command.getValue()).build();
-        return effectBuilder
+        return effects()
                 .updateState(newState)
                 .thenReply(Empty.getDefaultInstance());
     }
@@ -64,13 +62,12 @@ public class CounterImpl extends CounterInterface2 {
     public Effect<Empty> reset(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.ResetValue command,
-            ValueEntityEffect.Builder<Empty, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx) {
+            CommandContext<CounterDomain.CounterState> context) {
         CounterDomain.CounterState state = currentState
                 .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
         CounterDomain.CounterState newState =
                 state.toBuilder().setValue(0).build();
-        return effectBuilder
+        return effects()
                 .updateState(newState)
                 .thenReply(Empty.getDefaultInstance());
     }
@@ -80,12 +77,11 @@ public class CounterImpl extends CounterInterface2 {
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(
             Optional<CounterDomain.CounterState> currentState,
             CounterApi.GetCounter command,
-            ValueEntityEffect.Builder<CounterApi.CurrentCounter, CounterDomain.CounterState> effectBuilder,
-            CommandContext<CounterDomain.CounterState> ctx) {
+            CommandContext<CounterDomain.CounterState> context) {
         CounterApi.CurrentCounter current = currentState // <1>
                 .map((state) -> CounterApi.CurrentCounter.newBuilder().setValue(state.getValue()).build()) // <2>
                 .orElseGet(() -> CounterApi.CurrentCounter.newBuilder().setValue(0).build()); // <3>
-        return effectBuilder.message(current);
+        return effects().reply(current);
     }
     // end::getCurrentCounter[]
 }
