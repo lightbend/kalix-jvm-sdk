@@ -36,8 +36,6 @@ object CommonSettings extends AutoPlugin {
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
       },
-      // to get latest versions
-      resolvers += "akka-http-snapshot-repository" at "https://oss.sonatype.org/content/repositories/snapshots",
     )
 
   override def projectSettings = Seq(
