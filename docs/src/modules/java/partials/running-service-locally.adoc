@@ -4,14 +4,7 @@ include::ROOT:partial$include.adoc[]
 Running a service locally is helpful to test and debug. The following sections provide commands for starting and stopping a single service locally.
 
 In order to run your service locally, you must run the Akka Serverless proxy, which we provide as a Docker image. The examples include `docker compose` files with the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to when you make use of
-ifdef::JavaScript[]
-xref:javascript:topic-eventing.adoc[]
-endif::[]
-ifdef::Java[]
-xref:java:topic-eventing.adoc[] in your service
-endif::[]
-.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to when you make use of xref:java:topic-eventing.adoc[] in your service.
 
 == Pre-requisites
 
@@ -49,8 +42,7 @@ docker-compose -f docker-compose.yml -f docker-compose.linux.yml up
 +
 [source, command line]
 ----
-ifdef::JavaScript[npm run]
-ifdef::Java[mvn compile exec:java]
+mvn compile exec:java
 ----
 
 == Exercise the service
@@ -94,14 +86,7 @@ The `curl` command takes
 <3> the message in JSON format,
 <4> the URL with the RPC procedure name which deducts from the protobuf definition of the component we're calling.
 
-All Akka Serverless APIs are exposed as regular HTTP endpoints which you can call with `curl`. Protobuf annotations allow controlling the mapping to HTTP as discussed in
-ifdef::JavaScript[]
-xref:javascript:proto.adoc#_transcoding_http[Transcoding HTTP]
-endif::[]
-ifdef::Java[]
-xref:java:proto.adoc#_transcoding_http[Transcoding HTTP]
-endif::[]
-.
+All Akka Serverless APIs are exposed as regular HTTP endpoints which you can call with `curl`. Protobuf annotations allow controlling the mapping to HTTP as discussed in xref:java:proto.adoc#_transcoding_http[Transcoding HTTP].
 
 This `grpcurl` command line calls the same "Counter Service", from the kickstart example, you will need to adapt it depending on the API of your service.
 
