@@ -76,12 +76,15 @@ commands:
   build-maven-java:
     description: Build maven-java
     steps:
+      - run: 
+          name: publish m2
+          command: sbt codegenJava/publishM2
       - run:
           name: "Build maven-java"
           command: |
             cd maven-java
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
-            mvn versions:set -DnewVersion=$SDK_VERSION
+            mvn versions:set -DnewVersion=$SDK_VERSION -Dakkaserverless-codegen.version=$SDK_VERSION
             mvn verify install
 jobs:
   checks:
