@@ -66,4 +66,4 @@ object NoReply {
   def apply[T]: Reply[T] = instance.asInstanceOf[NoReply[T]]
 }
 
-final case class EffectImpl(serviceCall: ServiceCall, synchronous: Boolean) extends SideEffect
+final case class SideEffectImpl(serviceCall: ServiceCall, synchronous: Boolean) extends SideEffect
