@@ -45,6 +45,7 @@
                         <delimiter>@*@</delimiter>
                     </delimiters>
                     <useDefaultDelimiters>false</useDefaultDelimiters>
+                    <addDefaultExcludes>false</addDefaultExcludes>
                 </configuration>
             </plugin>
         </plugins>
