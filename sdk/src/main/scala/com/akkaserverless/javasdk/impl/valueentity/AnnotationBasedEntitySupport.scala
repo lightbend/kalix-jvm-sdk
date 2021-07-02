@@ -170,11 +170,6 @@ private class AdaptedCommandContext(val delegate: CommandContext[JavaPbAny], any
     result.map(anySupport.decode(_).asInstanceOf[AnyRef])
   }
 
-  override def updateState(state: AnyRef): Unit = {
-    val encoded = anySupport.encodeJava(state)
-    delegate.updateState(encoded)
-  }
-
   override def deleteState(): Unit = delegate.deleteState()
 
   override def commandName(): String = delegate.commandName()

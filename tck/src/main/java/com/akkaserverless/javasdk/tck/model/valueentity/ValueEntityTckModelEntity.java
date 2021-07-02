@@ -16,21 +16,22 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.*;
+import com.akkaserverless.javasdk.reply.MessageReply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.ValueEntity.*;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.tck.model.ValueEntity.Persisted;
+import com.akkaserverless.tck.model.ValueEntity.Request;
+import com.akkaserverless.tck.model.ValueEntity.Response;
+import com.akkaserverless.tck.model.ValueEntity.RequestAction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @ValueEntity(entityType = "value-entity-tck-model")
-public class ValueEntityTckModelEntity {
+public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
 
   private final ServiceCallRef<Request> serviceTwoCall;
 
@@ -47,35 +48,37 @@ public class ValueEntityTckModelEntity {
   public Reply<Response> process(Request request, CommandContext<Persisted> context) {
     Reply<Response> reply = null;
     List<SideEffect> e = new ArrayList<>();
+    String newState = state;
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
-          state = action.getUpdate().getValue();
+          newState = action.getUpdate().getValue();
           context.updateState(Persisted.newBuilder().setValue(state).build());
           break;
         case DELETE:
-          context.deleteState();
-          state = "";
+          newState = "";
           break;
         case FORWARD:
-          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
+          reply = effects().forward(serviceTwoRequest(action.getForward().getId()));
           break;
         case EFFECT:
-          Effect effect = action.getEffect();
+          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
           e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          reply = Reply.failure(action.getFail().getMessage());
-          break;
+          return effects().error(action.getFail().getMessage());
       }
     }
-    if (reply == null) {
-      reply = Reply.message(Response.newBuilder().setMessage(state).build());
-    }
-    return reply.addSideEffects(e);
+
+    effects().updateState(null).
   }
 
   private ServiceCall serviceTwoRequest(String id) {
     return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
+  }
+
+  @Override
+  protected Persisted emptyState() {
+    return Persisted.getDefaultInstance();
   }
 }

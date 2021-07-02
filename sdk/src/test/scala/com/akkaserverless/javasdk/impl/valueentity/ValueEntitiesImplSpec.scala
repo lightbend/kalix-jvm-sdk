@@ -17,18 +17,18 @@
 package com.akkaserverless.javasdk.impl.valueentity
 
 import com.akkaserverless.javasdk.EntityId
-import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity}
+import com.akkaserverless.javasdk.reply.MessageReply
+import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity, ValueEntityBase}
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.valueentity.ValueEntityMessages
 import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import java.util.Optional
 
+import java.util.Optional
 import scala.collection.mutable
 import scala.reflect.ClassTag
-
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut
 
@@ -252,7 +252,7 @@ object ValueEntitiesImplSpec {
     val TestCartClass: Class[_] = classOf[TestCart]
 
     @ValueEntity(entityType = "valuebased-entity-shopping-cart")
-    class TestCart(@EntityId val entityId: String) {
+    class TestCart(@EntityId val entityId: String) extends ValueEntityBase[ShoppingCartDomain.Cart] {
       import scala.jdk.CollectionConverters._
       import scala.jdk.OptionConverters._
 
@@ -266,7 +266,7 @@ object ValueEntitiesImplSpec {
           .getOrElse(Protocol.EmptyCart)
 
       @CommandHandler
-      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
+      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): MessageReply[Empty] = {
         // update and then fail on negative quantities, for testing atomicity
         val cart = updateCart(item, asMap(ctx.getState))
         val items =
@@ -280,9 +280,8 @@ object ValueEntitiesImplSpec {
                   .setQuantity(i.quantity)
                   .build
             )
-        ctx.updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items.toList.asJava).build())
         if (item.getQuantity <= 0) ctx.fail(s"Cannot add negative quantity of item [${item.getProductId}]")
-        Empty.getDefaultInstance
+        effects().updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items.toList.asJava).build()).thenReply(Empty.getDefaultInstance)
       }
 
       @CommandHandler
@@ -318,6 +317,8 @@ object ValueEntitiesImplSpec {
 
         mutable.Map(map.toSeq: _*)
       }
+
+      override protected def emptyState(): ShoppingCartDomain.Cart = ShoppingCartDomain.Cart.getDefaultInstance
     }
   }
 }

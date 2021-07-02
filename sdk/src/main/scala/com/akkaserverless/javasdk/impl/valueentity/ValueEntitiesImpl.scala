@@ -245,16 +245,6 @@ final class ValueEntitiesImpl(_system: ActorSystem,
       _state.map(ScalaPbAny.toJavaProto(_)).asJava
     }
 
-    override def updateState(state: JavaPbAny): Unit = {
-      checkActive()
-      if (state == null)
-        throw EntityException("Value entity cannot update a 'null' state")
-
-      val encoded = anySupport.encodeScala(state)
-      _state = Some(encoded)
-      action = Some(ValueEntityAction(Update(ValueEntityUpdate(_state))))
-    }
-
     override def deleteState(): Unit = {
       checkActive()
 

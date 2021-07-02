@@ -25,11 +25,11 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+
 import java.util.Optional
-
 import scala.compat.java8.OptionConverters._
-
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
+import com.akkaserverless.javasdk.reply.MessageReply
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {
@@ -49,7 +49,6 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
     var currentState: Option[JavaPbAny] = state
     override def commandId(): Long = 20
     override def getState(): Optional[JavaPbAny] = currentState.asJava
-    override def updateState(newState: JavaPbAny): Unit = currentState = Some(newState)
     override def deleteState(): Unit = currentState = None
     override def entityId(): String = "foo"
     override def metadata(): Metadata = ???
@@ -189,13 +188,14 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
       "update state" in {
         val handler = create(
-          new {
+          new ValueEntityBase[JavaPbAny] {
             @CommandHandler
-            def addItem(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
-              ctx.updateState(state(msg + " state"))
+            def addItem(msg: String, ctx: CommandContext[JavaPbAny]): MessageReply[Wrapped] = {
               ctx.commandName() should ===("AddItem")
-              Wrapped(msg)
+              effects().updateState(state(msg + " state")).thenReply(Wrapped(msg))
             }
+
+            override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
           },
           method()
         )
