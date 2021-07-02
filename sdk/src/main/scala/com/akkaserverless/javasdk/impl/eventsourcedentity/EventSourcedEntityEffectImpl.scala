@@ -18,7 +18,9 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 
 import java.util
 import java.util.function.{Function => JFunction}
+
 import scala.jdk.CollectionConverters._
+
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
@@ -32,11 +34,9 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effe
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect.Builder
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect.OnSuccessBuilder
 
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
-
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
-  final case class EmitEvents(event: Iterable[Any]) extends PrimaryEffectImpl
+  final case class EmitEvent(event: Any) extends PrimaryEffectImpl
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
@@ -64,17 +64,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   }
 
   override def emitEvent(event: Any): OnSuccessBuilder[S] = {
-    _primaryEffect = EmitEvents(Vector(event))
-    this
-  }
-
-  override def emitEvents(event1: Any, additionalEvents: Any*): OnSuccessBuilder[S] = {
-    _primaryEffect = EmitEvents(event1 +: additionalEvents.toVector)
-    this
-  }
-
-  override def emitEvents(events: util.Collection[_]): OnSuccessBuilder[S] = {
-    _primaryEffect = EmitEvents(events.toVector)
+    _primaryEffect = EmitEvent(event)
     this
   }
 

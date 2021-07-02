@@ -34,19 +34,19 @@ import Effect.Builder
 import Effect.OnSuccessBuilder
 
 object ValueEntityEffectImpl {
-  sealed trait PrimaryEffectImpl[+S]
-  final case class UpdateState[S](newState: S) extends PrimaryEffectImpl[S]
-  case object DeleteState extends PrimaryEffectImpl[Nothing]
-  case object NoPrimaryEffect extends PrimaryEffectImpl[Nothing]
+  sealed trait PrimaryEffectImpl
+  final case class UpdateState[S](newState: S) extends PrimaryEffectImpl
+  case object DeleteState extends PrimaryEffectImpl
+  case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
-class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[S] {
+class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[Any] {
   import ValueEntityEffectImpl._
 
-  private var _primaryEffect: PrimaryEffectImpl[S] = NoPrimaryEffect
+  private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
   private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
 
-  def primaryEffect: PrimaryEffectImpl[S] = _primaryEffect
+  def primaryEffect: PrimaryEffectImpl = _primaryEffect
 
   def secondaryEffect: SecondaryEffectImpl = _secondaryEffect
 
@@ -101,12 +101,12 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[Effect[T]]
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[S] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[Any] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): Effect[S] = {
+  override def addSideEffects(sideEffects: SideEffect*): Effect[Any] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }

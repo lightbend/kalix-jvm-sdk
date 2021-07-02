@@ -1,6 +1,5 @@
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;

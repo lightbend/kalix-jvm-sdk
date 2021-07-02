@@ -16,7 +16,6 @@
 
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.Effect;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;

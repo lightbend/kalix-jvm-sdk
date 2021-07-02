@@ -163,6 +163,31 @@ final class ValueEntitiesImpl(_system: ActorSystem,
           }
 
           val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
+
+          // FIXME use the new effects instead of reply, something like:
+//          val effect: ValueEntityEffect[JavaPbAny] = try {
+//            handler.handleCommand(cmd, context)
+//          } catch {
+//            case FailInvoked => new ValueEntityEffectImpl[JavaPbAny].noReply()
+//            case e: EntityException => throw e
+//            case NonFatal(error) => {
+//              throw EntityException(
+//                command,
+//                s"Value entity unexpected failure: ${error}",
+//                Some(error)
+//              )
+//            }
+//          } finally {
+//            context.deactivate() // Very important!
+//          }
+//
+//          val effectImpl = effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+//
+//          // FIXME handle effectImpl.primaryEffect
+//
+//          val clientAction =
+//            context.replyToClientAction(effectImpl.secondaryEffect, allowNoReply = false, restartOnFailure = false)
+
           if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
             val nextState = context.currentState()
             (nextState,
