@@ -108,11 +108,8 @@ lazy val codegenJava =
     .dependsOn(codegenCore)
     .enablePlugins(PublishSonatype)
     .settings(Defaults.itSettings)
-    .settings(
-      name := "akkaserverless-codegen-java",
-      testFrameworks += new TestFramework("munit.Framework"))
+    .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
-    
 
 lazy val samples = project
   .in(file("samples"))

@@ -57,47 +57,47 @@ object Dependencies {
   private val deps = libraryDependencies
 
   val sdk = deps ++= Seq(
-    akkaDependency("akka-stream"),
-    akkaDependency("akka-slf4j"),
-    akkaDependency("akka-discovery"),
-    akkaHttpDependency("akka-http"),
-    akkaHttpDependency("akka-http-core"),
-    akkaHttpDependency("akka-http-spray-json"),
-    akkaHttpDependency("akka-http2-support"),
-    akkaHttpDependency("akka-parsing"),
-    protobufJavaUtil,
-    akkaslsProxyProtocol % "protobuf-src",
-    akkaslsSdkProtocol % "compile;protobuf-src",
-    akkaDependency("akka-testkit") % Test,
-    akkaDependency("akka-stream-testkit") % Test,
-    akkaHttpDependency("akka-http-testkit") % Test,
-    scalaTest  % Test,
-    logback % "test;provided",
-    logbackContrib % Provided,
-    jacksonDatabind
-  )  
+        akkaDependency("akka-stream"),
+        akkaDependency("akka-slf4j"),
+        akkaDependency("akka-discovery"),
+        akkaHttpDependency("akka-http"),
+        akkaHttpDependency("akka-http-core"),
+        akkaHttpDependency("akka-http-spray-json"),
+        akkaHttpDependency("akka-http2-support"),
+        akkaHttpDependency("akka-parsing"),
+        protobufJavaUtil,
+        akkaslsProxyProtocol % "protobuf-src",
+        akkaslsSdkProtocol % "compile;protobuf-src",
+        akkaDependency("akka-testkit") % Test,
+        akkaDependency("akka-stream-testkit") % Test,
+        akkaHttpDependency("akka-http-testkit") % Test,
+        scalaTest % Test,
+        logback % "test;provided",
+        logbackContrib % Provided,
+        jacksonDatabind
+      )
 
   val tck = deps ++= Seq(akkaslsTckProtocol % "protobuf-src")
 
   val testkit = deps ++= Seq(
-    testContainers,
-    junit4 % Provided,
-    junit5 % Provided
-  )
+        testContainers,
+        junit4 % Provided,
+        junit5 % Provided
+      )
 
   val codegenCore = deps ++= Seq(
-    akkaserverless,
-    protobufJava,
-    munit % Test,
-    munitScalaCheck % Test
-  )
+        akkaserverless,
+        protobufJava,
+        munit % Test,
+        munitScalaCheck % Test
+      )
 
   val codegenJava = deps ++= Seq(
-    kiama,
-    commonsIo,
-    munit % "test",
-    munitScalaCheck % "test"
-  )
+        kiama,
+        commonsIo,
+        munit % "test",
+        munitScalaCheck % "test"
+      )
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here
