@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.reply.MessageReply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -27,7 +26,7 @@ import com.google.protobuf.Empty;
 @ValueEntity(entityType = "valuechangeseventing-two")
 public class ValueEntityTwo extends ValueEntityBase<Object> {
   @CommandHandler
-  public MessageReply<Empty> updateJsonValue(
+  public Effect<Empty> updateJsonValue(
       LocalPersistenceEventing.JsonValue value, CommandContext<Object> ctx) {
     return effects()
         .updateState(new JsonMessage(value.getMessage()))

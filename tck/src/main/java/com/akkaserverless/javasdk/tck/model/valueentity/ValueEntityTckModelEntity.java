@@ -45,32 +45,32 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
   }
 
   @CommandHandler
-  public Reply<Response> process(Request request, CommandContext<Persisted> context) {
-    Reply<Response> reply = null;
-    List<SideEffect> e = new ArrayList<>();
-    String newState = state;
-    for (RequestAction action : request.getActionsList()) {
-      switch (action.getActionCase()) {
-        case UPDATE:
-          newState = action.getUpdate().getValue();
-          context.updateState(Persisted.newBuilder().setValue(state).build());
-          break;
-        case DELETE:
-          newState = "";
-          break;
-        case FORWARD:
-          reply = effects().forward(serviceTwoRequest(action.getForward().getId()));
-          break;
-        case EFFECT:
-          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
-          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
-          break;
-        case FAIL:
-          return effects().error(action.getFail().getMessage());
-      }
-    }
-
-    effects().updateState(null).
+  public Effect<Response> process(Request request, CommandContext<Persisted> context) {
+    // FIXME the effect API doesn't support all combinations, and that might be fine?
+    //    Effect<Response> reply = null;
+    //    List<SideEffect> e = new ArrayList<>();
+    //    String newState = state;
+    //    for (RequestAction action : request.getActionsList()) {
+    //      switch (action.getActionCase()) {
+    //        case UPDATE:
+    //          newState = action.getUpdate().getValue();
+    //          break;
+    //        case DELETE:
+    //          newState = "";
+    //          break;
+    //        case FORWARD:
+    //          reply = effects().forward(serviceTwoRequest(action.getForward().getId()));
+    //          break;
+    //        case EFFECT:
+    //          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
+    //          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+    //          break;
+    //        case FAIL:
+    //          return effects().error(action.getFail().getMessage());
+    //      }
+    //    }
+    //    effects().updateState(Persisted.newBuilder().setValue(state).build());
+    return null;
   }
 
   private ServiceCall serviceTwoRequest(String id) {

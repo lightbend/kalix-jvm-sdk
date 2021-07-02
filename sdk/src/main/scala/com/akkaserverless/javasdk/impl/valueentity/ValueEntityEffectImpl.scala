@@ -34,19 +34,19 @@ import Effect.Builder
 import Effect.OnSuccessBuilder
 
 object ValueEntityEffectImpl {
-  sealed trait PrimaryEffectImpl
-  final case class UpdateState[S](newState: S) extends PrimaryEffectImpl
-  case object DeleteState extends PrimaryEffectImpl
-  case object NoPrimaryEffect extends PrimaryEffectImpl
+  sealed trait PrimaryEffectImpl[+S]
+  final case class UpdateState[S](newState: S) extends PrimaryEffectImpl[S]
+  case object DeleteState extends PrimaryEffectImpl[Nothing]
+  case object NoPrimaryEffect extends PrimaryEffectImpl[Nothing]
 }
 
 class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[Any] {
   import ValueEntityEffectImpl._
 
-  private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
+  private var _primaryEffect: PrimaryEffectImpl[S] = NoPrimaryEffect
   private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
 
-  def primaryEffect: PrimaryEffectImpl = _primaryEffect
+  def primaryEffect: PrimaryEffectImpl[S] = _primaryEffect
 
   def secondaryEffect: SecondaryEffectImpl = _secondaryEffect
 

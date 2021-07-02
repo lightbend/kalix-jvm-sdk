@@ -16,7 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, UpdateState}
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk.{Reply, EntityContext => _, _}
@@ -30,6 +31,7 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.reply.MessageReply
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {
@@ -46,10 +48,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   class MockCommandContext(override val commandName: String = "AddItem", state: Option[JavaPbAny] = None)
       extends CommandContext[JavaPbAny]
       with BaseContext {
-    var currentState: Option[JavaPbAny] = state
+    private val currentState: Option[JavaPbAny] = state
     override def commandId(): Long = 20
     override def getState(): Optional[JavaPbAny] = currentState.asJava
-    override def deleteState(): Unit = currentState = None
     override def entityId(): String = "foo"
     override def metadata(): Metadata = ???
     override def fail(errorMessage: String): RuntimeException = ???
@@ -91,10 +92,14 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped(reply: Reply[JavaPbAny]): Wrapped =
-    reply match {
-      case MessageReplyImpl(any, _, _) =>
-        decodeWrapped(any)
+  def decodeWrapped(effect: ValueEntityEffectImpl[JavaPbAny]): Wrapped =
+    effect.secondaryEffect match {
+      case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[JavaPbAny])
+    }
+
+  def decodeUpdatedState[S](effect: ValueEntityEffectImpl[S]): S =
+    effect.primaryEffect match {
+      case UpdateState(any) => any
     }
 
   def decodeWrapped(any: JavaPbAny): Wrapped = {
@@ -132,38 +137,52 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
     "support command handlers" when {
 
       "no arg command handler" in {
-        val handler = create(new {
+        val handler = create(new ValueEntityBase[String] {
           @CommandHandler
-          def addItem() = Wrapped("blah")
+          def addItem() = effects().reply(Wrapped("blah"))
+
+          override protected def emptyState(): String = ""
         }, method())
         decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "no arg command handler with Reply" in {
-        val handler = create(new {
-          @CommandHandler
-          def addItem(): Reply[Wrapped] = Reply.message(Wrapped("blah"))
-        }, method())
+        val handler = create(
+          new ValueEntityBase[String] {
+            @CommandHandler
+            def addItem(): Effect[Wrapped] = effects().reply(Wrapped("blah"))
+
+            override protected def emptyState(): String = ""
+          },
+          method()
+        )
         decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "single arg command handler" in {
-        val handler = create(new {
-          @CommandHandler
-          def addItem(msg: String) = Wrapped(msg)
-        }, method())
+        val handler = create(
+          new ValueEntityBase[JavaPbAny] {
+            @CommandHandler
+            def addItem(msg: String) = effects().reply(Wrapped(msg))
+
+            override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
+          },
+          method()
+        )
         decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
         val handler = create(
-          new {
+          new ValueEntityBase[JavaPbAny] {
             @CommandHandler
-            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def addItem(msg: String, @EntityId eid: String, ctx: CommandContext[JavaPbAny]): Effect[Wrapped] = {
               eid should ===("foo")
               ctx.commandName() should ===("AddItem")
-              Wrapped(msg)
+              effects().reply(Wrapped(msg))
             }
+
+            override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
           },
           method()
         )
@@ -172,13 +191,15 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
       "read state" in {
         val handler = create(
-          new {
+          new ValueEntityBase[JavaPbAny] {
             @CommandHandler
-            def getCart(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
+            def getCart(msg: String, ctx: CommandContext[JavaPbAny]): Effect[Wrapped] = {
               ctx.getState().asScala.get.asInstanceOf[String] should ===("state")
               ctx.commandName() should ===("GetCart")
-              Wrapped(msg)
+              effects().reply(Wrapped(msg))
             }
+
+            override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
           },
           method("GetCart")
         )
@@ -190,7 +211,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new ValueEntityBase[JavaPbAny] {
             @CommandHandler
-            def addItem(msg: String, ctx: CommandContext[JavaPbAny]): MessageReply[Wrapped] = {
+            def addItem(msg: String, ctx: CommandContext[JavaPbAny]): Effect[Wrapped] = {
               ctx.commandName() should ===("AddItem")
               effects().updateState(state(msg + " state")).thenReply(Wrapped(msg))
             }
@@ -200,25 +221,28 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method()
         )
         val ctx = new MockCommandContext
-        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
-        ctx.currentState.get should ===(state("blah state"))
+        val effect = handler.handleCommand(command("blah"), ctx)
+        decodeWrapped(effect) should ===(Wrapped("blah"))
+        decodeUpdatedState(effect) should ===(state("blah state"))
       }
 
       "delete state" in {
         val handler = create(
-          new {
+          new ValueEntityBase[JavaPbAny] {
             @CommandHandler
-            def removeCart(msg: String, ctx: CommandContext[JavaPbAny]): Wrapped = {
-              ctx.deleteState()
+            def removeCart(msg: String, ctx: CommandContext[JavaPbAny]): Effect[Wrapped] = {
               ctx.commandName() should ===("RemoveCart")
-              Wrapped(msg)
+              effects().deleteState().thenReply(Wrapped(msg))
             }
+
+            override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
           },
           method("RemoveCart")
         )
         val ctx = new MockCommandContext("RemoveCart")
-        decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
-        ctx.currentState should ===(None)
+        val effect = handler.handleCommand(command("blah"), ctx)
+        decodeWrapped(effect) should ===(Wrapped("blah"))
+        effect.primaryEffect should ===(DeleteState)
       }
 
       "fail if there's a bad context type" in {

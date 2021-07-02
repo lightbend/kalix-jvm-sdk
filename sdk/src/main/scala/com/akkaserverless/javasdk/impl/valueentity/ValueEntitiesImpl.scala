@@ -35,12 +35,13 @@ import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Fa
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import java.util.Optional
 
+import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
-
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl}
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, UpdateState}
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
 
@@ -141,10 +142,10 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             service.anySupport,
             log
           )
-          val reply: Reply[JavaPbAny] = try {
+          val effect: ValueEntityEffectImpl[JavaPbAny] = try {
             handler.handleCommand(cmd, context)
           } catch {
-            case FailInvoked => Reply.noReply() //Option.empty[JavaPbAny].asJava
+            case FailInvoked => new ValueEntityEffectImpl() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
             case NonFatal(error) => {
               throw EntityException(
@@ -157,42 +158,27 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
+          val clientAction =
+            context.replyToClientAction(effect.secondaryEffect, allowNoReply = false, restartOnFailure = false)
 
-          // FIXME use the new effects instead of reply, something like:
-//          val effect: ValueEntityEffect[JavaPbAny] = try {
-//            handler.handleCommand(cmd, context)
-//          } catch {
-//            case FailInvoked => new ValueEntityEffectImpl[JavaPbAny].noReply()
-//            case e: EntityException => throw e
-//            case NonFatal(error) => {
-//              throw EntityException(
-//                command,
-//                s"Value entity unexpected failure: ${error}",
-//                Some(error)
-//              )
-//            }
-//          } finally {
-//            context.deactivate() // Very important!
-//          }
-//
-//          val effectImpl = effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
-//
-//          // FIXME handle effectImpl.primaryEffect
-//
-//          val clientAction =
-//            context.replyToClientAction(effectImpl.secondaryEffect, allowNoReply = false, restartOnFailure = false)
-
-          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
-            val nextState = context.currentState()
+          if (!context.hasError && !effect.secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]) {
+            val (nextState: Option[ScalaPbAny], action: Option[ValueEntityAction]) = effect.primaryEffect match {
+              case DeleteState =>
+                (None, Some(ValueEntityAction(Delete(ValueEntityDelete()))))
+              case UpdateState(newState) =>
+                val newStateScala = ScalaPbAny.fromJavaProto(newState)
+                (Some(newStateScala), Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScala))))))
+              case _ =>
+                (context.currentState(), None)
+            }
             (nextState,
              Some(
                OutReply(
                  ValueEntityReply(
                    command.id,
                    clientAction,
-                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
-                   context.action
+                   context.sideEffects ++ EffectSupport.sideEffectsFrom(effect.secondaryEffect),
+                   action
                  )
                )
              ))
@@ -237,19 +223,11 @@ final class ValueEntitiesImpl(_system: ActorSystem,
       with AbstractSideEffectContext
       with ActivatableContext {
 
-    final var action: Option[ValueEntityAction] = None
-    private var _state: Option[ScalaPbAny] = state
+    private val _state: Option[ScalaPbAny] = state
 
     override def getState(): Optional[JavaPbAny] = {
       checkActive()
       _state.map(ScalaPbAny.toJavaProto(_)).asJava
-    }
-
-    override def deleteState(): Unit = {
-      checkActive()
-
-      _state = None
-      action = Some(ValueEntityAction(Delete(ValueEntityDelete())))
     }
 
     override protected def logError(message: String): Unit =

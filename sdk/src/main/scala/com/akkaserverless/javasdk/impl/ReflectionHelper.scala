@@ -19,8 +19,18 @@ package com.akkaserverless.javasdk.impl
 import akka.NotUsed
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.action.MessageEnvelope
+import com.akkaserverless.javasdk.impl.effect.{
+  ErrorReplyImpl,
+  ForwardReplyImpl,
+  MessageReplyImpl,
+  NoReply,
+  NoSecondaryEffectImpl
+}
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.reply.MessageReply
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase
 import com.google.protobuf.{Any => JavaPbAny}
+
 import java.lang.annotation.Annotation
 import java.lang.reflect.{
   AccessibleObject,
@@ -254,7 +264,7 @@ private[impl] object ReflectionHelper {
     mapper
   }
 
-  final class CommandHandlerInvoker[CommandContext <: Context: ClassTag](
+  class CommandHandlerInvoker[CommandContext <: Context: ClassTag](
       val method: Method,
       val serviceMethod: ResolvedServiceMethod[_, _],
       anySupport: AnySupport,
@@ -263,7 +273,7 @@ private[impl] object ReflectionHelper {
   ) {
 
     private val name = serviceMethod.descriptor.getFullName
-    private val parameters = ReflectionHelper.getParameterHandlers[AnyRef, CommandContext](method)(extraParameters)
+    val parameters = ReflectionHelper.getParameterHandlers[AnyRef, CommandContext](method)(extraParameters)
 
     verifyAtMostOneMainArgument("CommandHandler", method, parameters)
 
@@ -274,10 +284,10 @@ private[impl] object ReflectionHelper {
       }
       .getOrElse(_ => NotUsed)
 
-    private def serialize(result: AnyRef) =
-      ReflectionHelper.serialize(serviceMethod.outputType.asInstanceOf[ResolvedType[AnyRef]], result)
+    def serialize(result: Any) =
+      ReflectionHelper.serialize(serviceMethod.outputType.asInstanceOf[ResolvedType[Any]], result)
 
-    private def verifyOutputType(t: Type): Unit =
+    def verifyOutputType(t: Type): Unit =
       if (!serviceMethod.outputType.typeClass.isAssignableFrom(getRawType(t))) {
         throw new RuntimeException(
           s"Incompatible return class $t for command $name, expected ${serviceMethod.outputType.typeClass}"
@@ -301,6 +311,18 @@ private[impl] object ReflectionHelper {
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 
       getOutputParameterMapper(method.getName, serviceMethod.outputType, method.getGenericReturnType, anySupport)
+    } else if (method.getReturnType == classOf[ValueEntityBase.Effect[_]]) {
+      // TODO temporary implementation going via the effect, but not actually applying the effects yet here
+      verifyOutputType(getFirstParameter(method.getGenericReturnType))
+
+      result =>
+        result.asInstanceOf[ValueEntityEffectImpl[_]].secondaryEffect match {
+          case ErrorReplyImpl(description, _) => Reply.failure(description)
+          case ForwardReplyImpl(serviceCall, _) => Reply.forward(serviceCall)
+          case MessageReplyImpl(message, metadata, _) => Reply.message(serialize(message), metadata)
+          case NoReply(_) => Reply.noReply()
+          case NoSecondaryEffectImpl => Reply.noReply()
+        }
     } else {
       verifyOutputType(method.getReturnType)
       result => Reply.message(serialize(result))
