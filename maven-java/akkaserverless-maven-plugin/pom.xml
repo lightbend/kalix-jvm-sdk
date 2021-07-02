@@ -17,7 +17,7 @@
   <name>Akka Serverless Maven Plugin</name>
 
   <properties>
-    <!-- this dummy 0.0.0 version is replaced during the by the current build version -->
+    <!-- this dummy 0.0.0 version is replaced by the current build version -->
     <akkaserverless-codegen.version>0.0.0</akkaserverless-codegen.version>
   </properties>
 
