@@ -46,6 +46,7 @@ lazy val sdk = project
         akkaDependency("akka-slf4j"),
         akkaDependency("akka-discovery"),
         akkaHttpDependency("akka-http"),
+        akkaHttpDependency("akka-parsing"),
         akkaHttpDependency("akka-http-core"),
         akkaHttpDependency("akka-http-spray-json"),
         akkaHttpDependency("akka-http2-support"),
