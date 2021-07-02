@@ -46,12 +46,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
             val implSource1 =
               generatedSourceDirectory.resolve(
-                "com/example/service/persistence/MyEntity1Interface.java"
+                "com/example/service/persistence/AbstractMyEntity1.java"
               )
             val implSourceFile1 = implSource1.toFile
             val implSource2 =
               generatedSourceDirectory.resolve(
-                "com/example/service/persistence/MyEntity2Interface.java"
+                "com/example/service/persistence/AbstractMyEntity2.java"
               )
             val implSourceFile2 = implSource2.toFile
             FileUtils.forceMkdir(implSourceFile1.getParentFile)
@@ -93,15 +93,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
               sources,
               List(
                 generatedSourceDirectory.resolve(
-                  "com/example/service/persistence/MyEntity1Interface.java"
+                  "com/example/service/persistence/AbstractMyEntity1.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
                 generatedSourceDirectory.resolve(
-                  "com/example/service/persistence/MyValueEntity2Interface.java"
+                  "com/example/service/persistence/AbstractMyValueEntity2.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
                 generatedSourceDirectory.resolve(
-                  "com/example/service/persistence/MyEntity3Interface.java"
+                  "com/example/service/persistence/AbstractMyEntity3.java"
                 ),
                 testSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3Test.java"
@@ -111,7 +111,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 ),
                 sourceDirectory.resolve("com/example/service/MyService4Impl.java"),
                 generatedSourceDirectory.resolve(
-                  "com/example/service/MyService4Interface.java"
+                  "com/example/service/AbstractMyService4.java"
                 ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/MainComponentRegistrations.java"

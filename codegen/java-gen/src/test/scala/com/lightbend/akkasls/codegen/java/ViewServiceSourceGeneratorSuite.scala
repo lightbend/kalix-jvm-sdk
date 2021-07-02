@@ -14,7 +14,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
 
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
-    val interfaceClassName = "MyServiceEntityInterface"
+    val interfaceClassName = "AbstractMyServiceEntity"
 
     val sourceDoc =
       ViewServiceSourceGenerator.source(
@@ -38,7 +38,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |/** A view. */
         |@View
-        |public class MyServiceEntityImpl extends MyServiceEntityInterface {
+        |public class MyServiceEntityImpl extends AbstractMyServiceEntity {
         |    @Override
         |    public ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state) {
         |        throw new RuntimeException("The update handler for `Created` is not implemented, yet");
@@ -73,7 +73,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import java.util.Optional;
         |
         |/** A view. */
-        |public abstract class MyServiceEntityInterface {
+        |public abstract class AbstractMyServiceEntity {
         |    @UpdateHandler
         |    public abstract ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state);
         |    

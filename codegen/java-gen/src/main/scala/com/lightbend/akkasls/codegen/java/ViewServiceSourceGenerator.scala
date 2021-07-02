@@ -41,7 +41,7 @@ object ViewServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = className + "Interface"
+    val interfaceClassName = "Abstract" + className
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -159,7 +159,7 @@ object ViewServiceSourceGenerator {
       ) <> line <>
       line <>
       "/** A view. */" <> line <>
-      `class`("public abstract", className + "Interface") {
+      `class`("public abstract", "Abstract" + className) {
         ssep(
           service.transformedUpdates.toSeq.map { update =>
             "@UpdateHandler" <>
