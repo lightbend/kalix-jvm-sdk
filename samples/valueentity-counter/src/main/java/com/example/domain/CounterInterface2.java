@@ -1,6 +1,5 @@
 package com.example.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
@@ -10,19 +9,19 @@ import com.google.protobuf.Empty;
 /** A value entity. */
 public abstract class CounterInterface2 extends ValueEntityBase<CounterDomain.CounterState> {
 
-    public abstract ValueEntityEffect<Empty> increase(
+    public abstract Effect<Empty> increase(
             CounterDomain.CounterState currentState,
             CounterApi.IncreaseValue command);
 
-    public abstract ValueEntityEffect<Empty> decrease(
+    public abstract Effect<Empty> decrease(
             CounterDomain.CounterState currentState,
             CounterApi.DecreaseValue command);
 
-    public abstract ValueEntityEffect<Empty> reset(
+    public abstract Effect<Empty> reset(
             CounterDomain.CounterState currentState,
             CounterApi.ResetValue command);
 
-    public abstract ValueEntityEffect<CounterApi.CurrentCounter> getCurrentCounter(
+    public abstract Effect<CounterApi.CurrentCounter> getCurrentCounter(
             CounterDomain.CounterState currentState,
             CounterApi.GetCounter command);
 

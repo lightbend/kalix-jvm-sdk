@@ -1,7 +1,6 @@
 package com.example.domain;
 
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -25,7 +24,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
 
     // tag::increase[]
     @Override
-    public ValueEntityEffect<Empty> increase(
+    public Effect<Empty> increase(
             CounterDomain.CounterState currentState,
             CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
@@ -40,7 +39,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
 // end::increase[]
 
     @Override
-    public ValueEntityEffect<Empty> decrease(
+    public Effect<Empty> decrease(
             CounterDomain.CounterState currentState,
             CounterApi.DecreaseValue command) {
         if (command.getValue() < 0) {
@@ -54,7 +53,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
     }
 
     @Override
-    public ValueEntityEffect<Empty> reset(
+    public Effect<Empty> reset(
             CounterDomain.CounterState currentState,
             CounterApi.ResetValue command) {
         CounterDomain.CounterState newState =
@@ -66,7 +65,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
 
     // tag::getCurrentCounter[]
     @Override
-    public ValueEntityEffect<CounterApi.CurrentCounter> getCurrentCounter(
+    public Effect<CounterApi.CurrentCounter> getCurrentCounter(
             CounterDomain.CounterState currentState,
             CounterApi.GetCounter command) {
         CounterApi.CurrentCounter current =

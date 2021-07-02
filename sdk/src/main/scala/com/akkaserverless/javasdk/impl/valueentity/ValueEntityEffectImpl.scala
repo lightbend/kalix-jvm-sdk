@@ -29,9 +29,9 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect.Builder
-import com.akkaserverless.javasdk.valueentity.ValueEntityEffect.OnSuccessBuilder
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
+import Effect.Builder
+import Effect.OnSuccessBuilder
 
 object ValueEntityEffectImpl {
   sealed trait PrimaryEffectImpl
@@ -40,7 +40,7 @@ object ValueEntityEffectImpl {
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
-class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with ValueEntityEffect[Any] {
+class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[Any] {
   import ValueEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
@@ -60,53 +60,53 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this
   }
 
-  override def reply[T](message: T): ValueEntityEffect[T] =
+  override def reply[T](message: T): Effect[T] =
     reply(message, Metadata.EMPTY)
 
-  override def reply[T](message: T, metadata: Metadata): ValueEntityEffect[T] = {
+  override def reply[T](message: T, metadata: Metadata): Effect[T] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): ValueEntityEffect[T] = {
+  override def forward[T](serviceCall: ServiceCall): Effect[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def error[T](description: String): ValueEntityEffect[T] = {
+  override def error[T](description: String): Effect[T] = {
     _secondaryEffect = ErrorReplyImpl(description, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def noReply[T](): ValueEntityEffect[T] = {
+  override def noReply[T](): Effect[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def thenReply[T](message: T): ValueEntityEffect[T] =
+  override def thenReply[T](message: T): Effect[T] =
     thenReply(message, Metadata.EMPTY)
 
-  override def thenReply[T](message: T, metadata: Metadata): ValueEntityEffect[T] = {
+  override def thenReply[T](message: T, metadata: Metadata): Effect[T] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): ValueEntityEffect[T] = {
+  override def thenForward[T](serviceCall: ServiceCall): Effect[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def thenNoReply[T](): ValueEntityEffect[T] = {
+  override def thenNoReply[T](): Effect[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffect[T]]
+    this.asInstanceOf[Effect[T]]
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): ValueEntityEffect[Any] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[Any] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): ValueEntityEffect[Any] = {
+  override def addSideEffects(sideEffects: SideEffect*): Effect[Any] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }
