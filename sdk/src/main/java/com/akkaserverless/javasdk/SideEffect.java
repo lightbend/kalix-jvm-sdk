@@ -16,7 +16,8 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
+// FIXME this should change to com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
+import com.akkaserverless.javasdk.impl.reply.SideEffectImpl;
 
 /** A side effect. */
 public interface SideEffect {
