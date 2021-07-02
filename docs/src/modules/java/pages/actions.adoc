@@ -1,0 +1,61 @@
+= Actions
+
+include::ROOT:partial$include.adoc[]
+include::partial$actions.adoc[]
+
+== Implementing Actions
+
+An Action may implement any service method defined in a Protobuf definition, these examples illustrate the definition of a `ShoppingCartAnalyticsService`:
+
+[source,protobuf,indent=0]
+----
+include::example$java-eventing-shopping-cart/src/main/proto/product/to_product_popularity.proto[tag=actions]
+----
+
+The class implementing an Action needs to be annotated with the `@Action` annotation.
+
+[source,java,indent=0]
+----
+include::example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=annotation]
+----
+
+Action methods implementing services require the `@Handler` annotation and may have `ActionContext` as their second parameter.
+
+[source,java,indent=2]
+----
+include::example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=methods]
+----
+
+To connect the Protobuf service definition with the implementation as an Action, register the implementing class with Akka Serverless:
+
+[source,java,indent=0]
+----
+include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=ToProductPopularityAction]
+----
+
+=== Multiple replies / reply streaming
+
+An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing that service must return a https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/org/reactivestreams/Publisher.html[`org.reactivestreams.Publisher`] implementation, or an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source] to fulfill that contract.
+
+The publisher (or source) may publish an arbitrary number of replies.
+
+=== Forwarding a call from an Action
+
+Action methods that want to forward calls to other service methods use `Reply<T>` as return type. With `Reply<T>` the method can choose to
+
+- reply with a value (`Reply.message`)
+- send no reply (`Reply.noReply`)
+- forward the call (`Reply.forward`)
+
+To forward to a different method, look up the target method via the `ActionContext` by specifying the full Protobuf service name, method name and passing the parameter type's class.
+
+[source,java,indent=2]
+----
+include::java:example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=forwardRemoved]
+----
+<1> Use `ActionReply<Empty>` as return type and accept an `ActionContext` as second parameter
+<2> Create the parameter the target method accepts
+<3> Use the fully-qualified gRPC service name of the target method
+<4> Specify the Protobuf rpc method name
+<5> Pass the target methods expected parameter type
+<6> Return a forward to the call with the required parameter

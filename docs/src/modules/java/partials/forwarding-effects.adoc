@@ -1,0 +1,15 @@
+
+include::ROOT:partial$include.adoc[]
+
+== Emitting effects on another component
+
+An entity may also emit one or more effects. An effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the effect is therefore ignored. Effects are only performed after the successful completion of any state actions requested by the command handler.
+
+There is no guarantee that an effect will be executed successfully. If a failure occurs after the command is fully handled, effects might not be executed. Effects are not retried in case of failures.
+
+Effects may be declared as synchronous or asynchronous. Asynchronous commands run in a "fire and forget" fashion. The code flow of the caller (the command handler of the entity which emitted the asynchronous command) continues while the command is being asynchronously processed. Meanwhile, synchronous commands run sequentially, that is, the commands are processed in order, one at a time. The final result of the command handler, either a reply or a forward, is not sent until all synchronous commands are completed.
+
+=== Use case: mobile notification
+
+You might want to emit effects to notify interested parties of a change in state. For example, after a withdrawal is made from a bank account, an account entity could send a notification to the account owner's mobile phone.
+

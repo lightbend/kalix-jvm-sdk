@@ -1,0 +1,364 @@
+= Developing with Java
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+
+The Akka Serverless Java SDK offers an idiomatic, annotation-based Java language SDK for writing components. This page describes prerequisites for Java development and basic requirements for a development project.
+
+Your development project needs to include the Akka Serverless Java SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
+
+To save the work of starting from scratch, the Java xref:java:kickstart.adoc[code generation tool] creates a project, complete with descriptors and implementations. Or, you can start from one of our https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[example applications].
+
+== Prerequisites
+
+The following are required to develop services in Java:
+
+Java:: Akka Serverless requires at least Java {minimum-java-version}, though we recommend using Java {recommended-java-version}, which has better support for running in containers.
+
+Build tool:: Akka Serverless does not require any particular build tool, you can select your own.
+
+protoc:: Since Akka Serverless is based on gRPC, you need a protoc compiler to compile gRPC protobuf descriptors. While this can be done by downloading, installing and running protoc manually, most popular build tools have a `protoc` plugin which will automatically compile protobuf descriptors during your build.
+
+Docker:: Akka Serverless requires https://docs.docker.com/get-docker/[Docker {tab-icon}, window="new"] {minimum_docker_version} for building your service images. Most popular build tools have plugins that assist in building Docker images.
+
+
+== Reference the Akka Serverless SDK
+
+The following examples show how to install the SDK to build your services with Gradle, Maven, or sbt. The code generation tools include an Akka Serverless xref:kickstart.adoc[Maven archetype] that generates the recommended project structure, including a `.pom` file with the necessary references.
+
+[.tabset]
+Maven::
+In your `.pom` file, add the following:
++
+[source,xml,subs="attributes+"]
+----
+<dependencies>
+    <dependency>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-java-sdk</artifactId>
+        <version>{akkaserverless-java-sdk-version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-java-sdk-testkit</artifactId>
+        <version>{akkaserverless-java-sdk-version}</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+Gradle::
+In your `build.gradle` file, add the following:
++
+[source,gradle,subs="attributes+"]
+----
+compile group: 'com.akkaserverless', name: 'akkaserverless-java-sdk', version: '{akkaserverless-java-sdk-version}'
+----
+sbt::
+In your dependencies file, add the following:
++
+[source,sbt,subs="attributes+"]
+----
+libraryDependencies ++= Seq(
+    "com.akkaserverless" % "akkaserverless-java-sdk" % "{akkaserverless-java-sdk-version}",
+    "com.akkaserverless" % "akkaserverless-java-sdk-testkit" % "{akkaserverless-java-sdk-version}" % Test
+  )
+----
+
+== Configure JSON formatted logging
+Akka Serverless supports JSON formatted logging to provide multi-line messages formatted in readable JSON syntax. Always use JSON formatted logging for your Akka Serverless projects to efficiently analyze and easily leverage journal data.
+
+[TIP]
+ https://developer.lightbend.com/docs/akka-serverless/tutorial/iotexample-learn.html[Build and deploy the IoT example] to see JSON formatted logging in action.
+
+[NOTE]
+JSON formatted logging is available for Java only. Support for JavaScript and other languages is planned for future releases.
+
+To enable JSON formatted logging:
+
+. Update the akkaserverless sdk to a recent version, in the project `pom.xml`.
++
+[source, xml, subs="attributes+"]
+
+----
+<akkaserverless-sdk.version>{akkaserverless-java-sdk-version}</akkaserverless-sdk.version>
+----
+
+. Add the following dependency:
++
+[source, xml]
+
+----
+<dependency>
+  <!-- for JSON formatted logging -->
+  <groupId>ch.qos.logback.contrib</groupId>
+  <artifactId>logback-json-classic</artifactId>
+  <version>0.1.5</version>
+</dependency>
+----
+
+. Create the `src/main/logback.xml` file as shown here:
++
+[source, xml]
+
+----
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <appender name="JSON-STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+        <layout class="com.akkaserverless.javasdk.logging.LogbackJsonLayout">
+            <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+            <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+            <appendLineSeparator>true</appendLineSeparator>
+            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                <prettyPrint>false</prettyPrint>
+            </jsonFormatter>
+        </layout>
+      </encoder>
+    </appender>
+
+    <appender name="ASYNC-JSON-STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="JSON-STDOUT"/>
+    </appender>
+    <appender name="STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%date{ISO8601}] [%-5level] [%logger] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="akka" level="INFO"/>
+    <logger name="akka.http" level="INFO"/>
+    <logger name="io.grpc" level="INFO"/>
+
+    <root level="DEBUG">
+        <!--appender-ref ref="STDOUT"/-->
+        <appender-ref ref="ASYNC-JSON-STDOUT"/>
+    </root>
+</configuration>
+----
+
+== Create a main class
+
+Your main class will be responsible for creating the gRPC server, registering the services and components for it to serve, and starting it. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
+
+[source,java,indent=0]
+----
+include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=RegisterEventSourcedEntity]
+----
+
+
+== What's next
+
+This section provides details on how to accomplish common tasks in Java:
+
+* xref:kickstart.adoc[]
+* xref:proto.adoc[]
+* xref:eventsourced.adoc[Implementing Event Sourced Entities]
+* xref:value-entity.adoc[Implementing Value Entities]
+* xref:actions.adoc[Actions (stateless functions)]
+* xref:forwarding.adoc[Forwarding and effects]
+* xref:views.adoc[Views]
+* xref:entity-eventing.adoc[]
+* xref:serialization.adoc[Serialization]
+* link:{attachmentsdir}/api/index.html[Java API docs{tab-icon}, window="new"]
+
+////
+
+ifdef::review[REVIEWERS: the following was removed from two pages on Replicated Entities to save in case we decide to support them in the future.]
+
+= Replicated Entities
+
+include::ROOT:partial$include.adoc[]
+
+This page documents how to implement  Replicated Entities in Java. For information on what Replicated Entities are, please read how to https://developer.lightbend.com/docs/akka-serverless/designing/state-model.html[choose a state model] and the general xref:developing:replicatedentities.adoc[Replicated Entity] information first.
+
+A Replicated Entity can be created by annotating it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html[`@ReplicatedEntity`{tab-icon}, window="new"] annotation.
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=Entity-class]
+----
+
+== Accessing and creating an Entity's Replicated Entity
+
+Each Replicated Entity manages one root replicated data type. That data type will either be supplied to the Entity when it is started, or, if no data type exists for the Entity when it is started, it can be created by the Entity using a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html[`ReplicatedDataFactory`{tab-icon}, window="new"] extending context.
+
+There are multiple ways that a Replicated Entity may access its data type. It can be injected directly into its constructor or a command handler--the value can be wrapped in an `Optional` to distinguish between Entities that have been created and Replicated Entities that have not yet been created. If not wrapped in `Optional`, the Replicated Entity will be created automatically, according to its type. The data type can also be read from any link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html[`ReplicatedEntityContext`{tab-icon}, window="new"] via the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html#state-java.lang.Class-[`state`{tab-icon}, window="new"] method.
+
+An Entity's data type can be created from the Entity's constructor using the `ReplicatedDataFactory` methods on link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityCreationContext.html[`ReplicatedEntityCreationContext`{tab-icon}, window="new"], or using the same methods in a command handler using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/CommandContext.html[`CommandContext`{tab-icon}, window="new"]. Note that the data type may only be created once, and only if it hasn't already been provided by Akka Serverless. Any attempt to create the data type when one already exists will throw an `IllegalStateException`.
+
+For most use cases, simply injecting the data type directly into the constructor, and storing in a local field, will be the most convenient and straightforward method of using a Replicated Entity. In our shopping cart example, we're going to use an link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegisterMap.html[`LWWRegisterMap`{tab-icon}, window="new"], this shows how it may be injected:
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=creation]
+----
+
+In addition to the Replicated Entity, the constructor may accept a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityCreationContext.html[`ReplicatedEntityCreationContext`{tab-icon}, window="new"].
+
+== Handling commands
+
+Command handlers can be declared by annotating a method with link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/CommandHandler.html[`@CommandHandler`{tab-icon}, window="new"]. They take a context class of type link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/CommandContext.html[`CommandContext`{tab-icon}, window="new"].
+
+By default, the name of the command that the method handles will be the name of the method with the first letter capitalized. So, a method called `getCart` will handle a gRPC service call command named `GetCart`. This can be overridden by setting the `name` parameter on the `@CommandHandler` annotation.
+
+The command handler also can take the gRPC service call input type as a parameter to receive the command message. This is optional, sometimes it's not needed. For example, our `GetCart` service call doesn't need any information from the message, since it's just returning the current state as is. Meanwhile, the `AddItem` service call does need information from the message, since it needs to know the product id, description and quantity to add to the cart.
+
+The return type of the command handler must be the output type for the gRPC service call, this will be sent as the reply.
+
+The following shows the implementation of the `GetCart` command handler. This command handler is a read-only command handler, it doesn't update the Replicated Entity, it just returns some state:
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=get-cart]
+----
+
+== Updating a Replicated Entity
+
+Due to Akka Serverless's xref:developing:replicatedentities.adoc#approach-to-replicatedentities-in-akkaserverless[take in turns approach], Replicated Entities may only be updated in command handlers and <<Responding to stream cancellation,stream cancellation callbacks>>.
+
+Here's a command handler for the `AddItem` command that adds the item to the shopping cart:
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=add-item]
+----
+
+== Deleting a Replicated Entity
+
+A Replicated Entity can be deleted by invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/CommandContext.html#delete--[`CommandContext.delete`{tab-icon}, window="new"]. Once deleted, the Entity will be shut down, and all subsequent commands for the Entity will be rejected.
+
+Caution should be taken when deleting Replicated Entities--Akka Serverless needs to maintain tombstones for each deleted Replicated Entity. Over time, if many Replicated Entities are created and deleted, this will result in not just running out of memory, but increased network usage as the tombstones still need to be gossipped through the cluster for replication.
+
+== Streamed command handlers
+
+Replicated Entities support streaming over gRPC. Streamed commands can be used to receive and publish updates to the state. If a gRPC service call has a streamed result type, the handler for that call can accept a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html[`StreamedCommandContext`{tab-icon}, window="new"], and use that to register callbacks.
+
+
+
+=== Responding to changes
+
+If the command handler wishes to publish changes to the stream it can register a callback with link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#onChange-java.util.function.Function-[`onChange`{tab-icon}, window="new"], which will be invoked every time the Replicated Entity changes.
+
+The callback is then able to return a message to be sent to the client (or empty, if it wishes to send no message in response to that particular change). The callback may not modify the Replicated Data type itself, but it may emit effects that may modify the Replicated Entity.
+
+If the shopping cart service had a `WatchCart` call, like this:
+
+[source,proto]
+----
+rpc WatchCart(GetShoppingCart) returns (stream Cart);
+----
+
+that could be implemented like this:
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=watch-cart]
+----
+
+=== Ending the stream
+
+The `onChange` callback can end the stream by invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/SubscriptionContext.html#endStream--[`endStream`{tab-icon}, window="new"] on the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/SubscriptionContext.html[`SubscriptionContext`{tab-icon}, window="new"] it is passed. If it does this, it will not receive an `onCancel` callback.
+
+=== Responding to stream cancellation
+
+A streamed command handler may also register an link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#onCancel-java.util.function.Consumer-[`onCancel`{tab-icon}, window="new"] callback to be notified when the stream is cancelled. The cancellation callback handler may update the Replicated Entity. This is useful if the Replicated Entity is being used to track connections, for example, when using link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html[`Vote`{tab-icon}, window="new"] Replicated Entities to track a user's online status.
+
+== Replicated Entity data types
+
+The Akka Serverless Java SDK offers Java classes for each of the xref:developing:replicatedentities.adoc#replicatedentities-available-in-akkaserverless[data types available in Akka Serverless].
+
+=== Counters and flags
+
+link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/GCounter.html[`GCounter`{tab-icon}, window="new"], link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/PNCounter.html[`PNCounter`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Flag.html[`Flag`{tab-icon}, window="new"] are available, offering operations relevant to each Replicated Entity.
+
+=== Vote
+
+link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html[`Vote`{tab-icon}, window="new"] is available for a vote Replicated Entity. The `vote` type allows updating the current node's vote using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#vote-boolean-[`vote`{tab-icon}, window="new"] method, the current nodes vote can be queried using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#getSelfVote--[`getSelfVote`{tab-icon}, window="new"] method.
+
+For determining the result of a vote, link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#getVoters--[`getVoters`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#getVotesFor--[`getVotesFor`{tab-icon}, window="new"] can be used to check the total number of nodes, and the number of nodes that have voted for the condition, respectively. In addition, convenience methods are provided for common vote decision approaches, link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#isAtLeastOne--[`isAtLeastOne`{tab-icon}, window="new"] returns true if there is at least one voter for the condition, link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#isMajority--[`isMajority`{tab-icon}, window="new"] returns true if the number of votes for is more than half the number of voters, and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Vote.html#isUnanimous--[`isUnanimous`{tab-icon}, window="new"] returns true if the number of votes for equals the number of voters.
+
+[#registers]
+=== Registers
+
+link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html[`LWWRegister`{tab-icon}, window="new"] provides the LWWRegister Replicated Entity data type. It can be interacted with using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html#set-T-[`set`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html#get--[`get`{tab-icon}, window="new"] methods. If you wish to use a custom clock, you can use the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html#set-T-com.akkaserverless.javasdk.replicatedentity.LWWRegister.Clock-long-[`set`{tab-icon}, window="new"] overload that allows passing a custom clock and custom clock value.
+
+[IMPORTANT]
+====
+Direct mutations to link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html[`LWWRegister`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegisterMap.html[`LWWRegisterMap`{tab-icon}, window="new"] values will not be replicated to other nodes, only mutations triggered through using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegister.html#set-T-[`set`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegisterMap.html#put-K-V-[`put`{tab-icon}, window="new"] methods will be replicated. Hence, the following update will not be replicated:
+
+[source,java]
+----
+myLwwRegister.get().setSomeField("foo");
+----
+
+This update however will be replicated:
+
+[source,java]
+----
+MyValue myValue = myLwwRegister.get();
+myValue.setSomeField("foo");
+myLwwRegister.set(myValue);
+----
+
+In general, we recommend that these values be immutable, as this will prevent accidentally mutating without realizing the update won't be applied. If using protobufs as values, this will be straightforward, since compiled protobuf classes are immutable.
+====
+
+[#sets]
+=== Sets and Maps
+
+Akka Serverless Java support provides link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/GSet.html[`GSet`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ORSet.html[`ORSet`{tab-icon}, window="new"] that implement the `java.util.Set` interface, and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ORMap.html[`ORMap`{tab-icon}, window="new"] that implements the `java.util.Map`. However, not all operations are implemented - `GSet` doesn't support any removal operations, and `ORMap` does not support any operations that would replace an existing value in the map.
+
+To insert a value into an `ORMap`, you should use the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ORMap.html#getOrCreate-K-java.util.function.Function-[`getOrCreate`{tab-icon}, window="new"] method. The passed in callback will give you a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html[`ReplicatedDataFactory`{tab-icon}, window="new"] that you can use to create the Replicated Entity value that you wish to use.
+
+[IMPORTANT]
+====
+With all maps and sets, map keys and set values must be immutable. Akka Serverless ignores the individual mutation of the key or value (not replicated to other nodes). Furthermore, their serialized form must be stable.
+The Akka Serverless proxy uses the serialized form of the values to track changes in the set or map. If the same value serializes to two different sets of bytes on different occasions, they will be treated as different elements in the set or map.
+
+This is particularly relevant when using protobufs. The ordering of map entries in a serialized protobuf is undefined, and very often will be different for two equal maps. Hence, maps should never be used as keys in `ORMap` or as values in `GSet`, `ORSet`. For the rest of the protobuf specification, while no guarantees are made on the stability by the protobuf specification itself, the Java libraries do produce stable orderings of fields and stable output of non-map values. Care should be taken when changing the protobuf structure. Many changes, that are backwards compatible from a protobuf standpoint, do not necessarily translate into stable serializations.
+
+If using JSON serialization, it is recommended that you explicitly define the field ordering using Jackson's `@JsonPropertyOrder` annotation, and as with protobufs, never use `Map` or `Set` in your JSON objects since the ordering of those is not stable.
+====
+
+Some wrapper classes are also provided for ORMap. These provide more convenient APIs for working with values of particular Replicated Data types. They are:
+
+link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/LWWRegisterMap.html[`LWWRegisterMap`{tab-icon}, window="new"]::
+A map of LWWRegister values. This exposes the LWWRegister values as values directly in the map.
+
+link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/PNCounterMap.html[`PNCounterMap`{tab-icon}, window="new"]::
+A map of PNCounter values. This exposes the current value of the PNCounters directly as values in the map, and offers link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/PNCounterMap.html#increment-java.lang.Object-long-[`increment`{tab-icon}, window="new"] and link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/PNCounterMap.html#decrement-java.lang.Object-long-[`decrement`{tab-icon}, window="new"] methods to update the values.
+
+== Registering the Entity
+
+Once you've created your Entity, you can register it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless`{tab-icon}, window="new"] server, by invoking the link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html#registerReplicatedEntity(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityFactory,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)[`registerReplicatedEntity`{tab-icon}, window="new"] method.
+In addition to passing your Entity class and service descriptor, if you use protobuf for serialization and any protobuf message definitions are missing from your service descriptor (they are not declared directly in the file, nor as dependencies), then you'll need to pass those protobuf descriptors as well.
+
+[source,java,indent=0]
+----
+include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=register]
+----
+
+= Replicated Entities Streaming Example
+
+include::ROOT:partial$include.adoc[]
+
+Replicated Entities support streaming over gRPC. This page documents how to implement a stream handler in Java using Replicated Entities.
+
+
+
+* Implement the server stream gRPC in java
+
+The following shows the implementation of the command handler `Monitor(User)` in java.
+----
+include::example$docs/user/replicatedentity/PresenceEntity.java[tag=streamcall]
+----
+
+
+* Write the streaming handler for the UI
+
+
+
+////

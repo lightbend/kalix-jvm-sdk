@@ -1,0 +1,36 @@
+include::ROOT:partial$include.adoc[]
+
+The Event Sourced Entity journal contains events that capture all state changes. By subscribing to the journal, with the Event Sourced Entity type name, another component can receive all events emitted of that type.
+
+.Use case: send asynchronous messages
+****
+By combining the processing of a journal with xref:topic-eventing.adoc[publishing to brokers], a service can trigger other services asynchronously via messaging.
+To achieve this, create an xref:actions.adoc[Action] that subscribes to a journal and publishes messages to a topic.
+****
+
+.Use case: external calls
+****
+A service might need to trigger other systems when certain events happened to an Entity. An Action can be connected to the Entity's journal and react on certain events to issue calls (eg. via HTTP or gRPC).
+To achieve this, create an xref:actions.adoc[Action] that subscribes to a journal and let the implementation call other services.
+****
+
+== Subscribing
+
+To subscribe to an Event Sourced Entity log, define Protobuf rpc methods for each Journal event that you want to receive. Annotate these methods with the `(akkaserverless.method).eventing` annotation and specify the Entity type name of the Event Sourced Entity.
+
+[source,protobuf,indent=0]
+----
+include::java:example$java-eventing-shopping-cart/src/main/proto/product/to_product_popularity.proto[tag=subscribing]
+----
+<1> create rpc methods for all Protobuf types in the journal
+<2> annotate the methods with `(akkaserverless.method).eventing`
+<3> specify the Event Sourced Entity's type name as journal source
+
+There is nothing specific required in the implementation of these methods. The implementation usually is an Action that forwards a converted message to a different component (e.g. an Event Sourced Entity).
+
+== Subscribing to events from a different service
+
+The approach described above works within a service. To subscribe to
+events from a different service, you would use xref:topic-eventing.adoc[Publishing and subscribing].
+
+

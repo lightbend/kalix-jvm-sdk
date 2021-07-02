@@ -1,0 +1,5 @@
+= Run a service locally
+:Java: ""
+
+include::ROOT:partial$include.adoc[]
+include::partial$running-service-locally.adoc[]

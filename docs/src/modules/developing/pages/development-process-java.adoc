@@ -1,0 +1,85 @@
+= Process overview
+include::ROOT:partial$include.adoc[]
+
+The main steps in developing a service include:
+
+. <<_specify_service_interface_and_domain_model>>
+. <<_implement_components>>
+. <<_create_unit_tests>>
+. <<_package_service>>
+. <<_run_locally>>
+. <<_deploy_to_akka_serverless>>
+
+
+[#_specify_service_interface_and_domain_model]
+== Specify service interface and domain model
+
+The main components of an Akka Serverless service are:
+
+* Stateful https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entities]
+* Stateless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Actions]
+* https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views], which return the state of multiple instances of a stateful entity.
+
+We recommend that you separate the service API and Entity domain data model in individual `.proto` files, as https://grpc.io[gRPC] descriptors. Separating the service interface and data model in different files allows you to evolve them independently.
+
+The gRPC definitions in `.proto` files describe the external interface, messages, and events. From the `.proto` files, the gRPC CLI (`protoc`), generates the code framework for remote procedure calls, data access, and serialization. Take a look at xref:java:proto.adoc[Writing gRPC descriptors] for more information about defining messages and events.
+
+TIP: Kickstart a project using the xref:java:kickstart.adoc[Java code generation tool].
+
+
+[#_implement_components]
+== Implement components
+
+Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions.
+
+=== Actions
+
+Actions are stateless functions that can be triggered by gRPC or HTTP calls. They can also subscribe to published events, and they can send commands to other services based on the events they receive. For more information about writing actions see xref:java:actions.adoc[Implementing Actions].
+
+=== Entities
+Stateful services ecapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time. 
+
+
+TIP: To learn more about Akka Serverless entities see xref:java:value-entity.adoc[Implement a Value Entity] and xref:java:eventsourced.adoc[Implement an Event Sourced Entity].
+
+If you would like to update multiple Entities from a single command, you can use forwarding and effects. 
+
+TIP: For more information see xref:java:forwarding.adoc[Forwarding and effects in Java].
+
+Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
+
+For more details and examples take a look at the following topics:
+
+* Event Sourced Entities in xref:java:eventsourced.adoc[Java]
+* Value Entities in xref:java:value-entity.adoc[Java]
+* Subscribe to a journal in xref:java:entity-eventing.adoc[Java]
+* Set up pub/sub for xref:java:topic-eventing.adoc[Java]
+
+[#_create_unit_tests]
+== Create unit tests
+
+It is good practice to write unit tests as you implement your services. The kickstart codegen project inludes hooks for JUnit testing. For implemention details see the xref:java:kickstart.adoc#_3_create_unit_tests[Java kickstart - Create unit tests] topic.
+
+[#_package_service]
+== Package service
+
+Use Docker to package your service and any of its dependencies. See the following pages for more information:
+
+* https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html#_docker[Installing Docker]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/docker.html[Packaging with Docker]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries]
+* https://developer.lightbend.com/docs/akka-serverless/tutorial/node-cart-package-deploy.html[Example of how to package a service]
+
+[#_run_locally]
+== Run locally
+
+You can test and debug your services by
+xref:java:run-locally.adoc[running them locally] before deploying to Akka Serverless.
+
+== Deploy to Akka Serverless
+
+After testing locally, deploy your service to Akka Serverless using the CLI or the Console. The following pages provide information about deployment:
+
+* https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html[Working with Akka Serverless deployment projects]
+* https://developer.lightbend.com/docs/akka-serverless/deploying/deploying.html[Deploying a packaged service]
+* https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[Examples of how to deploy]
