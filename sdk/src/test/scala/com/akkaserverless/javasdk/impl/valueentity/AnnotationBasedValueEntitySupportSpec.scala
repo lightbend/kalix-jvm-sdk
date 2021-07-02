@@ -44,7 +44,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   }
 
   class MockCommandContext(override val commandName: String = "AddItem", state: Option[JavaPbAny] = None)
-    extends CommandContext[JavaPbAny]
+      extends CommandContext[JavaPbAny]
       with BaseContext {
     var currentState: Option[JavaPbAny] = state
     override def commandId(): Long = 20
@@ -82,9 +82,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
   def create(behavior: AnyRef, methods: ResolvedServiceMethod[_, _]*): ValueEntityHandler =
     new AnnotationBasedEntitySupport(behavior.getClass,
-      anySupport,
-      methods.map(m => m.descriptor.getName -> m).toMap,
-      Some(_ => behavior)).create(MockContext)
+                                     anySupport,
+                                     methods.map(m => m.descriptor.getName -> m).toMap,
+                                     Some(_ => behavior)).create(MockContext)
 
   def create(clazz: Class[_]): ValueEntityHandler =
     new AnnotationBasedEntitySupport(clazz, anySupport, Map.empty, None).create(MockContext)
@@ -261,20 +261,20 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
 
       "fail if there's a ReplicatedEntity command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
-          @com.akkaserverless.javasdk.replicatedentity.CommandHandler
-          def addItem(msg: String) =
-            Wrapped(msg)
-        }, method())
+            @com.akkaserverless.javasdk.replicatedentity.CommandHandler
+            def addItem(msg: String) =
+              Wrapped(msg)
+          }, method())
         ex.getMessage should include("Did you mean")
         ex.getMessage should include(classOf[CommandHandler].getName)
       }
 
       "fail if there's an EventSourcedEntity command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
-          @com.akkaserverless.javasdk.eventsourcedentity.CommandHandler
-          def addItem(msg: String) =
-            Wrapped(msg)
-        }, method())
+            @com.akkaserverless.javasdk.eventsourcedentity.CommandHandler
+            def addItem(msg: String) =
+              Wrapped(msg)
+          }, method())
         ex.getMessage should include("Did you mean")
         ex.getMessage should include(classOf[CommandHandler].getName)
       }
