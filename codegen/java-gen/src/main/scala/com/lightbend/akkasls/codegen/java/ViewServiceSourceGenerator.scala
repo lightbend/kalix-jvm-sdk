@@ -1,6 +1,17 @@
 /*
- * Copyright (c) Lightbend Inc. 2021
+ * Copyright 2021 Lightbend Inc.
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.lightbend.akkasls.codegen
@@ -9,21 +20,21 @@ package java
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
-import _root_.java.nio.file.{ Files, Path }
+import _root_.java.nio.file.{Files, Path}
 
 /**
-  * Responsible for generating Java source from an entity model
-  */
+ * Responsible for generating Java source from an entity model
+ */
 object ViewServiceSourceGenerator {
   import SourceGenerator._
 
   /**
-    * Generate Java source from views where the target source and test source directories have no existing source.
-    *
-    * Also generates a main source file if it does not already exist.
-    *
-    * Impure.
-    */
+   * Generate Java source from views where the target source and test source directories have no existing source.
+   *
+   * Also generates a main source file if it does not already exist.
+   *
+   * Impure.
+   */
   def generate(
       service: ModelBuilder.ViewService,
       sourceDirectory: Path,
@@ -34,7 +45,7 @@ object ViewServiceSourceGenerator {
       mainClassName: String
   ): Iterable[Path] = {
     val packageName = service.fqn.parent.javaPackage
-    val className   = service.fqn.name
+    val className = service.fqn.name
     val packagePath = packageAsPath(packageName)
 
     val implClassName = className + "Impl"
@@ -81,9 +92,7 @@ object ViewServiceSourceGenerator {
       interfaceClassName: String
   ): Document = {
     val messageTypes =
-      service.transformedUpdates.toSeq.flatMap(command =>
-        Seq(command.inputType, command.outputType)
-      )
+      service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -137,17 +146,15 @@ object ViewServiceSourceGenerator {
       className: String
   ): Document = {
     val messageTypes =
-      service.transformedUpdates.toSeq.flatMap(command =>
-        Seq(command.inputType, command.outputType)
-      )
+      service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-      Seq(
-        "com.akkaserverless.javasdk.view.*",
-        "java.util.Optional"
-      )).distinct.sorted
+    Seq(
+      "com.akkaserverless.javasdk.view.*",
+      "java.util.Optional"
+    )).distinct.sorted
 
     pretty(
       managedCodeComment <> line <> line <>

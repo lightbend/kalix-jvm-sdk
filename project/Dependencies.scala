@@ -1,4 +1,5 @@
 import sbt._
+import sbt.Keys._
 
 object Dependencies {
   object AkkaServerless {
@@ -23,6 +24,80 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
+
+  val CommonsIoVerison = "2.8.0"
+  val KiamaVersion = "2.4.0"
+  val MunitVersion = "0.7.20"
+  val ScoptVersions = "4.0.0"
+
+  val akkaserverless = "com.akkaserverless" % "akkaserverless-java-sdk" % AkkaServerless.FrameworkVersion
+  val akkaslsProxyProtocol = "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion
+  val akkaslsSdkProtocol = "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion
+  val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
+
+  val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % KiamaVersion
+  val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
+  val logbackContrib = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
+
+  val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
+  val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
+
+  val scopt = "com.github.scopt" %% "scopt" % ScoptVersions
+  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonDatabindVersion
+
+  val testcontainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
+  val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
+  val munit = "org.scalameta" %% "munit" % MunitVersion
+  val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % MunitVersion
+  val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
+  val junit4 = "junit" % "junit" % JUnitVersion
+  val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
+
+  private val deps = libraryDependencies
+
+  val sdk = deps ++= Seq(
+    akkaDependency("akka-stream"),
+    akkaDependency("akka-slf4j"),
+    akkaDependency("akka-discovery"),
+    akkaHttpDependency("akka-http"),
+    akkaHttpDependency("akka-http-core"),
+    akkaHttpDependency("akka-http-spray-json"),
+    akkaHttpDependency("akka-http2-support"),
+    akkaHttpDependency("akka-parsing"),
+    protobufJavaUtil,
+    akkaslsProxyProtocol % "protobuf-src",
+    akkaslsSdkProtocol % "compile;protobuf-src",
+    akkaDependency("akka-testkit") % Test,
+    akkaDependency("akka-stream-testkit") % Test,
+    akkaHttpDependency("akka-http-testkit") % Test,
+    scalaTest  % Test,
+    logback % "test;provided",
+    logbackContrib % Provided,
+    jacksonDatabind
+  )  
+
+  val tck = deps ++= Seq(akkaslsTckProtocol % "protobuf-src")
+
+  val testkit = deps ++= Seq(
+    testContainers,
+    junit4 % Provided,
+    junit5 % Provided
+  )
+
+  val codegenCore = deps ++= Seq(
+    akkaserverless,
+    protobufJava,
+    munit % Test,
+    munitScalaCheck % Test
+  )
+
+  val codegenJava = deps ++= Seq(
+    kiama,
+    commonsIo,
+    munit % "test",
+    munitScalaCheck % "test"
+  )
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here

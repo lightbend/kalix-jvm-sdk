@@ -1,6 +1,17 @@
 /*
- * Copyright (c) Lightbend Inc. 2021
+ * Copyright 2021 Lightbend Inc.
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.lightbend.akkasls.codegen
@@ -10,13 +21,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity source") {
 
-    val entity  = TestData.eventSourcedEntity()
+    val entity = TestData.eventSourcedEntity()
     val service = TestData.simpleEntityService()
 
-    val packageName        = "com.example.service"
-    val className          = "MyServiceEntityImpl"
+    val packageName = "com.example.service"
+    val className = "MyServiceEntityImpl"
     val interfaceClassName = "MyServiceEntityInterface"
-    val entityType         = "my-eventsourcedentity-persistence"
+    val entityType = "my-eventsourcedentity-persistence"
 
     val sourceDoc =
       EntityServiceSourceGenerator.source(
@@ -85,12 +96,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
   test("ValueEntity source") {
 
     val service = TestData.simpleEntityService()
-    val entity  = TestData.valueEntity()
+    val entity = TestData.valueEntity()
 
-    val packageName        = "com.example.service"
-    val className          = "MyServiceImpl"
+    val packageName = "com.example.service"
+    val className = "MyServiceImpl"
     val interfaceClassName = "MyServiceInterface"
-    val entityType         = "my-valueentity-persistence"
+    val entityType = "my-valueentity-persistence"
 
     val sourceDoc =
       EntityServiceSourceGenerator.source(
@@ -140,10 +151,10 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("EventSourcedEntity interface source") {
-    val service     = TestData.simpleEntityService()
-    val entity      = TestData.eventSourcedEntity()
+    val service = TestData.simpleEntityService()
+    val entity = TestData.eventSourcedEntity()
     val packageName = "com.example.service"
-    val className   = "MyServiceEntity"
+    val className = "MyServiceEntity"
 
     val sourceDoc =
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
@@ -182,10 +193,10 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("ValueEntity interface source") {
-    val service     = TestData.simpleEntityService()
-    val entity      = TestData.valueEntity()
+    val service = TestData.simpleEntityService()
+    val entity = TestData.valueEntity()
     val packageName = "com.example.service"
-    val className   = "MyService"
+    val className = "MyService"
 
     val sourceDoc =
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
@@ -216,9 +227,9 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity test source") {
     val service = TestData.simpleEntityService()
-    val entity  = TestData.eventSourcedEntity()
+    val entity = TestData.eventSourcedEntity()
 
-    val packageName   = "com.example.service"
+    val packageName = "com.example.service"
     val implClassName = "MyServiceEntityImpl"
     val testClassName = "MyServiceEntityTest"
 
@@ -288,9 +299,9 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("ValueEntity test source") {
     val service = TestData.simpleEntityService()
-    val entity  = TestData.valueEntity()
+    val entity = TestData.valueEntity()
 
-    val packageName   = "com.example.service"
+    val packageName = "com.example.service"
     val implClassName = "MyServiceImpl"
     val testClassName = "MyServiceTest"
 
@@ -355,12 +366,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("Integration test source") {
     val mainPackageName = "com.example.service"
-    val mainClassName   = "SomeMain"
+    val mainClassName = "SomeMain"
 
     val service = TestData.simpleEntityService()
-    val entity  = TestData.eventSourcedEntity()
+    val entity = TestData.eventSourcedEntity()
 
-    val packageName              = "com.example.service"
+    val packageName = "com.example.service"
     val integrationTestClassName = "MyServiceEntityIntegrationTest"
 
     val sourceDoc =
