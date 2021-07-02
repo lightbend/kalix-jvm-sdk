@@ -73,6 +73,16 @@ commands:
             # the SDK_VERSION is later used to run the maven tests (see below)
             echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
 
+  build-maven-java:
+    description: Build maven-java
+    steps:
+      - run:
+          name: "Build maven-java"
+          command: |
+            cd maven-java
+            echo "Running maven-java with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION
+            mvn verify install
 jobs:
   checks:
     docker:
@@ -160,13 +170,7 @@ jobs:
       - run: 
           name: publish m2
           command: sbt publishM2
-      - run: 
-          name: Build maven-java
-          command: |
-            cd maven-java
-            echo "Running maven-java with SDK version: '$SDK_VERSION'"
-            mvn versions:set -DnewVersion=$SDK_VERSION
-            mvn verify install
+      - build-maven-java
       - run: 
           name: Run integration tests for Value Entity Archetype
           command: |
@@ -194,30 +198,31 @@ jobs:
       - run: 
           name: publish m2
           command: sbt publishM2
+      - build-maven-java
       - run: 
           name: Run integration tests for Shopping Cart Value Entity sample
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
       - run: 
           name: Run integration tests for Shopping Cart Event Sourced Entity sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
       - run: 
           name: Run integration tests for Counter Value Entity sample
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
       - run:
           name: Run integration tests for Counter Replicated Entity sample
           command: |
             cd samples/replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
       - save_deps_cache
 
   publish:
