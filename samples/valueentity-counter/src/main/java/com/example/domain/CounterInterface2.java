@@ -1,6 +1,5 @@
 package com.example.domain;
 
-import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
