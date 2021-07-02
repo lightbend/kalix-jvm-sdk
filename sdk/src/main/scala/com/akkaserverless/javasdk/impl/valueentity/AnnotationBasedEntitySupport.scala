@@ -64,20 +64,18 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): ValueEntityEffect[JavaPbAny] =
-      ??? // FIXME this will be removed
-//      unwrap {
-//        behavior.commandHandlers.get(context.commandName()).map { handler =>
-//          val adaptedContext =
-//            new AdaptedCommandContext(context, anySupport)
-//          handler.invoke(entity, command, adaptedContext)
-//        } getOrElse {
-//          throw EntityException(
-//            context,
-//            s"No command handler found for command [${context.commandName()}] on $behaviorsString"
-//          )
-//        }
-//      }
+    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
+      behavior.commandHandlers.get(context.commandName()).map { handler =>
+        val adaptedContext =
+          new AdaptedCommandContext(context, anySupport)
+        handler.invoke(entity, command, adaptedContext)
+      } getOrElse {
+        throw EntityException(
+          context,
+          s"No command handler found for command [${context.commandName()}] on $behaviorsString"
+        )
+      }
+    }
 
     private def unwrap[T](block: => T): T =
       try {
