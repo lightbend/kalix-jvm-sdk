@@ -136,6 +136,8 @@ private class ValueEntityCommandHandlerInvoker(
       method.invoke(obj, parameters.map(_.apply(ctx)): _*) match {
         case effect: ValueEntityEffectImpl[_] =>
           serializePrimaryEffect(serializeSecondaryEffect(effect))
+        case null =>
+          throw new NullPointerException(s"${method} returned null")
         case _ =>
           throw new IllegalStateException(s"${method} should return an effect now")
       }
@@ -162,7 +164,6 @@ private class ValueEntityCommandHandlerInvoker(
       case MessageReplyImpl(message, metadata, sideEffects) =>
         effect
           .reply(serialize(message), metadata)
-          .addSideEffects(sideEffects: _*)
           .asInstanceOf[ValueEntityEffectImpl[T]]
       case other => effect
     }

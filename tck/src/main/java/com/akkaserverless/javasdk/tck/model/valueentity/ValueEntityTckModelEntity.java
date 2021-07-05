@@ -47,30 +47,43 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
   @CommandHandler
   public Effect<Response> process(Request request, CommandContext<Persisted> context) {
     // FIXME the effect API doesn't support all combinations, and that might be fine?
-    //    Effect<Response> reply = null;
-    //    List<SideEffect> e = new ArrayList<>();
-    //    String newState = state;
-    //    for (RequestAction action : request.getActionsList()) {
-    //      switch (action.getActionCase()) {
-    //        case UPDATE:
-    //          newState = action.getUpdate().getValue();
-    //          break;
-    //        case DELETE:
-    //          newState = "";
-    //          break;
-    //        case FORWARD:
-    //          reply = effects().forward(serviceTwoRequest(action.getForward().getId()));
-    //          break;
-    //        case EFFECT:
-    //          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
-    //          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
-    //          break;
-    //        case FAIL:
-    //          return effects().error(action.getFail().getMessage());
-    //      }
-    //    }
-    //    effects().updateState(Persisted.newBuilder().setValue(state).build());
-    return null;
+    Effect.OnSuccessBuilder<Persisted> builder = null;
+    Effect<Response> result = null;
+    List<SideEffect> e = new ArrayList<>();
+    for (RequestAction action : request.getActionsList()) {
+      switch (action.getActionCase()) {
+        case UPDATE:
+          state = action.getUpdate().getValue();
+          builder = effects().updateState(Persisted.newBuilder().setValue(state).build());
+          break;
+        case DELETE:
+          state = "";
+          builder = effects().deleteState();
+          break;
+        case FORWARD:
+          if (builder == null) {
+            result = effects().forward(serviceTwoRequest(action.getForward().getId()));
+          } else {
+            result = builder.thenForward(serviceTwoRequest(action.getForward().getId()));
+          }
+          break;
+        case EFFECT:
+          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
+          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+          break;
+        case FAIL:
+          result = effects().error(action.getFail().getMessage());
+          break;
+      }
+    }
+    if (builder == null && result == null) {
+      return effects().reply(Response.newBuilder().setMessage(state).build()).addSideEffects(e);
+    }
+    if (result == null) {
+      return builder.thenReply(Response.newBuilder().setMessage(state).build()).addSideEffects(e);
+    } else {
+      return result.addSideEffects(e);
+    }
   }
 
   private ServiceCall serviceTwoRequest(String id) {
