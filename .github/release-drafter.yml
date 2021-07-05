@@ -10,7 +10,7 @@ categories:
       - 'chore'
   - title: 'Documentation'
     labels:
-      - 'documentation'
+      - 'Documentation'
   - title: 'Maven tooling'
     labels:
       - 'Maven'
@@ -40,7 +40,6 @@ autolabeler:
   - label: 'Documentation'
     files:
       - 'docs/*'
-      - 'protocols/tck/*'
   - label: 'tck'
     files:
       - 'tck/*'
