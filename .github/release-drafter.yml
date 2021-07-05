@@ -1,0 +1,46 @@
+# Config for https://github.com/release-drafter/release-drafter
+name-template: 'Akka Serverless framework $NEXT_PATCH_VERSION'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: '🚀 Productboard Features'
+    labels:
+      - 'Feature'
+  - title: ':toolbox: Chore'
+    labels:
+      - 'chore'
+  - title: 'Documentation'
+    labels:
+      - 'documentation'
+  - title: 'Maven tooling'
+    labels:
+      - 'Maven'
+  - title: 'TCK'
+    labels:
+      - 'tck'
+
+change-template: '- $TITLE #$NUMBER by @$AUTHOR'
+template: |
+  # :mega: Akka Serverless Java SDK $NEXT_PATCH_VERSION
+
+  ## Changes
+
+  $CHANGES
+
+  ## :bow: Credits
+  Special thanks to the following contributors who helped with this release: $CONTRIBUTORS
+
+autolabeler:
+  - label: 'chore'
+    title:
+      - '/chore:/i'
+  # java-sdk specific
+  - label: 'Maven'
+    files:
+      - 'maven-java/*'
+  - label: 'Documentation'
+    files:
+      - 'docs/*'
+      - 'protocols/tck/*'
+  - label: 'tck'
+    files:
+      - 'tck/*'
