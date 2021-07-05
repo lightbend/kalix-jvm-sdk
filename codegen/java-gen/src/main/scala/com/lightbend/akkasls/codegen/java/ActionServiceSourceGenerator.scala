@@ -41,7 +41,7 @@ object ActionServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = className + "Interface"
+    val interfaceClassName = "Abstract" + className
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -168,7 +168,7 @@ object ActionServiceSourceGenerator {
       ) <> line <>
       line <>
       "/** An action. */" <> line <>
-      `class`("public abstract", className + "Interface") {
+      `class`("public abstract", "Abstract" + className) {
         ssep(
           service.commands.toSeq.map { command =>
             "@Handler" <>

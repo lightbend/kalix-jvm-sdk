@@ -46,7 +46,7 @@ object EntityServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = className + "Interface"
+    val interfaceClassName = "Abstract" + className
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -321,7 +321,7 @@ object EntityServiceSourceGenerator {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
         case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
       }) <> line <>
-      `class`("public abstract", className + "Interface") {
+      `class`("public abstract", "Abstract" + className) {
         line <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>

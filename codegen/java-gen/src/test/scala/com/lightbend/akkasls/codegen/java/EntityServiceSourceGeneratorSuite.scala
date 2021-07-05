@@ -15,7 +15,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
     val packageName        = "com.example.service"
     val className          = "MyServiceEntityImpl"
-    val interfaceClassName = "MyServiceEntityInterface"
+    val interfaceClassName = "AbstractMyServiceEntity"
     val entityType         = "my-eventsourcedentity-persistence"
 
     val sourceDoc =
@@ -44,7 +44,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
-      |public class MyServiceEntityImpl extends MyServiceEntityInterface {
+      |public class MyServiceEntityImpl extends AbstractMyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -89,7 +89,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
     val packageName        = "com.example.service"
     val className          = "MyServiceImpl"
-    val interfaceClassName = "MyServiceInterface"
+    val interfaceClassName = "AbstractMyService"
     val entityType         = "my-valueentity-persistence"
 
     val sourceDoc =
@@ -118,7 +118,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyServiceImpl extends MyServiceInterface {
+      |public class MyServiceImpl extends AbstractMyService {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
@@ -163,7 +163,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public abstract class MyServiceEntityInterface {
+      |public abstract class AbstractMyServiceEntity {
       |    
       |    @Snapshot
       |    public abstract EntityOuterClass.MyState snapshot();
@@ -205,7 +205,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public abstract class MyServiceInterface {
+      |public abstract class AbstractMyService {
       |    
       |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
       |    
