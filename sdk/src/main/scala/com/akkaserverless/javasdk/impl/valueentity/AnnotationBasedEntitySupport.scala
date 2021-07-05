@@ -18,13 +18,34 @@ package com.akkaserverless.javasdk.impl.valueentity
 
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
-import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, MainArgumentParameterHandler}
-import com.akkaserverless.javasdk.impl.{AnySupport, ReflectionHelper, ResolvedEntityFactory, ResolvedServiceMethod}
+import com.akkaserverless.javasdk.impl.ReflectionHelper.{
+  getFirstParameter,
+  getOutputParameterMapper,
+  InvocationContext,
+  MainArgumentParameterHandler,
+  MethodParameter,
+  ParameterHandler
+}
+import com.akkaserverless.javasdk.impl.effect.{
+  ErrorReplyImpl,
+  ForwardReplyImpl,
+  MessageReplyImpl,
+  NoReply,
+  NoSecondaryEffectImpl
+}
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import com.akkaserverless.javasdk.impl.{
+  AnySupport,
+  FailInvoked,
+  ReflectionHelper,
+  ResolvedEntityFactory,
+  ResolvedServiceMethod
+}
 import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCall, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import java.lang.reflect.{Constructor, InvocationTargetException}
-import java.util.Optional
 
+import java.lang.reflect.{Constructor, InvocationTargetException, Method}
+import java.util.Optional
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.valueentity._
@@ -64,11 +85,12 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny,
+                               context: CommandContext[JavaPbAny]): ValueEntityBase.Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
           new AdaptedCommandContext(context, anySupport)
-        handler.invoke(entity, command, adaptedContext)
+        handler.valueEntityInvoke(entity, command, adaptedContext)
       } getOrElse {
         throw EntityException(
           context,
@@ -94,8 +116,61 @@ private[impl] class AnnotationBasedEntitySupport(
   }
 }
 
+private class ValueEntityCommandHandlerInvoker(
+    method: Method,
+    serviceMethod: ResolvedServiceMethod[_, _],
+    anySupport: AnySupport,
+    extraParameters: PartialFunction[MethodParameter, ParameterHandler[AnyRef, CommandContext[AnyRef]]] =
+      PartialFunction.empty
+) extends ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]](method,
+                                                                           serviceMethod,
+                                                                           anySupport,
+                                                                           extraParameters) {
+
+  def valueEntityInvoke(obj: AnyRef,
+                        command: JavaPbAny,
+                        context: CommandContext[AnyRef]): ValueEntityBase.Effect[JavaPbAny] = {
+    val decodedCommand = mainArgumentDecoder(command)
+    val ctx = InvocationContext(decodedCommand, context)
+    try {
+      method.invoke(obj, parameters.map(_.apply(ctx)): _*) match {
+        case effect: ValueEntityEffectImpl[_] =>
+          serializePrimaryEffect(serializeSecondaryEffect(effect))
+        case null =>
+          throw new NullPointerException(s"${method} returned null")
+        case _ =>
+          throw new IllegalStateException(s"${method} should return an effect now")
+      }
+    } catch {
+      case e: InvocationTargetException =>
+        e.getCause match {
+          case FailInvoked => throw e
+          case x => throw e.getCause()
+        }
+    }
+  }
+
+  def serializePrimaryEffect(effect: ValueEntityEffectImpl[_]): ValueEntityEffectImpl[JavaPbAny] =
+    effect.primaryEffect match {
+      case UpdateState(newState) =>
+        effect
+          .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+          .updateState(anySupport.encodeJava(newState))
+          .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+      case other => effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+    }
+  def serializeSecondaryEffect[T](effect: ValueEntityEffectImpl[T]): ValueEntityEffectImpl[T] =
+    effect.secondaryEffect match {
+      case MessageReplyImpl(message, metadata, sideEffects) =>
+        effect
+          .reply(serialize(message), metadata)
+          .asInstanceOf[ValueEntityEffectImpl[T]]
+      case other => effect
+    }
+}
+
 private class EntityBehaviorReflection(
-    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]]]
+    val commandHandlers: Map[String, ValueEntityCommandHandlerInvoker]
 ) {}
 
 private object EntityBehaviorReflection {
@@ -121,9 +196,7 @@ private object EntityBehaviorReflection {
           }
         )
 
-        new ReflectionHelper.CommandHandlerInvoker[CommandContext[AnyRef]](ReflectionHelper.ensureAccessible(method),
-                                                                           serviceMethod,
-                                                                           anySupport)
+        new ValueEntityCommandHandlerInvoker(ReflectionHelper.ensureAccessible(method), serviceMethod, anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {
@@ -169,13 +242,6 @@ private class AdaptedCommandContext(val delegate: CommandContext[JavaPbAny], any
     val result = delegate.getState
     result.map(anySupport.decode(_).asInstanceOf[AnyRef])
   }
-
-  override def updateState(state: AnyRef): Unit = {
-    val encoded = anySupport.encodeJava(state)
-    delegate.updateState(encoded)
-  }
-
-  override def deleteState(): Unit = delegate.deleteState()
 
   override def commandName(): String = delegate.commandName()
   override def commandId(): Long = delegate.commandId()
