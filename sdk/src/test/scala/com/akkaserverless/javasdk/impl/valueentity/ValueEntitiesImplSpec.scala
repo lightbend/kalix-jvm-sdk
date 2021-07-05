@@ -17,18 +17,19 @@
 package com.akkaserverless.javasdk.impl.valueentity
 
 import com.akkaserverless.javasdk.EntityId
-import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity}
+import com.akkaserverless.javasdk.reply.MessageReply
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
+import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity, ValueEntityBase}
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.valueentity.ValueEntityMessages
 import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import java.util.Optional
 
+import java.util.Optional
 import scala.collection.mutable
 import scala.reflect.ClassTag
-
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut
 
@@ -252,21 +253,23 @@ object ValueEntitiesImplSpec {
     val TestCartClass: Class[_] = classOf[TestCart]
 
     @ValueEntity(entityType = "valuebased-entity-shopping-cart")
-    class TestCart(@EntityId val entityId: String) {
+    class TestCart(@EntityId val entityId: String) extends ValueEntityBase[ShoppingCartDomain.Cart] {
       import scala.jdk.CollectionConverters._
       import scala.jdk.OptionConverters._
 
       @CommandHandler
-      def getCart(ctx: CommandContext[ShoppingCartDomain.Cart]): ShoppingCartApi.Cart =
-        ctx.getState.toScala
-          .map { c =>
-            val items = c.getItemsList.asScala.map(i => Item(i.getProductId, i.getName, i.getQuantity)).toSeq
-            Protocol.cart(items: _*)
-          }
-          .getOrElse(Protocol.EmptyCart)
+      def getCart(ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[ShoppingCartApi.Cart] =
+        effects().reply(
+          ctx.getState.toScala
+            .map { c =>
+              val items = c.getItemsList.asScala.map(i => Item(i.getProductId, i.getName, i.getQuantity)).toSeq
+              Protocol.cart(items: _*)
+            }
+            .getOrElse(Protocol.EmptyCart)
+        )
 
       @CommandHandler
-      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
+      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[Empty] = {
         // update and then fail on negative quantities, for testing atomicity
         val cart = updateCart(item, asMap(ctx.getState))
         val items =
@@ -280,9 +283,10 @@ object ValueEntitiesImplSpec {
                   .setQuantity(i.quantity)
                   .build
             )
-        ctx.updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items.toList.asJava).build())
         if (item.getQuantity <= 0) ctx.fail(s"Cannot add negative quantity of item [${item.getProductId}]")
-        Empty.getDefaultInstance
+        effects()
+          .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items.toList.asJava).build())
+          .thenReply(Empty.getDefaultInstance)
       }
 
       @CommandHandler
@@ -292,9 +296,9 @@ object ValueEntitiesImplSpec {
       }
 
       @CommandHandler
-      def removeCart(item: ShoppingCartApi.RemoveShoppingCart, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
-        ctx.deleteState()
-        Empty.getDefaultInstance
+      def removeCart(item: ShoppingCartApi.RemoveShoppingCart,
+                     ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[Empty] = {
+        effects().deleteState().thenReply(Empty.getDefaultInstance)
       }
 
       private def updateCart(item: ShoppingCartApi.AddLineItem,
@@ -318,6 +322,8 @@ object ValueEntitiesImplSpec {
 
         mutable.Map(map.toSeq: _*)
       }
+
+      override protected def emptyState(): ShoppingCartDomain.Cart = ShoppingCartDomain.Cart.getDefaultInstance
     }
   }
 }

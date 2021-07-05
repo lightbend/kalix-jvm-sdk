@@ -19,15 +19,22 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
 @ValueEntity(entityType = "valuechangeseventing-two")
-public class ValueEntityTwo {
+public class ValueEntityTwo extends ValueEntityBase<Object> {
   @CommandHandler
-  public Empty updateJsonValue(
+  public Effect<Empty> updateJsonValue(
       LocalPersistenceEventing.JsonValue value, CommandContext<Object> ctx) {
-    ctx.updateState(new JsonMessage(value.getMessage()));
-    return Empty.getDefaultInstance();
+    return effects()
+        .updateState(new JsonMessage(value.getMessage()))
+        .thenReply(Empty.getDefaultInstance());
+  }
+
+  @Override
+  protected Object emptyState() {
+    return null;
   }
 }
