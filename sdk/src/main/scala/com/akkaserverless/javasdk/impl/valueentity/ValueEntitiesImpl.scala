@@ -143,7 +143,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             log
           )
           val effect: ValueEntityEffectImpl[JavaPbAny] = try {
-            handler.handleCommand(cmd, context)
+            handler.handleCommand(cmd, context).asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
           } catch {
             case FailInvoked => new ValueEntityEffectImpl() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e

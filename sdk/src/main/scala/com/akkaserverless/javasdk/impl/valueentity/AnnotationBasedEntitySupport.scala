@@ -86,7 +86,7 @@ private[impl] class AnnotationBasedEntitySupport(
     }
 
     override def handleCommand(command: JavaPbAny,
-                               context: CommandContext[JavaPbAny]): ValueEntityEffectImpl[JavaPbAny] = unwrap {
+                               context: CommandContext[JavaPbAny]): ValueEntityBase.Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
           new AdaptedCommandContext(context, anySupport)
@@ -129,7 +129,7 @@ private class ValueEntityCommandHandlerInvoker(
 
   def valueEntityInvoke(obj: AnyRef,
                         command: JavaPbAny,
-                        context: CommandContext[AnyRef]): ValueEntityEffectImpl[JavaPbAny] = {
+                        context: CommandContext[AnyRef]): ValueEntityBase.Effect[JavaPbAny] = {
     val decodedCommand = mainArgumentDecoder(command)
     val ctx = InvocationContext(decodedCommand, context)
     try {

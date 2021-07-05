@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.lowlevel;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Any;
 
 /**
@@ -36,5 +37,5 @@ public interface ValueEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  ValueEntityEffectImpl<Any> handleCommand(Any command, CommandContext<Any> context);
+  ValueEntityBase.Effect<Any> handleCommand(Any command, CommandContext<Any> context);
 }

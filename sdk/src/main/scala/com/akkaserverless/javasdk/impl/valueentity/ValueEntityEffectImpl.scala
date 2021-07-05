@@ -40,7 +40,7 @@ object ValueEntityEffectImpl {
   case object NoPrimaryEffect extends PrimaryEffectImpl[Nothing]
 }
 
-class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[Any] {
+class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[S] {
   import ValueEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl[S] = NoPrimaryEffect
@@ -101,12 +101,12 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[Effect[T]]
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[Any] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): Effect[Any] = {
+  override def addSideEffects(sideEffects: SideEffect*): Effect[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }

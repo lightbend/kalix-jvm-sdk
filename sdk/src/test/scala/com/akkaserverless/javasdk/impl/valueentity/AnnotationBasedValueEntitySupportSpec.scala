@@ -92,14 +92,14 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped(effect: ValueEntityEffectImpl[JavaPbAny]): Wrapped =
-    effect.secondaryEffect match {
+  def decodeWrapped(effect: ValueEntityBase.Effect[JavaPbAny]): Wrapped =
+    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].secondaryEffect match {
       case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[JavaPbAny])
     }
 
-  def decodeUpdatedState[S](effect: ValueEntityEffectImpl[S]): S =
-    effect.primaryEffect match {
-      case UpdateState(any) => any
+  def decodeUpdatedState[S](effect: ValueEntityBase.Effect[S]): S =
+    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect match {
+      case UpdateState(any) => any.asInstanceOf[S]
     }
 
   def decodeWrapped(any: JavaPbAny): Wrapped = {
@@ -242,7 +242,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         val ctx = new MockCommandContext("RemoveCart")
         val effect = handler.handleCommand(command("blah"), ctx)
         decodeWrapped(effect) should ===(Wrapped("blah"))
-        effect.primaryEffect should ===(DeleteState)
+        effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect should ===(DeleteState)
       }
 
       "fail if there's a bad context type" in {
