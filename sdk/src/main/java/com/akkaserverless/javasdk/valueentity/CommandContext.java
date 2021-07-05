@@ -58,21 +58,4 @@ public interface CommandContext<T>
    */
   @Deprecated
   Optional<T> getState();
-
-  /**
-   * Update the entity with the new state. The state will be persisted.
-   *
-   * @param state The state to persist.
-   * @deprecated Use ValueEntityEffect.updateState instead.
-   */
-  @Deprecated
-  void updateState(T state);
-
-  /**
-   * Delete the entity state.
-   *
-   * @deprecated Use ValueEntityEffect.deleteState instead.
-   */
-  @Deprecated
-  void deleteState();
 }

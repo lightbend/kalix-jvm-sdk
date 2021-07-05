@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.impl
 import akka.NotUsed
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase
 import com.akkaserverless.javasdk.impl.effect.{
   ErrorReplyImpl,
   ForwardReplyImpl,
@@ -315,18 +314,6 @@ private[impl] object ReflectionHelper {
 
       getOutputParameterMapper(method.getName, serviceMethod.outputType, method.getGenericReturnType, anySupport)
     } else if (method.getReturnType == classOf[ValueEntityBase.Effect[_]]) {
-      // TODO temporary implementation going via the effect, but not actually applying the effects yet here
-      verifyOutputType(getFirstParameter(method.getGenericReturnType))
-
-      result =>
-        result.asInstanceOf[ValueEntityEffectImpl[_]].secondaryEffect match {
-          case ErrorReplyImpl(description, _) => Reply.failure(description)
-          case ForwardReplyImpl(serviceCall, _) => Reply.forward(serviceCall)
-          case MessageReplyImpl(message, metadata, _) => Reply.message(serialize(message), metadata)
-          case NoReply(_) => Reply.noReply()
-          case NoSecondaryEffectImpl => Reply.noReply()
-        }
-    } else if (method.getReturnType == classOf[EventSourcedEntityBase.Effect[_]]) {
       // TODO temporary implementation going via the effect, but not actually applying the effects yet here
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 

@@ -42,14 +42,10 @@ import com.akkaserverless.javasdk.impl.{
   ResolvedServiceMethod
 }
 import com.akkaserverless.javasdk.{Metadata, Reply, ServiceCall, ServiceCallFactory}
-import com.google.protobuf.{Descriptors, any, Any => JavaPbAny}
+import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
-import com.akkaserverless.javasdk.valueentity._
-
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.valueentity._
@@ -89,15 +85,11 @@ private[impl] class AnnotationBasedEntitySupport(
       })
     }
 
-    // FIXME the annotation-based implementation is going away before we release anyway
-    override def emptyState(): any.Any = null
-
     override def handleCommand(command: JavaPbAny,
-                               state: JavaPbAny,
                                context: CommandContext[JavaPbAny]): ValueEntityBase.Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
         val adaptedContext =
-          new AdaptedCommandContext[AnyRef](context, anySupport)
+          new AdaptedCommandContext(context, anySupport)
         handler.valueEntityInvoke(entity, command, adaptedContext)
       } getOrElse {
         throw EntityException(
@@ -167,7 +159,6 @@ private class ValueEntityCommandHandlerInvoker(
           .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
       case other => effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
     }
-
   def serializeSecondaryEffect[T](effect: ValueEntityEffectImpl[T]): ValueEntityEffectImpl[T] =
     effect.secondaryEffect match {
       case MessageReplyImpl(message, metadata, sideEffects) =>
@@ -251,21 +242,6 @@ private class AdaptedCommandContext[S](val delegate: CommandContext[JavaPbAny], 
     val result = delegate.getState
     result.map(anySupport.decode(_).asInstanceOf[S])
   }
-
-  override def commandName(): String = delegate.commandName()
-  override def commandId(): Long = delegate.commandId()
-  override def metadata(): Metadata = delegate.metadata()
-  override def entityId(): String = delegate.entityId()
-  override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
-  override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
-  override def forward(to: ServiceCall): Unit = delegate.forward(to)
-  override def serviceCallFactory(): ServiceCallFactory = delegate.serviceCallFactory()
-}
-
-private class AdaptedCommandContextWithState[S](val delegate: CommandContext[JavaPbAny], state: S)
-    extends CommandContext[S] {
-
-  override def getState(): Optional[S] = Optional.of(state)
 
   override def commandName(): String = delegate.commandName()
   override def commandId(): Long = delegate.commandId()

@@ -26,11 +26,12 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+
 import java.util.Optional
-
 import scala.compat.java8.OptionConverters._
-
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
+import com.akkaserverless.javasdk.reply.MessageReply
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {
@@ -91,9 +92,14 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped(effect: ValueEntityBase.Effect[_]): Wrapped =
-    effect.asInstanceOf[ValueEntityEffectImpl[_]].secondaryEffect match {
-      case MessageReplyImpl(any, _, _) => decodeWrapped(any)
+  def decodeWrapped(effect: ValueEntityBase.Effect[JavaPbAny]): Wrapped =
+    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].secondaryEffect match {
+      case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[JavaPbAny])
+    }
+
+  def decodeUpdatedState[S](effect: ValueEntityBase.Effect[S]): S =
+    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect match {
+      case UpdateState(any) => any.asInstanceOf[S]
     }
 
   def decodeUpdatedState[S](effect: ValueEntityBase.Effect[S]): S =
@@ -160,9 +166,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("nothing"), null, new MockCommandContext)) should ===(
-          Wrapped("blah")
-        )
+        decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "single arg command handler" in {
@@ -175,9 +179,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(
-          Wrapped("blah")
-        )
+        decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
@@ -231,7 +233,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method()
         )
         val ctx = new MockCommandContext
-        val effect = handler.handleCommand(command("blah"), null, ctx)
+        val effect = handler.handleCommand(command("blah"), ctx)
         decodeWrapped(effect) should ===(Wrapped("blah"))
         decodeUpdatedState(effect) should ===(state("blah state"))
       }
@@ -250,7 +252,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           method("RemoveCart")
         )
         val ctx = new MockCommandContext("RemoveCart")
-        val effect = handler.handleCommand(command("blah"), null, ctx)
+        val effect = handler.handleCommand(command("blah"), ctx)
         decodeWrapped(effect) should ===(Wrapped("blah"))
         effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect should ===(DeleteState)
       }
