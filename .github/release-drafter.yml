@@ -1,5 +1,5 @@
 # Config for https://github.com/release-drafter/release-drafter
-name-template: 'Akka Serverless framework $NEXT_PATCH_VERSION'
+name-template: 'Akka Serverless Java SDK $NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
   - title: '🚀 Productboard Features'
