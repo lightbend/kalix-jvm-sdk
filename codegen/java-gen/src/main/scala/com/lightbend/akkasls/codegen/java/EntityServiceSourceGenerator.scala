@@ -359,6 +359,8 @@ object EntityServiceSourceGenerator {
         }) <>
         ssep(
           service.commands.toSeq.map { command =>
+            "@CommandHandler" <>
+            line <>
             abstractMethod(
               "public",
               "Reply" <> angles(qualifiedType(command.outputType)),

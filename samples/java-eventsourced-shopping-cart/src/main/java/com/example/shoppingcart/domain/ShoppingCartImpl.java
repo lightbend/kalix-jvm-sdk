@@ -17,6 +17,7 @@
 package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.example.shoppingcart.ShoppingCartApi;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
-public class ShoppingCartImpl extends ShoppingCartInterface {
+public class ShoppingCartImpl extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
@@ -53,7 +54,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
   }
 
   @Override
-  protected Empty addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
+  public Reply<Empty> addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
       throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
     }
@@ -66,22 +67,22 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
                     .setQuantity(item.getQuantity())
                     .build())
             .build());
-    return Empty.getDefaultInstance();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   @Override
-  protected Empty removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
+  public Reply<Empty> removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext ctx) {
     if (!cart.containsKey(item.getProductId())) {
       throw ctx.fail(
           "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
     }
     ctx.emit(ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(item.getProductId()).build());
-    return Empty.getDefaultInstance();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   @Override
-  protected ShoppingCartApi.Cart getCart(ShoppingCartApi.GetShoppingCart command, CommandContext ctx) {
-    return ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build();
+  public Reply<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command, CommandContext ctx) {
+    return Reply.message(ShoppingCartApi.Cart.newBuilder().addAllItems(cart.values()).build());
   }
 
   @Override

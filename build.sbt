@@ -87,10 +87,6 @@ lazy val tck = project
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage)
   .settings(
     name := "akkaserverless-tck-java-sdk",
-    libraryDependencies ++= Seq(
-        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "ch.qos.logback" % "logback-classic" % LogbackVersion % Test
-      ),
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
@@ -103,6 +99,7 @@ lazy val codegenCore =
   project
     .in(file("codegen/core"))
     .enablePlugins(PublishSonatype)
+    .dependsOn(sdk)
     .settings(name := "akkaserverless-codegen-core", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenCore)
 
@@ -115,7 +112,6 @@ lazy val codegenJava =
     .settings(Defaults.itSettings)
     .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
-
 
 lazy val samples = project
   .in(file("samples"))

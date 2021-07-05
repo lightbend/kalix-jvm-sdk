@@ -84,7 +84,7 @@ commands:
           command: |
             cd maven-java
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
-            mvn versions:set -DnewVersion=$SDK_VERSION -Dakkaserverless-codegen.version=$SDK_VERSION
+            mvn versions:set -DnewVersion=$SDK_VERSION
             mvn verify install
 jobs:
   checks:

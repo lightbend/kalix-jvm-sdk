@@ -16,11 +16,6 @@
 
   <name>Akka Serverless Maven Plugin</name>
 
-  <properties>
-    <!-- this dummy 0.0.0 version is replaced by the current build version -->
-    <akkaserverless-codegen.version>0.0.0</akkaserverless-codegen.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -69,7 +64,7 @@
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-codegen-java_2.13</artifactId>
-      <version>${akkaserverless-codegen.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

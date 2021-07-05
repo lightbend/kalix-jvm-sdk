@@ -16,7 +16,9 @@
 package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
@@ -31,7 +33,7 @@ import java.util.stream.Collectors;
  * A value entity.
  */
 @ValueEntity(entityType = "shopping-cart")
-public class ShoppingCartImpl extends ShoppingCartInterface {
+public class ShoppingCartImpl extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
@@ -41,7 +43,7 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
 
   // tag::add-item[]
   @Override
-  protected Empty addItem(ShoppingCartApi.AddLineItem command, CommandContext<ShoppingCartDomain.Cart> ctx) {
+  public Reply<Empty> addItem(ShoppingCartApi.AddLineItem command, CommandContext<ShoppingCartDomain.Cart> ctx) {
     if (command.getQuantity() <= 0) {
       throw ctx.fail("Cannot add negative quantity of to item " + command.getProductId());
     }
@@ -53,12 +55,11 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
     lineItems.add(lineItem);
     lineItems.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     ctx.updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build());
-    return Empty.getDefaultInstance();
+    return Reply.message(Empty.getDefaultInstance());
   }
   // end::add-item[]
-
   @Override
-  protected Empty removeItem(ShoppingCartApi.RemoveLineItem command, CommandContext<ShoppingCartDomain.Cart> ctx) {
+  public Reply<Empty> removeItem(ShoppingCartApi.RemoveLineItem command, CommandContext<ShoppingCartDomain.Cart> ctx) {
     ShoppingCartDomain.Cart cart =
         ctx.getState().orElse(ShoppingCartDomain.Cart.newBuilder().build());
     Optional<ShoppingCartDomain.LineItem> lineItem = findItemByProductId(cart, command.getProductId());
@@ -71,12 +72,12 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
     List<ShoppingCartDomain.LineItem> items = removeItemByProductId(cart, command.getProductId());
     items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     ctx.updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build());
-    return Empty.getDefaultInstance();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   // tag::get-cart[]
   @Override
-  protected ShoppingCartApi.Cart getCart(ShoppingCartApi.GetShoppingCart command, CommandContext<ShoppingCartDomain.Cart> ctx) {
+  public Reply<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command, CommandContext<ShoppingCartDomain.Cart> ctx) {
     ShoppingCartDomain.Cart cart =
         ctx.getState().orElse(ShoppingCartDomain.Cart.newBuilder().build());
     List<ShoppingCartApi.LineItem> allItems =
@@ -84,14 +85,14 @@ public class ShoppingCartImpl extends ShoppingCartInterface {
             .map(this::convert)
             .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
             .collect(Collectors.toList());
-    return ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build();
+    return Reply.message(ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build());
   }
   // end::get-cart[]
 
   @Override
-  protected Empty removeCart(ShoppingCartApi.RemoveShoppingCart command, CommandContext<ShoppingCartDomain.Cart> ctx) {
+  public Reply<Empty> removeCart(ShoppingCartApi.RemoveShoppingCart command, CommandContext<ShoppingCartDomain.Cart> ctx) {
     ctx.deleteState();
-    return Empty.getDefaultInstance();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
 

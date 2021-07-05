@@ -30,7 +30,6 @@ object Dependencies {
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
-  val akkaserverless = "com.akkaserverless" % "akkaserverless-java-sdk" % AkkaServerless.FrameworkVersion
   val akkaslsProxyProtocol = "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion
   val akkaslsSdkProtocol = "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion
   val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
@@ -77,7 +76,11 @@ object Dependencies {
         jacksonDatabind
       )
 
-  val tck = deps ++= Seq(akkaslsTckProtocol % "protobuf-src")
+  val tck = deps ++= Seq(
+        akkaslsTckProtocol % "protobuf-src",
+        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+        "ch.qos.logback" % "logback-classic" % LogbackVersion % Test
+      )
 
   val testkit = deps ++= Seq(
         testContainers,
@@ -86,7 +89,6 @@ object Dependencies {
       )
 
   val codegenCore = deps ++= Seq(
-        akkaserverless,
         protobufJava,
         munit % Test,
         munitScalaCheck % Test
