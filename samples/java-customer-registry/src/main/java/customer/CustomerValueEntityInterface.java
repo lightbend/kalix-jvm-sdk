@@ -24,6 +24,10 @@ import customer.domain.CustomerDomain;
 
 import java.util.Optional;
 
+/**
+ * This file would be managed by the codegen and provide
+ * the interface the user implements.
+ */
 public abstract class CustomerValueEntityInterface
     extends ValueEntityBase<CustomerDomain.CustomerState> {
 
