@@ -19,39 +19,39 @@ package customer;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 
 @ValueEntity(entityType = "customers")
-public class CustomerValueEntity {
+public class CustomerValueEntity extends ValueEntityBase<CustomerDomain.CustomerState> {
 
   @CommandHandler
-  public CustomerApi.Customer getCustomer(
+  public Effect<CustomerApi.Customer> getCustomer(
       CustomerApi.GetCustomerRequest request,
+      CustomerDomain.CustomerState currentState,
       CommandContext<CustomerDomain.CustomerState> context) {
-    CustomerDomain.CustomerState state =
-        context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
-    return convertToApi(state);
+    return effects().reply(convertToApi(currentState));
   }
 
   @CommandHandler
-  public Empty create(
-      CustomerApi.Customer customer, CommandContext<CustomerDomain.CustomerState> context) {
+  public Effect<Empty> create(
+      CustomerApi.Customer customer,
+      CustomerDomain.CustomerState currentState,
+      CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState state = convertToDomain(customer);
-    context.updateState(state);
-    return Empty.getDefaultInstance();
+    return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
   @CommandHandler
-  public Empty changeName(
-      CustomerApi.ChangeNameRequest request, CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer must be created before name can be changed.");
+  public Effect<Empty> changeName(
+      CustomerApi.ChangeNameRequest request,
+      CustomerDomain.CustomerState currentState,
+      CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState updatedState =
-        context.getState().get().toBuilder().setName(request.getNewName()).build();
-    context.updateState(updatedState);
-    return Empty.getDefaultInstance();
+        currentState.toBuilder().setName(request.getNewName()).build();
+    return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
@@ -86,5 +86,9 @@ public class CustomerValueEntity {
         .setName(customer.getName())
         .setAddress(address)
         .build();
+  }
+
+  protected CustomerDomain.CustomerState emptyState() {
+    return CustomerDomain.CustomerState.getDefaultInstance();
   }
 }
