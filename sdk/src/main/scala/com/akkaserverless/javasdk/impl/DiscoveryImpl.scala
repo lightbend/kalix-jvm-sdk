@@ -130,16 +130,24 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
           val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
           service.componentType match {
             case Actions.name =>
-              Component(service.componentType, name, Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
-            case _ =>
-              val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect { case e: EntityOptions => e })
               Component(service.componentType,
                         name,
-                        Component.ComponentSettings.Entity(EntitySettings(
-                          service.entityType,
-                          passivationStrategy,
-                          service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil)
-                          )))
+                        Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
+            case _ =>
+              val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
+                case e: EntityOptions => e
+              })
+              Component(
+                service.componentType,
+                name,
+                Component.ComponentSettings.Entity(
+                  EntitySettings(
+                    service.entityType,
+                    passivationStrategy,
+                    service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil)
+                  )
+                )
+              )
           }
       }.toSeq
 

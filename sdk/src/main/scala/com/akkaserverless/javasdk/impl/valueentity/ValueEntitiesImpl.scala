@@ -27,7 +27,11 @@ import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.{Delete, Update}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Command => InCommand, Empty => InEmpty, Init => InInit}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Init => InInit
+}
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}

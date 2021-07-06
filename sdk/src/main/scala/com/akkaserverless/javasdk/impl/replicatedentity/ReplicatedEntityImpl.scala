@@ -34,7 +34,7 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
 import java.util.function.Consumer
-import java.util.{Optional, function}
+import java.util.{function, Optional}
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import org.slf4j.LoggerFactory

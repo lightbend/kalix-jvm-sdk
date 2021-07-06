@@ -23,9 +23,8 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions
 import java.util
 import java.util.Collections
 
-private[impl] final case class EventSourcedEntityOptionsImpl(
-    override val passivationStrategy: PassivationStrategy,
-    override val forwardHeaders: java.util.Set[String])
+private[impl] final case class EventSourcedEntityOptionsImpl(override val passivationStrategy: PassivationStrategy,
+                                                             override val forwardHeaders: java.util.Set[String])
     extends EventSourcedEntityOptions {
 
   override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions =

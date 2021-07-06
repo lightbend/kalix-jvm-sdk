@@ -26,8 +26,16 @@ import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.reply.FailureReply
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Command => InCommand, Empty => InEmpty, Event => InEvent, Init => InInit}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Event => InEvent,
+  Init => InInit
+}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
+  Failure => OutFailure,
+  Reply => OutReply
+}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}

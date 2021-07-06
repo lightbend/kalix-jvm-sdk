@@ -30,7 +30,6 @@ private[impl] case class ReplicatedEntityOptionsImpl(
   override def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions =
     copy(passivationStrategy = strategy)
 
-
   override def withForwardHeaders(headers: util.Set[String]): ReplicatedEntityOptions =
     copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
 }
