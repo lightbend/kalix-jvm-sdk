@@ -32,6 +32,7 @@ lazy val sdk = project
     // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
     Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
     Compile / doc / javacOptions ++= Seq(
+        "-Xdoclint:none",
         "-overview",
         ((Compile / javaSource).value / "overview.html").getAbsolutePath,
         "--no-module-directories",
