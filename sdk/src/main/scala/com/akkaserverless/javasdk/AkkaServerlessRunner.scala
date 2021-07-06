@@ -17,9 +17,9 @@
 package com.akkaserverless.javasdk
 
 import java.lang.management.ManagementFactory
-
 import akka.Done
-import akka.actor.ActorSystem
+import akka.actor.CoordinatedShutdown.Reason
+import akka.actor.{ActorSystem, CoordinatedShutdown}
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import com.akkaserverless.javasdk.impl.action.{ActionService, ActionsImpl}
@@ -34,20 +34,22 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntitiesHandler
 import com.akkaserverless.protocol.value_entity.ValueEntitiesHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{Config, ConfigFactory}
-import java.util.concurrent.CompletionStage
 
+import java.util.concurrent.CompletionStage
 import com.akkaserverless.javasdk.impl.view.ViewService
+
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
-
 import com.akkaserverless.javasdk.impl.view.ViewsImpl
 import com.akkaserverless.protocol.view.ViewsHandler
 import org.slf4j.LoggerFactory
 
 object AkkaServerlessRunner {
+  object BindFailure extends Reason
+
   final case class Configuration(userFunctionInterface: String, userFunctionPort: Int, snapshotEvery: Int) {
     validate()
     def this(config: Config) = {
@@ -178,7 +180,7 @@ final class AkkaServerlessRunner private[this] (
                          configuration.userFunctionInterface,
                          configuration.userFunctionPort,
                          ex)
-        system.terminate()
+        CoordinatedShutdown.get(system).run(AkkaServerlessRunner.BindFailure)
     }
 
     // Complete the returned CompletionStage with bind failure or Done when system is terminated
