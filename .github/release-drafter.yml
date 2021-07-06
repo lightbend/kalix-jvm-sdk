@@ -5,12 +5,10 @@ categories:
   - title: '🚀 Productboard Features'
     labels:
       - 'Feature'
-  - title: ':toolbox: Chore'
-    labels:
-      - 'chore'
   - title: 'Documentation'
     labels:
       - 'Documentation'
+      - 'Samples'
   - title: 'Maven tooling'
     labels:
       - 'Maven'
@@ -30,16 +28,15 @@ template: |
   Special thanks to the following contributors who helped with this release: $CONTRIBUTORS
 
 autolabeler:
-  - label: 'chore'
-    title:
-      - '/chore:/i'
-  # java-sdk specific
   - label: 'Maven'
     files:
       - 'maven-java/*'
   - label: 'Documentation'
     files:
       - 'docs/*'
+  - label: 'Samples'
+    files:
+      - 'samples/*'
   - label: 'tck'
     files:
       - 'tck/*'
