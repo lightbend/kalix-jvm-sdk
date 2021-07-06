@@ -156,7 +156,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
       }
     }
     // Doesn't make sense to verify that there's no delta here.
-    // LWWRegister can have its value set on creation, so there may be a delta.
+    // ReplicatedRegister can have its value set on creation, so there may be a delta.
     // verifyNoDelta("creation")
 
     private def verifyNoDelta(scope: String): Unit =

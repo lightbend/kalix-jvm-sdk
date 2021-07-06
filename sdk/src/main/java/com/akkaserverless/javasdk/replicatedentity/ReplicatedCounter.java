@@ -16,12 +16,8 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-/**
- * A Grow-only Counter.
- *
- * <p>A Grow-only Counter can be incremented, but can't be decremented.
- */
-public interface GCounter extends ReplicatedData {
+/** A counter that can be incremented and decremented. */
+public interface ReplicatedCounter extends ReplicatedData {
   /**
    * Get the current value of the counter.
    *
@@ -32,9 +28,20 @@ public interface GCounter extends ReplicatedData {
   /**
    * Increment the counter.
    *
+   * <p>If <code>by</code> is negative, then the counter will be decremented by that much instead.
+   *
    * @param by The amount to increment the counter by.
    * @return The new value of the counter.
-   * @throws IllegalArgumentException If <code>by</code> is negative.
    */
-  long increment(long by) throws IllegalArgumentException;
+  long increment(long by);
+
+  /**
+   * Decrement the counter.
+   *
+   * <p>If <code>by</code> is negative, then the counter will be incremented by that much instead.
+   *
+   * @param by The amount to decrement the counter by.
+   * @return The new value of the counter.
+   */
+  long decrement(long by);
 }

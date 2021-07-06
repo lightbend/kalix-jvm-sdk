@@ -23,20 +23,14 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
 
   def create(delta: ReplicatedEntityDelta, anySupport: AnySupport): InternalReplicatedData = {
     val entity = delta.delta match {
-      case ReplicatedEntityDelta.Delta.Gcounter(_) =>
-        new GCounterImpl
-      case ReplicatedEntityDelta.Delta.Pncounter(_) =>
-        new PNCounterImpl
-      case ReplicatedEntityDelta.Delta.Gset(_) =>
-        new GSetImpl[Any](anySupport)
-      case ReplicatedEntityDelta.Delta.Orset(_) =>
-        new ORSetImpl[Any](anySupport)
-      case ReplicatedEntityDelta.Delta.Flag(_) =>
-        new FlagImpl
-      case ReplicatedEntityDelta.Delta.Lwwregister(_) =>
-        new LWWRegisterImpl[Any](anySupport)
-      case ReplicatedEntityDelta.Delta.Ormap(_) =>
-        new ORMapImpl[Any, InternalReplicatedData](anySupport)
+      case ReplicatedEntityDelta.Delta.Counter(_) =>
+        new ReplicatedCounterImpl
+      case ReplicatedEntityDelta.Delta.ReplicatedSet(_) =>
+        new ReplicatedSetImpl[Any](anySupport)
+      case ReplicatedEntityDelta.Delta.Register(_) =>
+        new ReplicatedRegisterImpl[Any](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedMap(_) =>
+        new ReplicatedMapImpl[Any, InternalReplicatedData](anySupport)
       case ReplicatedEntityDelta.Delta.Vote(_) =>
         new VoteImpl
     }

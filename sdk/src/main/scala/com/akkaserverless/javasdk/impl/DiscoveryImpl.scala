@@ -168,6 +168,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
 
+  override def healthCheck(in: Empty): Future[Empty] =
+    Future.successful(Empty.defaultInstance)
+
   private def loadSource(location: UserFunctionError.SourceLocation): Option[String] =
     if (location.endLine == 0 && location.endCol == 0) {
       // It's been sent without line/col data

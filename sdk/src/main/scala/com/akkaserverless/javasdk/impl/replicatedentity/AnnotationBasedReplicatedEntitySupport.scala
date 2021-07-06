@@ -152,22 +152,22 @@ private object ReplicatedEntityAnnotationHelper {
     clazz -> ReplicatedEntityInjector[D, D](clazz, create, identity)
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
   }
-  private def orMapWrapper[W: ClassTag, D <: ReplicatedData](wrap: ORMap[AnyRef, D] => W) =
+
+  // FIXME remove if we don't expose ReplicatedMap
+  private def replicatedMapWrapper[W: ClassTag, D <: ReplicatedData](wrap: ReplicatedMap[AnyRef, D] => W) =
     implicitly[ClassTag[W]].runtimeClass
-      .asInstanceOf[Class[D]] -> ReplicatedEntityInjector(classOf[ORMap[AnyRef, D]], f => wrap(f.newORMap()), wrap)
+      .asInstanceOf[Class[D]] -> ReplicatedEntityInjector(classOf[ReplicatedMap[AnyRef, D]],
+                                                          f => wrap(f.newReplicatedMap()),
+                                                          wrap)
       .asInstanceOf[ReplicatedEntityInjector[ReplicatedData, AnyRef]]
 
   private val injectorMap: Map[Class[_], ReplicatedEntityInjector[ReplicatedData, AnyRef]] = Map(
-    simple(_.newGCounter()),
-    simple(_.newPNCounter()),
-    simple(_.newGSet()),
-    simple(_.newORSet()),
-    simple(_.newFlag()),
-    simple(_.newLWWRegister()),
-    simple(_.newORMap()),
-    simple(_.newVote()),
-    orMapWrapper[LWWRegisterMap[AnyRef, AnyRef], LWWRegister[AnyRef]](new LWWRegisterMap(_)),
-    orMapWrapper[PNCounterMap[AnyRef], PNCounter](new PNCounterMap(_))
+    simple(_.newCounter()),
+    simple(_.newReplicatedSet()),
+    simple(_.newRegister()),
+    simple(_.newReplicatedCounterMap()),
+    simple(_.newReplicatedRegisterMap()),
+    simple(_.newVote())
   )
 
   private def injector[D <: ReplicatedData, T](clazz: Class[T]): ReplicatedEntityInjector[D, T] =
@@ -253,13 +253,12 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
   override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
 
-  override def newGCounter(): GCounter = delegate.newGCounter()
-  override def newPNCounter(): PNCounter = delegate.newPNCounter()
-  override def newGSet[T](): GSet[T] = delegate.newGSet()
-  override def newORSet[T](): ORSet[T] = delegate.newORSet()
-  override def newFlag(): Flag = delegate.newFlag()
-  override def newLWWRegister[T](value: T): LWWRegister[T] = delegate.newLWWRegister(value)
-  override def newORMap[K, V <: ReplicatedData](): ORMap[K, V] = delegate.newORMap()
+  override def newCounter(): ReplicatedCounter = delegate.newCounter()
+  override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] = delegate.newReplicatedCounterMap()
+  override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
+  override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
+  override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] = delegate.newReplicatedRegisterMap()
+  override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] = delegate.newReplicatedMap()
   override def newVote(): Vote = delegate.newVote()
 
   override def getWriteConsistency: WriteConsistency = delegate.getWriteConsistency

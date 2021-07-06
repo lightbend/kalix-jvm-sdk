@@ -16,36 +16,35 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.GCounter
-import com.akkaserverless.protocol.replicated_entity.{GCounterDelta, ReplicatedEntityDelta}
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter
+import com.akkaserverless.protocol.replicated_entity.{ReplicatedCounterDelta, ReplicatedEntityDelta}
 
-private[replicatedentity] final class GCounterImpl extends InternalReplicatedData with GCounter {
-  override final val name = "GCounter"
+private[replicatedentity] final class ReplicatedCounterImpl extends InternalReplicatedData with ReplicatedCounter {
+  override final val name = "ReplicatedCounter"
   private var value: Long = 0
   private var deltaValue: Long = 0
 
   override def getValue: Long = value
 
   override def increment(by: Long): Long = {
-    if (by < 0) {
-      throw new IllegalArgumentException("Cannot increment a GCounter by a negative amount.")
-    }
     deltaValue += by
     value += by
     value
   }
 
+  override def decrement(by: Long): Long = increment(-by)
+
   override def hasDelta: Boolean = deltaValue != 0
 
   override def delta: ReplicatedEntityDelta.Delta =
-    ReplicatedEntityDelta.Delta.Gcounter(GCounterDelta(deltaValue))
+    ReplicatedEntityDelta.Delta.Counter(ReplicatedCounterDelta(deltaValue))
 
   override def resetDelta(): Unit = deltaValue = 0
 
   override val applyDelta = {
-    case ReplicatedEntityDelta.Delta.Gcounter(GCounterDelta(increment, _)) =>
+    case ReplicatedEntityDelta.Delta.Counter(ReplicatedCounterDelta(increment, _)) =>
       value += increment
   }
 
-  override def toString = s"GCounter($value)"
+  override def toString = s"ReplicatedCounter($value)"
 }
