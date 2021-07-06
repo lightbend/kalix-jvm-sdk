@@ -40,9 +40,6 @@ public final class Main {
 
   public static void main(String[] args) throws Exception {
     LOG.info("started");
-    ClassLoader classLoader = Main.class.getClassLoader();
-    String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
-    AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
 
     if (args.length == 0) {
       // This is for value entity
@@ -55,26 +52,10 @@ public final class Main {
           // end::register[]
           .lowLevel()
           .registerValueEntity(
-              // TODO this factory probably can disappear, we can pass in the handler directly?
-              context ->
-                  new CustomerValueEntityHandler(
-                      // TODO I guess construction the Entity should somehow remain part of the
-                      // customer API, so they can pass
-                      // in  anything they like in the constructor, including the context?
-                      new CustomerValueEntity(),
-                      new AnySupport(
-                          new Descriptors.FileDescriptor[] {CustomerDomain.getDescriptor()},
-                          classLoader,
-                          typeUrlPrefix,
-                          prefer)),
-              CustomerApi.getDescriptor().findServiceByName("CustomerService"),
-              "customers",
-              ValueEntityOptions.defaults(),
-              CustomerDomain.getDescriptor())
-          .registerValueEntity(
-              CustomerValueEntity.class,
-              CustomerApi.getDescriptor().findServiceByName("CustomerService"),
-              CustomerDomain.getDescriptor())
+              context -> new CustomerValueEntityHandler(new CustomerValueEntity()),
+              CustomerValueEntityHandler.serviceDescriptor,
+              CustomerValueEntityHandler.entityType,
+              ValueEntityOptions.defaults())
           .start()
           .toCompletableFuture()
           .get();
