@@ -2,7 +2,7 @@
 name-template: 'Akka Serverless Java SDK $NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
-  - title: '🚀 Productboard Features'
+  - title: '🚀 Features'
     labels:
       - 'Feature'
   - title: 'Documentation'
