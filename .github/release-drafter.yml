@@ -1,0 +1,42 @@
+# Config for https://github.com/release-drafter/release-drafter
+name-template: 'Akka Serverless Java SDK $NEXT_PATCH_VERSION'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'Feature'
+  - title: 'Documentation'
+    labels:
+      - 'Documentation'
+      - 'Samples'
+  - title: 'Maven tooling'
+    labels:
+      - 'Maven'
+  - title: 'TCK'
+    labels:
+      - 'tck'
+
+change-template: '- $TITLE #$NUMBER by @$AUTHOR'
+template: |
+  # :mega: Akka Serverless Java SDK $NEXT_PATCH_VERSION
+
+  ## Changes
+
+  $CHANGES
+
+  ## :bow: Credits
+  Special thanks to the following contributors who helped with this release: $CONTRIBUTORS
+
+autolabeler:
+  - label: 'Maven'
+    files:
+      - 'maven-java/*'
+  - label: 'Documentation'
+    files:
+      - 'docs/*'
+  - label: 'Samples'
+    files:
+      - 'samples/*'
+  - label: 'tck'
+    files:
+      - 'tck/*'
