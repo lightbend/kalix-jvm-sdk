@@ -75,7 +75,7 @@ public class AkkaServerlessProxyContainer extends GenericContainer<AkkaServerles
     withEnv("EVENTING_SUPPORT", "google-pubsub-emulator");
     withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal");
     withEnv("PUBSUB_EMULATOR_PORT", String.valueOf(googlePubSubPort));
-    waitingFor(Wait.forLogMessage(".*Akka Serverless proxy online.*", 1));
+    waitingFor(Wait.forLogMessage(".*gRPC proxy started.*", 1));
   }
 
   @Override
