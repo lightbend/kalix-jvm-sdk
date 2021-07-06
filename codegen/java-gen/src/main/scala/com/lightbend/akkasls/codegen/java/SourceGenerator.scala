@@ -141,7 +141,7 @@ object SourceGenerator extends PrettyPrinter {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
           (
-            FullyQualifiedName(s"${entity.fqn.name}Impl", entity.fqn.parent),
+            FullyQualifiedName(s"${entity.fqn.name}", entity.fqn.parent),
             entity match {
               case _: ModelBuilder.EventSourcedEntity =>
                 "registerEventSourcedEntity"
@@ -149,7 +149,7 @@ object SourceGenerator extends PrettyPrinter {
                 "registerValueEntity"
             },
             Seq(
-              s"${entity.fqn.name}Impl" <> ".class",
+              s"${entity.fqn.name}" <> ".class",
               service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
                 dquotes(service.fqn.name)
               )
@@ -166,10 +166,10 @@ object SourceGenerator extends PrettyPrinter {
       case service: ModelBuilder.ViewService =>
         Some(
           (
-            FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
+            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
             "registerView",
             (if (service.transformedUpdates.nonEmpty) {
-               Seq(s"${service.fqn.name}Impl" <> ".class")
+               Seq(s"${service.fqn.name}" <> ".class")
              } else Seq.empty) ++ Seq(
               service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
                 dquotes(service.fqn.name)
@@ -183,10 +183,10 @@ object SourceGenerator extends PrettyPrinter {
       case service: ModelBuilder.ActionService =>
         Some(
           (
-            FullyQualifiedName(s"${service.fqn.name}Impl", service.fqn.parent),
+            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
             "registerAction",
             Seq(
-              s"${service.fqn.name}Impl" <> ".class",
+              s"${service.fqn.name}" <> ".class",
               service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
                 dquotes(service.fqn.name)
               )

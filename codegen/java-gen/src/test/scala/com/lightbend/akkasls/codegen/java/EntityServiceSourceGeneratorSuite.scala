@@ -25,7 +25,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = TestData.simpleEntityService()
 
     val packageName = "com.example.service"
-    val className = "MyServiceEntityImpl"
+    val className = "MyServiceEntity"
     val interfaceClassName = "AbstractMyServiceEntity"
     val entityType = "my-eventsourcedentity-persistence"
 
@@ -55,11 +55,11 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
-      |public class MyServiceEntityImpl extends AbstractMyServiceEntity {
+      |public class MyServiceEntity extends AbstractMyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceEntityImpl(@EntityId String entityId) {
+      |    public MyServiceEntity(@EntityId String entityId) {
       |        this.entityId = entityId;
       |    }
       |    
@@ -99,7 +99,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val entity = TestData.valueEntity()
 
     val packageName = "com.example.service"
-    val className = "MyServiceImpl"
+    val className = "MyService"
     val interfaceClassName = "AbstractMyService"
     val entityType = "my-valueentity-persistence"
 
@@ -129,11 +129,11 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |/** A value entity. */
       |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyServiceImpl extends AbstractMyService {
+      |public class MyService extends AbstractMyService {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceImpl(@EntityId String entityId) {
+      |    public MyService(@EntityId String entityId) {
       |        this.entityId = entityId;
       |    }
       |    
@@ -234,7 +234,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val entity = TestData.eventSourcedEntity()
 
     val packageName = "com.example.service"
-    val implClassName = "MyServiceEntityImpl"
+    val implClassName = "MyServiceEntity"
     val testClassName = "MyServiceEntityTest"
 
     val sourceDoc =
@@ -263,12 +263,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |public class MyServiceEntityTest {
         |    private String entityId = "entityId1";
-        |    private MyServiceEntityImpl entity;
+        |    private MyServiceEntity entity;
         |    private CommandContext context = Mockito.mock(CommandContext.class);
         |    
         |    @Test
         |    public void setTest() {
-        |        entity = new MyServiceEntityImpl(entityId);
+        |        entity = new MyServiceEntity(entityId);
         |        
         |        // TODO: write your mock here
         |        // Mockito.when(context.[...]).thenReturn([...]);
@@ -284,7 +284,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |    
         |    @Test
         |    public void getTest() {
-        |        entity = new MyServiceEntityImpl(entityId);
+        |        entity = new MyServiceEntity(entityId);
         |        
         |        // TODO: write your mock here
         |        // Mockito.when(context.[...]).thenReturn([...]);
@@ -306,7 +306,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val entity = TestData.valueEntity()
 
     val packageName = "com.example.service"
-    val implClassName = "MyServiceImpl"
+    val implClassName = "MyService"
     val testClassName = "MyServiceTest"
 
     val sourceDoc =
@@ -336,12 +336,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |public class MyServiceTest {
         |    private String entityId = "entityId1";
-        |    private MyServiceImpl entity;
+        |    private MyService entity;
         |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
         |    
         |    @Test
         |    public void setTest() {
-        |        entity = new MyServiceImpl(entityId);
+        |        entity = new MyService(entityId);
         |        
         |        // TODO: write your mock here
         |        // Mockito.when(context.[...]).thenReturn([...]);
@@ -354,7 +354,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |    
         |    @Test
         |    public void getTest() {
-        |        entity = new MyServiceImpl(entityId);
+        |        entity = new MyService(entityId);
         |        
         |        // TODO: write your mock here
         |        // Mockito.when(context.[...]).thenReturn([...]);
