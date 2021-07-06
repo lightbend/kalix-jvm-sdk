@@ -1,5 +1,7 @@
 package com.example.domain;
 
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.reply.MessageReply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.example.CounterApi;
 import org.junit.Test;
@@ -84,9 +86,9 @@ public class CounterTest {
         CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        CounterApi.CurrentCounter reply = entity.getCurrentCounter(message, context);
+        Reply<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(message, context);
 
-        assertThat(reply.getValue(), is(13));
+        assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }
     // tag::contextWithoutState[]
     private CommandContext<CounterDomain.CounterState> contextWithoutState() {

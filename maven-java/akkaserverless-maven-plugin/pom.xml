@@ -62,9 +62,9 @@
 
     <!-- Plugin-specific dependencies -->
     <dependency>
-      <groupId>com.lightbend</groupId>
-      <artifactId>akkasls-codegen-java_2.13</artifactId>
-      <version>0.29.0</version>
+      <groupId>com.akkaserverless</groupId>
+      <artifactId>akkaserverless-codegen-java_2.13</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

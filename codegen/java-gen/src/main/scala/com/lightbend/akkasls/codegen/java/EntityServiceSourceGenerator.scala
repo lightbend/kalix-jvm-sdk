@@ -1,6 +1,17 @@
 /*
- * Copyright (c) Lightbend Inc. 2021
+ * Copyright 2021 Lightbend Inc.
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.lightbend.akkasls.codegen
@@ -9,25 +20,25 @@ package java
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
-import _root_.java.nio.file.{ Files, Path }
+import _root_.java.nio.file.{Files, Path}
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
 
 /**
-  * Responsible for generating Java source from an entity model
-  */
+ * Responsible for generating Java source from an entity model
+ */
 object EntityServiceSourceGenerator {
   import SourceGenerator._
 
   /**
-    * Generate Java source from entities where the target source and test source directories have no existing source.
-    * Note that we only generate tests for entities where we are successful in generating an entity. The user may
-    * not want a test otherwise.
-    *
-    * Also generates a main source file if it does not already exist.
-    *
-    * Impure.
-    */
+   * Generate Java source from entities where the target source and test source directories have no existing source.
+   * Note that we only generate tests for entities where we are successful in generating an entity. The user may
+   * not want a test otherwise.
+   *
+   * Also generates a main source file if it does not already exist.
+   *
+   * Impure.
+   */
   def generate(
       entity: ModelBuilder.Entity,
       service: ModelBuilder.EntityService,
@@ -39,7 +50,7 @@ object EntityServiceSourceGenerator {
       mainClassName: String
   ): Iterable[Path] = {
     val packageName = entity.fqn.parent.javaPackage
-    val className   = entity.fqn.name
+    val className = entity.fqn.name
     val packagePath = packageAsPath(packageName)
 
     val implClassName = className + "Impl"
@@ -133,31 +144,30 @@ object EntityServiceSourceGenerator {
       interfaceClassName: String,
       entityType: String
   ): Document = {
-    val messageTypes = service.commands.toSeq.flatMap(command =>
-      Seq(command.inputType, command.outputType)
-    ) ++ (entity match {
-      case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
-        state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-      case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-    })
+    val messageTypes = service.commands.toSeq
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
+        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
+          state.toSeq.map(_.fqn) ++ events.map(_.fqn)
+        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
+      })
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-      (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          Seq(
-            "com.akkaserverless.javasdk.EntityId",
-            "com.akkaserverless.javasdk.Reply",
-            "com.akkaserverless.javasdk.eventsourcedentity.*"
-          )
-        case _: ModelBuilder.ValueEntity =>
-          Seq(
-            "com.akkaserverless.javasdk.EntityId",
-            "com.akkaserverless.javasdk.Reply",
-            "com.akkaserverless.javasdk.valueentity.*"
-          )
-      })).distinct.sorted
+    (entity match {
+      case _: ModelBuilder.EventSourcedEntity =>
+        Seq(
+          "com.akkaserverless.javasdk.EntityId",
+          "com.akkaserverless.javasdk.Reply",
+          "com.akkaserverless.javasdk.eventsourcedentity.*"
+        )
+      case _: ModelBuilder.ValueEntity =>
+        Seq(
+          "com.akkaserverless.javasdk.EntityId",
+          "com.akkaserverless.javasdk.Reply",
+          "com.akkaserverless.javasdk.valueentity.*"
+        )
+    })).distinct.sorted
 
     pretty(
       initialisedCodeComment <> line <> line <>
@@ -171,14 +181,14 @@ object EntityServiceSourceGenerator {
       (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
           "/** An event sourced entity. */" <> line <>
-            "@EventSourcedEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(entityType)
-            )
+          "@EventSourcedEntity" <> parens(
+            "entityType" <+> equal <+> dquotes(entityType)
+          )
         case _: ModelBuilder.ValueEntity =>
           "/** A value entity. */" <> line <>
-            "@ValueEntity" <> parens(
-              "entityType" <+> equal <+> dquotes(entityType)
-            )
+          "@ValueEntity" <> parens(
+            "entityType" <+> equal <+> dquotes(entityType)
+          )
       }) <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
@@ -195,82 +205,83 @@ object EntityServiceSourceGenerator {
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
             "@Override" <>
-              line <>
-              method(
-                "public",
-                qualifiedType(state.fqn),
-                "snapshot",
-                List.empty,
-                emptyDoc
-              ) {
-                "// TODO: produce state snapshot here" <> line <>
-                "return" <+> qualifiedType(
-                  state.fqn
-                ) <> dot <> "newBuilder().build()" <> semi
-              } <> line <>
-              line <>
-              "@Override" <>
-              line <>
-              method(
-                "public",
-                "void",
-                "handleSnapshot",
-                List(
-                  qualifiedType(state.fqn) <+> "snapshot"
-                ),
-                emptyDoc
-              ) {
-                "// TODO: restore state from snapshot here" <> line
-              } <> line <> line
-          case _ => emptyDoc
-        }) <>
-        ssep(
-          service.commands.toSeq.map { command =>
+            line <>
+            method(
+              "public",
+              qualifiedType(state.fqn),
+              "snapshot",
+              List.empty,
+              emptyDoc
+            ) {
+              "// TODO: produce state snapshot here" <> line <>
+              "return" <+> qualifiedType(
+                state.fqn
+              ) <> dot <> "newBuilder().build()" <> semi
+            } <> line <>
+            line <>
             "@Override" <>
             line <>
             method(
               "public",
-              "Reply" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name),
+              "void",
+              "handleSnapshot",
               List(
-                qualifiedType(command.inputType) <+> "command",
-                (entity match {
-                  case ModelBuilder.ValueEntity(_, _, state) =>
-                    "CommandContext" <> angles(qualifiedType(state.fqn))
-                  case _ => text("CommandContext")
-                }) <+> "ctx"
+                qualifiedType(state.fqn) <+> "snapshot"
               ),
               emptyDoc
             ) {
-              "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
-            }
+              "// TODO: restore state from snapshot here" <> line
+            } <> line <> line
+          case _ => emptyDoc
+        }) <>
+        ssep(
+          service.commands.toSeq.map {
+            command =>
+              "@Override" <>
+              line <>
+              method(
+                "public",
+                "Reply" <> angles(qualifiedType(command.outputType)),
+                lowerFirst(command.fqn.name),
+                List(
+                  qualifiedType(command.inputType) <+> "command",
+                  (entity match {
+                    case ModelBuilder.ValueEntity(_, _, state) =>
+                      "CommandContext" <> angles(qualifiedType(state.fqn))
+                    case _ => text("CommandContext")
+                  }) <+> "ctx"
+                ),
+                emptyDoc
+              ) {
+                "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
+              }
           },
           line <> line
         ) <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
             line <>
-              line <>
-              ssep(
-                events.toSeq.map { event =>
-                  "@Override" <>
-                  line <>
-                  method(
-                    "public",
-                    "void",
-                    lowerFirst(event.fqn.name),
-                    List(
-                      qualifiedType(event.fqn) <+> "event"
-                    ),
-                    emptyDoc
-                  ) {
-                    "throw new RuntimeException" <> parens(
-                      notImplementedError("event", event.fqn)
-                    ) <> semi
-                  }
-                },
-                line <> line
-              )
+            line <>
+            ssep(
+              events.toSeq.map { event =>
+                "@Override" <>
+                line <>
+                method(
+                  "public",
+                  "void",
+                  lowerFirst(event.fqn.name),
+                  List(
+                    qualifiedType(event.fqn) <+> "event"
+                  ),
+                  emptyDoc
+                ) {
+                  "throw new RuntimeException" <> parens(
+                    notImplementedError("event", event.fqn)
+                  ) <> semi
+                }
+              },
+              line <> line
+            )
           case _ => emptyDoc
         })
       }
@@ -283,30 +294,29 @@ object EntityServiceSourceGenerator {
       packageName: String,
       className: String
   ): Document = {
-    val messageTypes = service.commands.toSeq.flatMap(command =>
-      Seq(command.inputType, command.outputType)
-    ) ++ (entity match {
-      case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
-        state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-      case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-    })
+    val messageTypes = service.commands.toSeq
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
+        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
+          state.toSeq.map(_.fqn) ++ events.map(_.fqn)
+        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
+      })
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-      Seq(
-        "com.akkaserverless.javasdk.EntityId",
-        "com.akkaserverless.javasdk.Reply"
-      ) ++ (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          Seq(
-            "com.akkaserverless.javasdk.eventsourcedentity.*"
-          )
-        case _: ModelBuilder.ValueEntity =>
-          Seq(
-            "com.akkaserverless.javasdk.valueentity.*"
-          )
-      })).distinct.sorted
+    Seq(
+      "com.akkaserverless.javasdk.EntityId",
+      "com.akkaserverless.javasdk.Reply"
+    ) ++ (entity match {
+      case _: ModelBuilder.EventSourcedEntity =>
+        Seq(
+          "com.akkaserverless.javasdk.eventsourcedentity.*"
+        )
+      case _: ModelBuilder.ValueEntity =>
+        Seq(
+          "com.akkaserverless.javasdk.valueentity.*"
+        )
+    })).distinct.sorted
 
     pretty(
       managedCodeComment <> line <> line <>
@@ -319,36 +329,38 @@ object EntityServiceSourceGenerator {
       line <>
       (entity match {
         case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
-        case _: ModelBuilder.ValueEntity        => "/** A value entity. */"
+        case _: ModelBuilder.ValueEntity => "/** A value entity. */"
       }) <> line <>
       `class`("public abstract", "Abstract" + className) {
         line <>
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
             "@Snapshot" <>
-              line <>
-              abstractMethod(
-                "public",
-                qualifiedType(state.fqn),
-                "snapshot",
-                List.empty
-              ) <> semi <> line <>
-              line <>
-              "@SnapshotHandler" <>
-              line <>
-              abstractMethod(
-                "public",
-                "void",
-                "handleSnapshot",
-                List(
-                  qualifiedType(state.fqn) <+> "snapshot"
-                )
-              ) <> semi <> line <>
-              line
+            line <>
+            abstractMethod(
+              "public",
+              qualifiedType(state.fqn),
+              "snapshot",
+              List.empty
+            ) <> semi <> line <>
+            line <>
+            "@SnapshotHandler" <>
+            line <>
+            abstractMethod(
+              "public",
+              "void",
+              "handleSnapshot",
+              List(
+                qualifiedType(state.fqn) <+> "snapshot"
+              )
+            ) <> semi <> line <>
+            line
           case _ => emptyDoc
         }) <>
         ssep(
           service.commands.toSeq.map { command =>
+            "@CommandHandler" <>
+            line <>
             abstractMethod(
               "public",
               "Reply" <> angles(qualifiedType(command.outputType)),
@@ -368,22 +380,22 @@ object EntityServiceSourceGenerator {
         (entity match {
           case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
             line <>
-              line <>
-              ssep(
-                events.toSeq.map { event =>
-                  "@EventHandler" <>
-                  line <>
-                  abstractMethod(
-                    "public",
-                    "void",
-                    lowerFirst(event.fqn.name),
-                    List(
-                      qualifiedType(event.fqn) <+> "event"
-                    )
-                  ) <> semi
-                },
-                line <> line
-              )
+            line <>
+            ssep(
+              events.toSeq.map { event =>
+                "@EventHandler" <>
+                line <>
+                abstractMethod(
+                  "public",
+                  "void",
+                  lowerFirst(event.fqn.name),
+                  List(
+                    qualifiedType(event.fqn) <+> "event"
+                  )
+                ) <> semi
+              },
+              line <> line
+            )
           case _ => emptyDoc
         })
       }
@@ -398,9 +410,7 @@ object EntityServiceSourceGenerator {
       testClassName: String
   ): Document = {
     val messageTypes =
-      service.commands.flatMap(command =>
-        Seq(command.inputType, command.outputType)
-      ) ++ (entity match {
+      service.commands.flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
           Seq.empty
         case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
@@ -440,42 +450,43 @@ object EntityServiceSourceGenerator {
         }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
         ssep(
-          service.commands.toSeq.map { command =>
-            "@Test" <> line <>
-            method(
-              "public",
-              "void",
-              lowerFirst(command.fqn.name) + "Test",
-              List.empty,
-              emptyDoc
-            ) {
-              "entity" <+> equal <+> "new" <+> implClassName <> parens(
-                "entityId"
-              ) <> semi <> line <>
-              line <>
-              "// TODO: write your mock here" <> line <>
-              "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
-              line <>
-              "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
-              "//" <+> "assertEquals" <> parens(
-                "[expected]" <> comma <>
-                line <> "//" <> indent("entity") <> dot <> lowerFirst(
-                  command.fqn.name
-                ) <> lparen <>
-                qualifiedType(
-                  command.inputType
-                ) <> dot <> "newBuilder().build(), context"
-              ) <> semi <> line <>
-              "//" <+> rparen <> semi <>
-              (entity match {
-                case _: ModelBuilder.EventSourcedEntity =>
-                  line <>
+          service.commands.toSeq.map {
+            command =>
+              "@Test" <> line <>
+              method(
+                "public",
+                "void",
+                lowerFirst(command.fqn.name) + "Test",
+                List.empty,
+                emptyDoc
+              ) {
+                "entity" <+> equal <+> "new" <+> implClassName <> parens(
+                  "entityId"
+                ) <> semi <> line <>
+                line <>
+                "// TODO: write your mock here" <> line <>
+                "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
+                line <>
+                "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
+                "//" <+> "assertEquals" <> parens(
+                  "[expected]" <> comma <>
+                  line <> "//" <> indent("entity") <> dot <> lowerFirst(
+                    command.fqn.name
+                  ) <> lparen <>
+                  qualifiedType(
+                    command.inputType
+                  ) <> dot <> "newBuilder().build(), context"
+                ) <> semi <> line <>
+                "//" <+> rparen <> semi <>
+                (entity match {
+                  case _: ModelBuilder.EventSourcedEntity =>
+                    line <>
                     line <>
                     "// TODO: if you wish to verify events:" <> line <>
                     "//" <> indent("Mockito.verify(context).emit(event)") <> semi
-                case _ => emptyDoc
-              })
-            }
+                  case _ => emptyDoc
+                })
+              }
           },
           line <> line
         )
@@ -501,8 +512,8 @@ object EntityServiceSourceGenerator {
       }
 
     val imports = messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++
+        .filterNot(_.parent.javaPackage == packageName)
+        .map(typeImport) ++
       List(mainClassPackageName + "." + mainClassName) ++
       List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
       Seq(
@@ -568,28 +579,29 @@ object EntityServiceSourceGenerator {
         } <> line <>
         line <>
         ssep(
-          service.commands.toSeq.map { command =>
-            "@Test" <> line <>
-            method(
-              "public",
-              "void",
-              lowerFirst(command.fqn.name) + "OnNonExistingEntity",
-              List.empty,
-              "throws" <+> "Exception" <> space
-            ) {
-              "// TODO: set fields in command, and provide assertions to match replies" <> line <>
-              "//" <+> "client" <> dot <> lowerFirst(command.fqn.name) <> parens(
-                qualifiedType(
-                  command.inputType
-                ) <> dot <> "newBuilder().build()"
-              ) <> line <>
-              "//" <+> indent(
-                dot <> "toCompletableFuture" <> parens(emptyDoc) <> dot <> "get" <> parens(
-                  ssep(List("2", "SECONDS"), comma <> space)
-                ) <> semi,
-                8
-              )
-            }
+          service.commands.toSeq.map {
+            command =>
+              "@Test" <> line <>
+              method(
+                "public",
+                "void",
+                lowerFirst(command.fqn.name) + "OnNonExistingEntity",
+                List.empty,
+                "throws" <+> "Exception" <> space
+              ) {
+                "// TODO: set fields in command, and provide assertions to match replies" <> line <>
+                "//" <+> "client" <> dot <> lowerFirst(command.fqn.name) <> parens(
+                  qualifiedType(
+                    command.inputType
+                  ) <> dot <> "newBuilder().build()"
+                ) <> line <>
+                "//" <+> indent(
+                  dot <> "toCompletableFuture" <> parens(emptyDoc) <> dot <> "get" <> parens(
+                    ssep(List("2", "SECONDS"), comma <> space)
+                  ) <> semi,
+                  8
+                )
+              }
           },
           line <> line
         )

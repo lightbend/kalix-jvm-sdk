@@ -76,6 +76,9 @@ commands:
   build-maven-java:
     description: Build maven-java
     steps:
+      - run: 
+          name: publish m2
+          command: sbt codegenJava/publishM2
       - run:
           name: "Build maven-java"
           command: |

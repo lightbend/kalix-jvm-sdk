@@ -6,6 +6,8 @@ lazy val `akkaserverless-java-sdk` = project
     sdk,
     testkit,
     tck,
+    codegenCore,
+    codegenJava,
     samples
   )
 
@@ -42,26 +44,6 @@ lazy val sdk = project
         "-noqualifier",
         "java.lang"
       ),
-    libraryDependencies ++= Seq(
-        akkaDependency("akka-stream"),
-        akkaDependency("akka-slf4j"),
-        akkaDependency("akka-discovery"),
-        akkaHttpDependency("akka-http"),
-        akkaHttpDependency("akka-parsing"),
-        akkaHttpDependency("akka-http-core"),
-        akkaHttpDependency("akka-http-spray-json"),
-        akkaHttpDependency("akka-http2-support"),
-        "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion,
-        "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion % "compile;protobuf-src",
-        "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
-        akkaDependency("akka-testkit") % Test,
-        akkaDependency("akka-stream-testkit") % Test,
-        akkaHttpDependency("akka-http-testkit") % Test,
-        "ch.qos.logback" % "logback-classic" % LogbackVersion % "test;provided",
-        "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion % Provided,
-        "com.fasterxml.jackson.core" % "jackson-databind" % JacksonDatabindVersion
-      ),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"),
@@ -74,6 +56,7 @@ lazy val sdk = project
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test"
   )
+  .settings(Dependencies.sdk)
 
 lazy val testkit = project
   .in(file("testkit"))
@@ -90,17 +73,13 @@ lazy val testkit = project
         "scalaVersion" -> scalaVersion.value
       ),
     buildInfoPackage := "com.akkaserverless.javasdk.testkit",
-    libraryDependencies ++= Seq(
-        "org.testcontainers" % "testcontainers" % TestContainersVersion,
-        "junit" % "junit" % JUnitVersion % Provided,
-        "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % Provided
-      ),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala"))
   )
+  .settings(Dependencies.testkit)
 
 lazy val tck = project
   .in(file("tck"))
@@ -108,16 +87,31 @@ lazy val tck = project
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage)
   .settings(
     name := "akkaserverless-tck-java-sdk",
-    libraryDependencies ++= Seq(
-        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "ch.qos.logback" % "logback-classic" % LogbackVersion % Test
-      ),
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080
   )
+  .settings(Dependencies.tck)
+
+lazy val codegenCore =
+  project
+    .in(file("codegen/core"))
+    .enablePlugins(PublishSonatype)
+    .dependsOn(sdk)
+    .settings(name := "akkaserverless-codegen-core", testFrameworks += new TestFramework("munit.Framework"))
+    .settings(Dependencies.codegenCore)
+
+lazy val codegenJava =
+  project
+    .in(file("codegen/java-gen"))
+    .configs(IntegrationTest)
+    .dependsOn(codegenCore)
+    .enablePlugins(PublishSonatype)
+    .settings(Defaults.itSettings)
+    .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
+    .settings(Dependencies.codegenJava)
 
 lazy val samples = project
   .in(file("samples"))
