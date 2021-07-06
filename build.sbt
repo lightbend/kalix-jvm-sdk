@@ -118,7 +118,7 @@ lazy val samples = project
   .aggregate(
     // FIXME include samples again
 //    `java-eventing-shopping-cart`,
-//    `java-customer-registry`
+    `java-customer-registry`
   )
 
 lazy val `java-eventing-shopping-cart` = project

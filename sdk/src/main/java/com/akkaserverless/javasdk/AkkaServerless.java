@@ -169,16 +169,13 @@ public final class AkkaServerless {
      * @param descriptor The descriptor for the service that this entity implements.
      * @param entityType The entity type name
      * @param entityOptions The options for this entity.
-     * @param additionalDescriptors Any additional descriptors that should be used to look up
-     *     protobuf types when needed.
      * @return This stateful service builder.
      */
     public AkkaServerless registerValueEntity(
         ValueEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
-        ValueEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+        ValueEntityOptions entityOptions) {
 
       services.put(
           descriptor.getFullName(),
