@@ -19,6 +19,7 @@ package com.example.shoppingcart.domain;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ShoppingCartImpl extends AbstractShoppingCart {
+public class ShoppingCartImpl extends ShoppingCartInterface2 {
   @SuppressWarnings("unused")
   private final String entityId;
 
