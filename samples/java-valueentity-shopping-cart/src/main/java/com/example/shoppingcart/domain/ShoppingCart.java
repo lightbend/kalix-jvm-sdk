@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
  * A value entity.
  */
 @ValueEntity(entityType = "shopping-cart")
-public class ShoppingCartImpl extends AbstractShoppingCart {
+public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCartImpl(@EntityId String entityId) {
+  public ShoppingCart(@EntityId String entityId) {
     this.entityId = entityId;
   }
 
