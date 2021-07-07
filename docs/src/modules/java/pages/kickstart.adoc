@@ -124,12 +124,12 @@ For the default service description in the archetype, the plugin creates an abst
 
 IMPORTANT: Do not modify the base class as it is regenerated on each invocation of `mvn compile`
 
-On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `CounterImpl`) .
+On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `Counter`) .
 
-.src/main/java/com/example/domain/CounterImpl.java
+.src/main/java/com/example/domain/Counter.java
 [source,java]
 ----
-include::example$archetype/first-service/src/main/java/com/example/domain/CounterImpl.java[]
+include::example$archetype/first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
 The Maven plugin provides the `Main` class implementation that registers service components with Akka Serverless.

@@ -29,12 +29,14 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@EventSourcedEntity(entityType = "shopping-cart")
-public class ShoppingCartImpl extends AbstractShoppingCart {
+@EventSourcedEntity(entityType = "eventsourced-shopping-cart")
+public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCartImpl(String entityId) {
+  private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
+
+  public ShoppingCart(@EntityId String entityId) {
     this.entityId = entityId;
   }
 

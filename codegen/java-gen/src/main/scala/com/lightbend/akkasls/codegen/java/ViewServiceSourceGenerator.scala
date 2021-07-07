@@ -48,7 +48,7 @@ object ViewServiceSourceGenerator {
     val className = service.fqn.name
     val packagePath = packageAsPath(packageName)
 
-    val implClassName = className + "Impl"
+    val implClassName = className
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 

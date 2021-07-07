@@ -34,7 +34,7 @@ public class GenerateMojoTest {
         GenerateMojo myMojo = (GenerateMojo) rule.lookupConfiguredMojo(projectDirectory.toFile(), "generate");
         myMojo.execute();
 
-        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/domain/ShoppingCartImpl.java")
+        assertTrue(projectDirectory.resolve("src/main/java/com/example/shoppingcart/domain/ShoppingCart.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve(
                 "target/generated-sources/akkaserverless/java/com/example/shoppingcart/domain/AbstractShoppingCart.java")
