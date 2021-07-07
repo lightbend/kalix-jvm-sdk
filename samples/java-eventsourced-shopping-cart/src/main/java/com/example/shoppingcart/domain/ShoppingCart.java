@@ -28,13 +28,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
-public class ShoppingCartImpl extends AbstractShoppingCart {
+public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
   private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
 
-  public ShoppingCartImpl(@EntityId String entityId) {
+  public ShoppingCart(@EntityId String entityId) {
     this.entityId = entityId;
   }
 

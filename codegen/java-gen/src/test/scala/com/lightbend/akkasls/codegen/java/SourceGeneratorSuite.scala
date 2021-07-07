@@ -36,7 +36,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
           try {
 
             val source1 =
-              sourceDirectory.resolve("com/example/service/persistence/MyEntity1Impl.java")
+              sourceDirectory.resolve("com/example/service/persistence/MyEntity1.java")
             val sourceFile1 = source1.toFile
             FileUtils.forceMkdir(sourceFile1.getParentFile)
             FileUtils.touch(sourceFile1)
@@ -106,11 +106,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity1.java"
                 ),
-                sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2Impl.java"),
+                sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyValueEntity2.java"
                 ),
-                sourceDirectory.resolve("com/example/service/persistence/MyEntity3Impl.java"),
+                sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
                 ),
@@ -120,7 +120,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
-                sourceDirectory.resolve("com/example/service/MyService4Impl.java"),
+                sourceDirectory.resolve("com/example/service/MyService4.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/AbstractMyService4.java"
                 ),
@@ -183,11 +183,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.EntityOuterClass2;
         |import com.example.service.persistence.EntityOuterClass3;
         |import com.example.service.persistence.EntityOuterClass4;
-        |import com.example.service.persistence.MyEntity1Impl;
-        |import com.example.service.persistence.MyEntity3Impl;
-        |import com.example.service.persistence.MyValueEntity2Impl;
+        |import com.example.service.persistence.MyEntity1;
+        |import com.example.service.persistence.MyEntity3;
+        |import com.example.service.persistence.MyValueEntity2;
         |import com.example.service.something.ServiceOuterClass3;
-        |import com.example.service.view.MyService4Impl;
+        |import com.example.service.view.MyService4;
         |import com.example.service.view.ServiceOuterClass4;
         |import com.external.ExternalDomain;
         |
@@ -196,25 +196,25 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
         |        return akkaServerless
         |                .registerEventSourcedEntity(
-        |                    MyEntity1Impl.class,
+        |                    MyEntity1.class,
         |                    ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
         |                    EntityOuterClass1.getDescriptor(),
         |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerValueEntity(
-        |                    MyValueEntity2Impl.class,
+        |                    MyValueEntity2.class,
         |                    ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
         |                    EntityOuterClass2.getDescriptor(),
         |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerEventSourcedEntity(
-        |                    MyEntity3Impl.class,
+        |                    MyEntity3.class,
         |                    ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
         |                    EntityOuterClass3.getDescriptor(),
         |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerView(
-        |                    MyService4Impl.class,
+        |                    MyService4.class,
         |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
         |                    "my-view-id4",
         |                    EntityOuterClass4.getDescriptor()

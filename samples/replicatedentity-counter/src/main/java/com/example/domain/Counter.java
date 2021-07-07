@@ -10,12 +10,12 @@ import com.google.protobuf.Empty;
  * A Counter represented as a replicated entity.
  */
 @ReplicatedEntity // <1>
-public class CounterImpl extends CounterInterface {
+public class Counter extends CounterInterface {
     @SuppressWarnings("unused")
     private final String entityId;
     private final ReplicatedCounter counter;
 
-    public CounterImpl(ReplicatedEntityCreationContext context) { // <2>
+    public Counter(ReplicatedEntityCreationContext context) { // <2>
         this.entityId = context.entityId();
         this.counter = context.state(ReplicatedCounter.class).orElseGet(context::newCounter);
     }

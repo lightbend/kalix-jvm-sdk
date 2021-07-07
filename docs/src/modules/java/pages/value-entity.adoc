@@ -32,7 +32,7 @@ include::example$valueentity-counter/src/main/proto/value-entities/counter_domai
 <2> Import the Akka Serverless protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
 <4> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<5> `name` denotes the base name for the Value entity, the code-generation will create initial sources `CounterImpl`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<5> `name` denotes the base name for the Value entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <6> `enity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't. This value shows in the `@ValueEnity` annotation of your entity implementation.
 <7> `state` points to the protobuf message representing the Value entity's state which is kept by Akka Serverless
 <8> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
@@ -57,12 +57,12 @@ include::example$valueentity-counter/src/main/proto/value-entities/counter_api.p
 
 A Value Entity implementation is a Java class annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`@ValueEntity` {tab-icon}, window="new"]. The class must have a constructor accepting the entity ID in a parameter annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`@EntityId` {tab-icon}, window="new"].
 
-As we rely on the code-generation, the class `CounterImpl` gets generated for us, it extends the generated class `CounterInterface` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors.
+As we rely on the code-generation, the class `Counter` gets generated for us, it extends the generated class `CounterInterface` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors.
 
 [source,java]
-.src/main/java/com/example/domain/CounterImpl.java
+.src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/CounterImpl.java[tag=class]
+include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
 <1> The `@ValueEntity` annotation sets the `entityType` as a unique identifier of the "state storage". The class name may be changed even after data has been created, the `entityType` can't.
 <2> The constructor accepts a parameter marked as the `@EntityId` and we keep the value in a field.
@@ -78,9 +78,9 @@ Command handlers show in the implementation class as methods annotated with link
 In the example below, the `Increase` service call uses the value from the request message `IncreaseValue`. It uses the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] method to manage the entity state.
 
 [source,java,indent=0]
-./src/main/java/com/example/domain/CounterImpl.java
+./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/CounterImpl.java[tag=increase]
+include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by throwing an exception provided by the `ctx.fail(...)` method.
 <2> We retrieve the existing state via `ctx.state()` which returns a `java.util.Optional<CounterDomain.CounterState>`.
@@ -93,9 +93,9 @@ include::java:example$valueentity-counter/src/main/java/com/example/domain/Count
 The following example shows the implementation of the `GetCurrentCounter` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it:
 
 [source,java,indent=0]
-.src/main/java/com/example/domain/CounterImpl.java
+.src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/CounterImpl.java[tag=getCurrentCounter]
+include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
 <1> We access the optional state as above.
 <2> In case we have state for this entity, we use its value to create the `CurrentCounter` return value.
@@ -116,7 +116,7 @@ include::java:example$valueentity-counter/src/main/java/com/example/Main.java[]
 
 == Testing the Entity
 
-To test this Value Entity first we need to create an instance of a `CounterImpl` to which we need to pass an `entityId` of type `String`. 
+To test this Value Entity first we need to create an instance of a `Counter` to which we need to pass an `entityId` of type `String`. 
 
 [source,java,indent=0]
 .src/test/java/com/example/domain/CounterTest.java
@@ -134,19 +134,19 @@ include::java:example$valueentity-counter/src/test/java/com/example/domain/Count
 
 What we are mocking here is the method `getState()` of the public interface link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] that, by definition, gets the current state of the Value Entity or empty if none have been created. Therfore, as we can see in the snippet above we are simulating that the entity hasn't been created yet.
 
-With the `CounterImpl`, the `entityId` and the mocked `CommandContext` we can now create our test. 
+With the `Counter`, the `entityId` and the mocked `CommandContext` we can now create our test. 
 
 [source,java,indent=0]
 .src/test/java/com/example/domain/CounterTest.java
 ----
 include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=increase]
 ----
-<1> creating the instance of `CounterImpl` Value Entity.
+<1> creating the instance of `Counter` Value Entity.
 <2> creating the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext<T>` {tab-icon}, window="new"]. Where `T` is the type of the **domain** `message` our entity receives.
 <3> creating the API message to send to the instance.
 <4> calling to the method under test.
 <5> verifying the `void updateState(T state)` method has been called with the expected value. Where `T` is the type of the **domain** `message` our entity receives.
 
-In this test we call to the `increase` method of that `CounterImpl` by sending an API `message` with a mocked `CommandContext`. We then verify that `void updateState(T state)` has been called with the expected value. 
+In this test we call to the `increase` method of that `Counter` by sending an API `message` with a mocked `CommandContext`. We then verify that `void updateState(T state)` has been called with the expected value. 
 
 
