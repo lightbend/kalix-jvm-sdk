@@ -203,7 +203,7 @@
       <plugin>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
-	    <version>${akkaserverless-maven-plugin.version}</version>
+        <version>${akkaserverless-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>

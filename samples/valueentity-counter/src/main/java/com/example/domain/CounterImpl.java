@@ -8,7 +8,7 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-public class CounterImpl extends AbstractCounter { // <1>
+public class CounterImpl extends CounterInterface2 { // <1>
     @SuppressWarnings("unused")
     private final String entityId;
 

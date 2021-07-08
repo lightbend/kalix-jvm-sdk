@@ -206,9 +206,9 @@
       </plugin>
 
       <plugin>
-        <groupId>com.lightbend</groupId>
-        <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.31.0</version>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-maven-plugin</artifactId>
+	<version>${akkaserverless-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -300,28 +300,6 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <dependencies>
     <dependency>
