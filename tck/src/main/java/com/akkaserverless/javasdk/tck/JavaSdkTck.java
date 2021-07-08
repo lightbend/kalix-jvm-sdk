@@ -116,7 +116,10 @@ public final class JavaSdkTck {
               com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior.class,
               View.getDescriptor().findServiceByName("ViewTckModel"),
               "tck-view",
-              View.getDescriptor());
+              View.getDescriptor())
+          .registerValueEntity(
+              com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity.class,
+              View.getDescriptor().findServiceByName("ViewTckSource"));
 
   public static void main(String[] args) throws Exception {
     SERVICE.start().toCompletableFuture().get();
