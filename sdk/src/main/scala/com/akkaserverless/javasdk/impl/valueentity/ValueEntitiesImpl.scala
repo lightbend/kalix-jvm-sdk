@@ -40,15 +40,12 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl}
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, UpdateState}
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
-import com.akkaserverless.javasdk.reply.ErrorReply
+import com.akkaserverless.javasdk.ComponentOptions
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
                                override val entityType: String,
-                               override val entityOptions: Option[ValueEntityOptions])
+                               val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
   def this(factory: ValueEntityFactory,
@@ -64,6 +61,8 @@ final class ValueEntityService(val factory: ValueEntityFactory,
     }
 
   override final val componentType = ValueEntities.name
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
 final class ValueEntitiesImpl(_system: ActorSystem,

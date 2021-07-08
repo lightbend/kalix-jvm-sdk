@@ -41,25 +41,14 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
 import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
-import com.akkaserverless.javasdk.impl.effect.EffectSupport
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.PrimaryEffectImpl
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
-import com.akkaserverless.javasdk.reply.ErrorReply
+import com.akkaserverless.javasdk.ComponentOptions
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
                                       val anySupport: AnySupport,
                                       override val entityType: String,
                                       val snapshotEvery: Int,
-                                      override val entityOptions: Option[EventSourcedEntityOptions])
+                                      val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
 
   def this(factory: EventSourcedEntityFactory,
@@ -87,6 +76,8 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                     this.entityOptions)
     else
       this
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
 final class EventSourcedEntitiesImpl(_system: ActorSystem,

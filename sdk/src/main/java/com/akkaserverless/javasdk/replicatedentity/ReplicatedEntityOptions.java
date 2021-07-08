@@ -19,6 +19,9 @@ package com.akkaserverless.javasdk.replicatedentity;
 import com.akkaserverless.javasdk.EntityOptions;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityOptionsImpl;
+import scala.collection.immutable.Set;
+
+import java.util.Collections;
 
 /** Root entity options for all Replicated Entities. */
 public interface ReplicatedEntityOptions extends EntityOptions {
@@ -31,6 +34,7 @@ public interface ReplicatedEntityOptions extends EntityOptions {
    * @return the entity options
    */
   static ReplicatedEntityOptions defaults() {
-    return new ReplicatedEntityOptionsImpl(PassivationStrategy.defaultTimeout());
+    return new ReplicatedEntityOptionsImpl(
+        PassivationStrategy.defaultTimeout(), Collections.emptySet());
   }
 }
