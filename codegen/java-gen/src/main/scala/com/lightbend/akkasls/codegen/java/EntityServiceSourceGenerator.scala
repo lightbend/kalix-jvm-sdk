@@ -144,30 +144,34 @@ object EntityServiceSourceGenerator {
       interfaceClassName: String,
       entityType: String
   ): Document = {
+    entity match {
+      case eventSourcedEntity: EventSourcedEntity =>
+        eventSourcedEntitySource(service, eventSourcedEntity, packageName, className, interfaceClassName, entityType)
+      case valueEntity: ValueEntity =>
+        valueEntitySource(service, valueEntity, packageName, className, interfaceClassName, entityType)
+    }
+  }
+
+  private[codegen] def eventSourcedEntitySource(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.EventSourcedEntity,
+      packageName: String,
+      className: String,
+      interfaceClassName: String,
+      entityType: String
+  ): Document = {
     val messageTypes = service.commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
-        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
-          state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-      })
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++
+      entity.state.toSeq.map(_.fqn) ++ entity.events.map(_.fqn)
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
-    (entity match {
-      case _: ModelBuilder.EventSourcedEntity =>
-        Seq(
-          "com.akkaserverless.javasdk.EntityId",
-          "com.akkaserverless.javasdk.Reply",
-          "com.akkaserverless.javasdk.eventsourcedentity.*"
-        )
-      case _: ModelBuilder.ValueEntity =>
-        Seq(
-          "com.akkaserverless.javasdk.EntityId",
-          "com.akkaserverless.javasdk.Reply",
-          "com.akkaserverless.javasdk.valueentity.*"
-        )
-    })).distinct.sorted
+    Seq(
+      "com.akkaserverless.javasdk.EntityId",
+      "com.akkaserverless.javasdk.Reply",
+      "com.akkaserverless.javasdk.eventsourcedentity.*"
+    )).distinct.sorted
 
     pretty(
       initialisedCodeComment <> line <> line <>
@@ -178,18 +182,11 @@ object EntityServiceSourceGenerator {
         line
       ) <> line <>
       line <>
-      (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          "/** An event sourced entity. */" <> line <>
-          "@EventSourcedEntity" <> parens(
-            "entityType" <+> equal <+> dquotes(entityType)
-          )
-        case _: ModelBuilder.ValueEntity =>
-          "/** A value entity. */" <> line <>
-          "@ValueEntity" <> parens(
-            "entityType" <+> equal <+> dquotes(entityType)
-          )
-      }) <> line <>
+      "/** An event sourced entity. */" <> line <>
+      "@EventSourcedEntity" <> parens(
+        "entityType" <+> equal <+> dquotes(entityType)
+      )
+      <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
@@ -202,8 +199,8 @@ object EntityServiceSourceGenerator {
           "this.entityId" <+> equal <+> "entityId" <> semi
         } <> line <>
         line <>
-        (entity match {
-          case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
+        (entity.state match {
+          case Some(state) =>
             "@Override" <>
             line <>
             method(
@@ -235,26 +232,22 @@ object EntityServiceSourceGenerator {
           case _ => emptyDoc
         }) <>
         ssep(
-          service.commands.toSeq.map {
-            command =>
-              "@Override" <>
-              line <>
-              method(
-                "public",
-                "Reply" <> angles(qualifiedType(command.outputType)),
-                lowerFirst(command.fqn.name),
-                List(
-                  qualifiedType(command.inputType) <+> "command",
-                  (entity match {
-                    case ModelBuilder.ValueEntity(_, _, state) =>
-                      "CommandContext" <> angles(qualifiedType(state.fqn))
-                    case _ => text("CommandContext")
-                  }) <+> "ctx"
-                ),
-                emptyDoc
-              ) {
-                "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
-              }
+          service.commands.toSeq.map { command =>
+            "@Override" <>
+            line <>
+            method(
+              "public",
+              "Reply" <> angles(qualifiedType(command.outputType)),
+              lowerFirst(command.fqn.name),
+              List(
+                qualifiedType(command.inputType) <+> "command",
+                text("CommandContext")
+                <+> "ctx"
+              ),
+              emptyDoc
+            ) {
+              "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
+            }
           },
           line <> line
         ) <>
@@ -284,6 +277,77 @@ object EntityServiceSourceGenerator {
             )
           case _ => emptyDoc
         })
+      }
+    )
+  }
+
+  private[codegen] def valueEntitySource(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String,
+      className: String,
+      interfaceClassName: String,
+      entityType: String
+  ): Document = {
+    val messageTypes = service.commands.toSeq
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ Seq(entity.state.fqn)
+
+    val imports = (messageTypes
+      .filterNot(_.parent.javaPackage == packageName)
+      .map(typeImport) ++
+    Seq(
+      "com.akkaserverless.javasdk.EntityId",
+      "com.akkaserverless.javasdk.Reply",
+      "com.akkaserverless.javasdk.valueentity.*"
+    )).distinct.sorted
+
+    pretty(
+      initialisedCodeComment <> line <> line <>
+      "package" <+> packageName <> semi <> line <>
+      line <>
+      ssep(
+        imports.map(pkg => "import" <+> pkg <> semi),
+        line
+      ) <> line <>
+      line <>
+      "/** A value entity. */" <> line <>
+      "@ValueEntity" <> parens(
+        "entityType" <+> equal <+> dquotes(entityType)
+      )
+      <> line <>
+      `class`("public", s"$className extends $interfaceClassName") {
+        "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
+        "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
+        line <>
+        constructor(
+          "public",
+          className,
+          List("@EntityId" <+> "String" <+> "entityId")
+        ) {
+          "this.entityId" <+> equal <+> "entityId" <> semi
+        } <> line <>
+        line <>
+        ssep(
+          service.commands.toSeq.map { command =>
+            "@Override" <>
+            line <>
+            method(
+              "public",
+              "Effect" <> angles(qualifiedType(command.outputType)),
+              lowerFirst(command.fqn.name),
+              List(
+                qualifiedType(entity.state.fqn) <+> "currentState",
+                qualifiedType(command.inputType) <+> "command"
+              ),
+              emptyDoc
+            ) {
+              "return effects().failure" <> parens(
+                "\"The command handler for `" + command.fqn.name + "` is not implemented, yet\""
+              ) <> semi
+            }
+          },
+          line <> line
+        )
       }
     )
   }

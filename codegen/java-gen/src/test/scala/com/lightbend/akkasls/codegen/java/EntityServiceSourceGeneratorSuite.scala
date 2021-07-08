@@ -138,13 +138,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.failure("The command handler for `Set` is not implemented, yet");
+      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command) {
+      |        return effects().failure("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.failure("The command handler for `Get` is not implemented, yet");
+      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command) {
+      |        return effects().failure("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
