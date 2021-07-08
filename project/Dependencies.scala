@@ -79,7 +79,7 @@ object Dependencies {
   val tck = deps ++= Seq(
         akkaslsTckProtocol % "protobuf-src",
         "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "ch.qos.logback" % "logback-classic" % LogbackVersion % Test
+        "ch.qos.logback" % "logback-classic" % LogbackVersion
       )
 
   val testkit = deps ++= Seq(
