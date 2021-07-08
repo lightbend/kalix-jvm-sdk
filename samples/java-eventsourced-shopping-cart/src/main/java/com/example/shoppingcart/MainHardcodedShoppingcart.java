@@ -17,17 +17,15 @@
 package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.example.shoppingcart.domain.HandcodedShoppingCart;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
-import com.example.shoppingcart.domain.ShoppingCartImpl;
 import com.google.protobuf.EmptyProto;
 
-public final class MainComponentRegistrations2 {
-
+public class MainHardcodedShoppingcart {
   public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
     return akkaServerless.registerEventSourcedEntity(
-        ShoppingCartImpl.class,
+        HandcodedShoppingCart.class,
         ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-        ShoppingCartDomain.getDescriptor(),
-        EmptyProto.getDescriptor());
+        ShoppingCartDomain.getDescriptor());
   }
 }
