@@ -19,9 +19,16 @@ package com.akkaserverless.javasdk.impl.valueentity
 import com.akkaserverless.javasdk.PassivationStrategy
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions
 
-private[impl] case class ValueEntityOptionsImpl(override val passivationStrategy: PassivationStrategy)
+import java.util.Collections
+import java.util
+
+private[impl] case class ValueEntityOptionsImpl(override val passivationStrategy: PassivationStrategy,
+                                                override val forwardHeaders: java.util.Set[String])
     extends ValueEntityOptions {
 
   override def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions =
     copy(passivationStrategy = strategy)
+
+  override def withForwardHeaders(headers: util.Set[String]): ValueEntityOptions =
+    copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)))
 }

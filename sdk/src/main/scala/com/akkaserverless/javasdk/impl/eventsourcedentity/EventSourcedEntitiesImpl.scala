@@ -39,16 +39,17 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Me
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.ComponentOptions
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
                                       val anySupport: AnySupport,
                                       override val entityType: String,
                                       val snapshotEvery: Int,
-                                      override val entityOptions: Option[EventSourcedEntityOptions])
+                                      val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
 
   def this(factory: EventSourcedEntityFactory,
@@ -76,6 +77,8 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                     this.entityOptions)
     else
       this
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
 final class EventSourcedEntitiesImpl(_system: ActorSystem,

@@ -19,6 +19,8 @@ package com.akkaserverless.javasdk.valueentity;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityOptionsImpl;
 
+import java.util.Collections;
+
 /** Root entity options for all value based entities. */
 public interface ValueEntityOptions extends com.akkaserverless.javasdk.EntityOptions {
 
@@ -30,6 +32,6 @@ public interface ValueEntityOptions extends com.akkaserverless.javasdk.EntityOpt
    * @return the entity option
    */
   static ValueEntityOptions defaults() {
-    return new ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout());
+    return new ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout(), Collections.emptySet());
   }
 }

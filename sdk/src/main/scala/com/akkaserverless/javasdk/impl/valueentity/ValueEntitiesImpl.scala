@@ -36,18 +36,18 @@ import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Fa
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import java.util.Optional
 
+import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
-
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.ComponentOptions
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
                                val anySupport: AnySupport,
                                override val entityType: String,
-                               override val entityOptions: Option[ValueEntityOptions])
+                               val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
   def this(factory: ValueEntityFactory,
@@ -64,6 +64,8 @@ final class ValueEntityService(val factory: ValueEntityFactory,
     }
 
   override final val componentType = ValueEntities.name
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
 final class ValueEntitiesImpl(_system: ActorSystem,
