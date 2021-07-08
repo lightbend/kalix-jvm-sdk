@@ -293,30 +293,31 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String
+  ): Document =
+    entity match {
+      case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
+        abstractEventSourcedEntity(service, eventSourcedEntity, packageName, className)
+      case valueEntity: ModelBuilder.ValueEntity =>
+        abstractValueEntity(service, valueEntity, packageName, className)
+    }
+
+  private[codegen] def abstractValueEntity(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String,
+      className: String
   ): Document = {
     val messageTypes = service.commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
-        case ModelBuilder.EventSourcedEntity(_, _, state, events) =>
-          state.toSeq.map(_.fqn) ++ events.map(_.fqn)
-        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-      })
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ Seq(entity.state.fqn)
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
       "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.Reply"
-    ) ++ (entity match {
-      case _: ModelBuilder.EventSourcedEntity =>
-        Seq(
-          "com.akkaserverless.javasdk.eventsourcedentity.*"
-        )
-      case _: ModelBuilder.ValueEntity =>
-        Seq(
-          "com.akkaserverless.javasdk.valueentity.*"
-        )
-    })).distinct.sorted
+      "com.akkaserverless.javasdk.Reply",
+      "com.akkaserverless.javasdk.valueentity.*"
+    )).distinct.sorted
 
     pretty(
       managedCodeComment <> line <> line <>
@@ -327,14 +328,65 @@ object EntityServiceSourceGenerator {
         line
       ) <> line <>
       line <>
-      (entity match {
-        case _: ModelBuilder.EventSourcedEntity => "/** An event sourced entity. */"
-        case _: ModelBuilder.ValueEntity => "/** A value entity. */"
-      }) <> line <>
+      "/** A value entity. */"
+      <> line <>
       `class`("public abstract", "Abstract" + className) {
         line <>
-        (entity match {
-          case ModelBuilder.EventSourcedEntity(_, _, Some(state), _) =>
+        ssep(
+          service.commands.toSeq.map { command =>
+            "@CommandHandler" <>
+            line <>
+            abstractMethod(
+              "public",
+              "Reply" <> angles(qualifiedType(command.outputType)),
+              lowerFirst(command.fqn.name),
+              List(
+                qualifiedType(command.inputType) <+> "command",
+                "CommandContext" <> angles(qualifiedType(entity.state.fqn))
+                <+> "ctx"
+              )
+            ) <> semi
+          },
+          line <> line
+        )
+      }
+    )
+  }
+
+  private[codegen] def abstractEventSourcedEntity(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.EventSourcedEntity,
+      packageName: String,
+      className: String
+  ): Document = {
+    val messageTypes = service.commands.toSeq
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ entity.state.toSeq
+        .map(_.fqn) ++ entity.events.map(_.fqn)
+
+    val imports = (messageTypes
+      .filterNot(_.parent.javaPackage == packageName)
+      .map(typeImport) ++
+    Seq(
+      "com.akkaserverless.javasdk.EntityId",
+      "com.akkaserverless.javasdk.Reply",
+      "com.akkaserverless.javasdk.eventsourcedentity.*"
+    )).distinct.sorted
+
+    pretty(
+      managedCodeComment <> line <> line <>
+      "package" <+> packageName <> semi <> line <>
+      line <>
+      ssep(
+        imports.map(pkg => "import" <+> pkg <> semi),
+        line
+      ) <> line <>
+      line <>
+      "/** An event sourced entity. */"
+      <> line <>
+      `class`("public abstract", "Abstract" + className) {
+        line <>
+        (entity.state match {
+          case Some(state) =>
             "@Snapshot" <>
             line <>
             abstractMethod(
@@ -367,37 +419,30 @@ object EntityServiceSourceGenerator {
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(command.inputType) <+> "command",
-                (entity match {
-                  case ModelBuilder.ValueEntity(_, _, state) =>
-                    "CommandContext" <> angles(qualifiedType(state.fqn))
-                  case _ => text("CommandContext")
-                }) <+> "ctx"
+                text("CommandContext")
+                <+> "ctx"
               )
             ) <> semi
           },
           line <> line
         ) <>
-        (entity match {
-          case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
+        line <>
+        line <>
+        ssep(
+          entity.events.toSeq.map { event =>
+            "@EventHandler" <>
             line <>
-            line <>
-            ssep(
-              events.toSeq.map { event =>
-                "@EventHandler" <>
-                line <>
-                abstractMethod(
-                  "public",
-                  "void",
-                  lowerFirst(event.fqn.name),
-                  List(
-                    qualifiedType(event.fqn) <+> "event"
-                  )
-                ) <> semi
-              },
-              line <> line
-            )
-          case _ => emptyDoc
-        })
+            abstractMethod(
+              "public",
+              "void",
+              lowerFirst(event.fqn.name),
+              List(
+                qualifiedType(event.fqn) <+> "event"
+              )
+            ) <> semi
+          },
+          line <> line
+        )
       }
     )
   }
