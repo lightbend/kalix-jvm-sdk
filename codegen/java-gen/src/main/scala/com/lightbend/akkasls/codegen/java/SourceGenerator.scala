@@ -336,6 +336,9 @@ object SourceGenerator extends PrettyPrinter {
   private[java] def `class`(modifier: Doc, name: String)(body: Doc): Doc =
     `class`(modifier, name, None)(body)
 
+  private[java] def `class`(modifier: Doc, name: String, extension: String)(body: Doc): Doc =
+    `class`(modifier, name, Some(extension))(body)
+
   private[java] def `class`(modifier: Doc, name: String, extension: Option[String])(
       body: Doc
   ): Doc =

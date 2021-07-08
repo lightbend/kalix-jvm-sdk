@@ -218,13 +218,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public abstract class AbstractMyService {
+      |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
       |    
       |    @CommandHandler
-      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command);
       |    
       |    @CommandHandler
-      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command);
       |}""".stripMargin
     )
   }

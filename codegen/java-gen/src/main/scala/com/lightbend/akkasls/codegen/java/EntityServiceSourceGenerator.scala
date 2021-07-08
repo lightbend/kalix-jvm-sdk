@@ -330,7 +330,7 @@ object EntityServiceSourceGenerator {
       line <>
       "/** A value entity. */"
       <> line <>
-      `class`("public abstract", "Abstract" + className) {
+      `class`("public abstract", "Abstract" + className, "ValueEntityBase<" + qualifiedType(entity.state.fqn) + ">") {
         line <>
         ssep(
           service.commands.toSeq.map { command =>
@@ -338,12 +338,11 @@ object EntityServiceSourceGenerator {
             line <>
             abstractMethod(
               "public",
-              "Reply" <> angles(qualifiedType(command.outputType)),
+              "Effect" <> angles(qualifiedType(command.outputType)),
               lowerFirst(command.fqn.name),
               List(
-                qualifiedType(command.inputType) <+> "command",
-                "CommandContext" <> angles(qualifiedType(entity.state.fqn))
-                <+> "ctx"
+                qualifiedType(entity.state.fqn) <+> "currentState",
+                qualifiedType(command.inputType) <+> "command"
               )
             ) <> semi
           },
