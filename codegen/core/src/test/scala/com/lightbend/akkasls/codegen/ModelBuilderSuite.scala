@@ -152,7 +152,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val shoppingCartProto =
         PackageNaming(
           "ShoppingcartApi",
-          "com.example.valueentity.shoppingcart",
+          "com.example.shoppingcart",
           None,
           None,
           Some("ShoppingCartApi"),
@@ -162,7 +162,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val domainProto =
         PackageNaming(
           "ShoppingcartDomain",
-          "com.example.valueentity.shoppingcart.domain",
+          "com.example.shoppingcart.domain",
           None,
           None,
           Some("ShoppingCartDomain"),
@@ -192,7 +192,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       assertEquals(
         model.services,
         Map(
-          "com.example.valueentity.shoppingcart.ShoppingCartService" ->
+          "com.example.shoppingcart.ShoppingCartService" ->
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(

@@ -34,7 +34,7 @@ message CurrentCounter { // <6>
 service CounterService { // <7>
   option (akkaserverless.service) = { // <8>
     type : SERVICE_TYPE_ENTITY
-     component : ".domain.Counter"
+    component : ".domain.Counter"
   };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
