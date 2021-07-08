@@ -23,6 +23,10 @@ import "cart/shopping_cart_domain.proto";
 import "google/api/annotations.proto";
 
 service ShoppingCartViewService {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_VIEW
+  };
+
   rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (CartViewState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "eventsourced-shopping-cart"
