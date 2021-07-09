@@ -48,8 +48,11 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.eventsourcedentity.*;
+      |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
@@ -64,29 +67,22 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public EntityOuterClass.MyState snapshot() {
-      |        // TODO: produce state snapshot here
-      |        return EntityOuterClass.MyState.newBuilder().build();
+      |    public EntityOuterClass.MyState emptyState() {
+      |        return EntityOuterClass.MyState.getDefaultInstance();
       |    }
       |    
       |    @Override
-      |    public void handleSnapshot(EntityOuterClass.MyState snapshot) {
-      |        // TODO: restore state from snapshot here
-      |        
+      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command, CommandContext context) {
+      |        return effects().error("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx) {
-      |        return Reply.failure("The command handler for `Set` is not implemented, yet");
+      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command, CommandContext context) {
+      |        return effects().error("The command handler for `Get` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx) {
-      |        return Reply.failure("The command handler for `Get` is not implemented, yet");
-      |    }
-      |    
-      |    @Override
-      |    public void setEvent(EntityOuterClass.SetEvent event) {
+      |    public EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event, EventContext context) {
       |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -155,7 +151,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("EventSourcedEntity interface source") {
+  test("Abstract entity baseclass source") {
     val service = TestData.simpleEntityService()
     val entity = TestData.eventSourcedEntity()
     val packageName = "com.example.service"
@@ -172,29 +168,25 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.eventsourcedentity.*;
+      |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+      |import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public abstract class AbstractMyServiceEntity {
-      |    
-      |    @Snapshot
-      |    public abstract EntityOuterClass.MyState snapshot();
-      |    
-      |    @SnapshotHandler
-      |    public abstract void handleSnapshot(EntityOuterClass.MyState snapshot);
+      |public abstract class AbstractMyServiceEntity extends EventSourcedEntityBase<EntityOuterClass.MyState> {
       |    
       |    @CommandHandler
-      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx);
+      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command, CommandContext context);
       |    
       |    @CommandHandler
-      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx);
+      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command, CommandContext context);
       |    
       |    @EventHandler
-      |    public abstract void setEvent(EntityOuterClass.SetEvent event);
+      |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event, EventContext context);
       |}""".stripMargin
     )
   }

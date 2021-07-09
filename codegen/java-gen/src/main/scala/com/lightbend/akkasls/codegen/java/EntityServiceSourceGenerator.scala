@@ -169,8 +169,11 @@ object EntityServiceSourceGenerator {
       .map(typeImport) ++
     Seq(
       "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.Reply",
-      "com.akkaserverless.javasdk.eventsourcedentity.*"
+      "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventContext",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect"
     )).distinct.sorted
 
     pretty(
@@ -206,75 +209,61 @@ object EntityServiceSourceGenerator {
             method(
               "public",
               qualifiedType(state.fqn),
-              "snapshot",
-              List.empty,
+              "emptyState",
+              Nil,
               emptyDoc
-            ) {
-              "// TODO: produce state snapshot here" <> line <>
-              "return" <+> qualifiedType(
-                state.fqn
-              ) <> dot <> "newBuilder().build()" <> semi
-            } <> line <>
-            line <>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              "void",
-              "handleSnapshot",
-              List(
-                qualifiedType(state.fqn) <+> "snapshot"
-              ),
-              emptyDoc
-            ) {
-              "// TODO: restore state from snapshot here" <> line
-            } <> line <> line
-          case _ => emptyDoc
-        }) <>
-        ssep(
-          service.commands.toSeq.map { command =>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              "Reply" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name),
-              List(
-                qualifiedType(command.inputType) <+> "command",
-                text("CommandContext")
-                <+> "ctx"
-              ),
-              emptyDoc
-            ) {
-              "return Reply.failure" <> parens(notImplementedError("command", command.fqn)) <> semi
-            }
-          },
-          line <> line
-        ) <>
-        (entity match {
-          case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
+            )(
+              "return" <+> qualifiedType(state.fqn) <> ".getDefaultInstance();"
+            ) <>
             line <>
             line <>
             ssep(
-              events.toSeq.map { event =>
+              service.commands.toSeq.map { command =>
                 "@Override" <>
                 line <>
                 method(
                   "public",
-                  "void",
-                  lowerFirst(event.fqn.name),
+                  "Effect" <> angles(qualifiedType(command.outputType)),
+                  lowerFirst(command.fqn.name),
                   List(
-                    qualifiedType(event.fqn) <+> "event"
+                    qualifiedType(state.fqn) <+> "currentState",
+                    qualifiedType(command.inputType) <+> "command",
+                    text("CommandContext") <+> "context"
                   ),
                   emptyDoc
                 ) {
-                  "throw new RuntimeException" <> parens(
-                    notImplementedError("event", event.fqn)
-                  ) <> semi
+                  "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
                 }
               },
               line <> line
-            )
+            ) <> line <> line <>
+            (entity match {
+              case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
+                ssep(
+                  events.toSeq.map { event =>
+                    "@Override" <>
+                    line <>
+                    method(
+                      "public",
+                      qualifiedType(state.fqn),
+                      lowerFirst(event.fqn.name),
+                      List(
+                        qualifiedType(state.fqn) <+> "currentState",
+                        qualifiedType(event.fqn) <+> "event",
+                        text("EventContext") <+> "context"
+                      ),
+                      emptyDoc
+                    ) {
+                      "throw new RuntimeException" <> parens(
+                        notImplementedError("event", event.fqn)
+                      ) <> semi
+                    }
+                  },
+                  line <> line
+                )
+              case _ => emptyDoc
+            })
+
           case _ => emptyDoc
         })
       }
@@ -443,9 +432,11 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.Reply",
-      "com.akkaserverless.javasdk.eventsourcedentity.*"
+      "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
+      "com.akkaserverless.javasdk.eventsourcedentity.CommandHandler",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventContext",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventHandler",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase"
     )).distinct.sorted
 
     pretty(
@@ -457,69 +448,49 @@ object EntityServiceSourceGenerator {
         line
       ) <> line <>
       line <>
-      "/** An event sourced entity. */"
-      <> line <>
-      `class`("public abstract", "Abstract" + className) {
-        line <>
-        (entity.state match {
-          case Some(state) =>
-            "@Snapshot" <>
+      (entity.state match {
+        case Some(state) =>
+          "/** An event sourced entity. */" <>
+          line <>
+          `class`("public abstract", s"Abstract$className extends EventSourcedEntityBase<${qualifiedType(state.fqn)}>") {
             line <>
-            abstractMethod(
-              "public",
-              qualifiedType(state.fqn),
-              "snapshot",
-              List.empty
-            ) <> semi <> line <>
+            ssep(
+              service.commands.toSeq.map { command =>
+                "@CommandHandler" <> line <>
+                abstractMethod(
+                  "public",
+                  "Effect" <> angles(qualifiedType(command.outputType)),
+                  lowerFirst(command.fqn.name),
+                  List(
+                    qualifiedType(state.fqn) <+> "currentState",
+                    qualifiedType(command.inputType) <+> "command",
+                    text("CommandContext") <+> "context"
+                  )
+                ) <> semi
+              },
+              line <> line
+            ) <>
             line <>
-            "@SnapshotHandler" <>
             line <>
-            abstractMethod(
-              "public",
-              "void",
-              "handleSnapshot",
-              List(
-                qualifiedType(state.fqn) <+> "snapshot"
-              )
-            ) <> semi <> line <>
-            line
-          case _ => emptyDoc
-        }) <>
-        ssep(
-          service.commands.toSeq.map { command =>
-            "@CommandHandler" <>
-            line <>
-            abstractMethod(
-              "public",
-              "Reply" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name),
-              List(
-                qualifiedType(command.inputType) <+> "command",
-                text("CommandContext")
-                <+> "ctx"
-              )
-            ) <> semi
-          },
-          line <> line
-        ) <>
-        line <>
-        line <>
-        ssep(
-          entity.events.toSeq.map { event =>
-            "@EventHandler" <>
-            line <>
-            abstractMethod(
-              "public",
-              "void",
-              lowerFirst(event.fqn.name),
-              List(
-                qualifiedType(event.fqn) <+> "event"
-              )
-            ) <> semi
-          },
-          line <> line
-        )
-      }
+            ssep(
+              entity.events.toSeq.map { event =>
+                "@EventHandler" <> line <>
+                abstractMethod(
+                  "public",
+                  qualifiedType(state.fqn),
+                  lowerFirst(event.fqn.name),
+                  List(
+                    qualifiedType(state.fqn) <+> "currentState",
+                    qualifiedType(event.fqn) <+> "event",
+                    text("EventContext") <+> "context"
+                  )
+                ) <> semi
+              },
+              line <> line
+            )
+          }
+        case _ => emptyDoc
+      })
     )
   }
 

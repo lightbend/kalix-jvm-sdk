@@ -1,6 +1,8 @@
 package com.example.domain;
 
 import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -8,7 +10,7 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-public class CounterImpl extends CounterInterface2 { // <1>
+public class CounterImpl extends AbstractCounter { // <1>
     @SuppressWarnings("unused")
     private final String entityId;
 
@@ -24,9 +26,7 @@ public class CounterImpl extends CounterInterface2 { // <1>
 
     // tag::increase[]
     @Override
-    public Effect<Empty> increase(
-            CounterDomain.CounterState currentState,
-            CounterApi.IncreaseValue command) {
+    public Effect<Empty> increase(CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
             return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
