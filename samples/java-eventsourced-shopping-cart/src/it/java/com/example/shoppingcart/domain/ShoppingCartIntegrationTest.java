@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
@@ -30,16 +31,16 @@ import static org.junit.Assert.assertEquals;
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
 public class ShoppingCartIntegrationTest {
 
-  /**
-   * The test kit starts both the service container and the Akka Serverless proxy.
-   */
+  /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(Main.SERVICE);
+  public static final AkkaServerlessTestkitResource testkit =
+      new AkkaServerlessTestkitResource(Main.SERVICE);
 
   private final ShoppingCartServiceClient client;
 
   public ShoppingCartIntegrationTest() {
-    this.client = ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    this.client =
+        ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
@@ -96,8 +97,7 @@ public class ShoppingCartIntegrationTest {
     assertEquals(
         "shopping cart should have expected items",
         cart.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3))
-    );
+        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)));
   }
 
   @Test
@@ -109,15 +109,13 @@ public class ShoppingCartIntegrationTest {
     assertEquals(
         "shopping cart should have expected items",
         cart1.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2))
-    );
+        List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
     removeItem("cart3", "a");
     ShoppingCartApi.Cart cart2 = getCart("cart3");
     assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
         cart2.getItemsList(),
-        List.of(item("b", "Banana", 2))
-    );
+        List.of(item("b", "Banana", 2)));
   }
 }

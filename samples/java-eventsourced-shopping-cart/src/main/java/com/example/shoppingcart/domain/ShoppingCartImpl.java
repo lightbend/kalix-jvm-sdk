@@ -16,10 +16,10 @@
 
 package com.example.shoppingcart.domain;
 
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 
 import java.util.Comparator;
 import java.util.List;
@@ -27,14 +27,21 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ShoppingCartImpl extends ShoppingCartInterface2 {
-  @SuppressWarnings("unused")
-  private final String entityId;
+/**
+ * This is where the user will implement her business logic.
+ *
+ * <p>We might generate an initial version, but after that re-generation should update just the
+ * interface and the users' build tooling should indicate what needs changing.
+ */
+// FIXME Effect<T> and effects() are in scope and compiles, but IntelliJ does not understand that
+// pattern and marks as error
+public class ShoppingCartImpl extends GeneratedCartEntityBaseclass {
 
   public ShoppingCartImpl(String entityId) {
-    this.entityId = entityId;
+    super(entityId);
   }
 
+  @SuppressWarnings("unused")
   @Override
   protected ShoppingCartDomain.Cart emptyState() {
     return ShoppingCartDomain.Cart.getDefaultInstance();
@@ -42,7 +49,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<Empty> addItem(
-      ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem command) {
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartApi.AddLineItem command,
+      CommandContext context) {
     if (command.getQuantity() <= 0) {
       return effects().error("Cannot add negative quantity of to item" + command.getProductId());
     }
@@ -62,7 +71,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<Empty> removeItem(
-      ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveLineItem command) {
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartApi.RemoveLineItem command,
+      CommandContext context) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
       return effects()
           .error(
@@ -77,7 +88,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
-      ShoppingCartDomain.Cart currentState, ShoppingCartApi.GetShoppingCart command) {
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartApi.GetShoppingCart command,
+      CommandContext context) {
     List<ShoppingCartApi.LineItem> apiItems =
         currentState.getItemsList().stream()
             .map(this::convert)
@@ -89,7 +102,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   protected ShoppingCartDomain.Cart itemAdded(
-      ShoppingCartDomain.Cart currentState, ShoppingCartDomain.ItemAdded itemAdded) {
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartDomain.ItemAdded itemAdded,
+      EventContext context) {
     ShoppingCartDomain.LineItem item = itemAdded.getItem();
     ShoppingCartDomain.LineItem lineItem = updateItem(item, currentState);
     List<ShoppingCartDomain.LineItem> lineItems =
@@ -101,7 +116,9 @@ public class ShoppingCartImpl extends ShoppingCartInterface2 {
 
   @Override
   protected ShoppingCartDomain.Cart itemRemoved(
-      ShoppingCartDomain.Cart currentState, ShoppingCartDomain.ItemRemoved itemRemoved) {
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartDomain.ItemRemoved itemRemoved,
+      EventContext context) {
     List<ShoppingCartDomain.LineItem> items =
         removeItemByProductId(currentState, itemRemoved.getProductId());
     items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));

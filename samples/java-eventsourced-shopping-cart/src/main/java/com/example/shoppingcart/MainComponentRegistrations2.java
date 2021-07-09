@@ -17,6 +17,11 @@
 package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler;
+import com.example.shoppingcart.domain.GeneratedEventSourcedEntityHandler;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.example.shoppingcart.domain.ShoppingCartImpl;
 import com.google.protobuf.EmptyProto;
@@ -24,10 +29,18 @@ import com.google.protobuf.EmptyProto;
 public final class MainComponentRegistrations2 {
 
   public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
-    return akkaServerless.registerEventSourcedEntity(
-        ShoppingCartImpl.class,
-        ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
-        ShoppingCartDomain.getDescriptor(),
-        EmptyProto.getDescriptor());
+    return akkaServerless
+        .lowLevel()
+        .registerEventSourcedEntity(
+            // see GeneratedFactory for additional idea
+            context ->
+                new GeneratedEventSourcedEntityHandler(new ShoppingCartImpl(context.entityId())),
+            ShoppingCartApi.getDescriptor().findServiceByName("ShoppingCartService"),
+            // entity type
+            ShoppingCartImpl.class.getSimpleName(),
+            // snapshot every
+            10,
+            // options
+            EventSourcedEntityOptions.defaults());
   }
 }
