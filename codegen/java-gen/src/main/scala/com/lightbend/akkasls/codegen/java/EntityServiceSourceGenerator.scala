@@ -354,7 +354,7 @@ object EntityServiceSourceGenerator {
               ),
               emptyDoc
             ) {
-              "return effects().failure" <> parens(
+              "return effects().error" <> parens(
                 "\"The command handler for `" + command.fqn.name + "` is not implemented, yet\""
               ) <> semi
             }
