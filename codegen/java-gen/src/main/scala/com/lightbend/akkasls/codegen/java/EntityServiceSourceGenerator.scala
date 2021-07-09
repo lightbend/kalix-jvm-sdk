@@ -327,6 +327,19 @@ object EntityServiceSourceGenerator {
           "this.entityId" <+> equal <+> "entityId" <> semi
         } <> line <>
         line <>
+        "@Override" <>
+        line <>
+        method(
+          "public",
+          qualifiedType(entity.state.fqn),
+          "emptyState",
+          Nil,
+          emptyDoc
+        )(
+          "return" <+> qualifiedType(entity.state.fqn) <> ".getDefaultInstance();"
+        ) <>
+        line <>
+        line <>
         ssep(
           service.commands.toSeq.map { command =>
             "@Override" <>
