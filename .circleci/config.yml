@@ -225,7 +225,7 @@ jobs:
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION test-compile #verify -Pit
       - run:
           name: Run integration tests for Counter Replicated Entity sample
           command: |

@@ -138,13 +138,18 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.failure("The command handler for `Set` is not implemented, yet");
+      |    public EntityOuterClass.MyState emptyState() {
+      |        return EntityOuterClass.MyState.getDefaultInstance();
       |    }
       |    
       |    @Override
-      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
-      |        return Reply.failure("The command handler for `Get` is not implemented, yet");
+      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command) {
+      |        return effects().error("The command handler for `Set` is not implemented, yet");
+      |    }
+      |    
+      |    @Override
+      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command) {
+      |        return effects().error("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
     )
@@ -218,13 +223,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |import com.external.Empty;
       |
       |/** A value entity. */
-      |public abstract class AbstractMyService {
+      |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
       |    
       |    @CommandHandler
-      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command);
       |    
       |    @CommandHandler
-      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command);
       |}""".stripMargin
     )
   }
