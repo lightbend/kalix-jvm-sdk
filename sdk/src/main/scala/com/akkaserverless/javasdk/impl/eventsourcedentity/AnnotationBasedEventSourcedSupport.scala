@@ -16,17 +16,22 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
+import com.akkaserverless.javasdk.impl.FailInvoked
+import com.akkaserverless.javasdk.impl.ReflectionHelper.MethodParameter
+import com.akkaserverless.javasdk.impl.ReflectionHelper.ParameterHandler
 import com.akkaserverless.javasdk.impl.ReflectionHelper.{InvocationContext, MainArgumentParameterHandler}
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvent
 import com.akkaserverless.javasdk.impl.{AnySupport, ReflectionHelper, ResolvedEntityFactory, ResolvedServiceMethod}
 import com.akkaserverless.javasdk.{EntityFactory, Reply, ServiceCallFactory}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
+
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
-
 import scala.collection.concurrent.TrieMap
-
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 
@@ -87,9 +92,9 @@ private[impl] class AnnotationBasedEventSourcedSupport(
       }
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext): Reply[JavaPbAny] = unwrap {
+    override def handleCommand(command: JavaPbAny, context: CommandContext): Effect[JavaPbAny] = unwrap {
       behavior.commandHandlers.get(context.commandName()).map { handler =>
-        handler.invoke(entity, command, context)
+        handler.commandInvoke(entity, command, context)
       } getOrElse {
         throw EntityException(
           context,
@@ -142,7 +147,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
 
 private class EventBehaviorReflection(
     eventHandlers: Map[Class[_], EventHandlerInvoker],
-    val commandHandlers: Map[String, ReflectionHelper.CommandHandlerInvoker[CommandContext]],
+    val commandHandlers: Map[String, EventSourcedCommandHandlerInvoker],
     snapshotHandlers: Map[Class[_], SnapshotHandlerInvoker],
     val snapshotInvoker: Option[SnapshotInvoker]
 ) {
@@ -208,9 +213,9 @@ private object EventBehaviorReflection {
           )
         })
 
-        new ReflectionHelper.CommandHandlerInvoker[CommandContext](ReflectionHelper.ensureAccessible(method),
-                                                                   serviceMethod,
-                                                                   anySupport)
+        new EventSourcedCommandHandlerInvoker(ReflectionHelper.ensureAccessible(method),
+                                              serviceMethod,
+                                              anySupport)
       }
       .groupBy(_.serviceMethod.name)
       .map {
@@ -353,4 +358,54 @@ private class SnapshotInvoker(val method: Method) {
     method.invoke(obj, parameters.map(_.apply(ctx)): _*)
   }
 
+}
+
+private class EventSourcedCommandHandlerInvoker(
+    method: Method,
+    serviceMethod: ResolvedServiceMethod[_, _],
+    anySupport: AnySupport,
+    extraParameters: PartialFunction[MethodParameter, ParameterHandler[AnyRef, CommandContext]] = PartialFunction.empty
+) extends ReflectionHelper.CommandHandlerInvoker[CommandContext](method, serviceMethod, anySupport, extraParameters) {
+
+  def commandInvoke(obj: AnyRef,
+                    command: JavaPbAny,
+                    context: CommandContext): EventSourcedEntityBase.Effect[JavaPbAny] = {
+    val decodedCommand = mainArgumentDecoder(command)
+    val ctx = InvocationContext(decodedCommand, context)
+    try {
+      method.invoke(obj, parameters.map(_.apply(ctx)): _*) match {
+        case effect: EventSourcedEntityEffectImpl[_] =>
+          serializePrimaryEffect(effect)
+          // FIXME we'd need state after event handler to serialize the secondary effect as well?
+
+        case null =>
+          throw new NullPointerException(s"${method} returned null")
+        case _ =>
+          throw new IllegalStateException(s"${method} should return an effect now")
+      }
+    } catch {
+      case e: InvocationTargetException =>
+        e.getCause match {
+          case FailInvoked => throw e
+          case x => throw x
+        }
+    }
+  }
+
+  def serializePrimaryEffect(effect: EventSourcedEntityEffectImpl[_]): EventSourcedEntityEffectImpl[JavaPbAny] =
+    effect.primaryEffect match {
+      case EmitEvent(event) =>
+        effect.asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]]
+          .emitEvent(anySupport.encodeJava(event))
+          .asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]]
+      case other => other.asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]]
+    }
+  def serializeSecondaryEffect[T](effect: EventSourcedEntityEffectImpl[T], state: T): EventSourcedEntityEffectImpl[T] =
+    effect.secondaryEffect(state) match {
+      case MessageReplyImpl(message, metadata, sideEffects) =>
+        effect
+          .reply(serialize(message), metadata)
+          .asInstanceOf[EventSourcedEntityEffectImpl[T]]
+      case other => effect
+    }
 }

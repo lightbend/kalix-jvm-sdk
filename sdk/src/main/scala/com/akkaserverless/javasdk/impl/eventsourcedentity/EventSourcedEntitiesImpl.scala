@@ -25,22 +25,16 @@ import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
-  Command => InCommand,
-  Empty => InEmpty,
-  Event => InEvent,
-  Init => InInit
-}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
-  Failure => OutFailure,
-  Reply => OutReply
-}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Command => InCommand, Empty => InEmpty, Event => InEvent, Init => InInit}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 import com.akkaserverless.javasdk.reply.ErrorReply
@@ -177,10 +171,10 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                                    service.snapshotEvery,
                                    log)
 
-          val reply: Reply[JavaPbAny] = try {
-            handler.handleCommand(cmd, context)
+          val effect: EventSourcedEntityEffectImpl[JavaPbAny] = try {
+            handler.handleCommand(cmd, context).asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]]
           } catch {
-            case FailInvoked => Reply.noReply() // Ignore, error already captured
+            case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) =>
               throw EntityException(command, s"Unexpected failure: ${error}", Some(error))
@@ -189,9 +183,9 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
           }
 
           val clientAction =
-            context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = context.events.nonEmpty)
+            context.replyToClientAction(effect, allowNoReply = false, restartOnFailure = context.events.nonEmpty)
 
-          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
+          if (!context.hasError && !effect.isInstanceOf[ErrorReply[_]]) {
             val endSequenceNumber = sequence + context.events.size
             val snapshot =
               if (context.performSnapshot) {
@@ -208,7 +202,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                  EventSourcedReply(
                    command.id,
                    clientAction,
-                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
+                   context.sideEffects ++ ReplySupport.effectsFrom(effect),
                    context.events,
                    snapshot
                  )

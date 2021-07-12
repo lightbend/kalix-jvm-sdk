@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk._
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.example.shoppingcart.ShoppingCartApi
@@ -104,6 +105,10 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   def event(any: Any) = anySupport.encodeJava(any)
 
+  class TestEntityBase extends EventSourcedEntityBase[JavaPbAny] {
+    override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
+  }
+
   "Event sourced annotation support" should {
     "support entity construction" when {
 
@@ -142,7 +147,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
     "support event handlers" when {
       "no arg event handler" in {
         var invoked = false
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @EventHandler(eventClass = classOf[String])
           def handle() = invoked = true
         })
@@ -152,7 +157,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
       "single arg event handler" in {
         var invoked = false
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @EventHandler
           def handle(event: String) = {
             event should ===("my-event")
@@ -165,7 +170,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
       "multi arg event handler" in {
         var invoked = false
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @EventHandler
           def handle(@EntityId eid: String, event: String, ctx: EventContext) = {
             event should ===("my-event")
@@ -180,7 +185,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
       "handle events of a subclass" in {
         var invoked = false
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @EventHandler
           def handle(event: AnyRef) = {
             event should ===("my-event")
@@ -193,7 +198,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
       "handle events of a sub interface" in {
         var invoked = false
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @EventHandler
           def handle(event: java.io.Serializable) = {
             event should ===("my-event")
@@ -205,21 +210,21 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       }
 
       "fail if there's a bad context type" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler
           def handle(event: String, ctx: CommandContext) = ()
         })
       }
 
       "fail if the event handler class conflicts with the event class" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler(eventClass = classOf[Integer])
           def handle(event: String) = ()
         })
       }
 
       "fail if there are two event handlers for the same type" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler
           def handle1(event: String) = ()
 
@@ -229,7 +234,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       }
 
       "fail if an EntityId annotated parameter is not a string" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler
           def handle(event: String, @EntityId entityId: Int) = ()
         })
@@ -240,37 +245,37 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
     "support command handlers" when {
 
       "no arg command handler" in {
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @CommandHandler
-          def addItem() = Wrapped("blah")
+          def addItem() = effects().reply(Wrapped("blah"))
         }, method)
         decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "no arg command handler with Reply" in {
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @CommandHandler
-          def addItem(): Reply[Wrapped] = Reply.message(Wrapped("blah"))
+          def addItem(): Effect[Wrapped] = effects().reply(Wrapped("blah"))
         }, method)
         decodeWrapped(handler.handleCommand(command("nothing"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "single arg command handler" in {
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @CommandHandler
-          def addItem(msg: String) = Wrapped(msg)
+          def addItem(msg: String) = effects.reply(Wrapped(msg))
         }, method)
         decodeWrapped(handler.handleCommand(command("blah"), new MockCommandContext)) should ===(Wrapped("blah"))
       }
 
       "multi arg command handler" in {
         val handler = create(
-          new {
+          new TestEntityBase {
             @CommandHandler
             def addItem(msg: String, @EntityId eid: String, ctx: CommandContext) = {
               eid should ===("foo")
               ctx.commandName() should ===("AddItem")
-              Wrapped(msg)
+              effects().reply(Wrapped(msg))
             }
           },
           method
@@ -279,58 +284,67 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       }
 
       "allow emitting events" in {
-        val handler = create(new {
-          @CommandHandler
-          def addItem(msg: String, ctx: CommandContext) = {
-            ctx.emit(msg + " event")
-            ctx.commandName() should ===("AddItem")
-            Wrapped(msg)
-          }
-        }, method)
+        val handler = create(
+          new TestEntityBase {
+            @CommandHandler
+            def addItem(msg: String, ctx: CommandContext): Effect[Wrapped] = {
+              ctx.commandName() should ===("AddItem")
+              effects().emitEvent(msg + " event").thenReply(_ => Wrapped(msg))
+            }
+          },
+          method
+        )
         val ctx = new MockCommandContext
         decodeWrapped(handler.handleCommand(command("blah"), ctx)) should ===(Wrapped("blah"))
         ctx.emited should ===(Seq("blah event"))
       }
 
       "fail if there's a bad context type" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
+
           @CommandHandler
           def addItem(msg: String, ctx: EventContext) =
-            Wrapped(msg)
+            effects.reply(Wrapped(msg))
         }, method)
       }
 
       "fail if there's two command handlers for the same command" in {
-        a[RuntimeException] should be thrownBy create(new {
-          @CommandHandler
-          def addItem(msg: String, ctx: CommandContext) =
-            Wrapped(msg)
-          @CommandHandler
-          def addItem(msg: String) =
-            Wrapped(msg)
-        }, method)
+        a[RuntimeException] should be thrownBy create(
+          new TestEntityBase {
+            @CommandHandler
+            def addItem(msg: String, ctx: CommandContext) =
+              effects.reply(Wrapped(msg))
+            @CommandHandler
+            def addItem(msg: String) =
+              effects.reply(Wrapped(msg))
+          },
+          method
+        )
       }
 
       "fail if there's no command with that name" in {
-        a[RuntimeException] should be thrownBy create(new {
+        a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @CommandHandler
           def wrongName(msg: String) =
-            Wrapped(msg)
+            effects().reply(Wrapped(msg))
         }, method)
       }
 
       "fail if there's a replicated entity command handler" in {
-        val ex = the[RuntimeException] thrownBy create(new {
-            @com.akkaserverless.javasdk.replicatedentity.CommandHandler
-            def addItem(msg: String) =
-              Wrapped(msg)
-          }, method)
+        val ex = the[RuntimeException] thrownBy create(
+            new TestEntityBase {
+              @com.akkaserverless.javasdk.replicatedentity.CommandHandler
+              def addItem(msg: String) =
+                effects.reply(Wrapped(msg))
+            },
+            method
+          )
         ex.getMessage should include("Did you mean")
         ex.getMessage should include(classOf[CommandHandler].getName)
       }
 
       "unwrap exceptions" in {
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @CommandHandler
           def addItem(): Wrapped = throw new RuntimeException("foo")
         }, method)
@@ -341,9 +355,9 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       }
 
       "receive Failure Reply" in {
-        val handler = create(new {
+        val handler = create(new TestEntityBase {
           @CommandHandler
-          def addItem(): Reply[Wrapped] = Reply.failure("foo")
+          def addItem() = effects.error("foo")
         }, method)
         val ex = handler.handleCommand(command("nothing"), new MockCommandContext)
         assertIsFailure(ex, "foo")

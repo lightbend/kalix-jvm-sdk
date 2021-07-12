@@ -17,11 +17,7 @@
 package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.SnapshotContext;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Any;
 
 import java.util.Optional;
@@ -49,7 +45,7 @@ public interface EventSourcedEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  Reply<Any> handleCommand(Any command, CommandContext context);
+  EventSourcedEntityBase.Effect<Any> handleCommand(Any command, CommandContext context);
 
   /**
    * Handle the given snapshot.
