@@ -169,8 +169,6 @@ object EntityServiceSourceGenerator {
       .map(typeImport) ++
     Seq(
       "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventContext",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect"
@@ -227,8 +225,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(command.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> "command",
-                    text("CommandContext") <+> "context"
+                    qualifiedType(command.inputType) <+> "command"
                   ),
                   emptyDoc
                 ) {
@@ -249,8 +246,7 @@ object EntityServiceSourceGenerator {
                       lowerFirst(event.fqn.name),
                       List(
                         qualifiedType(state.fqn) <+> "currentState",
-                        qualifiedType(event.fqn) <+> "event",
-                        text("EventContext") <+> "context"
+                        qualifiedType(event.fqn) <+> "event"
                       ),
                       emptyDoc
                     ) {
@@ -432,9 +428,7 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
       "com.akkaserverless.javasdk.eventsourcedentity.CommandHandler",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventContext",
       "com.akkaserverless.javasdk.eventsourcedentity.EventHandler",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase"
     )).distinct.sorted
@@ -463,8 +457,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(command.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> "command",
-                    text("CommandContext") <+> "context"
+                    qualifiedType(command.inputType) <+> "command"
                   )
                 ) <> semi
               },
@@ -481,8 +474,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(event.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(event.fqn) <+> "event",
-                    text("EventContext") <+> "context"
+                    qualifiedType(event.fqn) <+> "event"
                   )
                 ) <> semi
               },

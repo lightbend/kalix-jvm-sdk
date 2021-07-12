@@ -48,8 +48,6 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |package com.example.service;
       |
       |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
@@ -72,17 +70,17 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command, CommandContext context) {
+      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command) {
       |        return effects().error("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command, CommandContext context) {
+      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command) {
       |        return effects().error("The command handler for `Get` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event, EventContext context) {
+      |    public EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event) {
       |        throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -168,9 +166,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.example.service.persistence.EntityOuterClass;
@@ -180,13 +176,13 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |public abstract class AbstractMyServiceEntity extends EventSourcedEntityBase<EntityOuterClass.MyState> {
       |    
       |    @CommandHandler
-      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command, CommandContext context);
+      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue command);
       |    
       |    @CommandHandler
-      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command, CommandContext context);
+      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command);
       |    
       |    @EventHandler
-      |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event, EventContext context);
+      |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent event);
       |}""".stripMargin
     )
   }

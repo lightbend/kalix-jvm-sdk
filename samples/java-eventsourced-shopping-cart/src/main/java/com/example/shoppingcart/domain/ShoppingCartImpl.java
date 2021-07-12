@@ -22,7 +22,6 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 
 import java.util.Comparator;
 import java.util.List;
@@ -47,8 +46,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   @Override
   public Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState,
-      ShoppingCartApi.AddLineItem command,
-      CommandContext context) {
+      ShoppingCartApi.AddLineItem command) {
     if (command.getQuantity() <= 0) {
       return effects().error("Cannot add negative quantity of to item" + command.getProductId());
     }
@@ -69,8 +67,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   @Override
   public Effect<Empty> removeItem(
       ShoppingCartDomain.Cart currentState,
-      ShoppingCartApi.RemoveLineItem command,
-      CommandContext context) {
+      ShoppingCartApi.RemoveLineItem command) {
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
       return effects()
           .error(
@@ -86,8 +83,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
       ShoppingCartDomain.Cart currentState,
-      ShoppingCartApi.GetShoppingCart command,
-      CommandContext context) {
+      ShoppingCartApi.GetShoppingCart command) {
     List<ShoppingCartApi.LineItem> apiItems =
         currentState.getItemsList().stream()
             .map(this::convert)
@@ -100,8 +96,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   @Override
   public ShoppingCartDomain.Cart itemAdded(
       ShoppingCartDomain.Cart currentState,
-      ShoppingCartDomain.ItemAdded itemAdded,
-      EventContext context) {
+      ShoppingCartDomain.ItemAdded itemAdded) {
     ShoppingCartDomain.LineItem item = itemAdded.getItem();
     ShoppingCartDomain.LineItem lineItem = updateItem(item, currentState);
     List<ShoppingCartDomain.LineItem> lineItems =
@@ -114,8 +109,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   @Override
   public ShoppingCartDomain.Cart itemRemoved(
       ShoppingCartDomain.Cart currentState,
-      ShoppingCartDomain.ItemRemoved itemRemoved,
-      EventContext context) {
+      ShoppingCartDomain.ItemRemoved itemRemoved) {
     List<ShoppingCartDomain.LineItem> items =
         removeItemByProductId(currentState, itemRemoved.getProductId());
     items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
