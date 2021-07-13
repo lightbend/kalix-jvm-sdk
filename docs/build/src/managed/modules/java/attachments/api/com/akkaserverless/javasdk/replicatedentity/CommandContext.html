@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -217,7 +218,7 @@ extends <a href="ReplicatedEntityContext.html" title="interface in com.akkaserve
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a></h3>
-<code><a href="ReplicatedDataFactory.html#newFlag()">newFlag</a>, <a href="ReplicatedDataFactory.html#newGCounter()">newGCounter</a>, <a href="ReplicatedDataFactory.html#newGSet()">newGSet</a>, <a href="ReplicatedDataFactory.html#newLWWRegister(T)">newLWWRegister</a>, <a href="ReplicatedDataFactory.html#newORMap()">newORMap</a>, <a href="ReplicatedDataFactory.html#newORSet()">newORSet</a>, <a href="ReplicatedDataFactory.html#newPNCounter()">newPNCounter</a>, <a href="ReplicatedDataFactory.html#newVote()">newVote</a></code></li>
+<code><a href="ReplicatedDataFactory.html#newCounter()">newCounter</a>, <a href="ReplicatedDataFactory.html#newRegister(T)">newRegister</a>, <a href="ReplicatedDataFactory.html#newReplicatedCounterMap()">newReplicatedCounterMap</a>, <a href="ReplicatedDataFactory.html#newReplicatedMap()">newReplicatedMap</a>, <a href="ReplicatedDataFactory.html#newReplicatedRegisterMap()">newReplicatedRegisterMap</a>, <a href="ReplicatedDataFactory.html#newReplicatedSet()">newReplicatedSet</a>, <a href="ReplicatedDataFactory.html#newVote()">newVote</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext">
@@ -285,7 +286,7 @@ extends <a href="ReplicatedEntityContext.html" title="interface in com.akkaserve
  <p>When a replicated entity is deleted, it may not be created again. Additionally, replicated
  entity deletion results in tombstones that get accumulated for the life of the cluster. If you
  expect to delete replicated entities frequently, it's recommended that you store them in a
- single or sharded <a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ORMap</code></a>, rather than individual replicated entities.</div>
+ single or sharded <a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMap</code></a>, rather than individual replicated entities.</div>
 </li>
 </ul>
 </li>

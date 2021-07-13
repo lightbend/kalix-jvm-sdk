@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -124,45 +125,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="Flag.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Flag</a></th>
+<th class="colFirst" scope="row"><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></th>
 <td class="colLast">
-<div class="block">A flag replicated data type.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="GCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GCounter</a></th>
-<td class="colLast">
-<div class="block">A Grow-only Counter.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="GSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GSet</a>&lt;T&gt;</th>
-<td class="colLast">
-<div class="block">A Grow-only Set.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="LWWRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">LWWRegister</a>&lt;T&gt;</th>
-<td class="colLast">
-<div class="block">A Last-Write-Wins Register.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORMap</a>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
-<td class="colLast">
-<div class="block">An Observed-Removed Map.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ORSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORSet</a>&lt;T&gt;</th>
-<td class="colLast">
-<div class="block">An Observed-Removed Set.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="PNCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">PNCounter</a></th>
-<td class="colLast">
-<div class="block">A Positive-Negative Counter.</div>
+<div class="block">A counter that can be incremented and decremented.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -208,24 +173,42 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
+<td class="colLast">
+<div class="block">A Replicated Map that allows both the addition and removal of objects in a map.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">A Last-Write-Wins Register.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">A Replicated Set that allows both the addition and removal of elements in a set.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamCancelledContext</a></th>
 <td class="colLast">
 <div class="block">Context for a stream cancelled event.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a>&lt;Output&gt;</th>
 <td class="colLast">
 <div class="block">Context for handling a streamed command.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">SubscriptionContext</a></th>
 <td class="colLast">
 <div class="block">The context for a subscription, passed with every invocation of a <a href="StreamedCommandContext.html#onChange(java.util.function.Function)"><code>StreamedCommandContext.onChange(Function)</code></a> callback.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Vote</a></th>
 <td class="colLast">
 <div class="block">A Vote replicated data type.</div>
@@ -243,15 +226,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="LWWRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">LWWRegisterMap</a>&lt;K,&#8203;V&gt;</th>
+<th class="colFirst" scope="row"><a href="ReplicatedCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;</th>
 <td class="colLast">
-<div class="block">Convenience wrapper class for <a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ORMap</code></a> that uses <a href="LWWRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>LWWRegister</code></a>'s for values.</div>
+<div class="block">A Map of counters.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="PNCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">PNCounterMap</a>&lt;K&gt;</th>
+<th class="colFirst" scope="row"><a href="ReplicatedRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;</th>
 <td class="colLast">
-<div class="block">Convenience wrapper class for <a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ORMap</code></a> that uses <a href="PNCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>PNCounter</code></a>'s for values.</div>
+<div class="block">A Map of registers.</div>
 </td>
 </tr>
 </tbody>
@@ -266,7 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="LWWRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">LWWRegister.Clock</a></th>
+<th class="colFirst" scope="row"><a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a></th>
 <td class="colLast">
 <div class="block">A clock.</div>
 </td>
