@@ -17,62 +17,51 @@
 // tag::class[]
 package customer;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.Snapshot;
-import com.akkaserverless.javasdk.eventsourcedentity.SnapshotHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 
 @EventSourcedEntity(entityType = "customers")
-public class CustomerEventSourcedEntity {
-  private CustomerDomain.CustomerState state = CustomerDomain.CustomerState.getDefaultInstance();
+public class CustomerEventSourcedEntity extends EventSourcedEntityBase<CustomerDomain.CustomerState> {
 
-  @Snapshot
-  public CustomerDomain.CustomerState snapshot() {
-    return state;
-  }
-
-  @SnapshotHandler
-  public void handleSnapshot(CustomerDomain.CustomerState snapshot) {
-    state = snapshot;
+  @Override
+  public CustomerDomain.CustomerState emptyState() {
+    return CustomerDomain.CustomerState.getDefaultInstance();
   }
 
   @CommandHandler
-  public CustomerApi.Customer getCustomer() {
-    return convertToApi(state);
+  public Effect<CustomerApi.Customer> getCustomer(CustomerDomain.CustomerState state, CustomerApi.GetCustomerRequest command) {
+    return effects().reply(convertToApi(state));
   }
 
   @CommandHandler
-  public Empty create(CustomerApi.Customer customer, CommandContext context) {
-    CustomerDomain.CustomerState domainCustomer = convertToDomain(customer);
+  public Effect<Empty> create(CustomerDomain.CustomerState currentState, CustomerApi.Customer request) {
+    CustomerDomain.CustomerState domainCustomer = convertToDomain(request);
     CustomerDomain.CustomerCreated event =
         CustomerDomain.CustomerCreated.newBuilder().setCustomer(domainCustomer).build();
-    context.emit(event);
-    return Empty.getDefaultInstance();
+    return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
   }
 
   @CommandHandler
-  public Empty changeName(CustomerApi.ChangeNameRequest request, CommandContext context) {
-    if (state.equals(CustomerDomain.CustomerState.getDefaultInstance()))
-      throw context.fail("Customer must be created before name can be changed.");
-    CustomerDomain.CustomerNameChanged event =
-        CustomerDomain.CustomerNameChanged.newBuilder().setNewName(request.getNewName()).build();
-    context.emit(event);
-    return Empty.getDefaultInstance();
+  public Effect<Empty> changeName(CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest request) {
+    if (currentState.equals(CustomerDomain.CustomerState.getDefaultInstance())) {
+      return effects().error("Customer must be created before name can be changed.");
+    } else {
+      CustomerDomain.CustomerNameChanged event =
+          CustomerDomain.CustomerNameChanged.newBuilder().setNewName(request.getNewName()).build();
+      return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
+    }
   }
 
   @EventHandler
-  public void customerCreated(CustomerDomain.CustomerCreated event) {
-    state = state.toBuilder().mergeFrom(event.getCustomer()).build();
+  public CustomerDomain.CustomerState customerCreated(CustomerDomain.CustomerState currentState, CustomerDomain.CustomerCreated event) {
+    return currentState.toBuilder().mergeFrom(event.getCustomer()).build();
   }
 
   @EventHandler
-  public void customerNameChanged(CustomerDomain.CustomerNameChanged event) {
-    state = state.toBuilder().setName(event.getNewName()).build();
+  public CustomerDomain.CustomerState customerNameChanged(CustomerDomain.CustomerState currentState, CustomerDomain.CustomerNameChanged event) {
+    return currentState.toBuilder().setName(event.getNewName()).build();
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {

@@ -25,8 +25,16 @@ import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Command => InCommand, Empty => InEmpty, Event => InEvent, Init => InInit}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Event => InEvent,
+  Init => InInit
+}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
+  Failure => OutFailure,
+  Reply => OutReply
+}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
@@ -34,6 +42,13 @@ import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
+import com.akkaserverless.javasdk.impl.effect.EffectSupport
+import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvent
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.PrimaryEffectImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
@@ -138,11 +153,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      val context = new SnapshotContext with AbstractContext {
-        override def entityId: String = thisEntityId
-        override def sequenceNumber: Long = snapshotSequence
-      }
-      handler.handleSnapshot(ScalaPbAny.toJavaProto(any), context)
+      handler.handleSnapshot(ScalaPbAny.toJavaProto(any))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -150,6 +161,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       .map(_.message)
       .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
         case (_, InEvent(event)) =>
+          // Note that these only come on replay
           val context = new EventContextImpl(thisEntityId, event.sequence)
           val ev = ScalaPbAny.toJavaProto(event.payload.get) // FIXME empty?
           handler.handleEvent(ev, context)
@@ -171,8 +183,29 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                                    service.snapshotEvery,
                                    log)
 
-          val effect: EventSourcedEntityEffectImpl[JavaPbAny] = try {
-            handler.handleCommand(cmd, context).asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]]
+          // FIXME we'd want to somehow share this handle-command-apply-event logic to get the end effect ready for asserting in the testkit
+          // FIXME a bit mixed concerns here, esp with the serialization to PbAny but it's either that or pushing this into the handler and making
+          // SecondaryEffectImpl a public API (or make handler internal, which may be a good idea, also for the testkit)
+          var endSequenceNumber = sequence
+          val (events: List[ScalaPbAny], secondaryEffect: SecondaryEffectImpl, snapshot: Option[ScalaPbAny]) = try {
+            val commandEffect =
+              handler.handleCommand(cmd, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+            commandEffect.primaryEffect match {
+              case EmitEvent(event) =>
+                val javaPbEvent = service.anySupport.encodeJava(event)
+                endSequenceNumber = endSequenceNumber + 1
+                handler.handleEvent(javaPbEvent, new EventContextImpl(thisEntityId, sequence))
+                val stateAfterEvent: JavaPbAny = handler.currentState()
+                val snapshot: Option[ScalaPbAny] =
+                  if (service.snapshotEvery > 0 && endSequenceNumber % service.snapshotEvery == 0) {
+                    Option(ScalaPbAny.fromJavaProto(stateAfterEvent))
+                  } else None
+                (ScalaPbAny.fromJavaProto(javaPbEvent) :: Nil,
+                 commandEffect.secondaryEffect(service.anySupport.decode(stateAfterEvent)),
+                 snapshot)
+              case NoPrimaryEffect =>
+                (Nil, commandEffect.secondaryEffect(handler.currentState()), None)
+            }
           } catch {
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
@@ -182,42 +215,47 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
+          // FIXME something more that needs to be serialized?
+          val serializedSecondaryEffect = secondaryEffect match {
+            case MessageReplyImpl(message, metadata, sideEffects) =>
+              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+            case other => other
+          }
+
           val clientAction =
-            context.replyToClientAction(effect, allowNoReply = false, restartOnFailure = context.events.nonEmpty)
+            context.replyToClientAction(serializedSecondaryEffect,
+                                        allowNoReply = false,
+                                        restartOnFailure = events.nonEmpty)
 
-          if (!context.hasError && !effect.isInstanceOf[ErrorReply[_]]) {
-            val endSequenceNumber = sequence + context.events.size
-            val snapshot =
-              if (context.performSnapshot) {
-                val s = handler.snapshot(new SnapshotContext with AbstractContext {
-                  override def entityId: String = thisEntityId
-                  override def sequenceNumber: Long = endSequenceNumber
-                })
-                if (s.isPresent) Option(ScalaPbAny.fromJavaProto(s.get)) else None
-              } else None
+          serializedSecondaryEffect match {
+            case error: ErrorReplyImpl[_] =>
+              log.error("Fail invoked for command [{}] for entity [{}]: {}",
+                        command.name,
+                        thisEntityId,
+                        error.description)
+              (endSequenceNumber,
+               Some(
+                 OutReply(
+                   EventSourcedReply(
+                     commandId = command.id,
+                     clientAction = clientAction
+                   )
+                 )
+               ))
 
-            (endSequenceNumber,
-             Some(
-               OutReply(
-                 EventSourcedReply(
-                   command.id,
-                   clientAction,
-                   context.sideEffects ++ ReplySupport.effectsFrom(effect),
-                   context.events,
-                   snapshot
+            case ok =>
+              (endSequenceNumber,
+               Some(
+                 OutReply(
+                   EventSourcedReply(
+                     command.id,
+                     clientAction,
+                     context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                     events,
+                     snapshot
+                   )
                  )
-               )
-             ))
-          } else {
-            (sequence,
-             Some(
-               OutReply(
-                 EventSourcedReply(
-                   commandId = command.id,
-                   clientAction = clientAction
-                 )
-               )
-             ))
+               ))
           }
         case (_, InInit(i)) =>
           throw ProtocolException(init, "Entity already inited")
@@ -248,17 +286,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       with AbstractSideEffectContext
       with ActivatableContext {
 
-    final var events: Vector[ScalaPbAny] = Vector.empty
     final var performSnapshot: Boolean = false
-
-    override def emit(event: AnyRef): Unit = {
-      checkActive()
-      val encoded = anySupport.encodeScala(event)
-      val nextSequenceNumber = sequenceNumber + events.size + 1
-      handler.handleEvent(ScalaPbAny.toJavaProto(encoded), new EventContextImpl(entityId, nextSequenceNumber))
-      events :+= encoded
-      performSnapshot = (snapshotEvery > 0) && (performSnapshot || (nextSequenceNumber % snapshotEvery == 0))
-    }
 
     override protected def logError(message: String): Unit =
       log.error("Fail invoked for command [{}] for entity [{}]: {}", commandName, entityId, message)

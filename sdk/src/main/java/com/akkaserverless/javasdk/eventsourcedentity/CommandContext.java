@@ -49,14 +49,4 @@ public interface CommandContext
    * @return The id of the command.
    */
   long commandId();
-
-  /**
-   * Emit the given event. The event will be persisted, and the handler of the event defined in the
-   * current behavior will immediately be executed to pick it up.
-   *
-   * @param event The event to emit.
-   * @deprecated Use EventSourcedEffect.emitEvent instead.
-   */
-  @Deprecated
-  void emit(Object event);
 }
