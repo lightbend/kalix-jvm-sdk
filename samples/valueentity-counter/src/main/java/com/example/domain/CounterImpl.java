@@ -20,7 +20,7 @@ public class CounterImpl extends AbstractCounter { // <1>
 // end::class[]
 
     @Override
-    protected CounterDomain.CounterState emptyState() {
+    public CounterDomain.CounterState emptyState() {
         return CounterDomain.CounterState.getDefaultInstance();
     }
 
