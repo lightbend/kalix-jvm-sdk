@@ -237,7 +237,11 @@ jobs:
     steps:
       - checkout
       - restore_deps_cache
+      - setup_sbt
       - set-sdk-version
+      - run:
+          name: publish m2
+          command: sbt publishM2
       - run:
           name: Publish maven plugin and archetype
           command: |
