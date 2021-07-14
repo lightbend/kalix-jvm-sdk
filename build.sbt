@@ -164,31 +164,6 @@ lazy val `java-customer-registry` = project
     IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
   )
 
-/*
-can't be included since it depends on codegen to be compileable?
-lazy val `java-eventsourced-shopping-cart` = project
-  .in(file("samples/java-eventsourced-shopping-cart"))
-  .dependsOn(sdk)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .disablePlugins(HeaderPlugin)
-  .settings(
-    name := "java-eventsourced-shopping-cart",
-    libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
-      "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
-      "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest
-    ),
-    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-    testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
-    inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
-  )
- */
-
 lazy val protobufDescriptorSetOut = settingKey[File]("The file to write the protobuf descriptor set to")
 
 lazy val attachProtobufDescriptorSets = Seq(
