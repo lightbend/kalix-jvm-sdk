@@ -202,6 +202,21 @@ object EntityServiceSourceGenerator {
         line <>
         (entity.state match {
           case Some(state) =>
+            "@Override" <>
+            line <>
+            method(
+              "public",
+              qualifiedType(state.fqn),
+              "emptyState",
+              Nil,
+              emptyDoc
+            )(
+              "throw new UnsupportedOperationException" <> parens(
+                dquotes("Not implemented yet, replace with your empty entity state")
+              ) <> semi
+            ) <>
+            line <>
+            line <>
             ssep(
               service.commands.toSeq.map { command =>
                 "@Override" <>
@@ -308,7 +323,9 @@ object EntityServiceSourceGenerator {
           Nil,
           emptyDoc
         )(
-          "return" <+> qualifiedType(entity.state.fqn) <> ".getDefaultInstance();"
+          "throw new UnsupportedOperationException" <> parens(
+            dquotes("Not implemented yet, replace with your empty entity state")
+          ) <> semi
         ) <>
         line <>
         line <>

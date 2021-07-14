@@ -65,6 +65,11 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
+      |    public EntityOuterClass.MyState emptyState() {
+      |        throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
+      |    }
+      |    
+      |    @Override
       |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue) {
       |        return effects().error("The command handler for `Set` is not implemented, yet");
       |    }
@@ -128,7 +133,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @Override
       |    public EntityOuterClass.MyState emptyState() {
-      |        return EntityOuterClass.MyState.getDefaultInstance();
+      |        throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
       |    }
       |    
       |    @Override
