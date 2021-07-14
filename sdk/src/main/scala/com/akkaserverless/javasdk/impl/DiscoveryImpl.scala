@@ -16,28 +16,23 @@
 
 package com.akkaserverless.javasdk.impl
 
-import java.nio.file.Files
-import akka.actor.ActorSystem
+import akka.Done
+import akka.actor.{ActorSystem, CoordinatedShutdown}
+import com.akkaserverless.javasdk.replicatedentity.{ReplicatedEntityOptions, WriteConsistency}
 import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.empty.Empty
+import org.slf4j.LoggerFactory
 
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
-
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import scala.concurrent.{Future, Promise}
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
-
-import akka.Done
-import akka.actor.CoordinatedShutdown
-import com.google.protobuf.empty.Empty
-import org.slf4j.LoggerFactory
 
 class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
 
@@ -137,6 +132,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
               val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
                 case e: EntityOptions => e
               })
+              val writeConsistency = replicatedWriteConsistency(service.componentOptions.collect {
+                case options: ReplicatedEntityOptions => options
+              })
               Component(
                 service.componentType,
                 name,
@@ -144,7 +142,8 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
                   EntitySettings(
                     service.entityType,
                     passivationStrategy,
-                    service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil)
+                    service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
+                    writeConsistency
                   )
                 )
               )
@@ -230,6 +229,13 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
 
   private def configuredPassivationTimeout(key: String): Option[Duration] =
     if (system.settings.config.hasPath(key)) Some(system.settings.config.getDuration(key)) else None
+
+  def replicatedWriteConsistency(options: Option[ReplicatedEntityOptions]): ReplicatedWriteConsistency =
+    options.map(_.writeConsistency) match {
+      case Some(WriteConsistency.ALL) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_ALL
+      case Some(WriteConsistency.MAJORITY) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_MAJORITY
+      case _ => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
+    }
 
   private def loadDescriptorsWithSource(path: String): Map[String, DescriptorProtos.FileDescriptorProto] =
     // Special case for disabled, this allows the user to disable attempting to load the descriptor, which means
