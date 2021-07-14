@@ -39,7 +39,7 @@ include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/Shoppin
 
 == Constructing
 
-Akka Serverless will construct instances of the Event Sourced Entity class on demand. The constructor below shows how the unique ID of the entity is injected and stored in link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`entityId` {tab-icon}, window="new"].
+Akka Serverless constructs instances of the Event Sourced Entity class on demand. The constructor below shows how the unique ID of the entity is injected and stored in link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`entityId` {tab-icon}, window="new"].
 
 [source,java,indent=4]
 ----
