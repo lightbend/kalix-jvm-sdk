@@ -30,7 +30,7 @@ include::example$java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_d
 
 == Storing state
 
-Each Entity should store its state locally in a mutable variable, either a mutable field or a mutable structure such as a collection. For our shopping cart, the state is a map of product ids to products, so we'll create a map to hold them:
+Each Entity should store its state locally in a mutable variable, either a mutable field or a mutable structure such as a collection. In this example, the state is coded as a map of the product `id` values to products.
 
 [source,java,indent=4]
 ----
