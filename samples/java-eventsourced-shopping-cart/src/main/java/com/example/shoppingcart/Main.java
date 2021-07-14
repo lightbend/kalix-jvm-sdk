@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
@@ -25,8 +26,7 @@ public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-  public static final AkkaServerless SERVICE =
-      withGeneratedComponentsAdded(new AkkaServerless());
+  public static final AkkaServerless SERVICE = withGeneratedComponentsAdded(new AkkaServerless());
 
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");
