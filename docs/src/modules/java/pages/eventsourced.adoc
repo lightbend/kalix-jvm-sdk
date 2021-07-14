@@ -17,7 +17,7 @@ The link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/Even
 [#persistence]
 == Serializing
 
-Event Sourced Entities persist events and snapshots, and these need to be serialized. Akka Serverless will automatically detect if an emitted event is a `protobuf`, and serialize it as such. For other serialization options, including JSON, see xref:serialization.adoc[].
+Event Sourced Entities persist events and snapshots, and these need to be serialized. Akka Serverless automatically detects if an emitted event is in `protobuf` format, and serializes it as such. For other serialization options, including JSON, see xref:serialization.adoc[].
 
 While `protobuf` is the format for persisting events, we recommend that you do not persist the `protobuf` messages from your service interface. Rather, create new messages, even if they are identical. While this may introduce some overhead in needing to convert from one type to the other, it will allow the public interface of the service to evolve independently from its data storage format, which should be private.
 
