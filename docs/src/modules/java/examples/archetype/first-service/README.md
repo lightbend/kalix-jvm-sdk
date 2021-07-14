@@ -72,7 +72,7 @@ ERROR:
 
 To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
-and configure a Docker Registry to upload your docker image to.
+and configure a Docker Registry for your container image.
 
 You will need to update the `akkasls.dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)
