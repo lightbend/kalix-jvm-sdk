@@ -19,8 +19,8 @@
         <jdk.target>11</jdk.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <akkaserverless-sdk.version>0.7.0-beta.10-1-384-45404d30-dev-SNAPSHOT</akkaserverless-sdk.version>
-        <akkaserverless-maven-plugin.version>0.7.0-beta.10-1-384-45404d30-dev-SNAPSHOT</akkaserverless-maven-plugin.version>
+        <akkaserverless-sdk.version>0.7.0-beta.10-1-389-abcf7f94-dev-SNAPSHOT</akkaserverless-sdk.version>
+        <akkaserverless-maven-plugin.version>0.7.0-beta.10-1-389-abcf7f94-dev-SNAPSHOT</akkaserverless-maven-plugin.version>
         <akka-grpc.version>1.1.1</akka-grpc.version>
     </properties>
 
