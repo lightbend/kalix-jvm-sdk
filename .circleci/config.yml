@@ -243,7 +243,6 @@ jobs:
           command: |
             cd maven-java
             echo $PGP_SECRET | base64 -d | gpg --import --batch
-            # It seems ~/.m2 is not actually restored from the cache?
             mkdir -p ~/.m2
             cat >~/.m2/settings.xml \<<EOF;
             <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -301,17 +300,8 @@ jobs:
 workflows:
   CI:
     jobs:
-
-      - validate-docs:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-
-      - checks:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-
+      - validate-docs
+      - checks
       - tests:
           requires: 
             - checks
@@ -343,14 +333,6 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-          requires:
-            - checks
-            - validate-docs
-            - tests
-            - integration-tests
-            - tck-tests
-            - maven-java-tests
-            - samples-tests    
 
       - publish-maven:
           filters: # version tags only
