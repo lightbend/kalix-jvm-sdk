@@ -58,7 +58,7 @@ For more details and examples take a look at the following topics:
 [#_create_unit_tests]
 == Create unit tests
 
-It is good practice to write unit tests as you implement your services. The kickstart codegen project includes hooks for JUnit testing. For implemention details see the xref:java:kickstart.adoc#_3_create_unit_tests[Java kickstart - Create unit tests] topic.
+It is good practice to write unit tests as you implement your services. The kickstart codegen project includes hooks for JUnit testing. For implementation details see the xref:java:kickstart.adoc#_3_create_unit_tests[Java kickstart - Create unit tests] topic.
 
 [#_package_service]
 == Package service
