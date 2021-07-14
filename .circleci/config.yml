@@ -76,9 +76,9 @@ commands:
   build-maven-java:
     description: Build maven-java
     steps:
-      - run: 
+      - run:
           name: publish m2
-          command: sbt codegenJava/publishM2
+          command: sbt publishM2
       - run:
           name: "Build maven-java"
           command: |
@@ -110,6 +110,18 @@ jobs:
           command: |
             sbt headerCheckAll || \
               { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
+      - save_deps_cache
+
+  validate-docs:
+    machine: true
+    description: "Validate docs"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      - run:
+          name: Validate docs
+          command: make -C docs
       - save_deps_cache
 
   tests:
@@ -149,30 +161,14 @@ jobs:
           command: sbt tck/Test/run
       - save_deps_cache
 
-  validate-docs:
-    machine: true
-    description: "Validate docs"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Validate docs
-          command: make -C docs
-      - save_deps_cache
-     
-
   maven-java-tests:
     machine: true
     description: "Maven Java (plugin and archetype tests)"
     steps:
       - checkout-and-merge-to-main
       - restore_deps_cache
-      - set-sdk-version
       - setup_sbt
-      - run: 
-          name: publish m2
-          command: sbt publishM2
+      - set-sdk-version
       - build-maven-java
       - run: 
           name: Run integration tests for Value Entity Archetype
@@ -198,9 +194,6 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - set-sdk-version
-      - run: 
-          name: publish m2
-          command: sbt publishM2
       - build-maven-java
       - run: 
           name: Run integration tests for Shopping Cart Value Entity sample
@@ -250,7 +243,6 @@ jobs:
           command: |
             cd maven-java
             echo $PGP_SECRET | base64 -d | gpg --import --batch
-            # It seems ~/.m2 is not actually restored from the cache?
             mkdir -p ~/.m2
             cat >~/.m2/settings.xml \<<EOF;
             <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -308,48 +300,40 @@ jobs:
 workflows:
   CI:
     jobs:
-      - checks:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
+      - validate-docs
+      - checks
       - tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
+          requires: 
+            - checks
+            - validate-docs
+
       - integration-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/          
-      - maven-java-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/ 
-      - samples-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/ 
+          requires: 
+            - checks
+            - validate-docs
+
       - tck-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
-      - validate-docs:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
+          requires: 
+            - checks
+            - validate-docs
+
+      - maven-java-tests:
+          requires: 
+            - checks
+            - validate-docs
+
+      - samples-tests:
+          requires: 
+            - checks
+            - validate-docs
+            
       - publish:
           filters: # version tags only
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-          requires:
-            - checks
-            - tests
-            - integration-tests
-            - maven-java-tests
-            - samples-tests    
-            - tck-tests
-            - validate-docs   
+
       - publish-maven:
           filters: # version tags only
             tags:
@@ -357,13 +341,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - checks
-            - tests
-            - integration-tests
-            - maven-java-tests
-            - samples-tests    
-            - tck-tests
-            - validate-docs   
+            - publish
+
       - publish-tck:
           filters: # version tags only
             tags:
@@ -371,11 +350,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - checks
-            - tests
-            - integration-tests
-            - tck-tests
-            - validate-docs
+            - publish
+
       - publish-docs:
           filters: # version tags only
             tags:
@@ -383,8 +359,7 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - checks
-            - tests
-            - integration-tests
-            - tck-tests
-            - validate-docs
+            # we only publish the docs if all publishing jobs are successful, otherwise we have a 'broken' release
+            - publish
+            - publish-maven
+            - publish-tck
