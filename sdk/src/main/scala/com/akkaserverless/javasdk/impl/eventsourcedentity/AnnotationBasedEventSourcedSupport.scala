@@ -89,6 +89,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
     private def stateOrEmpty(): Any = state match {
       case None =>
         val emptyState = entity.emptyState()
+        require(emptyState != null, "Entity empty state is not allowed to be null")
         state = Some(emptyState)
         emptyState
       case Some(state) => state
@@ -107,6 +108,11 @@ private[impl] class AnnotationBasedEventSourcedSupport(
           try {
             entity.setEventContext(Optional.of(ctx))
             val stateWithEventApplied: Any = handler.invoke(entity, stateOrEmpty(), decodedEvent)
+            if (stateWithEventApplied == null) {
+              throw new IllegalStateException(
+                s"Event handler for event ${decodedEvent.getClass.toString} returned null"
+              )
+            }
             if (!state.contains(stateWithEventApplied)) {
               state = Some(stateWithEventApplied)
             }

@@ -29,7 +29,7 @@ public class EventSourcedEntityTwo extends EventSourcedEntityBase<String> {
   }
 
   @CommandHandler
-  public Effect<Empty> emitJsonEvent(
+  public EventSourcedEntityBase.Effect<Empty> emitJsonEvent(
       String currentState, LocalPersistenceEventing.JsonEvent event) {
     return effects()
         .emitEvent(new JsonMessage(event.getMessage()))

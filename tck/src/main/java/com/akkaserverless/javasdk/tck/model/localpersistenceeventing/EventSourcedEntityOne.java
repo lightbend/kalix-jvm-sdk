@@ -39,8 +39,12 @@ public class EventSourcedEntityOne extends EventSourcedEntityBase<String> {
   }
 
   @EventHandler
-  public void handle(String currentState, LocalPersistenceEventing.EventOne event) {}
+  public String handle(String currentState, LocalPersistenceEventing.EventOne event) {
+    return currentState;
+  }
 
   @EventHandler
-  public void handle(String currentState, LocalPersistenceEventing.EventTwo event) {}
+  public String handle(String currentState, LocalPersistenceEventing.EventTwo event) {
+    return currentState;
+  }
 }

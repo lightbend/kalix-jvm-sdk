@@ -46,7 +46,7 @@ import com.akkaserverless.javasdk.impl.effect.EffectSupport
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvent
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.PrimaryEffectImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
@@ -187,24 +187,29 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
           // FIXME a bit mixed concerns here, esp with the serialization to PbAny but it's either that or pushing this into the handler and making
           // SecondaryEffectImpl a public API (or make handler internal, which may be a good idea, also for the testkit)
           var endSequenceNumber = sequence
-          val (events: List[ScalaPbAny], secondaryEffect: SecondaryEffectImpl, snapshot: Option[ScalaPbAny]) = try {
+          val (events: Vector[ScalaPbAny], secondaryEffect: SecondaryEffectImpl, snapshot: Option[ScalaPbAny]) = try {
             val commandEffect =
               handler.handleCommand(cmd, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
             commandEffect.primaryEffect match {
-              case EmitEvent(event) =>
-                val javaPbEvent = service.anySupport.encodeJava(event)
-                endSequenceNumber = endSequenceNumber + 1
-                handler.handleEvent(javaPbEvent, new EventContextImpl(thisEntityId, sequence))
-                val stateAfterEvent: JavaPbAny = handler.currentState()
-                val snapshot: Option[ScalaPbAny] =
-                  if (service.snapshotEvery > 0 && endSequenceNumber % service.snapshotEvery == 0) {
-                    Option(ScalaPbAny.fromJavaProto(stateAfterEvent))
-                  } else None
-                (ScalaPbAny.fromJavaProto(javaPbEvent) :: Nil,
-                 commandEffect.secondaryEffect(service.anySupport.decode(stateAfterEvent)),
+              case EmitEvents(events) =>
+                var shouldSnapshot = false
+                val scalaPbEvents = Vector.newBuilder[ScalaPbAny]
+                events.foreach { event =>
+                  val javaPbEvent = service.anySupport.encodeJava(event)
+                  scalaPbEvents += ScalaPbAny.fromJavaProto(javaPbEvent)
+                  endSequenceNumber = endSequenceNumber + 1
+                  handler.handleEvent(javaPbEvent, new EventContextImpl(thisEntityId, sequence))
+                  shouldSnapshot = shouldSnapshot || (service.snapshotEvery > 0 && endSequenceNumber % service.snapshotEvery == 0)
+                }
+                // FIXME currently snapshotting final state after applying all events even if trigger was mid-event stream?
+                val snapshot =
+                  if (shouldSnapshot) Option(ScalaPbAny.fromJavaProto(handler.currentState()))
+                  else None
+                (scalaPbEvents.result(),
+                 commandEffect.secondaryEffect(service.anySupport.decode(handler.currentState())),
                  snapshot)
               case NoPrimaryEffect =>
-                (Nil, commandEffect.secondaryEffect(handler.currentState()), None)
+                (Vector.empty, commandEffect.secondaryEffect(handler.currentState()), None)
             }
           } catch {
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured

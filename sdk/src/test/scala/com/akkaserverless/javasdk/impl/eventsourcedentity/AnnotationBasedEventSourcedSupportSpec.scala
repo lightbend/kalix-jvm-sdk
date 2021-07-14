@@ -21,7 +21,7 @@ import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, Resol
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvent
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.PrimaryEffectImpl
 import com.akkaserverless.javasdk.reply.ErrorReply
@@ -106,12 +106,20 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   def decodeWrapped(effect: Effect[JavaPbAny]): Wrapped = {
     effect.asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]].primaryEffect match {
-      case EmitEvent(any: JavaPbAny) =>
-        any.getTypeUrl should ===(WrappedResolvedType.typeUrl)
-        WrappedResolvedType.parseFrom(any.getValue)
-      case EmitEvent(any: String) =>
-        // FIXME should it rather be serialized when we get here?
-        Wrapped(any)
+      case EmitEvents(events) =>
+        val list = events.toList
+        if (list.size != 1) fail("Got multiple or zero events back")
+        else {
+          list.head match {
+            case any: String =>
+              // FIXME should it rather be serialized when we get here?
+              Wrapped(any)
+            case any: JavaPbAny =>
+              any.getTypeUrl should ===(WrappedResolvedType.typeUrl)
+              WrappedResolvedType.parseFrom(any.getValue)
+          }
+        }
+
     }
   }
 
@@ -164,6 +172,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           def handle(state: Any, event: AnyRef): Any = {
             event should ===("my-event")
             invoked = true
+            state
           }
         })
         handler.handleEvent(event("my-event"), eventCtx)
@@ -173,24 +182,24 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
       "fail if there's a bad context type" in {
         a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler
-          def handle(state: Any, event: String, ctx: CommandContext): Any = ()
+          def handle(state: Any, event: String, ctx: CommandContext): Any = state
         })
       }
 
       "fail if the event handler class conflicts with the event class" in {
         a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler(eventClass = classOf[Integer])
-          def handle(state: Any, event: String): Any = ()
+          def handle(state: Any, event: String): Any = state
         })
       }
 
       "fail if there are two event handlers for the same type" in {
         a[RuntimeException] should be thrownBy create(new TestEntityBase {
           @EventHandler
-          def handle1(state: Any, event: String): Any = ()
+          def handle1(state: Any, event: String): Any = state
 
           @EventHandler
-          def handle2(state: Any, event: String): Any = ()
+          def handle2(state: Any, event: String): Any = state
         })
       }
 
@@ -214,7 +223,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
         decodeWrapped(effect) should ===(Wrapped("blah event"))
 
         effect.asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]].primaryEffect match {
-          case EmitEvent(event) =>
+          case EmitEvents(Vector(event)) =>
             event shouldEqual "blah event"
         }
       }
@@ -326,12 +335,15 @@ private class UnsupportedConstructorParameter(foo: String) extends EventSourcedE
   override def emptyState(): Unit = ()
 }
 
-private class FactoryCreatedEntityTest(ctx: EntityContext) extends EventSourcedEntityBase[Unit] {
+private class FactoryCreatedEntityTest(ctx: EntityContext) extends EventSourcedEntityBase[String] {
   ctx.entityId should ===("foo")
 
-  override def emptyState(): Unit = ()
+  override def emptyState(): String = ""
 
   @EventHandler
-  def handle(currentState: Unit, event: String): Unit = event should ===("my-event")
+  def handle(currentState: String, event: String): String = {
+    event should ===("my-event")
+    currentState
+  }
 
 }
