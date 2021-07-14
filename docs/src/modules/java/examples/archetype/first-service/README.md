@@ -64,8 +64,7 @@ ERROR:
   Message: The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
-> your entity.
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in your entity.
 
 
 ## Deploying
