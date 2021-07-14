@@ -100,7 +100,11 @@ lazy val codegenCore =
     .in(file("codegen/core"))
     .enablePlugins(PublishSonatype)
     .dependsOn(sdk)
-    .settings(name := "akkaserverless-codegen-core", testFrameworks += new TestFramework("munit.Framework"))
+    .settings(
+      name := "akkaserverless-codegen-core",
+      testFrameworks += new TestFramework("munit.Framework"),
+      Test / fork := false
+    )
     .settings(Dependencies.codegenCore)
 
 lazy val codegenJava =
