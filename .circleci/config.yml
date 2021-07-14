@@ -313,29 +313,29 @@ workflows:
               only: /.*/
 
       - tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
+          requires: 
+            - checks
+            - validate-docs
 
       - integration-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/ 
+          requires: 
+            - checks
+            - validate-docs
 
       - tck-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/
+          requires: 
+            - checks
+            - validate-docs
 
       - maven-java-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/ 
+          requires: 
+            - checks
+            - validate-docs
 
       - samples-tests:
-          filters: # required since publish jobs have tag filters and dependencies
-            tags:
-              only: /.*/ 
+          requires: 
+            - checks
+            - validate-docs
             
       - publish:
           filters: # version tags only
