@@ -37,7 +37,7 @@ Stateful services can implement https://developer.lightbend.com/docs/akka-server
 Actions are stateless functions that can be triggered by gRPC or HTTP calls. They can also subscribe to published events, and they can send commands to other services based on the events they receive. For more information about writing actions see xref:java:actions.adoc[Implementing Actions].
 
 === Entities
-Stateful services ecapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time. 
+Stateful services encapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time. 
 
 
 TIP: To learn more about Akka Serverless entities see xref:java:value-entity.adoc[Implement a Value Entity] and xref:java:eventsourced.adoc[Implement an Event Sourced Entity].
