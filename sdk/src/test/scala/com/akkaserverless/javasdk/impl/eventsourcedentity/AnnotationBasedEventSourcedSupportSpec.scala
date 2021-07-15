@@ -27,6 +27,7 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.PrimaryEffectImpl
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.example.shoppingcart.ShoppingCartApi
+import com.example.shoppingcart.domain.ShoppingCartDomain
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
@@ -77,7 +78,8 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
   }
 
   case class Wrapped(value: String)
-  val anySupport = new AnySupport(Array(ShoppingCartApi.getDescriptor), this.getClass.getClassLoader)
+  val anySupport =
+    new AnySupport(Array(ShoppingCartApi.getDescriptor, ShoppingCartDomain.getDescriptor), this.getClass.getClassLoader)
   val serviceDescriptor = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService")
   val descriptor = serviceDescriptor.findMethodByName("AddItem")
   val method = ResolvedServiceMethod(descriptor, StringResolvedType, WrappedResolvedType)
@@ -96,9 +98,6 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   def create(clazz: Class[_]) =
     new AnnotationBasedEventSourcedSupport(clazz, anySupport, Map.empty, None).create(MockContext)
-
-  def command(str: String) =
-    ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
   def decodeWrapped(reply: Reply[JavaPbAny]): Wrapped =
     reply match {
@@ -230,7 +229,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           method
         )
         val ctx = new MockCommandContext
-        val result = handler.handleCommand("AddItem", command("blah"), ctx, eventContextFactory)
+        val result = handler.handleCommand("AddItem", "blah", ctx, eventContextFactory)
         result.events should have size (1)
         result.events.head should ===("blah event")
         reply(result.secondaryEffect) should equal(Wrapped("blah"))
@@ -277,7 +276,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           def addItem(state: Any, command: Any): Effect[Wrapped] = throw new RuntimeException("foo")
         }, method)
         val ex = the[RuntimeException] thrownBy handler.handleCommand("AddItem",
-                                                                      command("nothing"),
+                                                                      "nothing",
                                                                       new MockCommandContext,
                                                                       eventContextFactory)
         ex.getStackTrace()(0)
@@ -290,7 +289,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(state: Any, command: Any): Effect[Wrapped] = effects.error("foo")
         }, method)
-        val result = handler.handleCommand("AddItem", command("nothing"), new MockCommandContext, eventContextFactory)
+        val result = handler.handleCommand("AddItem", "nothing", new MockCommandContext, eventContextFactory)
         assertIsFailure(result.secondaryEffect, "foo")
       }
 

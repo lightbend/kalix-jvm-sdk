@@ -93,7 +93,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
       }
     }
 
-    override def handleCommand(commandName: String, state: S, command: JavaPbAny): EventSourcedEntityBase.Effect[Any] =
+    override def handleCommand(commandName: String, state: S, command: Any): EventSourcedEntityBase.Effect[Any] =
       unwrap {
         behavior.commandHandlers.get(commandName).map { handler =>
           handler.commandInvoke(entity, stateOrEmpty(), command).asInstanceOf[Effect[Any]]
@@ -265,10 +265,9 @@ private class EventSourcedCommandHandlerInvoker(
     extraParameters: PartialFunction[MethodParameter, ParameterHandler[AnyRef, CommandContext]] = PartialFunction.empty
 ) extends ReflectionHelper.CommandHandlerInvoker[CommandContext](method, serviceMethod, anySupport, extraParameters) {
 
-  def commandInvoke(obj: AnyRef, state: Any, command: JavaPbAny): EventSourcedEntityEffectImpl[Any] = {
-    val decodedCommand = mainArgumentDecoder(command)
+  def commandInvoke(obj: AnyRef, state: Any, command: Any): EventSourcedEntityEffectImpl[Any] = {
     try {
-      method.invoke(obj, state, decodedCommand) match {
+      method.invoke(obj, state, command) match {
         case effect: EventSourcedEntityEffectImpl[_] => effect.asInstanceOf[EventSourcedEntityEffectImpl[Any]]
         case null =>
           throw new NullPointerException(s"${method} returned null")

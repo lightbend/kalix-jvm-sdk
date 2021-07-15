@@ -44,9 +44,7 @@ import com.akkaserverless.javasdk.view.View;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 

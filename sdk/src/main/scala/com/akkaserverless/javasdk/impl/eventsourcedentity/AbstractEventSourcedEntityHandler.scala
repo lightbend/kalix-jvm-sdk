@@ -72,7 +72,7 @@ abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[
     }
   }
   final def handleCommand(commandName: String,
-                          command: JavaPBAny,
+                          command: Any,
                           context: CommandContext,
                           eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
@@ -108,6 +108,6 @@ abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[
   }
 
   protected def handleEvent(state: S, event: Any): S
-  protected def handleCommand(commandName: String, state: S, command: JavaPBAny): EventSourcedEntityBase.Effect[_]
+  protected def handleCommand(commandName: String, state: S, command: Any): EventSourcedEntityBase.Effect[_]
 
 }

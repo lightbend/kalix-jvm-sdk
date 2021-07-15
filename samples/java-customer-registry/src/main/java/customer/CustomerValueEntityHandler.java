@@ -49,7 +49,7 @@ public class CustomerValueEntityHandler implements ValueEntityHandler {
     this.entity = entity;
     this.anySupport =
         new AnySupport(
-            new Descriptors.FileDescriptor[] {CustomerDomain.getDescriptor()},
+            new Descriptors.FileDescriptor[] {CustomerApi.getDescriptor(), CustomerDomain.getDescriptor()},
             CustomerValueEntityHandler.class.getClassLoader(),
             AnySupport.DefaultTypeUrlPrefix(),
             AnySupport.PREFER_JAVA());

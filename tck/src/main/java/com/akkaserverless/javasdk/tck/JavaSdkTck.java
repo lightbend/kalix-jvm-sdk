@@ -84,12 +84,14 @@ public final class JavaSdkTck {
               EventSourcedEntity.getDescriptor())
           .registerEventSourcedEntity(
               EventSourcedTwoEntity.class,
-              EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTwo"))
+              EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTwo"),
+              EventSourcedEntity.getDescriptor())
           .registerEventSourcedEntity(
               EventSourcedConfiguredEntity.class,
               EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedConfigured"),
               EventSourcedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
+                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))),
+              EventSourcedEntity.getDescriptor())
           .registerAction(
               LocalPersistenceSubscriber.class,
               LocalPersistenceEventing.getDescriptor()

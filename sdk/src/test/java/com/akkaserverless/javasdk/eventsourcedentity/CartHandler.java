@@ -43,39 +43,32 @@ final class CartHandler
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, ShoppingCartDomain.Cart state, Any command) {
-    try {
-      switch (commandName) {
-        case "AddItem":
-          // FIXME could parsing to the right type also be pulled out of here?
-          return entity().addItem(state, ShoppingCartApi.AddLineItem.parseFrom(command.getValue()));
-        case "RemoveItem":
-          return entity()
-              .removeItem(state, ShoppingCartApi.RemoveLineItem.parseFrom(command.getValue()));
-        case "GetCart":
-          return entity()
-              .getCart(state, ShoppingCartApi.GetShoppingCart.parseFrom(command.getValue()));
-        default:
-          // FIXME signal this to the parent with less code
-          throw new RuntimeException(
-              "No command handler found for command ["
-                  + commandName
-                  + "] on "
-                  + entity().getClass().toString());
-          /*
-          FIXME used to be this but that requires knowing _so_ much about context, we can decorate with that further "out"?
-          throw new EntityExceptions.EntityException(
-          context.entityId(),
-          context.commandId(),
-          commandName,
-          "No command handler found for command ["
-              + context.commandName()
-              + "] on "
-              + entity().getClass().toString()); */
-      }
-    } catch (InvalidProtocolBufferException ex) {
-      // This is if command payload cannot be parsed
-      throw new RuntimeException(ex);
+      String commandName, ShoppingCartDomain.Cart state, Object command) {
+    switch (commandName) {
+      case "AddItem":
+        // FIXME could parsing to the right type also be pulled out of here?
+        return entity().addItem(state, (ShoppingCartApi.AddLineItem) command);
+      case "RemoveItem":
+        return entity().removeItem(state, (ShoppingCartApi.RemoveLineItem) command);
+      case "GetCart":
+        return entity().getCart(state, (ShoppingCartApi.GetShoppingCart) command);
+      default:
+        // FIXME signal this to the parent with less code
+        throw new RuntimeException(
+            "No command handler found for command ["
+                + commandName
+                + "] on "
+                + entity().getClass().toString());
+        /*
+        FIXME used to be this but that requires knowing _so_ much about context, we can decorate with that further "out"?
+        throw new EntityExceptions.EntityException(
+        context.entityId(),
+        context.commandId(),
+        commandName,
+        "No command handler found for command ["
+            + context.commandName()
+            + "] on "
+            + entity().getClass().toString()); */
     }
   }
 }
