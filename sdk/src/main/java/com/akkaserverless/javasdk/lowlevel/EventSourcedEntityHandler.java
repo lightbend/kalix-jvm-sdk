@@ -16,21 +16,17 @@
 
 package com.akkaserverless.javasdk.lowlevel;
 
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.SnapshotContext;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Any;
-
-import java.util.Optional;
 
 /**
  * Low level interface for handling events and commands on an entity.
  *
  * <p>Generally, this should not be needed, instead, a class annotated with the {@link
  * EventHandler}, {@link CommandHandler} and similar annotations should be used.
+ *
+ * <p>FIXME this is rather an internal api, I don't think we really want to maintain this kind of
+ * low level public apis?
  */
 public interface EventSourcedEntityHandler {
 
@@ -49,20 +45,15 @@ public interface EventSourcedEntityHandler {
    * @param context The command context.
    * @return The reply to the command, if the command isn't being forwarded elsewhere.
    */
-  Reply<Any> handleCommand(Any command, CommandContext context);
+  EventSourcedEntityBase.Effect<Any> handleCommand(Any command, CommandContext context);
 
   /**
    * Handle the given snapshot.
    *
    * @param snapshot The snapshot to handle.
-   * @param context The snapshot context.
    */
-  void handleSnapshot(Any snapshot, SnapshotContext context);
+  void handleSnapshot(Any snapshot);
 
-  /**
-   * Snapshot the object.
-   *
-   * @return The current snapshot, if this object supports snapshoting, otherwise empty.
-   */
-  Optional<Any> snapshot(SnapshotContext context);
+  /** @return The current state of the event sourced entity. */
+  Any currentState();
 }

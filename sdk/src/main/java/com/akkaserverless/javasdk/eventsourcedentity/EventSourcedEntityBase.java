@@ -23,12 +23,16 @@ import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Function;
 
 // FIXME rename to EventSourcedEntity when the old annotation is removed
 
 /** @param <S> The type of the state for this entity. */
 public abstract class EventSourcedEntityBase<S> {
+
+  private Optional<CommandContext> commandContext = Optional.empty();
+  private Optional<EventContext> eventContext = Optional.empty();
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -38,15 +42,22 @@ public abstract class EventSourcedEntityBase<S> {
    *
    * <p><code>null</code> is an allowed value.
    */
-  protected abstract S emptyState();
+  public abstract S emptyState();
 
   /**
    * Additional context and meta data for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor or event handler.
    */
-  protected CommandContext commandContext() {
-    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  protected final CommandContext commandContext() {
+    return commandContext.orElseThrow(
+        () ->
+            new IllegalStateException("CommandContext is only available when handling a command."));
+  }
+
+  /** INTERNAL API */
+  public final void setCommandContext(Optional<CommandContext> context) {
+    commandContext = context;
   }
 
   /**
@@ -54,11 +65,17 @@ public abstract class EventSourcedEntityBase<S> {
    *
    * <p>It will throw an exception if accessed from constructor or command handler.
    */
-  protected EventContext eventContext() {
-    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+  protected final EventContext eventContext() {
+    return eventContext.orElseThrow(
+        () -> new IllegalStateException("EventContext is only available when handling an event."));
   }
 
-  protected Effect.Builder<S> effects() {
+  /** INTERNAL API */
+  public final void setEventContext(Optional<EventContext> context) {
+    eventContext = context;
+  }
+
+  protected final Effect.Builder<S> effects() {
     return new EventSourcedEntityEffectImpl<S>();
   }
 
@@ -78,6 +95,10 @@ public abstract class EventSourcedEntityBase<S> {
     interface Builder<S> {
 
       OnSuccessBuilder<S> emitEvent(Object event);
+
+      OnSuccessBuilder<S> emitEvents(Object event1, Object... additionalEvents);
+
+      OnSuccessBuilder<S> emitEvents(Collection<? extends Object> event);
 
       /**
        * Create a message reply.

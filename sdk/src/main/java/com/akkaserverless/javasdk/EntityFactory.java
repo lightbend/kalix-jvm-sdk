@@ -23,6 +23,8 @@ public interface EntityFactory {
    *
    * @return the new entity
    */
+  // FIXME this shared factory limits type safety, we should have one per entity type and make it
+  // internal
   Object create(EntityContext context);
 
   /**

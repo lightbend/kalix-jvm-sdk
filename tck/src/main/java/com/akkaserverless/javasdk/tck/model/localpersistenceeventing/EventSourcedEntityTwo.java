@@ -16,21 +16,28 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
 @EventSourcedEntity(entityType = "eventlogeventing-two")
-public class EventSourcedEntityTwo {
+public class EventSourcedEntityTwo extends EventSourcedEntityBase<String> {
+
+  @Override
+  public String emptyState() {
+    return "";
+  }
+
   @CommandHandler
-  public Empty emitJsonEvent(LocalPersistenceEventing.JsonEvent event, CommandContext ctx) {
-    ctx.emit(new JsonMessage(event.getMessage()));
-    return Empty.getDefaultInstance();
+  public EventSourcedEntityBase.Effect<Empty> emitJsonEvent(
+      String currentState, LocalPersistenceEventing.JsonEvent event) {
+    return effects()
+        .emitEvent(new JsonMessage(event.getMessage()))
+        .thenReply(__ -> Empty.getDefaultInstance());
   }
 
   @EventHandler
-  public void handle(JsonMessage message) {}
+  public String handle(String currentState, JsonMessage message) {
+    return currentState;
+  }
 }

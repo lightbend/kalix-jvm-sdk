@@ -39,7 +39,7 @@ public class ShoppingCartImpl extends AbstractShoppingCart {
   }
 
   @Override
-  protected ShoppingCartDomain.Cart emptyState() {
+  public ShoppingCartDomain.Cart emptyState() {
     return ShoppingCartDomain.Cart.getDefaultInstance();
   }
 
