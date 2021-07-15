@@ -96,6 +96,8 @@ public abstract class EventSourcedEntityBase<S> {
 
       OnSuccessBuilder<S> emitEvent(Object event);
 
+      OnSuccessBuilder<S> emitEvents(Object event1, Object... additionalEvents);
+
       OnSuccessBuilder<S> emitEvents(Collection<? extends Object> event);
 
       /**
