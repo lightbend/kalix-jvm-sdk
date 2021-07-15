@@ -91,7 +91,7 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
   }
 
   @Override
-  protected Persisted emptyState() {
+  public Persisted emptyState() {
     return Persisted.getDefaultInstance();
   }
 }

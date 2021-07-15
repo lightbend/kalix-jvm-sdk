@@ -389,6 +389,11 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           scalaPbMessage.toByteString
         )
 
+      case null =>
+        throw SerializationException(
+          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable."
+        )
+
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
         ScalaPbAny(primitive.fullName, primitiveToBytes(primitive, value))

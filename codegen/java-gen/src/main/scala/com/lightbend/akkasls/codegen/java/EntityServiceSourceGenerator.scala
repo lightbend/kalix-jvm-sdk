@@ -211,7 +211,9 @@ object EntityServiceSourceGenerator {
               Nil,
               emptyDoc
             )(
-              "return" <+> qualifiedType(state.fqn) <> ".getDefaultInstance();"
+              "throw new UnsupportedOperationException" <> parens(
+                dquotes("Not implemented yet, replace with your empty entity state")
+              ) <> semi
             ) <>
             line <>
             line <>
@@ -225,7 +227,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(command.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> "command"
+                    qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
                   ),
                   emptyDoc
                 ) {
@@ -246,7 +248,7 @@ object EntityServiceSourceGenerator {
                       lowerFirst(event.fqn.name),
                       List(
                         qualifiedType(state.fqn) <+> "currentState",
-                        qualifiedType(event.fqn) <+> "event"
+                        qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
                       ),
                       emptyDoc
                     ) {
@@ -321,28 +323,31 @@ object EntityServiceSourceGenerator {
           Nil,
           emptyDoc
         )(
-          "return" <+> qualifiedType(entity.state.fqn) <> ".getDefaultInstance();"
+          "throw new UnsupportedOperationException" <> parens(
+            dquotes("Not implemented yet, replace with your empty entity state")
+          ) <> semi
         ) <>
         line <>
         line <>
         ssep(
-          service.commands.toSeq.map { command =>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              "Effect" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name),
-              List(
-                qualifiedType(entity.state.fqn) <+> "currentState",
-                qualifiedType(command.inputType) <+> "command"
-              ),
-              emptyDoc
-            ) {
-              "return effects().error" <> parens(
-                "\"The command handler for `" + command.fqn.name + "` is not implemented, yet\""
-              ) <> semi
-            }
+          service.commands.toSeq.map {
+            command =>
+              "@Override" <>
+              line <>
+              method(
+                "public",
+                "Effect" <> angles(qualifiedType(command.outputType)),
+                lowerFirst(command.fqn.name),
+                List(
+                  qualifiedType(entity.state.fqn) <+> "currentState",
+                  qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                ),
+                emptyDoc
+              ) {
+                "return effects().error" <> parens(
+                  "\"The command handler for `" + command.fqn.name + "` is not implemented, yet\""
+                ) <> semi
+              }
           },
           line <> line
         )
@@ -404,7 +409,7 @@ object EntityServiceSourceGenerator {
               lowerFirst(command.fqn.name),
               List(
                 qualifiedType(entity.state.fqn) <+> "currentState",
-                qualifiedType(command.inputType) <+> "command"
+                qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
               )
             ) <> semi
           },
@@ -457,7 +462,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(command.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> "command"
+                    qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
                   )
                 ) <> semi
               },
@@ -474,7 +479,7 @@ object EntityServiceSourceGenerator {
                   lowerFirst(event.fqn.name),
                   List(
                     qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(event.fqn) <+> "event"
+                    qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
                   )
                 ) <> semi
               },

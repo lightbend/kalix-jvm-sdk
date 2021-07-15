@@ -29,57 +29,73 @@ import java.util.ArrayList;
 import java.util.List;
 
 @EventSourcedEntity(entityType = "event-sourced-tck-model", snapshotEvery = 5)
-public class EventSourcedTckModelEntity {
+public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted> {
 
   private final ServiceCallRef<Request> serviceTwoCall;
 
-  private String state = "";
+  @Override
+  public Persisted emptyState() {
+    return Persisted.getDefaultInstance();
+  }
 
   public EventSourcedTckModelEntity(Context context) {
     serviceTwoCall =
         context.serviceCallFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
   }
 
-  @Snapshot
-  public Persisted snapshot() {
-    return Persisted.newBuilder().setValue(state).build();
-  }
-
-  @SnapshotHandler
-  public void handleSnapshot(Persisted snapshot) {
-    state = snapshot.getValue();
-  }
-
   @EventHandler
-  public void handleEvent(Persisted event) {
-    state += event.getValue();
+  public Persisted handleEvent(Persisted state, Persisted event) {
+    return Persisted.newBuilder().setValue(state.getValue() + event.getValue()).build();
   }
 
   @CommandHandler
-  public Reply<Response> process(Request request, CommandContext context) {
-    Reply<Response> reply = null;
+  public EventSourcedEntityBase.Effect<Response> process(Persisted currentState, Request request) {
     List<SideEffect> e = new ArrayList<>();
+    List<Persisted> events = new ArrayList<>();
+    EventSourcedEntityBase.Effect<Response> effect = null;
+    // TCK tests expect the logic to be imperative, building something up and then discarding on
+    // failure but effect
+    // api is not imperative so we have to keep track of failure instead
+    boolean failed = false;
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case EMIT:
-          context.emit(Persisted.newBuilder().setValue(action.getEmit().getValue()).build());
+          if (!failed) {
+            events.add(Persisted.newBuilder().setValue(action.getEmit().getValue()).build());
+            effect =
+                effects()
+                    .emitEvents(events)
+                    .thenReply(state -> Response.newBuilder().setMessage(state.getValue()).build());
+          }
           break;
         case FORWARD:
-          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
+          if (!failed) {
+            effect =
+                effects()
+                    .emitEvents(events)
+                    .thenForward(__ -> serviceTwoRequest(action.getForward().getId()));
+          }
           break;
         case EFFECT:
-          Effect effect = action.getEffect();
-          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+          if (!failed) {
+            com.akkaserverless.tck.model.EventSourcedEntity.Effect actionEffect =
+                action.getEffect();
+            e.add(
+                SideEffect.of(
+                    serviceTwoRequest(actionEffect.getId()), actionEffect.getSynchronous()));
+          }
           break;
         case FAIL:
-          reply = Reply.failure(action.getFail().getMessage());
+          failed = true;
+          effect = effects().error(action.getFail().getMessage());
           break;
       }
     }
-    if (reply == null) {
-      reply = Reply.message(Response.newBuilder().setMessage(state).build());
+    if (effect == null) {
+      // then reply rather?
+      effect = effects().reply(Response.newBuilder().setMessage(currentState.getValue()).build());
     }
-    return reply.addSideEffects(e);
+    return effect.addSideEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {
