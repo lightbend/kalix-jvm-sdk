@@ -9,7 +9,7 @@ It also contains the configuration to start a local Google Pub/Sub emulator that
 == Pre-requisites
 
 * Docker {minimum_docker_version} or higher installed and accessible on your local computer
-* Access to the `gcr.io/akkaserverless-public` docker registry from your local computer
+* Access to the `gcr.io/akkaserverless-public` Docker registry from your local computer
 * Your service container image.
 
 == Starting the service
