@@ -132,7 +132,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
               val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
                 case e: EntityOptions => e
               })
-              val writeConsistency = replicatedWriteConsistency(service.componentOptions.collect {
+              val replicatedEntitySpecificSettings = specificSettings(service.componentOptions.collect {
                 case options: ReplicatedEntityOptions => options
               })
               Component(
@@ -143,7 +143,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
                     service.entityType,
                     passivationStrategy,
                     service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
-                    writeConsistency
+                    replicatedEntitySpecificSettings
                   )
                 )
               )
@@ -230,12 +230,14 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
   private def configuredPassivationTimeout(key: String): Option[Duration] =
     if (system.settings.config.hasPath(key)) Some(system.settings.config.getDuration(key)) else None
 
-  def replicatedWriteConsistency(options: Option[ReplicatedEntityOptions]): ReplicatedWriteConsistency =
-    options.map(_.writeConsistency) match {
+  def specificSettings(options: Option[ReplicatedEntityOptions]): EntitySettings.SpecificSettings = {
+    val writeConsistency = options.map(_.writeConsistency) match {
       case Some(WriteConsistency.ALL) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_ALL
       case Some(WriteConsistency.MAJORITY) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_MAJORITY
       case _ => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
     }
+    EntitySettings.SpecificSettings.ReplicatedEntity(ReplicatedEntitySettings(writeConsistency))
+  }
 
   private def loadDescriptorsWithSource(path: String): Map[String, DescriptorProtos.FileDescriptorProto] =
     // Special case for disabled, this allows the user to disable attempting to load the descriptor, which means
