@@ -26,12 +26,14 @@ import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{ByteString, Any => JavaPbAny}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 import java.util.Optional
+
 import scala.compat.java8.OptionConverters._
+
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.reply.MessageReply
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
+import com.google.protobuf.GeneratedMessageV3
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {
@@ -92,7 +94,7 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped(effect: ValueEntityBase.Effect[JavaPbAny]): Wrapped =
+  def decodeWrapped(effect: ValueEntityBase.Effect[_ <: GeneratedMessageV3]): Wrapped =
     effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].secondaryEffect match {
       case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[JavaPbAny])
     }
@@ -101,6 +103,11 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
     effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect match {
       case UpdateState(any) => any.asInstanceOf[S]
     }
+
+  def decodeWrapped(anyMessage: GeneratedMessageV3): Wrapped = {
+    // TODO: which extra check could we do here?
+    WrappedResolvedType.parseFrom(anyMessage.toByteString)
+  }
 
   def decodeWrapped(any: JavaPbAny): Wrapped = {
     any.getTypeUrl should ===(WrappedResolvedType.typeUrl)

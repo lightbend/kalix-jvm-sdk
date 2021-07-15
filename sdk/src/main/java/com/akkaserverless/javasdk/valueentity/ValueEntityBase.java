@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk.valueentity;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
 import java.util.Collection;
@@ -44,7 +44,7 @@ public abstract class ValueEntityBase<S> {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected CommandContext commandContext() {
+  protected CommandContext<S> commandContext() {
     throw new UnsupportedOperationException("Not implemented yet"); // FIXME
   }
 
