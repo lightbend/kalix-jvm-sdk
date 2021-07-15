@@ -21,8 +21,9 @@ import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, Resol
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
+import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.PrimaryEffectImpl
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.example.shoppingcart.ShoppingCartApi
@@ -80,6 +81,12 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
   val serviceDescriptor = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService")
   val descriptor = serviceDescriptor.findMethodByName("AddItem")
   val method = ResolvedServiceMethod(descriptor, StringResolvedType, WrappedResolvedType)
+  val eventContextFactory = (sequenceNr: Long) =>
+    new EventContext {
+      override def sequenceNumber(): Long = sequenceNr
+      override def entityId(): String = ???
+      override def serviceCallFactory(): ServiceCallFactory = ???
+    }
 
   def create(behavior: EventSourcedEntityBase[_], methods: ResolvedServiceMethod[_, _]*) =
     new AnnotationBasedEventSourcedSupport(behavior.getClass,
@@ -95,7 +102,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
   def decodeWrapped(reply: Reply[JavaPbAny]): Wrapped =
     reply match {
-      case MessageReplyImpl(any, _, _) =>
+      case com.akkaserverless.javasdk.impl.reply.MessageReplyImpl(any, _, _) =>
         decodeWrapped(any)
     }
 
@@ -122,8 +129,10 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
 
     }
   }
-
-  def event(any: Any) = anySupport.encodeJava(any)
+  def reply(secondaryEffectImpl: SecondaryEffectImpl): Any = secondaryEffectImpl match {
+    case MessageReplyImpl(reply, _, _) => reply
+    case other => fail()
+  }
 
   class TestEntityBase extends EventSourcedEntityBase[JavaPbAny] {
     override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
@@ -159,7 +168,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
         }
         val eventSourcedSupport = new AnnotationBasedEventSourcedSupport(factory, anySupport, serviceDescriptor)
         val handler = eventSourcedSupport.create(MockContext)
-        handler.handleEvent(event("my-event"), eventCtx)
+        handler.handleEvent("my-event", eventCtx)
       }
 
     }
@@ -175,7 +184,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
             state
           }
         })
-        handler.handleEvent(event("my-event"), eventCtx)
+        handler.handleEvent("my-event", eventCtx)
         invoked shouldBe true
       }
 
@@ -215,17 +224,16 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
               commandContext().commandName() should ===("AddItem")
               effects().emitEvent(msg + " event").thenReply(_ => Wrapped(msg))
             }
+            @EventHandler
+            def string(state: Any, event: String) = state
           },
           method
         )
         val ctx = new MockCommandContext
-        val effect = handler.handleCommand(command("blah"), ctx)
-        decodeWrapped(effect) should ===(Wrapped("blah event"))
-
-        effect.asInstanceOf[EventSourcedEntityEffectImpl[JavaPbAny]].primaryEffect match {
-          case EmitEvents(Vector(event)) =>
-            event shouldEqual "blah event"
-        }
+        val result = handler.handleCommand("AddItem", command("blah"), ctx, eventContextFactory)
+        result.events should have size (1)
+        result.events.head should ===("blah event")
+        reply(result.secondaryEffect) should equal(Wrapped("blah"))
       }
 
       "fail if there's two command handlers for the same command" in {
@@ -268,7 +276,10 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(state: Any, command: Any): Effect[Wrapped] = throw new RuntimeException("foo")
         }, method)
-        val ex = the[RuntimeException] thrownBy handler.handleCommand(command("nothing"), new MockCommandContext)
+        val ex = the[RuntimeException] thrownBy handler.handleCommand("AddItem",
+                                                                      command("nothing"),
+                                                                      new MockCommandContext,
+                                                                      eventContextFactory)
         ex.getStackTrace()(0)
           .toString should include regex """.*AnnotationBasedEventSourcedSupportSpec.*addItem.*AnnotationBasedEventSourcedSupportSpec\.scala:\d+"""
         ex.toString should ===("java.lang.RuntimeException: foo")
@@ -279,10 +290,18 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(state: Any, command: Any): Effect[Wrapped] = effects.error("foo")
         }, method)
-        val ex = handler.handleCommand(command("nothing"), new MockCommandContext)
-        assertIsFailure(ex, "foo")
+        val result = handler.handleCommand("AddItem", command("nothing"), new MockCommandContext, eventContextFactory)
+        assertIsFailure(result.secondaryEffect, "foo")
       }
 
+    }
+  }
+
+  private def assertIsFailure(result: SecondaryEffectImpl, expectedDesc: String): Unit = {
+    result match {
+      case ErrorReplyImpl(desc, _) =>
+        desc should ===(expectedDesc)
+      case other => fail(s"$other is not a FailureReply")
     }
   }
 
@@ -341,7 +360,7 @@ private class FactoryCreatedEntityTest(ctx: EntityContext) extends EventSourcedE
   override def emptyState(): String = ""
 
   @EventHandler
-  def handle(currentState: String, event: String): String = {
+  def handle(currentState: String, event: Any): String = {
     event should ===("my-event")
     currentState
   }
