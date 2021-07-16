@@ -92,9 +92,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped[R](effect: ValueEntityBase.Effect[R]): Wrapped =
-    effect.asInstanceOf[ValueEntityEffectImpl[R]].secondaryEffect match {
-      case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[R])
+  def decodeWrapped(effect: ValueEntityBase.Effect[_]): Wrapped =
+    effect.asInstanceOf[ValueEntityEffectImpl[_]].secondaryEffect match {
+      case MessageReplyImpl(any, _, _) => decodeWrapped(any)
     }
 
   def decodeUpdatedState[S](effect: ValueEntityBase.Effect[S]): S =
