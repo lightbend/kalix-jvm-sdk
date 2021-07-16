@@ -14,9 +14,7 @@ import org.mockito.*;
 import com.example.shoppingcart.ShoppingCartTestKit;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-
-//TODO change Testkit to avoid java conversions
-import scala.jdk.javaapi.CollectionConverters;
+import com.akkaserverless.javasdk.testkit.Result;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
@@ -24,26 +22,41 @@ import static org.junit.Assert.assertEquals;
 public class ShoppingCartTest {
     private String entityId = "entityId1";
     private ShoppingCartImpl entity;
-    private CommandContext context = Mockito.mock(CommandContext.class);
 
     @Test
     public void addItemTest() {
         entity = new ShoppingCartImpl(entityId);
 
-        ShoppingCartDomain.Cart currentState = ShoppingCartDomain.Cart.newBuilder().build();
+        // GIVEN
+        ShoppingCartDomain.Cart initialState = ShoppingCartDomain.Cart.newBuilder().build();
         ShoppingCartApi.AddLineItem command = ShoppingCartApi.AddLineItem.newBuilder().setProductId("id1")
                 .setName("name").setQuantity(2).build();
 
         // Q do we want to pass the entity?
-        ShoppingCartTestKit shoppingCartTestKit = new ShoppingCartTestKit();
+                //before and after, clean?  (not yet)
+        ShoppingCartTestKit shoppingCartTestKit = new ShoppingCartTestKit(initialState);
+        // Q another constructor? to pass state ( not yet)
 
+
+        //WHEN 
+        Result<Empty> result = shoppingCartTestKit.addItem(command);
+
+        //THEN
+        ShoppingCartDomain.LineItem addedLineItem = ShoppingCartDomain.LineItem.newBuilder().setProductId(command.getProductId())
+                        .setName(command.getName()).setQuantity(command.getQuantity()).build();
         ShoppingCartDomain.ItemAdded expectedEvent = ShoppingCartDomain.ItemAdded.newBuilder()
-                .setItem(ShoppingCartDomain.LineItem.newBuilder().setProductId(command.getProductId())
-                        .setName(command.getName()).setQuantity(command.getQuantity()).build())
+                .setItem(addedLineItem)
                 .build();
 
-        ShoppingCartTestKit.Result<ShoppingCartDomain.ItemAdded> result = shoppingCartTestKit.addItem(command);
+        ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder().addItems(addedLineItem).build();
+
+
         assertEquals(expectedEvent, result.getEvents().get(0));
+        assertEquals(expectedEvent, result.getEvent(ShoppingCartDomain.ItemAdded.class));
         assertEquals(Empty.getDefaultInstance(), result.getReply());
+        assertEquals(expectedState, shoppingCartTestKit.getState());
+        //missing state
+                // also expect here with type
+                        //Q shouldn't the state be the same type all along? 
     }
 }
