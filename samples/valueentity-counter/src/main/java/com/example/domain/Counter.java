@@ -10,11 +10,12 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-public class CounterImpl extends AbstractCounter { // <1>
+public class Counter extends AbstractCounter { // <1>
+  
     @SuppressWarnings("unused")
     private final String entityId;
 
-    public CounterImpl(@EntityId String entityId) { // <2>
+    public Counter(@EntityId String entityId) { // <2>
         this.entityId = entityId;
     }
 // end::class[]

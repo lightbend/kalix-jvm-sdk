@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.SideEffectContext;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 
-import java.util.function.Function;
-
-/**
- * The context for a subscription, passed with every invocation of a {@link
- * StreamedCommandContext#onChange(Function)} callback.
- */
-public interface SubscriptionContext
-    extends ReplicatedEntityContext, SideEffectContext, ClientActionContext {
-  /** End this stream. */
-  void endStream();
-}
+@ValueEntity(entityType = "view-source")
+public class ViewTckSourceEntity {}

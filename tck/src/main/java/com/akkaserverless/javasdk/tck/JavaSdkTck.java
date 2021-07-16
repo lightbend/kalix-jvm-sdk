@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.tck;
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
+import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
@@ -77,7 +78,8 @@ public final class JavaSdkTck {
               ConfiguredReplicatedEntity.class,
               ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityConfigured"),
               ReplicatedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
+                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100)))
+                  .withWriteConsistency(WriteConsistency.ALL))
           .registerEventSourcedEntity(
               EventSourcedTckModelEntity.class,
               EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTckModel"),
@@ -116,7 +118,10 @@ public final class JavaSdkTck {
               com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior.class,
               View.getDescriptor().findServiceByName("ViewTckModel"),
               "tck-view",
-              View.getDescriptor());
+              View.getDescriptor())
+          .registerValueEntity(
+              com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity.class,
+              View.getDescriptor().findServiceByName("ViewTckSource"));
 
   public static void main(String[] args) throws Exception {
     SERVICE.start().toCompletableFuture().get();

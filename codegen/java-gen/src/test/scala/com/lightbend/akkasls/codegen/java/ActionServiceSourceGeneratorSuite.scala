@@ -24,7 +24,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = TestData.simpleActionService()
 
     val packageName = "com.example.service"
-    val className = "MyServiceEntityImpl"
+    val className = "MyServiceEntity"
     val interfaceClassName = "AbstractMyServiceEntity"
 
     val sourceDoc =
@@ -51,7 +51,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |/** An action. */
         |@Action
-        |public class MyServiceEntityImpl extends AbstractMyServiceEntity {
+        |public class MyServiceEntity extends AbstractMyServiceEntity {
         |    @Override
         |    public Reply<Empty> simpleMethod(ServiceOuterClass.MyRequest event, ActionContext ctx) {
         |        throw new RuntimeException("The command handler for `SimpleMethod` is not implemented, yet");

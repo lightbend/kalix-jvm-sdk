@@ -57,8 +57,6 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
           s"The current ${wrongType} replicated data doesn't match requested type of ${dataType.getSimpleName}"
         )
     }
-    override def getWriteConsistency: WriteConsistency = WriteConsistency.LOCAL
-    override def setWriteConsistency(writeConsistency: WriteConsistency): Unit = ()
   }
 
   object WrappedResolvedType extends ResolvedType[Wrapped] {

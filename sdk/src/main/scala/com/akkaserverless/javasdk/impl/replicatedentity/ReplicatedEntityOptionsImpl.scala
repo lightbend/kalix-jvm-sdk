@@ -17,11 +17,23 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions
+import com.akkaserverless.javasdk.replicatedentity.{ReplicatedEntityOptions, WriteConsistency}
 
-private[impl] case class ReplicatedEntityOptionsImpl(override val passivationStrategy: PassivationStrategy)
-    extends ReplicatedEntityOptions {
+import java.util.Collections
+import java.util
+
+private[impl] case class ReplicatedEntityOptionsImpl(
+    override val passivationStrategy: PassivationStrategy,
+    override val forwardHeaders: java.util.Set[String],
+    override val writeConsistency: WriteConsistency
+) extends ReplicatedEntityOptions {
 
   override def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions =
     copy(passivationStrategy = strategy)
+
+  override def withWriteConsistency(writeConsistency: WriteConsistency): ReplicatedEntityOptions =
+    copy(writeConsistency = writeConsistency)
+
+  override def withForwardHeaders(headers: util.Set[String]): ReplicatedEntityOptions =
+    copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
 }

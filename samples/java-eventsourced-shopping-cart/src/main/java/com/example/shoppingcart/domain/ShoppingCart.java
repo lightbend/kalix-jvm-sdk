@@ -30,11 +30,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @EventSourcedEntity(entityType = "shopping-cart")
-public class ShoppingCartImpl extends AbstractShoppingCart {
+public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCartImpl(String entityId) {
+  public ShoppingCart(String entityId) {
     this.entityId = entityId;
   }
 

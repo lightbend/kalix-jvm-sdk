@@ -19,6 +19,9 @@ package com.akkaserverless.javasdk.replicatedentity;
 import com.akkaserverless.javasdk.EntityOptions;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityOptionsImpl;
+import scala.collection.immutable.Set;
+
+import java.util.Collections;
 
 /** Root entity options for all Replicated Entities. */
 public interface ReplicatedEntityOptions extends EntityOptions {
@@ -26,11 +29,27 @@ public interface ReplicatedEntityOptions extends EntityOptions {
   ReplicatedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   /**
+   * Get the current write consistency setting for replication of the replicated entity state.
+   *
+   * @return the write consistency setting for a replicated entity
+   */
+  WriteConsistency writeConsistency();
+
+  /**
+   * Set the write consistency setting for replication of the replicated entity state.
+   *
+   * @param writeConsistency write consistency to use
+   * @returns new replicated entity options with write consistency setting
+   */
+  ReplicatedEntityOptions withWriteConsistency(WriteConsistency writeConsistency);
+
+  /**
    * Create default Replicated Entity options.
    *
    * @return the entity options
    */
   static ReplicatedEntityOptions defaults() {
-    return new ReplicatedEntityOptionsImpl(PassivationStrategy.defaultTimeout());
+    return new ReplicatedEntityOptionsImpl(
+        PassivationStrategy.defaultTimeout(), Collections.emptySet(), WriteConsistency.LOCAL);
   }
 }
