@@ -126,7 +126,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
   def event(any: Any) = anySupport.encodeJava(any)
 
   class TestEntityBase extends EventSourcedEntityBase[JavaPbAny] {
-    override protected def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
+    override def emptyState(): JavaPbAny = JavaPbAny.getDefaultInstance
   }
 
   "Event sourced annotation support" should {
