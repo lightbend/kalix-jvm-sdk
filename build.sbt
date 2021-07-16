@@ -123,7 +123,7 @@ lazy val samples = project
     // FIXME include samples again
     // `java-eventsourced-shopping-cart`
     // `java-eventing-shopping-cart`,
-    // `java-customer-registry`
+    `java-customer-registry`
   )
 
 lazy val `java-eventing-shopping-cart` = project

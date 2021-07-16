@@ -163,6 +163,7 @@ private class ValueEntityCommandHandlerInvoker(
           .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
       case other => effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
     }
+
   def serializeSecondaryEffect[T](effect: ValueEntityEffectImpl[T]): ValueEntityEffectImpl[T] =
     effect.secondaryEffect match {
       case MessageReplyImpl(message, metadata, sideEffects) =>
