@@ -22,10 +22,10 @@ public class CounterTest {
     public void increaseNoPriorState() {
         entity = new Counter(entityId); // <1>
 
-        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
-        entity.increase(currentState, message); // <4>
+        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <2>
+        entity.increase(currentState, message); // <3>
 
-        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <5>
+        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <4>
     }
     // end::increase[]
     @Test
