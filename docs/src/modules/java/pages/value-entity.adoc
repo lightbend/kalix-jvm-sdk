@@ -124,14 +124,6 @@ To test this Value Entity first we need to create an instance of a `Counter` to 
 include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=class]
 ----
 
-We also need to emulate the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`context` {tab-icon}, window="new"] of this Value Entity in order to verify whether the state has been updated as expected. We do this because we don't have access to the final state of the entity so listen to how it's been updated. For this we need to mock it as follows.
-
-[source,java,indent=0]
-.src/test/java/com/example/domain/CounterTest.java
-----
-include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=contextWithoutState]
-----
-
 What we are mocking here is the method `getState()` of the public interface link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] that, by definition, gets the current state of the Value Entity or empty if none have been created. Therfore, as we can see in the snippet above we are simulating that the entity hasn't been created yet.
 
 With the `Counter`, the `entityId` and the mocked `CommandContext` we can now create our test. 
@@ -148,5 +140,3 @@ include::java:example$valueentity-counter/src/test/java/com/example/domain/Count
 <5> verifying the `void updateState(T state)` method has been called with the expected value. Where `T` is the type of the **domain** `message` our entity receives.
 
 In this test we call to the `increase` method of that `Counter` by sending an API `message` with a mocked `CommandContext`. We then verify that `void updateState(T state)` has been called with the expected value. 
-
-
