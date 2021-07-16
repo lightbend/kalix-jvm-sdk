@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.lowlevel;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.replicatedentity.CommandContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.StreamedCommandContext;
 import com.google.protobuf.Any;
 
 /**
