@@ -55,8 +55,5 @@ public class ShoppingCartTest {
         assertEquals(expectedEvent, result.getEvent(ShoppingCartDomain.ItemAdded.class));
         assertEquals(Empty.getDefaultInstance(), result.getReply());
         assertEquals(expectedState, shoppingCartTestKit.getState());
-        //missing state
-                // also expect here with type
-                        //Q shouldn't the state be the same type all along? 
     }
 }
