@@ -63,9 +63,7 @@ include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/Shoppin
 
 Commands can modify state by emitting events. A command handler can emit an event by taking in a link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] parameter, and invoking the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html#emit(java.lang.Object)[`emit` {tab-icon}, window="new"] method on it. 
 
-When the command handler receives a request, the event is emitted and Akka Serverless immediately sends the event to the journal, and invokes the entity event handler.  Immediately after, the entity state is updated to the new value and can be used to create the reply. 
-
-NOTE: An entity update event can occur before the event has been stored in the journal. This does not cause any concurrency issue because, Akka Serverless only process one command at a time per entity instance. The next command is not processed until an event from the previous command has been successfully been stored.
+IMPORTANT: The **only** way for a command handler to modify Entity state is by emitting an event. Any modifications made directly to the state from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
 
 [source,java,indent=0]
 ----
