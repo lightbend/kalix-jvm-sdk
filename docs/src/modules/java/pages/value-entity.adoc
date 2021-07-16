@@ -64,8 +64,7 @@ As we rely on the code-generation, the class `Counter` gets generated for us, it
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
-<1> The `@ValueEntity` annotation sets the `entityType` as a unique identifier of the "state storage". The class name may be changed even after data has been created, the `entityType` can't.
-<2> The constructor accepts a parameter marked as the `@EntityId` and we keep the value in a field.
+<1> The constructor accepts a parameter marked as the `@EntityId` and we keep the value in a field.
 
 We need to implement all methods our Value Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
 
@@ -83,10 +82,8 @@ In the example below, the `Increase` service call uses the value from the reques
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by throwing an exception provided by the `ctx.fail(...)` method.
-<2> We retrieve the existing state via `ctx.state()` which returns a `java.util.Optional<CounterDomain.CounterState>`.
-<3> In case the `Optional` is empty, we create our initial state.
-<4> From the initial state we create a new state with the increased value.
-<5> We store the new state with `ctx.updateState`.
+<2> From the initial state we create a new state with the increased value.
+<3> We store the new state with `.updateState`.
 
 === Retrieving state
 
@@ -97,9 +94,8 @@ The following example shows the implementation of the `GetCurrentCounter` comman
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
-<1> We access the optional state as above.
-<2> In case we have state for this entity, we use its value to create the `CurrentCounter` return value.
-<3> If there isn't any state available, we create `CurrentCounter` for the non-existing entity.
+<1> The current state is passed to the method
+<2> We use its value to create the `CurrentCounter` return value.
 
 == Registering the Entity
 
@@ -134,9 +130,8 @@ With the `Counter`, the `entityId` and the mocked `CommandContext` we can now cr
 include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=increase]
 ----
 <1> creating the instance of `Counter` Value Entity.
-<2> creating the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext<T>` {tab-icon}, window="new"]. Where `T` is the type of the **domain** `message` our entity receives.
-<3> creating the API message to send to the instance.
-<4> calling to the method under test.
-<5> verifying the `void updateState(T state)` method has been called with the expected value. Where `T` is the type of the **domain** `message` our entity receives.
+<2> creating the API message to send to the instance.
+<3> calling to the method under test.
+<4> verifying the `void updateState(T state)` method has been called with the expected value. Where `T` is the type of the **domain** `message` our entity receives.
 
 In this test we call to the `increase` method of that `Counter` by sending an API `message` with a mocked `CommandContext`. We then verify that `void updateState(T state)` has been called with the expected value. 
