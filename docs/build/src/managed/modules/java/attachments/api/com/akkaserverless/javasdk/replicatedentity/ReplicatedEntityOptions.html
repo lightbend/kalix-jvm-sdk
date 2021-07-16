@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":1,"i1":6};
+var data = {"i0":1,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,6 +164,20 @@ extends <a href="../EntityOptions.html" title="interface in com.akkaserverless.j
 <div class="block">Create an entity option with the given passivation strategy.</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withWriteConsistency(com.akkaserverless.javasdk.replicatedentity.WriteConsistency)">withWriteConsistency</a></span>&#8203;(<a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a>&nbsp;writeConsistency)</code></th>
+<td class="colLast">
+<div class="block">Set the write consistency setting for replication of the replicated entity state.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeConsistency()">writeConsistency</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Get the current write consistency setting for replication of the replicated entity state.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.ComponentOptions">
@@ -211,6 +225,34 @@ extends <a href="../EntityOptions.html" title="interface in com.akkaserverless.j
 <dd><code>strategy</code> - to be used</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the entity option</dd>
+</dl>
+</li>
+</ul>
+<a id="writeConsistency()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeConsistency</h4>
+<pre class="methodSignature"><a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a>&nbsp;writeConsistency()</pre>
+<div class="block">Get the current write consistency setting for replication of the replicated entity state.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the write consistency setting for a replicated entity</dd>
+</dl>
+</li>
+</ul>
+<a id="withWriteConsistency(com.akkaserverless.javasdk.replicatedentity.WriteConsistency)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withWriteConsistency</h4>
+<pre class="methodSignature"><a href="ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a>&nbsp;withWriteConsistency&#8203;(<a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a>&nbsp;writeConsistency)</pre>
+<div class="block">Set the write consistency setting for replication of the replicated entity state.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>writeConsistency</code> - write consistency to use</dd>
 </dl>
 </li>
 </ul>

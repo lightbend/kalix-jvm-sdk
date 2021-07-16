@@ -279,10 +279,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The id of the command.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/StreamCancelledContext.html#commandId()">commandId()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamCancelledContext</a></dt>
-<dd>
-<div class="block">The id of the command that the stream was for.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/CommandContext.html#commandId()">commandId()</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a></dt>
 <dd>
 <div class="block">The id of the command being executed.</div>
@@ -463,10 +459,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#EMPTY">EMPTY</a></span> - Static variable in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">An empty Metadata object.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/SubscriptionContext.html#endStream()">endStream()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">SubscriptionContext</a></dt>
-<dd>
-<div class="block">End this stream.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/EntityFactory.html#entityClass()">entityClass()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/EntityFactory.html" title="interface in com.akkaserverless.javasdk">EntityFactory</a></dt>
 <dd>
@@ -654,10 +646,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Get the number of votes for.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html#getWriteConsistency()">getWriteConsistency()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a></dt>
-<dd>
-<div class="block">Get the current write consistency setting for replication of the replicated entity state.</div>
-</dd>
 </dl>
 <a id="I:H">
 <!--   -->
@@ -695,10 +683,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionHandler.html#handleStreamed(java.lang.String,akka.stream.javadsl.Source,com.akkaserverless.javasdk.action.ActionContext)">handleStreamed(String, Source&lt;MessageEnvelope&lt;Any&gt;, NotUsed&gt;, ActionContext)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionHandler.html" title="interface in com.akkaserverless.javasdk.action">ActionHandler</a></dt>
 <dd>
 <div class="block">Handle a full duplex streamed in call.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityHandler.html#handleStreamedCommand(com.google.protobuf.Any,com.akkaserverless.javasdk.replicatedentity.StreamedCommandContext)">handleStreamedCommand(Any, StreamedCommandContext&lt;Any&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityHandler.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityHandler</a></dt>
-<dd>
-<div class="block">Handle the given stream command.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionHandler.html#handleStreamedIn(java.lang.String,akka.stream.javadsl.Source,com.akkaserverless.javasdk.action.ActionContext)">handleStreamedIn(String, Source&lt;MessageEnvelope&lt;Any&gt;, NotUsed&gt;, ActionContext)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionHandler.html" title="interface in com.akkaserverless.javasdk.action">ActionHandler</a></dt>
 <dd>
@@ -759,10 +743,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/Vote.html#isMajority()">isMajority()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Vote</a></dt>
 <dd>
 <div class="block">Have a majority of nodes voted true?</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#isStreamed()">isStreamed()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a></dt>
-<dd>
-<div class="block">Whether the call is actually streamed.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html#isText()">isText()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html" title="interface in com.akkaserverless.javasdk">Metadata.MetadataEntry</a></dt>
 <dd>
@@ -965,14 +945,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/MessageEnvelope.html#of(T,com.akkaserverless.javasdk.Metadata)">of(T, Metadata)</a></span> - Static method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/MessageEnvelope.html" title="interface in com.akkaserverless.javasdk.action">MessageEnvelope</a></dt>
 <dd>
 <div class="block">Create a message.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#onCancel(java.util.function.Consumer)">onCancel(Consumer&lt;StreamCancelledContext&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a></dt>
-<dd>
-<div class="block">Register an on cancel callback for this command.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#onChange(java.util.function.Function)">onChange(Function&lt;SubscriptionContext, Optional&lt;Output&gt;&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a></dt>
-<dd>
-<div class="block">Register an on change callback for this command.</div>
 </dd>
 </dl>
 <a id="I:P">
@@ -1212,10 +1184,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Set the binary value for the given key.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html#setWriteConsistency(com.akkaserverless.javasdk.replicatedentity.WriteConsistency)">setWriteConsistency(WriteConsistency)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a></dt>
-<dd>
-<div class="block">Set the write consistency setting for replication of the replicated entity state.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html#size()">size()</a></span> - Method in class com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#size()">size()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
@@ -1263,21 +1231,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The current Replicated Data object, if it's been created.</div>
 </dd>
-<dt><a href="com/akkaserverless/javasdk/replicatedentity/StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamCancelledContext</span></a> - Interface in <a href="com/akkaserverless/javasdk/replicatedentity/package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></dt>
-<dd>
-<div class="block">Context for a stream cancelled event.</div>
-</dd>
-<dt><a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html" title="type parameter in StreamedCommandContext">Output</a>&gt; - Interface in <a href="com/akkaserverless/javasdk/replicatedentity/package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></dt>
-<dd>
-<div class="block">Context for handling a streamed command.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/CloudEvent.html#subject()">subject()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/CloudEvent.html" title="interface in com.akkaserverless.javasdk">CloudEvent</a></dt>
 <dd>
 <div class="block">The subject of this CloudEvent.</div>
-</dd>
-<dt><a href="com/akkaserverless/javasdk/replicatedentity/SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">SubscriptionContext</span></a> - Interface in <a href="com/akkaserverless/javasdk/replicatedentity/package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></dt>
-<dd>
-<div class="block">The context for a subscription, passed with every invocation of a <a href="com/akkaserverless/javasdk/replicatedentity/StreamedCommandContext.html#onChange(java.util.function.Function)"><code>StreamedCommandContext.onChange(Function)</code></a> callback.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Effect.html#synchronous()">synchronous()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Effect.html" title="interface in com.akkaserverless.javasdk">Effect</a></dt>
 <dd>
@@ -1458,6 +1414,14 @@ the order they are declared.</div>
 <dd>
 <div class="block">Sets the type URL prefix to be used when serializing and deserializing types from and to
  Protobyf Any values.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityOptions.html#withWriteConsistency(com.akkaserverless.javasdk.replicatedentity.WriteConsistency)">withWriteConsistency(WriteConsistency)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a></dt>
+<dd>
+<div class="block">Set the write consistency setting for replication of the replicated entity state.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityOptions.html#writeConsistency()">writeConsistency()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a></dt>
+<dd>
+<div class="block">Get the current write consistency setting for replication of the replicated entity state.</div>
 </dd>
 <dt><a href="com/akkaserverless/javasdk/replicatedentity/WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">WriteConsistency</span></a> - Enum in <a href="com/akkaserverless/javasdk/replicatedentity/package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></dt>
 <dd>
