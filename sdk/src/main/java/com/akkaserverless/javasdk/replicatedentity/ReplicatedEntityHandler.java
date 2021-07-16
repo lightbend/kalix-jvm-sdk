@@ -37,14 +37,4 @@ public interface ReplicatedEntityHandler {
    * @return A reply to the command, if any is sent.
    */
   Reply<Any> handleCommand(Any command, CommandContext context);
-
-  /**
-   * Handle the given stream command. During the handling of a command, a Replicated Entity may be
-   * created (if not already created) and updated.
-   *
-   * @param command The command to handle.
-   * @param context The context for the command.
-   * @return A reply to the command, if any is sent.
-   */
-  Reply<Any> handleStreamedCommand(Any command, StreamedCommandContext<Any> context);
 }
