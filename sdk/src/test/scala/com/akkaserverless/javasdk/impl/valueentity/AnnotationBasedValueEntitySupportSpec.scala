@@ -92,15 +92,18 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   def command(str: String) =
     ScalaPbAny.toJavaProto(ScalaPbAny(StringResolvedType.typeUrl, StringResolvedType.toByteString(str)))
 
-  def decodeWrapped(effect: ValueEntityBase.Effect[JavaPbAny]): Wrapped =
-    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].secondaryEffect match {
-      case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[JavaPbAny])
+  def decodeWrapped[R](effect: ValueEntityBase.Effect[R]): Wrapped =
+    effect.asInstanceOf[ValueEntityEffectImpl[R]].secondaryEffect match {
+      case MessageReplyImpl(any, _, _) => decodeWrapped(any.asInstanceOf[R])
     }
 
   def decodeUpdatedState[S](effect: ValueEntityBase.Effect[S]): S =
-    effect.asInstanceOf[ValueEntityEffectImpl[JavaPbAny]].primaryEffect match {
-      case UpdateState(any) => any.asInstanceOf[S]
+    effect.asInstanceOf[ValueEntityEffectImpl[S]].primaryEffect match {
+      case UpdateState(any) => any
     }
+
+  def decodeWrapped(any: Any): Wrapped =
+    decodeWrapped(anySupport.encodeJava(any))
 
   def decodeWrapped(any: JavaPbAny): Wrapped = {
     any.getTypeUrl should ===(WrappedResolvedType.typeUrl)
@@ -173,7 +176,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(
+          Wrapped("blah")
+        )
       }
 
       "multi arg command handler" in {
@@ -190,7 +195,9 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
           },
           method()
         )
-        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(Wrapped("blah"))
+        decodeWrapped(handler.handleCommand(command("blah"), null, new MockCommandContext)) should ===(
+          Wrapped("blah")
+        )
       }
 
       "read state" in {
