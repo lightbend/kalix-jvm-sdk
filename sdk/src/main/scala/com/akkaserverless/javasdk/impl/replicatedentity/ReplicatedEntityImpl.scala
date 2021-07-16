@@ -427,20 +427,6 @@ class ReplicatedEntityImpl(system: ActorSystem,
       override final def entityId(): String = EntityRunner.this.entityId
 
       override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-
-      private var writeConsistency = WriteConsistency.LOCAL
-
-      override final def getWriteConsistency: WriteConsistency = writeConsistency
-
-      override final def setWriteConsistency(writeConsistency: WriteConsistency): Unit =
-        this.writeConsistency = writeConsistency
-
-      def replicatedEntityWriteConsistency: ReplicatedEntityWriteConsistency = writeConsistency match {
-        case WriteConsistency.LOCAL =>
-          ReplicatedEntityWriteConsistency.REPLICATED_ENTITY_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
-        case WriteConsistency.MAJORITY => ReplicatedEntityWriteConsistency.REPLICATED_ENTITY_WRITE_CONSISTENCY_MAJORITY
-        case WriteConsistency.ALL => ReplicatedEntityWriteConsistency.REPLICATED_ENTITY_WRITE_CONSISTENCY_ALL
-      }
     }
 
     trait CapturingReplicatedEntityFactory
@@ -475,16 +461,15 @@ class ReplicatedEntityImpl(system: ActorSystem,
         case Some(c) =>
           if (deleted) {
             Some(
-              ReplicatedEntityStateAction(action = ReplicatedEntityStateAction.Action.Delete(ReplicatedEntityDelete()),
-                                          replicatedEntityWriteConsistency)
+              ReplicatedEntityStateAction(action = ReplicatedEntityStateAction.Action.Delete(ReplicatedEntityDelete()))
             )
           } else if (c.hasDelta) {
             val delta = c.delta
             c.resetDelta()
             Some(
-              ReplicatedEntityStateAction(action =
-                                            ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta)),
-                                          replicatedEntityWriteConsistency)
+              ReplicatedEntityStateAction(
+                action = ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta))
+              )
             )
           } else {
             None
