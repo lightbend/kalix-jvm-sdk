@@ -21,7 +21,6 @@ public class CounterTest {
     @Test
     public void increaseNoPriorState() {
         entity = new Counter(entityId); // <1>
-        CommandContext<CounterDomain.CounterState> context = contextWithoutState(); // <2>
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
         entity.increase(currentState, message); // <4>
@@ -32,7 +31,6 @@ public class CounterTest {
     @Test
     public void increaseWithPriorState() {
         entity = new Counter(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
         entity.increase(currentState, message);
@@ -43,7 +41,6 @@ public class CounterTest {
     @Test
     public void increaseShouldFailWithNegativeValue() {
         entity = new Counter(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(27);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
         ValueEntityBase.Effect<Empty> reply = entity.increase(currentState, message);
@@ -53,7 +50,6 @@ public class CounterTest {
     @Test
     public void decreaseNoPriorState() {
         entity = new Counter(entityId);
-        CommandContext<CounterDomain.CounterState> context = contextWithoutState();
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
         entity.decrease(currentState, message);
@@ -64,7 +60,6 @@ public class CounterTest {
     @Test
     public void resetTest() {
         entity = new Counter(entityId);
-        CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
         entity.reset(currentState, message);
@@ -83,5 +78,6 @@ public class CounterTest {
 
         // FIXME assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }
+
 
 }
