@@ -3,8 +3,9 @@ include::ROOT:partial$include.adoc[]
 
 Running a service locally is helpful to test and debug. The following sections provide commands for starting and stopping a single service locally.
 
-In order to run your service locally, you must run the Akka Serverless proxy, which we provide as a Docker image. The examples include `docker compose` files with the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to when you make use of xref:java:topic-eventing.adoc[] in your service.
+The Akka Serverless proxy is required running local instances of a service. The proxy is packaged in a Docker container image available on the https://console.cloud.google.com/gcr/images/akkaserverless-public/GLOBAL/akkaserverless-proxy?project=akkaserverless-public&organizationId=401496590510&gcrImageListsize=30[Akka Serverless-Public container registry]. The example `docker compose` files is configured to leverage the proxy and run the application locally.
+
+It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy connects to when you make use of xref:java:topic-eventing.adoc[] in your service.
 
 == Pre-requisites
 
