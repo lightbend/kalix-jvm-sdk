@@ -260,9 +260,6 @@ private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandC
   override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] = delegate.newReplicatedRegisterMap()
   override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] = delegate.newReplicatedMap()
   override def newVote(): Vote = delegate.newVote()
-
-  override def getWriteConsistency: WriteConsistency = delegate.getWriteConsistency
-  override def setWriteConsistency(consistency: WriteConsistency): Unit = delegate.setWriteConsistency(consistency)
 }
 
 private final class EntityConstructorInvoker(constructor: Constructor[_])

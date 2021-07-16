@@ -16,8 +16,6 @@
 
 package com.akkaserverless.javasdk;
 
-import java.util.Set;
-
 /** Options used for configuring an entity. */
 public interface EntityOptions extends ComponentOptions {
 

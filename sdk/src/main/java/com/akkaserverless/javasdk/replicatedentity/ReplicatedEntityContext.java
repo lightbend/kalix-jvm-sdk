@@ -31,18 +31,4 @@ public interface ReplicatedEntityContext extends EntityContext {
    *     <code>dataClass</code> type.
    */
   <T extends ReplicatedData> Optional<T> state(Class<T> dataClass) throws IllegalStateException;
-
-  /**
-   * Get the current write consistency setting for replication of the replicated entity state.
-   *
-   * @return the current write consistency
-   */
-  WriteConsistency getWriteConsistency();
-
-  /**
-   * Set the write consistency setting for replication of the replicated entity state.
-   *
-   * @param writeConsistency the new write consistency to use
-   */
-  void setWriteConsistency(WriteConsistency writeConsistency);
 }

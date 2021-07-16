@@ -102,17 +102,6 @@ public class TckModelReplicatedEntity {
       switch (action.getActionCase()) {
         case UPDATE:
           applyUpdate(replicatedData, action.getUpdate());
-          switch (action.getUpdate().getWriteConsistency()) {
-            case UPDATE_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED:
-              context.setWriteConsistency(WriteConsistency.LOCAL);
-              break;
-            case UPDATE_WRITE_CONSISTENCY_MAJORITY:
-              context.setWriteConsistency(WriteConsistency.MAJORITY);
-              break;
-            case UPDATE_WRITE_CONSISTENCY_ALL:
-              context.setWriteConsistency(WriteConsistency.ALL);
-              break;
-          }
           break;
         case DELETE:
           context.delete();
