@@ -179,14 +179,14 @@ jobs:
             cd maven-java
             mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype -DarchetypeVersion=$SDK_VERSION
             cd counter-value-entity
-            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            mvn -B compile
       - run: 
           name: Run integration tests for Event Sourced Entity Archetype
           command: |
             cd maven-java
             mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
             cd counter-event-sourced-entity
-            mvn -B -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            mvn -B compile
       - save_deps_cache
 
   samples-tests:
@@ -202,29 +202,26 @@ jobs:
           name: Run integration tests for Shopping Cart Value Entity sample
           command: |
             cd samples/java-valueentity-shopping-cart
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # FIXME re-enable this test
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
-      - run:
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION verify -Pit
+      - run: 
           name: Run integration tests for Shopping Cart Event Sourced Entity sample
           command: |
             cd samples/java-eventsourced-shopping-cart
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME only test compilation for codegen/API work"
-            # FIXME re-enable this test
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION verify -Pit
       - run: 
           name: Run integration tests for Counter Value Entity sample
           command: |
             cd samples/valueentity-counter
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION test-compile #verify -Pit
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION verify -Pit
       - run:
           name: Run integration tests for Counter Replicated Entity sample
           command: |
             cd samples/replicatedentity-counter
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION -Dakkaserverless-maven-plugin.version=$SDK_VERSION verify -Pit
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn versions:set -DnewVersion=$SDK_VERSION verify -Pit
       - save_deps_cache
 
   publish:
