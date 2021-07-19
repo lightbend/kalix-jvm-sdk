@@ -12,16 +12,18 @@ if [ $1 ]; then
   sbt publishM2
 fi 
 
-cd maven-java
-mvn versions:set -DnewVersion=$SDK_VERSION
+(
+  cd maven-java
+  mvn versions:set -DnewVersion=$SDK_VERSION
 
-if [ $1 ]; then 
-  mvn install
-fi 
+  if [ $1 ]; then 
+    mvn install
+  fi
 
-# cleanup
-rm pom.xml.versionsBackup
-rm */pom.xml.versionsBackup
+  # cleanup
+  rm pom.xml.versionsBackup
+  rm */pom.xml.versionsBackup
+)
 
 for i in samples
 do
