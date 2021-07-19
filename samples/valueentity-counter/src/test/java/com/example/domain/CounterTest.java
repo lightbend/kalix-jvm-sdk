@@ -13,28 +13,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 // tag::class[]
 public class CounterTest {
     private final String entityId = "entityId1";
-    private CounterImpl entity;
+    private Counter entity;
 // end::class[]
     private static class MockedContextFailure extends RuntimeException {};
 
     // tag::increase[] 
     @Test
     public void increaseNoPriorState() {
-        entity = new CounterImpl(entityId); // <1>
+        entity = new Counter(entityId); // <1>
 
-        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
+        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <2>
+        entity.increase(currentState, message); // <3>
 
-        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
-        entity.increase(currentState, message); // <4>
-
-        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <5>
+        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <4>
     }
     // end::increase[]
     @Test
     public void increaseWithPriorState() {
-        entity = new CounterImpl(entityId);
-
-        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
+        entity = new Counter(entityId);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
         entity.increase(currentState, message);
@@ -44,9 +40,7 @@ public class CounterTest {
 
     @Test
     public void increaseShouldFailWithNegativeValue() {
-        entity = new CounterImpl(entityId);
-
-        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(27).build();
+        entity = new Counter(entityId);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
         ValueEntityBase.Effect<Empty> reply = entity.increase(currentState, message);
@@ -55,9 +49,7 @@ public class CounterTest {
 
     @Test
     public void decreaseNoPriorState() {
-        entity = new CounterImpl(entityId);
-
-        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
+        entity = new Counter(entityId);
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
         entity.decrease(currentState, message);
@@ -67,9 +59,7 @@ public class CounterTest {
     
     @Test
     public void resetTest() {
-        entity = new CounterImpl(entityId);
-
-        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
+        entity = new Counter(entityId);
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
         entity.reset(currentState, message);
@@ -79,7 +69,7 @@ public class CounterTest {
     
     @Test
     public void getCurrentCounterTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
 
         CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
@@ -88,5 +78,6 @@ public class CounterTest {
 
         // FIXME assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }
+
 
 }

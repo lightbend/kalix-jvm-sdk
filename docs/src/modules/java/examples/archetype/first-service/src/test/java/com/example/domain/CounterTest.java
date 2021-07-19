@@ -10,14 +10,14 @@ import static org.junit.Assert.assertThrows;
 
 public class CounterTest {
     private String entityId = "entityId1";
-    private CounterImpl entity;
+    private Counter entity;
     private CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
     
     private class MockedContextFailure extends RuntimeException {};
     
     @Test
     public void increaseTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         
         Mockito.when(context.fail("The command handler for `Increase` is not implemented, yet"))
             .thenReturn(new MockedContextFailure());
@@ -30,7 +30,7 @@ public class CounterTest {
     
     @Test
     public void decreaseTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         
         Mockito.when(context.fail("The command handler for `Decrease` is not implemented, yet"))
             .thenReturn(new MockedContextFailure());
@@ -43,7 +43,7 @@ public class CounterTest {
     
     @Test
     public void resetTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         
         Mockito.when(context.fail("The command handler for `Reset` is not implemented, yet"))
             .thenReturn(new MockedContextFailure());
@@ -56,7 +56,7 @@ public class CounterTest {
     
     @Test
     public void getCurrentCounterTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         
         Mockito.when(context.fail("The command handler for `GetCurrentCounter` is not implemented, yet"))
             .thenReturn(new MockedContextFailure());

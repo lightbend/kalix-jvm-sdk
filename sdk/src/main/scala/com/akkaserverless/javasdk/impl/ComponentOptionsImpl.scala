@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.SideEffectContext;
-import com.akkaserverless.javasdk.MetadataContext;
+import com.akkaserverless.javasdk.ComponentOptions
 
-import java.util.function.Consumer;
+import java.util
+import java.util.Collections
 
-/**
- * Context for a stream cancelled event.
- *
- * <p>This is sent to callbacks registered by {@link StreamedCommandContext#onCancel(Consumer)}.
- */
-public interface StreamCancelledContext
-    extends ReplicatedEntityContext, SideEffectContext, MetadataContext {
-  /**
-   * The id of the command that the stream was for.
-   *
-   * @return The ID of the command.
-   */
-  long commandId();
+private[impl] final case class ComponentOptionsImpl(override val forwardHeaders: java.util.Set[String])
+    extends ComponentOptions {
+
+  override def withForwardHeaders(headers: util.Set[String]): ComponentOptions =
+    copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
 }

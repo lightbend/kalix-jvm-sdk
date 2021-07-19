@@ -10,11 +10,12 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-public class CounterImpl extends AbstractCounter { // <1>
+public class Counter extends AbstractCounter {
+  
     @SuppressWarnings("unused")
     private final String entityId;
 
-    public CounterImpl(@EntityId String entityId) { // <2>
+    public Counter(@EntityId String entityId) { // <1>
         this.entityId = entityId;
     }
 // end::class[]
@@ -30,13 +31,13 @@ public class CounterImpl extends AbstractCounter { // <1>
         if (command.getValue() < 0) { // <1>
             return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
         }
-        CounterDomain.CounterState newState =  // <4>
+        CounterDomain.CounterState newState =  // <2>
                 currentState.toBuilder().setValue(currentState.getValue() + command.getValue()).build();
         return effects()
-                .updateState(newState) // <5>
-                .thenReply(Empty.getDefaultInstance()); // FIXME add convenience shortcut for reply Empty?
+                .updateState(newState) // <3>
+                .thenReply(Empty.getDefaultInstance());
     }
-// end::increase[]
+    // end::increase[]
 
     @Override
     public Effect<Empty> decrease(
@@ -66,12 +67,11 @@ public class CounterImpl extends AbstractCounter { // <1>
     // tag::getCurrentCounter[]
     @Override
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(
-            CounterDomain.CounterState currentState,
+            CounterDomain.CounterState currentState, // <1>
             CounterApi.GetCounter command) {
         CounterApi.CurrentCounter current =
-                CounterApi.CurrentCounter.newBuilder().setValue(currentState.getValue()).build();
+                CounterApi.CurrentCounter.newBuilder().setValue(currentState.getValue()).build(); // <2>
         return effects().reply(current);
     }
-
     // end::getCurrentCounter[]
 }

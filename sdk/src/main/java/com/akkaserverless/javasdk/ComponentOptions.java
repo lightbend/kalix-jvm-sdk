@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.EntityOptions;
-import com.akkaserverless.javasdk.PassivationStrategy;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
-import scala.collection.immutable.Set;
 
 import java.util.Collections;
+import java.util.Set;
 
-/** Root entity options for all event sourcing entities. */
-public interface EventSourcedEntityOptions extends EntityOptions {
-
-  EventSourcedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
+public interface ComponentOptions {
 
   /**
-   * Create a default entity option for an event sourced entity.
-   *
-   * @return the entity option
+   * @return the headers requested to be forwarded as metadata (cannot be mutated, use
+   *     withForwardHeaders)
    */
-  static EventSourcedEntityOptions defaults() {
+  Set<String> forwardHeaders();
+
+  /**
+   * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for
+   * the incoming commands. By default no headers except "X-Server-Timing" are forwarded.
+   */
+  ComponentOptions withForwardHeaders(Set<String> headers);
+
+  /** Create a default components option */
+  static ComponentOptions defaults() {
     return new EventSourcedEntityOptionsImpl(
         PassivationStrategy.defaultTimeout(), Collections.emptySet());
   }

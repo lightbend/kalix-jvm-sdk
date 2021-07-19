@@ -7,11 +7,11 @@ import com.google.protobuf.Empty;
 
 /** A value entity. */
 @ValueEntity(entityType = "counter")
-public class CounterImpl extends CounterInterface {
+public class Counter extends CounterInterface {
     @SuppressWarnings("unused")
     private final String entityId;
     
-    public CounterImpl(@EntityId String entityId) {
+    public Counter(@EntityId String entityId) {
         this.entityId = entityId;
     }
     

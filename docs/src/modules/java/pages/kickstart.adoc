@@ -28,19 +28,6 @@ To deploy the generated service, you will need:
 * A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
 
 :sectnums:
-== Configure Maven
-
-Lightbend hosts the archetype in a Maven repository. You need to provide configuration that points to the Lightbend repository in one of the following ways:
-
-* In a `settings.xml` file located in your home directory in a sub-directory named `.m2`. If you have an existing `settings.xml` file, either in your home directory or in `\{MAVEN_HOME}/conf`, add the `akkaserverless` profile element shown in the full example below and list it as `activeProfile` in the existing file.
-* Your organization may have configured a proxy to be used to download Maven artifacts, such as Jfrog Artifactory. If you have difficulties updating `settings.xml` for a proxy, please consult your system administrator.
-
-The following shows a complete `settings.xml` file configured to use the Lightbend repository:
-
-[source,xml]
-----
-include::example$settings.xml[]
-----
 
 == Generate and build the Akka Serverless project
 
@@ -61,8 +48,8 @@ Linux or macOS::
 [source,command window, subs="attributes"]
 ----
 mvn archetype:generate \
-  -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeGroupId=com.akkaserverless \
+  -DarchetypeArtifactId=akkaserverless-maven-archetype \
   -DarchetypeVersion=LATEST
 ----
 --
@@ -72,8 +59,8 @@ Windows 10+::
 [source,command window, subs="attributes"]
 ----
 mvn archetype:generate ^
-  -DarchetypeGroupId=com.lightbend ^
-  -DarchetypeArtifactId=maven-archetype-akkasls ^
+  -DarchetypeGroupId=com.akkaserverless ^
+  -DarchetypeArtifactId=akkaserverless-maven-archetype ^
   -DarchetypeVersion=LATEST
 ----
 --
@@ -124,12 +111,12 @@ For the default service description in the archetype, the plugin creates an abst
 
 IMPORTANT: Do not modify the base class as it is regenerated on each invocation of `mvn compile`
 
-On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `CounterImpl`) .
+On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `Counter`) .
 
-.src/main/java/com/example/domain/CounterImpl.java
+.src/main/java/com/example/domain/Counter.java
 [source,java]
 ----
-include::example$archetype/first-service/src/main/java/com/example/domain/CounterImpl.java[]
+include::example$archetype/first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
 The Maven plugin provides the `Main` class implementation that registers service components with Akka Serverless.

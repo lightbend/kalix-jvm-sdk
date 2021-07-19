@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.lowlevel;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.replicatedentity.CommandContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.StreamedCommandContext;
 import com.google.protobuf.Any;
 
 /**
@@ -40,14 +39,4 @@ public interface ReplicatedEntityHandler {
    * @return A reply to the command, if any is sent.
    */
   Reply<Any> handleCommand(Any command, CommandContext context);
-
-  /**
-   * Handle the given stream command. During the handling of a command, a Replicated Entity may be
-   * created (if not already created) and updated.
-   *
-   * @param command The command to handle.
-   * @param context The context for the command.
-   * @return A reply to the command, if any is sent.
-   */
-  Reply<Any> handleStreamedCommand(Any command, StreamedCommandContext<Any> context);
 }

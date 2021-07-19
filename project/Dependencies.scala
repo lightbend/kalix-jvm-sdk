@@ -5,11 +5,11 @@ object Dependencies {
   object AkkaServerless {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 7
-    val FrameworkVersion = "0.7.0-beta.11"
+    val FrameworkVersion = "0.7.0-beta.14"
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.5"
+  val ScalaVersion = "2.13.6"
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
@@ -79,7 +79,7 @@ object Dependencies {
   val tck = deps ++= Seq(
         akkaslsTckProtocol % "protobuf-src",
         "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "ch.qos.logback" % "logback-classic" % LogbackVersion % Test
+        "ch.qos.logback" % "logback-classic" % LogbackVersion
       )
 
   val testkit = deps ++= Seq(
