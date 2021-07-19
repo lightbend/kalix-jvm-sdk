@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>akkaserverless-maven-archetype</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.7.0-beta.15</version>
     <packaging>maven-archetype</packaging>
     <parent>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-java</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.7.0-beta.15</version>
     </parent>
 
     <name>Akka Serverless Maven Archetype (Value entity)</name>
