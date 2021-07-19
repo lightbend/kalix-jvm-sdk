@@ -25,7 +25,7 @@ fi
   rm */pom.xml.versionsBackup
 )
 
-for i in samples
+for i in samples/*
 do
   (
     cd $i
