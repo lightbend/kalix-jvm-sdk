@@ -181,7 +181,7 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.replyToClientAction(serializedSecondaryEffect, allowNoReply = false, restartOnFailure = false)
 
           if (!context.hasError && !serializedSecondaryEffect.isInstanceOf[ErrorReplyImpl[_]]) {
-            val (nextState, action) = serializedPrimaryEffect match {
+            val (nextState: Option[ScalaPbAny], action: Option[ValueEntityAction]) = serializedPrimaryEffect match {
               case DeleteState =>
                 (None, Some(ValueEntityAction(Delete(ValueEntityDelete()))))
               case UpdateState(newState) =>

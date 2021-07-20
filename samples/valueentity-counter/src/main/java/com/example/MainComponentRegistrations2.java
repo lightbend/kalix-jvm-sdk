@@ -3,6 +3,7 @@ package com.example;
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.example.domain.CounterHandler;
+import com.example.domain.Counter;
 
 public final class MainComponentRegistrations2 {
     
