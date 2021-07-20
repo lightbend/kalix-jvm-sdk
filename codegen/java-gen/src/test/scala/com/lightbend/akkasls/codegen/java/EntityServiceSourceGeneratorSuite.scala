@@ -19,7 +19,6 @@ package java
 
 class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
-  // -- EventSourcedEntity
   test("EventSourcedEntity source") {
 
     val entity = TestData.eventSourcedEntity()
