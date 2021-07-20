@@ -203,30 +203,27 @@ jobs:
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn versions:set -DnewVersion=$SDK_VERSION 
-            # mvn verify -Pit
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run: 
           name: Run integration tests for Shopping Cart Event Sourced Entity sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME only test compilation for codegen/API work"
             mvn versions:set -DnewVersion=$SDK_VERSION 
-            # mvn verify -Pit
-            mvn verify
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
       - run: 
           name: Run integration tests for Counter Value Entity sample
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn versions:set -DnewVersion=$SDK_VERSION 
-            # mvn verify -Pit
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Run integration tests for Counter Replicated Entity sample
           command: |
             cd samples/replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn versions:set -DnewVersion=$SDK_VERSION 
-            # mvn verify -Pit
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - save_deps_cache
 
   publish:
