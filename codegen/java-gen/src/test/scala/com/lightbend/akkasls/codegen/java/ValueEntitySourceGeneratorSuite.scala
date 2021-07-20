@@ -22,7 +22,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val entity = TestData.valueEntity()
 
     val packageName = "com.example.service"
-    val className = "MyServiceImpl"
+    val className = "MyService"
     val interfaceClassName = "AbstractMyService"
     val entityType = "my-valueentity-persistence"
 
@@ -48,11 +48,11 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
         |import com.external.Empty;
         |
         |/** A value entity. */
-        |public class MyServiceImpl extends AbstractMyService {
+        |public class MyService extends AbstractMyService {
         |    @SuppressWarnings("unused")
         |    private final String entityId;
         |    
-        |    public MyServiceImpl(String entityId) {
+        |    public MyService(String entityId) {
         |        this.entityId = entityId;
         |    }
         |    
@@ -147,8 +147,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
         |
         |  private final MyService entity;
         |  
-        |  public MyServiceHandler(String entityId) {
-        |    this.entity = new MyService(entityId);
+        |  public MyServiceHandler(MyService entity) {
+        |    this.entity = entity;
         |  }
         |
         |  @Override

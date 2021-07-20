@@ -43,8 +43,8 @@ public class CustomerValueEntityHandler implements ValueEntityHandler {
       CustomerApi.getDescriptor().findServiceByName("CustomerService");
   public static final String entityType = "customers";
 
-  CustomerValueEntityHandler() {
-    this.entity = new CustomerValueEntity();
+  CustomerValueEntityHandler(CustomerValueEntity entity) {
+    this.entity = entity;
   }
 
   @Override

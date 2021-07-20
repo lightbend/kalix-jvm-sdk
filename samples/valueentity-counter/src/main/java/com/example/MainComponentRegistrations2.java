@@ -10,7 +10,7 @@ public final class MainComponentRegistrations2 {
         return akkaServerless
                   .lowLevel()
                   .registerValueEntity(
-                      ctx -> new CounterHandler(ctx.entityId()),
+                      ctx -> new CounterHandler(new Counter(ctx.entityId())),
                       CounterHandler.serviceDescriptor,
                       CounterHandler.entityType,
                       ValueEntityOptions.defaults());

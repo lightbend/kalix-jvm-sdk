@@ -154,8 +154,8 @@ object ValueEntitySourceGenerator {
           |
           |  private final ${className} entity;
           |  
-          |  public ${className}Handler(String entityId) {
-          |    this.entity = new ${className}(entityId);
+          |  public ${className}Handler(${className} entity) {
+          |    this.entity = entity;
           |  }
           |
           |  @Override
