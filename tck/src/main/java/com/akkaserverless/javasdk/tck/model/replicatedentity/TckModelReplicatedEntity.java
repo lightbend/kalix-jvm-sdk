@@ -62,9 +62,11 @@ public class TckModelReplicatedEntity {
       case "ReplicatedMap":
         return context.state(ReplicatedMap.class);
       case "ReplicatedCounterMap":
-        return context.state(ReplicatedCounterMap.class);
+        // TODO: need to be able to get ReplicatedCounterMap directly?
+        return context.state(ReplicatedMap.class).map(data -> new ReplicatedCounterMap(data));
       case "ReplicatedRegisterMap":
-        return context.state(ReplicatedRegisterMap.class);
+        // TODO: need to be able to get ReplicatedRegisterMap directly?
+        return context.state(ReplicatedMap.class).map(data -> new ReplicatedRegisterMap(data));
       case "Vote":
         return context.state(Vote.class);
       default:
@@ -199,6 +201,51 @@ public class TckModelReplicatedEntity {
             break;
         }
         break;
+      case REPLICATED_COUNTER_MAP:
+        @SuppressWarnings("unchecked")
+        ReplicatedCounterMap<String> counterMap = (ReplicatedCounterMap<String>) replicatedData;
+        switch (update.getReplicatedCounterMap().getActionCase()) {
+          case ADD:
+            String addKey = update.getReplicatedCounterMap().getAdd();
+            counterMap.increment(addKey, 0);
+            break;
+          case UPDATE:
+            String updateKey = update.getReplicatedCounterMap().getUpdate().getKey();
+            long change = update.getReplicatedCounterMap().getUpdate().getChange();
+            counterMap.increment(updateKey, change);
+            break;
+          case REMOVE:
+            String removeKey = update.getReplicatedCounterMap().getRemove();
+            counterMap.remove(removeKey);
+            break;
+          case CLEAR:
+            counterMap.clear();
+            break;
+        }
+        break;
+      case REPLICATED_REGISTER_MAP:
+        @SuppressWarnings("unchecked")
+        ReplicatedRegisterMap<String, String> registerMap =
+            (ReplicatedRegisterMap<String, String>) replicatedData;
+        switch (update.getReplicatedRegisterMap().getActionCase()) {
+          case ADD:
+            String addKey = update.getReplicatedRegisterMap().getAdd();
+            registerMap.setValue(addKey, "");
+            break;
+          case UPDATE:
+            String updateKey = update.getReplicatedRegisterMap().getUpdate().getKey();
+            String updateValue = update.getReplicatedRegisterMap().getUpdate().getValue();
+            registerMap.setValue(updateKey, updateValue);
+            break;
+          case REMOVE:
+            String removeKey = update.getReplicatedRegisterMap().getRemove();
+            registerMap.remove(removeKey);
+            break;
+          case CLEAR:
+            registerMap.clear();
+            break;
+        }
+        break;
       case VOTE:
         ((Vote) replicatedData).vote(update.getVote().getSelfVote());
         break;
@@ -212,12 +259,12 @@ public class TckModelReplicatedEntity {
   private State dataState(ReplicatedData replicatedData) {
     State.Builder builder = State.newBuilder();
     if (replicatedData instanceof ReplicatedCounter) {
-      ReplicatedCounter pncounter = (ReplicatedCounter) replicatedData;
-      builder.setCounter(ReplicatedCounterValue.newBuilder().setValue(pncounter.getValue()));
+      ReplicatedCounter counter = (ReplicatedCounter) replicatedData;
+      builder.setCounter(ReplicatedCounterValue.newBuilder().setValue(counter.getValue()));
     } else if (replicatedData instanceof ReplicatedSet) {
       @SuppressWarnings("unchecked")
-      ReplicatedSet<String> orset = (ReplicatedSet<String>) replicatedData;
-      List<String> elements = new ArrayList<>(orset);
+      ReplicatedSet<String> set = (ReplicatedSet<String>) replicatedData;
+      List<String> elements = new ArrayList<>(set);
       Collections.sort(elements);
       builder.setReplicatedSet(ReplicatedSetValue.newBuilder().addAllElements(elements));
     } else if (replicatedData instanceof ReplicatedRegister) {
@@ -238,6 +285,35 @@ public class TckModelReplicatedEntity {
       }
       entries.sort(Comparator.comparing(ReplicatedMapEntryValue::getKey));
       builder.setReplicatedMap(ReplicatedMapValue.newBuilder().addAllEntries(entries));
+    } else if (replicatedData instanceof ReplicatedCounterMap) {
+      @SuppressWarnings("unchecked")
+      ReplicatedCounterMap<String> counterMap = (ReplicatedCounterMap<String>) replicatedData;
+      List<ReplicatedCounterMapEntryValue> entries = new ArrayList<>();
+      for (String key : counterMap.keySet()) {
+        entries.add(
+            ReplicatedCounterMapEntryValue.newBuilder()
+                .setKey(key)
+                .setValue(counterMap.get(key))
+                .build());
+      }
+      entries.sort(Comparator.comparing(ReplicatedCounterMapEntryValue::getKey));
+      builder.setReplicatedCounterMap(
+          ReplicatedCounterMapValue.newBuilder().addAllEntries(entries));
+    } else if (replicatedData instanceof ReplicatedRegisterMap) {
+      @SuppressWarnings("unchecked")
+      ReplicatedRegisterMap<String, String> registerMap =
+          (ReplicatedRegisterMap<String, String>) replicatedData;
+      List<ReplicatedRegisterMapEntryValue> entries = new ArrayList<>();
+      for (String key : registerMap.keySet()) {
+        entries.add(
+            ReplicatedRegisterMapEntryValue.newBuilder()
+                .setKey(key)
+                .setValue(registerMap.getValue(key).orElse(""))
+                .build());
+      }
+      entries.sort(Comparator.comparing(ReplicatedRegisterMapEntryValue::getKey));
+      builder.setReplicatedRegisterMap(
+          ReplicatedRegisterMapValue.newBuilder().addAllEntries(entries));
     } else if (replicatedData instanceof Vote) {
       Vote vote = (Vote) replicatedData;
       builder.setVote(

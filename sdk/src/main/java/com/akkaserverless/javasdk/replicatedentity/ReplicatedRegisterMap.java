@@ -33,13 +33,13 @@ public final class ReplicatedRegisterMap<K, V> implements ReplicatedData {
     this.replicatedMap = replicatedMap;
   }
 
-  Optional<V> getValue(K key) {
+  public Optional<V> getValue(K key) {
     ReplicatedRegister<V> register = replicatedMap.get(key);
     if (register == null) return Optional.empty();
     else return Optional.ofNullable(register.get());
   }
 
-  void setValue(K key, V value) {
+  public void setValue(K key, V value) {
     ReplicatedRegister<V> register = replicatedMap.get(key);
     if (register == null) replicatedMap.getOrCreate(key, f -> f.newRegister(value));
     else register.set(value);
