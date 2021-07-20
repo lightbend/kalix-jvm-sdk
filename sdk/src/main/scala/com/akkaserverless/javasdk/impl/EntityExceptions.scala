@@ -29,7 +29,10 @@ object EntityExceptions {
                                    commandName: String,
                                    message: String,
                                    cause: Option[Throwable])
-      extends RuntimeException(message, cause.orNull)
+      extends RuntimeException(message, cause.orNull) {
+    def this(entityId: String, commandId: Long, commandName: String, message: String) =
+      this(entityId, commandId, commandName, message, None)
+  }
 
   object EntityException {
     def apply(message: String): EntityException =

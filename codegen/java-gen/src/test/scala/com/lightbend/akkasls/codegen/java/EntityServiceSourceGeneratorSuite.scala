@@ -19,6 +19,7 @@ package java
 
 class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
 
+  // -- EventSourcedEntity
   test("EventSourcedEntity source") {
 
     val entity = TestData.eventSourcedEntity()
@@ -87,69 +88,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("ValueEntity source") {
-
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
-
-    val packageName = "com.example.service"
-    val className = "MyService"
-    val interfaceClassName = "AbstractMyService"
-    val entityType = "my-valueentity-persistence"
-
-    val sourceDoc =
-      EntityServiceSourceGenerator.source(
-        service,
-        entity,
-        packageName,
-        className,
-        interfaceClassName,
-        entityType
-      )
-    assertEquals(
-      sourceDoc.layout,
-      """/* This code was initialised by Akka Serverless tooling.
-      | * As long as this file exists it will not be re-generated.
-      | * You are free to make changes to this file.
-      | */
-      |
-      |package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.valueentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** A value entity. */
-      |@ValueEntity(entityType = "my-valueentity-persistence")
-      |public class MyService extends AbstractMyService {
-      |    @SuppressWarnings("unused")
-      |    private final String entityId;
-      |    
-      |    public MyService(@EntityId String entityId) {
-      |        this.entityId = entityId;
-      |    }
-      |    
-      |    @Override
-      |    public EntityOuterClass.MyState emptyState() {
-      |        throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
-      |    }
-      |    
-      |    @Override
-      |    public Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue) {
-      |        return effects().error("The command handler for `Set` is not implemented, yet");
-      |    }
-      |    
-      |    @Override
-      |    public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue) {
-      |        return effects().error("The command handler for `Get` is not implemented, yet");
-      |    }
-      |}""".stripMargin
-    )
-  }
-
-  test("Abstract entity baseclass source") {
+  test("Abstract EventSourcedEntity baseclass source") {
     val service = TestData.simpleEntityService()
     val entity = TestData.eventSourcedEntity()
     val packageName = "com.example.service"
@@ -183,41 +122,6 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    
       |    @EventHandler
       |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent setEvent);
-      |}""".stripMargin
-    )
-  }
-
-  test("ValueEntity interface source") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
-    val packageName = "com.example.service"
-    val className = "MyService"
-
-    val sourceDoc =
-      EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
-    assertEquals(
-      sourceDoc.layout,
-      """/* This code is managed by Akka Serverless tooling.
-      | * It will be re-generated to reflect any changes to your protobuf definitions.
-      | * DO NOT EDIT
-      | */
-      |
-      |package com.example.service;
-      |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.valueentity.*;
-      |import com.example.service.persistence.EntityOuterClass;
-      |import com.external.Empty;
-      |
-      |/** A value entity. */
-      |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
-      |    
-      |    @CommandHandler
-      |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
-      |    
-      |    @CommandHandler
-      |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
       |}""".stripMargin
     )
   }
@@ -289,73 +193,6 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         |        
         |        // TODO: if you wish to verify events:
         |        //    Mockito.verify(context).emit(event);
-        |    }
-        |}""".stripMargin
-    )
-  }
-
-  test("ValueEntity test source") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
-
-    val packageName = "com.example.service"
-    val implClassName = "MyService"
-    val testClassName = "MyServiceTest"
-
-    val sourceDoc =
-      EntityServiceSourceGenerator.testSource(
-        service,
-        entity,
-        packageName,
-        implClassName,
-        testClassName
-      )
-    assertEquals(
-      sourceDoc.layout,
-      """/* This code was initialised by Akka Serverless tooling.
-        | * As long as this file exists it will not be re-generated.
-        | * You are free to make changes to this file.
-        | */
-        |
-        |package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.valueentity.CommandContext;
-        |import com.example.service.persistence.EntityOuterClass;
-        |import com.external.Empty;
-        |import org.junit.Test;
-        |import org.mockito.*;
-        |
-        |import static org.junit.Assert.assertThrows;
-        |
-        |public class MyServiceTest {
-        |    private String entityId = "entityId1";
-        |    private MyService entity;
-        |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
-        |    
-        |    @Test
-        |    public void setTest() {
-        |        entity = new MyService(entityId);
-        |        
-        |        // TODO: write your mock here
-        |        // Mockito.when(context.[...]).thenReturn([...]);
-        |        
-        |        // TODO: set fields in command, and update assertions to verify implementation
-        |        // assertEquals([expected],
-        |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        // );
-        |    }
-        |    
-        |    @Test
-        |    public void getTest() {
-        |        entity = new MyService(entityId);
-        |        
-        |        // TODO: write your mock here
-        |        // Mockito.when(context.[...]).thenReturn([...]);
-        |        
-        |        // TODO: set fields in command, and update assertions to verify implementation
-        |        // assertEquals([expected],
-        |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        // );
         |    }
         |}""".stripMargin
     )

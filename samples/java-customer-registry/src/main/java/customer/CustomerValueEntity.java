@@ -16,7 +16,6 @@
 
 package customer;
 
-import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
@@ -31,26 +30,20 @@ public class CustomerValueEntity extends CustomerValueEntityInterface {
 
   @Override
   public Effect<CustomerApi.Customer> getCustomer(
-      CustomerApi.GetCustomerRequest request,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context) {
+      CustomerDomain.CustomerState currentState, CustomerApi.GetCustomerRequest request) {
     return effects().reply(convertToApi(currentState));
   }
 
   @Override
   public Effect<Empty> create(
-      CustomerApi.Customer customer,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context) {
+      CustomerDomain.CustomerState currentState, CustomerApi.Customer customer) {
     CustomerDomain.CustomerState state = convertToDomain(customer);
     return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
   @Override
   public Effect<Empty> changeName(
-      CustomerApi.ChangeNameRequest request,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context) {
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest request) {
     CustomerDomain.CustomerState updatedState =
         currentState.toBuilder().setName(request.getNewName()).build();
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());

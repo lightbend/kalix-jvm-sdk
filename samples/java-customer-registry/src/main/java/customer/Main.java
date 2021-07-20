@@ -52,7 +52,7 @@ public final class Main {
           // end::register[]
           .lowLevel()
           .registerValueEntity(
-              context -> new CustomerValueEntityHandler(new CustomerValueEntity()),
+              context -> new CustomerValueEntityHandler(),
               CustomerValueEntityHandler.serviceDescriptor,
               CustomerValueEntityHandler.entityType,
               ValueEntityOptions.defaults())
