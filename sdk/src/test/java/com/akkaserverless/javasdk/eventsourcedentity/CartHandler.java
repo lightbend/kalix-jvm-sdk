@@ -16,11 +16,14 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
+import com.akkaserverless.javasdk.impl.EntityExceptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
+import scala.None$;
+import scala.Option;
 
 /** Generated, does the routing from command name to concrete method */
 final class CartHandler
@@ -56,22 +59,16 @@ final class CartHandler
           return entity()
               .getCart(state, ShoppingCartApi.GetShoppingCart.parseFrom(command.getValue()));
         default:
-          // FIXME signal this to the parent with less code
-          throw new RuntimeException(
+          Option<?> noneOption = None$.MODULE$;
+          throw new EntityExceptions.EntityException(
+              entity().commandContext().entityId(),
+              entity().commandContext().commandId(),
+              commandName,
               "No command handler found for command ["
                   + commandName
                   + "] on "
-                  + entity().getClass().toString());
-          /*
-          FIXME used to be this but that requires knowing _so_ much about context, we can decorate with that further "out"?
-          throw new EntityExceptions.EntityException(
-          context.entityId(),
-          context.commandId(),
-          commandName,
-          "No command handler found for command ["
-              + context.commandName()
-              + "] on "
-              + entity().getClass().toString()); */
+                  + entity().getClass().toString(),
+              (Option<Throwable>) noneOption);
       }
     } catch (InvalidProtocolBufferException ex) {
       // This is if command payload cannot be parsed
