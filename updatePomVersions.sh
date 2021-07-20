@@ -27,9 +27,6 @@ fi
 
 for i in samples/*
 do
-  (
-    cd $i
-    mvn versions:set -DnewVersion=$SDK_VERSION
-    rm pom.xml.versionsBackup
-  )
+  sed  -i .versionsBackup "s/<akkaserverless-sdk.version>\(.*\)<\/akkaserverless-sdk.version>/<akkaserverless-sdk.version>$SDK_VERSION<\/akkaserverless-sdk.version>/" $i/pom.xml
+  rm $i/pom.xml.versionsBackup
 done
