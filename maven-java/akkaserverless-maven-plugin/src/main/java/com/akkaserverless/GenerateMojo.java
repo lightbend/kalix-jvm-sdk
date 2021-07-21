@@ -7,7 +7,6 @@ import com.lightbend.akkasls.codegen.java.SourceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -16,6 +15,7 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.nio.file.Path;
 
+import com.lightbend.akkasls.codegen.Log;
 import com.lightbend.akkasls.codegen.ModelBuilder;
 import scala.collection.Iterable;
 import scala.util.Either;
@@ -71,7 +71,16 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = ".*ServiceEntity", property = "serviceNamesFilter", required = true)
     private String serviceNamesFilter;
 
-    private final Log log = getLog();
+    private final Log log = new Log() {
+      @Override
+      public void debug(String message) { getLog().debug(message); }
+      @Override
+      public void info(String message) { getLog().info(message); }
+      @Override
+      public void warning(String message) { getLog().warn(message); }
+      @Override
+      public void error(String message) { getLog().error(message); }
+    };
 
     /**
      * Given a protobuf descriptor, we inspect it and search for entities, commands,
@@ -85,7 +94,6 @@ public class GenerateMojo extends AbstractMojo {
             Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors = DescriptorSet
                     .fileDescriptors(protobufDescriptor);
             if (descriptors.isRight()) {
-
                 Iterable<FileDescriptor> fileDescriptors = descriptors.right().get().map(descriptor -> {
                     if (descriptor.isRight()) {
                         return descriptor.right().get();
@@ -95,9 +103,16 @@ public class GenerateMojo extends AbstractMojo {
                                         + descriptor.left().get().toString()));
                     }
                 });
-                ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors);
-                Iterable<Path> generated = SourceGenerator.generate(model, sourceDirectory.toPath(),
-                        testSourceDirectory.toPath(), integrationTestSourceDirectory.toPath(), generatedSourceDirectory.toPath(), mainClass);
+                ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log);
+                log.debug("Model: " + model);
+                Iterable<Path> generated = SourceGenerator.generate(
+                        model,
+                        sourceDirectory.toPath(),
+                        testSourceDirectory.toPath(),
+                        integrationTestSourceDirectory.toPath(),
+                        generatedSourceDirectory.toPath(),
+                        mainClass,
+                        log);
                 Path absBaseDir = baseDir.toPath().toAbsolutePath();
                 generated.foreach(p -> {
                     log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));

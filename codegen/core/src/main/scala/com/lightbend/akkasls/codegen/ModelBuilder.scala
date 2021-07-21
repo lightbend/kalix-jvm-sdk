@@ -143,9 +143,10 @@ object ModelBuilder {
    */
   def introspectProtobufClasses(
       descriptors: Iterable[Descriptors.FileDescriptor]
-  ): Model =
+  )(implicit log: Log): Model =
     descriptors.foldLeft(Model(Map.empty, Map.empty)) {
       case (Model(existingServices, existingEntities), descriptor) =>
+        log.debug("Looking at descriptor " + descriptor.getName)
         val services = for {
           serviceDescriptor <- descriptor.getServices.asScala
           options = serviceDescriptor
@@ -271,11 +272,12 @@ object ModelBuilder {
    */
   private def extractValueEntityDefinition(
       descriptor: Descriptors.FileDescriptor
-  ): Option[ValueEntity] = {
+  )(implicit log: Log): Option[ValueEntity] = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
+    log.debug("Raw value entity name: " + rawEntity.getName)
 
     val protoReference = PackageNaming.from(descriptor)
 
