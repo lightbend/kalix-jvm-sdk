@@ -175,11 +175,14 @@ public final class AkkaServerless {
         ValueEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
-        ValueEntityOptions entityOptions) {
+        ValueEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
 
+      final AnySupport anySupport = newAnySupport(additionalDescriptors);
       services.put(
           descriptor.getFullName(),
-          system -> new ValueEntityService(factory, descriptor, entityType, entityOptions));
+          system ->
+              new ValueEntityService(factory, descriptor, anySupport, entityType, entityOptions));
 
       return AkkaServerless.this;
     }
@@ -487,6 +490,7 @@ public final class AkkaServerless {
         new ValueEntityService(
             new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
             descriptor,
+            anySupport,
             entityType,
             entityOptions);
 

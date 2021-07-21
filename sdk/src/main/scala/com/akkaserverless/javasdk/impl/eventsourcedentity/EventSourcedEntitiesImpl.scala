@@ -101,15 +101,13 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
 
   private final val system = _system
   private val log = Logging(system.eventStream, this.getClass)
-  private final val services = _services.iterator
-    .map({
-      case (name, esss) =>
-        if (esss.snapshotEvery < 0)
-          log.warning("Snapshotting disabled for entity [{}], this is not recommended.", esss.entityType)
-        // FIXME overlay configuration provided by _system
-        (name, if (esss.snapshotEvery == 0) esss.withSnapshotEvery(configuration.snapshotEvery) else esss)
-    })
-    .toMap
+  private final val services = _services.iterator.map {
+    case (name, service) =>
+      if (service.snapshotEvery < 0)
+        log.warning("Snapshotting disabled for entity [{}], this is not recommended.", service.entityType)
+      // FIXME overlay configuration provided by _system
+      (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
+  }.toMap
 
   /**
    * The stream. One stream will be established per active entity.

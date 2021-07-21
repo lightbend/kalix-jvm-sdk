@@ -257,3 +257,18 @@ private class AdaptedCommandContext[S](val delegate: CommandContext[JavaPbAny], 
   override def forward(to: ServiceCall): Unit = delegate.forward(to)
   override def serviceCallFactory(): ServiceCallFactory = delegate.serviceCallFactory()
 }
+
+private class AdaptedCommandContextWithState[S](val delegate: CommandContext[JavaPbAny], state: S)
+    extends CommandContext[S] {
+
+  override def getState(): Optional[S] = Optional.of(state)
+
+  override def commandName(): String = delegate.commandName()
+  override def commandId(): Long = delegate.commandId()
+  override def metadata(): Metadata = delegate.metadata()
+  override def entityId(): String = delegate.entityId()
+  override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
+  override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
+  override def forward(to: ServiceCall): Unit = delegate.forward(to)
+  override def serviceCallFactory(): ServiceCallFactory = delegate.serviceCallFactory()
+}

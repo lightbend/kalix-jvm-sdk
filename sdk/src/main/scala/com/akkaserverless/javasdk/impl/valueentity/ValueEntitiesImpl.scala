@@ -40,23 +40,25 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl}
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, UpdateState}
+import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, NoPrimaryEffect, UpdateState}
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.akkaserverless.javasdk.ComponentOptions
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
+                               val anySupport: AnySupport,
                                override val entityType: String,
                                val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
   def this(factory: ValueEntityFactory,
            descriptor: Descriptors.ServiceDescriptor,
+           anySupport: AnySupport,
            entityType: String,
            entityOptions: ValueEntityOptions) =
-    this(factory, descriptor, entityType, Some(entityOptions))
+    this(factory, descriptor, anySupport, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -70,7 +72,7 @@ final class ValueEntityService(val factory: ValueEntityFactory,
 }
 
 final class ValueEntitiesImpl(_system: ActorSystem,
-                              _services: Map[String, ValueEntityService],
+                              val services: Map[String, ValueEntityService],
                               rootContext: Context,
                               configuration: Configuration)
     extends ValueEntities {
@@ -79,7 +81,6 @@ final class ValueEntitiesImpl(_system: ActorSystem,
 
   private final val system = _system
   private final implicit val ec = system.dispatcher
-  private final val services = _services.iterator.toMap
   private final val log = Logging(system.eventStream, this.getClass)
 
   /**
@@ -146,10 +147,10 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             state,
             log
           )
-          val effect: ValueEntityEffectImpl[JavaPbAny] = try {
+          val effect: ValueEntityEffectImpl[_] = try {
             handler
               .handleCommand(cmd, state.map(ScalaPbAny.toJavaProto).orNull, context)
-              .asInstanceOf[ValueEntityEffectImpl[JavaPbAny]]
+              .asInstanceOf[ValueEntityEffectImpl[_]]
           } catch {
             case FailInvoked => new ValueEntityEffectImpl() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
@@ -164,11 +165,23 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          val clientAction =
-            context.replyToClientAction(effect.secondaryEffect, allowNoReply = false, restartOnFailure = false)
+          val serializedPrimaryEffect = effect.primaryEffect match {
+            case UpdateState(state) => UpdateState(service.anySupport.encodeJava(state))
+            case DeleteState => DeleteState
+            case NoPrimaryEffect => NoPrimaryEffect
+          }
+          // FIXME something more that needs to be serialized?
+          val serializedSecondaryEffect = effect.secondaryEffect match {
+            case MessageReplyImpl(message, metadata, sideEffects) =>
+              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+            case other => other
+          }
 
-          if (!context.hasError && !effect.secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]) {
-            val (nextState: Option[ScalaPbAny], action: Option[ValueEntityAction]) = effect.primaryEffect match {
+          val clientAction =
+            context.replyToClientAction(serializedSecondaryEffect, allowNoReply = false, restartOnFailure = false)
+
+          if (!context.hasError && !serializedSecondaryEffect.isInstanceOf[ErrorReplyImpl[_]]) {
+            val (nextState: Option[ScalaPbAny], action: Option[ValueEntityAction]) = serializedPrimaryEffect match {
               case DeleteState =>
                 (None, Some(ValueEntityAction(Delete(ValueEntityDelete()))))
               case UpdateState(newState) =>
@@ -177,13 +190,14 @@ final class ValueEntitiesImpl(_system: ActorSystem,
               case _ =>
                 (context.currentState(), None)
             }
+
             (nextState,
              Some(
                OutReply(
                  ValueEntityReply(
                    command.id,
                    clientAction,
-                   context.sideEffects ++ EffectSupport.sideEffectsFrom(effect.secondaryEffect),
+                   context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
                    action
                  )
                )

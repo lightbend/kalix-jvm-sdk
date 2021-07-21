@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Any;
+import com.google.protobuf.GeneratedMessageV3;
 
 /**
  * Low level interface for handling commands on a value based entity.

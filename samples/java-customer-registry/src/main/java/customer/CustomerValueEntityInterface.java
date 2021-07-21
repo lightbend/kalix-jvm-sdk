@@ -16,7 +16,6 @@
 
 package customer;
 
-import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
@@ -27,17 +26,11 @@ public abstract class CustomerValueEntityInterface
     extends ValueEntityBase<CustomerDomain.CustomerState> {
 
   public abstract Effect<CustomerApi.Customer> getCustomer(
-      CustomerApi.GetCustomerRequest request,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context);
+      CustomerDomain.CustomerState currentState, CustomerApi.GetCustomerRequest request);
 
   public abstract Effect<Empty> create(
-      CustomerApi.Customer customer,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context);
+      CustomerDomain.CustomerState currentState, CustomerApi.Customer customer);
 
   public abstract Effect<Empty> changeName(
-      CustomerApi.ChangeNameRequest request,
-      CustomerDomain.CustomerState currentState,
-      CommandContext<CustomerDomain.CustomerState> context);
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest request);
 }

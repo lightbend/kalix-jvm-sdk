@@ -23,11 +23,14 @@ import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
 import java.util.Collection;
+import java.util.Optional;
 
 // FIXME rename to ValueEntity when the old annotation is removed
 
 /** @param <S> The type of the state for this entity. */
 public abstract class ValueEntityBase<S> {
+
+  private Optional<CommandContext<S>> commandContext = Optional.empty();
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -45,7 +48,14 @@ public abstract class ValueEntityBase<S> {
    * <p>It will throw an exception if accessed from constructor.
    */
   protected CommandContext<S> commandContext() {
-    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+    return commandContext.orElseThrow(
+        () ->
+            new IllegalStateException("CommandContext is only available when handling a command."));
+  }
+
+  /** INTERNAL API */
+  public final void setCommandContext(Optional<CommandContext<S>> context) {
+    commandContext = context;
   }
 
   protected Effect.Builder<S> effects() {
