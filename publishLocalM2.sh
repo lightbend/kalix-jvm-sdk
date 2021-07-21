@@ -8,6 +8,7 @@ mvn install
 # cleanup
 rm pom.xml.versionsBackup
 rm */pom.xml.versionsBackup
+
 git checkout pom.xml
 git checkout */pom.xml
 
