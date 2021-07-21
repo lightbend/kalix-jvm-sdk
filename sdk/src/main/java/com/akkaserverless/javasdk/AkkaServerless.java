@@ -35,14 +35,11 @@ import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.javasdk.lowlevel.ActionHandler;
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory;
-import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory;
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory;
-import com.akkaserverless.javasdk.lowlevel.ViewFactory;
+import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.view.View;
 import com.google.protobuf.Descriptors;
@@ -172,7 +169,7 @@ public final class AkkaServerless {
      * @return This stateful service builder.
      */
     public AkkaServerless registerValueEntity(
-        ValueEntityFactory factory,
+        ValueEntityHandlerFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
         ValueEntityOptions entityOptions,
@@ -452,6 +449,16 @@ public final class AkkaServerless {
 
     return registerValueEntity(
         entityClass, descriptor, ValueEntityOptions.defaults(), additionalDescriptors);
+  }
+
+  public <T> AkkaServerless registerValueEntity(ValueEntityFactory<T> factory) {
+    return lowLevel()
+        .registerValueEntity(
+            context -> factory.newHandler(context),
+            factory.serviceDescriptor(),
+            factory.entityTypeHint(),
+            factory.options(),
+            factory.additionalDescriptors());
   }
 
   /**

@@ -42,18 +42,18 @@ import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, NoPrimaryEffect, UpdateState}
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.akkaserverless.javasdk.ComponentOptions
+import com.akkaserverless.javasdk.lowlevel.ValueEntityHandlerFactory
 
-final class ValueEntityService(val factory: ValueEntityFactory,
+final class ValueEntityService(val factory: ValueEntityHandlerFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
                                val anySupport: AnySupport,
                                override val entityType: String,
                                val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
-  def this(factory: ValueEntityFactory,
+  def this(factory: ValueEntityHandlerFactory,
            descriptor: Descriptors.ServiceDescriptor,
            anySupport: AnySupport,
            entityType: String,

@@ -46,8 +46,7 @@ import com.google.protobuf.{Descriptors, any, Any => JavaPbAny}
 
 import java.lang.reflect.{Constructor, InvocationTargetException, Method}
 import java.util.Optional
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
+import com.akkaserverless.javasdk.lowlevel.{ValueEntityHandler, ValueEntityHandlerFactory}
 import com.akkaserverless.javasdk.valueentity._
 
 /**
@@ -58,7 +57,7 @@ private[impl] class AnnotationBasedEntitySupport(
     anySupport: AnySupport,
     override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]],
     factory: Option[ValueEntityCreationContext => AnyRef] = None
-) extends ValueEntityFactory
+) extends ValueEntityHandlerFactory
     with ResolvedEntityFactory {
 
   def this(entityClass: Class[_], anySupport: AnySupport, serviceDescriptor: Descriptors.ServiceDescriptor) =
