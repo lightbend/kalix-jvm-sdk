@@ -31,7 +31,6 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
