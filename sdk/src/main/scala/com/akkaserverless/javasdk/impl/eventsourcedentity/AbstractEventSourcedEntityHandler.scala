@@ -43,9 +43,6 @@ object AbstractEventSourcedEntityHandler {
  */
 abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
 
-  // ugh, remove
-  var snapshotEvery = 0
-
   private var state: Option[S] = None
 
   final protected def stateOrEmpty(): S = state match {
@@ -74,6 +71,7 @@ abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[
   final def handleCommand(commandName: String,
                           command: JavaPBAny,
                           context: CommandContext,
+                          snapshotEvery: Int,
                           eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
       entity.setCommandContext(Optional.of(context))
