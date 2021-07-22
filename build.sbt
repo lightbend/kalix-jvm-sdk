@@ -149,11 +149,11 @@ lazy val `valueentity-counter` = project
     Compile / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "main" / "java",
     Test / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "test" / "java",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % "0.1.5",
-      "junit" % "junit" % "4.13.1" % Test,
-      "org.mockito" % "mockito-core" % "3.7.0" % Test,
-    )
+        "ch.qos.logback" % "logback-classic" % LogbackVersion,
+        "ch.qos.logback.contrib" % "logback-json-classic" % "0.1.5",
+        "junit" % "junit" % "4.13.1" % Test,
+        "org.mockito" % "mockito-core" % "3.7.0" % Test
+      )
   )
 
 lazy val `java-eventing-shopping-cart` = project
