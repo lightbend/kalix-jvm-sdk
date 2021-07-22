@@ -32,8 +32,7 @@ public class ShoppingCartTest {
         ShoppingCartApi.AddLineItem command = ShoppingCartApi.AddLineItem.newBuilder().setProductId("id1")
                 .setName("name").setQuantity(2).build();
 
-        // Q do we want to pass the entity?
-                //before and after, clean?  (not yet)
+        //before and after, clean?  (not yet)
         ShoppingCartTestKit testKit = new ShoppingCartTestKit(entityId);
 
         //WHEN 

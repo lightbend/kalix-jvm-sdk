@@ -97,7 +97,7 @@ public class ShoppingCartTestKit {
             this.state = handleEvent(state,e);
         }
         //reply
-        //I'm assuming there is always and at least a single reply. Q is a corrent assumption? 
+        //I'm assuming there is always and at least a single reply. Q is a correct assumption? 
         Empty reply = getReply(effect, this.state, Empty.class);
         return new Result(reply, new LinkedList(events));
     };
