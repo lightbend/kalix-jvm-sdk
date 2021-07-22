@@ -10,11 +10,12 @@ import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 import org.junit.Test;
+import java.util.NoSuchElementException;
 import org.mockito.*;
-import com.example.shoppingcart.ShoppingCartTestKit;
+import com.example.shoppingcart.domain.ShoppingCartTestKit;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.akkaserverless.javasdk.testkit.Result;
+import com.example.shoppingcart.domain.Result;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,6 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        entity = new ShoppingCartImpl(entityId);
 
         // GIVEN
         ShoppingCartDomain.Cart initialState = ShoppingCartDomain.Cart.newBuilder().build();
@@ -34,12 +34,10 @@ public class ShoppingCartTest {
 
         // Q do we want to pass the entity?
                 //before and after, clean?  (not yet)
-        ShoppingCartTestKit shoppingCartTestKit = new ShoppingCartTestKit(initialState);
-        // Q another constructor? to pass state ( not yet)
-
+        ShoppingCartTestKit testKit = new ShoppingCartTestKit(entityId);
 
         //WHEN 
-        Result<Empty> result = shoppingCartTestKit.addItem(command);
+        Result<Empty> result = testKit.addItem(command);
 
         //THEN
         ShoppingCartDomain.LineItem addedLineItem = ShoppingCartDomain.LineItem.newBuilder().setProductId(command.getProductId())
@@ -50,10 +48,11 @@ public class ShoppingCartTest {
 
         ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder().addItems(addedLineItem).build();
 
-
-        assertEquals(expectedEvent, result.getEvents().get(0));
-        assertEquals(expectedEvent, result.getEvent(ShoppingCartDomain.ItemAdded.class));
+        assertEquals(1, result.getEvents().size());
+        assertEquals(1, testKit.getAllEvents().size());
+        assertEquals(expectedEvent, result.getEventOfType(ShoppingCartDomain.ItemAdded.class));
+        assertThrows(NoSuchElementException.class, () ->  result.getEventOfType(ShoppingCartDomain.ItemAdded.class));
         assertEquals(Empty.getDefaultInstance(), result.getReply());
-        assertEquals(expectedState, shoppingCartTestKit.getState());
+        assertEquals(expectedState, testKit.getState());
     }
 }

@@ -27,16 +27,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ShoppingCartImpl extends ShoppingCartInterface2 {
+
+public class ShoppingCart extends ShoppingCartInterface2 {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCartImpl(String entityId) {
+  public ShoppingCart(String entityId) {
     this.entityId = entityId;
   }
 
   @Override
-  protected ShoppingCartDomain.Cart emptyState() {
+  public ShoppingCartDomain.Cart emptyState() {
     return ShoppingCartDomain.Cart.getDefaultInstance();
   }
 

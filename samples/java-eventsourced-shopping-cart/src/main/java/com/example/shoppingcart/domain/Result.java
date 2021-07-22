@@ -1,10 +1,12 @@
-package com.akkaserverless.javasdk.testkit;
+package com.example.shoppingcart.domain;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Queue;
-
+import java.lang.Class;
+import java.lang.String;
+import java.util.NoSuchElementException;
 public class Result<Reply> {
 
        public Result(Reply reply, Queue<Object> events) {
@@ -13,15 +15,29 @@ public class Result<Reply> {
        }
 
        private Reply reply;
-       private Queue<Object> events = new LinkedList<Object>();
+       private Queue<Object> events;
 
        public Reply getReply() {
            return reply;
        }
+
        public List<Object> getEvents() {
-           return new ArrayList(events);
+           return new ArrayList(events); //Q copy to avoid consumption?
        }
-       public <Event> Event getEvent(Class<Event> expectedClass){
-           return (Event)events.remove();
+       public Object getEvent(){
+           return events.remove();
        }
+
+       public <Event> Event getEventOfType(Class<Event> expectedClass){
+            if(events.peek() == null){
+                throw new NoSuchElementException("There are no events left");
+            }
+            if( expectedClass.isInstance(events.peek())){
+                return (Event) events.poll();
+            } else {//Q how to signal is not of that class and show the class
+                throw new NoSuchElementException("Next event ["+events.peek()+"] is of class ["+ events.peek().getClass()+"] not of class ["+expectedClass+"]");
+            }
+       }
+
+
 }

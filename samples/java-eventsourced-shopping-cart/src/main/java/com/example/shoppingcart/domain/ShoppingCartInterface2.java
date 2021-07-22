@@ -9,8 +9,6 @@ import com.google.protobuf.Empty;
 /** An event sourced entity. */
 public abstract class ShoppingCartInterface2 extends EventSourcedEntityBase<ShoppingCartDomain.Cart> {
 
-    @Override
-    protected abstract ShoppingCartDomain.Cart emptyState();
 
     public abstract Effect<Empty> addItem(
             ShoppingCartDomain.Cart currentState,
