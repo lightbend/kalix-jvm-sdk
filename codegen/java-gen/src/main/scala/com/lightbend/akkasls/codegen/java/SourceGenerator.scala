@@ -51,28 +51,32 @@ object SourceGenerator extends PrettyPrinter {
       integrationTestSourceDirectory: Path,
       generatedSourceDirectory: Path,
       mainClass: String
-  ): Iterable[Path] = {
+  )(implicit log: Log): Iterable[Path] = {
 
     val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
 
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
-        model.entities
-          .get(service.componentFullName)
-          .toSeq
-          .flatMap(
-            entity =>
-              EntityServiceSourceGenerator.generate(
-                entity,
-                service,
-                sourceDirectory,
-                testSourceDirectory,
-                integrationTestSourceDirectory,
-                generatedSourceDirectory,
-                mainClassPackageName,
-                mainClassName
-              )
-          )
+        model.entities.get(service.componentFullName) match {
+          case None =>
+            // TODO perhaps we even want to make this an error, to really go all-in on codegen?
+            log.warning(
+              "Service [" + service.fqn.fullName + "] refers to entity [" + service.componentFullName +
+              "], but no entity configuration is found for that component name"
+            )
+            Seq.empty
+          case Some(entity) =>
+            EntityServiceSourceGenerator.generate(
+              entity,
+              service,
+              sourceDirectory,
+              testSourceDirectory,
+              integrationTestSourceDirectory,
+              generatedSourceDirectory,
+              mainClassPackageName,
+              mainClassName
+            )
+        }
       case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
         ViewServiceSourceGenerator.generate(
           service,
