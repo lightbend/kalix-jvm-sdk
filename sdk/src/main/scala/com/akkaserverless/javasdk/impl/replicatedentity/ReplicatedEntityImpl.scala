@@ -25,14 +25,13 @@ import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.component.{Failure, StreamCancelled}
+import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{Message => In}
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
-import java.util.function.Consumer
 import java.util.{function, Optional}
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
@@ -58,9 +57,6 @@ final class ReplicatedEntityStatefulService(val factory: ReplicatedEntityHandler
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
       case _ => None
     }
-
-  private val streamed = descriptor.getMethods.asScala.filter(_.toProto.getServerStreaming).map(_.getName).toSet
-  def isStreamed(command: String): Boolean = streamed(command)
 
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
@@ -121,16 +117,13 @@ class ReplicatedEntityImpl(system: ActorSystem,
       .mapConcat { in =>
         in.message match {
           case In.Command(command) =>
-            runner.handleCommand(command)
+            List(runner.handleCommand(command))
           case In.Delta(delta) =>
-            runner.handleDelta(delta).map { msg =>
-              ReplicatedEntityStreamOut(ReplicatedEntityStreamOut.Message.StreamedMessage(msg))
-            }
+            runner.handleDelta(delta)
+            Nil
           case In.Delete(_) =>
             // ???
             Nil
-          case In.StreamCancelled(cancelled) =>
-            runner.handleStreamCancelled(cancelled)
           case In.Init(_) =>
             throw new IllegalStateException("Duplicate init event for the same entity")
           case In.Empty =>
@@ -148,8 +141,6 @@ class ReplicatedEntityImpl(system: ActorSystem,
                              entityId: String,
                              private var replicatedData: Option[InternalReplicatedData]) {
 
-    private var subscribers = Map.empty[Long, function.Function[SubscriptionContext, Optional[JavaPbAny]]]
-    private var cancelListeners = Map.empty[Long, (function.Consumer[StreamCancelledContext], Metadata)]
     private val entity = {
       val ctx = new ReplicatedEntityCreationContext with CapturingReplicatedEntityFactory with ActivatableContext
       try {
@@ -169,7 +160,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
         case _ =>
       }
 
-    def handleDelta(delta: ReplicatedEntityDelta): List[ReplicatedEntityStreamedMessage] = {
+    def handleDelta(delta: ReplicatedEntityDelta): Unit = {
       replicatedData match {
         case Some(existing) =>
           existing.applyDelta.applyOrElse(
@@ -181,25 +172,14 @@ class ReplicatedEntityImpl(system: ActorSystem,
           )
         case None => throw new IllegalStateException("Received delta for a replicated entity before it was created.")
       }
-      notifySubscribers()
     }
 
-    def handleCommand(command: Command): List[ReplicatedEntityStreamOut] = {
-      val grpcMethodIsStreamed = service.isStreamed(command.name)
-      val ctx = if (grpcMethodIsStreamed) {
-        new ReplicatedEntityStreamedCommandContext(command)
-      } else {
-        new ReplicatedEntityCommandContext(command)
-      }
+    def handleCommand(command: Command): ReplicatedEntityStreamOut = {
+      val ctx = new ReplicatedEntityCommandContext(command)
 
       val reply: Reply[JavaPbAny] = try {
         val payload = ScalaPbAny.toJavaProto(command.payload.get)
-        ctx match {
-          case streamed: ReplicatedEntityStreamedCommandContext =>
-            entity.handleStreamedCommand(payload, streamed)
-          case regular =>
-            entity.handleCommand(payload, regular)
-        }
+        entity.handleCommand(payload, ctx)
       } catch {
         case FailInvoked =>
           Reply.noReply() // Optional.empty[JavaPbAny]()
@@ -218,151 +198,19 @@ class ReplicatedEntityImpl(system: ActorSystem,
               clientAction = clientAction
             )
           )
-        ) :: Nil
+        )
       } else {
         val stateAction = ctx.createAction()
-
-        // Notify subscribers of any changes before adding this streams subscribers to the list
-        val streamedMessages = if (stateAction.isDefined) {
-          notifySubscribers()
-        } else Nil
-
-        val streamAccepted = ctx match {
-          case stream: ReplicatedEntityStreamedCommandContext => stream.addCallbacks()
-          case _ => false
-        }
-
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(
             ReplicatedEntityReply(
               commandId = command.id,
               clientAction = clientAction,
               stateAction = stateAction,
-              sideEffects = ctx.sideEffects ++ ReplySupport.effectsFrom(reply),
-              streamed = streamAccepted
+              sideEffects = ctx.sideEffects ++ ReplySupport.effectsFrom(reply)
             )
           )
-        ) :: streamedMessages.map(m => ReplicatedEntityStreamOut(ReplicatedEntityStreamOut.Message.StreamedMessage(m)))
-      }
-    }
-
-    def handleStreamCancelled(cancelled: StreamCancelled): List[ReplicatedEntityStreamOut] = {
-      subscribers -= cancelled.id
-      cancelListeners.get(cancelled.id) match {
-        case Some((onCancel, metadata)) =>
-          cancelListeners -= cancelled.id
-          val ctx = new ReplicatedEntityStreamCancelledContext(cancelled, metadata)
-          try {
-            onCancel.accept(ctx)
-          } finally {
-            ctx.deactivate()
-          }
-
-          val stateAction = ctx.createAction()
-          if (stateAction.isDefined) {
-            ReplicatedEntityStreamOut(
-              ReplicatedEntityStreamOut.Message.StreamCancelledResponse(
-                ReplicatedEntityStreamCancelledResponse(
-                  commandId = cancelled.id,
-                  stateAction = stateAction,
-                  sideEffects = ctx.sideEffects
-                )
-              )
-            ) :: notifySubscribers().map(
-              m => ReplicatedEntityStreamOut(ReplicatedEntityStreamOut.Message.StreamedMessage(m))
-            )
-          } else {
-            ReplicatedEntityStreamOut(
-              ReplicatedEntityStreamOut.Message.StreamCancelledResponse(
-                ReplicatedEntityStreamCancelledResponse(
-                  commandId = cancelled.id,
-                  sideEffects = ctx.sideEffects
-                )
-              )
-            ) :: Nil
-          }
-
-        case None =>
-          ReplicatedEntityStreamOut(
-            ReplicatedEntityStreamOut.Message
-              .StreamCancelledResponse(ReplicatedEntityStreamCancelledResponse(cancelled.id))
-          ) :: Nil
-      }
-
-    }
-
-    private def notifySubscribers(): List[ReplicatedEntityStreamedMessage] =
-      subscribers
-        .collect(Function.unlift {
-          case (id, callback) =>
-            val context = new ReplicatedEntitySubscriptionContext(id)
-            val reply: Reply[JavaPbAny] = try {
-              callback(context)
-                .map(v => Reply.message(v): Reply[JavaPbAny])
-                .orElse(Reply.noReply())
-            } catch {
-              case FailInvoked => Reply.noReply()
-            } finally {
-              context.deactivate()
-            }
-
-            val clientAction = context.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
-
-            if (context.hasError) {
-              subscribers -= id
-              cancelListeners -= id
-              Some(
-                ReplicatedEntityStreamedMessage(
-                  commandId = id,
-                  clientAction = clientAction
-                )
-              )
-            } else if (clientAction.isDefined || context.isEnded ||
-                       context.sideEffects.nonEmpty || !reply.sideEffects().isEmpty) {
-              if (context.isEnded) {
-                subscribers -= id
-                cancelListeners -= id
-              }
-              Some(
-                ReplicatedEntityStreamedMessage(
-                  commandId = id,
-                  clientAction = clientAction,
-                  sideEffects = context.sideEffects ++ ReplySupport.effectsFrom(reply),
-                  endStream = context.isEnded
-                )
-              )
-            } else {
-              None
-            }
-        })
-        .toList
-
-    class ReplicatedEntityStreamedCommandContext(command: Command)
-        extends ReplicatedEntityCommandContext(command)
-        with StreamedCommandContext[JavaPbAny] {
-      private final var changeCallback: Option[function.Function[SubscriptionContext, Optional[JavaPbAny]]] = None
-      private final var cancelCallback: Option[Consumer[StreamCancelledContext]] = None
-
-      override final def isStreamed: Boolean = command.streamed
-
-      override final def onChange(subscriber: function.Function[SubscriptionContext, Optional[JavaPbAny]]): Unit = {
-        checkActive()
-        changeCallback = Some(subscriber)
-      }
-
-      override final def onCancel(effect: Consumer[StreamCancelledContext]): Unit = {
-        checkActive()
-        cancelCallback = Some(effect)
-      }
-
-      final def addCallbacks(): Boolean = {
-        changeCallback.foreach { onChange =>
-          subscribers = subscribers.updated(command.id, onChange)
-        }
-        cancelCallback.foreach { onCancel =>
-          cancelListeners = cancelListeners.updated(command.id, (onCancel, metadata))
-        }
-        changeCallback.isDefined || cancelCallback.isDefined
+        )
       }
     }
 
@@ -381,30 +229,6 @@ class ReplicatedEntityImpl(system: ActorSystem,
 
       override val metadata: Metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-    }
-
-    class ReplicatedEntityStreamCancelledContext(cancelled: StreamCancelled, override val metadata: Metadata)
-        extends StreamCancelledContext
-        with CapturingReplicatedEntityFactory
-        with AbstractSideEffectContext
-        with ActivatableContext {
-      override final def commandId(): Long = cancelled.id
-    }
-
-    class ReplicatedEntitySubscriptionContext(override val commandId: Long)
-        extends SubscriptionContext
-        with AbstractReplicatedEntityContext
-        with AbstractClientActionContext
-        with AbstractSideEffectContext
-        with ActivatableContext {
-      private final var ended = false
-
-      override final def endStream(): Unit = {
-        checkActive()
-        ended = true
-      }
-
-      final def isEnded: Boolean = ended
     }
 
     trait DeletableContext {

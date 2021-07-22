@@ -59,7 +59,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
     }
   }
 
-  private val (commandHandlers, streamedCommandHandlers) = {
+  private val commandHandlers = {
     val allMethods = ReflectionHelper.getAllDeclaredMethods(entityClass)
 
     ReflectionHelper.validateNoBadMethods(allMethods, classOf[ReplicatedEntity], Set(classOf[CommandHandler]))
@@ -79,9 +79,9 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
         (ReflectionHelper.ensureAccessible(method), serviceMethod)
       }
 
-    def getHandlers[C <: ReplicatedEntityContext with ReplicatedDataFactory: ClassTag](streamed: Boolean) =
+    def getHandlers[C <: ReplicatedEntityContext with ReplicatedDataFactory: ClassTag] =
       handlers
-        .filter(_._2.outputStreamed == streamed)
+        .filter(_._2.outputStreamed == false)
         .map {
           case (method, serviceMethod) =>
             new CommandHandlerInvoker[C](method,
@@ -98,7 +98,7 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
             )
         }
 
-    (getHandlers[CommandContext](false), getHandlers[StreamedCommandContext[AnyRef]](true))
+    getHandlers[CommandContext]
   }
 
   override def create(context: ReplicatedEntityCreationContext): ReplicatedEntityHandler = {
@@ -116,22 +116,6 @@ private[impl] class AnnotationBasedReplicatedEntitySupport(
       maybeResult.getOrElse {
         throw new RuntimeException(
           s"No command handler found for command [${context.commandName()}] on Replicated Entity: $entityClass"
-        )
-      }
-    }
-
-    override def handleStreamedCommand(command: JavaPbAny,
-                                       context: StreamedCommandContext[JavaPbAny]): Reply[JavaPbAny] = unwrap {
-      val maybeResult = streamedCommandHandlers.get(context.commandName()).map { handler =>
-        val adaptedContext =
-          new AdaptedStreamedCommandContext(context,
-                                            handler.serviceMethod.outputType.asInstanceOf[ResolvedType[AnyRef]])
-        handler.invoke(entity, command, adaptedContext)
-      }
-
-      maybeResult.getOrElse {
-        throw new RuntimeException(
-          s"No streamed command handler found for command [${context.commandName()}] on Replicated Entity: $entityClass"
         )
       }
     }
@@ -219,51 +203,6 @@ private object ReplicatedEntityAnnotationHelper {
       ctx.context.state(injector.replicatedDataType).asScala.map(injector.wrap).asJava
   }
 
-}
-
-private final class AdaptedStreamedCommandContext(val delegate: StreamedCommandContext[JavaPbAny],
-                                                  resolvedType: ResolvedType[AnyRef])
-    extends StreamedCommandContext[AnyRef] {
-  override def isStreamed: Boolean = delegate.isStreamed
-
-  def onChange(subscriber: function.Function[SubscriptionContext, Optional[AnyRef]]): Unit =
-    delegate.onChange { ctx =>
-      val result = subscriber(ctx)
-      if (result.isPresent) {
-        Optional.of(
-          JavaPbAny
-            .newBuilder()
-            .setTypeUrl(resolvedType.typeUrl)
-            .setValue(resolvedType.toByteString(result.get))
-            .build()
-        )
-      } else {
-        Optional.empty()
-      }
-    }
-
-  override def onCancel(effect: Consumer[StreamCancelledContext]): Unit = delegate.onCancel(effect)
-
-  override def serviceCallFactory(): ServiceCallFactory = delegate.serviceCallFactory()
-  override def entityId(): String = delegate.entityId()
-  override def commandId(): Long = delegate.commandId()
-  override def commandName(): String = delegate.commandName()
-  override def metadata(): Metadata = delegate.metadata()
-
-  override def state[D <: ReplicatedData](dataClass: Class[D]): Optional[D] = delegate.state(dataClass)
-  override def delete(): Unit = delegate.delete()
-
-  override def forward(to: ServiceCall): Unit = delegate.forward(to)
-  override def fail(errorMessage: String): RuntimeException = delegate.fail(errorMessage)
-  override def effect(effect: ServiceCall, synchronous: Boolean): Unit = delegate.effect(effect, synchronous)
-
-  override def newCounter(): ReplicatedCounter = delegate.newCounter()
-  override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] = delegate.newReplicatedCounterMap()
-  override def newReplicatedSet[T](): ReplicatedSet[T] = delegate.newReplicatedSet()
-  override def newRegister[T](value: T): ReplicatedRegister[T] = delegate.newRegister(value)
-  override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] = delegate.newReplicatedRegisterMap()
-  override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] = delegate.newReplicatedMap()
-  override def newVote(): Vote = delegate.newVote()
 }
 
 private final class EntityConstructorInvoker(constructor: Constructor[_])

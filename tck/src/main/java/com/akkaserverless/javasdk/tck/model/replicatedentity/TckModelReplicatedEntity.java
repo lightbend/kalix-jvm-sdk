@@ -125,25 +125,6 @@ public class TckModelReplicatedEntity {
     return reply.addSideEffects(e);
   }
 
-  @CommandHandler
-  public Optional<Response> processStreamed(
-      StreamedRequest request, StreamedCommandContext<Response> context) {
-    if (context.isStreamed()) {
-      context.onChange(
-          subscription -> {
-            for (Effect effect : request.getEffectsList())
-              subscription.effect(serviceTwoRequest(effect.getId()), effect.getSynchronous());
-            if (request.hasEndState() && dataState(replicatedData).equals(request.getEndState()))
-              subscription.endStream();
-            return request.getEmpty() ? Optional.empty() : Optional.of(responseValue());
-          });
-      if (request.hasCancelUpdate())
-        context.onCancel(cancelled -> applyUpdate(replicatedData, request.getCancelUpdate()));
-    }
-    if (request.hasInitialUpdate()) applyUpdate(replicatedData, request.getInitialUpdate());
-    return request.getEmpty() ? Optional.empty() : Optional.of(responseValue());
-  }
-
   private void applyUpdate(ReplicatedData replicatedData, Update update) {
     switch (update.getUpdateCase()) {
       case COUNTER:
