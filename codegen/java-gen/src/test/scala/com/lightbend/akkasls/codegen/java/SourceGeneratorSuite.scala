@@ -18,10 +18,18 @@ package com.lightbend.akkasls.codegen
 package java
 
 import org.apache.commons.io.FileUtils
+import org.slf4j.LoggerFactory
 
 import _root_.java.nio.file.Files
 
 class SourceGeneratorSuite extends munit.FunSuite {
+  val log = LoggerFactory.getLogger(getClass)
+  implicit val codegenLog = new Log {
+    override def debug(message: String): Unit = log.debug(message)
+    override def info(message: String): Unit = log.info(message)
+    override def warning(message: String): Unit = log.warn(message)
+    override def error(message: String): Unit = log.error(message)
+  }
 
   test("generate") {
     val sourceDirectory = Files.createTempDirectory("source-generator-test")
