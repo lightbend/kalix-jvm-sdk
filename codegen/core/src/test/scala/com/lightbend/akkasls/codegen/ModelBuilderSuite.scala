@@ -24,10 +24,19 @@ import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import com.google.protobuf.ExtensionRegistry
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
 class ModelBuilderSuite extends munit.FunSuite {
+  val log = LoggerFactory.getLogger(getClass)
+  implicit val codegenLog = new Log {
+    override def debug(message: String): Unit = log.debug(message)
+    override def info(message: String): Unit = log.info(message)
+    override def warning(message: String): Unit = log.warn(message)
+    override def error(message: String): Unit = log.error(message)
+  }
+
   test("EventSourcedEntity introspection") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
