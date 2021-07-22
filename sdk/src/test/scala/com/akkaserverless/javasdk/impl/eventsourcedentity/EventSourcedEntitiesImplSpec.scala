@@ -166,7 +166,12 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo"))
-        entity.expect(failure(1, s"No command handler found for command [foo] on ${ShoppingCart.TestCartClass}"))
+        entity.expect(
+          failure(
+            1,
+            s"Unexpected failure: java.lang.RuntimeException: No command handler found for command [foo] on ${ShoppingCart.TestCartClass}"
+          )
+        )
         entity.expectClosed()
       }
     }

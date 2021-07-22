@@ -17,6 +17,7 @@
 package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler;
 
 /**
  * Low level interface for handling events and commands on an entity.
@@ -32,5 +33,5 @@ public interface EventSourcedEntityFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  EventSourcedEntityHandler create(EventSourcedContext context);
+  AbstractEventSourcedEntityHandler<?, ?> create(EventSourcedContext context);
 }
