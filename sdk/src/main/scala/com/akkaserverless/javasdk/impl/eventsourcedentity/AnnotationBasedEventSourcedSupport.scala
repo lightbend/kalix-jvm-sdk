@@ -29,10 +29,9 @@ import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.ReflectionHelper
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
 import com.akkaserverless.javasdk.EntityFactory
 import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{Any => JavaPbAny}
 
@@ -64,9 +63,6 @@ private[impl] class AnnotationBasedEventSourcedSupport(
 
   private val behavior = EventBehaviorReflection(entityClass, resolvedMethods, anySupport)
 
-  override def create(context: EventSourcedContext): EventSourcedEntityHandler =
-    new EntityHandler(context)
-
   private val constructor: EventSourcedEntityCreationContext => EventSourcedEntityBase[_] = factory.getOrElse {
     entityClass.getConstructors match {
       case Array(single) =>
@@ -76,76 +72,37 @@ private[impl] class AnnotationBasedEventSourcedSupport(
     }
   }
 
-  private class EntityHandler(context: EventSourcedContext) extends EventSourcedEntityHandler {
-
-    private var state: Option[Any] = None
-
-    private val entity: EventSourcedEntityBase[_] = {
+  override def create(context: EventSourcedContext): AbstractEventSourcedEntityHandler[_, _] =
+    new EntityHandler({
       constructor(new DelegatingEventSourcedContext(context) with EventSourcedEntityCreationContext {
         override def entityId(): String = context.entityId()
       })
-    }
+    })
 
-    private def stateOrEmpty(): Any = state match {
-      case None =>
-        val emptyState = entity.emptyState()
-        require(emptyState != null, "Entity empty state is not allowed to be null")
-        state = Some(emptyState)
-        emptyState
-      case Some(state) => state
-    }
+  private class EntityHandler[S](entity: EventSourcedEntityBase[S])
+      extends AbstractEventSourcedEntityHandler[S, EventSourcedEntityBase[S]](entity) {
 
-    override def currentState(): JavaPbAny = anySupport.encodeJava(stateOrEmpty())
-
-    override def handleEvent(anyEvent: JavaPbAny, context: EventContext): Unit = unwrap {
-      val decodedEvent = anySupport.decode(anyEvent).asInstanceOf[AnyRef]
-
-      behavior.getCachedEventHandlerForClass(decodedEvent.getClass) match {
+    override def handleEvent(state: S, event: Any): S = unwrap {
+      behavior.getCachedEventHandlerForClass(event.getClass) match {
         case Some(handler) =>
-          val ctx = new DelegatingEventSourcedContext(context) with EventContext {
-            override def sequenceNumber(): Long = context.sequenceNumber()
-          }
-          try {
-            entity.setEventContext(Optional.of(ctx))
-            val stateWithEventApplied: Any = handler.invoke(entity, stateOrEmpty(), decodedEvent)
-            if (stateWithEventApplied == null) {
-              throw new IllegalStateException(
-                s"Event handler for event ${decodedEvent.getClass.toString} returned null"
-              )
-            }
-            if (!state.contains(stateWithEventApplied)) {
-              state = Some(stateWithEventApplied)
-            }
-          } finally {
-            entity.setEventContext(Optional.empty())
-          }
+          handler.invoke(entity, stateOrEmpty(), event.asInstanceOf[AnyRef]).asInstanceOf[S]
         case None =>
           throw EntityException(
-            s"No event handler found for event ${decodedEvent.getClass} on $behaviorsString"
+            s"No event handler found for event ${event.getClass} on $behaviorsString"
           )
       }
     }
 
-    override def handleCommand(command: JavaPbAny, context: CommandContext): Effect[JavaPbAny] = unwrap {
-      entity.emptyState()
-      behavior.commandHandlers.get(context.commandName()).map { handler =>
-        entity.setCommandContext(Optional.of(context))
-        try {
-          handler.commandInvoke(entity, stateOrEmpty(), command, context).asInstanceOf[Effect[JavaPbAny]]
-        } finally {
-          entity.setCommandContext(Optional.empty())
+    override def handleCommand(commandName: String, state: S, command: JavaPbAny): EventSourcedEntityBase.Effect[Any] =
+      unwrap {
+        behavior.commandHandlers.get(commandName).map { handler =>
+          handler.commandInvoke(entity, stateOrEmpty(), command).asInstanceOf[Effect[Any]]
+        } getOrElse {
+          throw new RuntimeException(
+            s"No command handler found for command [${commandName}] on $behaviorsString"
+          )
         }
-      } getOrElse {
-        throw EntityException(
-          context,
-          s"No command handler found for command [${context.commandName()}] on $behaviorsString"
-        )
       }
-    }
-
-    override def handleSnapshot(anySnapshot: JavaPbAny): Unit = unwrap {
-      state = Some(anySupport.decode(anySnapshot))
-    }
 
     private def unwrap[T](block: => T): T =
       try {
@@ -296,7 +253,7 @@ private class EventHandlerInvoker(val method: Method, anySupport: AnySupport) {
       )
   }
 
-  def invoke(obj: AnyRef, state: Any, event: AnyRef): Any = {
+  def invoke(obj: AnyRef, state: Any, event: AnyRef): Object = {
     method.invoke(obj, state, event)
   }
 }
@@ -308,10 +265,7 @@ private class EventSourcedCommandHandlerInvoker(
     extraParameters: PartialFunction[MethodParameter, ParameterHandler[AnyRef, CommandContext]] = PartialFunction.empty
 ) extends ReflectionHelper.CommandHandlerInvoker[CommandContext](method, serviceMethod, anySupport, extraParameters) {
 
-  def commandInvoke(obj: AnyRef,
-                    state: Any,
-                    command: JavaPbAny,
-                    context: CommandContext): EventSourcedEntityEffectImpl[Any] = {
+  def commandInvoke(obj: AnyRef, state: Any, command: JavaPbAny): EventSourcedEntityEffectImpl[Any] = {
     val decodedCommand = mainArgumentDecoder(command)
     try {
       method.invoke(obj, state, decodedCommand) match {

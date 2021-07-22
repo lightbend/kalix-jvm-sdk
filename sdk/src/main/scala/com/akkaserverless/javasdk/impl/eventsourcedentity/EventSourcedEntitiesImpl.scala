@@ -18,30 +18,37 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
+import akka.event.Logging
+import akka.event.LoggingAdapter
 import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.reply.ReplySupport
-import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
-  Command => InCommand,
-  Empty => InEmpty,
-  Event => InEvent,
-  Init => InInit
-}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
-  Failure => OutFailure,
-  Reply => OutReply
-}
+import com.akkaserverless.javasdk.impl.effect.EffectSupport
+import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler.CommandResult
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
+import com.akkaserverless.javasdk.reply.ErrorReply
+import com.akkaserverless.javasdk.ComponentOptions
+import com.akkaserverless.javasdk.Context
+import com.akkaserverless.javasdk.Metadata
+import com.akkaserverless.javasdk.Service
+import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Init => InInit}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Empty => InEmpty}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Command => InCommand}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Event => InEvent}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Reply => OutReply}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Failure => OutFailure}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Descriptors, Any => JavaPbAny}
+import com.google.protobuf.Descriptors
+import com.google.protobuf.{Any => JavaPbAny}
 
 import scala.util.control.NonFatal
-import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.ComponentOptions
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
@@ -134,7 +141,10 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler = service.factory.create(new EventSourcedContextImpl(init.entityId))
+    val handler = service.factory
+      .create(new EventSourcedContextImpl(init.entityId))
+      .asInstanceOf[AbstractEventSourcedEntityHandler[Any, EventSourcedEntityBase[Any]]]
+    handler.snapshotEvery = service.snapshotEvery
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {
@@ -142,7 +152,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      handler.handleSnapshot(ScalaPbAny.toJavaProto(any))
+      handler.handleSnapshot(service.anySupport.decode(ScalaPbAny.toJavaProto(any)))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -152,7 +162,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
         case (_, InEvent(event)) =>
           // Note that these only come on replay
           val context = new EventContextImpl(thisEntityId, event.sequence)
-          val ev = ScalaPbAny.toJavaProto(event.payload.get) // FIXME empty?
+          val ev = service.anySupport.decode(ScalaPbAny.toJavaProto(event.payload.get)).asInstanceOf[AnyRef] // FIXME empty?
           handler.handleEvent(ev, context)
           (event.sequence, None)
         case ((sequence, _), InCommand(command)) =>
@@ -168,38 +178,17 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                                    command.id,
                                    metadata,
                                    service.anySupport,
-                                   handler,
                                    service.snapshotEvery,
                                    log)
 
           // FIXME we'd want to somehow share this handle-command-apply-event logic to get the end effect ready for asserting in the testkit
           // FIXME a bit mixed concerns here, esp with the serialization to PbAny but it's either that or pushing this into the handler and making
           // SecondaryEffectImpl a public API (or make handler internal, which may be a good idea, also for the testkit)
-          var endSequenceNumber = sequence
-          val (events: Vector[ScalaPbAny], secondaryEffect: SecondaryEffectImpl, snapshot: Option[ScalaPbAny]) = try {
-            val commandEffect =
-              handler.handleCommand(cmd, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
-            commandEffect.primaryEffect match {
-              case EmitEvents(events) =>
-                var shouldSnapshot = false
-                val scalaPbEvents = Vector.newBuilder[ScalaPbAny]
-                events.foreach { event =>
-                  val javaPbEvent = service.anySupport.encodeJava(event)
-                  scalaPbEvents += ScalaPbAny.fromJavaProto(javaPbEvent)
-                  endSequenceNumber = endSequenceNumber + 1
-                  handler.handleEvent(javaPbEvent, new EventContextImpl(thisEntityId, sequence))
-                  shouldSnapshot = shouldSnapshot || (service.snapshotEvery > 0 && endSequenceNumber % service.snapshotEvery == 0)
-                }
-                // FIXME currently snapshotting final state after applying all events even if trigger was mid-event stream?
-                val snapshot =
-                  if (shouldSnapshot) Option(ScalaPbAny.fromJavaProto(handler.currentState()))
-                  else None
-                (scalaPbEvents.result(),
-                 commandEffect.secondaryEffect(service.anySupport.decode(handler.currentState())),
-                 snapshot)
-              case NoPrimaryEffect =>
-                (Vector.empty, commandEffect.secondaryEffect(handler.currentState()), None)
-            }
+          val CommandResult(events: Vector[Any],
+                            secondaryEffect: SecondaryEffectImpl,
+                            snapshot: Option[Any],
+                            endSequenceNumber) = try {
+            handler.handleCommand(command.name, cmd, context, seqNr => new EventContextImpl(thisEntityId, seqNr))
           } catch {
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
@@ -209,7 +198,6 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          // FIXME something more that needs to be serialized?
           val serializedSecondaryEffect = secondaryEffect match {
             case MessageReplyImpl(message, metadata, sideEffects) =>
               MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
@@ -237,7 +225,10 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                  )
                ))
 
-            case ok =>
+            case _ => // non-error
+              val serializedEvents = events.map(event => ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(event)))
+              val serializedSnapshot =
+                snapshot.map(state => ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(state)))
               (endSequenceNumber,
                Some(
                  OutReply(
@@ -245,8 +236,8 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                      command.id,
                      clientAction,
                      context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
-                     events,
-                     snapshot
+                     serializedEvents,
+                     serializedSnapshot
                    )
                  )
                ))
@@ -271,7 +262,6 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                            override val commandId: Long,
                            override val metadata: Metadata,
                            val anySupport: AnySupport,
-                           val handler: EventSourcedEntityHandler,
                            val snapshotEvery: Int,
                            val log: LoggingAdapter)
       extends CommandContext
