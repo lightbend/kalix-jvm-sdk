@@ -230,7 +230,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           method
         )
         val ctx = new MockCommandContext
-        val result = handler.handleCommand("AddItem", command("blah"), ctx, eventContextFactory)
+        val result = handler.handleCommand("AddItem", command("blah"), ctx, 5, eventContextFactory)
         result.events should have size (1)
         result.events.head should ===("blah event")
         reply(result.secondaryEffect) should equal(Wrapped("blah"))
@@ -279,6 +279,7 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
         val ex = the[RuntimeException] thrownBy handler.handleCommand("AddItem",
                                                                       command("nothing"),
                                                                       new MockCommandContext,
+                                                                      5,
                                                                       eventContextFactory)
         ex.getStackTrace()(0)
           .toString should include regex """.*AnnotationBasedEventSourcedSupportSpec.*addItem.*AnnotationBasedEventSourcedSupportSpec\.scala:\d+"""
@@ -290,7 +291,8 @@ class AnnotationBasedEventSourcedSupportSpec extends AnyWordSpec with Matchers {
           @CommandHandler
           def addItem(state: Any, command: Any): Effect[Wrapped] = effects.error("foo")
         }, method)
-        val result = handler.handleCommand("AddItem", command("nothing"), new MockCommandContext, eventContextFactory)
+        val result =
+          handler.handleCommand("AddItem", command("nothing"), new MockCommandContext, 5, eventContextFactory)
         assertIsFailure(result.secondaryEffect, "foo")
       }
 

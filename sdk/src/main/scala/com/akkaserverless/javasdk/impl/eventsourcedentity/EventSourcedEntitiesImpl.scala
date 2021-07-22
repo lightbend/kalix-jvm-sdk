@@ -144,7 +144,6 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
     val handler = service.factory
       .create(new EventSourcedContextImpl(init.entityId))
       .asInstanceOf[AbstractEventSourcedEntityHandler[Any, EventSourcedEntityBase[Any]]]
-    handler.snapshotEvery = service.snapshotEvery
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {
@@ -188,7 +187,11 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
                             secondaryEffect: SecondaryEffectImpl,
                             snapshot: Option[Any],
                             endSequenceNumber) = try {
-            handler.handleCommand(command.name, cmd, context, seqNr => new EventContextImpl(thisEntityId, seqNr))
+            handler.handleCommand(command.name,
+                                  cmd,
+                                  context,
+                                  service.snapshotEvery,
+                                  seqNr => new EventContextImpl(thisEntityId, seqNr))
           } catch {
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
