@@ -90,6 +90,7 @@ object Dependencies {
 
   val codegenCore = deps ++= Seq(
         protobufJava,
+        logback % Test,
         munit % Test,
         munitScalaCheck % Test
       )
@@ -97,8 +98,9 @@ object Dependencies {
   val codegenJava = deps ++= Seq(
         kiama,
         commonsIo,
-        munit % "test",
-        munitScalaCheck % "test"
+        logback % Test,
+        munit % Test,
+        munitScalaCheck % Test
       )
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
