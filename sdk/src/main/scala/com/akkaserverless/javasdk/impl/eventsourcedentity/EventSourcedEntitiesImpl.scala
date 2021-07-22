@@ -25,30 +25,28 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.effect.EffectSupport
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler.CommandResult
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.reply.ErrorReply
-import com.akkaserverless.javasdk.ComponentOptions
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.Service
-import com.akkaserverless.javasdk.ServiceCallFactory
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Init => InInit}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Empty => InEmpty}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Command => InCommand}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{Event => InEvent}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Reply => OutReply}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{Failure => OutFailure}
+import com.akkaserverless.javasdk.impl.reply.ReplySupport
+import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Event => InEvent,
+  Init => InInit
+}
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
+  Failure => OutFailure,
+  Reply => OutReply
+}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{Any => JavaPbAny}
 
 import scala.util.control.NonFatal
+import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityHandler
+import com.akkaserverless.javasdk.reply.ErrorReply
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
@@ -207,10 +205,16 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
             case other => other
           }
 
-          val clientAction =
-            context.replyToClientAction(serializedSecondaryEffect,
-                                        allowNoReply = false,
-                                        restartOnFailure = events.nonEmpty)
+          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
+            val endSequenceNumber = sequence + context.events.size
+            val snapshot =
+              if (context.performSnapshot) {
+                val s = handler.snapshot(new SnapshotContext with AbstractContext {
+                  override def entityId: String = thisEntityId
+                  override def sequenceNumber: Long = endSequenceNumber
+                })
+                if (s.isPresent) Option(ScalaPbAny.fromJavaProto(s.get)) else None
+              } else None
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>

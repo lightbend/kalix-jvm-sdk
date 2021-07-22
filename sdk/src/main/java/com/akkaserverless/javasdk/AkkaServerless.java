@@ -35,7 +35,11 @@ import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.javasdk.lowlevel.*;
+import com.akkaserverless.javasdk.lowlevel.ActionHandler;
+import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityHandlerFactory;
+import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory;
+import com.akkaserverless.javasdk.lowlevel.ViewFactory;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -165,6 +169,8 @@ public final class AkkaServerless {
      * @param descriptor The descriptor for the service that this entity implements.
      * @param entityType The entity type name
      * @param entityOptions The options for this entity.
+     * @param additionalDescriptors Any additional descriptors that should be used to look up
+     *     protobuf types when needed.
      * @return This stateful service builder.
      */
     public AkkaServerless registerValueEntity(
@@ -174,11 +180,15 @@ public final class AkkaServerless {
         ValueEntityOptions entityOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      final AnySupport anySupport = newAnySupport(additionalDescriptors);
       services.put(
           descriptor.getFullName(),
           system ->
-              new ValueEntityService(factory, descriptor, anySupport, entityType, entityOptions));
+              new ValueEntityService(
+                  factory,
+                  descriptor,
+                  newAnySupport(additionalDescriptors),
+                  entityType,
+                  entityOptions));
 
       return AkkaServerless.this;
     }

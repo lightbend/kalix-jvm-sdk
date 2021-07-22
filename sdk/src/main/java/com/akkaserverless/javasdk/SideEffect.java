@@ -16,8 +16,7 @@
 
 package com.akkaserverless.javasdk;
 
-// FIXME this should change to com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
-import com.akkaserverless.javasdk.impl.reply.SideEffectImpl;
+import com.akkaserverless.javasdk.impl.reply.EffectImpl;
 
 /** A side effect. */
 public interface SideEffect {
@@ -36,7 +35,7 @@ public interface SideEffect {
    * @return The effect.
    */
   static SideEffect of(ServiceCall serviceCall, boolean synchronous) {
-    return new SideEffectImpl(serviceCall, synchronous);
+    return new EffectImpl(serviceCall, synchronous);
   }
 
   /**
@@ -46,6 +45,6 @@ public interface SideEffect {
    * @return The effect.
    */
   static SideEffect of(ServiceCall serviceCall) {
-    return new SideEffectImpl(serviceCall, false);
+    return new EffectImpl(serviceCall, false);
   }
 }

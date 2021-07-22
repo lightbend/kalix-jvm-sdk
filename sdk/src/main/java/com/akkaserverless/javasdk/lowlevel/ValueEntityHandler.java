@@ -16,9 +16,9 @@
 
 package com.akkaserverless.javasdk.lowlevel;
 
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessageV3;
 

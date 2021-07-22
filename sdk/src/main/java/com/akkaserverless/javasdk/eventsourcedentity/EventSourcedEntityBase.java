@@ -16,23 +16,23 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
 import com.akkaserverless.javasdk.Metadata;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.impl.reply.ErrorReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.ForwardReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl;
+import com.akkaserverless.javasdk.impl.reply.NoReply;
+import com.akkaserverless.javasdk.reply.ErrorReply;
+import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
-import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Function;
 
 // FIXME rename to EventSourcedEntity when the old annotation is removed
 
 /** @param <S> The type of the state for this entity. */
 public abstract class EventSourcedEntityBase<S> {
-
-  private Optional<CommandContext> commandContext = Optional.empty();
-  private Optional<EventContext> eventContext = Optional.empty();
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -42,22 +42,15 @@ public abstract class EventSourcedEntityBase<S> {
    *
    * <p><code>null</code> is an allowed value.
    */
-  public abstract S emptyState();
+  protected abstract S emptyState();
 
   /**
    * Additional context and meta data for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor or event handler.
    */
-  protected final CommandContext commandContext() {
-    return commandContext.orElseThrow(
-        () ->
-            new IllegalStateException("CommandContext is only available when handling a command."));
-  }
-
-  /** INTERNAL API */
-  public final void setCommandContext(Optional<CommandContext> context) {
-    commandContext = context;
+  protected CommandContext commandContext() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
   }
 
   /**
@@ -65,152 +58,111 @@ public abstract class EventSourcedEntityBase<S> {
    *
    * <p>It will throw an exception if accessed from constructor or command handler.
    */
-  protected final EventContext eventContext() {
-    return eventContext.orElseThrow(
-        () -> new IllegalStateException("EventContext is only available when handling an event."));
+  protected EventContext eventContext() {
+    throw new UnsupportedOperationException("Not implemented yet"); // FIXME
   }
 
-  /** INTERNAL API */
-  public final void setEventContext(Optional<EventContext> context) {
-    eventContext = context;
-  }
-
-  protected final Effect.Builder<S> effects() {
-    return new EventSourcedEntityEffectImpl<S>();
+  protected Effects<S> effects() {
+    return new Effects<>();
   }
 
   /**
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   * Construct the effect that is returned by the command handler. The effect describes next
+   * processing actions, such as emitting events and sending a reply.
    *
-   * @param <T> The type of the message that must be returned by this call.
+   * @param <S> The type of the state for this entity.
    */
-  public interface Effect<T> {
+  public static class Effects<S> {
+    private Effects() {}
 
-    /**
-     * Construct the effect that is returned by the command handler. The effect describes next
-     * processing actions, such as emitting events and sending a reply.
-     *
-     * @param <S> The type of the state for this entity.
-     */
-    interface Builder<S> {
-
-      OnSuccessBuilder<S> emitEvent(Object event);
-
-      OnSuccessBuilder<S> emitEvents(Object event1, Object... additionalEvents);
-
-      OnSuccessBuilder<S> emitEvents(Collection<? extends Object> event);
-
-      /**
-       * Create a message reply.
-       *
-       * @param message The payload of the reply.
-       * @return A message reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> reply(T message);
-
-      /**
-       * Create a message reply.
-       *
-       * @param message The payload of the reply.
-       * @param metadata The metadata for the message.
-       * @return A message reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> reply(T message, Metadata metadata);
-
-      /**
-       * Create a forward reply.
-       *
-       * @param serviceCall The service call representing the forward.
-       * @return A forward reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> forward(ServiceCall serviceCall);
-
-      /**
-       * Create an error reply.
-       *
-       * @param description The description of the error.
-       * @return An error reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> error(String description);
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return The reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> noReply();
-    }
-
-    interface OnSuccessBuilder<S> {
-
-      /**
-       * Reply after for example <code>emitEvent</code>.
-       *
-       * @param replyMessage Function to create the reply message from the new state.
-       * @return A message reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> thenReply(Function<S, T> replyMessage);
-
-      /**
-       * Reply after for example <code>emitEvent</code>.
-       *
-       * @param replyMessage Function to create the reply message from the new state.
-       * @param metadata The metadata for the message.
-       * @return A message reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> thenReply(Function<S, T> replyMessage, Metadata metadata);
-
-      /**
-       * Create a forward reply after for example <code>emitEvent</code>.
-       *
-       * @param serviceCall The service call representing the forward.
-       * @return A forward reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> thenForward(Function<S, ServiceCall> serviceCall);
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return The reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> thenNoReply();
-
-      /**
-       * Attach the given side effect to this reply from the new state.
-       *
-       * @param sideEffect The effect to attach.
-       * @return A new reply with the attached effect.
-       */
-      OnSuccessBuilder<S> thenAddSideEffect(Function<S, SideEffect> sideEffect);
+    public SecondaryEffects<S> emitEvent(Object event) {
+      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
     }
 
     /**
-     * Attach the given side effects to this reply.
+     * Create a message reply.
      *
-     * @param sideEffects The effects to attach.
-     * @return A new reply with the attached effects.
+     * @param message The payload of the reply.
+     * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
+    public <T> MessageReply<T> reply(T message) {
+      return reply(message, Metadata.EMPTY);
+    }
 
     /**
-     * Attach the given effects to this reply.
+     * Create a message reply.
      *
-     * @param effects The effects to attach.
-     * @return A new reply with the attached effects.
+     * @param message The payload of the reply.
+     * @param metadata The metadata for the message.
+     * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
      */
-    Effect<T> addSideEffects(SideEffect... effects);
+    public <T> MessageReply<T> reply(T message, Metadata metadata) {
+      return new MessageReplyImpl<>(message, metadata);
+    }
+
+    /**
+     * Create a forward reply.
+     *
+     * @param serviceCall The service call representing the forward.
+     * @return A forward reply.
+     * @param <T> The type of the message that must be returned by this call.
+     */
+    public <T> ForwardReply<T> forward(ServiceCall serviceCall) {
+      return new ForwardReplyImpl<>(serviceCall);
+    }
+
+    /**
+     * Create an error reply.
+     *
+     * @param description The description of the error.
+     * @return An error reply.
+     * @param <T> The type of the message that must be returned by this call.
+     */
+    public <T> ErrorReply<T> error(String description) {
+      return new ErrorReplyImpl<>(description);
+    }
+
+    /**
+     * Create a reply that contains neither a message nor a forward nor an error.
+     *
+     * <p>This may be useful for emitting effects without sending a message.
+     *
+     * @return The reply.
+     * @param <T> The type of the message that must be returned by this call.
+     */
+    public <T> Reply<T> noReply() {
+      return NoReply.apply();
+    }
+  }
+
+  public static class SecondaryEffects<S> {
+    private SecondaryEffects() {}
+
+    /**
+     * Reply after for example <code>emitEvent</code>.
+     *
+     * @param replyMessage Function to create the reply message from the new state.
+     * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
+     */
+    public <T> MessageReply<T> thenReply(Function<S, T> replyMessage) {
+      return thenReply(replyMessage, Metadata.EMPTY);
+    }
+
+    /**
+     * Reply after for example <code>emitEvent</code>.
+     *
+     * @param replyMessage Function to create the reply message from the new state.
+     * @param metadata The metadata for the message.
+     * @return A message reply.
+     * @param <T> The type of the message that must be returned by this call.
+     */
+    public <T> MessageReply<T> thenReply(Function<S, T> replyMessage, Metadata metadata) {
+      throw new UnsupportedOperationException("Not implemented yet"); // FIXME
+    }
+
+    // FIXME thenForward
   }
 }

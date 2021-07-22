@@ -16,14 +16,18 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.ComponentOptions
+import com.akkaserverless.javasdk.ClientActionContext;
+import com.akkaserverless.javasdk.SideEffectContext;
 
 import java.util
 import java.util.Collections
 
-private[impl] final case class ComponentOptionsImpl(override val forwardHeaders: java.util.Set[String])
-    extends ComponentOptions {
-
-  override def withForwardHeaders(headers: util.Set[String]): ComponentOptions =
-    copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
+/**
+ * The context for a subscription, passed with every invocation of a {@link
+ * StreamedCommandContext#onChange(Function)} callback.
+ */
+public interface SubscriptionContext
+    extends ReplicatedEntityContext, SideEffectContext, ClientActionContext {
+  /** End this stream. */
+  void endStream();
 }

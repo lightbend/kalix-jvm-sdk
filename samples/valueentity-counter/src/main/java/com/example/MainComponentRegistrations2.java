@@ -1,19 +1,19 @@
 package com.example;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.example.domain.CounterHandler;
-import com.example.domain.Counter;
+import com.example.domain.CounterDomain;
+import com.example.domain.CounterImpl;
+import com.google.protobuf.EmptyProto;
 
 public final class MainComponentRegistrations2 {
     
     public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
         return akkaServerless
-                  .lowLevel()
-                  .registerValueEntity(
-                      ctx -> new CounterHandler(new Counter(ctx.entityId())),
-                      CounterHandler.serviceDescriptor,
-                      CounterHandler.entityType,
-                      ValueEntityOptions.defaults());
+                .registerValueEntity(
+                    CounterImpl.class,
+                    CounterApi.getDescriptor().findServiceByName("CounterService"),
+                    CounterDomain.getDescriptor(),
+                    EmptyProto.getDescriptor()
+                );
     }
 }

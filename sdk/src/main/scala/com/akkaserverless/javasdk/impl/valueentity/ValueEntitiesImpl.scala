@@ -40,11 +40,8 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.{DeleteState, NoPrimaryEffect, UpdateState}
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
-import com.akkaserverless.javasdk.ComponentOptions
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
@@ -165,32 +162,9 @@ final class ValueEntitiesImpl(_system: ActorSystem,
             context.deactivate() // Very important!
           }
 
-          val serializedPrimaryEffect = effect.primaryEffect match {
-            case UpdateState(state) => UpdateState(service.anySupport.encodeJava(state))
-            case DeleteState => DeleteState
-            case NoPrimaryEffect => NoPrimaryEffect
-          }
-          // FIXME something more that needs to be serialized?
-          val serializedSecondaryEffect = effect.secondaryEffect match {
-            case MessageReplyImpl(message, metadata, sideEffects) =>
-              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
-            case other => other
-          }
-
-          val clientAction =
-            context.replyToClientAction(serializedSecondaryEffect, allowNoReply = false, restartOnFailure = false)
-
-          if (!context.hasError && !serializedSecondaryEffect.isInstanceOf[ErrorReplyImpl[_]]) {
-            val (nextState: Option[ScalaPbAny], action: Option[ValueEntityAction]) = serializedPrimaryEffect match {
-              case DeleteState =>
-                (None, Some(ValueEntityAction(Delete(ValueEntityDelete()))))
-              case UpdateState(newState) =>
-                val newStateScala = ScalaPbAny.fromJavaProto(newState)
-                (Some(newStateScala), Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScala))))))
-              case _ =>
-                (context.currentState(), None)
-            }
-
+          val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
+          if (!context.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
+            val nextState = context.currentState()
             (nextState,
              Some(
                OutReply(

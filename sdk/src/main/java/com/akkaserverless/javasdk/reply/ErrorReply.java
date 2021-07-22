@@ -16,13 +16,14 @@
 
 package com.akkaserverless.javasdk.reply;
 
+import com.akkaserverless.javasdk.Effect;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.Reply;
 
 import java.util.Collection;
 
 /** An error reply. */
-public interface ErrorReply<T> extends Reply<T> {
+public interface ErrorReply<T> extends Reply<T>, Effect<T> {
 
   /**
    * The description of the error.

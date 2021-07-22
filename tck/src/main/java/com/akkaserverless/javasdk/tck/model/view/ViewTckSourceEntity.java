@@ -16,7 +16,22 @@
 
 package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.SideEffectContext;
+import com.akkaserverless.javasdk.MetadataContext;
 
-@ValueEntity(entityType = "view-source")
-public class ViewTckSourceEntity {}
+import java.util.function.Consumer;
+
+/**
+ * Context for a stream cancelled event.
+ *
+ * <p>This is sent to callbacks registered by {@link StreamedCommandContext#onCancel(Consumer)}.
+ */
+public interface StreamCancelledContext
+    extends ReplicatedEntityContext, SideEffectContext, MetadataContext {
+  /**
+   * The id of the command that the stream was for.
+   *
+   * @return The ID of the command.
+   */
+  long commandId();
+}

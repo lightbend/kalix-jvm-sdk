@@ -31,9 +31,6 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
-import com.akkaserverless.javasdk.reply.MessageReply
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
-import com.google.protobuf.GeneratedMessageV3
 
 class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
   trait BaseContext extends Context {

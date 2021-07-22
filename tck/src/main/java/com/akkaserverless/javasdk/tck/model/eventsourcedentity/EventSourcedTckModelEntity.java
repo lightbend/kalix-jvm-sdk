@@ -49,14 +49,9 @@ public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted
   }
 
   @CommandHandler
-  public EventSourcedEntityBase.Effect<Response> process(Persisted currentState, Request request) {
+  public Reply<Response> process(Request request, CommandContext context) {
+    Reply<Response> reply = null;
     List<SideEffect> e = new ArrayList<>();
-    List<Persisted> events = new ArrayList<>();
-    EventSourcedEntityBase.Effect<Response> effect = null;
-    // TCK tests expect the logic to be imperative, building something up and then discarding on
-    // failure but effect
-    // api is not imperative so we have to keep track of failure instead
-    boolean failed = false;
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case EMIT:
@@ -77,13 +72,8 @@ public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted
           }
           break;
         case EFFECT:
-          if (!failed) {
-            com.akkaserverless.tck.model.EventSourcedEntity.Effect actionEffect =
-                action.getEffect();
-            e.add(
-                SideEffect.of(
-                    serviceTwoRequest(actionEffect.getId()), actionEffect.getSynchronous()));
-          }
+          Effect effect = action.getEffect();
+          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
           failed = true;
@@ -95,7 +85,7 @@ public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted
       // then reply rather?
       effect = effects().reply(Response.newBuilder().setMessage(currentState.getValue()).build());
     }
-    return effect.addSideEffects(e);
+    return reply.addSideEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {

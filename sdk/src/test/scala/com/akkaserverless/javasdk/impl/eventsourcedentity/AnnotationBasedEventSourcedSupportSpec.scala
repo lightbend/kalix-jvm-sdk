@@ -19,12 +19,7 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceMethod, ResolvedType}
 import com.akkaserverless.javasdk._
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.PrimaryEffectImpl
+import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf

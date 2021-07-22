@@ -16,8 +16,11 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.*;
-import com.akkaserverless.javasdk.reply.MessageReply;
+import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -45,10 +48,8 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
   }
 
   @CommandHandler
-  public Effect<Response> process(Request request, CommandContext<Persisted> context) {
-    // FIXME the effect API doesn't support all combinations, and that might be fine?
-    Effect.OnSuccessBuilder<Persisted> builder = null;
-    Effect<Response> result = null;
+  public Reply<Response> process(Request request, CommandContext<Persisted> context) {
+    Reply<Response> reply = null;
     List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
@@ -68,7 +69,7 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
           }
           break;
         case EFFECT:
-          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
+          Effect effect = action.getEffect();
           e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
@@ -84,6 +85,7 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
     } else {
       return result.addSideEffects(e);
     }
+    return reply.addSideEffects(e);
   }
 
   private ServiceCall serviceTwoRequest(String id) {

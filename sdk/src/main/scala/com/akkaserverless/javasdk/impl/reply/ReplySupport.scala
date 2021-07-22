@@ -26,6 +26,8 @@ import com.google.protobuf.{GeneratedMessage, Any => JavaPbAny}
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.SideEffect
 
+import com.akkaserverless.javasdk.SideEffect
+
 object ReplySupport {
   private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
     metadata match {

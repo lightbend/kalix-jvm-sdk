@@ -50,6 +50,10 @@ import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.valueentity._
 
+import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
+import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
+import com.akkaserverless.javasdk.valueentity._
+
 /**
  * Annotation based implementation of the [[EntityFactory]].
  */

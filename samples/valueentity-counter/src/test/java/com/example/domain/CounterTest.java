@@ -1,9 +1,15 @@
 package com.example.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.Effect;
+import com.akkaserverless.javasdk.reply.ErrorReply;
+import com.akkaserverless.javasdk.reply.MessageReply;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 // tag::class[]
 public class CounterTest {
@@ -14,18 +20,22 @@ public class CounterTest {
     // tag::increase[] 
     @Test
     public void increaseNoPriorState() {
-        entity = new Counter(entityId); // <1>
-        CounterDomain.CounterState currentState = newCurrentState();
-        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <2>
-        entity.increase(currentState, message); // <3>
+        entity = new CounterImpl(entityId); // <1>
 
-        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <4>
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
+
+        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
+        entity.increase(currentState, message); // <4>
+
+        // FIXME Mockito.verify(context).updateState(CounterDomain.CounterState.newBuilder().setValue(42).build()); // <5>
     }
     // end::increase[]
     @Test
     public void increaseWithPriorState() {
-        entity = new Counter(entityId);
-        CounterDomain.CounterState currentState = newCurrentState(13);
+        entity = new CounterImpl(entityId);
+
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
+
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
         entity.increase(currentState, message);
 
@@ -34,17 +44,20 @@ public class CounterTest {
 
     @Test
     public void increaseShouldFailWithNegativeValue() {
-        entity = new Counter(entityId);
-        CounterDomain.CounterState currentState = newCurrentState();
-        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
-        ValueEntityBase.Effect<Empty> reply = entity.increase(currentState, message);
+        entity = new CounterImpl(entityId);
 
-        // FIXME - we can't verify errors directly, the effect needs to be interpreted - we need the testkit for this
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(27).build();
+
+        CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(-2).build();
+        Effect<Empty> reply = entity.increase(currentState, message);
+        assertThat(reply,  is(instanceOf(ErrorReply.class)));
     }
 
     @Test
     public void decreaseNoPriorState() {
-        entity = new Counter(entityId);
+        entity = new CounterImpl(entityId);
+
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.getDefaultInstance();
 
         CounterDomain.CounterState currentState = newCurrentState();
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
@@ -55,7 +68,9 @@ public class CounterTest {
     
     @Test
     public void resetTest() {
-        entity = new Counter(entityId);
+        entity = new CounterImpl(entityId);
+
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterDomain.CounterState currentState = newCurrentState(13);
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
@@ -68,20 +83,12 @@ public class CounterTest {
     public void getCurrentCounterTest() {
         entity = new Counter(entityId);
 
-        CounterDomain.CounterState currentState = newCurrentState(13);
+        CounterDomain.CounterState currentState = CounterDomain.CounterState.newBuilder().setValue(13).build();
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        ValueEntityBase.Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message);
+        Effect<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(currentState, message);
 
         // FIXME assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
-    }
-
-    private CounterDomain.CounterState newCurrentState(int i) {
-      return CounterDomain.CounterState.newBuilder().setValue(i).build();
-    }
-
-    private CounterDomain.CounterState newCurrentState() {
-      return CounterDomain.CounterState.getDefaultInstance();
     }
 
 }
