@@ -23,7 +23,6 @@ import com.akkaserverless.javasdk.impl.effect.{ErrorReplyImpl, ForwardReplyImpl,
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{EmitEvents, NoPrimaryEffect}
 
-// Q Would we need ShoppingCart as parameter constructor?
 class AkkaserverlessTestKit[S] {
 
   def getEvents(effect: Effect[_]): List[Any] = {
@@ -33,7 +32,7 @@ class AkkaserverlessTestKit[S] {
           case ee: EmitEvents => ee.event.toList
           case _: NoPrimaryEffect.type => List()
         }
-      case _ => throw new NotImplementedError("there is not other type than EventSourcedEntityEffectImpl")
+      case _ => throw new NotImplementedError()
     }
   }
 
@@ -47,7 +46,7 @@ class AkkaserverlessTestKit[S] {
           case er: ErrorReplyImpl[S] => new NotImplementedError(er.toString)
           case nr @ NoReply(x) => nr
         }
-      case _ => throw new NotImplementedError("there is not other type than EventSourcedEntityEffectImpl")
+      case _ => throw new NotImplementedError()
     }
   }
 
