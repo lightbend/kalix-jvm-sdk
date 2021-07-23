@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ShoppingCartTest {
     private String entityId = "entityId1";
-    private ShoppingCartImpl entity;
+    private ShoppingCart entity;
 
     @Test
     public void addItemTest() {

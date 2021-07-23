@@ -17,6 +17,7 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
 import com.example.shoppingcart.domain.ShoppingCart;
 import scala.collection.JavaConverters;
+import com.akkaserverless.javasdk.testkit.AkkaserverlessTestKit;
 
 // Q Would we need ShoppingCart as parameter constructor? 
 public class ShoppingCartTestKit {
@@ -24,7 +25,7 @@ public class ShoppingCartTestKit {
     private ShoppingCartDomain.Cart state;
     private ShoppingCart entity;
     private List<Object> events = new ArrayList<Object>();
-
+    private AkkaserverlessTestKit helper = new AkkaserverlessTestKit<ShoppingCartDomain.Cart>();
 
     public ShoppingCartTestKit(String entityId){
         this.state = ShoppingCartDomain.Cart.newBuilder().build();
@@ -45,35 +46,13 @@ public class ShoppingCartTestKit {
         return this.events;
     }
 
-    //This should be part of the sdk to be reused
-    // and written in scala to benefit of pattern matching
     public List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
-        //I'm assuming it's always EventSourcedEntityEffectImpl. Q could be otherwise?
-        EventSourcedEntityEffectImpl effectImpl = (EventSourcedEntityEffectImpl) effect;
-        if (effectImpl.primaryEffect() instanceof EventSourcedEntityEffectImpl.EmitEvents){
-            EventSourcedEntityEffectImpl.EmitEvents emitEvents = 
-                (EventSourcedEntityEffectImpl.EmitEvents) effectImpl.primaryEffect();
-            return JavaConverters.asJava(emitEvents.event().toList());
-        } 
-        return new ArrayList();
+        return JavaConverters.asJava(helper.getEvents(effect));
     }
-    //This should be part of the sdk to be reused
-    // and written in scala to benefit of pattern matching
-    public <Reply> Reply getReply(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
-        //I'm assuming it's always EventSourcedEntityEffectImpl. Q could be otherwise?
-        EventSourcedEntityEffectImpl effectImpl = (EventSourcedEntityEffectImpl) effect;
-        Object reply =  effectImpl.secondaryEffect(this.state);
-        //handle forward, and errorReplay
-        if( reply instanceof MessageReplyImpl){
-            MessageReplyImpl replyCasted = (MessageReplyImpl)reply;
-            if(expectedClass.isInstance(replyCasted.message())){
-                return (Reply) replyCasted.message();
-            } else {
-                throw new NoSuchElementException("The message of ["+replyCasted.message().getClass()+"] inside the reply is not the expected ["+expectedClass+"]");
-            }
-        } else {
-                throw new NoSuchElementException("The reply of class ["+reply.getClass()+"] is not a MessageReplyImpl ");
-        }
+
+    // WIP - dealing with different replies. Forward, Error maybe even no reply
+    public <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
+        return (Reply) helper.getReply(effect, state);
     }
 
     //This should be using ShoppingCartHandler (codegen created. follow up with @raboof)
@@ -98,7 +77,7 @@ public class ShoppingCartTestKit {
         }
         //reply
         //I'm assuming there is always and at least a single reply. Q is a correct assumption? 
-        Empty reply = getReply(effect, this.state, Empty.class);
+        Empty reply = getReplyOfType(effect, this.state, Empty.class);
         return new Result(reply, new LinkedList(events));
     };
 
