@@ -261,13 +261,13 @@ class ReplicatedEntityImpl(system: ActorSystem,
 
       override protected final def anySupport: AnySupport = service.anySupport
 
-      override protected final def newEntity[C <: InternalReplicatedData](entity: C): C = {
+      override protected final def newData[D <: InternalReplicatedData](data: D): D = {
         checkActive()
         if (replicatedData.isDefined) {
           throw new RuntimeException("This entity already has replicated data created for it!")
         }
-        replicatedData = Some(entity)
-        entity
+        replicatedData = Some(data)
+        data
       }
 
       final def delete(): Unit = {

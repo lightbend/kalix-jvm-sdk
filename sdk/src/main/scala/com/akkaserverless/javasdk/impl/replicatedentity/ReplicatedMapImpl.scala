@@ -66,14 +66,14 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
       var internalData: InternalReplicatedData = null
       val data = create(new AbstractReplicatedEntityFactory {
         override protected def anySupport: AnySupport = ReplicatedMapImpl.this.anySupport
-        override protected def newEntity[C <: InternalReplicatedData](entity: C): C = {
+        override protected def newData[D <: InternalReplicatedData](data: D): D = {
           if (internalData != null) {
             throw new IllegalStateException(
               "getOrCreate creation callback must only be used to create one replicated data item at a time"
             )
           }
-          internalData = entity
-          entity
+          internalData = data
+          data
         }
       })
       if (data == null) {

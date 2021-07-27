@@ -62,11 +62,9 @@ public class TckModelReplicatedEntity {
       case "ReplicatedMap":
         return context.state(ReplicatedMap.class);
       case "ReplicatedCounterMap":
-        // TODO: need to be able to get ReplicatedCounterMap directly?
-        return context.state(ReplicatedMap.class).map(data -> new ReplicatedCounterMap(data));
+        return context.state(ReplicatedCounterMap.class);
       case "ReplicatedRegisterMap":
-        // TODO: need to be able to get ReplicatedRegisterMap directly?
-        return context.state(ReplicatedMap.class).map(data -> new ReplicatedRegisterMap(data));
+        return context.state(ReplicatedRegisterMap.class);
       case "Vote":
         return context.state(Vote.class);
       default:
@@ -233,9 +231,37 @@ public class TckModelReplicatedEntity {
             registerMap.setValue(addKey, "");
             break;
           case UPDATE:
-            String updateKey = update.getReplicatedRegisterMap().getUpdate().getKey();
-            String updateValue = update.getReplicatedRegisterMap().getUpdate().getValue();
-            registerMap.setValue(updateKey, updateValue);
+            ReplicatedRegisterMapEntryUpdate entryUpdate =
+                update.getReplicatedRegisterMap().getUpdate();
+            String updateKey = entryUpdate.getKey();
+            String updateValue = entryUpdate.getValue();
+            if (entryUpdate.hasClock()) {
+              ReplicatedRegisterClock clock = entryUpdate.getClock();
+              switch (clock.getClockType()) {
+                case REPLICATED_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
+                  registerMap.setValue(updateKey, updateValue);
+                  break;
+                case REPLICATED_REGISTER_CLOCK_TYPE_REVERSE:
+                  registerMap.setValue(updateKey, updateValue, ReplicatedRegister.Clock.REVERSE, 0);
+                  break;
+                case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM:
+                  registerMap.setValue(
+                      updateKey,
+                      updateValue,
+                      ReplicatedRegister.Clock.CUSTOM,
+                      clock.getCustomClockValue());
+                  break;
+                case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
+                  registerMap.setValue(
+                      updateKey,
+                      updateValue,
+                      ReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT,
+                      clock.getCustomClockValue());
+                  break;
+              }
+            } else {
+              registerMap.setValue(updateKey, updateValue);
+            }
             break;
           case REMOVE:
             String removeKey = update.getReplicatedRegisterMap().getRemove();

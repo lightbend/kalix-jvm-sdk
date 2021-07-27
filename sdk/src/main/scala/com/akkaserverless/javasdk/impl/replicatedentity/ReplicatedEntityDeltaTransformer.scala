@@ -31,6 +31,10 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
         new ReplicatedRegisterImpl[Any](anySupport)
       case ReplicatedEntityDelta.Delta.ReplicatedMap(_) =>
         new ReplicatedMapImpl[Any, InternalReplicatedData](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedCounterMap(_) =>
+        new ReplicatedCounterMapImpl[Any](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(_) =>
+        new ReplicatedRegisterMapImpl[Any, Any](anySupport)
       case ReplicatedEntityDelta.Delta.Vote(_) =>
         new VoteImpl
     }
