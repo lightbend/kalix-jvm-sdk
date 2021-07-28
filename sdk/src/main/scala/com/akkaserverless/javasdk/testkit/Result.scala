@@ -19,22 +19,28 @@ package com.akkaserverless.javasdk.testkit
 import scala.reflect.ClassTag
 import java.util.NoSuchElementException
 
-class Result[Reply](val reply: Reply, events: collection.mutable.Queue[Any]) {
+class Result[Reply](val reply: Reply, events: collection.mutable.Buffer[Any]) {
 
-  def getAllEvents: List[Any] = events.toList
+  final val eventsIterator = events.iterator
 
-  def getEvent: Any = events.dequeue
+  def getAllEvents: List[Any] = events.to(List)
+
+  def getNextEvent: Any = eventsIterator.next
 
   def getReply: Reply = reply
 
-  def getEventOfType[E: ClassTag]: E = {
-    events.head match {
+  def getNextEventOfType[E](expectedClass: Class[E]): E = {
+    eventOf(ClassTag[E](expectedClass))
+  }
+
+  private def eventOf[E: ClassTag]: E = {
+    eventsIterator.next match {
       case e: E => e
       case other =>
         val expectedClass = implicitly[ClassTag[E]].runtimeClass
         throw new NoSuchElementException(
-          s"expected class was [$expectedClass] " +
-          s"but found class is ${other.getClass}"
+          s"expected [$expectedClass] " +
+          s"but found ${other.getClass}"
         )
     }
   }

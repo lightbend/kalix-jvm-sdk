@@ -15,7 +15,7 @@ import org.mockito.*;
 import com.example.shoppingcart.domain.ShoppingCartTestKit;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.example.shoppingcart.domain.Result;
+import com.akkaserverless.javasdk.testkit.Result;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
@@ -47,10 +47,10 @@ public class ShoppingCartTest {
 
         ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder().addItems(addedLineItem).build();
 
-        assertEquals(1, result.getEvents().size());
+        assertEquals(1, result.getAllEvents().size());
         assertEquals(1, testKit.getAllEvents().size());
-        assertEquals(expectedEvent, result.getEventOfType(ShoppingCartDomain.ItemAdded.class));
-        assertThrows(NoSuchElementException.class, () ->  result.getEventOfType(ShoppingCartDomain.ItemAdded.class));
+        assertEquals(expectedEvent, result.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
+        assertThrows(NoSuchElementException.class, () ->  result.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
         assertEquals(Empty.getDefaultInstance(), result.getReply());
         assertEquals(expectedState, testKit.getState());
     }
