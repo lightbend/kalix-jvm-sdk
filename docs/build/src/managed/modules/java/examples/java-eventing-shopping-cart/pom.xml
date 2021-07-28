@@ -18,8 +18,7 @@
     <akkasls.dockerTag>${project.version}</akkasls.dockerTag>
     <akkasls.mainClass>shopping.Main</akkasls.mainClass>
     <jdk.target>11</jdk.target>
-    <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
-    <akkaserverless-maven-plugin.version>0.7.0-beta.10</akkaserverless-maven-plugin.version>
+    <akkaserverless-sdk.version>0.7.0-beta.15</akkaserverless-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
@@ -204,7 +203,7 @@
       <plugin>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
-	<version>${akkaserverless-maven-plugin.version}</version>
+	      <version>${akkaserverless-sdk.version}</version>
         <executions>
           <execution>
             <goals>

@@ -17,9 +17,9 @@ The link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/Even
 [#persistence]
 == Serializing
 
-Event Sourced Entities persist events and snapshots, and these need to be serialized. Akka Serverless will automatically detect if an emitted event is a `protobuf`, and serialize it as such. For other serialization options, including JSON, see xref:serialization.adoc[Serialization].
+Event Sourced Entities persist events and snapshots, and these need to be serialized. Akka Serverless automatically detects if an emitted event is in `protobuf` format, and serializes it as such. For other serialization options, including JSON, see xref:serialization.adoc[].
 
-While `protobuf` is the format for persisting events, we recommend that you do not persist the `protobuf` messages from your service interface. Rather, create new messages, even if they are identical. While this may introduce some overhead in needing to convert from one type to the other, it will allow the public interface of the service to evolve independently from its data storage format, which should be private.
+TIP: While `protobuf` is the format for persisting events, we recommend that you do not persist the `protobuf` messages from your service interface. Rather, create new messages, even if they are identical. While this may introduce some type conversion overhead, it allows the public interface of the service to evolve independently from the private data storage format.
 
 For the shopping cart example, `shopping_cart_domain.proto` defines the Entity's domain objects:
 
@@ -30,7 +30,7 @@ include::example$java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_d
 
 == Storing state
 
-Each Entity should store its state locally in a mutable variable, either a mutable field or a mutable structure such as a collection. For our shopping cart, the state is a map of product ids to products, so we'll create a map to hold them:
+Each Entity should store its state locally in a mutable variable, either a mutable field or a mutable structure such as a collection. In this example, the state is coded as a map of the product `id` values to products.
 
 [source,java,indent=4]
 ----
@@ -39,7 +39,7 @@ include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/Shoppin
 
 == Constructing
 
-Akka Serverless will construct instances of the Event Sourced Entity class on demand. The constructor below shows how the unique ID of the entity is injected and stored in link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`entityId` {tab-icon}, window="new"].
+Akka Serverless constructs instances of the Event Sourced Entity class on demand. The constructor below shows how the unique ID of the entity is injected and stored in link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`entityId` {tab-icon}, window="new"].
 
 [source,java,indent=4]
 ----
@@ -61,11 +61,9 @@ include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/Shoppin
 
 == Emitting events
 
-Commands can modify state by emitting events. A command handler can emit an event by taking in a link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] parameter, and invoking the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html#emit(java.lang.Object)[`emit` {tab-icon}, window="new"] method on it. Invoking `emit` will immediately invoke the associated event handler for that event. This validates that the event can be applied to the current state, and also updates state for command handler processing.
+Commands can modify state by emitting events. A command handler can emit an event by taking in a link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] parameter, and invoking the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html#emit(java.lang.Object)[`emit` {tab-icon}, window="new"] method on it. 
 
 IMPORTANT: The **only** way for a command handler to modify Entity state is by emitting an event. Any modifications made directly to the state from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
-
-The following example of a command handler emits an event:
 
 [source,java,indent=0]
 ----
