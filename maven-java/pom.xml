@@ -8,6 +8,16 @@
   <version>0.7.0-beta.15</version>
   <packaging>pom</packaging>
 
+  <name>Akka Serverless Java Maven parent pom</name>
+  <description>This is the parent pom for the Akka Serverless Maven plugin and archetypes</description>
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://opensource.org/licenses/Apache-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <url>https://www.lightbend.com/akkaserverless</url>
   <scm>
     <url>https://github.com/lightbend/akkaserverless-java-sdk</url>
