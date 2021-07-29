@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// tag::declarations
+// tag::declarations[]
 syntax = "proto3";
 
 package customer.domain;
 
 option java_outer_classname = "CustomerDomain";
 
-//end::declarations
+//end::declarations[]
 
 // tag::domain[]
 message CustomerState {
