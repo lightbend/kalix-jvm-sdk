@@ -32,7 +32,7 @@ public class ShoppingCartTest {
         ShoppingCartApi.AddLineItem command = ShoppingCartApi.AddLineItem.newBuilder().setProductId("id1")
                 .setName("name").setQuantity(2).build();
 
-        //before and after, clean?  (not yet)
+        //clean before and after?  (maybe not yet)
         ShoppingCartTestKit testKit = new ShoppingCartTestKit(entityId);
 
         //WHEN 

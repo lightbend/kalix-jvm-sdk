@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen.testkit
+package com.lightbend.akkasls.codegen
+package testkit
 
-import com.lightbend.akkasls.codegen.ModelBuilder
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 import com.lightbend.akkasls.codegen.java.SourceGenerator._
 
 object EventSourcedEntityTestKitGenerator {
 
-  def generateSourceCode(service: ModelBuilder.EntityService,
-                         entity: ModelBuilder.EventSourcedEntity,
-                         packageName: String,
-                         className: String): Document = {
+  private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
+                                          entity: ModelBuilder.EventSourcedEntity,
+                                          packageName: String,
+                                          className: String): Document = {
 
     val imports = generateImports(
       service.commands,
@@ -62,7 +62,7 @@ object EventSourcedEntityTestKitGenerator {
             |$imports
             |
             |public class ${testkitClassName} {
-            |    
+            |
             |    private ${domainClassName}.${entityStateName} state;
             |    private ${entityClassName} entity;
             |    private List<Object> events = new ArrayList<Object>();
@@ -85,18 +85,81 @@ object EventSourcedEntityTestKitGenerator {
             |    public List<Object> getAllEvents(){
             |        return this.events;
             |    }
-            |    
+            |
             |    private List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    // WIP - dealing with different replies. Forward, Error maybe even no reply
             |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
             |        return (Reply) helper.getReply(effect, state);
             |    }
+            |
+            |    private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
+            |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
+            |    }
+            |
+            |    private <Reply> Result<Reply> handleCommand(EventSourcedEntityBase.Effect<Reply> effect){
+            |        List<Object> events = getEvents(effect); 
+            |        this.events.add(events);
+            |        for(Object e: events){
+            |            this.state = handleEvent(state,e);
+            |        }
+            |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+            |        return new Result(reply, CollectionConverters.asScala(events));
+            |    }
+            |    ${Syntax.indent(generateServices(service.commands), 4)}
             |}""".stripMargin
     )
 
+  }
+
+  def toLower(event: String): String = {
+    val so = new collection.StringOps(event)
+    so.head.toLower + so.tail
+  }
+
+  def generateServices(commands: Iterable[ModelBuilder.Command]): String = {
+    require(!commands.isEmpty, "empty `commands` not allowed")
+
+    def selectOutput(command: ModelBuilder.Command): String =
+      if (command.outputType.name == "Empty") {
+        "Empty"
+      } else {
+        command.fqn.parent.name + "." + command.outputType.name
+      }
+
+    commands
+      .map { command =>
+        s"""
+        |public Result<${selectOutput(command)}> ${toLower(command.fqn.name)}(ShoppingCartApi.${command.inputType.name} command) {
+        |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${toLower(command.fqn.name)}(state, command);
+        |    return handleCommand(effect);
+        |}""".stripMargin
+      }
+      .mkString("\n")
+  }
+
+  //TODO This method should be deleted when the codegen CartHandler.handleEvents gets available
+  def generateHandleEvents(events: Iterable[ModelBuilder.Event], domainClassName: String): String = {
+    require(!events.isEmpty, "empty `events` not allowed")
+
+    val top =
+      s"""|if (event instanceof ${domainClassName}.${events.head.fqn.name}) {
+          |    return entity.${toLower(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);""".stripMargin
+
+    val middle = events.tail.map { event =>
+      s"""
+        |} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
+        |    return entity.${toLower(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+    }
+
+    val bottom =
+      s"""
+        |} else {
+        |    throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
+        |}""".stripMargin
+
+    top + middle.mkString("") + bottom
   }
 
 }

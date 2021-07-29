@@ -22,21 +22,22 @@ public class ShoppingCartTestKit {
     private List<Object> events = new ArrayList<Object>();
     private AkkaserverlessTestKit helper = new AkkaserverlessTestKit<ShoppingCartDomain.Cart>();
 
-    // public ShoppingCartTestKit(String entityId){
-    //     this.state = ShoppingCartDomain.Cart.newBuilder().build();
-    //     this.entity = new ShoppingCart(entityId);
-    // }
+    //We might need to get rid of this one
+    // Q - how can be sure an String will be enough to build the entity?
+    public ShoppingCartTestKit(String entityId){
+        this.state = ShoppingCartDomain.Cart.newBuilder().build();
+        this.entity = new ShoppingCart(entityId);
+    }
 
-
-    //To bring some external state or limitations or context along with the entity
+    //To bring some external state or context included in the entity constructor
     public ShoppingCartTestKit(ShoppingCart entity){
         this.state = ShoppingCartDomain.Cart.newBuilder().build();
         this.entity = entity;
     }
 
-    public ShoppingCartTestKit(String entityId, ShoppingCartDomain.Cart state){
+    public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state){
         this.state = state;
-        this.entity = new ShoppingCart(entityId);
+        this.entity = entity;
     }
 
     public ShoppingCartDomain.Cart getState(){
@@ -48,12 +49,12 @@ public class ShoppingCartTestKit {
     }
 
     
-    private List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
+    private <Reply> List<Object> getEvents(EventSourcedEntityBase.Effect<Reply> effect){
         return CollectionConverters.asJava(helper.getEvents(effect));
     }
 
     // WIP - dealing with different replies. Forward, Error maybe even no reply
-    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
+    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ShoppingCartDomain.Cart state){
         return (Reply) helper.getReply(effect, state);
     }
 
@@ -68,30 +69,29 @@ public class ShoppingCartTestKit {
         }
     }
 
-    public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
-        //handling command
-        EventSourcedEntityBase.Effect<Empty> effect = entity.addItem(state, command);
+    private <Reply> Result<Reply> handleCommand(EventSourcedEntityBase.Effect<Reply> effect){
         List<Object> events = getEvents(effect); 
         this.events.add(events);
-        //handling events
         for(Object e: events){
             this.state = handleEvent(state,e);
         }
-        //reply
-        //I'm assuming there is always and at least a single reply. Q is a correct assumption? 
-        Empty reply = getReplyOfType(effect, this.state, Empty.class);
+        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
         return new Result(reply, CollectionConverters.asScala(events));
+    }
+
+    public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
+        EventSourcedEntityBase.Effect<Empty> effect = entity.addItem(state, command);
+        return handleCommand(effect);
     };
 
-
     public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
-        //TODO
-        throw new java.lang.UnsupportedOperationException();
+        EventSourcedEntityBase.Effect<Empty> effect = entity.removeItem(state, command);
+        return handleCommand(effect);
     };
 
     public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
-        //TODO
-        throw new java.lang.UnsupportedOperationException();
+        EventSourcedEntityBase.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
+        return handleCommand(effect);
     };
    
 }

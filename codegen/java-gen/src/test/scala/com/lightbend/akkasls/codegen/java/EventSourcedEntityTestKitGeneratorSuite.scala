@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen.testkit
-
-import com.google.protobuf.DescriptorProtos.FileDescriptorSet
-import com.google.protobuf.Descriptors
-import com.google.protobuf.ExtensionRegistry
-
-import com.lightbend.akkasls.codegen.{FullyQualifiedName, Log, ModelBuilder, PackageNaming}
-
-import java.io.FileInputStream
-import java.nio.file.Paths
-import scala.util.Using
-import scala.jdk.CollectionConverters._
-import scala.collection.mutable
-import org.slf4j.LoggerFactory
+package com.lightbend.akkasls.codegen
+package testkit
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
-  test("it can generate the method") {
+  test(
+    "it can generate an specific TestKit for the proto files " +
+    "in test/resources/testkit"
+  ) {
 
     val packageName = "com.example.shoppingcart"
     val entity = generateShoppingCartEntity
@@ -65,7 +56,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
             |import scala.jdk.javaapi.CollectionConverters;
             |
             |public class ShoppingCartTestKit {
-            |    
+            |
             |    private ShoppingCartDomain.Cart state;
             |    private ShoppingCart entity;
             |    private List<Object> events = new ArrayList<Object>();
@@ -88,14 +79,48 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
             |    public List<Object> getAllEvents(){
             |        return this.events;
             |    }
-            |    
+            |
             |    private List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    // WIP - dealing with different replies. Forward, Error maybe even no reply
             |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
             |        return (Reply) helper.getReply(effect, state);
+            |    }
+            |
+            |    private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
+            |        if (event instanceof ShoppingCartDomain.ItemAdded) {
+            |            return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
+            |        } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
+            |            return entity.itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
+            |        } else {
+            |            throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
+            |        }
+            |    }
+            |
+            |    private <Reply> Result<Reply> handleCommand(EventSourcedEntityBase.Effect<Reply> effect){
+            |        List<Object> events = getEvents(effect); 
+            |        this.events.add(events);
+            |        for(Object e: events){
+            |            this.state = handleEvent(state,e);
+            |        }
+            |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+            |        return new Result(reply, CollectionConverters.asScala(events));
+            |    }
+            |    
+            |    public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
+            |        EventSourcedEntityBase.Effect<Empty> effect = entity.addItem(state, command);
+            |        return handleCommand(effect);
+            |    }
+            |
+            |    public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
+            |        EventSourcedEntityBase.Effect<Empty> effect = entity.removeItem(state, command);
+            |        return handleCommand(effect);
+            |    }
+            |
+            |    public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
+            |        EventSourcedEntityBase.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
+            |        return handleCommand(effect);
             |    }
             |}""".stripMargin
 
@@ -103,8 +128,8 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   }
 
   /**
-   * This is equivalent to the .proto in
-   *
+   * This ModelBuilder.EventSourcedEntity is equivalent to the
+   * entity in test/resources/testkit/shoppingcart_domain.proto
   **/
   def generateShoppingCartEntity(): ModelBuilder.EventSourcedEntity = {
 
@@ -129,6 +154,10 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  /**
+   * This ModelBuilder.EntityService is equivalent to
+   * service in test/resources/testkit/shoppingcart_api.proto
+  **/
   def generateShoppingCartService(entity: ModelBuilder.Entity): ModelBuilder.EntityService = {
     val shoppingCartProto =
       PackageNaming(

@@ -15,7 +15,10 @@
  */
 
 package com.lightbend.akkasls.codegen
-
+/*
+ * Be mindful that `indent` adds to the immediate
+ * upper line (blank line) with the same indent.
+ */
 object Syntax {
 
   val break = "\n"
