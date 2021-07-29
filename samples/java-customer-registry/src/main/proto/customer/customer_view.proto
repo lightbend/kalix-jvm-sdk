@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// tag::declarations
 syntax = "proto3";
 
 package customer.view;
@@ -20,6 +21,8 @@ option java_outer_classname = "CustomerViewModel";
 
 import "customer/customer_domain.proto";
 import "akkaserverless/annotations.proto";
+
+// end::declarations
 
 // tag::service[]
 service CustomerByName {
