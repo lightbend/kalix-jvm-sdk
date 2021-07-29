@@ -31,7 +31,7 @@ This example assumes the following `customer` state is defined in a `customer_do
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declations;domain]
+include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
 ----
 
 === Define the View service descriptor
@@ -95,7 +95,7 @@ The following lines in the `.proto` file define a View to consume the `CustomerC
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declations;ervice-event-sourced]
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
 <1> Define an update method for each event.
@@ -145,7 +145,7 @@ The source of a View can be an eventing topic. You define it in the same way as 
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declations;ervice-topic]
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
 ----
 
 <1> This is the only difference from <<event-sourced-entity>>.
