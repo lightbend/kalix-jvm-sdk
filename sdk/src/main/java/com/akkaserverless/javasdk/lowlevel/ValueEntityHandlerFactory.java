@@ -25,7 +25,7 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
  * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
  * be used.
  */
-public interface ValueEntityFactory {
+public interface ValueEntityHandlerFactory {
   /**
    * Create an entity handler for the given context.
    *

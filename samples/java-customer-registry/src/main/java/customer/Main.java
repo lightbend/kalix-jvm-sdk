@@ -17,18 +17,6 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.impl.AnySupport;
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory;
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
-import com.akkaserverless.javasdk.lowlevel.ViewFactory;
-import com.akkaserverless.javasdk.lowlevel.ViewUpdateHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.view.UpdateHandlerContext;
-import com.akkaserverless.javasdk.view.ViewContext;
-import com.google.protobuf.Any;
-import com.google.protobuf.Descriptors;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import customer.view.CustomerViewModel;
@@ -50,12 +38,7 @@ public final class Main {
               "customerByName",
               CustomerDomain.getDescriptor())
           // end::register[]
-          .lowLevel()
-          .registerValueEntity(
-              context -> new CustomerValueEntityHandler(new CustomerValueEntity()),
-              CustomerValueEntityHandler.serviceDescriptor,
-              CustomerValueEntityHandler.entityType,
-              ValueEntityOptions.defaults())
+          .register(new CustomerValueEntityProvider(CustomerValueEntity::new))
           .start()
           .toCompletableFuture()
           .get();

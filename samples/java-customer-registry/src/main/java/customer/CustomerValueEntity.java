@@ -16,6 +16,7 @@
 
 package customer;
 
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
@@ -27,6 +28,12 @@ import customer.domain.CustomerDomain;
  * interface and the users' build tooling should indicate what needs changing.
  */
 public class CustomerValueEntity extends CustomerValueEntityInterface {
+
+  private final String entityId;
+
+  public CustomerValueEntity(ValueEntityContext context) {
+    this.entityId = context.entityId();
+  }
 
   @Override
   public Effect<CustomerApi.Customer> getCustomer(
