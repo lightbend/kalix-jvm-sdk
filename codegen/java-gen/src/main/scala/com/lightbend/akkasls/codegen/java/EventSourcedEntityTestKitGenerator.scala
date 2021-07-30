@@ -121,7 +121,7 @@ object EventSourcedEntityTestKitGenerator {
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ShoppingCartDomain.Cart state){
+            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
             |        return (Reply) helper.getReply(effect, state);
             |    }
             |
