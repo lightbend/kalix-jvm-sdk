@@ -77,7 +77,7 @@ object EventSourcedEntityTestKitGenerator {
       ) //TODO find out why this is added when generate Imports
     ).replace(s"import ${entity.fqn.parent.pkg}.${entity.fqn.parent.name};\n", "")
 
-    val domainClassName = entity.fqn.parent.name
+    val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
     val entityStateName = entity.state.get.fqn.name //TODO Q Why [Option], is it possible not to have `state`?
 
@@ -89,7 +89,7 @@ object EventSourcedEntityTestKitGenerator {
             |
             |import ${entity.fqn.parent.pkg}.$entityClassName;
             |import ${entity.fqn.parent.pkg}.$domainClassName;
-            |import ${service.fqn.parent.pkg}.${service.fqn.parent.name};
+            |import ${service.fqn.parent.pkg}.${service.fqn.parent.javaOuterClassname};
             |$imports
             |
             |public class ${testkitClassName} {
@@ -138,26 +138,28 @@ object EventSourcedEntityTestKitGenerator {
             |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
             |        return new Result(reply, CollectionConverters.asScala(events));
             |    }
-            |    ${Syntax.indent(generateServices(service.commands), 4)}
+            |    ${Syntax.indent(generateServices(service), 4)}
             |}""".stripMargin
     )
 
   }
 
-  def generateServices(commands: Iterable[ModelBuilder.Command]): String = {
-    require(!commands.isEmpty, "empty `commands` not allowed")
+  def generateServices(service: ModelBuilder.EntityService): String = {
+    require(!service.commands.isEmpty, "empty `commands` not allowed")
+
+    val apiClassName = service.fqn.parent.javaOuterClassname
 
     def selectOutput(command: ModelBuilder.Command): String =
       if (command.outputType.name == "Empty") {
         "Empty"
       } else {
-        command.fqn.parent.name + "." + command.outputType.name
+        apiClassName + "." + command.outputType.name
       }
 
-    commands
+    service.commands
       .map { command =>
         s"""
-        |public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(ShoppingCartApi.${command.inputType.name} command) {
+        |public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
         |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
         |    return handleCommand(effect);
         |}""".stripMargin
