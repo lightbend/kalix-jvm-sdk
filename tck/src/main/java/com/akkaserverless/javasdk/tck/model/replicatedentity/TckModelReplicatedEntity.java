@@ -65,6 +65,8 @@ public class TckModelReplicatedEntity {
         return context.state(ReplicatedCounterMap.class);
       case "ReplicatedRegisterMap":
         return context.state(ReplicatedRegisterMap.class);
+      case "ReplicatedMultiMap":
+        return context.state(ReplicatedMultiMap.class);
       case "Vote":
         return context.state(Vote.class);
       default:
@@ -87,6 +89,8 @@ public class TckModelReplicatedEntity {
         return factory.<String>newReplicatedCounterMap();
       case "ReplicatedRegisterMap":
         return factory.<String, String>newReplicatedRegisterMap();
+      case "ReplicatedMultiMap":
+        return factory.<String, String>newReplicatedMultiMap();
       case "Vote":
         return factory.newVote();
       default:
@@ -272,6 +276,36 @@ public class TckModelReplicatedEntity {
             break;
         }
         break;
+      case REPLICATED_MULTI_MAP:
+        @SuppressWarnings("unchecked")
+        ReplicatedMultiMap<String, String> multiMap =
+            (ReplicatedMultiMap<String, String>) replicatedData;
+        switch (update.getReplicatedMultiMap().getActionCase()) {
+          case UPDATE:
+            String updateKey = update.getReplicatedMultiMap().getUpdate().getKey();
+            ReplicatedSetUpdate updateValue =
+                update.getReplicatedMultiMap().getUpdate().getUpdate();
+            switch (updateValue.getActionCase()) {
+              case ADD:
+                multiMap.put(updateKey, updateValue.getAdd());
+                break;
+              case REMOVE:
+                multiMap.remove(updateKey, updateValue.getRemove());
+                break;
+              case CLEAR:
+                if (updateValue.getClear()) multiMap.removeAll(updateKey);
+                break;
+            }
+            break;
+          case REMOVE:
+            String removeKey = update.getReplicatedMultiMap().getRemove();
+            multiMap.removeAll(removeKey);
+            break;
+          case CLEAR:
+            multiMap.clear();
+            break;
+        }
+        break;
       case VOTE:
         ((Vote) replicatedData).vote(update.getVote().getSelfVote());
         break;
@@ -340,6 +374,22 @@ public class TckModelReplicatedEntity {
       entries.sort(Comparator.comparing(ReplicatedRegisterMapEntryValue::getKey));
       builder.setReplicatedRegisterMap(
           ReplicatedRegisterMapValue.newBuilder().addAllEntries(entries));
+    } else if (replicatedData instanceof ReplicatedMultiMap) {
+      @SuppressWarnings("unchecked")
+      ReplicatedMultiMap<String, String> multiMap =
+          (ReplicatedMultiMap<String, String>) replicatedData;
+      List<ReplicatedMultiMapEntryValue> entries = new ArrayList<>();
+      for (String key : multiMap.keySet()) {
+        List<String> values = new ArrayList<>(multiMap.get(key));
+        Collections.sort(values);
+        entries.add(
+            ReplicatedMultiMapEntryValue.newBuilder()
+                .setKey(key)
+                .setValue(ReplicatedSetValue.newBuilder().addAllElements(values))
+                .build());
+      }
+      entries.sort(Comparator.comparing(ReplicatedMultiMapEntryValue::getKey));
+      builder.setReplicatedMultiMap(ReplicatedMultiMapValue.newBuilder().addAllEntries(entries));
     } else if (replicatedData instanceof Vote) {
       Vote vote = (Vote) replicatedData;
       builder.setVote(

@@ -35,6 +35,8 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
   }
   override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] =
     newData(new ReplicatedRegisterMapImpl[K, V](anySupport))
+  override def newReplicatedMultiMap[K, V](): ReplicatedMultiMap[K, V] =
+    newData(new ReplicatedMultiMapImpl[K, V](anySupport))
   override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] =
     newData(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
   override def newVote(): Vote = newData(new VoteImpl)

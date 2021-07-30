@@ -165,11 +165,13 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
           } else {
             data.applyDelta(delta.delta)
           }
+        case _ =>
       }
       added.foreach {
         case ReplicatedMapEntryDelta(Some(key), Some(delta), _) =>
           value.put(anySupport.decode(key).asInstanceOf[K],
                     ReplicatedEntityDeltaTransformer.create(delta, anySupport).asInstanceOf[V])
+        case _ =>
       }
   }
 
