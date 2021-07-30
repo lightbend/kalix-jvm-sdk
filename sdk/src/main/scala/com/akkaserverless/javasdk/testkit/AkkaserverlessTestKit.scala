@@ -32,7 +32,6 @@ class AkkaserverlessTestKit[S] {
           case ee: EmitEvents => ee.event.toList
           case _: NoPrimaryEffect.type => List()
         }
-      case _ => throw new NotImplementedError()
     }
   }
 
@@ -46,7 +45,6 @@ class AkkaserverlessTestKit[S] {
           case er: ErrorReplyImpl[S] => new NotImplementedError(er.toString)
           case nr @ NoReply(x) => nr
         }
-      case _ => throw new NotImplementedError()
     }
   }
 

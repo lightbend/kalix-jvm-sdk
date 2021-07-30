@@ -28,12 +28,11 @@ public class ShoppingCartTest {
     public void addItemTest() {
 
         // GIVEN
-        ShoppingCartDomain.Cart initialState = ShoppingCartDomain.Cart.newBuilder().build();
         ShoppingCartApi.AddLineItem command = ShoppingCartApi.AddLineItem.newBuilder().setProductId("id1")
                 .setName("name").setQuantity(2).build();
 
         //clean before and after?  (maybe not yet)
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(entityId);
+        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart(entityId));
 
         //WHEN 
         Result<Empty> result = testKit.addItem(command);

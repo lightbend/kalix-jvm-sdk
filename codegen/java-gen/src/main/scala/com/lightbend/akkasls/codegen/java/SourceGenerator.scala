@@ -77,7 +77,13 @@ object SourceGenerator extends PrettyPrinter {
               generatedSourceDirectory,
               mainClassPackageName,
               mainClassName
+            ) ++
+            EventSourcedEntityTestKitGenerator.generate(
+              entity,
+              service,
+              generatedSourceDirectory
             )
+
         }
       case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
         ViewServiceSourceGenerator.generate(

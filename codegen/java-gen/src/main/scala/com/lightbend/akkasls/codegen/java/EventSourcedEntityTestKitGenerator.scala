@@ -15,18 +15,49 @@
  */
 
 package com.lightbend.akkasls.codegen
-package testkit
+package java
 
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
+import com.google.common.base.Charsets
+import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes
 import com.lightbend.akkasls.codegen.java.SourceGenerator._
+import _root_.java.nio.file.{Files, Path}
 
 object EventSourcedEntityTestKitGenerator {
+
+  def generate(entity: ModelBuilder.Entity,
+               service: ModelBuilder.EntityService,
+               generatedSourceDirectory: Path): Iterable[Path] = {
+    val packageName = entity.fqn.parent.javaPackage
+    val className = entity.fqn.name
+    val sourceCode = generateSource(service, entity, packageName, className)
+
+    val packagePath = packageAsPath(packageName)
+    val generatedSourceDirectoryPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
+
+    if (!generatedSourceDirectoryPath.toFile.exists) {
+      Files.write(generatedSourceDirectoryPath, sourceCode.layout.getBytes(Charsets.UTF_8))
+      List(generatedSourceDirectoryPath)
+    } else {
+      Nil
+    }
+
+  }
+
+  private[codegen] def generateSource(service: ModelBuilder.EntityService,
+                                      entity: ModelBuilder.Entity,
+                                      packageName: String,
+                                      className: String): PrettyPrinterTypes.Document = {
+    entity match {
+      case entity: ModelBuilder.EventSourcedEntity => generateSourceCode(service, entity, packageName, className)
+      case entity: ModelBuilder.ValueEntity => PrettyPrinterTypes.emptyDocument
+    }
+  }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
                                           entity: ModelBuilder.EventSourcedEntity,
                                           packageName: String,
-                                          className: String): Document = {
-
+                                          className: String): PrettyPrinterTypes.Document = {
+    //Review I can add them with this
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -68,14 +99,14 @@ object EventSourcedEntityTestKitGenerator {
             |    private List<Object> events = new ArrayList<Object>();
             |    private AkkaserverlessTestKit helper = new AkkaserverlessTestKit<${domainClassName}.${entityStateName}>();
             |
-            |    public ${testkitClassName}(String entityId){
-            |        this.state = ${domainClassName}.${entityStateName}.newBuilder().build();
-            |        this.entity = new ${entityClassName}(entityId);
+            |    public ${testkitClassName}(${entityClassName} entity){
+            |        this.state = entity.emptyState();
+            |        this.entity = entity;
             |    }
             |
-            |    public ${testkitClassName}(String entityId, ${domainClassName}.${entityStateName} state){
+            |    public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state){
             |        this.state = state;
-            |        this.entity = new ${entityClassName}(entityId);
+            |        this.entity = entity;
             |    }
             |
             |    public ${domainClassName}.${entityStateName} getState(){
@@ -86,11 +117,11 @@ object EventSourcedEntityTestKitGenerator {
             |        return this.events;
             |    }
             |
-            |    private List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
+            |    private <Reply> List<Object> getEvents(EventSourcedEntityBase.Effect<Reply> effect){
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
+            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ShoppingCartDomain.Cart state){
             |        return (Reply) helper.getReply(effect, state);
             |    }
             |
@@ -113,11 +144,6 @@ object EventSourcedEntityTestKitGenerator {
 
   }
 
-  def toLower(event: String): String = {
-    val so = new collection.StringOps(event)
-    so.head.toLower + so.tail
-  }
-
   def generateServices(commands: Iterable[ModelBuilder.Command]): String = {
     require(!commands.isEmpty, "empty `commands` not allowed")
 
@@ -131,8 +157,8 @@ object EventSourcedEntityTestKitGenerator {
     commands
       .map { command =>
         s"""
-        |public Result<${selectOutput(command)}> ${toLower(command.fqn.name)}(ShoppingCartApi.${command.inputType.name} command) {
-        |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${toLower(command.fqn.name)}(state, command);
+        |public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(ShoppingCartApi.${command.inputType.name} command) {
+        |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
         |    return handleCommand(effect);
         |}""".stripMargin
       }
@@ -141,16 +167,16 @@ object EventSourcedEntityTestKitGenerator {
 
   //TODO This method should be deleted when the codegen CartHandler.handleEvents gets available
   def generateHandleEvents(events: Iterable[ModelBuilder.Event], domainClassName: String): String = {
-    require(!events.isEmpty, "empty `events` not allowed")
+    require(events.nonEmpty, "empty `events` not allowed")
 
     val top =
       s"""|if (event instanceof ${domainClassName}.${events.head.fqn.name}) {
-          |    return entity.${toLower(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);""".stripMargin
+          |    return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);""".stripMargin
 
     val middle = events.tail.map { event =>
       s"""
         |} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
-        |    return entity.${toLower(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+        |    return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
     }
 
     val bottom =

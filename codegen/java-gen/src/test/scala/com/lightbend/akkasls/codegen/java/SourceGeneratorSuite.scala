@@ -114,9 +114,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity1.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1TestKit.java"
+                ),
                 sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyValueEntity2.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2TestKit.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
@@ -127,6 +133,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 ),
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3TestKit.java"
                 ),
                 sourceDirectory.resolve("com/example/service/MyService4.java"),
                 generatedSourceDirectory.resolve(
@@ -141,8 +150,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
 
             // Test that the main, source and test files are being written to
             assertEquals(Files.readAllBytes(sources.head).head.toChar, '/')
-            assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, '/')
-            assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, '/')
+            assertEquals(Files.readAllBytes(sources.drop(2).head).head.toChar, '/')
+            assertEquals(Files.readAllBytes(sources.drop(2).head).head.toChar, '/')
 
           } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)

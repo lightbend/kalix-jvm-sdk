@@ -15,7 +15,7 @@
  */
 
 package com.lightbend.akkasls.codegen
-package testkit
+package java
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
@@ -62,14 +62,14 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
             |    private List<Object> events = new ArrayList<Object>();
             |    private AkkaserverlessTestKit helper = new AkkaserverlessTestKit<ShoppingCartDomain.Cart>();
             |
-            |    public ShoppingCartTestKit(String entityId){
-            |        this.state = ShoppingCartDomain.Cart.newBuilder().build();
-            |        this.entity = new ShoppingCart(entityId);
+            |    public ShoppingCartTestKit(ShoppingCart entity){
+            |        this.state = entity.emptyState();
+            |        this.entity = entity;
             |    }
             |
-            |    public ShoppingCartTestKit(String entityId, ShoppingCartDomain.Cart state){
+            |    public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state){
             |        this.state = state;
-            |        this.entity = new ShoppingCart(entityId);
+            |        this.entity = entity;
             |    }
             |
             |    public ShoppingCartDomain.Cart getState(){
@@ -80,11 +80,11 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
             |        return this.events;
             |    }
             |
-            |    private List<Object> getEvents(EventSourcedEntityBase.Effect<Empty> effect){
+            |    private <Reply> List<Object> getEvents(EventSourcedEntityBase.Effect<Reply> effect){
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Empty> effect, ShoppingCartDomain.Cart state, Class<Reply> expectedClass){
+            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ShoppingCartDomain.Cart state){
             |        return (Reply) helper.getReply(effect, state);
             |    }
             |
