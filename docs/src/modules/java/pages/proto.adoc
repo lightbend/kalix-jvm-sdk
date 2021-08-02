@@ -43,7 +43,9 @@ You define messages that can be sent to or returned from the service. Each messa
 include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
 ----
 
-To define a multi-field key, add the `entity_key` notation to each field. For example:
+==== Multi-field keys
+
+To use a multi-field key, add the `entity_key` notation to each field. For example, if the <<_domain_proto_file>> `AddLineItem` defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
 
 [source,proto]
 ----
