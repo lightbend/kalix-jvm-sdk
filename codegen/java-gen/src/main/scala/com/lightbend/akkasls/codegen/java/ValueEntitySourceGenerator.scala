@@ -78,6 +78,7 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
 =======
         |  ${Syntax.indent(methods, num = 2)}
@@ -100,6 +101,12 @@ object ValueEntitySourceGenerator {
 =======
         |${Syntax.indent(methods, num = 2)}
 >>>>>>> more merging
+=======
+        |${Syntax.indent(methods, num = 2)}
+=======
+        |  ${Syntax.indent(methods, num = 2)}
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
         |}""".stripMargin
   }
 
@@ -182,12 +189,16 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> towards simplified codegen
 =======
 >>>>>>> towards simplified codegen
         |${Syntax.indent(cases, 8)}
 =======
         |        ${Syntax.indent(cases, 8)}
 >>>>>>> towards simplified codegen
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
         |${Syntax.indent(cases, 8)}
@@ -197,6 +208,8 @@ object ValueEntitySourceGenerator {
 =======
         |${Syntax.indent(cases, 8)}
 >>>>>>> more merging
+=======
+>>>>>>> towards simplified codegen
         |
         |        default:
         |          throw new EntityExceptions.EntityException(
@@ -229,6 +242,7 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -239,6 +253,8 @@ object ValueEntitySourceGenerator {
 >>>>>>> towards simplified codegen
 =======
 >>>>>>> more merging
+=======
+>>>>>>> towards simplified codegen
 =======
     pretty(
       s"""|$managedCodeCommentString
@@ -329,6 +345,11 @@ object ValueEntitySourceGenerator {
 =======
 >>>>>>> more merging
 >>>>>>> more merging
+=======
+=======
+
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
   }
 
   private[codegen] def abstractValueEntity(
@@ -376,6 +397,9 @@ object ValueEntitySourceGenerator {
         |
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> towards simplified codegen
         |${Syntax.indent(methods, 2)}
         |
         |}
@@ -455,6 +479,14 @@ object ValueEntitySourceGenerator {
         |}
         |""".stripMargin
 
+<<<<<<< HEAD
 >>>>>>> more merging
+=======
+=======
+        |  ${Syntax.indent(methods, 2)}
+        |
+        |}""".stripMargin
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
   }
 }
