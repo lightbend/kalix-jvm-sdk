@@ -43,9 +43,8 @@ You define messages that can be sent to or returned from the service. Each messa
 include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
 ----
 
-==== Multi-field keys
 
-To use a multi-field key, add the `entity_key` notation to each field. For example, if the <<_domain_proto_file>> `AddLineItem` defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
+To use a multi-field key, add the `entity_key` notation to each field. For example, if domain proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
 
 [source,proto]
 ----
@@ -104,6 +103,16 @@ It includes the messages that define the entity state:
 [source,proto]
 ----
 include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=proto_messages]
+----
+
+
+To use a multi-field key, add the `entity_key` notation to each field. For example, if service API proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
+
+[source,proto]
+----
+message AddLineItem {
+    string user_id = 1 [(akkaserverless.field).entity_key = true];
+    string product_id = 2 [(akkaserverless.field).entity_key = true];
 ----
 
 
