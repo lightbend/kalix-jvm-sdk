@@ -44,7 +44,7 @@ include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shop
 ----
 
 
-To use a multi-field key, add the `entity_key` notation to each field. For example, if domain proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
+To use a multi-field key, add the `entity_key` notation to each field. For example, if the domain proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
 
 [source,proto]
 ----
@@ -106,7 +106,7 @@ include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shop
 ----
 
 
-To use a multi-field key, add the `entity_key` notation to each field. For example, if service API proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
+To use a multi-field key, add the `entity_key` notation to each field. For example, if the service API proto file `AddLineItem` element defines both the `user_id` and `product_id` as part of the key, do the same for the service message:
 
 [source,proto]
 ----
