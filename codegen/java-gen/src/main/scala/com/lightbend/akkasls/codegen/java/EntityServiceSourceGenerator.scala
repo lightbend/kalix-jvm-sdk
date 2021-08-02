@@ -18,8 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-
+import scala.collection.immutable
 import _root_.java.nio.file.{Files, Path}
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
@@ -61,8 +60,8 @@ object EntityServiceSourceGenerator {
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
-    val _ = interfaceSourcePath.getParent.toFile.mkdirs()
-    val _ = Files.write(
+    interfaceSourcePath.getParent.toFile.mkdirs()
+    Files.write(
       interfaceSourcePath,
       interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
     )
@@ -71,7 +70,7 @@ object EntityServiceSourceGenerator {
     val handlerSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(handleClassName + ".java"))
 
-    val _ = handlerSourcePath.getParent.toFile.mkdirs()
+    handlerSourcePath.getParent.toFile.mkdirs()
     handlerSource(service, entity, packageName, className).foreach { doc =>
       Files.write(
         handlerSourcePath,
@@ -85,8 +84,8 @@ object EntityServiceSourceGenerator {
       val testSourcePath =
         testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
       val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-        val _ = testSourcePath.getParent.toFile.mkdirs()
-        val _ = Files.write(
+        testSourcePath.getParent.toFile.mkdirs()
+        Files.write(
           testSourcePath,
           testSource(service, entity, packageName, implClassName, testClassName).getBytes(Charsets.UTF_8)
         )
@@ -101,8 +100,8 @@ object EntityServiceSourceGenerator {
         integrationTestSourceDirectory
           .resolve(packagePath.resolve(integrationTestClassName + ".java"))
       val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
-        val _ = integrationTestSourcePath.getParent.toFile.mkdirs()
-        val _ = Files.write(
+        integrationTestSourcePath.getParent.toFile.mkdirs()
+        Files.write(
           integrationTestSourcePath,
           integrationTestSource(
             mainClassPackageName,
@@ -119,8 +118,8 @@ object EntityServiceSourceGenerator {
       }
 
       // Now we generate the entity
-      val _ = implSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
+      implSourcePath.getParent.toFile.mkdirs()
+      Files.write(
         implSourcePath,
         source(
           service,
@@ -181,7 +180,7 @@ object EntityServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
@@ -220,45 +219,49 @@ object EntityServiceSourceGenerator {
             line <>
             line <>
             ssep(
-              service.commands.toSeq.map { command =>
-                "@Override" <>
-                line <>
-                method(
-                  "public",
-                  "Effect" <> angles(qualifiedType(command.outputType)),
-                  lowerFirst(command.fqn.name),
-                  List(
-                    qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
-                  ),
-                  emptyDoc
-                ) {
-                  "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
+              service.commands.toSeq
+                .map { command =>
+                  "@Override" <>
+                  line <>
+                  method(
+                    "public",
+                    "Effect" <> angles(qualifiedType(command.outputType)),
+                    lowerFirst(command.fqn.name),
+                    List(
+                      qualifiedType(state.fqn) <+> "currentState",
+                      qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                    ),
+                    emptyDoc
+                  ) {
+                    "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
+                  }
                 }
-              },
+                .to[immutable.Seq],
               line <> line
             ) <> line <> line <>
             (entity match {
               case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
                 ssep(
-                  events.toSeq.map { event =>
-                    "@Override" <>
-                    line <>
-                    method(
-                      "public",
-                      qualifiedType(state.fqn),
-                      lowerFirst(event.fqn.name),
-                      List(
-                        qualifiedType(state.fqn) <+> "currentState",
-                        qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                      ),
-                      emptyDoc
-                    ) {
-                      "throw new RuntimeException" <> parens(
-                        notImplementedError("event", event.fqn)
-                      ) <> semi
+                  events.toSeq
+                    .map { event =>
+                      "@Override" <>
+                      line <>
+                      method(
+                        "public",
+                        qualifiedType(state.fqn),
+                        lowerFirst(event.fqn.name),
+                        List(
+                          qualifiedType(state.fqn) <+> "currentState",
+                          qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
+                        ),
+                        emptyDoc
+                      ) {
+                        "throw new RuntimeException" <> parens(
+                          notImplementedError("event", event.fqn)
+                        ) <> semi
+                      }
                     }
-                  },
+                    .to[immutable.Seq],
                   line <> line
                 )
               case _ => emptyDoc
@@ -319,7 +322,7 @@ object EntityServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
@@ -330,35 +333,39 @@ object EntityServiceSourceGenerator {
           `class`("public abstract", s"Abstract$className extends EventSourcedEntityBase<${qualifiedType(state.fqn)}>") {
             line <>
             ssep(
-              service.commands.toSeq.map { command =>
-                "@CommandHandler" <> line <>
-                abstractMethod(
-                  "public",
-                  "Effect" <> angles(qualifiedType(command.outputType)),
-                  lowerFirst(command.fqn.name),
-                  List(
-                    qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
-                  )
-                ) <> semi
-              },
+              service.commands.toSeq
+                .map { command =>
+                  "@CommandHandler" <> line <>
+                  abstractMethod(
+                    "public",
+                    "Effect" <> angles(qualifiedType(command.outputType)),
+                    lowerFirst(command.fqn.name),
+                    List(
+                      qualifiedType(state.fqn) <+> "currentState",
+                      qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                    )
+                  ) <> semi
+                }
+                .to[immutable.Seq],
               line <> line
             ) <>
             line <>
             line <>
             ssep(
-              entity.events.toSeq.map { event =>
-                "@EventHandler" <> line <>
-                abstractMethod(
-                  "public",
-                  qualifiedType(state.fqn),
-                  lowerFirst(event.fqn.name),
-                  List(
-                    qualifiedType(state.fqn) <+> "currentState",
-                    qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                  )
-                ) <> semi
-              },
+              entity.events.toSeq
+                .map { event =>
+                  "@EventHandler" <> line <>
+                  abstractMethod(
+                    "public",
+                    qualifiedType(state.fqn),
+                    lowerFirst(event.fqn.name),
+                    List(
+                      qualifiedType(state.fqn) <+> "currentState",
+                      qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
+                    )
+                  ) <> semi
+                }
+                .to[immutable.Seq],
               line <> line
             )
           }
@@ -398,7 +405,7 @@ object EntityServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
@@ -415,44 +422,46 @@ object EntityServiceSourceGenerator {
         }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
         line <>
         ssep(
-          service.commands.toSeq.map {
-            command =>
-              "@Test" <> line <>
-              method(
-                "public",
-                "void",
-                lowerFirst(command.fqn.name) + "Test",
-                List.empty,
-                emptyDoc
-              ) {
-                "entity" <+> equal <+> "new" <+> implClassName <> parens(
-                  "entityId"
-                ) <> semi <> line <>
-                line <>
-                "// TODO: write your mock here" <> line <>
-                "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
-                line <>
-                "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
-                "//" <+> "assertEquals" <> parens(
-                  "[expected]" <> comma <>
-                  line <> "//" <> indent("entity") <> dot <> lowerFirst(
-                    command.fqn.name
-                  ) <> lparen <>
-                  qualifiedType(
-                    command.inputType
-                  ) <> dot <> "newBuilder().build(), context"
-                ) <> semi <> line <>
-                "//" <+> rparen <> semi <>
-                (entity match {
-                  case _: ModelBuilder.EventSourcedEntity =>
-                    line <>
-                    line <>
-                    "// TODO: if you wish to verify events:" <> line <>
-                    "//" <> indent("Mockito.verify(context).emit(event)") <> semi
-                  case _ => emptyDoc
-                })
-              }
-          },
+          service.commands.toSeq
+            .map {
+              command =>
+                "@Test" <> line <>
+                method(
+                  "public",
+                  "void",
+                  lowerFirst(command.fqn.name) + "Test",
+                  List.empty,
+                  emptyDoc
+                ) {
+                  "entity" <+> equal <+> "new" <+> implClassName <> parens(
+                    "entityId"
+                  ) <> semi <> line <>
+                  line <>
+                  "// TODO: write your mock here" <> line <>
+                  "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
+                  line <>
+                  "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
+                  "//" <+> "assertEquals" <> parens(
+                    "[expected]" <> comma <>
+                    line <> "//" <> indent("entity") <> dot <> lowerFirst(
+                      command.fqn.name
+                    ) <> lparen <>
+                    qualifiedType(
+                      command.inputType
+                    ) <> dot <> "newBuilder().build(), context"
+                  ) <> semi <> line <>
+                  "//" <+> rparen <> semi <>
+                  (entity match {
+                    case _: ModelBuilder.EventSourcedEntity =>
+                      line <>
+                      line <>
+                      "// TODO: if you wish to verify events:" <> line <>
+                      "//" <> indent("Mockito.verify(context).emit(event)") <> semi
+                    case _ => emptyDoc
+                  })
+                }
+            }
+            .to[immutable.Seq],
           line <> line
         )
       }
@@ -492,7 +501,7 @@ object EntityServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
@@ -544,30 +553,32 @@ object EntityServiceSourceGenerator {
         } <> line <>
         line <>
         ssep(
-          service.commands.toSeq.map {
-            command =>
-              "@Test" <> line <>
-              method(
-                "public",
-                "void",
-                lowerFirst(command.fqn.name) + "OnNonExistingEntity",
-                List.empty,
-                "throws" <+> "Exception" <> space
-              ) {
-                "// TODO: set fields in command, and provide assertions to match replies" <> line <>
-                "//" <+> "client" <> dot <> lowerFirst(command.fqn.name) <> parens(
-                  qualifiedType(
-                    command.inputType
-                  ) <> dot <> "newBuilder().build()"
-                ) <> line <>
-                "//" <+> indent(
-                  dot <> "toCompletableFuture" <> parens(emptyDoc) <> dot <> "get" <> parens(
-                    ssep(List("2", "SECONDS"), comma <> space)
-                  ) <> semi,
-                  8
-                )
-              }
-          },
+          service.commands.toSeq
+            .map {
+              command =>
+                "@Test" <> line <>
+                method(
+                  "public",
+                  "void",
+                  lowerFirst(command.fqn.name) + "OnNonExistingEntity",
+                  List.empty,
+                  "throws" <+> "Exception" <> space
+                ) {
+                  "// TODO: set fields in command, and provide assertions to match replies" <> line <>
+                  "//" <+> "client" <> dot <> lowerFirst(command.fqn.name) <> parens(
+                    qualifiedType(
+                      command.inputType
+                    ) <> dot <> "newBuilder().build()"
+                  ) <> line <>
+                  "//" <+> indent(
+                    dot <> "toCompletableFuture" <> parens(emptyDoc) <> dot <> "get" <> parens(
+                      ssep(List("2", "SECONDS"), comma <> space)
+                    ) <> semi,
+                    8
+                  )
+                }
+            }
+            .to[immutable.Seq],
           line <> line
         )
       }

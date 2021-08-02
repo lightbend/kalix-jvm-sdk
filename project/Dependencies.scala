@@ -10,6 +10,7 @@ object Dependencies {
 
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.6"
+  val ScalaVersionForCodegen = Seq("2.12.14")
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
@@ -52,6 +53,7 @@ object Dependencies {
   val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
+  val mockito = "org.mockito" % "mockito-core" % "3.7.0"
 
   private val deps = libraryDependencies
 
@@ -90,6 +92,7 @@ object Dependencies {
 
   val codegenCore = deps ++= Seq(
         protobufJava,
+        akkaslsSdkProtocol % "compile;protobuf-src",
         logback % Test,
         munit % Test,
         munitScalaCheck % Test

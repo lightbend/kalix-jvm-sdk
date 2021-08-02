@@ -18,8 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-
+import scala.collection.immutable
 import _root_.java.nio.file.{Files, Path}
 
 /**
@@ -56,16 +55,16 @@ object ActionServiceSourceGenerator {
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
-    val _ = interfaceSourcePath.getParent.toFile.mkdirs()
-    val _ = Files.write(
+    interfaceSourcePath.getParent.toFile.mkdirs()
+    Files.write(
       interfaceSourcePath,
       interfaceSource(service, packageName, className).getBytes(Charsets.UTF_8)
     )
 
     if (!implSourcePath.toFile.exists()) {
       // Now we generate the entity
-      val _ = implSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
+      implSourcePath.getParent.toFile.mkdirs()
+      Files.write(
         implSourcePath,
         source(
           service,
@@ -107,7 +106,7 @@ object ActionServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
@@ -115,31 +114,33 @@ object ActionServiceSourceGenerator {
       "@Action" <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         ssep(
-          service.commands.toSeq.map {
-            command =>
-              "@Override" <>
-              line <>
-              method(
-                "public",
-                maybeStreamed(
-                  "Reply" <> angles(qualifiedType(command.outputType)),
-                  streamed = command.streamedOutput
-                ),
-                lowerFirst(command.fqn.name),
-                List(
+          service.commands.toSeq
+            .map {
+              command =>
+                "@Override" <>
+                line <>
+                method(
+                  "public",
                   maybeStreamed(
-                    qualifiedType(command.inputType),
-                    streamed = command.streamedInput
-                  ) <+> "event",
-                  "ActionContext" <+> "ctx"
-                ),
-                emptyDoc
-              ) {
-                "throw new RuntimeException" <> parens(
-                  notImplementedError("command", command.fqn)
-                ) <> semi
-              }
-          },
+                    "Reply" <> angles(qualifiedType(command.outputType)),
+                    streamed = command.streamedOutput
+                  ),
+                  lowerFirst(command.fqn.name),
+                  List(
+                    maybeStreamed(
+                      qualifiedType(command.inputType),
+                      streamed = command.streamedInput
+                    ) <+> "event",
+                    "ActionContext" <+> "ctx"
+                  ),
+                  emptyDoc
+                ) {
+                  "throw new RuntimeException" <> parens(
+                    notImplementedError("command", command.fqn)
+                  ) <> semi
+                }
+            }
+            .to[immutable.Seq],
           line <> line
         )
       }
@@ -171,32 +172,34 @@ object ActionServiceSourceGenerator {
       "package" <+> packageName <> semi <> line <>
       line <>
       ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
+        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
         line
       ) <> line <>
       line <>
       "/** An action. */" <> line <>
       `class`("public abstract", "Abstract" + className) {
         ssep(
-          service.commands.toSeq.map { command =>
-            "@Handler" <>
-            line <>
-            abstractMethod(
-              "public",
-              maybeStreamed(
-                "Reply" <> angles(qualifiedType(command.outputType)),
-                streamed = command.streamedOutput
-              ),
-              lowerFirst(command.fqn.name),
-              List(
+          service.commands.toSeq
+            .map { command =>
+              "@Handler" <>
+              line <>
+              abstractMethod(
+                "public",
                 maybeStreamed(
-                  qualifiedType(command.inputType),
-                  streamed = command.streamedInput
-                ) <+> "event",
-                "ActionContext" <+> "ctx"
-              )
-            ) <> semi
-          },
+                  "Reply" <> angles(qualifiedType(command.outputType)),
+                  streamed = command.streamedOutput
+                ),
+                lowerFirst(command.fqn.name),
+                List(
+                  maybeStreamed(
+                    qualifiedType(command.inputType),
+                    streamed = command.streamedInput
+                  ) <+> "event",
+                  "ActionContext" <+> "ctx"
+                )
+              ) <> semi
+            }
+            .to[immutable.Seq],
           line <> line
         )
       }
