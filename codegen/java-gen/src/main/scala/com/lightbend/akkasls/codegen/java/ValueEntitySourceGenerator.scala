@@ -28,83 +28,58 @@ object ValueEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
-      className: String,
-      interfaceClassName: String
-  ): Document = {
-    val messageTypes = service.commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ Seq(entity.state.fqn)
+      className: String
+  ): String = {
 
-    val imports = (messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport))
-      .distinct
-      .sorted
-
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "/** A value entity. */" <> line <>
-      `class`("public", s"$className extends $interfaceClassName") {
-
-        """@SuppressWarnings("unused")""" <> line <>
-        "private final String entityId;" <> line <>
-        line <>
-        constructor(
-          "public",
-          className,
-          List("String" <+> "entityId")
-        ) {
-          "this.entityId = entityId;"
-        } <> line <>
-        line <>
-        "@Override" <>
-        line <>
-        method(
-          "public",
-          qualifiedType(entity.state.fqn),
-          "emptyState",
-          Nil,
-          emptyDoc
-        )(
-          "return" <+> qualifiedType(entity.state.fqn) <> ".getDefaultInstance();"
-        ) <>
-        line <>
-        line <>
-        ssep(
-          service.commands.toSeq.map { command =>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              "Effect" <> angles(qualifiedType(command.outputType)),
-              lowerFirst(command.fqn.name),
-              List(
-                qualifiedType(entity.state.fqn) <+> "currentState",
-                qualifiedType(command.inputType) <+> "command"
-              ),
-              emptyDoc
-            ) {
-              "return effects().error" <> parens(
-                "\"The command handler for `" + command.fqn.name + "` is not implemented, yet\""
-              ) <> semi
-            }
-          },
-          line <> line
-        )
-      }
+    val imports = generateImports(
+      service.commands,
+      Some(entity.state),
+      packageName,
+      otherImports = Seq.empty
     )
+
+    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
+    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+
+    val methods = service.commands.map { cmd =>
+      val methodName = cmd.fqn.name
+      val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+      val outputType = qualifiedType(cmd.outputType)
+
+      s"""|@Override
+          |public Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType command) {
+          |  return effects().error("The command handler for `$methodName` is not implemented, yet");
+          |}
+          |""".stripMargin
+    }
+
+    s"""|$generatedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity. */
+        |public class $className extends Abstract${className} {
+        |  @SuppressWarnings("unused")
+        |  private final String entityId;
+        |
+        |  public ${className}(String entityId) {
+        |    this.entityId = entityId;
+        |  }
+        |
+        |  @Override
+        |  public $outerClassAndState emptyState() {
+        |    return ${outerClassAndState}.getDefaultInstance();
+        |  }
+        |
+        |  ${Syntax.indent(methods, num = 2)}
+        |}""".stripMargin
   }
 
   private[codegen] def valueEntityHandler(service: ModelBuilder.EntityService,
                                           entity: ModelBuilder.ValueEntity,
                                           packageName: String,
-                                          className: String): Document = {
+                                          className: String): String = {
 
     val imports = generateImports(
       service.commands,
@@ -132,75 +107,73 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.fqn.name
         val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
-        s"""case "$methodName":
-         |  return entity.${lowerFirst(methodName)}(
-         |      parsedState,
-         |      ${inputType}.parseFrom(command.getValue()));
-         |""".stripMargin
+        s"""|case "$methodName":
+            |  return entity.${lowerFirst(methodName)}(
+            |      parsedState,
+            |      ${inputType}.parseFrom(command.getValue()));
+            |""".stripMargin
       }
 
-    pretty(
-      s"""|$managedCodeCommentString
-          |package $packageName;
-          |
-          |$imports
-          |
-          |/** A value entity handler */
-          |public class ${className}Handler implements ValueEntityHandler {
-          |
-          |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
-          |      ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
-          |  public static final String entityType = "${entity.entityType}";
-          |
-          |  private final ${className} entity;
-          |  
-          |  public ${className}Handler(${className} entity) {
-          |    this.entity = entity;
-          |  }
-          |
-          |  @Override
-          |  public ValueEntityBase.Effect<? extends GeneratedMessageV3> handleCommand(
-          |      Any command, Any state, CommandContext<Any> context) throws Throwable {
-          |      
-          |    $outerClassAndState parsedState =
-          |      $outerClassAndState.parseFrom(state.getValue());
-          |
-          |    CommandContext<$outerClassAndState> adaptedContext =
-          |        new AdaptedCommandContextWithState(context, parsedState);
-          |
-          |    entity.setCommandContext(Optional.of(adaptedContext));
-          |    
-          |    try {
-          |      switch (context.commandName()) {
-          |
-          |        ${Syntax.indent(cases, 8)}
-          |
-          |        default:
-          |          throw new EntityExceptions.EntityException(
-          |              context.entityId(),
-          |              context.commandId(),
-          |              context.commandName(),
-          |              "No command handler found for command ["
-          |                  + context.commandName()
-          |                  + "] on "
-          |                  + entity.getClass().toString());
-          |      }
-          |    } finally {
-          |      entity.setCommandContext(Optional.empty());
-          |    }
-          |  }
-          |  
-          |  @Override
-          |  public com.google.protobuf.any.Any emptyState() {
-          |    return com.google.protobuf.any.Any.apply(
-          |        AnySupport.DefaultTypeUrlPrefix()
-          |          + "/"
-          |          + ${outerClassAndState}.getDescriptor().getFullName(),
-          |        entity.emptyState().toByteString(),
-          |        UnknownFieldSet.empty());
-          |  }
-          |}""".stripMargin
-    )
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity handler */
+        |public class ${className}Handler implements ValueEntityHandler {
+        |
+        |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
+        |      ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |  public static final String entityType = "${entity.entityType}";
+        |
+        |  private final ${className} entity;
+        |  
+        |  public ${className}Handler(${className} entity) {
+        |    this.entity = entity;
+        |  }
+        |
+        |  @Override
+        |  public ValueEntityBase.Effect<? extends GeneratedMessageV3> handleCommand(
+        |      Any command, Any state, CommandContext<Any> context) throws Throwable {
+        |      
+        |    $outerClassAndState parsedState =
+        |      $outerClassAndState.parseFrom(state.getValue());
+        |
+        |    CommandContext<$outerClassAndState> adaptedContext =
+        |        new AdaptedCommandContextWithState(context, parsedState);
+        |
+        |    entity.setCommandContext(Optional.of(adaptedContext));
+        |    
+        |    try {
+        |      switch (context.commandName()) {
+        |
+        |        ${Syntax.indent(cases, 8)}
+        |
+        |        default:
+        |          throw new EntityExceptions.EntityException(
+        |              context.entityId(),
+        |              context.commandId(),
+        |              context.commandName(),
+        |              "No command handler found for command ["
+        |                  + context.commandName()
+        |                  + "] on "
+        |                  + entity.getClass().toString());
+        |      }
+        |    } finally {
+        |      entity.setCommandContext(Optional.empty());
+        |    }
+        |  }
+        |  
+        |  @Override
+        |  public com.google.protobuf.any.Any emptyState() {
+        |    return com.google.protobuf.any.Any.apply(
+        |        AnySupport.DefaultTypeUrlPrefix()
+        |          + "/"
+        |          + ${outerClassAndState}.getDescriptor().getFullName(),
+        |        entity.emptyState().toByteString(),
+        |        UnknownFieldSet.empty());
+        |  }
+        |}""".stripMargin
 
   }
 
@@ -209,7 +182,7 @@ object ValueEntitySourceGenerator {
       entity: ModelBuilder.ValueEntity,
       packageName: String,
       className: String
-  ): Document = {
+  ): String = {
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
     val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
@@ -233,20 +206,16 @@ object ValueEntitySourceGenerator {
         s"public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});"
       }
 
-    pretty(
-      s"""|$managedCodeCommentString
-          |package $packageName;
-          |
-          |$imports
-          |
-          |/** A value entity. */
-          |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
-          |
-          |  ${Syntax.indent(methods, 2)}
-          |
-          |}
-          |""".stripMargin
-    )
-
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity. */
+        |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
+        |
+        |  ${Syntax.indent(methods, 2)}
+        |
+        |}""".stripMargin
   }
 }

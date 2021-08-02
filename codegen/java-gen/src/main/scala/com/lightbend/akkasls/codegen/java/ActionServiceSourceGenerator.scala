@@ -59,9 +59,7 @@ object ActionServiceSourceGenerator {
     val _ = interfaceSourcePath.getParent.toFile.mkdirs()
     val _ = Files.write(
       interfaceSourcePath,
-      interfaceSource(service, packageName, className).layout.getBytes(
-        Charsets.UTF_8
-      )
+      interfaceSource(service, packageName, className).getBytes(Charsets.UTF_8)
     )
 
     if (!implSourcePath.toFile.exists()) {
@@ -74,9 +72,7 @@ object ActionServiceSourceGenerator {
           packageName,
           implClassName,
           interfaceClassName
-        ).layout.getBytes(
-          Charsets.UTF_8
-        )
+        ).getBytes(Charsets.UTF_8)
       )
 
       List(implSourcePath, interfaceSourcePath)
@@ -90,7 +86,7 @@ object ActionServiceSourceGenerator {
       packageName: String,
       className: String,
       interfaceClassName: String
-  ): Document = {
+  ): String = {
     val messageTypes =
       service.commands.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
@@ -147,14 +143,14 @@ object ActionServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 
   private[codegen] def interfaceSource(
       service: ModelBuilder.ActionService,
       packageName: String,
       className: String
-  ): Document = {
+  ): String = {
     val messageTypes =
       service.commands.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
@@ -204,7 +200,7 @@ object ActionServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 
   private def maybeStreamed(wrappedType: Doc, streamed: Boolean): Doc =
