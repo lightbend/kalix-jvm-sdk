@@ -59,9 +59,7 @@ object ViewServiceSourceGenerator {
     val _ = interfaceSourcePath.getParent.toFile.mkdirs()
     val _ = Files.write(
       interfaceSourcePath,
-      interfaceSource(service, packageName, className).layout.getBytes(
-        Charsets.UTF_8
-      )
+      interfaceSource(service, packageName, className).getBytes(Charsets.UTF_8)
     )
 
     if (!implSourcePath.toFile.exists()) {
@@ -74,9 +72,7 @@ object ViewServiceSourceGenerator {
           packageName,
           implClassName,
           interfaceClassName
-        ).layout.getBytes(
-          Charsets.UTF_8
-        )
+        ).getBytes(Charsets.UTF_8)
       )
 
       List(implSourcePath, interfaceSourcePath)
@@ -90,7 +86,7 @@ object ViewServiceSourceGenerator {
       packageName: String,
       className: String,
       interfaceClassName: String
-  ): Document = {
+  ): String = {
     val messageTypes =
       service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
@@ -137,14 +133,14 @@ object ViewServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 
   private[codegen] def interfaceSource(
       service: ModelBuilder.ViewService,
       packageName: String,
       className: String
-  ): Document = {
+  ): String = {
     val messageTypes =
       service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
@@ -186,7 +182,7 @@ object ViewServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 
 }

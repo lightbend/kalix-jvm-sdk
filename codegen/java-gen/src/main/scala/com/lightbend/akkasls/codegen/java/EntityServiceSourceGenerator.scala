@@ -64,9 +64,7 @@ object EntityServiceSourceGenerator {
     val _ = interfaceSourcePath.getParent.toFile.mkdirs()
     val _ = Files.write(
       interfaceSourcePath,
-      interfaceSource(service, entity, packageName, className).layout.getBytes(
-        Charsets.UTF_8
-      )
+      interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
     )
 
     val handleClassName = className + "Handler"
@@ -77,9 +75,7 @@ object EntityServiceSourceGenerator {
     handlerSource(service, entity, packageName, className).foreach { doc =>
       Files.write(
         handlerSourcePath,
-        doc.layout.getBytes(
-          Charsets.UTF_8
-        )
+        doc.getBytes(Charsets.UTF_8)
       )
     }
 
@@ -92,10 +88,7 @@ object EntityServiceSourceGenerator {
         val _ = testSourcePath.getParent.toFile.mkdirs()
         val _ = Files.write(
           testSourcePath,
-          testSource(service, entity, packageName, implClassName, testClassName).layout
-            .getBytes(
-              Charsets.UTF_8
-            )
+          testSource(service, entity, packageName, implClassName, testClassName).getBytes(Charsets.UTF_8)
         )
         List(testSourcePath)
       } else {
@@ -118,10 +111,7 @@ object EntityServiceSourceGenerator {
             entity,
             packageName,
             integrationTestClassName
-          ).layout
-            .getBytes(
-              Charsets.UTF_8
-            )
+          ).getBytes(Charsets.UTF_8)
         )
         List(integrationTestSourcePath)
       } else {
@@ -139,9 +129,7 @@ object EntityServiceSourceGenerator {
           implClassName,
           interfaceClassName,
           entity.entityType
-        ).layout.getBytes(
-          Charsets.UTF_8
-        )
+        ).getBytes(Charsets.UTF_8)
       )
 
       List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles
@@ -157,12 +145,12 @@ object EntityServiceSourceGenerator {
       className: String,
       interfaceClassName: String,
       entityType: String
-  ): Document = {
+  ): String = {
     entity match {
       case eventSourcedEntity: EventSourcedEntity =>
         eventSourcedEntitySource(service, eventSourcedEntity, packageName, className, interfaceClassName, entityType)
       case valueEntity: ValueEntity =>
-        ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className, interfaceClassName)
+        ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className)
     }
   }
 
@@ -173,7 +161,7 @@ object EntityServiceSourceGenerator {
       className: String,
       interfaceClassName: String,
       entityType: String
-  ): Document = {
+  ): String = {
     val messageTypes = service.commands.toSeq
         .flatMap(command => Seq(command.inputType, command.outputType)) ++
       entity.state.toSeq.map(_.fqn) ++ entity.events.map(_.fqn)
@@ -279,7 +267,7 @@ object EntityServiceSourceGenerator {
           case _ => emptyDoc
         })
       }
-    )
+    ).layout
   }
 
   private[codegen] def interfaceSource(
@@ -287,7 +275,7 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String
-  ): Document =
+  ): String =
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
         abstractEventSourcedEntity(service, eventSourcedEntity, packageName, className)
@@ -298,7 +286,7 @@ object EntityServiceSourceGenerator {
   private[codegen] def handlerSource(service: ModelBuilder.EntityService,
                                      entity: ModelBuilder.Entity,
                                      packageName: String,
-                                     className: String): Option[Document] = {
+                                     className: String): Option[String] = {
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
         None
@@ -312,7 +300,7 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String
-  ): Document = {
+  ): String = {
     val messageTypes = service.commands.toSeq
         .flatMap(command => Seq(command.inputType, command.outputType)) ++ entity.state.toSeq
         .map(_.fqn) ++ entity.events.map(_.fqn)
@@ -376,7 +364,7 @@ object EntityServiceSourceGenerator {
           }
         case _ => emptyDoc
       })
-    )
+    ).layout
   }
 
   private[codegen] def testSource(
@@ -385,7 +373,7 @@ object EntityServiceSourceGenerator {
       packageName: String,
       implClassName: String,
       testClassName: String
-  ): Document = {
+  ): String = {
     val messageTypes =
       service.commands.flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
         case _: ModelBuilder.EventSourcedEntity =>
@@ -468,7 +456,7 @@ object EntityServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 
   private[codegen] def integrationTestSource(
@@ -478,7 +466,7 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.Entity,
       packageName: String,
       testClassName: String
-  ): Document = {
+  ): String = {
     val serviceName = service.fqn.name
 
     val messageTypes =
@@ -583,6 +571,6 @@ object EntityServiceSourceGenerator {
           line <> line
         )
       }
-    )
+    ).layout
   }
 }

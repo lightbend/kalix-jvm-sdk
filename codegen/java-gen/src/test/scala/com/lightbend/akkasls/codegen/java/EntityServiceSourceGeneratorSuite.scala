@@ -29,7 +29,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val interfaceClassName = "AbstractMyServiceEntity"
     val entityType = "my-eventsourcedentity-persistence"
 
-    val sourceDoc =
+    val generatedSrc =
       EntityServiceSourceGenerator.source(
         service,
         entity,
@@ -39,7 +39,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         entityType
       )
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code was initialised by Akka Serverless tooling.
       | * As long as this file exists it will not be re-generated.
       | * You are free to make changes to this file.
@@ -93,10 +93,10 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val packageName = "com.example.service"
     val className = "MyServiceEntity"
 
-    val sourceDoc =
+    val generatedSrc =
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
       | * It will be re-generated to reflect any changes to your protobuf definitions.
       | * DO NOT EDIT
@@ -133,7 +133,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val implClassName = "MyServiceEntity"
     val testClassName = "MyServiceEntityTest"
 
-    val sourceDoc =
+    val generatedSrc =
       EntityServiceSourceGenerator.testSource(
         service,
         entity,
@@ -142,7 +142,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         testClassName
       )
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code was initialised by Akka Serverless tooling.
         | * As long as this file exists it will not be re-generated.
         | * You are free to make changes to this file.
@@ -207,7 +207,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val packageName = "com.example.service"
     val integrationTestClassName = "MyServiceEntityIntegrationTest"
 
-    val sourceDoc =
+    val generatedSrc =
       EntityServiceSourceGenerator.integrationTestSource(
         mainPackageName,
         mainClassName,
@@ -217,7 +217,7 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
         integrationTestClassName
       )
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code was initialised by Akka Serverless tooling.
         | * As long as this file exists it will not be re-generated.
         | * You are free to make changes to this file.
