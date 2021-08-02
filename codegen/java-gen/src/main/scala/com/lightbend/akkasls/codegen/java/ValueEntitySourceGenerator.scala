@@ -76,6 +76,7 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
 =======
         |  ${Syntax.indent(methods, num = 2)}
@@ -89,6 +90,12 @@ object ValueEntitySourceGenerator {
 =======
         |${Syntax.indent(methods, num = 2)}
 >>>>>>> after merging plus changing to assertNoDiff
+=======
+        |${Syntax.indent(methods, num = 2)}
+=======
+        |  ${Syntax.indent(methods, num = 2)}
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
         |}""".stripMargin
   }
 
@@ -169,12 +176,18 @@ object ValueEntitySourceGenerator {
         |
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> towards simplified codegen
         |${Syntax.indent(cases, 8)}
 =======
         |        ${Syntax.indent(cases, 8)}
 >>>>>>> towards simplified codegen
+<<<<<<< HEAD
 =======
         |${Syntax.indent(cases, 8)}
+>>>>>>> towards simplified codegen
+=======
 >>>>>>> towards simplified codegen
         |
         |        default:
@@ -206,12 +219,15 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 >>>>>>> towards simplified codegen
 =======
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+>>>>>>> towards simplified codegen
 =======
     pretty(
       s"""|$managedCodeCommentString
@@ -288,7 +304,15 @@ object ValueEntitySourceGenerator {
 =======
 =======
 >>>>>>> accepted suggestions from review plus one fix.
+<<<<<<< HEAD
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+=======
+=======
+
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
   }
 
   private[codegen] def abstractValueEntity(
@@ -361,7 +385,11 @@ object ValueEntitySourceGenerator {
       s"""|$managedCodeCommentString
 =======
     s"""|$managedCodeCommentString
+<<<<<<< HEAD
 >>>>>>> after merging plus changing to assertNoDiff
+=======
+<<<<<<< HEAD
+>>>>>>> towards simplified codegen
           |package $packageName;
           |
           |$imports
@@ -373,6 +401,7 @@ object ValueEntitySourceGenerator {
           |
           |}
           |""".stripMargin
+<<<<<<< HEAD
 <<<<<<< HEAD
     )
 <<<<<<< HEAD
@@ -388,5 +417,19 @@ object ValueEntitySourceGenerator {
 >>>>>>> accepted suggestions from review plus one fix.
 =======
 >>>>>>> after merging plus changing to assertNoDiff
+=======
+=======
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity. */
+        |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
+        |
+        |  ${Syntax.indent(methods, 2)}
+        |
+        |}""".stripMargin
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
   }
 }
