@@ -72,11 +72,7 @@ object ValueEntitySourceGenerator {
         |    return ${outerClassAndState}.getDefaultInstance();
         |  }
         |
-<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
-=======
-        |  ${Syntax.indent(methods, num = 2)}
->>>>>>> towards simplified codegen
         |}""".stripMargin
   }
 
@@ -151,11 +147,7 @@ object ValueEntitySourceGenerator {
         |    try {
         |      switch (context.commandName()) {
         |
-<<<<<<< HEAD
         |${Syntax.indent(cases, 8)}
-=======
-        |        ${Syntax.indent(cases, 8)}
->>>>>>> towards simplified codegen
         |
         |        default:
         |          throw new EntityExceptions.EntityException(
@@ -182,10 +174,6 @@ object ValueEntitySourceGenerator {
         |        UnknownFieldSet.empty());
         |  }
         |}""".stripMargin
-<<<<<<< HEAD
-=======
-
->>>>>>> towards simplified codegen
   }
 
   private[codegen] def abstractValueEntity(
@@ -218,19 +206,6 @@ object ValueEntitySourceGenerator {
       }
 
     s"""|$managedCodeCommentString
-<<<<<<< HEAD
-          |package $packageName;
-          |
-          |$imports
-          |
-          |/** A value entity. */
-          |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
-          |
-          |${Syntax.indent(methods, 2)}
-          |
-          |}
-          |""".stripMargin
-=======
         |package $packageName;
         |
         |$imports
@@ -238,9 +213,10 @@ object ValueEntitySourceGenerator {
         |/** A value entity. */
         |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
         |
-        |  ${Syntax.indent(methods, 2)}
+        |${Syntax.indent(methods, 2)}
         |
-        |}""".stripMargin
->>>>>>> towards simplified codegen
+        |}
+        |""".stripMargin
+
   }
 }
