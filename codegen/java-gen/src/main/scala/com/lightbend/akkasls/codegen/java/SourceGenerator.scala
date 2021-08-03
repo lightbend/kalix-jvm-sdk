@@ -28,6 +28,7 @@ import com.lightbend.akkasls.codegen.DescriptorSet
 import com.lightbend.akkasls.codegen.Log
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
+import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 
 /**
@@ -168,137 +169,130 @@ object SourceGenerator extends PrettyPrinter {
 
   }
 
+  def collectRelevantTypes(fullQualifiedNames: Iterable[FullyQualifiedName],
+                           service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
+    fullQualifiedNames.filterNot { desc =>
+      desc.parent == service.parent
+    }.toList
+  }
+
+  def collectRelevantTypeDescriptors(fullQualifiedNames: Iterable[FullyQualifiedName],
+                                     service: FullyQualifiedName): String = {
+    collectRelevantTypes(fullQualifiedNames, service)
+      .map(desc => s"${desc.parent.javaOuterClassname}.getDescriptor()")
+      .distinct
+      .sorted
+      .mkString(",\n")
+  }
+
   private[codegen] def mainComponentRegistrationsSource(
       mainClassPackageName: String,
       mainClassName: String,
       model: ModelBuilder.Model
   ): String = {
-    val serviceRegistrations = model.services.values.flatMap {
+
+    val registrations = model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
-        model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
-          (
-            FullyQualifiedName(s"${entity.fqn.name}", entity.fqn.parent),
-            entity match {
-              case _: ModelBuilder.EventSourcedEntity =>
-                "registerEventSourcedEntity"
-              case _: ModelBuilder.ValueEntity =>
-                "registerValueEntity"
-            },
-            Seq(
-              s"${entity.fqn.name}" <> ".class",
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
-              )
-            ),
-            service.fqn.parent,
-            (entity match {
-              case ModelBuilder.EventSourcedEntity(fqn, _, state, events) =>
-                events.map(_.fqn) ++ state.map(_.fqn)
-              case ModelBuilder.ValueEntity(fqn, _, state) =>
-                Seq(state.fqn)
-            }) ++ service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-          )
+        model.entities.get(service.componentFullName).toSeq.map {
+          case entity: ModelBuilder.EventSourcedEntity =>
+            val relevantTypes =
+              service.commands.flatMap { cmd =>
+                cmd.inputType :: cmd.outputType :: Nil
+              } ++ entity.events.map(_.fqn) ++ entity.state.map(_.fqn)
+
+            s"""|.registerEventSourcedEntity(
+                |    ${entity.fqn.name}.class,
+                |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
+                |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+                |)""".stripMargin
+
+          case entity: ModelBuilder.ValueEntity =>
+            s".register(new ${entity.fqn.name}Provider(${entity.fqn.name}::new))"
         }
+
       case service: ModelBuilder.ViewService =>
-        Some(
-          (
-            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
-            "registerView",
-            (if (service.transformedUpdates.nonEmpty) {
-               Seq(s"${service.fqn.name}" <> ".class")
-             } else Seq.empty) ++ Seq(
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
-              ),
-              dquotes(service.viewId)
-            ),
-            service.fqn.parent,
-            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-          )
+        val relevantTypes =
+          service.commands.flatMap { cmd =>
+            cmd.inputType :: cmd.outputType :: Nil
+          }
+
+        List(
+          s"""|.registerView(
+              |    ${service.fqn.name}.class,
+              |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
+              |    "${service.viewId}",
+              |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+              |)""".stripMargin
         )
+
       case service: ModelBuilder.ActionService =>
-        Some(
-          (
-            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
-            "registerAction",
-            Seq(
-              s"${service.fqn.name}" <> ".class",
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
-              )
-            ),
-            service.fqn.parent,
-            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-          )
+        val relevantTypes =
+          service.commands.flatMap { cmd =>
+            cmd.inputType :: cmd.outputType :: Nil
+          }
+
+        List(
+          s"""
+           |.registerAction(
+           |    ${service.fqn.name}.class,
+           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
+           |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+           |)
+           |""".stripMargin
         )
-      case _ => None
+
+    }.toList
+
+    val entityImports = model.entities.values.flatMap { ety =>
+      if (ety.fqn.parent.javaPackage != mainClassPackageName) {
+        val imports =
+          ety.fqn.fullName ::
+          s"${ety.fqn.parent.javaPackage}.${ety.fqn.parent.javaOuterClassname}" ::
+          Nil
+        ety match {
+          // FIXME: for now, we only have Provider for ValueEntity
+          case _: ModelBuilder.ValueEntity =>
+            s"${ety.fqn.fullName}Provider" :: imports
+          case _ => imports
+        }
+      } else List.empty
     }
 
-    val imports = (List(
-      "com.akkaserverless.javasdk.AkkaServerless"
-    ) ++
-    serviceRegistrations
-      .flatMap {
-        case (implType, _, _, _, relevantTypes) =>
-          Seq(implType.name -> implType.parent.javaPackage) ++ relevantTypes.map {
-            case FullyQualifiedName(_, parent) =>
-              parent.javaOuterClassname -> parent.javaPackage
-          }
-      }
-      .collect {
-        case (name, pn) if pn != mainClassPackageName =>
-          s"$pn.$name"
-      }).distinct.sorted
+    val serviceImports = model.services.values.flatMap { serv =>
+      if (serv.fqn.parent.javaPackage != mainClassPackageName)
+        serv.fqn.fullName :: s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}" :: Nil
+      else List.empty
+    }
 
-    pretty(
-      managedCodeComment <> line <> line <>
-      "package" <+> mainClassPackageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      `class`("public" <+> "final", mainClassName + "ComponentRegistrations") {
-        line <>
-        method(
-          "public" <+> "static",
-          "AkkaServerless",
-          "withGeneratedComponentsAdded",
-          List("AkkaServerless" <+> "akkaServerless"),
-          emptyDoc
-        ) {
-          "return" <+> "akkaServerless" <> line <>
-          indent(
-            ssep(
-              serviceRegistrations
-                .map {
-                  case (implType, registrationMethod, args, serviceDescriptor, relevantTypes) =>
-                    dot <>
-                    registrationMethod <> parens(
-                      nest(
-                        line <> ssep(
-                          (args ++ relevantTypes
-                            .map(_.parent)
-                            .toSeq
-                            .distinct
-                            .filterNot(_ == serviceDescriptor)
-                            .map { descriptor =>
-                              descriptor.javaOuterClassname <> ".getDescriptor()"
-                            }).to[immutable.Seq],
-                          comma <> line
-                        )
-                      ) <> line
-                    )
-                }
-                .to[immutable.Seq],
-              line
-            ) <> semi,
-            8
-          )
-        }
+    val otherImports = model.services.values.flatMap { serv =>
+      val types = serv.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
       }
-    ).layout
+      collectRelevantTypes(types, serv.fqn)
+        .collect {
+          case typ if typ.parent.javaMultipleFiles =>
+            s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
+        }
+    }
+
+    val imports =
+      (List("com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports).distinct.sorted
+        .map(pkg => s"import $pkg;")
+        .mkString("\n")
+
+    s"""|$managedCodeCommentString
+        |
+        |package $mainClassPackageName;
+        |
+        |$imports
+        |
+        |public final class ${mainClassName}ComponentRegistrations {
+        |
+        |  public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
+        |    return akkaServerless
+        |      ${Syntax.indent(registrations, 6)};
+        |  }
+        |}""".stripMargin
   }
 
   private[codegen] def mainSource(
@@ -306,59 +300,31 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String
   ): String = {
 
-    val imports = List(
-      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi <> line <>
-      "import" <+> "org.slf4j.Logger" <> semi <> line <>
-      "import" <+> "org.slf4j.LoggerFactory" <> semi
-    )
+    s"""|$generatedCodeCommentString
+        |
+        |package $mainClassPackageName;
+        |
+        |import com.akkaserverless.javasdk.AkkaServerless;
+        |import org.slf4j.Logger;
+        |import org.slf4j.LoggerFactory;
+        |import static ${mainClassPackageName}.${mainClassName}ComponentRegistrations.withGeneratedComponentsAdded;
+        |
+        |public final class ${mainClassName} {
+        |
+        |  private static final Logger LOG = LoggerFactory.getLogger(${mainClassName}.class);
+        |
+        |  public static final AkkaServerless SERVICE =
+        |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
+        |    // and is kept up-to-date with any changes in your protobuf definitions.
+        |    // If you prefer, you may remove this wrapper and manually register these components.
+        |    withGeneratedComponentsAdded(new AkkaServerless());
+        |
+        |  public static void main(String[] args) throws Exception {
+        |    LOG.info("starting the Akka Serverless service");
+        |    SERVICE.start();
+        |  }
+        |}""".stripMargin
 
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> mainClassPackageName <> semi <> line <>
-      line <>
-      ssep(
-        imports,
-        line
-      ) <> line <>
-      line <>
-      "import" <+> "static" <+> mainClassPackageName <> dot <> (mainClassName + "ComponentRegistrations") <> dot <> "withGeneratedComponentsAdded" <> semi <> line <>
-      line <>
-      `class`("public" <+> "final", mainClassName) {
-        line <>
-        field(
-          "private" <+> "static" <+> "final",
-          "Logger",
-          "LOG",
-          assignmentSeparator = Some(" ")
-        )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> line <>
-        line <>
-        field(
-          "public" <+> "static" <+> "final",
-          "AkkaServerless",
-          "SERVICE",
-          assignmentSeparator = Some(linebreak)
-        )(
-          indent(
-            "// This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities," <> line <>
-            "// and is kept up-to-date with any changes in your protobuf definitions." <> line <>
-            "// If you prefer, you may remove this wrapper and manually register these components." <> line <>
-            "withGeneratedComponentsAdded" <> parens("new AkkaServerless()") <> semi,
-            4
-          )
-        ) <> line <>
-        line <>
-        method(
-          "public" <+> "static",
-          "void",
-          "main",
-          List("String[]" <+> "args"),
-          "throws" <+> "Exception" <> space
-        ) {
-          "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
-          "SERVICE.start()" <> semi
-        }
-      }
-    ).layout
   }
 
   private def disassembleClassName(fullClassName: String): (String, String) = {
@@ -470,19 +436,26 @@ object SourceGenerator extends PrettyPrinter {
         | * DO NOT EDIT
         | */""".stripMargin
 
+  private[codegen] def generateImports(types: Iterable[FullyQualifiedName],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+    val messageTypeImports = types
+      .filterNot { typ =>
+        typ.parent.javaPackage == packageName
+      }
+      .map(typeImport)
+
+    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
+      .map(pkg => s"import $pkg;")
+      .mkString("\n")
+  }
+
   private[codegen] def generateImports(commands: Iterable[Command],
                                        state: Option[State],
                                        packageName: String,
                                        otherImports: Seq[String]): String = {
-    val messageTypes = commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ state.map(_.fqn).toSeq
 
-    val messageTypeImports = messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport)
-
-    (messageTypeImports ++ otherImports).distinct.sorted
-      .map(pkg => s"import $pkg;")
-      .mkString("\n")
+    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
+    generateImports(types, packageName, otherImports)
   }
 }

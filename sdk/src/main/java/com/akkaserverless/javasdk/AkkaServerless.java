@@ -515,7 +515,7 @@ public final class AkkaServerless {
         .registerValueEntity(
             context -> provider.newHandler(context),
             provider.serviceDescriptor(),
-            provider.entityTypeHint(),
+            provider.entityType(),
             options,
             provider.additionalDescriptors());
   }

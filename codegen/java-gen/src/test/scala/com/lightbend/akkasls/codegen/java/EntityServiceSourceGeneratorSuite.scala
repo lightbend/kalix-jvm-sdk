@@ -134,13 +134,16 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     val testClassName = "MyServiceEntityTest"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.testSource(
-        service,
-        entity,
-        packageName,
-        implClassName,
-        testClassName
-      )
+      EntityServiceSourceGenerator
+        .testSource(
+          service,
+          entity,
+          packageName,
+          implClassName,
+          testClassName
+        )
+        .get
+
     assertEquals(
       generatedSrc,
       """/* This code was initialised by Akka Serverless tooling.

@@ -35,7 +35,7 @@ object ValueEntitySourceGenerator {
       service.commands,
       Some(entity.state),
       packageName,
-      otherImports = Seq.empty
+      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext")
     )
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
@@ -172,6 +172,73 @@ object ValueEntitySourceGenerator {
         |          + ${outerClassAndState}.getDescriptor().getFullName(),
         |        entity.emptyState().toByteString(),
         |        UnknownFieldSet.empty());
+        |  }
+        |}""".stripMargin
+
+  }
+
+  private[codegen] def valueEntityProvider(service: ModelBuilder.EntityService,
+                                           entity: ModelBuilder.ValueEntity,
+                                           packageName: String,
+                                           className: String): String = {
+    val relevantTypes = {
+      List(entity.state.fqn) ++
+      service.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+    }
+
+    val imports = generateImports(
+      relevantTypes,
+      packageName,
+      otherImports = Seq(
+        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+        "com.google.protobuf.Descriptors",
+        "java.util.function.Function"
+      )
+    )
+
+    val descriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
+        .distinct
+        .sorted
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity provider */
+        |public class ${className}Provider implements ValueEntityProvider {
+        |
+        |  private final Function<ValueEntityContext, ${className}> entityProviderFunc;
+        |
+        |  public ${className}Provider(Function<ValueEntityContext, ${className}> entityProviderFunc) {
+        |    this.entityProviderFunc = entityProviderFunc;
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+        |    return ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |  }
+        |
+        |  @Override
+        |  public final String entityType() {
+        |    return "${entity.entityType}";
+        |  }
+        |
+        |  @Override
+        |  public final ${className}Handler newHandler(ValueEntityContext context) {
+        |    return new ${className}Handler(entityProviderFunc.apply(context));
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+        |    return new Descriptors.FileDescriptor[${descriptors.size}](
+        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |    );
         |  }
         |}""".stripMargin
 

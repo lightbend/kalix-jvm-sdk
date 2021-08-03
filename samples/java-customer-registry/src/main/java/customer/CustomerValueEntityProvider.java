@@ -41,7 +41,7 @@ public class CustomerValueEntityProvider implements ValueEntityProvider {
 
   // depends on proto file definition therefore final
   @Override
-  public final String entityTypeHint() {
+  public final String entityType() {
     return "customers";
   }
 

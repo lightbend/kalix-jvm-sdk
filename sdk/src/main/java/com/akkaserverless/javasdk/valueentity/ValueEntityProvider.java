@@ -23,7 +23,7 @@ public interface ValueEntityProvider {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  String entityTypeHint();
+  String entityType();
 
   ValueEntityHandler newHandler(ValueEntityContext context);
 
