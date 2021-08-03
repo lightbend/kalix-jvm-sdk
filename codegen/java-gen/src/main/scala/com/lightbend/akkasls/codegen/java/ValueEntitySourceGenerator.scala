@@ -73,9 +73,13 @@ object ValueEntitySourceGenerator {
         |  }
         |
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
 =======
         |  ${Syntax.indent(methods, num = 2)}
+>>>>>>> towards simplified codegen
+=======
+        |${Syntax.indent(methods, num = 2)}
 >>>>>>> towards simplified codegen
         |}""".stripMargin
   }
@@ -156,9 +160,13 @@ object ValueEntitySourceGenerator {
         |      switch (context.commandName()) {
         |
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(cases, 8)}
 =======
         |        ${Syntax.indent(cases, 8)}
+>>>>>>> towards simplified codegen
+=======
+        |${Syntax.indent(cases, 8)}
 >>>>>>> towards simplified codegen
         |
         |        default:
@@ -309,6 +317,7 @@ object ValueEntitySourceGenerator {
         |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
         |
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, 2)}
         |
         |}
@@ -316,6 +325,9 @@ object ValueEntitySourceGenerator {
 
 =======
         |  ${Syntax.indent(methods, 2)}
+=======
+        |${Syntax.indent(methods, 2)}
+>>>>>>> towards simplified codegen
         |
         |}""".stripMargin
 <<<<<<< HEAD
