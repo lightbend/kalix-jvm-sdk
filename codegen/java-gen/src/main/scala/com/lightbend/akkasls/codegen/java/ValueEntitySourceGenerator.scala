@@ -118,6 +118,7 @@ object ValueEntitySourceGenerator {
             |""".stripMargin
       }
 
+<<<<<<< HEAD
     s"""|$managedCodeCommentString
         |package $packageName;
         |
@@ -183,7 +184,74 @@ object ValueEntitySourceGenerator {
         |  }
         |}""".stripMargin
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+=======
+    pretty(
+      s"""|$managedCodeCommentString
+          |package $packageName;
+          |
+          |$imports
+          |
+          |/** A value entity handler */
+          |public class ${className}Handler implements ValueEntityHandler {
+          |
+          |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
+          |      ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+          |  public static final String entityType = "${entity.entityType}";
+          |
+          |  private final ${className} entity;
+          |  
+          |  public ${className}Handler(${className} entity) {
+          |    this.entity = entity;
+          |  }
+          |
+          |  @Override
+          |  public ValueEntityBase.Effect<? extends GeneratedMessageV3> handleCommand(
+          |      Any command, Any state, CommandContext<Any> context) throws Throwable {
+          |      
+          |    $outerClassAndState parsedState =
+          |      $outerClassAndState.parseFrom(state.getValue());
+          |
+          |    CommandContext<$outerClassAndState> adaptedContext =
+          |        new AdaptedCommandContextWithState(context, parsedState);
+          |
+          |    entity.setCommandContext(Optional.of(adaptedContext));
+          |    
+          |    try {
+          |      switch (context.commandName()) {
+          |
+          |${Syntax.indent(cases, 8)}
+          |
+          |        default:
+          |          throw new EntityExceptions.EntityException(
+          |              context.entityId(),
+          |              context.commandId(),
+          |              context.commandName(),
+          |              "No command handler found for command ["
+          |                  + context.commandName()
+          |                  + "] on "
+          |                  + entity.getClass().toString());
+          |      }
+          |    } finally {
+          |      entity.setCommandContext(Optional.empty());
+          |    }
+          |  }
+          |  
+          |  @Override
+          |  public com.google.protobuf.any.Any emptyState() {
+          |    return com.google.protobuf.any.Any.apply(
+          |        AnySupport.DefaultTypeUrlPrefix()
+          |          + "/"
+          |          + ${outerClassAndState}.getDescriptor().getFullName(),
+          |        entity.emptyState().toByteString(),
+          |        UnknownFieldSet.empty());
+          |  }
+          |}""".stripMargin
+    )
+>>>>>>> accepted suggestions from review plus one fix.
+>>>>>>> accepted suggestions from review plus one fix.
 
 >>>>>>> towards simplified codegen
   }
@@ -217,6 +285,7 @@ object ValueEntitySourceGenerator {
         s"public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});"
       }
 
+<<<<<<< HEAD
     s"""|$managedCodeCommentString
         |package $packageName;
         |
@@ -235,6 +304,26 @@ object ValueEntitySourceGenerator {
         |  ${Syntax.indent(methods, 2)}
         |
         |}""".stripMargin
+<<<<<<< HEAD
 >>>>>>> towards simplified codegen
+=======
+=======
+    pretty(
+      s"""|$managedCodeCommentString
+          |package $packageName;
+          |
+          |$imports
+          |
+          |/** A value entity. */
+          |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
+          |
+          |${Syntax.indent(methods, 2)}
+          |
+          |}
+          |""".stripMargin
+    )
+
+>>>>>>> accepted suggestions from review plus one fix.
+>>>>>>> accepted suggestions from review plus one fix.
   }
 }
