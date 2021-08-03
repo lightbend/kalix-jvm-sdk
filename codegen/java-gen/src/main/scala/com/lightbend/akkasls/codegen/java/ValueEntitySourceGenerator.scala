@@ -74,6 +74,7 @@ object ValueEntitySourceGenerator {
         |
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
 =======
         |  ${Syntax.indent(methods, num = 2)}
@@ -81,6 +82,9 @@ object ValueEntitySourceGenerator {
 =======
         |${Syntax.indent(methods, num = 2)}
 >>>>>>> towards simplified codegen
+=======
+        |  ${Syntax.indent(methods, num = 2)}
+>>>>>>> accepted suggestions from review plus one fix.
         |}""".stripMargin
   }
 
@@ -197,10 +201,13 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 >>>>>>> towards simplified codegen
+=======
+>>>>>>> accepted suggestions from review plus one fix.
 =======
     pretty(
       s"""|$managedCodeCommentString
@@ -272,7 +279,12 @@ object ValueEntitySourceGenerator {
 >>>>>>> towards simplified codegen
 >>>>>>> towards simplified codegen
 
+<<<<<<< HEAD
 >>>>>>> towards simplified codegen
+=======
+=======
+>>>>>>> accepted suggestions from review plus one fix.
+>>>>>>> accepted suggestions from review plus one fix.
   }
 
   private[codegen] def abstractValueEntity(
@@ -306,6 +318,7 @@ object ValueEntitySourceGenerator {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> towards simplified codegen
     s"""|$managedCodeCommentString
@@ -337,6 +350,8 @@ object ValueEntitySourceGenerator {
 =======
 >>>>>>> towards simplified codegen
 =======
+=======
+>>>>>>> accepted suggestions from review plus one fix.
     pretty(
       s"""|$managedCodeCommentString
           |package $packageName;
@@ -351,6 +366,7 @@ object ValueEntitySourceGenerator {
           |}
           |""".stripMargin
     )
+<<<<<<< HEAD
 
 >>>>>>> accepted suggestions from review plus one fix.
 <<<<<<< HEAD
@@ -359,5 +375,7 @@ object ValueEntitySourceGenerator {
 =======
 >>>>>>> towards simplified codegen
 >>>>>>> towards simplified codegen
+=======
+>>>>>>> accepted suggestions from review plus one fix.
   }
 }
