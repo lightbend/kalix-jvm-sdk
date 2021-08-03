@@ -72,7 +72,7 @@ object ValueEntitySourceGenerator {
         |    return ${outerClassAndState}.getDefaultInstance();
         |  }
         |
-        |  ${Syntax.indent(methods, num = 2)}
+        |${Syntax.indent(methods, num = 2)}
         |}""".stripMargin
   }
 
@@ -147,7 +147,7 @@ object ValueEntitySourceGenerator {
         |    try {
         |      switch (context.commandName()) {
         |
-        |        ${Syntax.indent(cases, 8)}
+        |${Syntax.indent(cases, 8)}
         |
         |        default:
         |          throw new EntityExceptions.EntityException(
@@ -214,7 +214,7 @@ object ValueEntitySourceGenerator {
         |/** A value entity. */
         |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
         |
-        |  ${Syntax.indent(methods, 2)}
+        |${Syntax.indent(methods, 2)}
         |
         |}""".stripMargin
   }
