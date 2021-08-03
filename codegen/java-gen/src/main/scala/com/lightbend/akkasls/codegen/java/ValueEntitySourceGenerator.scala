@@ -72,7 +72,7 @@ object ValueEntitySourceGenerator {
         |    return ${outerClassAndState}.getDefaultInstance();
         |  }
         |
-        |${Syntax.indent(methods, num = 2)}
+        |  ${Syntax.indent(methods, num = 2)}
         |}""".stripMargin
   }
 
@@ -174,7 +174,6 @@ object ValueEntitySourceGenerator {
         |        UnknownFieldSet.empty());
         |  }
         |}""".stripMargin
-
   }
 
   private[codegen] def abstractValueEntity(
@@ -206,16 +205,19 @@ object ValueEntitySourceGenerator {
         s"public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});"
       }
 
-    s"""|$managedCodeCommentString
-        |package $packageName;
-        |
-        |$imports
-        |
-        |/** A value entity. */
-        |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
-        |
-        |${Syntax.indent(methods, 2)}
-        |
-        |}""".stripMargin
+    pretty(
+      s"""|$managedCodeCommentString
+          |package $packageName;
+          |
+          |$imports
+          |
+          |/** A value entity. */
+          |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
+          |
+          |${Syntax.indent(methods, 2)}
+          |
+          |}
+          |""".stripMargin
+    )
   }
 }
