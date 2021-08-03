@@ -93,8 +93,10 @@ public class ToProductPopularityAction {
   // end::forwardRemoved[]
   // end::methods[]
 
+ // tag::catch[]
   @Handler
   public Empty catchOthers(Any in) {
     return Empty.getDefaultInstance();
   }
+// end::catch[]
 }
