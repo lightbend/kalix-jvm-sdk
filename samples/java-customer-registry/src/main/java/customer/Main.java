@@ -50,12 +50,7 @@ public final class Main {
               "customerByName",
               CustomerDomain.getDescriptor())
           // end::register[]
-          .lowLevel()
-          .registerValueEntity(
-              context -> new CustomerValueEntityHandler(new CustomerValueEntity()),
-              CustomerValueEntityHandler.serviceDescriptor,
-              CustomerValueEntityHandler.entityType,
-              ValueEntityOptions.defaults())
+          .register(new CustomerValueEntityProvider(CustomerValueEntity::new))
           .start()
           .toCompletableFuture()
           .get();

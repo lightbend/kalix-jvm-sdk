@@ -63,13 +63,13 @@ object ValueEntitySourceGenerator {
         |  @SuppressWarnings("unused")
         |  private final String entityId;
         |
-        |  public ${className}(String entityId) {
-        |    this.entityId = entityId;
+        |  public ${className}(ValueEntityContext context) {
+        |    this.entityId = context.entityId();
         |  }
         |
         |  @Override
         |  public $outerClassAndState emptyState() {
-        |    return ${outerClassAndState}.getDefaultInstance();
+        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
         |  }
         |
         |  ${Syntax.indent(methods, num = 2)}

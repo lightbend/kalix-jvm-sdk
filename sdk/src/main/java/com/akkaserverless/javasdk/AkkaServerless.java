@@ -40,6 +40,7 @@ import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
+import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.View;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
@@ -493,6 +494,30 @@ public final class AkkaServerless {
     services.put(descriptor.getFullName(), system -> service);
 
     return this;
+  }
+
+  /**
+   * Register a value based entity using a ValueEntityProvider.
+   *
+   * @return This stateful service builder.
+   */
+  public <T> AkkaServerless register(ValueEntityProvider provider) {
+    return register(provider, ValueEntityOptions.defaults());
+  }
+
+  /**
+   * Register a value based entity using a ValueEntityProvider with user defined ValueEntityOptions.
+   *
+   * @return This stateful service builder.
+   */
+  public <T> AkkaServerless register(ValueEntityProvider provider, ValueEntityOptions options) {
+    return lowLevel()
+        .registerValueEntity(
+            context -> provider.newHandler(context),
+            provider.serviceDescriptor(),
+            provider.entityTypeHint(),
+            options,
+            provider.additionalDescriptors());
   }
 
   /**

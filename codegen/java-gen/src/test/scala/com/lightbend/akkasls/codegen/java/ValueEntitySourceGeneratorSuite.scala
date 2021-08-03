@@ -52,13 +52,13 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  @SuppressWarnings("unused")
          |  private final String entityId;
          |
-         |  public MyService(String entityId) {
-         |    this.entityId = entityId;
+         |  public MyService(ValueEntityContext context) {
+         |    this.entityId = context.entityId();
          |  }
          |
          |  @Override
          |  public EntityOuterClass.MyState emptyState() {
-         |    return EntityOuterClass.MyState.getDefaultInstance();
+         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
          |  }
          |
          |  @Override
