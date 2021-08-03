@@ -27,7 +27,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
     val className = "MyServiceEntityImpl"
     val interfaceClassName = "AbstractMyServiceEntity"
 
-    val sourceDoc =
+    val generatedSrc =
       ViewServiceSourceGenerator.source(
         service,
         packageName,
@@ -35,7 +35,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         interfaceClassName
       )
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code was initialised by Akka Serverless tooling.
         | * As long as this file exists it will not be re-generated.
         | * You are free to make changes to this file.
@@ -68,10 +68,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
     val packageName = "com.example.service"
     val className = "MyServiceEntity"
 
-    val sourceDoc =
+    val generatedSrc =
       ViewServiceSourceGenerator.interfaceSource(service, packageName, className)
     assertEquals(
-      sourceDoc.layout,
+      generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
         | * It will be re-generated to reflect any changes to your protobuf definitions.
         | * DO NOT EDIT
