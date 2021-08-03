@@ -124,7 +124,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |    }
       |}""".stripMargin
 
-    assertEquals(sourceCode.layout, expected)
+    assertNoDiff(sourceCode.layout, expected)
   }
 
   /**

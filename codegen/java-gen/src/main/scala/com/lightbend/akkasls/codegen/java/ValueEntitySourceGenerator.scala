@@ -72,7 +72,7 @@ object ValueEntitySourceGenerator {
         |    return ${outerClassAndState}.getDefaultInstance();
         |  }
         |
-        |  ${Syntax.indent(methods, num = 2)}
+        |${Syntax.indent(methods, num = 2)}
         |}""".stripMargin
   }
 
@@ -205,8 +205,7 @@ object ValueEntitySourceGenerator {
         s"public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});"
       }
 
-    pretty(
-      s"""|$managedCodeCommentString
+    s"""|$managedCodeCommentString
           |package $packageName;
           |
           |$imports
@@ -218,6 +217,5 @@ object ValueEntitySourceGenerator {
           |
           |}
           |""".stripMargin
-    )
   }
 }
