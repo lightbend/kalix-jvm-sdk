@@ -72,10 +72,10 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.AkkaserverlessTestKit",
+        "com.akkaserverless.javasdk.testkit.AkkaServerlessTestKitHelper",
         "com.akkaserverless.javasdk.testkit.Result"
       ) //TODO find out why this is added when generate Imports
-    ).replace(s"import ${entity.fqn.parent.pkg}.${entity.fqn.parent.name};\n", "")
+    ).replace(s"import ${entity.fqn.parent.pkg}.${entity.fqn.parent.javaOuterClassname};\n", "")
 
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
@@ -97,7 +97,7 @@ object EventSourcedEntityTestKitGenerator {
             |    private ${domainClassName}.${entityStateName} state;
             |    private ${entityClassName} entity;
             |    private List<Object> events = new ArrayList<Object>();
-            |    private AkkaserverlessTestKit helper = new AkkaserverlessTestKit<${domainClassName}.${entityStateName}>();
+            |    private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
             |
             |    public ${testkitClassName}(${entityClassName} entity){
             |        this.state = entity.emptyState();
@@ -126,19 +126,20 @@ object EventSourcedEntityTestKitGenerator {
             |    }
             |
             |    private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
-            |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
+            |${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
             |    }
             |
-            |    private <Reply> Result<Reply> handleCommand(EventSourcedEntityBase.Effect<Reply> effect){
+            |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntityBase.Effect<Reply> effect){
             |        List<Object> events = getEvents(effect); 
             |        this.events.add(events);
             |        for(Object e: events){
             |            this.state = handleEvent(state,e);
             |        }
             |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-            |        return new Result(reply, CollectionConverters.asScala(events));
+            |        return new Result(reply, events);
             |    }
-            |    ${Syntax.indent(generateServices(service), 4)}
+            |
+            |${Syntax.indent(generateServices(service), 4)}
             |}""".stripMargin
     )
 
@@ -158,13 +159,13 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""
-        |public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
-        |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
-        |    return handleCommand(effect);
-        |}""".stripMargin
+        s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
+            |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
+            |    return interpretEffects(effect);
+            |}
+            |""".stripMargin + "\n"
       }
-      .mkString("\n")
+      .mkString("")
   }
 
   //TODO This method should be deleted when the codegen CartHandler.handleEvents gets available
@@ -173,12 +174,12 @@ object EventSourcedEntityTestKitGenerator {
 
     val top =
       s"""|if (event instanceof ${domainClassName}.${events.head.fqn.name}) {
-          |    return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);""".stripMargin
+          |    return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);
+          |""".stripMargin
 
     val middle = events.tail.map { event =>
-      s"""
-        |} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
-        |    return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+      s"""|} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
+          |    return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
     }
 
     val bottom =
@@ -187,7 +188,7 @@ object EventSourcedEntityTestKitGenerator {
         |    throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
         |}""".stripMargin
 
-    top + middle.mkString("") + bottom
+    top + middle.mkString("\n") + bottom
   }
 
 }

@@ -21,36 +21,39 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
 
 public class ShoppingCartTest {
-    private String entityId = "entityId1";
-    private ShoppingCart entity;
 
     @Test
     public void addItemTest() {
 
-        // GIVEN
-        ShoppingCartApi.AddLineItem command = ShoppingCartApi.AddLineItem.newBuilder().setProductId("id1")
-                .setName("name").setQuantity(2).build();
+        //GIVEN
+        ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
+                .setName("nameA").setQuantity(1).build();
+        ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
+                .setName("nameB").setQuantity(2).build();
 
-        //clean before and after?  (maybe not yet)
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart(entityId));
+        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart("entityId1"));
 
         //WHEN 
-        Result<Empty> result = testKit.addItem(command);
+        Result<Empty> resultA = testKit.addItem(commandA);
+        testKit.addItem(commandB);
 
         //THEN
-        ShoppingCartDomain.LineItem addedLineItem = ShoppingCartDomain.LineItem.newBuilder().setProductId(command.getProductId())
-                        .setName(command.getName()).setQuantity(command.getQuantity()).build();
-        ShoppingCartDomain.ItemAdded expectedEvent = ShoppingCartDomain.ItemAdded.newBuilder()
-                .setItem(addedLineItem)
+        assertEquals(1, resultA.getAllEvents().size());
+        assertEquals(2, testKit.getAllEvents().size());
+
+        ShoppingCartDomain.ItemAdded itemAddedA = resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class);
+        assertEquals("nameA", itemAddedA.getItem().getName());
+        assertThrows(NoSuchElementException.class, () ->  resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
+        assertEquals(Empty.getDefaultInstance(), resultA.getReply());
+
+        ShoppingCartDomain.LineItem expectedLineItemA = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")
+                .setName("nameA").setQuantity(1).build();        
+        ShoppingCartDomain.LineItem expectedLineItemB = ShoppingCartDomain.LineItem.newBuilder().setProductId("idB")
+                .setName("nameB").setQuantity(2).build();
+        ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder()
+                .addItems(expectedLineItemA)
+                .addItems(expectedLineItemB)
                 .build();
-
-        ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder().addItems(addedLineItem).build();
-
-        assertEquals(1, result.getAllEvents().size());
-        assertEquals(1, testKit.getAllEvents().size());
-        assertEquals(expectedEvent, result.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
-        assertThrows(NoSuchElementException.class, () ->  result.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
-        assertEquals(Empty.getDefaultInstance(), result.getReply());
         assertEquals(expectedState, testKit.getState());
     }
 }

@@ -15,10 +15,7 @@
  */
 
 package com.lightbend.akkasls.codegen
-/*
- * Be mindful that `indent` adds to the immediate
- * upper line (blank line) with the same indent.
- */
+
 object Syntax {
 
   val break = "\n"
@@ -26,13 +23,20 @@ object Syntax {
   def indent(lines: Iterable[String], num: Int): String =
     indent(lines.mkString(break), num)
 
+  /*
+   * Be mindful that `Syntax.indent` needs to be set
+   * right after `|` like the example below. Otherwise the first
+   * doesn't align with the following line.
+   *
+   *      |Syntax.indent(textToIndent,4)
+   */
   def indent(str: String, num: Int): String =
     str
       .split(break)
       .zipWithIndex
       .collect {
         // don't indent first line and empty lines
-        case (line, idx) if idx == 0 || line.trim.isEmpty => line
+        case (line, idx) if line.trim.isEmpty => line
         case (line, _) => (" " * num) + line
       }
       .mkString(break)

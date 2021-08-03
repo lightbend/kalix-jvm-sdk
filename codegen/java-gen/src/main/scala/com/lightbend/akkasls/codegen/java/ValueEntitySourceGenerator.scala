@@ -132,11 +132,11 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.fqn.name
         val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
-        s"""case "$methodName":
-         |  return entity.${lowerFirst(methodName)}(
-         |      parsedState,
-         |      ${inputType}.parseFrom(command.getValue()));
-         |""".stripMargin
+        s"""|case "$methodName":
+            |  return entity.${lowerFirst(methodName)}(
+            |      parsedState,
+            |      ${inputType}.parseFrom(command.getValue()));
+            |""".stripMargin
       }
 
     pretty(
@@ -173,7 +173,7 @@ object ValueEntitySourceGenerator {
           |    try {
           |      switch (context.commandName()) {
           |
-          |        ${Syntax.indent(cases, 8)}
+          |${Syntax.indent(cases, 8)}
           |
           |        default:
           |          throw new EntityExceptions.EntityException(
@@ -242,7 +242,7 @@ object ValueEntitySourceGenerator {
           |/** A value entity. */
           |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
           |
-          |  ${Syntax.indent(methods, 2)}
+          |${Syntax.indent(methods, 2)}
           |
           |}
           |""".stripMargin

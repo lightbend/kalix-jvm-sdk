@@ -19,29 +19,42 @@ package com.akkaserverless.javasdk.testkit
 import scala.reflect.ClassTag
 import java.util.NoSuchElementException
 
-class Result[Reply](val reply: Reply, events: collection.mutable.Buffer[Any]) {
+private[testkit] class Result[Reply](val reply: Reply, events: java.util.List[Any]) {
 
   final val eventsIterator = events.iterator
 
-  def getAllEvents: List[Any] = events.to(List)
-
-  def getNextEvent: Any = eventsIterator.next
-
+  /*
+   * Reply is meant to represent a
+   * com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl type
+   */
   def getReply: Reply = reply
 
+  /*
+   * It doesn't consume the events. It's idempotent
+   */
+  def getAllEvents: java.util.List[Any] = events
+
+  /*
+   * It consume the events until emptied. It's NOT idempotent
+   */
   def getNextEventOfType[E](expectedClass: Class[E]): E = {
     eventOf(ClassTag[E](expectedClass))
   }
 
   private def eventOf[E: ClassTag]: E = {
-    eventsIterator.next match {
-      case e: E => e
-      case other =>
-        val expectedClass = implicitly[ClassTag[E]].runtimeClass
-        throw new NoSuchElementException(
-          s"expected [$expectedClass] " +
-          s"but found ${other.getClass}"
-        )
+    try {
+      eventsIterator.next match {
+        case e: E => e
+        case other =>
+          val expectedClass = implicitly[ClassTag[E]].runtimeClass
+          throw new NoSuchElementException(
+            s"expected [$expectedClass] " +
+            s"but found ${other.getClass}"
+          )
+      }
+    } catch {
+      case _: NoSuchElementException =>
+        throw new NoSuchElementException("It's empty. There is no events to consume.")
     }
   }
 }
