@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+import sbt.Keys.streams
 
 import sbtprotoc.ProtocPlugin
 import ProtocPlugin.autoImport.PB
@@ -23,7 +24,10 @@ object ReflectiveCodeGen extends AutoPlugin {
       Compile / sourceGenerators += runCodeGenTask.taskValue
     ) ++ attachProtobufDescriptorSets
 
-  def runAkkaServerlessCodegen(classpath: Classpath, protobufDescriptor: File, genSrcDir: File): Seq[File] = {
+  def runAkkaServerlessCodegen(classpath: Classpath,
+                               protobufDescriptor: File,
+                               genSrcDir: File,
+                               logger: Logger): Seq[File] = {
 
     val cp = classpath.map(_.data)
     val loader = ClasspathUtilities.toLoader(cp, AkkaGrpcPlugin.getClass.getClassLoader)
@@ -34,21 +38,38 @@ object ReflectiveCodeGen extends AutoPlugin {
 
     val source =
       s"""
-      |import com.lightbend.akkasls.codegen.InternalCodegenPlugin
+      |import com.lightbend.akkasls.codegen.java.SourceGenerator
+      |import scala.collection.immutable
       |
-      |(protobufDescriptor: java.io.File, genSrcDir: java.io.File) => InternalCodegenPlugin.runAkkaServerlessCodegen(protobufDescriptor, genSrcDir)
+      |(protobufDescriptor: java.io.File, genSrcDir: java.io.File, logger: sbt.util.Logger) => {
+      |  
+      |  val path = genSrcDir.toPath
+      |  
+      |  implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
+      |      override def debug(message: String): Unit = logger.debug(message)
+      |      override def info(message: String): Unit = logger.info(message)
+      |      override def warning(message: String): Unit = logger.warn(message)
+      |      override def error(message: String): Unit = logger.error(message)
+      |    }
+      |  
+      |  SourceGenerator
+      |    .generate(protobufDescriptor, path, path, path, path, "com.example.Main")
+      |    .map(_.toFile).to[immutable.Seq]
+      |}  
       """.stripMargin
 
-    val generatorsF = tb.eval(tb.parse(source)).asInstanceOf[(File, File) => Seq[File]]
-    generatorsF(protobufDescriptor, genSrcDir)
+    val generatorsF = tb.eval(tb.parse(source)).asInstanceOf[(File, File, sbt.util.Logger) => Seq[File]]
+    generatorsF(protobufDescriptor, genSrcDir, logger)
 
   }
 
   lazy val runCodeGenTask =
     Def
       .task {
-        val cp = (ProjectRef(file("."), "codegenSbtPlugin") / Compile / fullClasspath).value
-        runAkkaServerlessCodegen(cp, protobufDescriptorSetOut.value, (Compile / sourceManaged).value)
+        val cp = (ProjectRef(file("."), "codegenJava") / Compile / fullClasspath).value
+        val srcManaged = (Compile / sourceManaged).value
+        val sbtLogger = streams.value.log
+        runAkkaServerlessCodegen(cp, protobufDescriptorSetOut.value, srcManaged, sbtLogger)
       }
       .dependsOn(Compile / PB.generate)
 

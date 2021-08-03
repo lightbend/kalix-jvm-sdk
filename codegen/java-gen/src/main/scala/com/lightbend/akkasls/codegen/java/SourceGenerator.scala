@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen
-package java
+package com.lightbend.akkasls.codegen.java
+
+import _root_.java.nio.file.{Files, Path, Paths}
+import _root_.java.io.File
 
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-import _root_.java.nio.file.{Files, Path, Paths}
-
 import scala.collection.immutable
 
+import com.lightbend.akkasls.codegen._
+import com.lightbend.akkasls.codegen.DescriptorSet
+import com.lightbend.akkasls.codegen.Log
+import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 
@@ -132,6 +135,37 @@ object SourceGenerator extends PrettyPrinter {
         List.empty
       }
     }
+  }
+
+  def generate(protobufDescriptor: File,
+               sourceDirectory: Path,
+               testSourceDirectory: Path,
+               integrationTestSourceDirectory: Path,
+               generatedSourceDirectory: Path,
+               mainClass: String)(implicit log: Log): Iterable[Path] = {
+    val descriptors =
+      DescriptorSet.fileDescriptors(protobufDescriptor) match {
+        case Right(fileDescriptors) =>
+          fileDescriptors match {
+            case Right(files) => files
+            case Left(failure) =>
+              throw new RuntimeException(
+                s"There was a problem building the file descriptor from its protobuf: $failure"
+              )
+          }
+        case Left(failure) =>
+          throw new RuntimeException(s"There was a problem opening the protobuf descriptor file ${failure}", failure.e)
+      }
+
+    SourceGenerator.generate(
+      ModelBuilder.introspectProtobufClasses(descriptors),
+      sourceDirectory,
+      testSourceDirectory,
+      integrationTestSourceDirectory,
+      generatedSourceDirectory,
+      mainClass
+    )
+
   }
 
   private[codegen] def mainComponentRegistrationsSource(

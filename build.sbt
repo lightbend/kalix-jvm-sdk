@@ -8,7 +8,6 @@ lazy val `akkaserverless-java-sdk` = project
     tck,
     codegenCore,
     codegenJava,
-    codegenSbtPlugin,
     codegenJavaCompilationTest,
     samples
   )
@@ -124,18 +123,6 @@ lazy val codegenJava =
     .settings(Dependencies.codegenJava)
     .settings(crossScalaVersions := Dependencies.ScalaVersionForCodegen,
               scalaVersion := Dependencies.ScalaVersionForCodegen.head)
-
-lazy val codegenSbtPlugin = project
-  .in(file("codegen/sbt-plugin"))
-  .enablePlugins(SbtPlugin)
-  .dependsOn(codegenJava)
-  .settings(
-    (publish / skip) := true,
-    name := "akkaserverless-codegen-sbt-plugin",
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11")
-  )
-  .settings(crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-            scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
