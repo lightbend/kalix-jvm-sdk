@@ -75,6 +75,7 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         |${Syntax.indent(methods, num = 2)}
 =======
         |  ${Syntax.indent(methods, num = 2)}
@@ -85,6 +86,9 @@ object ValueEntitySourceGenerator {
 =======
         |  ${Syntax.indent(methods, num = 2)}
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+        |${Syntax.indent(methods, num = 2)}
+>>>>>>> after merging plus changing to assertNoDiff
         |}""".stripMargin
   }
 
@@ -319,6 +323,7 @@ object ValueEntitySourceGenerator {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> towards simplified codegen
     s"""|$managedCodeCommentString
@@ -354,6 +359,9 @@ object ValueEntitySourceGenerator {
 >>>>>>> accepted suggestions from review plus one fix.
     pretty(
       s"""|$managedCodeCommentString
+=======
+    s"""|$managedCodeCommentString
+>>>>>>> after merging plus changing to assertNoDiff
           |package $packageName;
           |
           |$imports
@@ -365,6 +373,7 @@ object ValueEntitySourceGenerator {
           |
           |}
           |""".stripMargin
+<<<<<<< HEAD
     )
 <<<<<<< HEAD
 
@@ -377,5 +386,7 @@ object ValueEntitySourceGenerator {
 >>>>>>> towards simplified codegen
 =======
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+>>>>>>> after merging plus changing to assertNoDiff
   }
 }
