@@ -119,6 +119,9 @@ object ValueEntitySourceGenerator {
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> towards simplified codegen
     s"""|$managedCodeCommentString
         |package $packageName;
         |
@@ -185,8 +188,11 @@ object ValueEntitySourceGenerator {
         |}""".stripMargin
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+>>>>>>> towards simplified codegen
 =======
     pretty(
       s"""|$managedCodeCommentString
@@ -251,7 +257,12 @@ object ValueEntitySourceGenerator {
           |}""".stripMargin
     )
 >>>>>>> accepted suggestions from review plus one fix.
+<<<<<<< HEAD
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+=======
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
 
 >>>>>>> towards simplified codegen
   }
@@ -286,6 +297,9 @@ object ValueEntitySourceGenerator {
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> towards simplified codegen
     s"""|$managedCodeCommentString
         |package $packageName;
         |
@@ -305,8 +319,11 @@ object ValueEntitySourceGenerator {
         |
         |}""".stripMargin
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> towards simplified codegen
 =======
+=======
+>>>>>>> towards simplified codegen
 =======
     pretty(
       s"""|$managedCodeCommentString
@@ -324,6 +341,11 @@ object ValueEntitySourceGenerator {
     )
 
 >>>>>>> accepted suggestions from review plus one fix.
+<<<<<<< HEAD
 >>>>>>> accepted suggestions from review plus one fix.
+=======
+=======
+>>>>>>> towards simplified codegen
+>>>>>>> towards simplified codegen
   }
 }
