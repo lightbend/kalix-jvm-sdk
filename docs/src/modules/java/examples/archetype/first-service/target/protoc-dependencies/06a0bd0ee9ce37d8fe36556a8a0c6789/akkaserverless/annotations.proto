@@ -1,0 +1,66 @@
+// Copyright 2021 Lightbend Inc.
+
+// All extension points for Akka Serverless
+
+syntax = "proto3";
+
+package akkaserverless;
+
+option go_package = "github.com/lightbend/akkaserverless-go-sdk/akkaserverless;akkaserverless";
+option java_multiple_files = true;
+option java_package = "com.akkaserverless";
+
+import "akkaserverless/component.proto";
+import "akkaserverless/eventing.proto";
+import "akkaserverless/views.proto";
+import "google/protobuf/descriptor.proto";
+
+message FieldOptions {
+  // Extension for specifying which field in a message is to be considered an
+  // entity key, for the purposes associating gRPC calls with entities and
+  // sharding.
+  bool entity_key = 1;
+}
+
+message FileOptions {
+  // Event source entity configuration.
+  EventSourcedEntity event_sourced_entity = 1;
+  // Event source entity configuration.
+  ValueEntity value_entity = 2;
+}
+
+message MethodOptions {
+  // Eventing configuration for a gRPC method.
+  Eventing eventing = 1;
+  // Views configuration for a gRPC method.
+  View view = 2;
+}
+
+message ServiceOptions {
+  enum ServiceType {
+    SERVICE_TYPE_UNSPECIFIED = 0; // Will be ignored for processing - same as omitting the service type
+    SERVICE_TYPE_ACTION = 1;
+    SERVICE_TYPE_ENTITY = 2;
+    SERVICE_TYPE_VIEW = 3;
+  }
+  // This field is mandatory
+  ServiceType type = 1;
+  // A path to a component - required for SERVICE_TYPE_ENTITY types
+  string component = 2;
+}
+
+extend google.protobuf.FieldOptions {
+  FieldOptions field = 1080;
+}
+
+extend google.protobuf.FileOptions {
+  FileOptions file = 1080;
+}
+
+extend google.protobuf.MethodOptions {
+  MethodOptions method = 1080;
+}
+
+extend google.protobuf.ServiceOptions {
+  ServiceOptions service = 1080;
+}

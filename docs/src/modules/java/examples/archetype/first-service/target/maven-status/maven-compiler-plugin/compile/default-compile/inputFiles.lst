@@ -1,0 +1,6 @@
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/src/main/java/com/example/domain/CounterImpl.java
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/src/main/java/com/example/Main.java
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/target/generated-sources/akkaserverless/java/com/example/MainComponentRegistrations.java
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/target/generated-sources/akkaserverless/java/com/example/domain/CounterInterface.java
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/target/generated-sources/protobuf/java/com/example/CounterApi.java
+/Users/peter/enso/akkaserverless/java-sdk/main/docs/src/modules/java/examples/archetype/first-service/target/generated-sources/protobuf/java/com/example/domain/CounterDomain.java

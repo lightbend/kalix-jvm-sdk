@@ -1,0 +1,36 @@
+// Copyright 2021 Lightbend Inc.
+
+// Extension for describing entities in general e.g. their associations
+
+syntax = "proto3";
+
+package akkaserverless;
+
+option go_package = "github.com/lightbend/akkaserverless-go-sdk/akkaserverless;akkaserverless";
+option java_multiple_files = true;
+option java_outer_classname = "ComponentProto";
+option java_package = "com.akkaserverless";
+
+// Options to describe event sourced entities
+message EventSourcedEntity {
+  // A mandatory name for the entity - used for type name generation
+  string name = 1;
+  // A mandatory key name to be used for persisting names with, quite often
+  // the name of the entity.
+  string entity_type = 2;
+  // The associated state message.
+  string state = 3;
+  // Zero or more event messages associated with the entity.
+  repeated string events = 4;
+}
+
+// Options to describe value entities
+message ValueEntity {
+  // A mandatory name for the entity - used for type name generation
+  string name = 1;
+  // A mandatory key name to be used for persisting names with, quite often
+  // the name of the entity.
+  string entity_type = 2;
+  // The associated state message.
+  string state = 3;
+}
