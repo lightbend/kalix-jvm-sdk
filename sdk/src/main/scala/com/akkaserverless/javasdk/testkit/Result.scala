@@ -48,8 +48,7 @@ private[testkit] class Result[Reply](val reply: Reply, events: java.util.List[An
         case other =>
           val expectedClass = implicitly[ClassTag[E]].runtimeClass
           throw new NoSuchElementException(
-            s"expected [$expectedClass] " +
-            s"but found ${other.getClass}"
+            s"expected [$expectedClass] but found ${other.getClass}"
           )
       }
     } catch {
