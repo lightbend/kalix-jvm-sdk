@@ -21,6 +21,7 @@ import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import com.lightbend.akkasls.codegen.java.SourceGenerator._
+import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import _root_.java.nio.file.{Files, Path}
 
 object EventSourcedEntityTestKitGenerator {
@@ -36,7 +37,7 @@ object EventSourcedEntityTestKitGenerator {
     val generatedSourceDirectoryPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
 
     if (!generatedSourceDirectoryPath.toFile.exists) {
-      Files.write(generatedSourceDirectoryPath, sourceCode.layout.getBytes(Charsets.UTF_8))
+      Files.write(generatedSourceDirectoryPath, sourceCode.getBytes(Charsets.UTF_8))
       List(generatedSourceDirectoryPath)
     } else {
       Nil
@@ -47,17 +48,17 @@ object EventSourcedEntityTestKitGenerator {
   private[codegen] def generateSource(service: ModelBuilder.EntityService,
                                       entity: ModelBuilder.Entity,
                                       packageName: String,
-                                      className: String): PrettyPrinterTypes.Document = {
+                                      className: String): String = {
     entity match {
       case entity: ModelBuilder.EventSourcedEntity => generateSourceCode(service, entity, packageName, className)
-      case entity: ModelBuilder.ValueEntity => PrettyPrinterTypes.emptyDocument
+      case entity: ModelBuilder.ValueEntity => "/** FIXME implement Value Entity testkit */"
     }
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
                                           entity: ModelBuilder.EventSourcedEntity,
                                           packageName: String,
-                                          className: String): PrettyPrinterTypes.Document = {
+                                          className: String): String = {
     //Review I can add them with this
     val imports = generateImports(
       service.commands,
@@ -85,7 +86,7 @@ object EventSourcedEntityTestKitGenerator {
     val testkitClassName = s"${entityClassName}TestKit"
 
     pretty(
-      s"""
+      s"""$managedCodeCommentString
             |package ${entity.fqn.parent.pkg};
             |
             |import ${entity.fqn.parent.pkg}.$entityClassName;
@@ -142,8 +143,7 @@ object EventSourcedEntityTestKitGenerator {
             |
             |    ${Syntax.indent(generateServices(service), 4)}
             |}""".stripMargin
-    )
-
+    ).layout
   }
 
   def generateServices(service: ModelBuilder.EntityService): String = {

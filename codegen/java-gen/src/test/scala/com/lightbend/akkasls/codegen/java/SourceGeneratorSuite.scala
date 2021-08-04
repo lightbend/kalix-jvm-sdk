@@ -21,6 +21,8 @@ import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 
 import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
+import scala.util.Try
 
 class SourceGeneratorSuite extends munit.FunSuite {
   val log = LoggerFactory.getLogger(getClass)
@@ -122,6 +124,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity1Provider.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1TestKit.java"
+                ),
                 sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyValueEntity2.java"
@@ -132,6 +137,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyValueEntity2Handler.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2TestKit.java"
+                ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
@@ -141,6 +149,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 ),
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3TestKit.java"
                 ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3Provider.java"
@@ -173,8 +184,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
             )
 
             // Test that the files were written to
-            sources.foreach { source =>
-              assertEquals(Files.readAllBytes(source).head.toChar, '/', s"$source did not start with '/'")
+            sources.foreach { (source: Path) =>
+              assert(Files.exists(source))
+              try {
+                assertEquals(Files.readAllBytes(source).head.toChar, '/', s"$source did not start with '/'")
+              } catch {
+                case e: Throwable => fail(s"Failed to read [$source]: ${e.getMessage}")
+              }
             }
           } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)

@@ -37,7 +37,10 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
     )
 
     val expected =
-      """
+      """/* This code is managed by Akka Serverless tooling.
+      | * It will be re-generated to reflect any changes to your protobuf definitions.
+      | * DO NOT EDIT
+      | */
       |package com.example.shoppingcart.domain;
       |
       |import com.example.shoppingcart.domain.ShoppingCart;
@@ -124,7 +127,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |    }
       |}""".stripMargin
 
-    assertNoDiff(sourceCode.layout, expected)
+    assertNoDiff(sourceCode, expected)
   }
 
   /**
