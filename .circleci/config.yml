@@ -188,7 +188,7 @@ jobs:
 
   samples-tests:
     machine: true
-    description: "Maven Samples Integreation Tests"
+    description: "Maven Samples Integration Tests"
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -217,6 +217,12 @@ jobs:
           name: Run integration tests for Counter Replicated Entity sample
           command: |
             cd samples/replicatedentity-counter
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+      - run:
+          name: Run integration tests for the Eventing Shopping Cart sample
+          command: |
+            cd samples/java-eventing-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - save_deps_cache
