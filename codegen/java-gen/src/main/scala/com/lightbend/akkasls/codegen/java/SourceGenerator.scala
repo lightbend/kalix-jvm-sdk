@@ -80,6 +80,11 @@ object SourceGenerator {
               generatedSourceDirectory,
               mainClassPackageName,
               mainClassName
+            ) ++
+            EventSourcedEntityTestKitGenerator.generate(
+              entity,
+              service,
+              generatedSourceDirectory
             )
         }
       case service: ModelBuilder.ViewService =>
