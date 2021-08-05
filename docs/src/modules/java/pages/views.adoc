@@ -108,7 +108,8 @@ See <<#query>> for more examples of valid query syntax.
 
 === Create a transformation class
 
-Next, you need to define a Java class that transforms events to state that can be used in the View:
+Next, you need to define a Java class that transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
+all events, you need to ignore unneeded events as shown in the `@UpdateHandler`:
 
 [source,java,indent=0]
 ----
@@ -136,27 +137,6 @@ Register the View class with `AkkaServerless`:
 ----
 include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register-with-class]
 ----
-
-=== Ignoring events
-
-An Event Sourced entity can emit many types of events. If a View does not use
-all events, you need to ignore the unneeded events. The following shopping cart
-example shows how to ignore events in the `.proto` file:
-
-ifdef::todo[TODO: the example needs to be changed to a view specific example when one exists.]
-
-[source,protobuf,indent=0]
-----
-include::java:example$java-eventing-shopping-cart/src/main/proto/product/to_product_popularity.proto[tag=catchOthers]
-----
-
-The implementation must also ignore the events:
-
-[source,java,indent=0]
-----
-include::java:example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=catch]
-----
-
 
 [#topic-view]
 == Creating a View from a topic
