@@ -21,6 +21,7 @@ To run the example locally:
 * Create a customer with:
   ```
   grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
+  ```
 * Retrieve the customer:
   ```
   grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
@@ -31,5 +32,9 @@ To run the example locally:
   ```
 * Change name:
   ```
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000  customer.api.CustomerService/ChangeName
+  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+  ```
+* Change address:
+  ```
+  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
   ```

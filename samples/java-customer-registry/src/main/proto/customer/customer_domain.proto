@@ -43,4 +43,8 @@ message CustomerCreated {
 message CustomerNameChanged {
   string new_name = 1;
 }
+
+message CustomerAddressChanged {
+  Address new_address = 1;
+}
 // end::events[]
