@@ -109,7 +109,7 @@ See <<#query>> for more examples of valid query syntax.
 === Create a transformation class
 
 Next, you need to define a Java class that transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
-all events, you need to ignore unneeded events as shown in the `@UpdateHandler`:
+all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` `UpdateHandler`:
 
 [source,java,indent=0]
 ----
