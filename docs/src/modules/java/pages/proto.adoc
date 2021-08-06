@@ -51,8 +51,8 @@ example, the following `SomeMessage` element defines both
 [source,proto]
 ----
 message SomeMessage {
-    string first_field = 1 [(akkaserverless.field).entity_key = true];
-    string second_field = 2 [(akkaserverless.field).entity_key = true];
+  string first_field = 1 [(akkaserverless.field).entity_key = true];
+  string second_field = 2 [(akkaserverless.field).entity_key = true];
 ----
 
 === Service
