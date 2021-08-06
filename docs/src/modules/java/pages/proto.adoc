@@ -44,9 +44,7 @@ include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shop
 ----
 
 
-To use a multi-field key, add the `entity_key` notation to each field. For
-example, the following `SomeMessage` element defines both
-`first_field` and `second_field` as part of the key:
+To use a multi-field key, add the `entity_key` notation to each field. For example, the following `SomeMessage` element defines both `first_field` and `second_field` as part of the key:
 
 [source,proto]
 ----
