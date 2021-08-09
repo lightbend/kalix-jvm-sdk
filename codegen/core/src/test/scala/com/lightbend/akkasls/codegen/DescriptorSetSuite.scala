@@ -24,9 +24,13 @@ class DescriptorSetSuite extends munit.FunSuite {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFile = testFilesPath.resolve("descriptor-sets/hello-1.0-SNAPSHOT.protobin").toFile
     val result = DescriptorSet
-      .fileDescriptors(descriptorFile)
-      .flatMap(x => x.head.map(_.getServices.get(0).getFullName))
-    assertEquals(result, Right("com.lightbend.MyServiceEntity"))
+      .fileDescriptors(descriptorFile) match {
+      case Right(fileExists) =>
+        fileExists match {
+          case Right(descriptors) => descriptors.map(_.getServices.get(0).getFullName)
+        }
+    }
+    assertEquals(result, List("com.lightbend.MyServiceEntity"))
   }
 
   test("failed to open") {

@@ -9,15 +9,15 @@
 
   <name>Shopping Cart with Eventing</name>
 
-
   <properties>
+    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+    <dockerImage>gcr.io/akkaserverless-public/samples-java-eventing-shopping-cart</dockerImage>
+    <dockerTag>${project.version}</dockerTag>
+    <mainClass>shopping.Main</mainClass>
+
+    <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <akkasls.dockerImage>my-docker-repo/${project.artifactId}</akkasls.dockerImage>
-    <akkasls.dockerTag>${project.version}</akkasls.dockerTag>
-    <akkasls.mainClass>shopping.Main</akkasls.mainClass>
-    <jdk.target>11</jdk.target>
     <akkaserverless-sdk.version>0.7.0-beta.18</akkaserverless-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
