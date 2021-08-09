@@ -16,7 +16,7 @@
 
 syntax = "proto3";
 
-package shopping.cart.api;
+package shopping.cart;
 
 option java_outer_classname = "ShoppingCartApi";
 
@@ -59,7 +59,7 @@ message Cart {
 service ShoppingCartService {
   option (akkaserverless.service) = {
     type: SERVICE_TYPE_ENTITY
-    component: ".domain.ShoppingCart"
+    component: "shopping.cart.domain.ShoppingCartEntity"
   };
 
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {

@@ -22,7 +22,7 @@ import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
-import shopping.cart.api.ShoppingCartApi;
+import shopping.cart.ShoppingCartApi;
 import shopping.cart.api.ShoppingCartTopic;
 
 /** This action illustrates the consumption from a topic (shopping-cart-operations). */

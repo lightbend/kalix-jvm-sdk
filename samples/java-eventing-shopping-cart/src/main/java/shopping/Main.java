@@ -31,13 +31,13 @@ import shopping.cart.TopicPublisherAction;
 import shopping.cart.actions.EventsToTopicPublisher;
 import shopping.cart.actions.ShoppingCartAnalytics;
 import shopping.cart.api.ShoppingCartTopic;
-import shopping.cart.api.ShoppingCartApi;
+import shopping.cart.ShoppingCartApi;
 import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
 import shopping.product.ProductPopularityEntity;
 import shopping.product.ToProductPopularityAction;
 import shopping.product.actions.ToProductPopularity;
-import shopping.product.api.ProductPopularityApi;
+import shopping.product.ProductPopularityApi;
 import shopping.product.domain.ProductPopularityDomain;
 // tag::ToProductPopularityAction[]
 // tag::RegisterEventSourcedEntity[]

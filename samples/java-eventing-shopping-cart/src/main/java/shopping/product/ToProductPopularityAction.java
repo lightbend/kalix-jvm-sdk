@@ -29,7 +29,7 @@ import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shopping.cart.domain.ShoppingCartDomain;
-import shopping.product.api.ProductPopularityApi;
+import shopping.product.ProductPopularityApi;
 // tag::annotation[]
 
 @Action

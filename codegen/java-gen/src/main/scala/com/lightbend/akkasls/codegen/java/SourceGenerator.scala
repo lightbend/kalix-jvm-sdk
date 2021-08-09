@@ -60,7 +60,7 @@ object SourceGenerator extends PrettyPrinter {
         model.entities.get(service.componentFullName) match {
           case None =>
             // TODO perhaps we even want to make this an error, to really go all-in on codegen?
-            log.warning(
+            log.error(
               "Service [" + service.fqn.fullName + "] refers to entity [" + service.componentFullName +
               "], but no entity configuration is found for that component name"
             )

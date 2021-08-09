@@ -16,7 +16,7 @@
 
 syntax = "proto3";
 
-package shopping.product.api;
+package shopping.product;
 
 option java_outer_classname = "ProductPopularityApi";
 
@@ -46,7 +46,7 @@ message Popularity {
 service ProductPopularityService {
   option (akkaserverless.service) = {
     type: SERVICE_TYPE_ENTITY
-    component: ".domain.ProductPopularity"
+    component: "shopping.product.domain.ProductPopularityEntity"
   };
 
   rpc Increase(IncreasePopularity) returns (google.protobuf.Empty);

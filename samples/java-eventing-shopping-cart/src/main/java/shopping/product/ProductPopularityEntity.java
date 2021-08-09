@@ -21,7 +21,7 @@ import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
-import shopping.product.api.ProductPopularityApi;
+import shopping.product.ProductPopularityApi;
 import shopping.product.domain.ProductPopularityDomain;
 
 import java.util.Optional;
