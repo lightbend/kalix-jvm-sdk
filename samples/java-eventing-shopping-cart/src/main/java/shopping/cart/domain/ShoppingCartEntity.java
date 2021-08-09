@@ -37,169 +37,171 @@ import java.util.stream.Collectors;
 
 @EventSourcedEntity(entityType = "eventsourced-shopping-cart")
 public class ShoppingCartEntity extends AbstractShoppingCartEntity {
-    // tag::state[]
-    // tag::itemAdded[]
-    private final String entityId;
-    private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
-    private long checkedOutTimestamp = 0L;
-    // end::itemAdded[]
-    // end::state[]
+  // tag::state[]
+  // tag::itemAdded[]
+  private final String entityId;
+  private final Map<String, ShoppingCartApi.LineItem> cart = new LinkedHashMap<>();
+  private long checkedOutTimestamp = 0L;
+  // end::itemAdded[]
+  // end::state[]
 
-    // tag::constructor[]
-    public ShoppingCartEntity(@EntityId String entityId) {
-        this.entityId = entityId;
+  // tag::constructor[]
+  public ShoppingCartEntity(@EntityId String entityId) {
+    this.entityId = entityId;
+  }
+  // end::constructor[]
+  // end::class[]
+
+  // tag::snapshot[]
+  @Override
+  public ShoppingCartDomain.CartState snapshot() {
+    return ShoppingCartDomain.CartState.newBuilder()
+        .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
+        .setCheckedOutTimestamp(checkedOutTimestamp)
+        .build();
+  }
+
+  private ShoppingCartDomain.LineItem convert(ShoppingCartApi.LineItem item) {
+    return ShoppingCartDomain.LineItem.newBuilder()
+        .setProductId(item.getProductId())
+        .setName(item.getName())
+        .setQuantity(item.getQuantity())
+        .build();
+  }
+  // end::snapshot[]
+
+  // tag::handleSnapshot[]
+  @Override
+  public void handleSnapshot(ShoppingCartDomain.CartState cart) {
+    this.cart.clear();
+    for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
+      this.cart.put(item.getProductId(), convert(item));
     }
-    // end::constructor[]
-    // end::class[]
+    this.checkedOutTimestamp = cart.getCheckedOutTimestamp();
+  }
+  // end::handleSnapshot[]
 
-    // tag::snapshot[]
-    @Override
-    public ShoppingCartDomain.CartState snapshot() {
-        return ShoppingCartDomain.CartState.newBuilder()
-                .addAllItems(cart.values().stream().map(this::convert).collect(Collectors.toList()))
-                .setCheckedOutTimestamp(checkedOutTimestamp)
-                .build();
+  // tag::itemAdded[]
+
+  @Override
+  public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
+    ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
+    if (item == null) {
+      item = convert(itemAdded.getItem());
+    } else {
+      item =
+          item.toBuilder()
+              .setQuantity(item.getQuantity() + itemAdded.getItem().getQuantity())
+              .build();
     }
+    cart.put(item.getProductId(), item);
+  }
 
-    private ShoppingCartDomain.LineItem convert(ShoppingCartApi.LineItem item) {
-        return ShoppingCartDomain.LineItem.newBuilder()
+  private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
+    return ShoppingCartApi.LineItem.newBuilder()
+        .setProductId(item.getProductId())
+        .setName(item.getName())
+        .setQuantity(item.getQuantity())
+        .build();
+  }
+  // end::itemAdded[]
+
+  @Override
+  public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
+    ShoppingCartApi.LineItem lineItem = cart.get(itemRemoved.getProductId());
+    int newQty = lineItem.getQuantity() - itemRemoved.getQuantity();
+
+    if (newQty > 0) {
+      ShoppingCartApi.LineItem newItemLine = lineItem.toBuilder().setQuantity(newQty).build();
+      cart.put(itemRemoved.getProductId(), newItemLine);
+    } else {
+      cart.remove(itemRemoved.getProductId());
+    }
+  }
+
+  @Override
+  public void checkedOut(ShoppingCartDomain.CheckedOut checkedOut) {
+    checkedOutTimestamp = checkedOut.getCheckedOutTimestamp();
+  }
+
+  // tag::getCart[]
+  @Override
+  public Reply<ShoppingCartApi.Cart> getCart(
+      ShoppingCartApi.GetShoppingCart command, CommandContext context) {
+    return Reply.message(createApiCart());
+  }
+  // end::getCart[]
+
+  // tag::addItem[]
+
+  @Override
+  public Reply<Empty> addItem(ShoppingCartApi.AddLineItem item, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot add item to checked out cart.");
+    }
+    if (item.getQuantity() <= 0) {
+      throw context.fail("Cannot add negative quantity of to item" + item.getProductId());
+    }
+    ShoppingCartDomain.ItemAdded itemAddedEvent =
+        ShoppingCartDomain.ItemAdded.newBuilder()
+            .setItem(
+                ShoppingCartDomain.LineItem.newBuilder()
+                    .setProductId(item.getProductId())
+                    .setName(item.getName())
+                    .setQuantity(item.getQuantity())
+                    .build())
+            .build();
+    context.emit(itemAddedEvent);
+    return Reply.noReply();
+  }
+  // end::addItem[]
+
+  @Override
+  public Reply<Empty> removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot remove item from checked out cart.");
+    }
+    if (!cart.containsKey(item.getProductId())) {
+      throw context.fail(
+          "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
+    } else {
+      ShoppingCartApi.LineItem lineItem = cart.get(item.getProductId());
+      ShoppingCartDomain.ItemRemoved event = null;
+      if ((lineItem.getQuantity() - item.getQuantity()) > 0) {
+        event =
+            ShoppingCartDomain.ItemRemoved.newBuilder()
                 .setProductId(item.getProductId())
-                .setName(item.getName())
-                .setQuantity(item.getQuantity())
+                .setQuantity(item.getQuantity()) // only remove requested quantity
                 .build();
-    }
-    // end::snapshot[]
-
-    // tag::handleSnapshot[]
-    @Override
-    public void handleSnapshot(ShoppingCartDomain.CartState cart) {
-        this.cart.clear();
-        for (ShoppingCartDomain.LineItem item : cart.getItemsList()) {
-            this.cart.put(item.getProductId(), convert(item));
-        }
-        this.checkedOutTimestamp = cart.getCheckedOutTimestamp();
-    }
-    // end::handleSnapshot[]
-
-    // tag::itemAdded[]
-
-    @Override
-    public void itemAdded(ShoppingCartDomain.ItemAdded itemAdded) {
-        ShoppingCartApi.LineItem item = cart.get(itemAdded.getItem().getProductId());
-        if (item == null) {
-            item = convert(itemAdded.getItem());
-        } else {
-            item =
-                    item.toBuilder()
-                            .setQuantity(item.getQuantity() + itemAdded.getItem().getQuantity())
-                            .build();
-        }
-        cart.put(item.getProductId(), item);
-    }
-
-    private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
-        return ShoppingCartApi.LineItem.newBuilder()
+      } else {
+        event =
+            ShoppingCartDomain.ItemRemoved.newBuilder()
                 .setProductId(item.getProductId())
-                .setName(item.getName())
-                .setQuantity(item.getQuantity())
+                .setQuantity(lineItem.getQuantity()) // remove all
                 .build();
+      }
+      context.emit(event);
     }
-    // end::itemAdded[]
+    return Reply.noReply();
+  }
 
-    @Override
-    public void itemRemoved(ShoppingCartDomain.ItemRemoved itemRemoved) {
-        ShoppingCartApi.LineItem lineItem = cart.get(itemRemoved.getProductId());
-        int newQty = lineItem.getQuantity() - itemRemoved.getQuantity();
-
-        if (newQty > 0) {
-            ShoppingCartApi.LineItem newItemLine = lineItem.toBuilder().setQuantity(newQty).build();
-            cart.put(itemRemoved.getProductId(), newItemLine);
-        } else {
-            cart.remove(itemRemoved.getProductId());
-        }
+  @Override
+  public Reply<ShoppingCartApi.Cart> checkoutCart(
+      ShoppingCartApi.Checkout request, CommandContext context) {
+    if (checkedOutTimestamp > 0) {
+      throw context.fail("Cannot checkout an already checked out cart.");
     }
+    context.emit(
+        ShoppingCartDomain.CheckedOut.newBuilder()
+            .setCheckedOutTimestamp(System.currentTimeMillis())
+            .build());
+    return Reply.message(createApiCart());
+  }
 
-    @Override
-    public void checkedOut(ShoppingCartDomain.CheckedOut checkedOut) {
-        checkedOutTimestamp = checkedOut.getCheckedOutTimestamp();
-    }
-
-    // tag::getCart[]
-    @Override
-    public Reply<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command, CommandContext context) {
-        return Reply.message(createApiCart());
-    }
-    // end::getCart[]
-
-    // tag::addItem[]
-
-    @Override
-    public Reply<Empty> addItem(ShoppingCartApi.AddLineItem item, CommandContext context) {
-        if (checkedOutTimestamp > 0) {
-            throw context.fail("Cannot add item to checked out cart.");
-        }
-        if (item.getQuantity() <= 0) {
-            throw context.fail("Cannot add negative quantity of to item" + item.getProductId());
-        }
-        ShoppingCartDomain.ItemAdded itemAddedEvent =
-                ShoppingCartDomain.ItemAdded.newBuilder()
-                        .setItem(
-                                ShoppingCartDomain.LineItem.newBuilder()
-                                        .setProductId(item.getProductId())
-                                        .setName(item.getName())
-                                        .setQuantity(item.getQuantity())
-                                        .build())
-                        .build();
-        context.emit(itemAddedEvent);
-        return Reply.noReply();
-    }
-    // end::addItem[]
-    
-    @Override
-    public Reply<Empty> removeItem(ShoppingCartApi.RemoveLineItem item, CommandContext context) {
-        if (checkedOutTimestamp > 0) {
-            throw context.fail("Cannot remove item from checked out cart.");
-        }
-        if (!cart.containsKey(item.getProductId())) {
-            throw context.fail(
-                    "Cannot remove item " + item.getProductId() + " because it is not in the cart.");
-        } else {
-            ShoppingCartApi.LineItem lineItem = cart.get(item.getProductId());
-            ShoppingCartDomain.ItemRemoved event = null;
-            if ((lineItem.getQuantity() - item.getQuantity()) > 0) {
-                event =
-                        ShoppingCartDomain.ItemRemoved.newBuilder()
-                                .setProductId(item.getProductId())
-                                .setQuantity(item.getQuantity()) // only remove requested quantity
-                                .build();
-            } else {
-                event =
-                        ShoppingCartDomain.ItemRemoved.newBuilder()
-                                .setProductId(item.getProductId())
-                                .setQuantity(lineItem.getQuantity()) // remove all
-                                .build();
-            }
-            context.emit(event);
-        }
-        return Reply.noReply();
-    }
-
-    @Override
-    public Reply<ShoppingCartApi.Cart> checkoutCart(ShoppingCartApi.Checkout request, CommandContext context) {
-        if (checkedOutTimestamp > 0) {
-            throw context.fail("Cannot checkout an already checked out cart.");
-        }
-        context.emit(
-                ShoppingCartDomain.CheckedOut.newBuilder()
-                        .setCheckedOutTimestamp(System.currentTimeMillis())
-                        .build());
-        return Reply.message(createApiCart());
-    }
-
-    private ShoppingCartApi.Cart createApiCart() {
-        return ShoppingCartApi.Cart.newBuilder()
-                .addAllItems(cart.values())
-                .setCheckedOutTimestamp(checkedOutTimestamp)
-                .build();
-    }
+  private ShoppingCartApi.Cart createApiCart() {
+    return ShoppingCartApi.Cart.newBuilder()
+        .addAllItems(cart.values())
+        .setCheckedOutTimestamp(checkedOutTimestamp)
+        .build();
+  }
 }
