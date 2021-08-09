@@ -1,7 +1,5 @@
 # akkaserverless-maven-plugin
 
-![Test](https://github.com/lightbend/akkaserverless-maven-plugin/workflows/Test/badge.svg)
-
 This plugin is designed for developers of Maven and Java projects that wish to target the
 [Akka Serverless](https://www.lightbend.com/akka-serverless) environment.
 
