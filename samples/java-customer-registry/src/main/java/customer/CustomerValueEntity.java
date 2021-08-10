@@ -49,6 +49,19 @@ public class CustomerValueEntity extends CustomerValueEntityInterface {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
+  @CommandHandler
+  public Empty changeAddress(
+      CustomerApi.ChangeAddressRequest request,
+      CommandContext<CustomerDomain.CustomerState> context) {
+    if (context.getState().isEmpty())
+      throw context.fail("Customer must be created before address can be changed.");
+    CustomerDomain.CustomerState state = context.getState().get();
+    CustomerDomain.CustomerState updatedState =
+        state.toBuilder().setAddress(convertAddressToDomain(request.getNewAddress())).build();
+    context.updateState(updatedState);
+    return Empty.getDefaultInstance();
+  }
+
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
     CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
     if (state.hasAddress()) {
@@ -69,17 +82,20 @@ public class CustomerValueEntity extends CustomerValueEntityInterface {
   private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
     CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
     if (customer.hasAddress()) {
-      address =
-          CustomerDomain.Address.newBuilder()
-              .setStreet(customer.getAddress().getStreet())
-              .setCity(customer.getAddress().getCity())
-              .build();
+      address = convertAddressToDomain(customer.getAddress());
     }
     return CustomerDomain.CustomerState.newBuilder()
         .setCustomerId(customer.getCustomerId())
         .setEmail(customer.getEmail())
         .setName(customer.getName())
         .setAddress(address)
+        .build();
+  }
+
+  private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
+    return CustomerDomain.Address.newBuilder()
+        .setStreet(address.getStreet())
+        .setCity(address.getCity())
         .build();
   }
 

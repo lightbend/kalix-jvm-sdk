@@ -20,6 +20,7 @@ package customer;
 import com.akkaserverless.javasdk.view.UpdateHandler;
 import com.akkaserverless.javasdk.view.View;
 import customer.domain.CustomerDomain;
+import com.google.protobuf.Any;
 
 import java.util.Optional;
 
@@ -40,6 +41,12 @@ public class CustomerView {
   public CustomerDomain.CustomerState processCustomerNameChanged(
       CustomerDomain.CustomerNameChanged event, CustomerDomain.CustomerState state) {
     return state.toBuilder().setName(event.getNewName()).build();
+  }
+
+  @UpdateHandler
+  public CustomerDomain.CustomerState ignoreOtherEvents(
+      Any event, CustomerDomain.CustomerState state) {
+    return state;
   }
 }
 // end::process-events[]

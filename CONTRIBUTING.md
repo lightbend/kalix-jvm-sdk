@@ -1,4 +1,4 @@
-# Contributing to AkkaSerrverless Java SDK
+# Contributing to Akka Serverless Java SDK
 
 FIXME contribution guidelines like in other LB projects
 
