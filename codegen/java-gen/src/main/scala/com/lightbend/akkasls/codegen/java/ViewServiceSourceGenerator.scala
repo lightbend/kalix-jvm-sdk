@@ -97,7 +97,7 @@ object ViewServiceSourceGenerator {
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++ Seq(
-      "com.akkaserverless.javasdk.view.*",
+      "com.akkaserverless.javasdk.view.View",
       "java.util.Optional"
     )).distinct.sorted
 

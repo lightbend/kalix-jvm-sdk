@@ -249,7 +249,7 @@ object EntityServiceSourceGenerator {
                     case ModelBuilder.ValueEntity(_, _, state) =>
                       "CommandContext" <> angles(qualifiedType(state.fqn))
                     case _ => text("CommandContext")
-                  }) <+> "ctx"
+                  }) <+> "context"
                 ),
                 emptyDoc
               ) {
@@ -314,7 +314,8 @@ object EntityServiceSourceGenerator {
         )
       case _: ModelBuilder.ValueEntity =>
         Seq(
-          "com.akkaserverless.javasdk.valueentity.*"
+          "com.akkaserverless.javasdk.valueentity.CommandContext",
+          "com.akkaserverless.javasdk.valueentity.ValueEntity"
         )
     })).distinct.sorted
 
@@ -371,7 +372,7 @@ object EntityServiceSourceGenerator {
                   case ModelBuilder.ValueEntity(_, _, state) =>
                     "CommandContext" <> angles(qualifiedType(state.fqn))
                   case _ => text("CommandContext")
-                }) <+> "ctx"
+                }) <+> "context"
               )
             ) <> semi
           },

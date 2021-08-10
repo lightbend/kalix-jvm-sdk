@@ -195,32 +195,39 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       - build-maven-java
-      - run: 
-          name: Run integration tests for Shopping Cart Value Entity sample
+      - run:
+          name: Views "Customer Registry" sample
+          command: |
+            cd samples/java-customer-registry
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            # TODO: enable integration tests with -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+      - run:
+          name: Value Entity "Shopping Cart" sample
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run: 
-          name: Run integration tests for Shopping Cart Event Sourced Entity sample
+          name: Event Sourced Entity "Shopping Cart" sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run: 
-          name: Run integration tests for Counter Value Entity sample
+          name: Value Entity "Counter" sample
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
-          name: Run integration tests for Counter Replicated Entity sample
+          name: Replicated Entity "Counter" sample
           command: |
             cd samples/replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
-          name: Run integration tests for the Eventing Shopping Cart sample
+          name: Eventing "Shopping Cart" sample
           command: |
             cd samples/java-eventing-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
