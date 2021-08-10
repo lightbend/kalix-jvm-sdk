@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// tag::declarations[]
 syntax = "proto3";
 
 package customer.view;
@@ -20,6 +21,9 @@ option java_outer_classname = "CustomerViewModel";
 
 import "customer/customer_domain.proto";
 import "akkaserverless/annotations.proto";
+import "google/protobuf/any.proto";
+
+// end::declarations[]
 
 // tag::service[]
 service CustomerByName {
@@ -136,6 +140,16 @@ service CustomerByNameView {
     };
   }
 
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers"
+     };
+     option (akkaserverless.method).view.update = {
+       table: "customers"
+       transform_updates: true
+     };
+  };
+
   rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
     option (akkaserverless.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
@@ -165,6 +179,16 @@ service CustomerByNameViewFromTopic {
       transform_updates: true
     };
   }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers"
+     };
+     option (akkaserverless.method).view.update = {
+       table: "customers"
+       transform_updates: true
+     };
+  };
 
   rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
     option (akkaserverless.method).view.query = {
