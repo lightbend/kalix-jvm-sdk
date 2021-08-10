@@ -133,7 +133,7 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - run:
-          name: Run tests
+          name: sbt test
           command: sbt test
       - save_deps_cache
 

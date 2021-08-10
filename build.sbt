@@ -119,8 +119,8 @@ lazy val codegenJava =
 
 lazy val samples = project
   .in(file("samples"))
-  .aggregate( // samples relying on codegen must use Maven
-    `java-eventing-shopping-cart`
+  .aggregate(
+    // samples relying on codegen must use Maven
   )
 
 lazy val `java-eventing-shopping-cart` = project
