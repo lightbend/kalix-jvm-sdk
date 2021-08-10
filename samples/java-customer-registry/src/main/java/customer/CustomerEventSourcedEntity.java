@@ -59,15 +59,13 @@ public class CustomerEventSourcedEntity
   }
 
   @CommandHandler
-  public Empty changeAddress(CustomerApi.ChangeAddressRequest request, CommandContext context) {
-    if (state.equals(CustomerDomain.CustomerState.getDefaultInstance()))
-      throw context.fail("Customer must be created before address can be changed.");
+  public Effect<Empty> changeAddress(
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
     CustomerDomain.CustomerAddressChanged event =
         CustomerDomain.CustomerAddressChanged.newBuilder()
             .setNewAddress(convertAddressToDomain(request.getNewAddress()))
             .build();
-    context.emit(event);
-    return Empty.getDefaultInstance();
+    return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
   }
 
   @EventHandler
@@ -83,8 +81,9 @@ public class CustomerEventSourcedEntity
   }
 
   @EventHandler
-  public void customerAddressChanged(CustomerDomain.CustomerAddressChanged event) {
-    state = state.toBuilder().setAddress(event.getNewAddress()).build();
+  public CustomerDomain.CustomerState customerAddressChanged(
+      CustomerDomain.CustomerState currentState, CustomerDomain.CustomerAddressChanged event) {
+    return currentState.toBuilder().setAddress(event.getNewAddress()).build();
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {

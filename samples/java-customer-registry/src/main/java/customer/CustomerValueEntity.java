@@ -49,17 +49,14 @@ public class CustomerValueEntity extends CustomerValueEntityInterface {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
-  @CommandHandler
-  public Empty changeAddress(
-      CustomerApi.ChangeAddressRequest request,
-      CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer must be created before address can be changed.");
-    CustomerDomain.CustomerState state = context.getState().get();
+  public Effect<Empty> changeAddress(
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
     CustomerDomain.CustomerState updatedState =
-        state.toBuilder().setAddress(convertAddressToDomain(request.getNewAddress())).build();
-    context.updateState(updatedState);
-    return Empty.getDefaultInstance();
+        currentState
+            .toBuilder()
+            .setAddress(convertAddressToDomain(request.getNewAddress()))
+            .build();
+    return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
