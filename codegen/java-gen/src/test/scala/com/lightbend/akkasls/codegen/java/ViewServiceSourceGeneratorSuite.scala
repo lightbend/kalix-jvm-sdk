@@ -43,7 +43,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |package com.example.service;
         |
-        |import com.akkaserverless.javasdk.view.*;
+        |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.persistence.EntityOuterClass;
         |import java.util.Optional;
         |

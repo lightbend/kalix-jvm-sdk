@@ -76,12 +76,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx) {
+      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext context) {
       |        return Reply.failure("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx) {
+      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext context) {
       |        return Reply.failure("The command handler for `Get` is not implemented, yet");
       |    }
       |    
@@ -138,12 +138,12 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    }
       |    
       |    @Override
-      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> context) {
       |        return Reply.failure("The command handler for `Set` is not implemented, yet");
       |    }
       |    
       |    @Override
-      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx) {
+      |    public Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> context) {
       |        return Reply.failure("The command handler for `Get` is not implemented, yet");
       |    }
       |}""".stripMargin
@@ -183,10 +183,10 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    public abstract void handleSnapshot(EntityOuterClass.MyState snapshot);
       |    
       |    @CommandHandler
-      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext ctx);
+      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext context);
       |    
       |    @CommandHandler
-      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext ctx);
+      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext context);
       |    
       |    @EventHandler
       |    public abstract void setEvent(EntityOuterClass.SetEvent event);
@@ -213,7 +213,9 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |import com.akkaserverless.javasdk.EntityId;
       |import com.akkaserverless.javasdk.Reply;
-      |import com.akkaserverless.javasdk.valueentity.*;
+      |import com.akkaserverless.javasdk.valueentity.CommandContext;
+      |import com.akkaserverless.javasdk.valueentity.CommandHandler;
+      |import com.akkaserverless.javasdk.valueentity.ValueEntity;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
@@ -221,10 +223,10 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |public abstract class AbstractMyService {
       |    
       |    @CommandHandler
-      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Reply<Empty> set(ServiceOuterClass.SetValue command, CommandContext<EntityOuterClass.MyState> context);
       |    
       |    @CommandHandler
-      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> ctx);
+      |    public abstract Reply<ServiceOuterClass.MyState> get(ServiceOuterClass.GetValue command, CommandContext<EntityOuterClass.MyState> context);
       |}""".stripMargin
     )
   }

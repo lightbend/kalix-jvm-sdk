@@ -315,6 +315,7 @@ object EntityServiceSourceGenerator {
       case _: ModelBuilder.ValueEntity =>
         Seq(
           "com.akkaserverless.javasdk.valueentity.CommandContext",
+          "com.akkaserverless.javasdk.valueentity.CommandHandler",
           "com.akkaserverless.javasdk.valueentity.ValueEntity"
         )
     })).distinct.sorted
