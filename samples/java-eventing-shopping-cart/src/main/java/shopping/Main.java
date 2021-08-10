@@ -23,7 +23,7 @@ import com.akkaserverless.javasdk.AkkaServerless;
 // end::ToProductPopularityAction[]
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shopping.cart.ShoppingCartEntity;
+import shopping.cart.domain.ShoppingCartEntity;
 import shopping.cart.ShoppingCartAnalyticsAction;
 import shopping.cart.ShoppingCartTopicAction;
 import shopping.cart.ShoppingCartView;
