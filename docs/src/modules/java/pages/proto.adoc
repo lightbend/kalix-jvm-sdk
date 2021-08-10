@@ -9,7 +9,7 @@ We recommend that you define your service API and events and data associated wit
 
 == The service proto file
 
-The first line of our `shoppingcart_api.proto` file defines the version of Protocol Buffer syntax:
+The first line of the example `shoppingcart_api.proto` file defines the version of Protocol Buffer syntax:
 
 .src/main/proto/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -41,6 +41,16 @@ You define messages that can be sent to or returned from the service. Each messa
 [source,proto]
 ----
 include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
+----
+
+
+To use a multi-field key, add the `entity_key` notation to each field. For example, the following `SomeMessage` element defines both `first_field` and `second_field` as part of the key:
+
+[source,proto]
+----
+message SomeMessage {
+  string first_field = 1 [(akkaserverless.field).entity_key = true];
+  string second_field = 2 [(akkaserverless.field).entity_key = true];
 ----
 
 === Service
@@ -94,7 +104,6 @@ It includes the messages that define the entity state:
 ----
 include::example$java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=proto_messages]
 ----
-
 
 [#_transcoding_http]
 == Transcoding HTTP

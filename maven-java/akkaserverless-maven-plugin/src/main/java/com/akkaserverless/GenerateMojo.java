@@ -91,36 +91,35 @@ public class GenerateMojo extends AbstractMojo {
         File protobufDescriptor = descriptorSetOutputDirectory.toPath().resolve(descriptorSetFileName).toFile();
         if (protobufDescriptor.exists()) {
             log.info("Inspecting proto file descriptor for entity generation...");
-            Either<DescriptorSet.CannotOpen, Iterable<Either<DescriptorSet.ReadFailure, Descriptors.FileDescriptor>>> descriptors = DescriptorSet
+            Either<DescriptorSet.CannotOpen, Either<DescriptorSet.ReadFailure, Iterable<Descriptors.FileDescriptor>>> descriptors = DescriptorSet
                     .fileDescriptors(protobufDescriptor);
             if (descriptors.isRight()) {
-                Iterable<FileDescriptor> fileDescriptors = descriptors.right().get().map(descriptor -> {
-                    if (descriptor.isRight()) {
-                        return descriptor.right().get();
-                    } else {
+                Either<DescriptorSet.ReadFailure, Iterable<Descriptors.FileDescriptor>> protoFile = descriptors.right().get();
+                if (protoFile.isRight()){
+                  Iterable<FileDescriptor> fileDescriptors = protoFile.right().get();
+                  ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log);
+                  log.debug("Model: " + model);
+                  Iterable<Path> generated = SourceGenerator.generate(
+                          model,
+                          sourceDirectory.toPath(),
+                          testSourceDirectory.toPath(),
+                          integrationTestSourceDirectory.toPath(),
+                          generatedSourceDirectory.toPath(),
+                          mainClass,
+                          log);
+                  Path absBaseDir = baseDir.toPath().toAbsolutePath();
+                  generated.foreach(p -> {
+                      log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
+                      return null;
+                  });
+  
+                  project.addCompileSourceRoot(generatedSourceDirectory.toString());
+                  
+                } else {
                         throw new RuntimeException(new MojoExecutionException(
-                                "There was a problem building the file descriptor from its protobuf: "
-                                        + descriptor.left().get().toString()));
-                    }
-                });
-                ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log);
-                log.debug("Model: " + model);
-                Iterable<Path> generated = SourceGenerator.generate(
-                        model,
-                        sourceDirectory.toPath(),
-                        testSourceDirectory.toPath(),
-                        integrationTestSourceDirectory.toPath(),
-                        generatedSourceDirectory.toPath(),
-                        mainClass,
-                        log);
-                Path absBaseDir = baseDir.toPath().toAbsolutePath();
-                generated.foreach(p -> {
-                    log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
-                    return null;
-                });
-
-                project.addCompileSourceRoot(generatedSourceDirectory.toString());
-
+                        "There was a problem building the file descriptor from its protobuf: "
+                            + descriptors.left().get().toString())); 
+                }
             } else {
                 throw new MojoExecutionException("There was a problem opening the protobuf descriptor file",
                         descriptors.left().get().e());

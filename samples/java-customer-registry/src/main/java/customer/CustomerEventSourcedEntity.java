@@ -58,6 +58,16 @@ public class CustomerEventSourcedEntity
     }
   }
 
+  @CommandHandler
+  public Effect<Empty> changeAddress(
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
+    CustomerDomain.CustomerAddressChanged event =
+        CustomerDomain.CustomerAddressChanged.newBuilder()
+            .setNewAddress(convertAddressToDomain(request.getNewAddress()))
+            .build();
+    return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
+  }
+
   @EventHandler
   public CustomerDomain.CustomerState customerCreated(
       CustomerDomain.CustomerState currentState, CustomerDomain.CustomerCreated event) {
@@ -68,6 +78,12 @@ public class CustomerEventSourcedEntity
   public CustomerDomain.CustomerState customerNameChanged(
       CustomerDomain.CustomerState currentState, CustomerDomain.CustomerNameChanged event) {
     return currentState.toBuilder().setName(event.getNewName()).build();
+  }
+
+  @EventHandler
+  public CustomerDomain.CustomerState customerAddressChanged(
+      CustomerDomain.CustomerState currentState, CustomerDomain.CustomerAddressChanged event) {
+    return currentState.toBuilder().setAddress(event.getNewAddress()).build();
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {
@@ -90,17 +106,20 @@ public class CustomerEventSourcedEntity
   private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
     CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
     if (customer.hasAddress()) {
-      address =
-          CustomerDomain.Address.newBuilder()
-              .setStreet(customer.getAddress().getStreet())
-              .setCity(customer.getAddress().getCity())
-              .build();
+      address = convertAddressToDomain(customer.getAddress());
     }
     return CustomerDomain.CustomerState.newBuilder()
         .setCustomerId(customer.getCustomerId())
         .setEmail(customer.getEmail())
         .setName(customer.getName())
         .setAddress(address)
+        .build();
+  }
+
+  private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
+    return CustomerDomain.Address.newBuilder()
+        .setStreet(address.getStreet())
+        .setCity(address.getCity())
         .build();
   }
 }

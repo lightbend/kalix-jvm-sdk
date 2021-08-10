@@ -1,6 +1,6 @@
 # akkaserverless-maven-archetype
 
-This archetype can be used to generate a project suitable for the general development of Value-based entities using [Akka Serverless](https://www.lightbend.com/akka-serverless).
+This archetype can be used to generate a project suitable for the development of a Service using a Value Entity with [Akka Serverless](https://www.lightbend.com/akka-serverless).
 
 **The Maven project created from the archetype will contain a Value entity protobuf definition.**
 
