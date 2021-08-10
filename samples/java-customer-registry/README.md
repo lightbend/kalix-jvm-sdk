@@ -5,14 +5,22 @@ This example includes the code snippets that are used in the Views documentation
 To run the example locally:
 
 * Start the example:
-  * from sbt: `sbt java-customer-registry/run`
-  * or mvn
+  * publish relevant projects for use from Maven
     ```
-    sbt sdk/publishM2
-    export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
+    sbt publishM2
+    ```
+  * build the latest Maven plugin and archetypes
+    ```
+    cd maven-java
+    mvn versions:set -DnewVersion="0.7.0-beta....-SNAPSHOT"
+    mvn install
+    ```
+  * trigger codegen, compile and run form Maven
+    ```
     cd samples/java-customer-registry
-    mvn compile exec:java
+    mvn -Dakkaserverless-sdk.verion="0.7.0-beta....-SNAPSHOT" compile exec:java
     ```
+
 * Start the proxy
   * with in-memory store: `sbt proxy-core/run`
   * or with local Spanner emulator:
