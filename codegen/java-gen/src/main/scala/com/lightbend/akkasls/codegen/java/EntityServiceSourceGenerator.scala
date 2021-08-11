@@ -67,27 +67,25 @@ object EntityServiceSourceGenerator {
     )
 
     val handlerClassName = className + "Handler"
-    val handlerSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
-
-    handlerSource(service, entity, packageName, className).foreach { doc =>
-      handlerSourcePath.getParent.toFile.mkdirs()
+    val handlerSourcePath = handlerSource(service, entity, packageName, className).map { doc =>
+      val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
+      path.getParent.toFile.mkdirs()
       Files.write(
-        handlerSourcePath,
+        path,
         doc.getBytes(Charsets.UTF_8)
       )
+      path
     }
 
     val providerClassName = className + "Provider"
-    val providerSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
-
-    providerSource(service, entity, packageName, className).foreach { src =>
-      providerSourcePath.getParent.toFile.mkdirs()
+    val providerSourcePath = providerSource(service, entity, packageName, className).map { src =>
+      val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
+      path.getParent.toFile.mkdirs()
       Files.write(
-        providerSourcePath,
+        path,
         src.getBytes(Charsets.UTF_8)
       )
+      path
     }
 
     if (!implSourcePath.toFile.exists()) {
@@ -148,9 +146,9 @@ object EntityServiceSourceGenerator {
         ).getBytes(Charsets.UTF_8)
       )
 
-      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles
+      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles ++ providerSourcePath.toList ++ handlerSourcePath.toList
     } else {
-      List(interfaceSourcePath)
+      List(interfaceSourcePath) ++ providerSourcePath.toList ++ handlerSourcePath.toList
     }
   }
 

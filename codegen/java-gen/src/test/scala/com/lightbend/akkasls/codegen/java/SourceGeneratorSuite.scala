@@ -118,6 +118,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyValueEntity2.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2Provider.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2Handler.java"
+                ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
