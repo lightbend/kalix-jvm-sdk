@@ -192,11 +192,11 @@ object ValueEntitySourceGenerator {
       relevantTypes,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
-        "com.google.protobuf.Descriptors",
-        "java.util.function.Function"
-      )
+          "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+          "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+          "com.google.protobuf.Descriptors",
+          "java.util.function.Function"
+        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
     )
 
     val descriptors =
