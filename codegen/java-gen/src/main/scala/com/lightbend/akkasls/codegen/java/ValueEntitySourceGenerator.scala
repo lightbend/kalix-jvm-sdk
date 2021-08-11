@@ -236,9 +236,9 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
-        |    return new Descriptors.FileDescriptor[${descriptors.size}](
+        |    return new Descriptors.FileDescriptor[] {
         |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
-        |    );
+        |    };
         |  }
         |}""".stripMargin
 
