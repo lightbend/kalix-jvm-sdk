@@ -277,67 +277,65 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val implClassName = "MyServiceImpl"
     val testClassName = "MyServiceTest"
 
-    // FIXME: test generation is now working.
-    //  Each entity type should have its own generation and based on upcoming teskit
+    val generatedSrc =
+      EntityServiceSourceGenerator
+        .testSource(
+          service,
+          entity,
+          packageName,
+          implClassName,
+          testClassName
+        )
 
-//    val generatedSrc =
-//      EntityServiceSourceGenerator.testSource(
-//        service,
-//        entity,
-//        packageName,
-//        implClassName,
-//        testClassName
-//      )
-
-//    assertEquals(
-//      generatedSrc,
-//      """|/* This code was initialised by Akka Serverless tooling.
-//         | * As long as this file exists it will not be re-generated.
-//         | * You are free to make changes to this file.
-//         | */
-//         |
-//         |package com.example.service;
-//         |
-//         |import com.akkaserverless.javasdk.valueentity.CommandContext;
-//         |import com.example.service.persistence.EntityOuterClass;
-//         |import com.external.Empty;
-//         |import org.junit.Test;
-//         |import org.mockito.*;
-//         |
-//         |import static org.junit.Assert.assertThrows;
-//         |
-//         |public class MyServiceTest {
-//         |    private String entityId = "entityId1";
-//         |    private MyServiceImpl entity;
-//         |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
-//         |
-//         |    @Test
-//         |    public void setTest() {
-//         |        entity = new MyServiceImpl(context);
-//         |
-//         |        // TODO: write your mock here
-//         |        // Mockito.when(context.[...]).thenReturn([...]);
-//         |
-//         |        // TODO: set fields in command, and update assertions to verify implementation
-//         |        // assertEquals([expected],
-//         |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
-//         |        // );
-//         |    }
-//         |
-//         |    @Test
-//         |    public void getTest() {
-//         |        entity = new MyServiceImpl(context);
-//         |
-//         |        // TODO: write your mock here
-//         |        // Mockito.when(context.[...]).thenReturn([...]);
-//         |
-//         |        // TODO: set fields in command, and update assertions to verify implementation
-//         |        // assertEquals([expected],
-//         |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
-//         |        // );
-//         |    }
-//         |}""".stripMargin
-//    )
+    assertEquals(
+      generatedSrc,
+      """|/* This code was initialised by Akka Serverless tooling.
+         | * As long as this file exists it will not be re-generated.
+         | * You are free to make changes to this file.
+         | */
+         |
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.valueentity.CommandContext;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import org.junit.Test;
+         |import org.mockito.*;
+         |
+         |import static org.junit.Assert.assertThrows;
+         |
+         |public class MyServiceTest {
+         |    private String entityId = "entityId1";
+         |    private MyServiceImpl entity;
+         |    private CommandContext<EntityOuterClass.MyState> context = Mockito.mock(CommandContext.class);
+         |    
+         |    @Test
+         |    public void setTest() {
+         |        entity = new MyServiceImpl(context);
+         |        
+         |        // TODO: write your mock here
+         |        // Mockito.when(context.[...]).thenReturn([...]);
+         |        
+         |        // TODO: set fields in command, and update assertions to verify implementation
+         |        // assertEquals([expected],
+         |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
+         |        // );
+         |    }
+         |    
+         |    @Test
+         |    public void getTest() {
+         |        entity = new MyServiceImpl(context);
+         |        
+         |        // TODO: write your mock here
+         |        // Mockito.when(context.[...]).thenReturn([...]);
+         |        
+         |        // TODO: set fields in command, and update assertions to verify implementation
+         |        // assertEquals([expected],
+         |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
+         |        // );
+         |    }
+         |}""".stripMargin
+    )
   }
 
 }

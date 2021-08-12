@@ -142,7 +142,6 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
           implClassName,
           testClassName
         )
-        .get
 
     assertEquals(
       generatedSrc,
