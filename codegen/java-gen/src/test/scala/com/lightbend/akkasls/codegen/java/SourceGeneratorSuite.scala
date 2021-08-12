@@ -150,7 +150,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     } finally FileUtils.deleteDirectory(sourceDirectory.toFile)
   }
 
-  test("generated main source") {
+  test("generated component registration source") {
     val service1Proto = TestData.serviceProto("1")
     val service2Proto = TestData.serviceProto("2")
     val service3Proto = TestData.serviceProto("3").copy(pkg = "com.example.service.something")
@@ -226,6 +226,51 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
         |                    "my-view-id4",
         |                    EntityOuterClass4.getDescriptor()
+        |                );
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  test("generated component registration source for a view without update handlers") {
+    val serviceProto = TestData.serviceProto().copy(pkg = "com.example.service.view")
+
+    val services = Map(
+      "com.example.Service" -> TestData.simpleViewService(serviceProto).copy(transformedUpdates = Nil)
+    )
+
+    val entities = Map.empty[String, ModelBuilder.Entity]
+
+    val mainPackageName = "com.example.service"
+    val mainClassName = "SomeMain"
+
+    val sourceDoc = SourceGenerator.mainComponentRegistrationsSource(
+      mainPackageName,
+      mainClassName,
+      ModelBuilder.Model(services, entities)
+    )
+    assertEquals(
+      sourceDoc.layout,
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |
+        |package com.example.service;
+        |
+        |import com.akkaserverless.javasdk.AkkaServerless;
+        |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.view.MyService;
+        |import com.example.service.view.ServiceOuterClass;
+        |
+        |public final class SomeMainComponentRegistrations {
+        |    
+        |    public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
+        |        return akkaServerless
+        |                .registerView(
+        |                    ServiceOuterClass.getDescriptor().findServiceByName("MyService"),
+        |                    "my-view-id",
+        |                    EntityOuterClass.getDescriptor()
         |                );
         |    }
         |}""".stripMargin
