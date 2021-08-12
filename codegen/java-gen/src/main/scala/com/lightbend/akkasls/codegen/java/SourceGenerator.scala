@@ -18,18 +18,15 @@ package com.lightbend.akkasls.codegen.java
 
 import _root_.java.nio.file.{Files, Path, Paths}
 import _root_.java.io.File
-
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import scala.collection.immutable
 
+import scala.collection.immutable
 import com.lightbend.akkasls.codegen._
 import com.lightbend.akkasls.codegen.DescriptorSet
 import com.lightbend.akkasls.codegen.Log
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.ModelBuilder.Command
-import com.lightbend.akkasls.codegen.ModelBuilder.Service
-import com.lightbend.akkasls.codegen.ModelBuilder.State
+import com.lightbend.akkasls.codegen.ModelBuilder.{Command, Entity, Service, State}
 
 /**
  * Responsible for generating Java source from an entity model
@@ -129,11 +126,11 @@ object SourceGenerator extends PrettyPrinter {
         mainClassPath.getParent.toFile.mkdirs()
         Files.write(
           mainClassPath,
-          mainSource(mainClassPackageName, mainClassName).getBytes(Charsets.UTF_8)
+          mainSource(mainClassPackageName, mainClassName, model.entities).getBytes(Charsets.UTF_8)
         )
         List(mainComponentRegistrationsSourcePath, mainClassPath)
       } else {
-        List.empty
+        List(mainComponentRegistrationsSourcePath)
       }
     }
   }
@@ -207,7 +204,7 @@ object SourceGenerator extends PrettyPrinter {
                 |)""".stripMargin
 
           case entity: ModelBuilder.ValueEntity =>
-            s".register(new ${entity.fqn.name}Provider(${entity.fqn.name}::new))"
+            s".register(new ${entity.fqn.name}Provider(create${entity.fqn.name}))"
         }
 
       case service: ModelBuilder.ViewService =>
@@ -275,8 +272,25 @@ object SourceGenerator extends PrettyPrinter {
         }
     }
 
+    val contextImports = model.entities.values
+      .collect {
+        case _: ModelBuilder.ValueEntity =>
+          List(
+            "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+            "java.util.function.Function"
+          )
+      }
+      .flatten
+      .toSet
+
+    val creatorParameters =
+      "AkkaServerless akkaServerless" +: model.entities.values.collect {
+        case valueEntity: ModelBuilder.ValueEntity =>
+          s"Function<ValueEntityContext, ${valueEntity.fqn.name}> create${valueEntity.fqn.name}"
+      }.toList
+
     val imports =
-      (List("com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports).distinct.sorted
+      (List("com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports ++ contextImports).distinct.sorted
         .map(pkg => s"import $pkg;")
         .mkString("\n")
 
@@ -288,7 +302,7 @@ object SourceGenerator extends PrettyPrinter {
         |
         |public final class ${mainClassName}ComponentRegistrations {
         |
-        |  public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
+        |  public static AkkaServerless registerAll(${creatorParameters.mkString(",\n      ")}) {
         |    return akkaServerless
         |      ${Syntax.indent(registrations, 6)};
         |  }
@@ -297,8 +311,16 @@ object SourceGenerator extends PrettyPrinter {
 
   private[codegen] def mainSource(
       mainClassPackageName: String,
-      mainClassName: String
+      mainClassName: String,
+      entities: Map[String, Entity]
   ): String = {
+    val componentImports = generateImports(Iterable.empty, mainClassPackageName, entities.values.collect {
+      case valueEntity: ModelBuilder.ValueEntity => valueEntity.fqn.fullName
+    }.toSeq)
+    val registrationParameters = "new AkkaServerless()" +: entities.values.collect {
+        case valueEntity: ModelBuilder.ValueEntity =>
+          s"${valueEntity.fqn.name}::new"
+      }.toList
 
     s"""|$generatedCodeCommentString
         |
@@ -307,7 +329,8 @@ object SourceGenerator extends PrettyPrinter {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
-        |import static ${mainClassPackageName}.${mainClassName}ComponentRegistrations.withGeneratedComponentsAdded;
+        |${componentImports}
+        |import static ${mainClassPackageName}.${mainClassName}ComponentRegistrations.registerAll;
         |
         |public final class ${mainClassName} {
         |
@@ -317,7 +340,7 @@ object SourceGenerator extends PrettyPrinter {
         |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
         |    // and is kept up-to-date with any changes in your protobuf definitions.
         |    // If you prefer, you may remove this wrapper and manually register these components.
-        |    withGeneratedComponentsAdded(new AkkaServerless());
+        |    registerAll(${registrationParameters.mkString(",\n      ")});
         |
         |  public static void main(String[] args) throws Exception {
         |    LOG.info("starting the Akka Serverless service");

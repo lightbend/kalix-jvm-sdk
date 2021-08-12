@@ -193,6 +193,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |package com.example.service;
          |
          |import com.akkaserverless.javasdk.AkkaServerless;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
          |import com.example.service.persistence.EntityOuterClass1;
          |import com.example.service.persistence.EntityOuterClass2;
          |import com.example.service.persistence.EntityOuterClass3;
@@ -205,10 +206,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.view.MyService4;
          |import com.example.service.view.ServiceOuterClass4;
          |import com.external.ExternalDomain;
+         |import java.util.function.Function;
          |
          |public final class SomeMainComponentRegistrations {
          |
-         |  public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
+         |  public static AkkaServerless registerAll(AkkaServerless akkaServerless,
+         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2) {
          |    return akkaServerless
          |      .registerEventSourcedEntity(
          |          MyEntity1.class,
@@ -216,7 +219,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |          EntityOuterClass1.getDescriptor(),
          |          ExternalDomain.getDescriptor()
          |      )
-         |      .register(new MyValueEntity2Provider(MyValueEntity2::new))
+         |      .register(new MyValueEntity2Provider(createMyValueEntity2))
          |      .registerEventSourcedEntity(
          |          MyEntity3.class,
          |          ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
@@ -238,9 +241,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
+    val entities = Map(
+      "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
+      "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
+      "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3")
+    )
+
     val generatedSrc = SourceGenerator.mainSource(
       mainPackageName,
-      mainClassName
+      mainClassName,
+      entities
     )
     assertEquals(
       generatedSrc,
@@ -254,7 +264,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.AkkaServerless;
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
-         |import static com.example.service.SomeMainComponentRegistrations.withGeneratedComponentsAdded;
+         |import com.example.service.persistence.MyValueEntity2;
+         |import static com.example.service.SomeMainComponentRegistrations.registerAll;
          |
          |public final class SomeMain {
          |
@@ -264,7 +275,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
          |    // and is kept up-to-date with any changes in your protobuf definitions.
          |    // If you prefer, you may remove this wrapper and manually register these components.
-         |    withGeneratedComponentsAdded(new AkkaServerless());
+         |    registerAll(new AkkaServerless(),
+         |      MyValueEntity2::new);
          |
          |  public static void main(String[] args) throws Exception {
          |    LOG.info("starting the Akka Serverless service");
