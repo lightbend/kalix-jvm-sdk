@@ -237,10 +237,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |/** A value entity provider */
          |public class MyServiceProvider implements ValueEntityProvider {
          |
-         |  private final Function<ValueEntityContext, MyService> entityProviderFunc;
+         |  private final Function<ValueEntityContext, MyService> entityFactory;
          |
-         |  public MyServiceProvider(Function<ValueEntityContext, MyService> entityProviderFunc) {
-         |    this.entityProviderFunc = entityProviderFunc;
+         |  public MyServiceProvider(Function<ValueEntityContext, MyService> entityFactory) {
+         |    this.entityFactory = entityFactory;
          |  }
          |
          |  @Override
@@ -255,7 +255,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |  @Override
          |  public final MyServiceHandler newHandler(ValueEntityContext context) {
-         |    return new MyServiceHandler(entityProviderFunc.apply(context));
+         |    return new MyServiceHandler(entityFactory.apply(context));
          |  }
          |
          |  @Override

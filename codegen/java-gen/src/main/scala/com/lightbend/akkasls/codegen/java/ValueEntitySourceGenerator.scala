@@ -213,10 +213,10 @@ object ValueEntitySourceGenerator {
         |/** A value entity provider */
         |public class ${className}Provider implements ValueEntityProvider {
         |
-        |  private final Function<ValueEntityContext, ${className}> entityProviderFunc;
+        |  private final Function<ValueEntityContext, ${className}> entityFactory;
         |
-        |  public ${className}Provider(Function<ValueEntityContext, ${className}> entityProviderFunc) {
-        |    this.entityProviderFunc = entityProviderFunc;
+        |  public ${className}Provider(Function<ValueEntityContext, ${className}> entityFactory) {
+        |    this.entityFactory = entityFactory;
         |  }
         |
         |  @Override
@@ -231,7 +231,7 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final ${className}Handler newHandler(ValueEntityContext context) {
-        |    return new ${className}Handler(entityProviderFunc.apply(context));
+        |    return new ${className}Handler(entityFactory.apply(context));
         |  }
         |
         |  @Override
