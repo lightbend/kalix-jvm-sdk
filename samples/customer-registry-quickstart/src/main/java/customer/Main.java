@@ -32,12 +32,7 @@ public final class Main {
         // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
         // and is kept up-to-date with any changes in your protobuf definitions.
         // If you prefer, you may remove this wrapper and manually register these components.
-        withGeneratedComponentsAdded(new AkkaServerless())
-                // codegen doesn't generate registration of views without transformations
-                .registerView(
-                        CustomerViewModel.getDescriptor().findServiceByName("CustomerByEmail"),
-                        "customerByEmail",
-                        CustomerDomain.getDescriptor());
+        withGeneratedComponentsAdded(new AkkaServerless());
     
     public static void main(String[] args) throws Exception {
         LOG.info("starting the Akka Serverless service");

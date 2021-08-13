@@ -49,6 +49,10 @@ message ByNameRequest {
 }
 
 service CustomerByEmail {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (akkaserverless.method).eventing.in = {
       value_entity: "customers"
