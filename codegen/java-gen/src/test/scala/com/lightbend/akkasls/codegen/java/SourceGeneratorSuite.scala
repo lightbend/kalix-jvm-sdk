@@ -260,7 +260,6 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.example.service.persistence.EntityOuterClass;
-        |import com.example.service.view.MyService;
         |import com.example.service.view.ServiceOuterClass;
         |
         |public final class SomeMainComponentRegistrations {
