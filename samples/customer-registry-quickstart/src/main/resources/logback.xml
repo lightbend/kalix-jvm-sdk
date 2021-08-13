@@ -11,9 +11,7 @@
                 <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
                 <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
                 <appendLineSeparator>true</appendLineSeparator>
-                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                    <prettyPrint>true</prettyPrint>
-                </jsonFormatter>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter" />
             </layout>
         </encoder>
     </appender>
@@ -26,6 +24,8 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="akka.http" level="INFO"/>
+    <logger name="io.grpc" level="INFO"/>
 
     <root level="DEBUG">
 <!--        <appender-ref ref="STDOUT"/>-->
