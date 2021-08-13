@@ -19,8 +19,9 @@ package java
 
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-
 import _root_.java.nio.file.{Files, Path}
+
+import scala.collection.immutable
 
 /**
  * Responsible for generating Java source from an entity model
@@ -56,16 +57,16 @@ object ViewServiceSourceGenerator {
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
-    val _ = interfaceSourcePath.getParent.toFile.mkdirs()
-    val _ = Files.write(
+    interfaceSourcePath.getParent.toFile.mkdirs()
+    Files.write(
       interfaceSourcePath,
       interfaceSource(service, packageName, className).getBytes(Charsets.UTF_8)
     )
 
     if (!implSourcePath.toFile.exists()) {
       // Now we generate the entity
-      val _ = implSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
+      implSourcePath.getParent.toFile.mkdirs()
+      Files.write(
         implSourcePath,
         source(
           service,
@@ -92,10 +93,10 @@ object ViewServiceSourceGenerator {
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++ Seq(
+      .map(typeImport) ++ immutable.Seq(
       "com.akkaserverless.javasdk.view.*",
       "java.util.Optional"
-    )).distinct.sorted
+    )).distinct.sorted.to[immutable.Seq]
 
     pretty(
       initialisedCodeComment <> line <> line <>
@@ -110,26 +111,28 @@ object ViewServiceSourceGenerator {
       "@View" <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         ssep(
-          service.transformedUpdates.toSeq.map { update =>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              qualifiedType(update.outputType),
-              lowerFirst(update.fqn.name),
-              List(
-                qualifiedType(update.inputType) <+> "event",
-                "Optional" <> angles(
-                  qualifiedType(update.outputType)
-                ) <+> "state"
-              ),
-              emptyDoc
-            ) {
-              "throw new RuntimeException" <> parens(
-                notImplementedError("update", update.fqn)
-              ) <> semi
+          service.transformedUpdates.toSeq
+            .map { update =>
+              "@Override" <>
+              line <>
+              method(
+                "public",
+                qualifiedType(update.outputType),
+                lowerFirst(update.fqn.name),
+                List(
+                  qualifiedType(update.inputType) <+> "event",
+                  "Optional" <> angles(
+                    qualifiedType(update.outputType)
+                  ) <+> "state"
+                ),
+                emptyDoc
+              ) {
+                "throw new RuntimeException" <> parens(
+                  notImplementedError("update", update.fqn)
+                ) <> semi
+              }
             }
-          },
+            .to[immutable.Seq],
           line <> line
         )
       }
@@ -142,7 +145,7 @@ object ViewServiceSourceGenerator {
       className: String
   ): String = {
     val messageTypes =
-      service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
+      service.transformedUpdates.toSeq.flatMap(command => immutable.Seq(command.inputType, command.outputType))
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -150,7 +153,9 @@ object ViewServiceSourceGenerator {
     Seq(
       "com.akkaserverless.javasdk.view.*",
       "java.util.Optional"
-    )).distinct.sorted
+    )).distinct
+      .to[immutable.Seq]
+      .sorted
 
     pretty(
       managedCodeComment <> line <> line <>
@@ -164,21 +169,26 @@ object ViewServiceSourceGenerator {
       "/** A view. */" <> line <>
       `class`("public abstract", "Abstract" + className) {
         ssep(
-          service.transformedUpdates.toSeq.map { update =>
-            "@UpdateHandler" <>
-            line <>
-            abstractMethod(
-              "public",
-              qualifiedType(update.outputType),
-              lowerFirst(update.fqn.name),
-              List(
-                qualifiedType(update.inputType) <+> "event",
-                "Optional" <> angles(
-                  qualifiedType(update.outputType)
-                ) <+> "state"
-              )
-            ) <> semi
-          },
+          immutable
+            .Seq(
+              service.transformedUpdates.toSeq
+                .map { update =>
+                  "@UpdateHandler" <>
+                  line <>
+                  abstractMethod(
+                    "public",
+                    qualifiedType(update.outputType),
+                    lowerFirst(update.fqn.name),
+                    List(
+                      qualifiedType(update.inputType) <+> "event",
+                      "Optional" <> angles(
+                        qualifiedType(update.outputType)
+                      ) <+> "state"
+                    )
+                  ) <> semi
+                }
+            )
+            .flatten,
           line <> line
         )
       }

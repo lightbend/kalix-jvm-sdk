@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen
-package java
+package com.lightbend.akkasls.codegen.java
+
+import _root_.java.nio.file.{Files, Path, Paths}
+import _root_.java.io.File
 
 import com.google.common.base.Charsets
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-import _root_.java.nio.file.{Files, Path, Paths}
+import scala.collection.immutable
 
+import com.lightbend.akkasls.codegen._
+import com.lightbend.akkasls.codegen.DescriptorSet
+import com.lightbend.akkasls.codegen.Log
+import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 
@@ -109,8 +114,8 @@ object SourceGenerator extends PrettyPrinter {
           mainClassPackagePath.resolve(mainComponentRegistrationsClassName + ".java")
         )
 
-      val _ = mainComponentRegistrationsSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
+      mainComponentRegistrationsSourcePath.getParent.toFile.mkdirs()
+      Files.write(
         mainComponentRegistrationsSourcePath,
         mainComponentRegistrationsSource(mainClassPackageName, mainClassName, model).getBytes(Charsets.UTF_8)
       )
@@ -120,8 +125,8 @@ object SourceGenerator extends PrettyPrinter {
       val mainClassPath =
         sourceDirectory.resolve(mainClassPackagePath.resolve(mainClassName + ".java"))
       if (!mainClassPath.toFile.exists()) {
-        val _ = mainClassPath.getParent.toFile.mkdirs()
-        val _ = Files.write(
+        mainClassPath.getParent.toFile.mkdirs()
+        Files.write(
           mainClassPath,
           mainSource(mainClassPackageName, mainClassName).getBytes(Charsets.UTF_8)
         )
@@ -130,6 +135,37 @@ object SourceGenerator extends PrettyPrinter {
         List.empty
       }
     }
+  }
+
+  def generate(protobufDescriptor: File,
+               sourceDirectory: Path,
+               testSourceDirectory: Path,
+               integrationTestSourceDirectory: Path,
+               generatedSourceDirectory: Path,
+               mainClass: String)(implicit log: Log): Iterable[Path] = {
+    val descriptors =
+      DescriptorSet.fileDescriptors(protobufDescriptor) match {
+        case Right(fileDescriptors) =>
+          fileDescriptors match {
+            case Right(files) => files
+            case Left(failure) =>
+              throw new RuntimeException(
+                s"There was a problem building the file descriptor from its protobuf: $failure"
+              )
+          }
+        case Left(failure) =>
+          throw new RuntimeException(s"There was a problem opening the protobuf descriptor file ${failure}", failure.e)
+      }
+
+    SourceGenerator.generate(
+      ModelBuilder.introspectProtobufClasses(descriptors),
+      sourceDirectory,
+      testSourceDirectory,
+      integrationTestSourceDirectory,
+      generatedSourceDirectory,
+      mainClass
+    )
+
   }
 
   private[codegen] def mainComponentRegistrationsSource(
@@ -235,25 +271,27 @@ object SourceGenerator extends PrettyPrinter {
           "return" <+> "akkaServerless" <> line <>
           indent(
             ssep(
-              serviceRegistrations.map {
-                case (implType, registrationMethod, args, serviceDescriptor, relevantTypes) =>
-                  dot <>
-                  registrationMethod <> parens(
-                    nest(
-                      line <> ssep(
-                        args ++ relevantTypes
-                          .map(_.parent)
-                          .toSeq
-                          .distinct
-                          .filterNot(_ == serviceDescriptor)
-                          .map { descriptor =>
-                            descriptor.javaOuterClassname <> ".getDescriptor()"
-                          },
-                        comma <> line
-                      )
-                    ) <> line
-                  )
-              }.toSeq,
+              serviceRegistrations
+                .map {
+                  case (implType, registrationMethod, args, serviceDescriptor, relevantTypes) =>
+                    dot <>
+                    registrationMethod <> parens(
+                      nest(
+                        line <> ssep(
+                          (args ++ relevantTypes
+                            .map(_.parent)
+                            .toSeq
+                            .distinct
+                            .filterNot(_ == serviceDescriptor)
+                            .map { descriptor =>
+                              descriptor.javaOuterClassname <> ".getDescriptor()"
+                            }).to[immutable.Seq],
+                          comma <> line
+                        )
+                      ) <> line
+                    )
+                }
+                .to[immutable.Seq],
               line
             ) <> semi,
             8
@@ -349,7 +387,7 @@ object SourceGenerator extends PrettyPrinter {
   private[java] def constructor(
       modifier: Doc,
       name: String,
-      parameters: Seq[Doc]
+      parameters: immutable.Seq[Doc]
   )(body: Doc): Doc =
     modifier <+> name <> parens(ssep(parameters, comma <> space)) <+>
     braces(nest(line <> body) <> line)
@@ -358,7 +396,7 @@ object SourceGenerator extends PrettyPrinter {
       modifier: Doc,
       returnType: Doc,
       name: String,
-      parameters: Seq[Doc],
+      parameters: immutable.Seq[Doc],
       postModifier: Doc
   )(body: Doc): Doc =
     modifier <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+> postModifier <>
@@ -380,7 +418,7 @@ object SourceGenerator extends PrettyPrinter {
       modifier: Doc,
       returnType: Doc,
       name: String,
-      parameters: Seq[Doc]
+      parameters: immutable.Seq[Doc]
   ): Doc =
     modifier <+> "abstract" <+> returnType <+> name <> parens(ssep(parameters, comma <> space))
 
