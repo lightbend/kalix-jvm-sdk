@@ -141,10 +141,19 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String,
       model: ModelBuilder.Model
   ): Document = {
+    case class ServiceRegistration(
+        implType: FullyQualifiedName,
+        registrationMethod: String,
+        args: Seq[Doc],
+        serviceDescriptor: PackageNaming,
+        relevantTypes: Iterable[FullyQualifiedName],
+        imports: Option[Iterable[FullyQualifiedName]] = None
+    )
+
     val serviceRegistrations = model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
-          (
+          ServiceRegistration(
             FullyQualifiedName(s"${entity.fqn.name}", entity.fqn.parent),
             entity match {
               case _: ModelBuilder.EventSourcedEntity =>
@@ -168,9 +177,11 @@ object SourceGenerator extends PrettyPrinter {
           )
         }
       case service: ModelBuilder.ViewService =>
+        val implType = FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent)
+        val relevantTypes = service.commands.flatMap(command => Seq(command.inputType, command.outputType))
         Some(
-          (
-            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
+          ServiceRegistration(
+            implType,
             "registerView",
             (if (service.transformedUpdates.nonEmpty) {
                Seq(s"${service.fqn.name}" <> ".class")
@@ -181,12 +192,16 @@ object SourceGenerator extends PrettyPrinter {
               dquotes(service.viewId)
             ),
             service.fqn.parent,
-            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
+            relevantTypes,
+            Some(
+              Option.when(service.transformedUpdates.nonEmpty)(implType) ++ relevantTypes
+                .map(t => FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
+            )
           )
         )
       case service: ModelBuilder.ActionService =>
         Some(
-          (
+          ServiceRegistration(
             FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
             "registerAction",
             Seq(
@@ -206,16 +221,12 @@ object SourceGenerator extends PrettyPrinter {
       "com.akkaserverless.javasdk.AkkaServerless"
     ) ++
     serviceRegistrations
-      .flatMap {
-        case (implType, _, _, _, relevantTypes) =>
-          Seq(implType.name -> implType.parent.javaPackage) ++ relevantTypes.map {
-            case FullyQualifiedName(_, parent) =>
-              parent.javaOuterClassname -> parent.javaPackage
-          }
-      }
-      .collect {
-        case (name, pn) if pn != mainClassPackageName =>
-          s"$pn.$name"
+      .flatMap { r =>
+        r.imports
+          .getOrElse(
+            r.implType +: r.relevantTypes.toList.map(t => new FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
+          )
+          .collect { case t if t.parent.javaPackage != mainClassPackageName => s"${t.parent.javaPackage}.${t.name}" }
       }).distinct.sorted
 
     pretty(
@@ -240,7 +251,7 @@ object SourceGenerator extends PrettyPrinter {
           indent(
             ssep(
               serviceRegistrations.map {
-                case (implType, registrationMethod, args, serviceDescriptor, relevantTypes) =>
+                case ServiceRegistration(_, registrationMethod, args, serviceDescriptor, relevantTypes, _) =>
                   dot <>
                   registrationMethod <> parens(
                     nest(
