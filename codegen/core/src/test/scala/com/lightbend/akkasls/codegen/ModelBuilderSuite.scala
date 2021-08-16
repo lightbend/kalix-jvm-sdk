@@ -334,9 +334,9 @@ class ModelBuilderSuite extends munit.FunSuite {
       assertEquals(
         model.services,
         Map(
-          "shopping.cart.view.ShoppingCartViewService" ->
+          "shopping.cart.view.ShoppingCartViewServiceView" ->
           ModelBuilder.ViewService(
-            FullyQualifiedName("ShoppingCartViewService", shoppingCartProto),
+            FullyQualifiedName("ShoppingCartViewService", "ShoppingCartViewServiceView", shoppingCartProto),
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
             transformedUpdates
