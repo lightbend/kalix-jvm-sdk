@@ -187,7 +187,7 @@ object SourceGenerator extends PrettyPrinter {
                Seq(s"${service.fqn.name}" <> ".class")
              } else Seq.empty) ++ Seq(
               service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
+                dquotes(service.fqn.protoName)
               ),
               dquotes(service.viewId)
             ),
@@ -224,7 +224,7 @@ object SourceGenerator extends PrettyPrinter {
       .flatMap { r =>
         r.imports
           .getOrElse(
-            r.implType +: r.relevantTypes.toList.map(t => new FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
+            r.implType +: r.relevantTypes.toList.map(t => FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
           )
           .collect { case t if t.parent.javaPackage != mainClassPackageName => s"${t.parent.javaPackage}.${t.name}" }
       }).distinct.sorted

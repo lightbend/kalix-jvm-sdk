@@ -128,9 +128,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
-                sourceDirectory.resolve("com/example/service/MyService4.java"),
+                sourceDirectory.resolve("com/example/service/MyService4View.java"),
                 generatedSourceDirectory.resolve(
-                  "com/example/service/AbstractMyService4.java"
+                  "com/example/service/AbstractMyService4View.java"
                 ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/MainComponentRegistrations.java"
@@ -195,7 +195,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.MyEntity3;
         |import com.example.service.persistence.MyValueEntity2;
         |import com.example.service.something.ServiceOuterClass3;
-        |import com.example.service.view.MyService4;
+        |import com.example.service.view.MyService4View;
         |import com.example.service.view.ServiceOuterClass4;
         |import com.external.ExternalDomain;
         |
@@ -222,7 +222,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |                    ExternalDomain.getDescriptor()
         |                )
         |                .registerView(
-        |                    MyService4.class,
+        |                    MyService4View.class,
         |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
         |                    "my-view-id4",
         |                    EntityOuterClass4.getDescriptor()
