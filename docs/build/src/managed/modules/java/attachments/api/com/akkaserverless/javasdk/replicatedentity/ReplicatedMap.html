@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></pre>
 <div class="block">A Replicated Map that allows both the addition and removal of objects in a map.
 
- <p>Use the more specialized maps if possible, such as <a href="ReplicatedCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a> and <a href="ReplicatedRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a>.
+ <p>Use the more specialized maps if possible, such as <a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a>, <a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a>, and <a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a>.
 
  <p>A removal can only be done if all of the additions that caused the key to be in the map have
  been seen by this node. This means that, for example, if node 1 adds key A, and node 2 also adds

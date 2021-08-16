@@ -34,6 +34,8 @@ This example assumes the following `customer` state is defined in a `customer_do
 include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
 ----
 
+<1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
+
 === Define the View service descriptor
 
 To get a View of multiple customers by their name, define the View as a `service` in Protobuf:
@@ -60,7 +62,6 @@ include::java:example$java-customer-registry/src/main/proto/customer/customer_vi
 <1> Without `stream` when expecting single result.
 
 When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
-
 
 [#register-view]
 === Registering a View
@@ -98,10 +99,10 @@ The following lines in the `.proto` file define a View to consume the `CustomerC
 include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
-<1> Define an update method for each event.
-<2> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the `@EventSourcedEntity(entityType = "customers")` annotation of the Event Sourced Entity.
-<3> Enable `transform_updates` to build the View state from the events.
-<4> One method for each event.
+<1> The `akkaserverless.service` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
+<2> Define an update method for each event.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the `@EventSourcedEntity(entityType = "customers")` annotation of the Event Sourced Entity.
+<4> Enable `transform_updates` to build the View state from the events.
 <5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 <6> Enable `transform_updates` for all update methods.
 
@@ -109,20 +110,21 @@ See <<#query>> for more examples of valid query syntax.
 
 === Create a transformation class
 
-Next, you need to define a Java class that transforms events to state that can be used in the View:
+Next, you need to define a Java class that transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
+all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` `UpdateHandler`:
 
 [source,java,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/java/customer/CustomerView.java[tag=process-events]
+include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
 ----
 
 <1> The class must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`@View`] annotation.
-<2> Each update method in the Protobuf definition should have a corresponding method in the Java class. The methods must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] annotation.
+<2> It extends the generated `AbstractCustomerByNameView` which requires all link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] methods.
 <3> One method for each event.
 
-The first method parameter should correspond to the parameter in the Protobuf service call, the event.
+The first method parameter is the parameter in the Protobuf service call, the event.
 
-A second parameter can optionally be defined for the previous state. Its type corresponds to the return type of the Protobuf service call. It can be defined as `Optional`. For the first event of an Event Sourced Entity or for the first change of a Value Entity there is no previous state and then `Optional.empty` or `null` is used for the state parameter.
+A second parameter corresponds to the state of a customer entity. It is wrapped in an `Optional` as there is no state before the first event, thus the `Optional` will be empty.
 
 The method may also take an link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandlerContext.html[`UpdateHandlerContext`] parameter.
 

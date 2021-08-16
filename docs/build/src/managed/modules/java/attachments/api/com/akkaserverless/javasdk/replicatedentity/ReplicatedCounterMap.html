@@ -26,8 +26,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -89,13 +89,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -115,17 +115,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></div>
-<h2 title="Class ReplicatedCounterMap" class="title">Class ReplicatedCounterMap&lt;K&gt;</h2>
+<h2 title="Interface ReplicatedCounterMap" class="title">Interface ReplicatedCounterMap&lt;K&gt;</h2>
 </div>
 <div class="contentContainer">
-<ul class="inheritance">
-<li>Object</li>
-<li>
-<ul class="inheritance">
-<li>com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap&lt;K&gt;</li>
-</ul>
-</li>
-</ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
@@ -134,13 +126,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>K</code> - The type for keys.</dd>
 </dl>
 <dl>
-<dt>All Implemented Interfaces:</dt>
+<dt>All Superinterfaces:</dt>
 <dd><code><a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ReplicatedCounterMap&lt;K&gt;</span>
-extends Object
-implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></pre>
+<pre>public interface <span class="typeNameLabel">ReplicatedCounterMap&lt;K&gt;</span>
+extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></pre>
 <div class="block">A Map of counters. Uses <a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounter</code></a>'s as values.</div>
 </li>
 </ul>
@@ -148,27 +139,6 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.akkaserverless.javasdk.replicatedentity.ReplicatedMap)">ReplicatedCounterMap</a></span>&#8203;(<a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>,&#8203;<a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&gt;&nbsp;replicatedMap)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -177,7 +147,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -237,13 +207,6 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.Object">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
-</ul>
 </li>
 </ul>
 </section>
@@ -253,25 +216,6 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.akkaserverless.javasdk.replicatedentity.ReplicatedMap)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>ReplicatedCounterMap</h4>
-<pre>public&nbsp;ReplicatedCounterMap&#8203;(<a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>,&#8203;<a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&gt;&nbsp;replicatedMap)</pre>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -287,7 +231,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;get&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
+<pre class="methodSignature">long&nbsp;get&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
 <div class="block">Get the counter value for the given key.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -306,8 +250,8 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>increment</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;increment&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key,
-                      long&nbsp;by)</pre>
+<pre class="methodSignature">long&nbsp;increment&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key,
+               long&nbsp;by)</pre>
 <div class="block">Increment the counter at the given key by the given amount.
 
  <p>The counter will be created if it is not already in the map.</div>
@@ -328,8 +272,8 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>decrement</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;decrement&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key,
-                      long&nbsp;by)</pre>
+<pre class="methodSignature">long&nbsp;decrement&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key,
+               long&nbsp;by)</pre>
 <div class="block">Decrement the counter at the given key by the given amount.
 
  <p>The counter will be created if it is not already in the map.</div>
@@ -348,7 +292,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>keySet</h4>
-<pre class="methodSignature">public&nbsp;java.util.Set&lt;<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&gt;&nbsp;keySet()</pre>
+<pre class="methodSignature">java.util.Set&lt;<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&gt;&nbsp;keySet()</pre>
 </li>
 </ul>
 <a id="size()">
@@ -357,7 +301,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>size</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;size()</pre>
+<pre class="methodSignature">int&nbsp;size()</pre>
 </li>
 </ul>
 <a id="isEmpty()">
@@ -366,7 +310,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>isEmpty</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isEmpty()</pre>
+<pre class="methodSignature">boolean&nbsp;isEmpty()</pre>
 </li>
 </ul>
 <a id="containsKey(java.lang.Object)">
@@ -377,7 +321,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>containsKey</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;containsKey&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
+<pre class="methodSignature">boolean&nbsp;containsKey&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
 </li>
 </ul>
 <a id="remove(java.lang.Object)">
@@ -388,7 +332,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;remove&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
+<pre class="methodSignature">void&nbsp;remove&#8203;(<a href="ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&nbsp;key)</pre>
 </li>
 </ul>
 <a id="clear()">
@@ -397,7 +341,7 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>clear</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<pre class="methodSignature">void&nbsp;clear()</pre>
 </li>
 </ul>
 </li>
@@ -453,13 +397,13 @@ implements <a href="ReplicatedData.html" title="interface in com.akkaserverless.
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

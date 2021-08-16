@@ -14,44 +14,63 @@
  * limitations under the License.
  */
 
-package customer;
+package customer.domain;
 
+import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
-import customer.domain.CustomerDomain;
 
 @ValueEntity(entityType = "customers")
-public class CustomerValueEntity {
+public class CustomerValueEntity extends AbstractCustomerValueEntity {
+  @SuppressWarnings("unused")
+  private final String entityId;
 
-  @CommandHandler
-  public CustomerApi.Customer getCustomer(
-      CustomerApi.GetCustomerRequest request,
-      CommandContext<CustomerDomain.CustomerState> context) {
-    CustomerDomain.CustomerState state =
-        context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
-    return convertToApi(state);
+  public CustomerValueEntity(@EntityId String entityId) {
+    this.entityId = entityId;
   }
 
-  @CommandHandler
-  public Empty create(
-      CustomerApi.Customer customer, CommandContext<CustomerDomain.CustomerState> context) {
-    CustomerDomain.CustomerState state = convertToDomain(customer);
+  @Override
+  public Reply<Empty> create(
+      CustomerApi.Customer command, CommandContext<CustomerDomain.CustomerState> context) {
+    CustomerDomain.CustomerState state = convertToDomain(command);
     context.updateState(state);
-    return Empty.getDefaultInstance();
+    return Reply.noReply();
   }
 
-  @CommandHandler
-  public Empty changeName(
-      CustomerApi.ChangeNameRequest request, CommandContext<CustomerDomain.CustomerState> context) {
+  @Override
+  public Reply<Empty> changeName(
+      CustomerApi.ChangeNameRequest command, CommandContext<CustomerDomain.CustomerState> context) {
     if (context.getState().isEmpty())
       throw context.fail("Customer must be created before name can be changed.");
     CustomerDomain.CustomerState updatedState =
-        context.getState().get().toBuilder().setName(request.getNewName()).build();
+        context.getState().get().toBuilder().setName(command.getNewName()).build();
     context.updateState(updatedState);
-    return Empty.getDefaultInstance();
+    return Reply.noReply();
+  }
+
+  @Override
+  public Reply<Empty> changeAddress(
+      CustomerApi.ChangeAddressRequest command,
+      CommandContext<CustomerDomain.CustomerState> context) {
+    if (context.getState().isEmpty())
+      throw context.fail("Customer must be created before address can be changed.");
+    CustomerDomain.CustomerState state = context.getState().get();
+    CustomerDomain.CustomerState updatedState =
+        state.toBuilder().setAddress(convertAddressToDomain(command.getNewAddress())).build();
+    context.updateState(updatedState);
+    return Reply.noReply();
+  }
+
+  @Override
+  public Reply<CustomerApi.Customer> getCustomer(
+      CustomerApi.GetCustomerRequest command,
+      CommandContext<CustomerDomain.CustomerState> context) {
+    CustomerDomain.CustomerState state =
+        context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
+    return Reply.message(convertToApi(state));
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
@@ -74,17 +93,20 @@ public class CustomerValueEntity {
   private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
     CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
     if (customer.hasAddress()) {
-      address =
-          CustomerDomain.Address.newBuilder()
-              .setStreet(customer.getAddress().getStreet())
-              .setCity(customer.getAddress().getCity())
-              .build();
+      address = convertAddressToDomain(customer.getAddress());
     }
     return CustomerDomain.CustomerState.newBuilder()
         .setCustomerId(customer.getCustomerId())
         .setEmail(customer.getEmail())
         .setName(customer.getName())
         .setAddress(address)
+        .build();
+  }
+
+  private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
+    return CustomerDomain.Address.newBuilder()
+        .setStreet(address.getStreet())
+        .setCity(address.getCity())
         .build();
   }
 }

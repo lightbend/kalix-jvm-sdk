@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -170,7 +170,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;</code></td>
+<td class="colFirst"><code>&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedCounterMap()">newReplicatedCounterMap</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Create a new map of counters.</div>
@@ -184,20 +184,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br><a href="ReplicatedRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;</code></td>
+<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br><a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;K,&#8203;V&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedMultiMap()">newReplicatedMultiMap</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Create a new multimap (map of sets).</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br><a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedRegisterMap()">newReplicatedRegisterMap</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Create a new map of registers.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedSet()">newReplicatedSet</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Create a new ReplicatedSet.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Vote</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newVote()">newVote</a></span>()</code></th>
 <td class="colLast">
@@ -237,7 +244,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>newReplicatedCounterMap</h4>
-<pre class="methodSignature">&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;&nbsp;newReplicatedCounterMap()</pre>
+<pre class="methodSignature">&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;&nbsp;newReplicatedCounterMap()</pre>
 <div class="block">Create a new map of counters.</div>
 </li>
 </ul>
@@ -249,6 +256,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>newReplicatedSet</h4>
 <pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;&nbsp;newReplicatedSet()</pre>
 <div class="block">Create a new ReplicatedSet.</div>
+</li>
+</ul>
+<a id="newReplicatedMultiMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newReplicatedMultiMap</h4>
+<pre class="methodSignature">&lt;K,&#8203;V&gt;&nbsp;<a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedMultiMap()</pre>
+<div class="block">Create a new multimap (map of sets).</div>
 </li>
 </ul>
 <a id="newRegister(java.lang.Object)">
@@ -269,7 +286,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>newReplicatedRegisterMap</h4>
-<pre class="methodSignature">&lt;K,&#8203;V&gt;&nbsp;<a href="ReplicatedRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedRegisterMap()</pre>
+<pre class="methodSignature">&lt;K,&#8203;V&gt;&nbsp;<a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedRegisterMap()</pre>
 <div class="block">Create a new map of registers.</div>
 </li>
 </ul>
