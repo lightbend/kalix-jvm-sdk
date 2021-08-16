@@ -35,6 +35,9 @@ private[replicatedentity] class ReplicatedSetImpl[T](anySupport: AnySupport)
   private val removed = new util.HashSet[ScalaPbAny]()
   private var cleared = false
 
+  // copy of the current elements
+  def elements: util.Set[T] = new util.HashSet[T](value)
+
   override def size(): Int = value.size()
 
   override def isEmpty: Boolean = super.isEmpty

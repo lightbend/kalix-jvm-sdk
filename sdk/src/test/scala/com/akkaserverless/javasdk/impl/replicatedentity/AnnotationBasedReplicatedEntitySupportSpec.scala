@@ -38,7 +38,7 @@ class AnnotationBasedReplicatedEntitySupportSpec extends AnyWordSpec with Matche
 
   trait ReplicatedEntityFactoryContext extends AbstractReplicatedEntityFactory {
     override protected def anySupport: AnySupport = AnnotationBasedReplicatedEntitySupportSpec.this.anySupport
-    override protected def newEntity[C <: InternalReplicatedData](entity: C): C = entity
+    override protected def newData[D <: InternalReplicatedData](data: D): D = data
   }
 
   val anySupport = new AnySupport(Array(ShoppingCartApi.getDescriptor), this.getClass.getClassLoader)

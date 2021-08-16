@@ -23,13 +23,7 @@ import java.util.Set;
  *
  * @param <K> The type for keys.
  */
-public final class ReplicatedCounterMap<K> implements ReplicatedData {
-
-  private final ReplicatedMap<K, ReplicatedCounter> replicatedMap;
-
-  public ReplicatedCounterMap(ReplicatedMap<K, ReplicatedCounter> replicatedMap) {
-    this.replicatedMap = replicatedMap;
-  }
+public interface ReplicatedCounterMap<K> extends ReplicatedData {
 
   /**
    * Get the counter value for the given key.
@@ -38,14 +32,7 @@ public final class ReplicatedCounterMap<K> implements ReplicatedData {
    * @return The current value of the counter at that key, or zero if no counter exists for that
    *     key.
    */
-  public long get(K key) {
-    ReplicatedCounter counter = replicatedMap.get(key);
-    if (counter != null) {
-      return counter.getValue();
-    } else {
-      return 0;
-    }
-  }
+  long get(K key);
 
   /**
    * Increment the counter at the given key by the given amount.
@@ -56,9 +43,7 @@ public final class ReplicatedCounterMap<K> implements ReplicatedData {
    * @param by The amount to increment by.
    * @return The new value of the counter.
    */
-  public long increment(K key, long by) {
-    return getOrCreate(key).increment(by);
-  }
+  long increment(K key, long by);
 
   /**
    * Decrement the counter at the given key by the given amount.
@@ -69,35 +54,17 @@ public final class ReplicatedCounterMap<K> implements ReplicatedData {
    * @param by The amount to decrement by.
    * @return The new value of the counter.
    */
-  public long decrement(K key, long by) {
-    return getOrCreate(key).decrement(by);
-  }
+  long decrement(K key, long by);
 
-  private ReplicatedCounter getOrCreate(K key) {
-    return replicatedMap.getOrCreate(key, ReplicatedDataFactory::newCounter);
-  }
+  Set<K> keySet();
 
-  public Set<K> keySet() {
-    return replicatedMap.keySet();
-  }
+  int size();
 
-  public int size() {
-    return replicatedMap.size();
-  }
+  boolean isEmpty();
 
-  public boolean isEmpty() {
-    return replicatedMap.isEmpty();
-  }
+  boolean containsKey(K key);
 
-  public boolean containsKey(K key) {
-    return replicatedMap.containsKey(key);
-  }
+  void remove(K key);
 
-  public void remove(K key) {
-    replicatedMap.remove(key);
-  }
-
-  public void clear() {
-    replicatedMap.clear();
-  }
+  void clear();
 }
