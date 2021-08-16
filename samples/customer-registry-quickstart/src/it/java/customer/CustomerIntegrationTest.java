@@ -81,7 +81,7 @@ public class CustomerIntegrationTest {
 
   @Test
   public void emptyCustomerByDefault() throws Exception {
-    assertEquals("shopping cart should be empty", "xxx", getCustomer("user1").getName());
+    assertEquals("customer name should be empty", "", getCustomer("user1").getName());
   }
 
 //  @Test

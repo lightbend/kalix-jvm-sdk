@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /** A view. */
 @View
-public class CustomerByName extends AbstractCustomerByName {
+public class CustomerByNameView extends AbstractCustomerByNameView {
     @Override
     public CustomerDomain.CustomerState updateCustomer(CustomerDomain.CustomerState event, Optional<CustomerDomain.CustomerState> state) {
         return state.orElseThrow(
