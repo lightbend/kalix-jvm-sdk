@@ -200,8 +200,7 @@ jobs:
           command: |
             cd samples/customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            # TODO: enable integration tests with -Pit
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Views "Customer Registry" sample
           command: |
