@@ -115,11 +115,11 @@ all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvent
 
 [source,java,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
+include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameViewImpl.java[tag=process-events]
 ----
 
 <1> The class must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`@View`] annotation.
-<2> It extends the generated `AbstractCustomerByNameView` which requires all link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] methods.
+<2> It extends the generated `AbstractCustomerByNameViewImpl` which requires all link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] methods.
 <3> One method for each event.
 
 The first method parameter is the parameter in the Protobuf service call, the event.

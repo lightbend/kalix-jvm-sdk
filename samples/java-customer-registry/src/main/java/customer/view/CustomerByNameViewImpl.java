@@ -23,7 +23,7 @@ import customer.domain.CustomerDomain;
 import java.util.Optional;
 
 @View // <1>
-public class CustomerByNameView extends AbstractCustomerByNameView { // <2>
+public class CustomerByNameViewImpl extends AbstractCustomerByNameViewImpl { // <2>
 
   @Override // <3>
   public CustomerDomain.CustomerState processCustomerCreated(

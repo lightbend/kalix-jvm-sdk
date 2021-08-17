@@ -66,10 +66,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("interface source") {
     val service = TestData.simpleViewService()
     val packageName = "com.example.service"
-    val className = "MyServiceEntity"
 
     val sourceDoc =
-      ViewServiceSourceGenerator.interfaceSource(service, packageName, className)
+      ViewServiceSourceGenerator.interfaceSource(service, packageName, service.fqn.name)
     assertEquals(
       sourceDoc.layout,
       """/* This code is managed by Akka Serverless tooling.
@@ -84,7 +83,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import java.util.Optional;
         |
         |/** A view. */
-        |public abstract class AbstractMyServiceEntity {
+        |public abstract class AbstractMyServiceView {
         |    @UpdateHandler
         |    public abstract ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state);
         |    

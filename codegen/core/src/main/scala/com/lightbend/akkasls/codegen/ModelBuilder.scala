@@ -88,7 +88,9 @@ object ModelBuilder {
       override val commands: Iterable[Command],
       viewId: String,
       transformedUpdates: Iterable[Command]
-  ) extends Service(fqn, commands)
+  ) extends Service(fqn, commands) {
+    require(fqn.name.endsWith("View") || fqn.name.endsWith("Impl"))
+  }
 
   /**
    * A Service backed by an Akka Serverless Entity
@@ -153,7 +155,7 @@ object ModelBuilder {
             .getOptions()
             .getExtension(com.akkaserverless.Annotations.service)
           serviceType <- Option(options.getType())
-          serviceName = FullyQualifiedName.from(serviceDescriptor)
+          serviceName = FullyQualifiedName.from(serviceDescriptor, serviceType)
 
           methods = serviceDescriptor.getMethods.asScala
           commands = methods.map(Command.from)

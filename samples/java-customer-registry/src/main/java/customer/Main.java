@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import customer.domain.CustomerValueEntity;
-import customer.view.CustomerByNameView;
+import customer.view.CustomerByNameViewImpl;
 import customer.view.CustomerViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public final class Main {
       // tag::register-with-class[]
       new AkkaServerless()
           .registerView(
-              CustomerByNameView.class,
+              CustomerByNameViewImpl.class,
               CustomerViewModel.getDescriptor().findServiceByName("CustomerByNameView"),
               "customerByName",
               CustomerDomain.getDescriptor())
