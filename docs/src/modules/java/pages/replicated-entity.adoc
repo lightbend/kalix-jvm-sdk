@@ -4,13 +4,13 @@ include::ROOT:partial$include.adoc[]
 
 ifdef::review[REVIEWERS: this is the content from the previous version of replicated entities, please bring it up to date with the newest implementation]
 
-This page documents how to implement  Replicated Entities in Java. For information on what Replicated Entities are, please read how to https://developer.lightbend.com/docs/akka-serverless/designing/state-model.html[choose a state model] and the general xref:developing:replicatedentities.adoc[Replicated Entity] information first.
+This page documents how to implement  Replicated Entities in Java. For information on what Replicated Entities are, please read how to https://developer.lightbend.com/docs/akka-serverless/designing/state-model.html[choose a state model] information first.
 
 A Replicated Entity can be created by annotating it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html[`@ReplicatedEntity`{tab-icon}, window="new"] annotation.
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=Entity-class]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=Entity-class]
 ----
 
 == Accessing and creating an Entity's Replicated Entity
@@ -25,7 +25,7 @@ For most use cases, simply injecting the data type directly into the constructor
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=creation]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=creation]
 ----
 
 In addition to the Replicated Entity, the constructor may accept a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityCreationContext.html[`ReplicatedEntityCreationContext`{tab-icon}, window="new"].
@@ -44,18 +44,18 @@ The following shows the implementation of the `GetCart` command handler. This co
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=get-cart]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=get-cart]
 ----
 
 == Updating a Replicated Entity
 
-Due to Akka Serverless's xref:developing:replicatedentities.adoc#approach-to-replicatedentities-in-akkaserverless[take in turns approach], Replicated Entities may only be updated in command handlers and <<Responding to stream cancellation,stream cancellation callbacks>>.
+Due to Akka Serverless's take-in-turns approach, Replicated Entities may only be updated in command handlers and <<Responding to stream cancellation,stream cancellation callbacks>>.
 
 Here's a command handler for the `AddItem` command that adds the item to the shopping cart:
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=add-item]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=add-item]
 ----
 
 == Deleting a Replicated Entity
@@ -87,7 +87,7 @@ that could be implemented like this:
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=watch-cart]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=watch-cart]
 ----
 
 === Ending the stream
@@ -100,7 +100,7 @@ A streamed command handler may also register an link:{attachmentsdir}/api/com/ak
 
 == Replicated Entity data types
 
-The Akka Serverless Java SDK offers Java classes for each of the xref:developing:replicatedentities.adoc#replicatedentities-available-in-akkaserverless[data types available in Akka Serverless].
+The Akka Serverless Java SDK offers Java classes for each of the data types available.
 
 === Counters and flags
 
@@ -170,7 +170,7 @@ In addition to passing your Entity class and service descriptor, if you use prot
 
 [source,java,indent=0]
 ----
-include::example$docs/user/replicatedentity/ShoppingCartEntity.java[tag=register]
+include::example$replicatedentity/ShoppingCartEntity.java[tag=register]
 ----
 
 = Replicated Entities Streaming Example
@@ -185,7 +185,7 @@ Replicated Entities support streaming over gRPC. This page documents how to impl
 
 The following shows the implementation of the command handler `Monitor(User)` in java.
 ----
-include::example$docs/user/replicatedentity/PresenceEntity.java[tag=streamcall]
+include::example$replicatedentity/PresenceEntity.java[tag=streamcall]
 ----
 
 
