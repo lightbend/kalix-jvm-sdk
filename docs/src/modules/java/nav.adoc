@@ -4,6 +4,7 @@
 *** xref:java:proto.adoc[]
 *** xref:java:value-entity.adoc[Implementing Value Entities]
 *** xref:java:eventsourced.adoc[Implementing Event Sourced Entities]
+*** xref:java:replicated-entity.adoc[]
 *** xref:java:actions.adoc[Implementing Actions]
 *** xref:java:forwarding.adoc[Forwarding and effects]
 *** xref:java:entity-eventing.adoc[Subscribing to a Journal]
