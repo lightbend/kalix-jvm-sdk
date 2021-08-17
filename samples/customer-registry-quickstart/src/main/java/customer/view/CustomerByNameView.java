@@ -14,9 +14,6 @@ import java.util.Optional;
 public class CustomerByNameView extends AbstractCustomerByNameView {
     @Override
     public CustomerDomain.CustomerState updateCustomer(CustomerDomain.CustomerState event, Optional<CustomerDomain.CustomerState> state) {
-        return state.orElseThrow(
-                () ->
-                        new RuntimeException(
-                                "Received `" + event.getClass().getSimpleName() + "`, but no state exists."));
+        return event;
     }
 }
