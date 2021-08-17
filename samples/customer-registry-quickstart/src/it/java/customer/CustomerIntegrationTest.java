@@ -55,33 +55,6 @@ public class CustomerIntegrationTest {
         .get();
   }
 
-  void changeName(String customerId, String newName) throws Exception {
-    client
-        .changeName(
-            CustomerApi.ChangeNameRequest.newBuilder()
-                .setCustomerId(customerId)
-                .setNewName(newName)
-                .build())
-        .toCompletableFuture()
-        .get();
-  }
-
-  void changeAddress(String customerId, String street, String city) throws Exception {
-    client
-        .changeAddress(
-            CustomerApi.ChangeAddressRequest.newBuilder()
-                .setCustomerId(customerId)
-                .setNewAddress(
-                        CustomerApi.Address.newBuilder()
-                                .setStreet(street)
-                                .setCity(city)
-                                .build()
-                )
-                .build())
-        .toCompletableFuture()
-        .get();
-  }
-
   @Test(expected = StatusRuntimeException.class)
   public void errorGettingNonExistingCustomer() throws Throwable {
     try {
