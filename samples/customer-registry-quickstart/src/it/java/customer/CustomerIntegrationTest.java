@@ -15,6 +15,9 @@
  */
 package customer;
 
+import java.util.concurrent.ExecutionException;
+
+import io.grpc.StatusRuntimeException;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import customer.api.CustomerApi;
 import customer.api.CustomerServiceClient;
@@ -79,53 +82,68 @@ public class CustomerIntegrationTest {
         .get();
   }
 
-  @Test
-  public void emptyCustomerByDefault() throws Exception {
-    assertEquals("customer name should be empty", "", getCustomer("user1").getName());
+  @Test(expected = StatusRuntimeException.class)
+  public void errorGettingNonExistingCustomer() throws Throwable {
+    try {
+      getCustomer("user1");
+    } catch (ExecutionException e) {
+      throw e.getCause();
+    }
   }
 
-//  @Test
-//  public void addItemsToCart() throws Exception {
-//    addItem("cart2", "a", "Apple", 1);
-//    addItem("cart2", "b", "Banana", 2);
-//    addItem("cart2", "c", "Cantaloupe", 3);
-//    CustomerApi.Cart cart = getCart("cart2");
-//    assertEquals("shopping cart should have 3 items", 3, cart.getItemsCount());
-//    assertEquals(
-//        "shopping cart should have expected items",
-//        cart.getItemsList(),
-//        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)));
-//  }
-//
-//  @Test
-//  public void removeItemsFromCart() throws Exception {
-//    addItem("cart3", "a", "Apple", 1);
-//    addItem("cart3", "b", "Banana", 2);
-//    CustomerApi.Cart cart1 = getCart("cart3");
-//    assertEquals("shopping cart should have 2 items", 2, cart1.getItemsCount());
-//    assertEquals(
-//        "shopping cart should have expected items",
-//        cart1.getItemsList(),
-//        List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
-//    removeItem("cart3", "a");
-//    CustomerApi.Cart cart2 = getCart("cart3");
-//    assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
-//    assertEquals(
-//        "shopping cart should have expected items",
-//        cart2.getItemsList(),
-//        List.of(item("b", "Banana", 2)));
-//  }
-//
-//  @Test
-//  public void removeCart() throws Exception {
-//    addItem("cart4", "a", "Apple", 42);
-//    CustomerApi.Cart cart1 = getCart("cart4");
-//    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
-//    assertEquals(
-//        "shopping cart should have expected items",
-//        cart1.getItemsList(),
-//        List.of(item("a", "Apple", 42)));
-//    removeCart("cart4");
-//    assertEquals("shopping cart should be empty", 0, getCart("cart4").getItemsCount());
-//  }
+  @Test
+  public void createCustomer() throws Exception {
+    String id = "42";
+    client.create(CustomerApi.Customer.newBuilder()
+            .setCustomerId(id)
+            .setName("Johanna")
+            .setEmail("foo@example.com")
+            .build())
+          .toCompletableFuture()
+          .get();
+    assertEquals("Johanna", getCustomer(id).getName());
+  }
+
+  @Test
+  public void changeName() throws Exception {
+    String id = "43";
+    client.create(CustomerApi.Customer.newBuilder()
+                    .setCustomerId(id)
+                    .setName("Johanna")
+                    .setEmail("foo@example.com")
+                    .build())
+            .toCompletableFuture()
+            .get();
+    client.changeName(CustomerApi.ChangeNameRequest.newBuilder()
+            .setCustomerId(id)
+            .setNewName("Katarina")
+            .build())
+        .toCompletableFuture()
+        .get();
+    assertEquals("Katarina", getCustomer(id).getName());
+  }
+
+  @Test
+  public void changeAddress() throws Exception {
+    String id = "44";
+    client.create(CustomerApi.Customer.newBuilder()
+                    .setCustomerId(id)
+                    .setName("Johanna")
+                    .setEmail("foo@example.com")
+                    .build())
+            .toCompletableFuture()
+            .get();
+    client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder()
+                    .setCustomerId(id)
+                    .setNewAddress(
+                            CustomerApi.Address.newBuilder()
+                                    .setStreet("Elm st. 5")
+                                    .setCity("New Orleans")
+                                    .build()
+                    )
+                    .build())
+            .toCompletableFuture()
+            .get();
+    assertEquals("Elm st. 5", getCustomer(id).getAddress().getStreet());
+  }
 }

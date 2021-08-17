@@ -37,7 +37,7 @@ public class Customer extends AbstractCustomer {
       CustomerApi.Customer command, CommandContext<CustomerDomain.CustomerState> context) {
     CustomerDomain.CustomerState state = convertToDomain(command);
     context.updateState(state);
-    return Reply.noReply();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   @Override
@@ -48,7 +48,7 @@ public class Customer extends AbstractCustomer {
     CustomerDomain.CustomerState updatedState =
         context.getState().get().toBuilder().setName(command.getNewName()).build();
     context.updateState(updatedState);
-    return Reply.noReply();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   @Override
@@ -61,16 +61,17 @@ public class Customer extends AbstractCustomer {
     CustomerDomain.CustomerState updatedState =
         state.toBuilder().setAddress(convertAddressToDomain(command.getNewAddress())).build();
     context.updateState(updatedState);
-    return Reply.noReply();
+    return Reply.message(Empty.getDefaultInstance());
   }
 
   @Override
   public Reply<CustomerApi.Customer> getCustomer(
       CustomerApi.GetCustomerRequest command,
       CommandContext<CustomerDomain.CustomerState> context) {
-    CustomerDomain.CustomerState state =
-        context.getState().orElseGet(CustomerDomain.CustomerState::getDefaultInstance);
-    return Reply.message(convertToApi(state));
+    if (context.getState().isEmpty())
+      throw context.fail("Customer does not exist.");
+    else
+      return Reply.message(convertToApi(context.getState().get()));
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
