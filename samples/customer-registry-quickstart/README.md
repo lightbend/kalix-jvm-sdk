@@ -4,20 +4,20 @@
 
 ## Designing
 
-While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
+To understand the Akka Serverless concepts that are a basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html) in the documentation.
 
 
 ## Developing
 
-This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
+This project demonstrates use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
 and in particular the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
 
 
 ## Building
 
-To build, at a minimum you need to generate and process sources, particularly when using an IDE.
-To compile your project:
+You can use Maven to build your project, which will also take care of
+generating code based on the `.proto` definitions:
 
 ```
 mvn compile
@@ -26,7 +26,7 @@ mvn compile
 
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+To run the example locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
 To start the proxy, run the following command from this directory:
 
@@ -79,7 +79,7 @@ To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
 and configure a Docker Registry to upload your docker image to.
 
-You will need to update the `akkasls.dockerImage` property in the `pom.xml` and refer to
+You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
