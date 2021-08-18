@@ -1,20 +1,21 @@
-# ${artifactId}
+# Quickstart project: Customer Registry
 
-#[[
+# TODO update for quickstart instructions
+
 ## Designing
-]]#
-While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
 
-#[[
+To understand the Akka Serverless concepts that are a basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html) in the documentation.
+
+
 ## Developing
-]]#
-This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
+
+This project demonstrates use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
 and in particular the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
 
-#[[
+
 ## Building
-]]#
+
 You can use Maven to build your project, which will also take care of
 generating code based on the `.proto` definitions:
 
@@ -22,20 +23,18 @@ generating code based on the `.proto` definitions:
 mvn compile
 ```
 
-#[[
+
 ## Running Locally
-]]#
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+
+To run the example locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-### macOS and Windows
 
 ```
 docker-compose up
 ```
 
-### Linux
 
 > On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
 > or for a `USER_FUNCTION_HOST` environment variable to be set manually.
@@ -52,26 +51,30 @@ mvn compile exec:java
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
-```
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/${package}.MyServiceEntity/GetValue -d '{"entityId": "foo"}'
-The command handler for `GetValue` is not implemented, yet
-```
 
-For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+* Create a customer with:
+  ```
+  grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
+  ```
+* Retrieve the customer:
+  ```
+  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
+  ```
+* Query by name:
+  ```
+  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
+  ```
+* Change name:
+  ```
+  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+  ```
+* Change address:
+  ```
+  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
+  ```
 
-```shell
-> grpcurl -plaintext -d '{"entityId": "foo"}' localhost:9000 ${package}.MyServiceEntity/GetValue
-ERROR:
-  Code: Unknown
-  Message: The command handler for `GetValue` is not implemented, yet
-```
-
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in
-> your entity.
-
-#[[
 ## Deploying
-]]#
+
 To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
 and configure a Docker Registry to upload your docker image to.

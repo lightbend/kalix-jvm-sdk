@@ -15,8 +15,8 @@ and in particular the [Java section](https://developer.lightbend.com/docs/akka-s
 #[[
 ## Building
 ]]#
-To build, at a minimum you need to generate and process sources, particularly when using an IDE.
-To compile your project:
+You can use Maven to build your project, which will also take care of
+generating code based on the `.proto` definitions:
 
 ```
 mvn compile
@@ -76,7 +76,7 @@ To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
 and configure a Docker Registry to upload your docker image to.
 
-You will need to update the `akkasls.dockerImage` property in the `pom.xml` and refer to
+You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
