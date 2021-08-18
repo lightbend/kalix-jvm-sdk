@@ -101,9 +101,7 @@ include::java:example$valueentity-counter/src/main/java/com/example/domain/Count
 
 To make Akka Serverless aware of the Value Entity, we need to register it with the service.
 
-As our example relies on the code generation, the registration gets automatically inserted via the generated `MainComponentRegistrations.withGeneratedComponentsAdded` method.
-
-To register a Value Entity it calls the `registerValueEntity` method. In addition to passing the Value Entity's class and protobuf service descriptor, it also requires any descriptors that define the state.
+As our example relies on the code generation, the registration gets automatically inserted via the generated `MainComponentRegistrations.registerAll` method.
 
 [source,java]
 ----

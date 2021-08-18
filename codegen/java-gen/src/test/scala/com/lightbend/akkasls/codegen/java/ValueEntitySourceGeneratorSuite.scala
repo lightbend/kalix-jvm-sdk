@@ -44,6 +44,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | */
          |package com.example.service;
          |
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
          |
@@ -52,13 +53,13 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  @SuppressWarnings("unused")
          |  private final String entityId;
          |
-         |  public MyService(String entityId) {
-         |    this.entityId = entityId;
+         |  public MyService(ValueEntityContext context) {
+         |    this.entityId = context.entityId();
          |  }
          |
          |  @Override
          |  public EntityOuterClass.MyState emptyState() {
-         |    return EntityOuterClass.MyState.getDefaultInstance();
+         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
          |  }
          |
          |  @Override
@@ -201,6 +202,73 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("ValueEntity Provider") {
+    val service = TestData.simpleEntityService()
+    val entity = TestData.valueEntity()
+
+    val packageName = "com.example.service"
+    val className = "MyService"
+
+    val generatedSrc =
+      ValueEntitySourceGenerator.valueEntityProvider(
+        service,
+        entity,
+        packageName,
+        className
+      )
+
+    assertEquals(
+      generatedSrc,
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
+         |import com.example.service.ServiceOuterClass;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import com.external.ExternalDomain;
+         |import com.google.protobuf.Descriptors;
+         |import java.util.function.Function;
+         |
+         |/** A value entity provider */
+         |public class MyServiceProvider implements ValueEntityProvider {
+         |
+         |  private final Function<ValueEntityContext, MyService> entityFactory;
+         |
+         |  public MyServiceProvider(Function<ValueEntityContext, MyService> entityFactory) {
+         |    this.entityFactory = entityFactory;
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+         |    return ServiceOuterClass.getDescriptor().findServiceByName("MyService");
+         |  }
+         |
+         |  @Override
+         |  public final String entityType() {
+         |    return "MyValueEntity";
+         |  }
+         |
+         |  @Override
+         |  public final MyServiceHandler newHandler(ValueEntityContext context) {
+         |    return new MyServiceHandler(entityFactory.apply(context));
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+         |    return new Descriptors.FileDescriptor[] {
+         |      EntityOuterClass.getDescriptor(),
+         |      ExternalDomain.getDescriptor()
+         |    };
+         |  }
+         |}""".stripMargin
+    )
+  }
+
   test("ValueEntity test source") {
     val service = TestData.simpleEntityService()
     val entity = TestData.valueEntity()
@@ -210,13 +278,15 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val testClassName = "MyServiceTest"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.testSource(
-        service,
-        entity,
-        packageName,
-        implClassName,
-        testClassName
-      )
+      EntityServiceSourceGenerator
+        .testSource(
+          service,
+          entity,
+          packageName,
+          implClassName,
+          testClassName
+        )
+
     assertEquals(
       generatedSrc,
       """|/* This code was initialised by Akka Serverless tooling.
@@ -241,7 +311,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |    
          |    @Test
          |    public void setTest() {
-         |        entity = new MyServiceImpl(entityId);
+         |        entity = new MyServiceImpl(context);
          |        
          |        // TODO: write your mock here
          |        // Mockito.when(context.[...]).thenReturn([...]);
@@ -254,7 +324,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |    
          |    @Test
          |    public void getTest() {
-         |        entity = new MyServiceImpl(entityId);
+         |        entity = new MyServiceImpl(context);
          |        
          |        // TODO: write your mock here
          |        // Mockito.when(context.[...]).thenReturn([...]);

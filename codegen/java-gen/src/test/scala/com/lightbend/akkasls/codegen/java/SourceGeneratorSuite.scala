@@ -118,6 +118,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyValueEntity2.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2Provider.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyValueEntity2Handler.java"
+                ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
@@ -179,56 +185,55 @@ class SourceGeneratorSuite extends munit.FunSuite {
     )
     assertEquals(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.AkkaServerless;
-        |import com.example.service.persistence.EntityOuterClass1;
-        |import com.example.service.persistence.EntityOuterClass2;
-        |import com.example.service.persistence.EntityOuterClass3;
-        |import com.example.service.persistence.EntityOuterClass4;
-        |import com.example.service.persistence.MyEntity1;
-        |import com.example.service.persistence.MyEntity3;
-        |import com.example.service.persistence.MyValueEntity2;
-        |import com.example.service.something.ServiceOuterClass3;
-        |import com.example.service.view.MyService4;
-        |import com.example.service.view.ServiceOuterClass4;
-        |import com.external.ExternalDomain;
-        |
-        |public final class SomeMainComponentRegistrations {
-        |    
-        |    public static AkkaServerless withGeneratedComponentsAdded(AkkaServerless akkaServerless) {
-        |        return akkaServerless
-        |                .registerEventSourcedEntity(
-        |                    MyEntity1.class,
-        |                    ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
-        |                    EntityOuterClass1.getDescriptor(),
-        |                    ExternalDomain.getDescriptor()
-        |                )
-        |                .registerValueEntity(
-        |                    MyValueEntity2.class,
-        |                    ServiceOuterClass2.getDescriptor().findServiceByName("MyService2"),
-        |                    EntityOuterClass2.getDescriptor(),
-        |                    ExternalDomain.getDescriptor()
-        |                )
-        |                .registerEventSourcedEntity(
-        |                    MyEntity3.class,
-        |                    ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
-        |                    EntityOuterClass3.getDescriptor(),
-        |                    ExternalDomain.getDescriptor()
-        |                )
-        |                .registerView(
-        |                    MyService4.class,
-        |                    ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
-        |                    "my-view-id4",
-        |                    EntityOuterClass4.getDescriptor()
-        |                );
-        |    }
-        |}""".stripMargin
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.AkkaServerless;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+         |import com.example.service.persistence.EntityOuterClass1;
+         |import com.example.service.persistence.EntityOuterClass2;
+         |import com.example.service.persistence.EntityOuterClass3;
+         |import com.example.service.persistence.MyEntity1;
+         |import com.example.service.persistence.MyEntity3;
+         |import com.example.service.persistence.MyValueEntity2;
+         |import com.example.service.persistence.MyValueEntity2Provider;
+         |import com.example.service.something.MyService3;
+         |import com.example.service.something.ServiceOuterClass3;
+         |import com.example.service.view.MyService4;
+         |import com.example.service.view.ServiceOuterClass4;
+         |import com.external.ExternalDomain;
+         |import java.util.function.Function;
+         |
+         |public final class SomeMainComponentRegistrations {
+         |
+         |  public static AkkaServerless registerAll(AkkaServerless akkaServerless,
+         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2) {
+         |    return akkaServerless
+         |      .registerEventSourcedEntity(
+         |          MyEntity1.class,
+         |          ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
+         |          EntityOuterClass1.getDescriptor(),
+         |          ExternalDomain.getDescriptor()
+         |      )
+         |      .register(new MyValueEntity2Provider(createMyValueEntity2))
+         |      .registerEventSourcedEntity(
+         |          MyEntity3.class,
+         |          ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
+         |          EntityOuterClass3.getDescriptor(),
+         |          ExternalDomain.getDescriptor()
+         |      )
+         |      .registerView(
+         |          MyService4.class,
+         |          ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
+         |          "my-view-id4",
+         |          EntityOuterClass4.getDescriptor()
+         |      );
+         |  }
+         |}""".stripMargin
     )
   }
 
@@ -236,40 +241,48 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
+    val entities = Map(
+      "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
+      "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
+      "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3")
+    )
+
     val generatedSrc = SourceGenerator.mainSource(
       mainPackageName,
-      mainClassName
+      mainClassName,
+      entities
     )
     assertEquals(
       generatedSrc,
-      """/* This code was initialised by Akka Serverless tooling.
-        | * As long as this file exists it will not be re-generated.
-        | * You are free to make changes to this file.
-        | */
-        |
-        |package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.AkkaServerless;
-        |import org.slf4j.Logger;
-        |import org.slf4j.LoggerFactory;
-        |
-        |import static com.example.service.SomeMainComponentRegistrations.withGeneratedComponentsAdded;
-        |
-        |public final class SomeMain {
-        |    
-        |    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-        |    
-        |    public static final AkkaServerless SERVICE =
-        |        // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
-        |        // and is kept up-to-date with any changes in your protobuf definitions.
-        |        // If you prefer, you may remove this wrapper and manually register these components.
-        |        withGeneratedComponentsAdded(new AkkaServerless());
-        |    
-        |    public static void main(String[] args) throws Exception {
-        |        LOG.info("starting the Akka Serverless service");
-        |        SERVICE.start();
-        |    }
-        |}""".stripMargin
+      """|/* This code was generated by Akka Serverless tooling.
+         | * As long as this file exists it will not be re-generated.
+         | * You are free to make changes to this file.
+         | */
+         |
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.AkkaServerless;
+         |import org.slf4j.Logger;
+         |import org.slf4j.LoggerFactory;
+         |import com.example.service.persistence.MyValueEntity2;
+         |import static com.example.service.SomeMainComponentRegistrations.registerAll;
+         |
+         |public final class SomeMain {
+         |
+         |  private static final Logger LOG = LoggerFactory.getLogger(SomeMain.class);
+         |
+         |  public static final AkkaServerless SERVICE =
+         |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
+         |    // and is kept up-to-date with any changes in your protobuf definitions.
+         |    // If you prefer, you may remove this wrapper and manually register these components.
+         |    registerAll(new AkkaServerless(),
+         |      MyValueEntity2::new);
+         |
+         |  public static void main(String[] args) throws Exception {
+         |    LOG.info("starting the Akka Serverless service");
+         |    SERVICE.start();
+         |  }
+         |}""".stripMargin
     )
   }
 

@@ -66,16 +66,26 @@ object EntityServiceSourceGenerator {
       interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
     )
 
-    val handleClassName = className + "Handler"
-    val handlerSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(handleClassName + ".java"))
-
-    handlerSourcePath.getParent.toFile.mkdirs()
-    handlerSource(service, entity, packageName, className).foreach { doc =>
+    val handlerClassName = className + "Handler"
+    val handlerSourcePath = handlerSource(service, entity, packageName, className).map { doc =>
+      val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
+      path.getParent.toFile.mkdirs()
       Files.write(
-        handlerSourcePath,
+        path,
         doc.getBytes(Charsets.UTF_8)
       )
+      path
+    }
+
+    val providerClassName = className + "Provider"
+    val providerSourcePath = providerSource(service, entity, packageName, className).map { src =>
+      val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
+      path.getParent.toFile.mkdirs()
+      Files.write(
+        path,
+        src.getBytes(Charsets.UTF_8)
+      )
+      path
     }
 
     if (!implSourcePath.toFile.exists()) {
@@ -83,16 +93,18 @@ object EntityServiceSourceGenerator {
       val testClassName = className + "Test"
       val testSourcePath =
         testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-      val testSourceFiles = if (!testSourcePath.toFile.exists()) {
-        testSourcePath.getParent.toFile.mkdirs()
-        Files.write(
-          testSourcePath,
-          testSource(service, entity, packageName, implClassName, testClassName).getBytes(Charsets.UTF_8)
-        )
-        List(testSourcePath)
-      } else {
-        List.empty
-      }
+      val testSourceFiles =
+        if (!testSourcePath.toFile.exists()) {
+          val src = testSource(service, entity, packageName, implClassName, testClassName)
+          testSourcePath.getParent.toFile.mkdirs()
+          Files.write(
+            testSourcePath,
+            src.getBytes(Charsets.UTF_8)
+          )
+          List(testSourcePath)
+        } else {
+          List.empty
+        }
 
       // ...and then its integration test
       val integrationTestClassName = className + "IntegrationTest"
@@ -131,9 +143,9 @@ object EntityServiceSourceGenerator {
         ).getBytes(Charsets.UTF_8)
       )
 
-      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles
+      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles ++ providerSourcePath.toList ++ handlerSourcePath.toList
     } else {
-      List(interfaceSourcePath)
+      List(interfaceSourcePath) ++ providerSourcePath.toList ++ handlerSourcePath.toList
     }
   }
 
@@ -298,6 +310,18 @@ object EntityServiceSourceGenerator {
     }
   }
 
+  private[codegen] def providerSource(service: ModelBuilder.EntityService,
+                                      entity: ModelBuilder.Entity,
+                                      packageName: String,
+                                      className: String): Option[String] = {
+    entity match {
+      case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
+        None
+      case valueEntity: ValueEntity =>
+        Some(ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className))
+    }
+  }
+
   private[codegen] def abstractEventSourcedEntity(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
@@ -434,7 +458,10 @@ object EntityServiceSourceGenerator {
                   emptyDoc
                 ) {
                   "entity" <+> equal <+> "new" <+> implClassName <> parens(
-                    "entityId"
+                    (entity match {
+                      case _: ModelBuilder.ValueEntity => "context"
+                      case _ => "entityId"
+                    })
                   ) <> semi <> line <>
                   line <>
                   "// TODO: write your mock here" <> line <>

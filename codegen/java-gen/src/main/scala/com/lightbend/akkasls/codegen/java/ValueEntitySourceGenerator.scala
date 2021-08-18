@@ -35,7 +35,7 @@ object ValueEntitySourceGenerator {
       service.commands,
       Some(entity.state),
       packageName,
-      otherImports = Seq.empty
+      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext")
     )
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
@@ -63,13 +63,13 @@ object ValueEntitySourceGenerator {
         |  @SuppressWarnings("unused")
         |  private final String entityId;
         |
-        |  public ${className}(String entityId) {
-        |    this.entityId = entityId;
+        |  public ${className}(ValueEntityContext context) {
+        |    this.entityId = context.entityId();
         |  }
         |
         |  @Override
         |  public $outerClassAndState emptyState() {
-        |    return ${outerClassAndState}.getDefaultInstance();
+        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
         |  }
         |
         |  ${Syntax.indent(methods, num = 2)}
@@ -172,6 +172,73 @@ object ValueEntitySourceGenerator {
         |          + ${outerClassAndState}.getDescriptor().getFullName(),
         |        entity.emptyState().toByteString(),
         |        UnknownFieldSet.empty());
+        |  }
+        |}""".stripMargin
+
+  }
+
+  private[codegen] def valueEntityProvider(service: ModelBuilder.EntityService,
+                                           entity: ModelBuilder.ValueEntity,
+                                           packageName: String,
+                                           className: String): String = {
+    val relevantTypes = {
+      List(entity.state.fqn) ++
+      service.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+    }
+
+    val imports = generateImports(
+      relevantTypes,
+      packageName,
+      otherImports = Seq(
+          "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+          "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+          "com.google.protobuf.Descriptors",
+          "java.util.function.Function"
+        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+    )
+
+    val descriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
+        .distinct
+        .sorted
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity provider */
+        |public class ${className}Provider implements ValueEntityProvider {
+        |
+        |  private final Function<ValueEntityContext, ${className}> entityFactory;
+        |
+        |  public ${className}Provider(Function<ValueEntityContext, ${className}> entityFactory) {
+        |    this.entityFactory = entityFactory;
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+        |    return ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |  }
+        |
+        |  @Override
+        |  public final String entityType() {
+        |    return "${entity.entityType}";
+        |  }
+        |
+        |  @Override
+        |  public final ${className}Handler newHandler(ValueEntityContext context) {
+        |    return new ${className}Handler(entityFactory.apply(context));
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+        |    return new Descriptors.FileDescriptor[] {
+        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |    };
         |  }
         |}""".stripMargin
 
