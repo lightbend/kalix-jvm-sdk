@@ -16,6 +16,7 @@
 package customer;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit.*;
 
 import io.grpc.StatusRuntimeException;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
@@ -52,7 +53,7 @@ public class CustomerIntegrationTest {
     return client
         .getCustomer(CustomerApi.GetCustomerRequest.newBuilder().setCustomerId(customerId).build())
         .toCompletableFuture()
-        .get();
+        .get(5, SECONDS);
   }
 
   @Test(expected = StatusRuntimeException.class)
@@ -73,7 +74,7 @@ public class CustomerIntegrationTest {
             .setEmail("foo@example.com")
             .build())
           .toCompletableFuture()
-          .get();
+          .get(5, SECONDS);
     assertEquals("Johanna", getCustomer(id).getName());
   }
 
@@ -86,13 +87,13 @@ public class CustomerIntegrationTest {
                     .setEmail("foo@example.com")
                     .build())
             .toCompletableFuture()
-            .get();
+            .get(5, SECONDS);
     client.changeName(CustomerApi.ChangeNameRequest.newBuilder()
             .setCustomerId(id)
             .setNewName("Katarina")
             .build())
         .toCompletableFuture()
-        .get();
+        .get(5, SECONDS);
     assertEquals("Katarina", getCustomer(id).getName());
   }
 
@@ -105,7 +106,7 @@ public class CustomerIntegrationTest {
                     .setEmail("foo@example.com")
                     .build())
             .toCompletableFuture()
-            .get();
+            .get(5, SECONDS);
     client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder()
                     .setCustomerId(id)
                     .setNewAddress(
@@ -116,7 +117,7 @@ public class CustomerIntegrationTest {
                     )
                     .build())
             .toCompletableFuture()
-            .get();
+            .get(5, SECONDS);
     assertEquals("Elm st. 5", getCustomer(id).getAddress().getStreet());
   }
 }

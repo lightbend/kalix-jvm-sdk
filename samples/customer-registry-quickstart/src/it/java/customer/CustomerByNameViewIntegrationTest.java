@@ -16,6 +16,7 @@
 package customer;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit.*;
 
 import akka.stream.javadsl.Sink;
 import io.grpc.StatusRuntimeException;
@@ -58,7 +59,7 @@ public class CustomerByNameViewIntegrationTest {
     return client
         .getCustomer(CustomerApi.GetCustomerRequest.newBuilder().setCustomerId(customerId).build())
         .toCompletableFuture()
-        .get();
+        .get(5, SECONDS);
   }
 
   @Test
@@ -70,7 +71,7 @@ public class CustomerByNameViewIntegrationTest {
             .setEmail("foo@example.com")
             .build())
           .toCompletableFuture()
-          .get();
+          .get(5, SECONDS);
     assertEquals("Johanna", getCustomer(id).getName());
 
     // FIXME how to nicely wait for the view to be updated?
@@ -82,7 +83,7 @@ public class CustomerByNameViewIntegrationTest {
                     .build())
             .runWith(Sink.seq(), testkit.getActorSystem())
                     .toCompletableFuture()
-                    .get();
+                    .get(5, SECONDS);
     assertEquals(1, customers.size());
     assertEquals("Johanna", customers.get(0).getName());
   }
