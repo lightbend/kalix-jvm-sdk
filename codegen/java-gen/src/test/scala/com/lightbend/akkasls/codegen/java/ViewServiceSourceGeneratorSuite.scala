@@ -43,7 +43,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |package com.example.service;
         |
-        |import com.akkaserverless.javasdk.view.*;
+        |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.persistence.EntityOuterClass;
         |import java.util.Optional;
         |
@@ -66,10 +66,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("interface source") {
     val service = TestData.simpleViewService()
     val packageName = "com.example.service"
-    val className = "MyServiceEntity"
 
     val generatedSrc =
-      ViewServiceSourceGenerator.interfaceSource(service, packageName, className)
+      ViewServiceSourceGenerator.interfaceSource(service, packageName, service.fqn.name)
     assertEquals(
       generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
@@ -84,7 +83,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import java.util.Optional;
         |
         |/** A view. */
-        |public abstract class AbstractMyServiceEntity {
+        |public abstract class AbstractMyServiceView {
         |    @UpdateHandler
         |    public abstract ServiceOuterClass.ViewState created(EntityOuterClass.EntityCreated event, Optional<ServiceOuterClass.ViewState> state);
         |    

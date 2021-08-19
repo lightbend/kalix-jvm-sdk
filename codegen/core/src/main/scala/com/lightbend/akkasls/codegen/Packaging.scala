@@ -16,6 +16,8 @@
 
 package com.lightbend.akkasls.codegen
 
+import com.akkaserverless.ServiceOptions.ServiceType
+
 import scala.jdk.CollectionConverters._
 import com.google.protobuf.Descriptors
 
@@ -23,6 +25,7 @@ import com.google.protobuf.Descriptors
  * A fully qualified name that can be resolved in any target language
  */
 case class FullyQualifiedName(
+    protoName: String,
     name: String,
     parent: PackageNaming
 ) {
@@ -30,7 +33,13 @@ case class FullyQualifiedName(
 }
 
 object FullyQualifiedName {
-  def from(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
+  def apply(name: String, parent: PackageNaming): FullyQualifiedName =
+    FullyQualifiedName(name, name, parent)
+
+  def from(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
+    from(descriptor, ServiceType.SERVICE_TYPE_UNSPECIFIED)
+
+  def from(descriptor: Descriptors.GenericDescriptor, serviceType: ServiceType): FullyQualifiedName = {
     val fileDescriptor = descriptor.getFile
 
     val packageNaming =
@@ -48,6 +57,12 @@ object FullyQualifiedName {
       } else PackageNaming.from(fileDescriptor)
     FullyQualifiedName(
       descriptor.getName,
+      serviceType match {
+        case ServiceType.SERVICE_TYPE_VIEW =>
+          if (descriptor.getName.endsWith("View")) descriptor.getName + "Impl"
+          else descriptor.getName + "View"
+        case _ => descriptor.getName
+      },
       packageNaming
     )
   }

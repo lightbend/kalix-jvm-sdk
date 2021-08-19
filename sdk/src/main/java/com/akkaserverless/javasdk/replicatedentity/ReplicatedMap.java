@@ -22,8 +22,8 @@ import java.util.function.Function;
 /**
  * A Replicated Map that allows both the addition and removal of objects in a map.
  *
- * <p>Use the more specialized maps if possible, such as {@link ReplicatedCounterMap} and {@link
- * ReplicatedRegisterMap}.
+ * <p>Use the more specialized maps if possible, such as {@link ReplicatedCounterMap}, {@link
+ * ReplicatedRegisterMap}, and {@link ReplicatedMultiMap}.
  *
  * <p>A removal can only be done if all of the additions that caused the key to be in the map have
  * been seen by this node. This means that, for example, if node 1 adds key A, and node 2 also adds

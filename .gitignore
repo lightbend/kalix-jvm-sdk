@@ -40,3 +40,4 @@ storage
 tags
 target
 dependency-reduced-pom.xml
+*.versionsBackup

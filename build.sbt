@@ -141,11 +141,9 @@ lazy val codegenJavaCompilationTest = project
 
 lazy val samples = project
   .in(file("samples"))
-  .aggregate(
-    // FIXME include samples again
-    // `java-eventsourced-shopping-cart`
+  .aggregate( // samples relying on codegen must use Maven
+    // FIXME consider including this sample again?
     // `java-eventing-shopping-cart`,
-    `java-customer-registry`,
     `valueentity-counter`
   )
 

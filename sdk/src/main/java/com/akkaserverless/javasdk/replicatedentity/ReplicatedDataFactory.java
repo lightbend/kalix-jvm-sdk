@@ -37,6 +37,9 @@ public interface ReplicatedDataFactory {
   /** Create a new ReplicatedSet. */
   <T> ReplicatedSet<T> newReplicatedSet();
 
+  /** Create a new multimap (map of sets). */
+  <K, V> ReplicatedMultiMap<K, V> newReplicatedMultiMap();
+
   /** Create a new ReplicatedRegister. */
   <T> ReplicatedRegister<T> newRegister(T value);
 
