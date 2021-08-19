@@ -193,6 +193,7 @@ object ValueEntitySourceGenerator {
       packageName,
       otherImports = Seq(
           "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+          "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
           "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
           "com.google.protobuf.Descriptors",
           "java.util.function.Function"
@@ -214,9 +215,27 @@ object ValueEntitySourceGenerator {
         |public class ${className}Provider implements ValueEntityProvider {
         |
         |  private final Function<ValueEntityContext, ${className}> entityFactory;
+        |  private final ValueEntityOptions options;
         |
-        |  public ${className}Provider(Function<ValueEntityContext, ${className}> entityFactory) {
+        |  /** Factory method of ${className}Provider */
+        |  public static ${className}Provider of(Function<ValueEntityContext, ${className}> entityFactory) {
+        |    return new ${className}Provider(entityFactory, ValueEntityOptions.defaults());
+        |  }
+        | 
+        |  private ${className}Provider(
+        |      Function<ValueEntityContext, ${className}> entityFactory,
+        |      ValueEntityOptions options) {
         |    this.entityFactory = entityFactory;
+        |    this.options = options;
+        |  }
+        |
+        |  @Override
+        |  public final ValueEntityOptions options() {
+        |    return options;
+        |  }
+        | 
+        |  public final ${className}Provider withOptions(ValueEntityOptions options) {
+        |    return new ${className}Provider(entityFactory, options);
         |  }
         |
         |  @Override

@@ -53,7 +53,7 @@ public final class Main {
               "customerByName",
               CustomerDomain.getDescriptor())
           // end::register[]
-          .register(new CustomerValueEntityProvider(CustomerValueEntity::new))
+          .register(CustomerValueEntityProvider.of(CustomerValueEntity::new))
           .start()
           .toCompletableFuture()
           .get();

@@ -497,26 +497,21 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register a value based entity using a ValueEntityProvider.
+   * Register a value based entity using a {{@link ValueEntityProvider}}. The concrete <code>
+   * ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for
+   * example <code>CustomerEntityProvider</code>.
+   *
+   * <p>{{@link ValueEntityOptions}} can be defined by in the <code>ValueEntityProvider</code>.
    *
    * @return This stateful service builder.
    */
   public <T> AkkaServerless register(ValueEntityProvider provider) {
-    return register(provider, ValueEntityOptions.defaults());
-  }
-
-  /**
-   * Register a value based entity using a ValueEntityProvider with user defined ValueEntityOptions.
-   *
-   * @return This stateful service builder.
-   */
-  public <T> AkkaServerless register(ValueEntityProvider provider, ValueEntityOptions options) {
     return lowLevel()
         .registerValueEntity(
-            context -> provider.newHandler(context),
+            provider::newHandler,
             provider.serviceDescriptor(),
             provider.entityType(),
-            options,
+            provider.options(),
             provider.additionalDescriptors());
   }
 

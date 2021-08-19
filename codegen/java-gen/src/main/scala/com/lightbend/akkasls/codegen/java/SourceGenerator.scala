@@ -203,7 +203,7 @@ object SourceGenerator extends PrettyPrinter {
                 |)""".stripMargin
 
           case entity: ModelBuilder.ValueEntity =>
-            s".register(new ${entity.fqn.name}Provider(create${entity.fqn.name}))"
+            s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
         }
 
       case service: ModelBuilder.ViewService =>
