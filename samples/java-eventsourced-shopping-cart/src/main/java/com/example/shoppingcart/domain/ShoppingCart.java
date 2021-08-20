@@ -56,7 +56,7 @@ public class ShoppingCart extends AbstractShoppingCart {
   @Override
   public Reply<Empty> addItem(ShoppingCartApi.AddLineItem item, CommandContext ctx) {
     if (item.getQuantity() <= 0) {
-      throw ctx.fail("Cannot add negative quantity of to item" + item.getProductId());
+      throw ctx.fail("Quantity for item " + item.getProductId() + " must be greater than zero.");
     }
     ctx.emit(
         ShoppingCartDomain.ItemAdded.newBuilder()
