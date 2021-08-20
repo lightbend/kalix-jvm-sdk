@@ -25,47 +25,47 @@ import java.util.Set;
  * @param <K> The type for keys.
  * @param <V> The type for values.
  */
-public final class ReplicatedRegisterMap<K, V> implements ReplicatedData {
+public interface ReplicatedRegisterMap<K, V> extends ReplicatedData {
 
-  private final ReplicatedMap<K, ReplicatedRegister<V>> replicatedMap;
+  /**
+   * Get the current value of the register at the given key.
+   *
+   * @param key The key for the register.
+   * @return The current value of the register, if it exists (as an Optional).
+   */
+  Optional<V> getValue(K key);
 
-  public ReplicatedRegisterMap(ReplicatedMap<K, ReplicatedRegister<V>> replicatedMap) {
-    this.replicatedMap = replicatedMap;
+  /**
+   * Set the current value of the register at the given key, using the default clock.
+   *
+   * @param key The key for the register.
+   * @param value The value of the register to set.
+   */
+  default void setValue(K key, V value) {
+    setValue(key, value, ReplicatedRegister.Clock.DEFAULT, 0);
   }
 
-  Optional<V> getValue(K key) {
-    ReplicatedRegister<V> register = replicatedMap.get(key);
-    if (register == null) return Optional.empty();
-    else return Optional.ofNullable(register.get());
-  }
+  /**
+   * Set the current value of the register at the given key, using the given clock and custom clock
+   * value if required.
+   *
+   * @param key The key for the register.
+   * @param value The value of the register to set.
+   * @param clock The clock to use.
+   * @param customClockValue The custom clock value to use if the clock selected is a custom clock.
+   *     This is ignored if the clock is not a custom clock.
+   */
+  void setValue(K key, V value, ReplicatedRegister.Clock clock, long customClockValue);
 
-  void setValue(K key, V value) {
-    ReplicatedRegister<V> register = replicatedMap.get(key);
-    if (register == null) replicatedMap.getOrCreate(key, f -> f.newRegister(value));
-    else register.set(value);
-  }
+  Set<K> keySet();
 
-  public Set<K> keySet() {
-    return replicatedMap.keySet();
-  }
+  int size();
 
-  public int size() {
-    return replicatedMap.size();
-  }
+  boolean isEmpty();
 
-  public boolean isEmpty() {
-    return replicatedMap.isEmpty();
-  }
+  boolean containsKey(K key);
 
-  public boolean containsKey(K key) {
-    return replicatedMap.containsKey(key);
-  }
+  void remove(K key);
 
-  public void remove(K key) {
-    replicatedMap.remove(key);
-  }
-
-  public void clear() {
-    replicatedMap.clear();
-  }
+  void clear();
 }

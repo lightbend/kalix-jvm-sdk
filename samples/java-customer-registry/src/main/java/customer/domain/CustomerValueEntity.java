@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package customer;
+package customer.domain;
 
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
-import customer.domain.CustomerDomain;
 
 /**
  * This is where the user will implement his business logic.
@@ -27,7 +26,7 @@ import customer.domain.CustomerDomain;
  * <p>We might generate an initial version, but after that re-generation should update just the
  * interface and the users' build tooling should indicate what needs changing.
  */
-public class CustomerValueEntity extends CustomerValueEntityInterface {
+public class CustomerValueEntity extends AbstractCustomerValueEntity {
 
   private final String entityId;
 

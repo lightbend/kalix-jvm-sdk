@@ -109,7 +109,7 @@ object TestData {
       suffix: String = ""
   ): ModelBuilder.ViewService =
     ModelBuilder.ViewService(
-      FullyQualifiedName(s"MyService$suffix", proto),
+      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
       List(
         ModelBuilder.Command(
           FullyQualifiedName("Created", proto),

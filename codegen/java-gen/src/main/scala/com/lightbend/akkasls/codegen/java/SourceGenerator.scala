@@ -187,7 +187,6 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String,
       model: ModelBuilder.Model
   ): String = {
-
     val registrations = model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map {
@@ -198,9 +197,9 @@ object SourceGenerator extends PrettyPrinter {
               } ++ entity.events.map(_.fqn) ++ entity.state.map(_.fqn)
 
             s"""|.registerEventSourcedEntity(
-                |    ${entity.fqn.name}.class,
-                |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
-                |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+                |  ${entity.fqn.name}.class,
+                |  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
+                |  ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 2)}
                 |)""".stripMargin
 
           case entity: ModelBuilder.ValueEntity =>
@@ -214,11 +213,11 @@ object SourceGenerator extends PrettyPrinter {
           }
 
         List(
-          s"""|.registerView(
-              |    ${service.fqn.name}.class,
-              |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
-              |    "${service.viewId}",
-              |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+          ".registerView(\n" ++
+          (if (service.transformedUpdates.nonEmpty) s"  ${service.fqn.name}.class,\n" else "") ++
+          s"""|  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
+              |  "${service.viewId}",
+              |  ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
               |)""".stripMargin
         )
 
@@ -232,7 +231,7 @@ object SourceGenerator extends PrettyPrinter {
           s"""
            |.registerAction(
            |    ${service.fqn.name}.class,
-           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}"),
+           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
            |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
            |)
            |""".stripMargin
@@ -256,20 +255,28 @@ object SourceGenerator extends PrettyPrinter {
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      if (serv.fqn.parent.javaPackage != mainClassPackageName)
-        serv.fqn.fullName :: s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}" :: Nil
-      else List.empty
+      val viewWithTransforms =
+        serv match {
+          case view: ModelBuilder.ViewService => view.transformedUpdates.nonEmpty
+          case _ => false
+        }
+      if (serv.fqn.parent.javaPackage != mainClassPackageName) {
+        val outerClass = s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}"
+        if (viewWithTransforms)
+          List(serv.fqn.fullName, outerClass)
+        else
+          List(outerClass)
+      } else List.empty
     }
+    println(s"$serviceImports");
 
     val otherImports = model.services.values.flatMap { serv =>
       val types = serv.commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
       }
-      collectRelevantTypes(types, serv.fqn)
-        .collect {
-          case typ if typ.parent.javaMultipleFiles =>
-            s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
-        }
+      collectRelevantTypes(types, serv.fqn).map { typ =>
+        s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
+      }
     }
 
     val contextImports = model.entities.values

@@ -31,8 +31,16 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
         new ReplicatedRegisterImpl[Any](anySupport)
       case ReplicatedEntityDelta.Delta.ReplicatedMap(_) =>
         new ReplicatedMapImpl[Any, InternalReplicatedData](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedCounterMap(_) =>
+        new ReplicatedCounterMapImpl[Any](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(_) =>
+        new ReplicatedRegisterMapImpl[Any, Any](anySupport)
+      case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(_) =>
+        new ReplicatedMultiMapImpl[Any, Any](anySupport)
       case ReplicatedEntityDelta.Delta.Vote(_) =>
         new VoteImpl
+      case _ =>
+        throw new RuntimeException(s"Received unexpected replicated entity delta: ${delta.delta}")
     }
     entity.applyDelta(delta.delta)
     entity
