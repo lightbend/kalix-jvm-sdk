@@ -41,7 +41,7 @@ public class CartEntity extends AbstractCartEntity {
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem command) {
     if (command.getQuantity() <= 0) {
       return effects()
-          .error("Cannot add negative quantity of item [" + command.getProductId() + "]");
+          .error("Quantity for item " + command.getProductId() + " must be greater than zero.");
     } else {
       return effects()
           .emitEvent(createItemAddedEvent(command))
@@ -73,7 +73,7 @@ public class CartEntity extends AbstractCartEntity {
   public Effect<Empty> addItems(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItems command) {
     if (command.getItemsList().stream().anyMatch(item -> item.getQuantity() <= 0)) {
-      return effects().error("Cannot add negative quantity of item");
+      return effects().error("Quantity for items must be greater than zero.");
     } else {
       List<ShoppingCartDomain.ItemAdded> events =
           command.getItemsList().stream()

@@ -111,12 +111,12 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
     "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Cannot add negative quantity to item foo"
+        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero."
       ) {
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-        entity.expect(actionFailure(1, "Cannot add negative quantity to item foo"))
+        entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
         entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
         entity.expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
 

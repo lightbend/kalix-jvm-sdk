@@ -47,7 +47,7 @@ public class ShoppingCart extends AbstractShoppingCart {
           ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
       return effects()
-              .error("Cannot add negative quantity to item " + addLineItem.getProductId());
+              .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
     }
 
     ShoppingCartDomain.LineItem lineItem = updateItem(addLineItem, currentState);

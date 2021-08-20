@@ -38,7 +38,8 @@ public class CartEntity extends AbstractCartEntity {
       ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> cart,
       ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
-      return effects().error("Cannot add negative quantity to item " + addLineItem.getProductId());
+      return effects()
+          .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
     }
 
     cart.setValue(addLineItem.getProductId(), updateItem(addLineItem, cart));
