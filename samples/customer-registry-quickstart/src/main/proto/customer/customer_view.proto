@@ -35,7 +35,6 @@ service CustomerByName {
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
