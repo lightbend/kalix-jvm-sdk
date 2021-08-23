@@ -54,7 +54,7 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
                                       val anySupport: AnySupport,
                                       override val entityType: String,
-                                      val snapshotEvery: Int,
+                                      val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
                                       val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
 

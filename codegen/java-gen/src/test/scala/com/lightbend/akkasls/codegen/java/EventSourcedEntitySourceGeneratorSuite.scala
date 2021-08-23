@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 package java
 
-class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
+class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity source") {
 
@@ -47,21 +47,19 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
       |public class MyServiceEntity extends AbstractMyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceEntity(@EntityId String entityId) {
-      |        this.entityId = entityId;
+      |    public MyServiceEntity(EventSourcedContext context) {
+      |        this.entityId = context.entityId();
       |    }
       |    
       |    @Override
@@ -122,6 +120,92 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |    @EventHandler
       |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent setEvent);
       |}""".stripMargin
+    )
+  }
+
+  test("EventSourcedEntity Provider") {
+    val service = TestData.simpleEntityService()
+    val entity = TestData.eventSourcedEntity()
+
+    val packageName = "com.example.service"
+    val className = "MyService"
+
+    val generatedSrc =
+      EntityServiceSourceGenerator.eventSourcedEntityProvider(
+        service,
+        entity,
+        packageName,
+        className
+      )
+
+    assertEquals(
+      generatedSrc,
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+         |import com.example.service.ServiceOuterClass;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import com.external.ExternalDomain;
+         |import com.google.protobuf.Descriptors;
+         |import java.util.function.Function;
+         |
+         |/** An event sourced entity provider */
+         |public class MyServiceProvider implements EventSourcedEntityProvider<EntityOuterClass.MyState, MyService> {
+         |
+         |  private final Function<EventSourcedContext, MyService> entityFactory;
+         |  private final EventSourcedEntityOptions options;
+         |
+         |  /** Factory method of MyServiceProvider */
+         |  public static MyServiceProvider of(Function<EventSourcedContext, MyService> entityFactory) {
+         |    return new MyServiceProvider(entityFactory, EventSourcedEntityOptions.defaults());
+         |  }
+         | 
+         |  private MyServiceProvider(
+         |      Function<EventSourcedContext, MyService> entityFactory,
+         |      EventSourcedEntityOptions options) {
+         |    this.entityFactory = entityFactory;
+         |    this.options = options;
+         |  }
+         |
+         |  @Override
+         |  public final EventSourcedEntityOptions options() {
+         |    return options;
+         |  }
+         | 
+         |  public final MyServiceProvider withOptions(EventSourcedEntityOptions options) {
+         |    return new MyServiceProvider(entityFactory, options);
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+         |    return ServiceOuterClass.getDescriptor().findServiceByName("MyService");
+         |  }
+         |
+         |  @Override
+         |  public final String entityType() {
+         |    return "MyEntity";
+         |  }
+         |
+         |  @Override
+         |  public final MyServiceHandler newHandler(EventSourcedContext context) {
+         |    return new MyServiceHandler(entityFactory.apply(context));
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+         |    return new Descriptors.FileDescriptor[] {
+         |      EntityOuterClass.getDescriptor(),
+         |      ExternalDomain.getDescriptor()
+         |    };
+         |  }
+         |}""".stripMargin
     )
   }
 

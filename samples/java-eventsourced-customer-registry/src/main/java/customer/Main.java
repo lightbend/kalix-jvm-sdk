@@ -6,12 +6,14 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
-import customer.domain.CustomerValueEntityProvider;
+import customer.domain.CustomerEntity;
+import customer.domain.CustomerEntityProvider;
+import customer.view.CustomerByNameView;
 import customer.view.CustomerViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import customer.domain.CustomerValueEntity;
 
 public final class Main {
 
@@ -19,14 +21,16 @@ public final class Main {
 
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");
-    // tag::register[]
+
+    // tag::register-with-class[]
     new AkkaServerless()
         .registerView(
-            CustomerViewModel.getDescriptor().findServiceByName("CustomerByName"),
+            CustomerByNameViewImpl.class,
+            CustomerViewModel.getDescriptor().findServiceByName("CustomerByNameView"),
             "customerByName",
             CustomerDomain.getDescriptor())
-        // end::register[]
-        .register(CustomerValueEntityProvider.of(CustomerValueEntity::new))
+        // end::register-with-class[]
+        .register(CustomerEntityProvider.of(CustomerEntity::new))
         .start()
         .toCompletableFuture()
         .get();

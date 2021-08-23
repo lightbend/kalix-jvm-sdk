@@ -17,10 +17,11 @@
 package customer;
 
 // tag::process-events[]
+
 import com.akkaserverless.javasdk.view.UpdateHandler;
 import com.akkaserverless.javasdk.view.View;
-import customer.domain.CustomerDomain;
 import com.google.protobuf.Any;
+import customer.domain.CustomerDomain;
 
 import java.util.Optional;
 

@@ -165,6 +165,96 @@ object EntityServiceSourceGenerator {
     }
   }
 
+  private[codegen] def eventSourcedEntityProvider(service: ModelBuilder.EntityService,
+                                                  entity: ModelBuilder.EventSourcedEntity,
+                                                  packageName: String,
+                                                  className: String): String = {
+    val relevantTypes = {
+      entity.state.map(_.fqn).toList ++
+      service.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+    }
+
+    val imports = generateImports(
+      relevantTypes,
+      packageName,
+      otherImports = Seq(
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
+          "com.google.protobuf.Descriptors",
+          "java.util.function.Function"
+        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+    )
+
+    val descriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
+        .distinct
+        .sorted
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** An event sourced entity provider */
+        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state
+         .map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}")
+         .getOrElse(
+           "Object"
+         )}, ${className}> {
+        |
+        |  private final Function<EventSourcedContext, ${className}> entityFactory;
+        |  private final EventSourcedEntityOptions options;
+        |
+        |  /** Factory method of ${className}Provider */
+        |  public static ${className}Provider of(Function<EventSourcedContext, ${className}> entityFactory) {
+        |    return new ${className}Provider(entityFactory, EventSourcedEntityOptions.defaults());
+        |  }
+        | 
+        |  private ${className}Provider(
+        |      Function<EventSourcedContext, ${className}> entityFactory,
+        |      EventSourcedEntityOptions options) {
+        |    this.entityFactory = entityFactory;
+        |    this.options = options;
+        |  }
+        |
+        |  @Override
+        |  public final EventSourcedEntityOptions options() {
+        |    return options;
+        |  }
+        | 
+        |  public final ${className}Provider withOptions(EventSourcedEntityOptions options) {
+        |    return new ${className}Provider(entityFactory, options);
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+        |    return ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |  }
+        |
+        |  @Override
+        |  public final String entityType() {
+        |    return "${entity.entityType}";
+        |  }
+        |
+        |  @Override
+        |  public final ${className}Handler newHandler(EventSourcedContext context) {
+        |    return new ${className}Handler(entityFactory.apply(context));
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+        |    return new Descriptors.FileDescriptor[] {
+        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |    };
+        |  }
+        |}""".stripMargin
+
+  }
+
   private[codegen] def eventSourcedEntitySource(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
@@ -181,8 +271,7 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect"
     )).distinct.sorted
@@ -197,10 +286,6 @@ object EntityServiceSourceGenerator {
       ) <> line <>
       line <>
       "/** An event sourced entity. */" <> line <>
-      "@EventSourcedEntity" <> parens(
-        "entityType" <+> equal <+> dquotes(entityType)
-      )
-      <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
@@ -208,9 +293,9 @@ object EntityServiceSourceGenerator {
         constructor(
           "public",
           className,
-          List("@EntityId" <+> "String" <+> "entityId")
+          List("EventSourcedContext" <+> "context")
         ) {
-          "this.entityId" <+> equal <+> "entityId" <> semi
+          "this.entityId" <+> equal <+> "context.entityId()" <> semi
         } <> line <>
         line <>
         (entity.state match {
@@ -316,7 +401,7 @@ object EntityServiceSourceGenerator {
                                       className: String): Option[String] = {
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        None
+        Some(eventSourcedEntityProvider(service, eventSourcedEntity, packageName, className))
       case valueEntity: ValueEntity =>
         Some(ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className))
     }
