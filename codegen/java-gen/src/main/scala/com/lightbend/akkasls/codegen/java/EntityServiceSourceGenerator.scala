@@ -96,18 +96,7 @@ object EntityServiceSourceGenerator {
       val testClassName = className + "Test"
       val testSourcePath =
         testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-      val testSourceFiles =
-        if (!testSourcePath.toFile.exists()) {
-          val src = testSource(service, entity, packageName, implClassName, testClassName)
-          testSourcePath.getParent.toFile.mkdirs()
-          Files.write(
-            testSourcePath,
-            src.getBytes(Charsets.UTF_8)
-          )
-          List(testSourcePath)
-        } else {
-          List.empty
-        }
+      val testSourceFiles = Nil // FIXME add new unit test generation
 
       // ...and then its integration test
       val integrationTestClassName = className + "IntegrationTest"
@@ -572,103 +561,6 @@ object EntityServiceSourceGenerator {
           }
         case _ => emptyDoc
       })
-    ).layout
-  }
-
-  private[codegen] def testSource(
-      service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
-      packageName: String,
-      implClassName: String,
-      testClassName: String
-  ): String = {
-    val messageTypes =
-      service.commands.flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          Seq.empty
-        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-      })
-
-    val imports = (messageTypes.toSeq
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++ Seq(
-      "org.junit.Test",
-      "org.mockito.*"
-    ) ++ (entity match {
-      case _: EventSourcedEntity =>
-        Seq("com.akkaserverless.javasdk.eventsourcedentity.CommandContext")
-      case _: ValueEntity =>
-        Seq("com.akkaserverless.javasdk.valueentity.CommandContext")
-    })).distinct.sorted
-
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "import" <+> "static" <+> "org.junit.Assert.assertThrows" <> semi <> line <>
-      line <>
-      `class`("public", testClassName) {
-        "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
-        "private" <+> implClassName <+> "entity" <> semi <> line <>
-        "private" <+> (entity match {
-          case ModelBuilder.ValueEntity(_, _, state) =>
-            "CommandContext" <> angles(qualifiedType(state.fqn))
-          case _ =>
-            "CommandContext"
-        }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
-        line <>
-        ssep(
-          service.commands.toSeq
-            .map {
-              command =>
-                "@Test" <> line <>
-                method(
-                  "public",
-                  "void",
-                  lowerFirst(command.fqn.name) + "Test",
-                  List.empty,
-                  emptyDoc
-                ) {
-                  "entity" <+> equal <+> "new" <+> implClassName <> parens(
-                    (entity match {
-                      case _: ModelBuilder.ValueEntity => "context"
-                      case _ => "entityId"
-                    })
-                  ) <> semi <> line <>
-                  line <>
-                  "// TODO: write your mock here" <> line <>
-                  "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
-                  line <>
-                  "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
-                  "//" <+> "assertEquals" <> parens(
-                    "[expected]" <> comma <>
-                    line <> "//" <> indent("entity") <> dot <> lowerFirst(
-                      command.fqn.name
-                    ) <> lparen <>
-                    qualifiedType(
-                      command.inputType
-                    ) <> dot <> "newBuilder().build(), context"
-                  ) <> semi <> line <>
-                  "//" <+> rparen <> semi <>
-                  (entity match {
-                    case _: ModelBuilder.EventSourcedEntity =>
-                      line <>
-                      line <>
-                      "// TODO: if you wish to verify events:" <> line <>
-                      "//" <> indent("Mockito.verify(context).emit(event)") <> semi
-                    case _ => emptyDoc
-                  })
-                }
-            }
-            .to[immutable.Seq],
-          line <> line
-        )
-      }
     ).layout
   }
 

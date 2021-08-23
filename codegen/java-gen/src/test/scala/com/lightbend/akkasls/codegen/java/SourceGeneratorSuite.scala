@@ -137,9 +137,6 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3Handler.java"
                 ),
-                testSourceDirectory.resolve(
-                  "com/example/service/persistence/MyEntity3Test.java"
-                ),
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
