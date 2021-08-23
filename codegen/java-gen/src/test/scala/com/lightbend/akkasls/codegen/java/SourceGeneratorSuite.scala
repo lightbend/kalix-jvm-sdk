@@ -219,7 +219,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |        EntityOuterClass1.getDescriptor(),
         |        ExternalDomain.getDescriptor()
         |      )
-        |      .register(new MyValueEntity2Provider(createMyValueEntity2))
+        |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
         |      .registerEventSourcedEntity(
         |        MyEntity3.class,
         |        ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),

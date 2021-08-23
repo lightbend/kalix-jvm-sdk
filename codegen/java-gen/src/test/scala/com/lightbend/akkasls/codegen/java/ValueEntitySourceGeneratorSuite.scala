@@ -226,6 +226,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
          |import com.example.service.ServiceOuterClass;
          |import com.example.service.persistence.EntityOuterClass;
@@ -238,9 +239,27 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |public class MyServiceProvider implements ValueEntityProvider {
          |
          |  private final Function<ValueEntityContext, MyService> entityFactory;
+         |  private final ValueEntityOptions options;
          |
-         |  public MyServiceProvider(Function<ValueEntityContext, MyService> entityFactory) {
+         |  /** Factory method of MyServiceProvider */
+         |  public static MyServiceProvider of(Function<ValueEntityContext, MyService> entityFactory) {
+         |    return new MyServiceProvider(entityFactory, ValueEntityOptions.defaults());
+         |  }
+         | 
+         |  private MyServiceProvider(
+         |      Function<ValueEntityContext, MyService> entityFactory,
+         |      ValueEntityOptions options) {
          |    this.entityFactory = entityFactory;
+         |    this.options = options;
+         |  }
+         |
+         |  @Override
+         |  public final ValueEntityOptions options() {
+         |    return options;
+         |  }
+         | 
+         |  public final MyServiceProvider withOptions(ValueEntityOptions options) {
+         |    return new MyServiceProvider(entityFactory, options);
          |  }
          |
          |  @Override

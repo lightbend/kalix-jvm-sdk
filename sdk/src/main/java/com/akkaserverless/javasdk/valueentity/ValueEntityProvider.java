@@ -21,6 +21,8 @@ import com.google.protobuf.Descriptors;
 
 public interface ValueEntityProvider {
 
+  ValueEntityOptions options();
+
   Descriptors.ServiceDescriptor serviceDescriptor();
 
   String entityType();
