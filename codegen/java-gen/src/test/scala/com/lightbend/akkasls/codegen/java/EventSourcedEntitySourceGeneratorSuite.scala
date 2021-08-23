@@ -123,6 +123,81 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
+  test("EventSourcedEntity generated handler") {
+    val service = TestData.simpleEntityService()
+    val entity = TestData.eventSourcedEntity()
+    val packageName = "com.example.service"
+    val className = "MyServiceEntity"
+
+    val generatedSrc =
+      EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
+
+    assertEquals(
+      generatedSrc,
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+         |import com.akkaserverless.javasdk.impl.EntityExceptions;
+         |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import com.google.protobuf.Any;
+         |import com.google.protobuf.InvalidProtocolBufferException;
+         |
+         |/** An event sourced entity handler */
+         |public class MyServiceEntityHandler extends EventSourcedEntityHandler<EntityOuterClass.MyState, MyEntity> {
+         |
+         |  public MyServiceEntityHandler(MyEntity entity) {
+         |    super(entity);
+         |  }
+         |
+         |  @Override
+         |  public EntityOuterClass.MyState handleEvent(EntityOuterClass.MyState state, Object event) {
+         |    if (event instanceof EntityOuterClass.SetEvent) {
+         |      return entity().setEvent(state, (EntityOuterClass.SetEvent) event);
+         |    } else {
+         |      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+         |    }
+         |  }
+         |
+         |  @Override
+         |  public EventSourcedEntityBase.Effect<?> handleCommand(
+         |      String commandName, EntityOuterClass.MyState state, Any command, CommandContext context) {
+         |    try {
+         |      switch (commandName) {
+         |
+         |        case "Set":
+         |          // FIXME could parsing to the right type also be pulled out of here?
+         |          return entity().set(state, ServiceOuterClass.SetValue.parseFrom(command.getValue()));
+         |
+         |        case "Get":
+         |          // FIXME could parsing to the right type also be pulled out of here?
+         |          return entity().get(state, ServiceOuterClass.GetValue.parseFrom(command.getValue()));
+         |
+         |        default:
+         |          throw new EntityExceptions.EntityException(
+         |              context.entityId(),
+         |              context.commandId(),
+         |              commandName,
+         |              "No command handler found for command ["
+         |                  + commandName
+         |                  + "] on "
+         |                  + entity().getClass());
+         |      }
+         |    } catch (InvalidProtocolBufferException ex) {
+         |      // This is if command payload cannot be parsed
+         |      throw new RuntimeException(ex);
+         |    }
+         |  }
+         |}""".stripMargin
+    )
+  }
+
   test("EventSourcedEntity Provider") {
     val service = TestData.simpleEntityService()
     val entity = TestData.eventSourcedEntity()

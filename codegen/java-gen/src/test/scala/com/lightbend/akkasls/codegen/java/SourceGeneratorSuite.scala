@@ -109,10 +109,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
             assertEquals(Files.size(testSource2), 0L)
 
             assertEquals(
-              sources,
-              List(
+              sources.toSet,
+              Set(
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity1.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1Handler.java"
                 ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity1Provider.java"
@@ -130,6 +133,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3Handler.java"
                 ),
                 testSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3Test.java"

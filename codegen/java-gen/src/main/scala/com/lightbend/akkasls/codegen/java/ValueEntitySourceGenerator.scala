@@ -23,6 +23,7 @@ import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
 object ValueEntitySourceGenerator {
   import SourceGenerator._
+  import EntityServiceSourceGenerator.generateImports
 
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
@@ -157,7 +158,7 @@ object ValueEntitySourceGenerator {
         |              "No command handler found for command ["
         |                  + context.commandName()
         |                  + "] on "
-        |                  + entity.getClass().toString());
+        |                  + entity.getClass());
         |      }
         |    } finally {
         |      entity.setCommandContext(Optional.empty());

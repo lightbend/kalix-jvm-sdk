@@ -182,7 +182,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |              "No command handler found for command ["
          |                  + context.commandName()
          |                  + "] on "
-         |                  + entity.getClass().toString());
+         |                  + entity.getClass());
          |      }
          |    } finally {
          |      entity.setCommandContext(Optional.empty());

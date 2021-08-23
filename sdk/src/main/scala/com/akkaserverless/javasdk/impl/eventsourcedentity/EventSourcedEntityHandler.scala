@@ -23,14 +23,14 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityCreationContext
 import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler.CommandResult
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 import com.google.protobuf.{Any => JavaPBAny}
 
 import java.util.Optional
 
-object AbstractEventSourcedEntityHandler {
+object EventSourcedEntityHandler {
   case class CommandResult(events: Vector[Any],
                            secondaryEffect: SecondaryEffectImpl,
                            snapshot: Option[Any],
@@ -41,7 +41,7 @@ object AbstractEventSourcedEntityHandler {
  * @tparam S the type of the managed state for the entity
  * Not for manual user extension or interaction
  */
-abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
+abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
 
   private var state: Option[S] = None
 
@@ -75,7 +75,7 @@ abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[
                           eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
       entity.setCommandContext(Optional.of(context))
-      handleCommand(commandName, stateOrEmpty(), command).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+      handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
     } finally {
       entity.setCommandContext(Optional.empty())
     }
@@ -106,6 +106,9 @@ abstract class AbstractEventSourcedEntityHandler[S, E <: EventSourcedEntityBase[
   }
 
   protected def handleEvent(state: S, event: Any): S
-  protected def handleCommand(commandName: String, state: S, command: JavaPBAny): EventSourcedEntityBase.Effect[_]
+  protected def handleCommand(commandName: String,
+                              state: S,
+                              command: JavaPBAny,
+                              context: CommandContext): EventSourcedEntityBase.Effect[_]
 
 }

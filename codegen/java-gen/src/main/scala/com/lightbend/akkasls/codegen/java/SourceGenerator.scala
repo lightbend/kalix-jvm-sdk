@@ -32,6 +32,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.{Command, Entity, Service, Sta
  * Responsible for generating Java source from an entity model
  */
 object SourceGenerator extends PrettyPrinter {
+  import EntityServiceSourceGenerator.generateImports
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -469,26 +470,4 @@ object SourceGenerator extends PrettyPrinter {
         | * DO NOT EDIT
         | */""".stripMargin
 
-  private[codegen] def generateImports(types: Iterable[FullyQualifiedName],
-                                       packageName: String,
-                                       otherImports: Seq[String]): String = {
-    val messageTypeImports = types
-      .filterNot { typ =>
-        typ.parent.javaPackage == packageName
-      }
-      .map(typeImport)
-
-    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
-      .map(pkg => s"import $pkg;")
-      .mkString("\n")
-  }
-
-  private[codegen] def generateImports(commands: Iterable[Command],
-                                       state: Option[State],
-                                       packageName: String,
-                                       otherImports: Seq[String]): String = {
-
-    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
-    generateImports(types, packageName, otherImports)
-  }
 }

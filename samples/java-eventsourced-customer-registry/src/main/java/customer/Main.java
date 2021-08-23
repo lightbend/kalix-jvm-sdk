@@ -25,7 +25,7 @@ public final class Main {
     // tag::register-with-class[]
     new AkkaServerless()
         .registerView(
-            CustomerByNameViewImpl.class,
+            CustomerByNameView.class,
             CustomerViewModel.getDescriptor().findServiceByName("CustomerByNameView"),
             "customerByName",
             CustomerDomain.getDescriptor())

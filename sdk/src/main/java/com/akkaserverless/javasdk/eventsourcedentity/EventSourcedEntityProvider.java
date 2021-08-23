@@ -16,10 +16,7 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler;
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.google.protobuf.Descriptors;
 
 public interface EventSourcedEntityProvider<S, E extends EventSourcedEntityBase<S>> {
@@ -30,7 +27,7 @@ public interface EventSourcedEntityProvider<S, E extends EventSourcedEntityBase<
 
   String entityType();
 
-  AbstractEventSourcedEntityHandler<S, E> newHandler(EventSourcedContext context);
+  EventSourcedEntityHandler<S, E> newHandler(EventSourcedContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

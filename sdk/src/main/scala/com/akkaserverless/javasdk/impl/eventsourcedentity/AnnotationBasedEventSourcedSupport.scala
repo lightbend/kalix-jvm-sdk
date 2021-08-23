@@ -72,7 +72,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
     }
   }
 
-  override def create(context: EventSourcedContext): AbstractEventSourcedEntityHandler[_, _] =
+  override def create(context: EventSourcedContext): EventSourcedEntityHandler[_, _] =
     new EntityHandler({
       constructor(new DelegatingEventSourcedContext(context) with EventSourcedEntityCreationContext {
         override def entityId(): String = context.entityId()
@@ -80,7 +80,7 @@ private[impl] class AnnotationBasedEventSourcedSupport(
     })
 
   private class EntityHandler[S](entity: EventSourcedEntityBase[S])
-      extends AbstractEventSourcedEntityHandler[S, EventSourcedEntityBase[S]](entity) {
+      extends EventSourcedEntityHandler[S, EventSourcedEntityBase[S]](entity) {
 
     override def handleEvent(state: S, event: Any): S = unwrap {
       behavior.getCachedEventHandlerForClass(event.getClass) match {
@@ -93,7 +93,10 @@ private[impl] class AnnotationBasedEventSourcedSupport(
       }
     }
 
-    override def handleCommand(commandName: String, state: S, command: JavaPbAny): EventSourcedEntityBase.Effect[Any] =
+    override def handleCommand(commandName: String,
+                               state: S,
+                               command: JavaPbAny,
+                               context: CommandContext): EventSourcedEntityBase.Effect[Any] =
       unwrap {
         behavior.commandHandlers.get(commandName).map { handler =>
           handler.commandInvoke(entity, stateOrEmpty(), command).asInstanceOf[Effect[Any]]

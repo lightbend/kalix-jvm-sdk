@@ -20,7 +20,10 @@ package java
 import com.google.common.base.Charsets
 import scala.collection.immutable
 import _root_.java.nio.file.{Files, Path}
+
+import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
+import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
 
 /**
@@ -163,6 +166,95 @@ object EntityServiceSourceGenerator {
       case valueEntity: ValueEntity =>
         ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className)
     }
+  }
+
+  private[codegen] def eventSourcedEntityHandler(service: ModelBuilder.EntityService,
+                                                 entity: ModelBuilder.EventSourcedEntity,
+                                                 packageName: String,
+                                                 className: String): String = {
+
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      otherImports = Seq(
+        "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
+        "com.akkaserverless.javasdk.impl.EntityExceptions",
+        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler",
+        "com.google.protobuf.Any",
+        "com.google.protobuf.InvalidProtocolBufferException"
+      )
+    )
+
+    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
+    // FIXME why do we support None state?
+    val outerClassAndState =
+      entity.state.map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}").getOrElse("Object")
+
+    val eventCases = entity.events.zipWithIndex.map {
+        case (evt, i) =>
+          val methodName = evt.fqn.name
+          val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
+          s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
+              |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
+      }.toSeq :+
+      s"""|} else {
+        |  throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+        |}""".stripMargin
+
+    val commandCases = service.commands
+      .map { cmd =>
+        val methodName = cmd.fqn.name
+        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        s"""|case "$methodName":
+            |  // FIXME could parsing to the right type also be pulled out of here?
+            |  return entity().${lowerFirst(methodName)}(state, ${inputType}.parseFrom(command.getValue()));
+            |""".stripMargin
+      }
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** An event sourced entity handler */
+        |public class ${className}Handler extends EventSourcedEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |
+        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |    super(entity);
+        |  }
+        |
+        |  @Override
+        |  public $outerClassAndState handleEvent($outerClassAndState state, Object event) {
+        |    ${Syntax.indent(eventCases, 4)}
+        |  }
+        |
+        |  @Override
+        |  public EventSourcedEntityBase.Effect<?> handleCommand(
+        |      String commandName, $outerClassAndState state, Any command, CommandContext context) {
+        |    try {
+        |      switch (commandName) {
+        |
+        |        ${Syntax.indent(commandCases, 8)}
+        |
+        |        default:
+        |          throw new EntityExceptions.EntityException(
+        |              context.entityId(),
+        |              context.commandId(),
+        |              commandName,
+        |              "No command handler found for command ["
+        |                  + commandName
+        |                  + "] on "
+        |                  + entity().getClass());
+        |      }
+        |    } catch (InvalidProtocolBufferException ex) {
+        |      // This is if command payload cannot be parsed
+        |      throw new RuntimeException(ex);
+        |    }
+        |  }
+        |}""".stripMargin
+
   }
 
   private[codegen] def eventSourcedEntityProvider(service: ModelBuilder.EntityService,
@@ -388,10 +480,10 @@ object EntityServiceSourceGenerator {
                                      packageName: String,
                                      className: String): Option[String] = {
     entity match {
-      case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        None
-      case valueEntity: ValueEntity =>
-        Some(ValueEntitySourceGenerator.valueEntityHandler(service, valueEntity, packageName, className))
+      case entity: ModelBuilder.EventSourcedEntity =>
+        Some(EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className))
+      case entity: ValueEntity =>
+        Some(ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className))
     }
   }
 
@@ -695,5 +787,28 @@ object EntityServiceSourceGenerator {
         )
       }
     ).layout
+  }
+
+  private[codegen] def generateImports(types: Iterable[FullyQualifiedName],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+    val messageTypeImports = types
+      .filterNot { typ =>
+        typ.parent.javaPackage == packageName
+      }
+      .map(typeImport)
+
+    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
+      .map(pkg => s"import $pkg;")
+      .mkString("\n")
+  }
+
+  private[codegen] def generateImports(commands: Iterable[Command],
+                                       state: Option[State],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+
+    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
+    generateImports(types, packageName, otherImports)
   }
 }
