@@ -266,7 +266,6 @@ object SourceGenerator extends PrettyPrinter {
           List(outerClass)
       } else List.empty
     }
-    println(s"$serviceImports");
 
     val otherImports = model.services.values.flatMap { serv =>
       val types = serv.commands.flatMap { cmd =>

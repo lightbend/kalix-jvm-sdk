@@ -23,11 +23,7 @@ import com.akkaserverless.javasdk.AkkaServerless;
 // end::ToProductPopularityAction[]
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shopping.cart.ShoppingCartEntity;
-import shopping.cart.ShoppingCartAnalyticsAction;
-import shopping.cart.ShoppingCartTopicAction;
-import shopping.cart.ShoppingCartView;
-import shopping.cart.TopicPublisherAction;
+import shopping.cart.*;
 import shopping.cart.actions.EventsToTopicPublisher;
 import shopping.cart.actions.ShoppingCartAnalytics;
 import shopping.cart.api.ShoppingCartTopic;
@@ -88,7 +84,7 @@ public final class Main {
 
           // view of the shopping carts
           .registerView(
-              ShoppingCartView.class,
+              ShoppingCartView2.class,
               shopping.cart.view.ShoppingCartViewModel.getDescriptor()
                   .findServiceByName("ShoppingCartViewService"),
               "carts",
