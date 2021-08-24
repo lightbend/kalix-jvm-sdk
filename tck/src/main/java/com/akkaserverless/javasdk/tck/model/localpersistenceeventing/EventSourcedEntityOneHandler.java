@@ -14,28 +14,30 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
+import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.akkaserverless.javasdk.impl.EntityExceptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
-import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.domain.ShoppingCartDomain;
+import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-/** Generated, does the routing from command name to concrete method */
-final class CartHandler extends EventSourcedEntityHandler<ShoppingCartDomain.Cart, CartEntity> {
+/** An event sourced entity handler */
+public class EventSourcedEntityOneHandler
+    extends EventSourcedEntityHandler<String, EventSourcedEntityOne> {
 
-  public CartHandler(CartEntity entity) {
+  public EventSourcedEntityOneHandler(EventSourcedEntityOne entity) {
     super(entity);
   }
 
   @Override
-  public ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
-    if (event instanceof ShoppingCartDomain.ItemAdded) {
-      return entity().itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
-    } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
-      return entity().itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
+  public String handleEvent(String state, Object event) {
+    if (event instanceof LocalPersistenceEventing.EventOne) {
+      return entity().handle(state, (LocalPersistenceEventing.EventOne) event);
+    } else if (event instanceof LocalPersistenceEventing.EventTwo) {
+      return entity().handle(state, (LocalPersistenceEventing.EventTwo) event);
     } else {
       throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
     }
@@ -43,18 +45,15 @@ final class CartHandler extends EventSourcedEntityHandler<ShoppingCartDomain.Car
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, ShoppingCartDomain.Cart state, Any command, CommandContext context) {
+      String commandName, String state, Any command, CommandContext context) {
     try {
       switch (commandName) {
-        case "AddItem":
+        case "EmitEvent":
           // FIXME could parsing to the right type also be pulled out of here?
-          return entity().addItem(state, ShoppingCartApi.AddLineItem.parseFrom(command.getValue()));
-        case "RemoveItem":
           return entity()
-              .removeItem(state, ShoppingCartApi.RemoveLineItem.parseFrom(command.getValue()));
-        case "GetCart":
-          return entity()
-              .getCart(state, ShoppingCartApi.GetShoppingCart.parseFrom(command.getValue()));
+              .emitEvent(
+                  state, LocalPersistenceEventing.EmitEventRequest.parseFrom(command.getValue()));
+
         default:
           throw new EntityExceptions.EntityException(
               context.entityId(),
@@ -63,7 +62,7 @@ final class CartHandler extends EventSourcedEntityHandler<ShoppingCartDomain.Car
               "No command handler found for command ["
                   + commandName
                   + "] on "
-                  + entity().getClass().toString());
+                  + entity().getClass());
       }
     } catch (InvalidProtocolBufferException ex) {
       // This is if command payload cannot be parsed

@@ -20,15 +20,15 @@ import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-@EventSourcedEntity(entityType = "eventlogeventing-one")
 public class EventSourcedEntityOne extends EventSourcedEntityBase<String> {
+
+  public EventSourcedEntityOne(EventSourcedContext context) {}
 
   @Override
   public String emptyState() {
     return "";
   }
 
-  @CommandHandler
   public Effect<Empty> emitEvent(
       String currentState, LocalPersistenceEventing.EmitEventRequest event) {
     if (event.hasEventOne()) {
@@ -38,12 +38,10 @@ public class EventSourcedEntityOne extends EventSourcedEntityBase<String> {
     }
   }
 
-  @EventHandler
   public String handle(String currentState, LocalPersistenceEventing.EventOne event) {
     return currentState;
   }
 
-  @EventHandler
   public String handle(String currentState, LocalPersistenceEventing.EventTwo event) {
     return currentState;
   }

@@ -102,8 +102,6 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
@@ -111,13 +109,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |/** An event sourced entity. */
       |public abstract class AbstractMyServiceEntity extends EventSourcedEntityBase<EntityOuterClass.MyState> {
       |    
-      |    @CommandHandler
       |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
       |    
-      |    @CommandHandler
       |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
       |    
-      |    @EventHandler
       |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent setEvent);
       |}""".stripMargin
     )

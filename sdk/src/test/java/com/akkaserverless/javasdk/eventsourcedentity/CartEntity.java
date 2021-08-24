@@ -22,6 +22,9 @@ import com.google.protobuf.Empty;
 
 /** User implementation of entity */
 public class CartEntity extends AbstractCartEntity {
+
+  public CartEntity(EventSourcedContext context) {}
+
   @Override
   public ShoppingCartDomain.Cart emptyState() {
     return ShoppingCartDomain.Cart.getDefaultInstance();

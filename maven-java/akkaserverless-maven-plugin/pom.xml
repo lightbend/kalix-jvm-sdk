@@ -6,12 +6,12 @@
 
   <groupId>com.akkaserverless</groupId>
   <artifactId>akkaserverless-maven-plugin</artifactId>
-  <version>0.7.0-beta.18</version>
+  <version>0.7.0-beta.18-67-e285d342-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <parent>
     <groupId>com.akkaserverless</groupId>
     <artifactId>akkaserverless-maven-java</artifactId>
-    <version>0.7.0-beta.18</version>
+    <version>0.7.0-beta.18-67-e285d342-SNAPSHOT</version>
   </parent>
 
   <name>Akka Serverless Maven Plugin</name>

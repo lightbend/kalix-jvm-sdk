@@ -22,14 +22,12 @@ import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
@@ -253,85 +251,6 @@ public final class AkkaServerless {
    */
   public AkkaServerless preferScalaProtobufs() {
     this.prefer = AnySupport.PREFER_SCALA();
-    return this;
-  }
-
-  /**
-   * Register an annotated event sourced entity.
-   *
-   * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerEventSourcedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerEventSourcedEntity(
-        entityClass, descriptor, EventSourcedEntityOptions.defaults(), additionalDescriptors);
-  }
-
-  /**
-   * Register an annotated event sourced entity.
-   *
-   * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The entity options.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerEventSourcedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      EventSourcedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    EventSourcedEntity entity = entityClass.getAnnotation(EventSourcedEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass
-              + " does not declare an "
-              + EventSourcedEntity.class.getName()
-              + " annotation!");
-    }
-    if (descriptor == null) {
-      throw new NullPointerException(
-          "The ServiceDescriptor may not be null, verify the service lookup name.");
-    }
-
-    final String entityType;
-    final int snapshotEvery;
-    if (entity.entityType().isEmpty()) {
-      entityType = entityClass.getSimpleName();
-      snapshotEvery = 0; // Default
-    } else {
-      entityType = entity.entityType();
-      snapshotEvery = entity.snapshotEvery();
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
-    EventSourcedEntityService service =
-        new EventSourcedEntityService(
-            new AnnotationBasedEventSourcedSupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityType,
-            snapshotEvery,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
     return this;
   }
 

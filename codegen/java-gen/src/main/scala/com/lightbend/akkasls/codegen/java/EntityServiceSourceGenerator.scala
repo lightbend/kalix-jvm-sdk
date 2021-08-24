@@ -502,8 +502,6 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.eventsourcedentity.CommandHandler",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventHandler",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase"
     )).distinct.sorted
 
@@ -525,7 +523,6 @@ object EntityServiceSourceGenerator {
             ssep(
               service.commands.toSeq
                 .map { command =>
-                  "@CommandHandler" <> line <>
                   abstractMethod(
                     "public",
                     "Effect" <> angles(qualifiedType(command.outputType)),
@@ -544,7 +541,6 @@ object EntityServiceSourceGenerator {
             ssep(
               entity.events.toSeq
                 .map { event =>
-                  "@EventHandler" <> line <>
                   abstractMethod(
                     "public",
                     qualifiedType(state.fqn),
