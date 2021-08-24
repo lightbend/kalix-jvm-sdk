@@ -29,7 +29,7 @@ import com.akkaserverless.javasdk.impl.effect.EffectSupport
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AbstractEventSourcedEntityHandler.CommandResult
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.reply.ErrorReply
 import com.akkaserverless.javasdk.ComponentOptions
@@ -54,7 +54,7 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
                                       val anySupport: AnySupport,
                                       override val entityType: String,
-                                      val snapshotEvery: Int,
+                                      val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
                                       val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
 
@@ -143,7 +143,7 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler = service.factory
       .create(new EventSourcedContextImpl(init.entityId))
-      .asInstanceOf[AbstractEventSourcedEntityHandler[Any, EventSourcedEntityBase[Any]]]
+      .asInstanceOf[EventSourcedEntityHandler[Any, EventSourcedEntityBase[Any]]]
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {

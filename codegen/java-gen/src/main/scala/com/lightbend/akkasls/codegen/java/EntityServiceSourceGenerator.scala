@@ -20,7 +20,10 @@ package java
 import com.google.common.base.Charsets
 import scala.collection.immutable
 import _root_.java.nio.file.{Files, Path}
+
+import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
+import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
 
 /**
@@ -93,18 +96,7 @@ object EntityServiceSourceGenerator {
       val testClassName = className + "Test"
       val testSourcePath =
         testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-      val testSourceFiles =
-        if (!testSourcePath.toFile.exists()) {
-          val src = testSource(service, entity, packageName, implClassName, testClassName)
-          testSourcePath.getParent.toFile.mkdirs()
-          Files.write(
-            testSourcePath,
-            src.getBytes(Charsets.UTF_8)
-          )
-          List(testSourcePath)
-        } else {
-          List.empty
-        }
+      val testSourceFiles = Nil // FIXME add new unit test generation
 
       // ...and then its integration test
       val integrationTestClassName = className + "IntegrationTest"
@@ -165,6 +157,185 @@ object EntityServiceSourceGenerator {
     }
   }
 
+  private[codegen] def eventSourcedEntityHandler(service: ModelBuilder.EntityService,
+                                                 entity: ModelBuilder.EventSourcedEntity,
+                                                 packageName: String,
+                                                 className: String): String = {
+
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      otherImports = Seq(
+        "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
+        "com.akkaserverless.javasdk.impl.EntityExceptions",
+        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler",
+        "com.google.protobuf.Any",
+        "com.google.protobuf.InvalidProtocolBufferException"
+      )
+    )
+
+    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
+    // FIXME why do we support None state?
+    val outerClassAndState =
+      entity.state.map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}").getOrElse("Object")
+
+    val eventCases = entity.events.zipWithIndex.map {
+        case (evt, i) =>
+          val methodName = evt.fqn.name
+          val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
+          s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
+              |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
+      }.toSeq :+
+      s"""|} else {
+        |  throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+        |}""".stripMargin
+
+    val commandCases = service.commands
+      .map { cmd =>
+        val methodName = cmd.fqn.name
+        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        s"""|case "$methodName":
+            |  // FIXME could parsing to the right type also be pulled out of here?
+            |  return entity().${lowerFirst(methodName)}(state, ${inputType}.parseFrom(command.getValue()));
+            |""".stripMargin
+      }
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** An event sourced entity handler */
+        |public class ${className}Handler extends EventSourcedEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |
+        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |    super(entity);
+        |  }
+        |
+        |  @Override
+        |  public $outerClassAndState handleEvent($outerClassAndState state, Object event) {
+        |    ${Syntax.indent(eventCases, 4)}
+        |  }
+        |
+        |  @Override
+        |  public EventSourcedEntityBase.Effect<?> handleCommand(
+        |      String commandName, $outerClassAndState state, Any command, CommandContext context) {
+        |    try {
+        |      switch (commandName) {
+        |
+        |        ${Syntax.indent(commandCases, 8)}
+        |
+        |        default:
+        |          throw new EntityExceptions.EntityException(
+        |              context.entityId(),
+        |              context.commandId(),
+        |              commandName,
+        |              "No command handler found for command ["
+        |                  + commandName
+        |                  + "] on "
+        |                  + entity().getClass());
+        |      }
+        |    } catch (InvalidProtocolBufferException ex) {
+        |      // This is if command payload cannot be parsed
+        |      throw new RuntimeException(ex);
+        |    }
+        |  }
+        |}""".stripMargin
+
+  }
+
+  private[codegen] def eventSourcedEntityProvider(service: ModelBuilder.EntityService,
+                                                  entity: ModelBuilder.EventSourcedEntity,
+                                                  packageName: String,
+                                                  className: String): String = {
+    val relevantTypes = {
+      entity.state.map(_.fqn).toList ++
+      service.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+    }
+
+    val imports = generateImports(
+      relevantTypes,
+      packageName,
+      otherImports = Seq(
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
+          "com.google.protobuf.Descriptors",
+          "java.util.function.Function"
+        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+    )
+
+    val descriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
+        .distinct
+        .sorted
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** An event sourced entity provider */
+        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state
+         .map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}")
+         .getOrElse(
+           "Object"
+         )}, ${className}> {
+        |
+        |  private final Function<EventSourcedContext, ${className}> entityFactory;
+        |  private final EventSourcedEntityOptions options;
+        |
+        |  /** Factory method of ${className}Provider */
+        |  public static ${className}Provider of(Function<EventSourcedContext, ${className}> entityFactory) {
+        |    return new ${className}Provider(entityFactory, EventSourcedEntityOptions.defaults());
+        |  }
+        | 
+        |  private ${className}Provider(
+        |      Function<EventSourcedContext, ${className}> entityFactory,
+        |      EventSourcedEntityOptions options) {
+        |    this.entityFactory = entityFactory;
+        |    this.options = options;
+        |  }
+        |
+        |  @Override
+        |  public final EventSourcedEntityOptions options() {
+        |    return options;
+        |  }
+        | 
+        |  public final ${className}Provider withOptions(EventSourcedEntityOptions options) {
+        |    return new ${className}Provider(entityFactory, options);
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+        |    return ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |  }
+        |
+        |  @Override
+        |  public final String entityType() {
+        |    return "${entity.entityType}";
+        |  }
+        |
+        |  @Override
+        |  public final ${className}Handler newHandler(EventSourcedContext context) {
+        |    return new ${className}Handler(entityFactory.apply(context));
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+        |    return new Descriptors.FileDescriptor[] {
+        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |    };
+        |  }
+        |}""".stripMargin
+
+  }
+
   private[codegen] def eventSourcedEntitySource(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
@@ -181,8 +352,7 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.EntityId",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect"
     )).distinct.sorted
@@ -197,10 +367,6 @@ object EntityServiceSourceGenerator {
       ) <> line <>
       line <>
       "/** An event sourced entity. */" <> line <>
-      "@EventSourcedEntity" <> parens(
-        "entityType" <+> equal <+> dquotes(entityType)
-      )
-      <> line <>
       `class`("public", s"$className extends $interfaceClassName") {
         "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
         "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
@@ -208,9 +374,9 @@ object EntityServiceSourceGenerator {
         constructor(
           "public",
           className,
-          List("@EntityId" <+> "String" <+> "entityId")
+          List("EventSourcedContext" <+> "context")
         ) {
-          "this.entityId" <+> equal <+> "entityId" <> semi
+          "this.entityId" <+> equal <+> "context.entityId()" <> semi
         } <> line <>
         line <>
         (entity.state match {
@@ -303,10 +469,10 @@ object EntityServiceSourceGenerator {
                                      packageName: String,
                                      className: String): Option[String] = {
     entity match {
-      case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        None
-      case valueEntity: ValueEntity =>
-        Some(ValueEntitySourceGenerator.valueEntityHandler(service, valueEntity, packageName, className))
+      case entity: ModelBuilder.EventSourcedEntity =>
+        Some(EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className))
+      case entity: ValueEntity =>
+        Some(ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className))
     }
   }
 
@@ -316,7 +482,7 @@ object EntityServiceSourceGenerator {
                                       className: String): Option[String] = {
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        None
+        Some(eventSourcedEntityProvider(service, eventSourcedEntity, packageName, className))
       case valueEntity: ValueEntity =>
         Some(ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className))
     }
@@ -395,103 +561,6 @@ object EntityServiceSourceGenerator {
           }
         case _ => emptyDoc
       })
-    ).layout
-  }
-
-  private[codegen] def testSource(
-      service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
-      packageName: String,
-      implClassName: String,
-      testClassName: String
-  ): String = {
-    val messageTypes =
-      service.commands.flatMap(command => Seq(command.inputType, command.outputType)) ++ (entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          Seq.empty
-        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
-      })
-
-    val imports = (messageTypes.toSeq
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++ Seq(
-      "org.junit.Test",
-      "org.mockito.*"
-    ) ++ (entity match {
-      case _: EventSourcedEntity =>
-        Seq("com.akkaserverless.javasdk.eventsourcedentity.CommandContext")
-      case _: ValueEntity =>
-        Seq("com.akkaserverless.javasdk.valueentity.CommandContext")
-    })).distinct.sorted
-
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "import" <+> "static" <+> "org.junit.Assert.assertThrows" <> semi <> line <>
-      line <>
-      `class`("public", testClassName) {
-        "private" <+> "String" <+> "entityId" <+> equal <+> """"entityId1"""" <> semi <> line <>
-        "private" <+> implClassName <+> "entity" <> semi <> line <>
-        "private" <+> (entity match {
-          case ModelBuilder.ValueEntity(_, _, state) =>
-            "CommandContext" <> angles(qualifiedType(state.fqn))
-          case _ =>
-            "CommandContext"
-        }) <+> "context" <+> equal <+> "Mockito.mock(CommandContext.class)" <> semi <> line <>
-        line <>
-        ssep(
-          service.commands.toSeq
-            .map {
-              command =>
-                "@Test" <> line <>
-                method(
-                  "public",
-                  "void",
-                  lowerFirst(command.fqn.name) + "Test",
-                  List.empty,
-                  emptyDoc
-                ) {
-                  "entity" <+> equal <+> "new" <+> implClassName <> parens(
-                    (entity match {
-                      case _: ModelBuilder.ValueEntity => "context"
-                      case _ => "entityId"
-                    })
-                  ) <> semi <> line <>
-                  line <>
-                  "// TODO: write your mock here" <> line <>
-                  "// Mockito.when(context.[...]).thenReturn([...]);" <> line <>
-                  line <>
-                  "// TODO: set fields in command, and update assertions to verify implementation" <> line <>
-                  "//" <+> "assertEquals" <> parens(
-                    "[expected]" <> comma <>
-                    line <> "//" <> indent("entity") <> dot <> lowerFirst(
-                      command.fqn.name
-                    ) <> lparen <>
-                    qualifiedType(
-                      command.inputType
-                    ) <> dot <> "newBuilder().build(), context"
-                  ) <> semi <> line <>
-                  "//" <+> rparen <> semi <>
-                  (entity match {
-                    case _: ModelBuilder.EventSourcedEntity =>
-                      line <>
-                      line <>
-                      "// TODO: if you wish to verify events:" <> line <>
-                      "//" <> indent("Mockito.verify(context).emit(event)") <> semi
-                    case _ => emptyDoc
-                  })
-                }
-            }
-            .to[immutable.Seq],
-          line <> line
-        )
-      }
     ).layout
   }
 
@@ -610,5 +679,28 @@ object EntityServiceSourceGenerator {
         )
       }
     ).layout
+  }
+
+  private[codegen] def generateImports(types: Iterable[FullyQualifiedName],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+    val messageTypeImports = types
+      .filterNot { typ =>
+        typ.parent.javaPackage == packageName
+      }
+      .map(typeImport)
+
+    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
+      .map(pkg => s"import $pkg;")
+      .mkString("\n")
+  }
+
+  private[codegen] def generateImports(commands: Iterable[Command],
+                                       state: Option[State],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+
+    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
+    generateImports(types, packageName, otherImports)
   }
 }

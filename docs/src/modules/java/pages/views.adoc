@@ -87,7 +87,7 @@ The example assumes a `customer_domain.proto` file that defines the events that 
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;events]
+include::java:example$java-eventsourced-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;events]
 ----
 
 === Define a View descriptor to consume events
@@ -96,7 +96,7 @@ The following lines in the `.proto` file define a View to consume the `CustomerC
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
+include::java:example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
 <1> The `akkaserverless.service` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
@@ -115,7 +115,7 @@ all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvent
 
 [source,java,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameViewImpl.java[tag=process-events]
+include::java:example$java-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
 ----
 
 <1> The class must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`@View`] annotation.
@@ -137,7 +137,7 @@ Register the View class with `AkkaServerless`:
 
 [source,java,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register-with-class]
+include::java:example$java-eventsourced-customer-registry/src/main/java/customer/Main.java[tag=register-with-class]
 ----
 
 [#topic-view]
@@ -147,7 +147,7 @@ The source of a View can be an eventing topic. You define it in the same way as 
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
+include::java:example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
 ----
 
 <1> This is the only difference from <<event-sourced-entity>>.

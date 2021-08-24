@@ -39,8 +39,9 @@ public class GenerateMojoTest {
         assertTrue(projectDirectory.resolve(
                 "target/generated-sources/akkaserverless/java/com/example/shoppingcart/domain/AbstractShoppingCart.java")
                 .toFile().exists());
-        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java")
-                .toFile().exists());
+// FIXME enable assert again when new unit tests are generated
+//        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java")
+//                .toFile().exists());
         assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/domain/ShoppingCartIntegrationTest.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("target/generated-sources/akkaserverless/java/com/lightbend/MainComponentRegistrations.java")

@@ -32,6 +32,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.{Command, Entity, Service, Sta
  * Responsible for generating Java source from an entity model
  */
 object SourceGenerator extends PrettyPrinter {
+  import EntityServiceSourceGenerator.generateImports
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -191,17 +192,7 @@ object SourceGenerator extends PrettyPrinter {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName).toSeq.map {
           case entity: ModelBuilder.EventSourcedEntity =>
-            val relevantTypes =
-              service.commands.flatMap { cmd =>
-                cmd.inputType :: cmd.outputType :: Nil
-              } ++ entity.events.map(_.fqn) ++ entity.state.map(_.fqn)
-
-            s"""|.registerEventSourcedEntity(
-                |  ${entity.fqn.name}.class,
-                |  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
-                |  ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 2)}
-                |)""".stripMargin
-
+            s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
           case entity: ModelBuilder.ValueEntity =>
             s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
         }
@@ -246,7 +237,8 @@ object SourceGenerator extends PrettyPrinter {
           s"${ety.fqn.parent.javaPackage}.${ety.fqn.parent.javaOuterClassname}" ::
           Nil
         ety match {
-          // FIXME: for now, we only have Provider for ValueEntity
+          case _: ModelBuilder.EventSourcedEntity =>
+            s"${ety.fqn.fullName}Provider" :: imports
           case _: ModelBuilder.ValueEntity =>
             s"${ety.fqn.fullName}Provider" :: imports
           case _ => imports
@@ -281,6 +273,11 @@ object SourceGenerator extends PrettyPrinter {
 
     val contextImports = model.entities.values
       .collect {
+        case _: ModelBuilder.EventSourcedEntity =>
+          List(
+            "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+            "java.util.function.Function"
+          )
         case _: ModelBuilder.ValueEntity =>
           List(
             "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
@@ -292,8 +289,10 @@ object SourceGenerator extends PrettyPrinter {
 
     val creatorParameters =
       "AkkaServerless akkaServerless" +: model.entities.values.collect {
-        case valueEntity: ModelBuilder.ValueEntity =>
-          s"Function<ValueEntityContext, ${valueEntity.fqn.name}> create${valueEntity.fqn.name}"
+        case entity: ModelBuilder.EventSourcedEntity =>
+          s"Function<EventSourcedContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        case entity: ModelBuilder.ValueEntity =>
+          s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
       }.toList
 
     val imports =
@@ -321,12 +320,17 @@ object SourceGenerator extends PrettyPrinter {
       mainClassName: String,
       entities: Map[String, Entity]
   ): String = {
-    val componentImports = generateImports(Iterable.empty, mainClassPackageName, entities.values.collect {
-      case valueEntity: ModelBuilder.ValueEntity => valueEntity.fqn.fullName
-    }.toSeq)
+    val componentImports = generateImports(
+      Iterable.empty,
+      mainClassPackageName,
+      entities.values.collect {
+        case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullName
+        case entity: ModelBuilder.ValueEntity => entity.fqn.fullName
+      }.toSeq
+    )
     val registrationParameters = "new AkkaServerless()" +: entities.values.collect {
-        case valueEntity: ModelBuilder.ValueEntity =>
-          s"${valueEntity.fqn.name}::new"
+        case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.ValueEntity => s"${entity.fqn.name}::new"
       }.toList
 
     s"""|$generatedCodeCommentString
@@ -466,26 +470,4 @@ object SourceGenerator extends PrettyPrinter {
         | * DO NOT EDIT
         | */""".stripMargin
 
-  private[codegen] def generateImports(types: Iterable[FullyQualifiedName],
-                                       packageName: String,
-                                       otherImports: Seq[String]): String = {
-    val messageTypeImports = types
-      .filterNot { typ =>
-        typ.parent.javaPackage == packageName
-      }
-      .map(typeImport)
-
-    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
-      .map(pkg => s"import $pkg;")
-      .mkString("\n")
-  }
-
-  private[codegen] def generateImports(commands: Iterable[Command],
-                                       state: Option[State],
-                                       packageName: String,
-                                       otherImports: Seq[String]): String = {
-
-    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
-    generateImports(types, packageName, otherImports)
-  }
 }

@@ -109,10 +109,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
             assertEquals(Files.size(testSource2), 0L)
 
             assertEquals(
-              sources,
-              List(
+              sources.toSet,
+              Set(
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity1.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1Handler.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity1Provider.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve(
@@ -128,11 +134,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/AbstractMyEntity3.java"
                 ),
-                testSourceDirectory.resolve(
-                  "com/example/service/persistence/MyEntity3Test.java"
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3Handler.java"
                 ),
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/persistence/MyEntity3Provider.java"
                 ),
                 sourceDirectory.resolve("com/example/service/MyService4View.java"),
                 generatedSourceDirectory.resolve(
@@ -193,13 +202,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
+        |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.service.persistence.EntityOuterClass1;
         |import com.example.service.persistence.EntityOuterClass2;
         |import com.example.service.persistence.EntityOuterClass3;
         |import com.example.service.persistence.EntityOuterClass4;
         |import com.example.service.persistence.MyEntity1;
+        |import com.example.service.persistence.MyEntity1Provider;
         |import com.example.service.persistence.MyEntity3;
+        |import com.example.service.persistence.MyEntity3Provider;
         |import com.example.service.persistence.MyValueEntity2;
         |import com.example.service.persistence.MyValueEntity2Provider;
         |import com.example.service.something.ServiceOuterClass3;
@@ -211,21 +223,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class SomeMainComponentRegistrations {
         |
         |  public static AkkaServerless registerAll(AkkaServerless akkaServerless,
-        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2) {
+        |      Function<EventSourcedContext, MyEntity1> createMyEntity1,
+        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
+        |      Function<EventSourcedContext, MyEntity3> createMyEntity3) {
         |    return akkaServerless
-        |      .registerEventSourcedEntity(
-        |        MyEntity1.class,
-        |        ServiceOuterClass1.getDescriptor().findServiceByName("MyService1"),
-        |        EntityOuterClass1.getDescriptor(),
-        |        ExternalDomain.getDescriptor()
-        |      )
+        |      .register(MyEntity1Provider.of(createMyEntity1))
         |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
-        |      .registerEventSourcedEntity(
-        |        MyEntity3.class,
-        |        ServiceOuterClass3.getDescriptor().findServiceByName("MyService3"),
-        |        EntityOuterClass3.getDescriptor(),
-        |        ExternalDomain.getDescriptor()
-        |      )
+        |      .register(MyEntity3Provider.of(createMyEntity3))
         |      .registerView(
         |        MyService4View.class,
         |        ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
@@ -308,6 +312,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.AkkaServerless;
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
+         |import com.example.service.persistence.MyEntity1;
+         |import com.example.service.persistence.MyEntity3;
          |import com.example.service.persistence.MyValueEntity2;
          |import static com.example.service.SomeMainComponentRegistrations.registerAll;
          |
@@ -320,7 +326,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    // and is kept up-to-date with any changes in your protobuf definitions.
          |    // If you prefer, you may remove this wrapper and manually register these components.
          |    registerAll(new AkkaServerless(),
-         |      MyValueEntity2::new);
+         |      MyEntity1::new,
+         |      MyValueEntity2::new,
+         |      MyEntity3::new);
          |
          |  public static void main(String[] args) throws Exception {
          |    LOG.info("starting the Akka Serverless service");

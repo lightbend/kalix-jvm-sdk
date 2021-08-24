@@ -26,6 +26,19 @@ import java.util.Collections;
 /** Root entity options for all event sourcing entities. */
 public interface EventSourcedEntityOptions extends EntityOptions {
 
+  int snapshotEvery();
+
+  /**
+   * Specifies how snapshots of the entity state should be made: Zero means use default from
+   * configuration file. Any negative value means never snapshot. Any positive value means snapshot
+   * at-or-after that number of events.
+   *
+   * <p>It is strongly recommended to not disable snapshotting unless it is known that event sourced
+   * entity will never have more than 100 events (in which case the default will anyway not trigger
+   * any snapshots)
+   */
+  EventSourcedEntityOptions withSnapshotEvery(int numberOfEvents);
+
   EventSourcedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   /**
@@ -35,6 +48,6 @@ public interface EventSourcedEntityOptions extends EntityOptions {
    */
   static EventSourcedEntityOptions defaults() {
     return new EventSourcedEntityOptionsImpl(
-        PassivationStrategy.defaultTimeout(), Collections.emptySet());
+        0, PassivationStrategy.defaultTimeout(), Collections.emptySet());
   }
 }

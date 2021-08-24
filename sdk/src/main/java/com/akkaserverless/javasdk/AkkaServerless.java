@@ -23,7 +23,9 @@ import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
@@ -72,9 +74,6 @@ public final class AkkaServerless {
      * @param factory The event sourced factory.
      * @param descriptor The descriptor for the service that this entity implements.
      * @param entityType The persistence id for this entity.
-     * @param snapshotEvery Specifies how snapshots of the entity state should be made: Zero means
-     *     use default from configuration file. (Default) Any negative value means never snapshot.
-     *     Any positive value means snapshot at-or-after that number of events.
      * @param entityOptions the options for this entity.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
      *     protobuf types when needed.
@@ -84,7 +83,6 @@ public final class AkkaServerless {
         EventSourcedEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
-        int snapshotEvery,
         EventSourcedEntityOptions entityOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
@@ -96,7 +94,7 @@ public final class AkkaServerless {
                   descriptor,
                   newAnySupport(additionalDescriptors),
                   entityType,
-                  snapshotEvery,
+                  entityOptions.snapshotEvery(),
                   entityOptions));
 
       return AkkaServerless.this;
@@ -505,9 +503,31 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <T> AkkaServerless register(ValueEntityProvider provider) {
+  public AkkaServerless register(ValueEntityProvider provider) {
     return lowLevel()
         .registerValueEntity(
+            provider::newHandler,
+            provider.serviceDescriptor(),
+            provider.entityType(),
+            provider.options(),
+            provider.additionalDescriptors());
+  }
+
+  /**
+   * Register a event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
+   * <code>
+   * EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
+   * for example <code>CustomerEntityProvider</code>.
+   *
+   * <p>{{@link EventSourcedEntityOptions}} can be defined by in the <code>
+   * EventSourcedEntityProvider</code>.
+   *
+   * @return This stateful service builder.
+   */
+  public <S, E extends EventSourcedEntityBase<S>> AkkaServerless register(
+      EventSourcedEntityProvider<S, E> provider) {
+    return lowLevel()
+        .registerEventSourcedEntity(
             provider::newHandler,
             provider.serviceDescriptor(),
             provider.entityType(),

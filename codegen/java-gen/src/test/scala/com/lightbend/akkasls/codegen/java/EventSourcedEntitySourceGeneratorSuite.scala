@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 package java
 
-class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
+class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   test("EventSourcedEntity source") {
 
@@ -47,21 +47,19 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.EntityId;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |@EventSourcedEntity(entityType = "my-eventsourcedentity-persistence")
       |public class MyServiceEntity extends AbstractMyServiceEntity {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceEntity(@EntityId String entityId) {
-      |        this.entityId = entityId;
+      |    public MyServiceEntity(EventSourcedContext context) {
+      |        this.entityId = context.entityId();
       |    }
       |    
       |    @Override
@@ -125,77 +123,164 @@ class EntityServiceSourceGeneratorSuite extends munit.FunSuite {
     )
   }
 
-  test("EventSourcedEntity test source") {
+  test("EventSourcedEntity generated handler") {
+    val service = TestData.simpleEntityService()
+    val entity = TestData.eventSourcedEntity()
+    val packageName = "com.example.service"
+    val className = "MyServiceEntity"
+
+    val generatedSrc =
+      EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
+
+    assertEquals(
+      generatedSrc,
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+         |import com.akkaserverless.javasdk.impl.EntityExceptions;
+         |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import com.google.protobuf.Any;
+         |import com.google.protobuf.InvalidProtocolBufferException;
+         |
+         |/** An event sourced entity handler */
+         |public class MyServiceEntityHandler extends EventSourcedEntityHandler<EntityOuterClass.MyState, MyEntity> {
+         |
+         |  public MyServiceEntityHandler(MyEntity entity) {
+         |    super(entity);
+         |  }
+         |
+         |  @Override
+         |  public EntityOuterClass.MyState handleEvent(EntityOuterClass.MyState state, Object event) {
+         |    if (event instanceof EntityOuterClass.SetEvent) {
+         |      return entity().setEvent(state, (EntityOuterClass.SetEvent) event);
+         |    } else {
+         |      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+         |    }
+         |  }
+         |
+         |  @Override
+         |  public EventSourcedEntityBase.Effect<?> handleCommand(
+         |      String commandName, EntityOuterClass.MyState state, Any command, CommandContext context) {
+         |    try {
+         |      switch (commandName) {
+         |
+         |        case "Set":
+         |          // FIXME could parsing to the right type also be pulled out of here?
+         |          return entity().set(state, ServiceOuterClass.SetValue.parseFrom(command.getValue()));
+         |
+         |        case "Get":
+         |          // FIXME could parsing to the right type also be pulled out of here?
+         |          return entity().get(state, ServiceOuterClass.GetValue.parseFrom(command.getValue()));
+         |
+         |        default:
+         |          throw new EntityExceptions.EntityException(
+         |              context.entityId(),
+         |              context.commandId(),
+         |              commandName,
+         |              "No command handler found for command ["
+         |                  + commandName
+         |                  + "] on "
+         |                  + entity().getClass());
+         |      }
+         |    } catch (InvalidProtocolBufferException ex) {
+         |      // This is if command payload cannot be parsed
+         |      throw new RuntimeException(ex);
+         |    }
+         |  }
+         |}""".stripMargin
+    )
+  }
+
+  test("EventSourcedEntity Provider") {
     val service = TestData.simpleEntityService()
     val entity = TestData.eventSourcedEntity()
 
     val packageName = "com.example.service"
-    val implClassName = "MyServiceEntity"
-    val testClassName = "MyServiceEntityTest"
+    val className = "MyService"
 
     val generatedSrc =
-      EntityServiceSourceGenerator
-        .testSource(
-          service,
-          entity,
-          packageName,
-          implClassName,
-          testClassName
-        )
+      EntityServiceSourceGenerator.eventSourcedEntityProvider(
+        service,
+        entity,
+        packageName,
+        className
+      )
 
     assertEquals(
       generatedSrc,
-      """/* This code was initialised by Akka Serverless tooling.
-        | * As long as this file exists it will not be re-generated.
-        | * You are free to make changes to this file.
-        | */
-        |
-        |package com.example.service;
-        |
-        |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-        |import com.external.Empty;
-        |import org.junit.Test;
-        |import org.mockito.*;
-        |
-        |import static org.junit.Assert.assertThrows;
-        |
-        |public class MyServiceEntityTest {
-        |    private String entityId = "entityId1";
-        |    private MyServiceEntity entity;
-        |    private CommandContext context = Mockito.mock(CommandContext.class);
-        |    
-        |    @Test
-        |    public void setTest() {
-        |        entity = new MyServiceEntity(entityId);
-        |        
-        |        // TODO: write your mock here
-        |        // Mockito.when(context.[...]).thenReturn([...]);
-        |        
-        |        // TODO: set fields in command, and update assertions to verify implementation
-        |        // assertEquals([expected],
-        |        //    entity.set(ServiceOuterClass.SetValue.newBuilder().build(), context);
-        |        // );
-        |        
-        |        // TODO: if you wish to verify events:
-        |        //    Mockito.verify(context).emit(event);
-        |    }
-        |    
-        |    @Test
-        |    public void getTest() {
-        |        entity = new MyServiceEntity(entityId);
-        |        
-        |        // TODO: write your mock here
-        |        // Mockito.when(context.[...]).thenReturn([...]);
-        |        
-        |        // TODO: set fields in command, and update assertions to verify implementation
-        |        // assertEquals([expected],
-        |        //    entity.get(ServiceOuterClass.GetValue.newBuilder().build(), context);
-        |        // );
-        |        
-        |        // TODO: if you wish to verify events:
-        |        //    Mockito.verify(context).emit(event);
-        |    }
-        |}""".stripMargin
+      """|/* This code is managed by Akka Serverless tooling.
+         | * It will be re-generated to reflect any changes to your protobuf definitions.
+         | * DO NOT EDIT
+         | */
+         |package com.example.service;
+         |
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+         |import com.example.service.ServiceOuterClass;
+         |import com.example.service.persistence.EntityOuterClass;
+         |import com.external.Empty;
+         |import com.external.ExternalDomain;
+         |import com.google.protobuf.Descriptors;
+         |import java.util.function.Function;
+         |
+         |/** An event sourced entity provider */
+         |public class MyServiceProvider implements EventSourcedEntityProvider<EntityOuterClass.MyState, MyService> {
+         |
+         |  private final Function<EventSourcedContext, MyService> entityFactory;
+         |  private final EventSourcedEntityOptions options;
+         |
+         |  /** Factory method of MyServiceProvider */
+         |  public static MyServiceProvider of(Function<EventSourcedContext, MyService> entityFactory) {
+         |    return new MyServiceProvider(entityFactory, EventSourcedEntityOptions.defaults());
+         |  }
+         | 
+         |  private MyServiceProvider(
+         |      Function<EventSourcedContext, MyService> entityFactory,
+         |      EventSourcedEntityOptions options) {
+         |    this.entityFactory = entityFactory;
+         |    this.options = options;
+         |  }
+         |
+         |  @Override
+         |  public final EventSourcedEntityOptions options() {
+         |    return options;
+         |  }
+         | 
+         |  public final MyServiceProvider withOptions(EventSourcedEntityOptions options) {
+         |    return new MyServiceProvider(entityFactory, options);
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+         |    return ServiceOuterClass.getDescriptor().findServiceByName("MyService");
+         |  }
+         |
+         |  @Override
+         |  public final String entityType() {
+         |    return "MyEntity";
+         |  }
+         |
+         |  @Override
+         |  public final MyServiceHandler newHandler(EventSourcedContext context) {
+         |    return new MyServiceHandler(entityFactory.apply(context));
+         |  }
+         |
+         |  @Override
+         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+         |    return new Descriptors.FileDescriptor[] {
+         |      EntityOuterClass.getDescriptor(),
+         |      ExternalDomain.getDescriptor()
+         |    };
+         |  }
+         |}""".stripMargin
     )
   }
 

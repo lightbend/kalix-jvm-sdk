@@ -25,8 +25,8 @@ import com.google.protobuf.GeneratedMessageV3;
 /**
  * Low level interface for handling commands on a value based entity.
  *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * CommandHandler} and similar annotations should be used.
+ * <p>The concrete <code>ValueEntityHandler</code> is generated for the specific entities defined in
+ * Protobuf.
  */
 public interface ValueEntityHandler {
 
