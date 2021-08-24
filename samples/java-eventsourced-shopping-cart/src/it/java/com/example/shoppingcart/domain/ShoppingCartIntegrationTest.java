@@ -27,7 +27,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class ShoppingCartIntegrationTest {
 
   /**
