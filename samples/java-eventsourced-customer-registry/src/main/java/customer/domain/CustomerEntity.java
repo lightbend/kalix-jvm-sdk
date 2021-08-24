@@ -5,13 +5,7 @@
 
 package customer.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
@@ -29,13 +23,11 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return CustomerDomain.CustomerState.getDefaultInstance();
     }
 
-    @CommandHandler
     public Effect<CustomerApi.Customer> getCustomer(
         CustomerDomain.CustomerState state, CustomerApi.GetCustomerRequest command) {
         return effects().reply(convertToApi(state));
     }
 
-    @CommandHandler
     public Effect<Empty> create(
         CustomerDomain.CustomerState currentState, CustomerApi.Customer request) {
         CustomerDomain.CustomerState domainCustomer = convertToDomain(request);
@@ -44,7 +36,6 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
     }
 
-    @CommandHandler
     public Effect<Empty> changeName(
         CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest request) {
         if (currentState.equals(CustomerDomain.CustomerState.getDefaultInstance())) {
@@ -56,7 +47,6 @@ public class CustomerEntity extends AbstractCustomerEntity {
         }
     }
 
-    @CommandHandler
     public Effect<Empty> changeAddress(
         CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
         CustomerDomain.CustomerAddressChanged event =
@@ -66,19 +56,16 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
     }
 
-    @EventHandler
     public CustomerDomain.CustomerState customerCreated(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerCreated event) {
         return currentState.toBuilder().mergeFrom(event.getCustomer()).build();
     }
 
-    @EventHandler
     public CustomerDomain.CustomerState customerNameChanged(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerNameChanged event) {
         return currentState.toBuilder().setName(event.getNewName()).build();
     }
 
-    @EventHandler
     public CustomerDomain.CustomerState customerAddressChanged(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerAddressChanged event) {
         return currentState.toBuilder().setAddress(event.getNewAddress()).build();

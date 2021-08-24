@@ -6,7 +6,6 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 import customer.domain.CustomerEntity;
 import customer.domain.CustomerEntityProvider;
