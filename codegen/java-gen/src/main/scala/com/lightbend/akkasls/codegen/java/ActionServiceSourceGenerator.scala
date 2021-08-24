@@ -21,6 +21,8 @@ import com.google.common.base.Charsets
 import scala.collection.immutable
 import _root_.java.nio.file.{Files, Path}
 
+import com.akkaserverless.ServiceOptions.ServiceType
+
 /**
  * Responsible for generating Java source from an entity model
  */
