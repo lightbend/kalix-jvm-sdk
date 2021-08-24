@@ -40,6 +40,8 @@ object EventSourcedEntityHandler {
 /**
  * @tparam S the type of the managed state for the entity
  * Not for manual user extension or interaction
+ *
+ * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
 abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
 

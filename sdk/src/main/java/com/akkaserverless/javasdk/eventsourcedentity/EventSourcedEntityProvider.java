@@ -19,6 +19,12 @@ package com.akkaserverless.javasdk.eventsourcedentity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.google.protobuf.Descriptors;
 
+/**
+ * Register an event sourced entity in {{@link com.akkaserverless.javasdk.AkkaServerless}} using a
+ * <code>EventSourcedEntityProvider</code>. The concrete <code>EventSourcedEntityProvider</code> is
+ * generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider
+ * </code>.
+ */
 public interface EventSourcedEntityProvider<S, E extends EventSourcedEntityBase<S>> {
 
   EventSourcedEntityOptions options();
