@@ -26,12 +26,15 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
+import com.akkaserverless.javasdk.impl.ResolvedEntityFactory;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
 import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
 import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
+import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
@@ -84,13 +87,18 @@ public final class AkkaServerless {
         EventSourcedEntityOptions entityOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      EventSourcedEntityFactory resolvedFactory =
+          new ResolvedEventSourcedEntityFactory(
+              factory, anySupport.resolveServiceDescriptor(descriptor));
+
       services.put(
           descriptor.getFullName(),
           system ->
               new EventSourcedEntityService(
-                  factory,
+                  resolvedFactory,
                   descriptor,
-                  newAnySupport(additionalDescriptors),
+                  anySupport,
                   entityType,
                   entityOptions.snapshotEvery(),
                   entityOptions));
@@ -171,7 +179,10 @@ public final class AkkaServerless {
         ValueEntityOptions entityOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      final AnySupport anySupport = newAnySupport(additionalDescriptors);
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      ValueEntityFactory resolvedFactory =
+          new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+
       services.put(
           descriptor.getFullName(),
           system ->
