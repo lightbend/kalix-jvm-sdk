@@ -1,7 +1,6 @@
 package com.example.domain;
 
 import com.example.CounterApi;
-import com.example.Main;
 import com.example.CounterServiceClient;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import org.junit.ClassRule;
