@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// tag::declarations[]
+
 syntax = "proto3";
 
 package customer.api;
@@ -20,6 +22,10 @@ option java_outer_classname = "CustomerApi";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
+
+// end::declarations[]
+
+// tag::messages[]
 
 message Customer {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
@@ -32,6 +38,10 @@ message Address {
   string street = 1;
   string city = 2;
 }
+
+// end::messages[]
+
+// tag::method-messages[]
 
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
@@ -47,6 +57,11 @@ message ChangeAddressRequest {
   Address new_address = 2;
 }
 
+// end::method-messages[]
+
+
+// tag::service[]
+
 service CustomerService {
   option (akkaserverless.service) = {
     type: SERVICE_TYPE_ENTITY
@@ -61,3 +76,4 @@ service CustomerService {
 
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }
+// end::service[]
