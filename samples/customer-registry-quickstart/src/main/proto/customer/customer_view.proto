@@ -38,8 +38,6 @@ service CustomerByName {
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
-      // TODO in codegen: added this to trigger codegen
-      transform_updates: true
     };
   }
 
