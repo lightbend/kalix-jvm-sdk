@@ -26,7 +26,7 @@ public final class Main {
     new AkkaServerless()
         .registerView(
             CustomerByNameView.class,
-            CustomerViewModel.getDescriptor().findServiceByName("CustomerByNameView"),
+            CustomerViewModel.getDescriptor().findServiceByName("CustomerByName"),
             "customerByName",
             CustomerDomain.getDescriptor())
         // end::register-with-class[]
