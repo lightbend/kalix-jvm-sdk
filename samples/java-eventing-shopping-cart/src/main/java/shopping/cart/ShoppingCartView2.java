@@ -21,30 +21,34 @@ import org.slf4j.LoggerFactory;
 import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
 
-import java.util.Optional;
-
 // user view impl
 public class ShoppingCartView2 extends AbstractShoppingCartView {
 
   private static Logger LOG = LoggerFactory.getLogger(ShoppingCartView2.class);
 
+  @Override
+  public ShoppingCartViewModel.CartViewState emptyState() {
+    return null;
+  }
+
+  @Override
   public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemAdded(
-      ShoppingCartDomain.ItemAdded event,
-      Optional<ShoppingCartViewModel.CartViewState> state) {
-    if (state.isPresent()) {
-      String cartId = state.get().getCartId();
-      int newNumberOfItems = state.get().getNumberOfItems() + event.getItem().getQuantity();
+      ShoppingCartViewModel.CartViewState state,
+      ShoppingCartDomain.ItemAdded itemAdded) {
+    if (state != null) {
+      String cartId = state.getCartId();
+      int newNumberOfItems = state.getNumberOfItems() + itemAdded.getItem().getQuantity();
       LOG.info("Cart {} has {} items", cartId, newNumberOfItems);
-      return updateEffects().updateState(state.get().toBuilder().setNumberOfItems(newNumberOfItems).build());
+      return updateEffects().updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
     } else {
       String cartId =
-          updateHandlerContext()
+          updateContext()
               .eventSubject()
               .orElseGet(
                   () -> {
                     throw new IllegalArgumentException("Unknown eventSubject");
                   });
-      int newNumberOfItems = event.getItem().getQuantity();
+      int newNumberOfItems = itemAdded.getItem().getQuantity();
       LOG.info("New cart {} has {} items", cartId, newNumberOfItems);
       return updateEffects().updateState(ShoppingCartViewModel.CartViewState.newBuilder()
           .setCartId(cartId)
@@ -53,14 +57,20 @@ public class ShoppingCartView2 extends AbstractShoppingCartView {
     }
   }
 
+  @Override
   public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemRemoved(
-      ShoppingCartDomain.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
-    int newNumberOfItems = state.getNumberOfItems() - event.getQuantity();
+      ShoppingCartViewModel.CartViewState state,
+      ShoppingCartDomain.ItemRemoved itemRemoved) {
+    if (state == null) throw new IllegalArgumentException("Cannot remove item from unknown cart " + updateContext().eventSubject());
+    int newNumberOfItems = state.getNumberOfItems() - itemRemoved.getQuantity();
     return updateEffects().updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
   }
 
+  @Override
   public UpdateEffect<ShoppingCartViewModel.CartViewState> processCheckedOut(
-      ShoppingCartDomain.CheckedOut event, ShoppingCartViewModel.CartViewState state) {
-    return updateEffects().updateState(state.toBuilder().setCheckedOutTimestamp(event.getCheckedOutTimestamp()).build());
+      ShoppingCartViewModel.CartViewState state,
+      ShoppingCartDomain.CheckedOut checkedOut) {
+    if (state == null) throw new IllegalArgumentException("Cannot check out unknown cart " + updateContext().eventSubject());
+    return updateEffects().updateState(state.toBuilder().setCheckedOutTimestamp(checkedOut.getCheckedOutTimestamp()).build());
   }
 }

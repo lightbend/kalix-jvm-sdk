@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.akkaserverless.javasdk.view.UpdateContext;
 import com.google.protobuf.Any;
 
 /**
@@ -36,5 +36,5 @@ public interface ViewUpdateHandler {
    * @param context The context.
    * @return The updated state.
    */
-  Reply<Any> handle(Any message, UpdateHandlerContext context);
+  Reply<Any> handle(Any message, UpdateContext context);
 }

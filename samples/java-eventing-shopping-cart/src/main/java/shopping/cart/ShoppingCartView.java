@@ -17,7 +17,7 @@
 package shopping.cart;
 
 import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.akkaserverless.javasdk.view.UpdateContext;
 import com.akkaserverless.javasdk.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class ShoppingCartView {
   public ShoppingCartViewModel.CartViewState processAdded(
       ShoppingCartDomain.ItemAdded event,
       Optional<ShoppingCartViewModel.CartViewState> state,
-      UpdateHandlerContext context) {
+      UpdateContext context) {
     if (state.isPresent()) {
       String cartId = state.get().getCartId();
       int newNumberOfItems = state.get().getNumberOfItems() + event.getItem().getQuantity();

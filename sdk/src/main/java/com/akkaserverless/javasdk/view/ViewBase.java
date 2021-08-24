@@ -26,28 +26,34 @@ import java.util.Optional;
 /** @param <S> The type of the state for this view. */
 public abstract class ViewBase<S> {
 
-  private Optional<UpdateHandlerContext> updateHandlerContext = Optional.empty();
+  private Optional<UpdateContext> updateContext = Optional.empty();
 
   /**
    * Additional context and metadata for an update handler.
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected final UpdateHandlerContext updateHandlerContext() {
-    return updateHandlerContext.orElseThrow(
+  protected final UpdateContext updateContext() {
+    return updateContext.orElseThrow(
         () ->
             new IllegalStateException(
                 "UpdateHandlerContext is only available when handling an update."));
   }
 
   /** INTERNAL API */
-  public final void setUpdateHandlerContext(Optional<UpdateHandlerContext> context) {
-    updateHandlerContext = context;
+  public final void setUpdateContext(Optional<UpdateContext> context) {
+    updateContext = context;
   }
 
   protected final UpdateEffect.Builder<S> updateEffects() {
     return ViewUpdateEffectImpl.builder();
   }
+
+  /**
+   * @return an empty state object or `null` to hand to the process method when an event for a
+   *     previously unknown subject id is seen.
+   */
+  public abstract S emptyState();
 
   /**
    * Construct the effect that is returned by the command handler. The effect describes next
@@ -65,7 +71,9 @@ public abstract class ViewBase<S> {
       UpdateEffect<S> ignore();
 
       /**
-       * Trigger an error for the event. FIXME what happens on error, retry of the same event?
+       * Trigger an error for the event. Returning this effect is equivalent to throwing an
+       * exception from the handler and will lead to retrying processing of the same event until it
+       * is handled successfully.
        *
        * @param description The description of the error.
        */

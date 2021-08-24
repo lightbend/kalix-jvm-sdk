@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.UpdateHandlerContext;
+import com.akkaserverless.javasdk.view.UpdateContext;
 import com.akkaserverless.javasdk.view.View;
 import com.akkaserverless.tck.model.View.Event;
 import com.akkaserverless.tck.model.View.ViewState;
@@ -29,7 +29,7 @@ public class ViewTckModelBehavior {
 
   @UpdateHandler
   public Optional<ViewState> processUpdateUnary(
-      Event event, Optional<ViewState> maybePreviousState, UpdateHandlerContext ctx) {
+      Event event, Optional<ViewState> maybePreviousState, UpdateContext ctx) {
     if (event.hasReturnAsIs()) {
       return Optional.of(ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
     } else if (event.hasUppercaseThis()) {

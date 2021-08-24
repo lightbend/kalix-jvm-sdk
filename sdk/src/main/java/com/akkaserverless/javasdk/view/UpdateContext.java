@@ -22,7 +22,7 @@ import com.akkaserverless.javasdk.MetadataContext;
 import java.util.Optional;
 
 /** Context for view update calls. */
-public interface UpdateHandlerContext extends ViewContext, MetadataContext {
+public interface UpdateContext extends ViewContext, MetadataContext {
 
   /**
    * The origin subject of the {@link CloudEvent}. For example, the entity key when the event was
