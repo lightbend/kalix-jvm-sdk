@@ -125,10 +125,6 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
         create(classOf[EntityIdArgConstructorTest])
       }
 
-      "there is a constructor with a EventSourcedEntityCreationContext parameter" in {
-        create(classOf[CreationContextArgConstructorTest])
-      }
-
       "there is a constructor with multiple parameters" in {
         create(classOf[MultiArgConstructorTest])
       }
@@ -299,16 +295,6 @@ class AnnotationBasedValueEntitySupportSpec extends AnyWordSpec with Matchers {
       "fail if there's a ReplicatedEntity command handler" in {
         val ex = the[RuntimeException] thrownBy create(new {
             @com.akkaserverless.javasdk.replicatedentity.CommandHandler
-            def addItem(msg: String) =
-              Wrapped(msg)
-          }, method())
-        ex.getMessage should include("Did you mean")
-        ex.getMessage should include(classOf[CommandHandler].getName)
-      }
-
-      "fail if there's an EventSourcedEntity command handler" in {
-        val ex = the[RuntimeException] thrownBy create(new {
-            @com.akkaserverless.javasdk.eventsourcedentity.CommandHandler
             def addItem(msg: String) =
               Wrapped(msg)
           }, method())

@@ -16,8 +16,6 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;

@@ -28,7 +28,6 @@ import com.akkaserverless.tck.model.EventSourcedEntity.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventSourcedEntity(entityType = "event-sourced-tck-model", snapshotEvery = 5)
 public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted> {
 
   private final ServiceCallRef<Request> serviceTwoCall;
@@ -43,12 +42,10 @@ public class EventSourcedTckModelEntity extends EventSourcedEntityBase<Persisted
         context.serviceCallFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
   }
 
-  @EventHandler
   public Persisted handleEvent(Persisted state, Persisted event) {
     return Persisted.newBuilder().setValue(state.getValue() + event.getValue()).build();
   }
 
-  @CommandHandler
   public EventSourcedEntityBase.Effect<Response> process(Persisted currentState, Request request) {
     List<SideEffect> e = new ArrayList<>();
     List<Persisted> events = new ArrayList<>();

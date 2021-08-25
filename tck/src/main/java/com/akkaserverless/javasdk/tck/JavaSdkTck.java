@@ -80,32 +80,45 @@ public final class JavaSdkTck {
               ReplicatedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                   .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100)))
                   .withWriteConsistency(WriteConsistency.ALL))
-          .registerEventSourcedEntity(
-              EventSourcedTckModelEntity.class,
-              EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTckModel"),
-              EventSourcedEntity.getDescriptor())
-          .registerEventSourcedEntity(
-              EventSourcedTwoEntity.class,
-              EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedTwo"))
-          .registerEventSourcedEntity(
-              EventSourcedConfiguredEntity.class,
-              EventSourcedEntity.getDescriptor().findServiceByName("EventSourcedConfigured"),
-              EventSourcedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
+          .register(
+              com.akkaserverless.javasdk.tck.model.eventsourcedentity
+                  .EventSourcedTckModelEntityProvider.of(
+                      com.akkaserverless.javasdk.tck.model.eventsourcedentity
+                              .EventSourcedTckModelEntity
+                          ::new)
+                  .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(5)))
+          .register(
+              com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider
+                  .of(
+                      com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntity
+                          ::new))
+          .register(
+              com.akkaserverless.javasdk.tck.model.eventsourcedentity
+                  .EventSourcedConfiguredEntityProvider.of(
+                      com.akkaserverless.javasdk.tck.model.eventsourcedentity
+                              .EventSourcedConfiguredEntity
+                          ::new)
+                  // required timeout of 100 millis for TCK tests
+                  .withOptions(
+                      EventSourcedEntityOptions.defaults()
+                          .withPassivationStrategy(
+                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
           .registerAction(
               LocalPersistenceSubscriber.class,
               LocalPersistenceEventing.getDescriptor()
                   .findServiceByName("LocalPersistenceSubscriberModel"))
-          .registerEventSourcedEntity(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOne
-                  .class,
-              LocalPersistenceEventing.getDescriptor().findServiceByName("EventSourcedEntityOne"),
-              LocalPersistenceEventing.getDescriptor())
-          .registerEventSourcedEntity(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwo
-                  .class,
-              LocalPersistenceEventing.getDescriptor().findServiceByName("EventSourcedEntityTwo"),
-              LocalPersistenceEventing.getDescriptor())
+          .register(
+              com.akkaserverless.javasdk.tck.model.localpersistenceeventing
+                  .EventSourcedEntityOneProvider.of(
+                  com.akkaserverless.javasdk.tck.model.localpersistenceeventing
+                          .EventSourcedEntityOne
+                      ::new))
+          .register(
+              com.akkaserverless.javasdk.tck.model.localpersistenceeventing
+                  .EventSourcedEntityTwoProvider.of(
+                  com.akkaserverless.javasdk.tck.model.localpersistenceeventing
+                          .EventSourcedEntityTwo
+                      ::new))
           .registerValueEntity(
               com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne.class,
               LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityOne"),

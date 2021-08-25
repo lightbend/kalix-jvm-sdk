@@ -23,14 +23,14 @@ import com.google.protobuf.Descriptors.{FileDescriptor, ServiceDescriptor}
 import com.typesafe.config.{Config, ConfigFactory}
 import scala.reflect.ClassTag
 
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider
+
 object TestEventSourced {
-  def service[T: ClassTag](descriptor: ServiceDescriptor, fileDescriptors: FileDescriptor*): TestEventSourcedService =
-    new TestEventSourcedService(implicitly[ClassTag[T]].runtimeClass, descriptor, fileDescriptors)
+  def service(entityProvider: EventSourcedEntityProvider[_, _]): TestEventSourcedService =
+    new TestEventSourcedService(entityProvider)
 }
 
-class TestEventSourcedService(entityClass: Class[_],
-                              descriptor: ServiceDescriptor,
-                              fileDescriptors: Seq[FileDescriptor]) {
+class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _]) {
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
@@ -45,7 +45,7 @@ class TestEventSourcedService(entityClass: Class[_],
   """))
 
   val runner: AkkaServerlessRunner = new AkkaServerless()
-    .registerEventSourcedEntity(entityClass, descriptor, fileDescriptors: _*)
+    .register(entityProvider)
     .createRunner(config)
 
   runner.run()

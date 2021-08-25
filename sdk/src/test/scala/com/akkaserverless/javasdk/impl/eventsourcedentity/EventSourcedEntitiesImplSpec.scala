@@ -16,26 +16,12 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.EntityId
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
 import com.akkaserverless.javasdk.eventsourcedentity._
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.eventsourcedentity.EventSourcedMessages
-import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
-import scala.collection.mutable
-import scala.reflect.ClassTag
-import com.akkaserverless.protocol.component.Failure
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut
-import com.example.shoppingcart.ShoppingCartApi.Cart
-import com.example.shoppingcart.domain
-import com.example.shoppingcart.domain.ShoppingCartDomain.LineItem
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import EventSourcedEntitiesImplSpec._
@@ -146,7 +132,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val eventClass = notEvent.getClass
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(event(1, notEvent))
-        entity.expect(failure(s"No event handler found for event $eventClass on ${ShoppingCart.TestCartClass}"))
+        entity.expect(failure(s"Unexpected failure: Unknown event type [$eventClass]"))
         entity.expectClosed()
       }
     }
@@ -169,7 +155,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         entity.expect(
           failure(
             1,
-            s"Unexpected failure: java.lang.RuntimeException: No command handler found for command [foo] on ${ShoppingCart.TestCartClass}"
+            s"No command handler found for command [foo] on ${classOf[CartEntity]}"
           )
         )
         entity.expectClosed()
@@ -214,12 +200,11 @@ object EventSourcedEntitiesImplSpec {
 
     val Name: String = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService").getFullName
 
-    def testService: TestEventSourcedService = service[TestCart]
-
-    def service[T: ClassTag]: TestEventSourcedService =
-      TestEventSourced.service[T](
-        ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService"),
-        ShoppingCartDomain.getDescriptor
+    def testService: TestEventSourcedService =
+      TestEventSourced.service(
+        CartEntityProvider
+          .of(new CartEntity(_))
+          .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(2))
       )
 
     case class Item(id: String, name: String, quantity: Int)
@@ -257,68 +242,5 @@ object EventSourcedEntitiesImplSpec {
         ShoppingCartDomain.Cart.newBuilder.addAllItems(domainLineItems(items)).build
     }
 
-    val TestCartClass: Class[_] = classOf[TestCart]
-
-    @EventSourcedEntity(entityType = "shopping-cart", snapshotEvery = 2)
-    class TestCart(@EntityId val entityId: String) extends EventSourcedEntityBase[ShoppingCartDomain.Cart] {
-
-      override def emptyState(): ShoppingCartDomain.Cart = ShoppingCartDomain.Cart.getDefaultInstance
-
-      @CommandHandler
-      def getCart(currentState: ShoppingCartDomain.Cart,
-                  command: ShoppingCartApi.GetShoppingCart): Effect[ShoppingCartApi.Cart] =
-        effects().reply(Protocol.cart(domainCartToMap(currentState).values.toList: _*))
-
-      @CommandHandler
-      def addItem(currentState: ShoppingCartDomain.Cart, command: ShoppingCartApi.AddLineItem): Effect[Empty] = {
-        if (command.getQuantity <= 0) {
-          effects().error(s"Cannot add negative quantity of item [${command.getProductId}]")
-        } else {
-          effects()
-            .emitEvent(Protocol.itemAdded(command.getProductId, command.getName, command.getQuantity))
-            .thenReply(_ => Empty.getDefaultInstance)
-        }
-      }
-
-      @EventHandler
-      def itemAdded(currentState: ShoppingCartDomain.Cart,
-                    command: ShoppingCartDomain.ItemAdded): ShoppingCartDomain.Cart = {
-        val updatedItem = command.getItem
-        if (updatedItem.getName == "FAIL") throw new RuntimeException("Boom: name is FAIL") // fail for testing
-        val currentItems = domainCartToMap(currentState)
-        val updatedItems = currentItems.updatedWith(
-          updatedItem.getProductId
-        ) {
-          case Some(existing) =>
-            Some(Item(updatedItem.getProductId, updatedItem.getName, existing.quantity + updatedItem.getQuantity))
-          case None => Some(Item(command.getItem.getProductId, command.getItem.getName, command.getItem.getQuantity))
-        }
-        domainCartFromMap(updatedItems)
-      }
-
-      @CommandHandler
-      def removeItem(currentState: ShoppingCartDomain.Cart, item: ShoppingCartApi.RemoveLineItem): Effect[Empty] = {
-        throw new RuntimeException("Boom: " + item.getProductId) // always fail for testing
-      }
-
-      private def domainCartToMap(cart: ShoppingCartDomain.Cart): Map[String, Item] = {
-        cart.getItemsList.asScala.map(li => li.getProductId -> Item(li.getProductId, li.getName, li.getQuantity)).toMap
-      }
-
-      private def domainCartFromMap(map: Map[String, Item]): ShoppingCartDomain.Cart = {
-        ShoppingCartDomain.Cart
-          .newBuilder()
-          .addAllItems(map.map {
-            case (_, Item(id, name, quantity)) =>
-              ShoppingCartDomain.LineItem
-                .newBuilder()
-                .setProductId(id)
-                .setName(name)
-                .setQuantity(quantity)
-                .build()
-          }.asJava)
-          .build()
-      }
-    }
   }
 }

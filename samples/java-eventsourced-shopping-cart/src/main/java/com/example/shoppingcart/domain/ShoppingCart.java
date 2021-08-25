@@ -18,7 +18,7 @@ package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
@@ -29,13 +29,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@EventSourcedEntity(entityType = "shopping-cart")
 public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCart(String entityId) {
-    this.entityId = entityId;
+  public ShoppingCart(EventSourcedContext context) {
+    this.entityId = context.entityId();
   }
 
   @Override
