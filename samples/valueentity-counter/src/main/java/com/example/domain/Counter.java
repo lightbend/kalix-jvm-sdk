@@ -5,6 +5,7 @@
 
 package com.example.domain;
 
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -18,8 +19,8 @@ public class Counter extends AbstractCounter {
     @SuppressWarnings("unused")
     private final String entityId;
 
-    public Counter(String entityId) { // <1>
-        this.entityId = entityId;
+    public Counter(ValueEntityContext context) { // <1>
+        this.entityId = context.entityId();
     }
     // end::class[]
     
