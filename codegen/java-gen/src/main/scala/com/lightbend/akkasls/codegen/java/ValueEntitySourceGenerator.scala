@@ -202,10 +202,8 @@ object ValueEntitySourceGenerator {
     )
 
     val descriptors =
-      collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
-        .distinct
-        .sorted
+      (collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""|$managedCodeCommentString
         |package $packageName;

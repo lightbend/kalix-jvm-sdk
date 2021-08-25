@@ -16,12 +16,9 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.EntityExceptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /** Generated, does the routing from command name to concrete method */
 final class CartEntityHandler
@@ -38,37 +35,22 @@ final class CartEntityHandler
     } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
       return entity().itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
     } else {
-      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
     }
   }
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, ShoppingCartDomain.Cart state, Any command, CommandContext context) {
-    try {
-      switch (commandName) {
-        case "AddItem":
-          // FIXME could parsing to the right type also be pulled out of here?
-          return entity().addItem(state, ShoppingCartApi.AddLineItem.parseFrom(command.getValue()));
-        case "RemoveItem":
-          return entity()
-              .removeItem(state, ShoppingCartApi.RemoveLineItem.parseFrom(command.getValue()));
-        case "GetCart":
-          return entity()
-              .getCart(state, ShoppingCartApi.GetShoppingCart.parseFrom(command.getValue()));
-        default:
-          throw new EntityExceptions.EntityException(
-              context.entityId(),
-              context.commandId(),
-              commandName,
-              "No command handler found for command ["
-                  + commandName
-                  + "] on "
-                  + entity().getClass().toString());
-      }
-    } catch (InvalidProtocolBufferException ex) {
-      // This is if command payload cannot be parsed
-      throw new RuntimeException(ex);
+      String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
+    switch (commandName) {
+      case "AddItem":
+        return entity().addItem(state, (ShoppingCartApi.AddLineItem) command);
+      case "RemoveItem":
+        return entity().removeItem(state, (ShoppingCartApi.RemoveLineItem) command);
+      case "GetCart":
+        return entity().getCart(state, (ShoppingCartApi.GetShoppingCart) command);
+      default:
+        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
     }
   }
 }

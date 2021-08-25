@@ -42,7 +42,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
     "manage entities with expected commands and events" in {
       val entity = protocol.eventSourced.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
-      entity.send(command(1, "cart", "GetCart"))
+      entity.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(1, EmptyCart))
       entity.send(command(2, "cart", "AddItem", addItem("abc", "apple", 1)))
       entity.expect(reply(2, EmptyJavaMessage, persist(itemAdded("abc", "apple", 1))))
@@ -52,7 +52,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
               EmptyJavaMessage,
               persist(itemAdded("abc", "apple", 2)).withSnapshot(cartSnapshot(Item("abc", "apple", 3))))
       )
-      entity.send(command(4, "cart", "GetCart"))
+      entity.send(command(4, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(4, cart(Item("abc", "apple", 3))))
       entity.send(command(5, "cart", "AddItem", addItem("123", "banana", 4)))
       entity.expect(reply(5, EmptyJavaMessage, persist(itemAdded("123", "banana", 4))))
@@ -60,7 +60,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       val reactivated = protocol.eventSourced.connect()
       reactivated.send(init(ShoppingCart.Name, "cart", snapshot(3, cartSnapshot(Item("abc", "apple", 3)))))
       reactivated.send(event(4, itemAdded("123", "banana", 4)))
-      reactivated.send(command(1, "cart", "GetCart"))
+      reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       reactivated.expect(reply(1, cart(Item("abc", "apple", 3), Item("123", "banana", 4))))
       reactivated.passivate()
     }
@@ -132,7 +132,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val eventClass = notEvent.getClass
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(event(1, notEvent))
-        entity.expect(failure(s"Unexpected failure: Unknown event type [$eventClass]"))
+        entity.expect(failure(s"Unexpected failure: Unknown event type [$eventClass] on ${classOf[CartEntity]}"))
         entity.expectClosed()
       }
     }
@@ -170,7 +170,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
         entity.expect(actionFailure(1, "Cannot add negative quantity of item [foo]"))
-        entity.send(command(2, "cart", "GetCart"))
+        entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
         entity.expect(reply(2, EmptyCart)) // check entity state hasn't changed
         entity.passivate()
       }
@@ -222,6 +222,9 @@ object EventSourcedEntitiesImplSpec {
 
       def lineItem(id: String, name: String, quantity: Int): ShoppingCartApi.LineItem =
         ShoppingCartApi.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+
+      def getShoppingCart(id: String): ShoppingCartApi.GetShoppingCart =
+        ShoppingCartApi.GetShoppingCart.newBuilder.setCartId(id).build
 
       def addItem(id: String, name: String, quantity: Int): ShoppingCartApi.AddLineItem =
         ShoppingCartApi.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build

@@ -27,14 +27,19 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHand
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 import com.google.protobuf.{Any => JavaPBAny}
-
 import java.util.Optional
 
+import com.akkaserverless.javasdk.impl.EntityExceptions
+
 object EventSourcedEntityHandler {
-  case class CommandResult(events: Vector[Any],
-                           secondaryEffect: SecondaryEffectImpl,
-                           snapshot: Option[Any],
-                           endSequenceNumber: Long)
+  final case class CommandResult(events: Vector[Any],
+                                 secondaryEffect: SecondaryEffectImpl,
+                                 snapshot: Option[Any],
+                                 endSequenceNumber: Long)
+
+  final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
+
+  final case class EventHandlerNotFound(eventClass: Class[_]) extends RuntimeException
 }
 
 /**
@@ -44,6 +49,8 @@ object EventSourcedEntityHandler {
  * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
 abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
+  import EventSourcedEntityHandler.CommandHandlerNotFound
+  import EventSourcedEntityHandler.EventHandlerNotFound
 
   private var state: Option[S] = None
 
@@ -66,18 +73,29 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](prot
     try {
       val newState = handleEvent(stateOrEmpty(), event)
       setState(newState)
+    } catch {
+      case EventHandlerNotFound(eventClass) =>
+        throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
     } finally {
       entity.setEventContext(Optional.empty())
     }
   }
   final def handleCommand(commandName: String,
-                          command: JavaPBAny,
+                          command: Any,
                           context: CommandContext,
                           snapshotEvery: Int,
                           eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
       entity.setCommandContext(Optional.of(context))
       handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+    } catch {
+      case CommandHandlerNotFound(name) =>
+        throw new EntityExceptions.EntityException(
+          context.entityId(),
+          context.commandId(),
+          commandName,
+          s"No command handler found for command [$name] on ${entity.getClass}"
+        )
     } finally {
       entity.setCommandContext(Optional.empty())
     }
@@ -90,6 +108,9 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](prot
             entity.setEventContext(Optional.of(eventContextFactory(currentSequence)))
             val newState = handleEvent(stateOrEmpty(), event)
             setState(newState)
+          } catch {
+            case EventHandlerNotFound(eventClass) =>
+              throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
           } finally {
             entity.setEventContext(Optional.empty())
           }
@@ -108,9 +129,10 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](prot
   }
 
   protected def handleEvent(state: S, event: Any): S
+
   protected def handleCommand(commandName: String,
                               state: S,
-                              command: JavaPBAny,
+                              command: Any,
                               context: CommandContext): EventSourcedEntityBase.Effect[_]
 
 }
