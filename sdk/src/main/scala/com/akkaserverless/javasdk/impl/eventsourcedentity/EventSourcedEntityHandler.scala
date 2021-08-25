@@ -16,20 +16,15 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.ServiceCallFactory
+import java.util.Optional
+
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.javasdk.eventsourcedentity.EventContext
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityCreationContext
-import com.akkaserverless.javasdk.impl.EntityExceptions.EntityException
+import com.akkaserverless.javasdk.impl.EntityExceptions
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-import com.google.protobuf.{Any => JavaPBAny}
-import java.util.Optional
-
-import com.akkaserverless.javasdk.impl.EntityExceptions
 
 object EventSourcedEntityHandler {
   final case class CommandResult(events: Vector[Any],
@@ -49,22 +44,22 @@ object EventSourcedEntityHandler {
  * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
 abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
-  import EventSourcedEntityHandler.CommandHandlerNotFound
-  import EventSourcedEntityHandler.EventHandlerNotFound
+  import EventSourcedEntityHandler._
 
   private var state: Option[S] = None
 
   final protected def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
+      // FIXME null should be allowed, issue #167
       require(emptyState != null, "Entity empty state is not allowed to be null")
-      state = Some(emptyState)
+      state = Option(emptyState)
       emptyState
     case Some(state) => state
   }
 
-  final protected def setState(newState: S): Unit =
-    state = Some(newState)
+  private def setState(newState: S): Unit =
+    state = Option(newState)
 
   // "public" api against the impl/testkit
   final def handleSnapshot(snapshot: S): Unit = setState(snapshot)

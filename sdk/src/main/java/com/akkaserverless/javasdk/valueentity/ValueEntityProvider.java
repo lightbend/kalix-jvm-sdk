@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.google.protobuf.Descriptors;
 
 /**
@@ -24,7 +24,7 @@ import com.google.protobuf.Descriptors;
  * <code>ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for
  * the specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
  */
-public interface ValueEntityProvider {
+public interface ValueEntityProvider<S, E extends ValueEntityBase<S>> {
 
   ValueEntityOptions options();
 
@@ -32,7 +32,7 @@ public interface ValueEntityProvider {
 
   String entityType();
 
-  ValueEntityHandler newHandler(ValueEntityContext context);
+  ValueEntityHandler<S, E> newHandler(ValueEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

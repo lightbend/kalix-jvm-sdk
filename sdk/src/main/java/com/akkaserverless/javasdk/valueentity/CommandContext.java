@@ -22,16 +22,8 @@ import com.akkaserverless.javasdk.MetadataContext;
 
 import java.util.Optional;
 
-/**
- * A value based entity command context.
- *
- * <p>Methods annotated with {@link CommandHandler} may take this is a parameter. It allows updating
- * or deleting the entity state in response to a command, along with forwarding the result to other
- * entities, and performing side effects on other entities.
- *
- * @param <T> type for the state of the entity
- */
-public interface CommandContext<T>
+/** A value based entity command context. */
+public interface CommandContext
     extends ValueEntityContext, ClientActionContext, SideEffectContext, MetadataContext {
 
   /**
@@ -47,15 +39,4 @@ public interface CommandContext<T>
    * @return The id of the command.
    */
   long commandId();
-
-  /**
-   * Retrieve the state.
-   *
-   * @return the current state or empty if none have been created.
-   * @throws IllegalStateException If the current entity state have been deleted in the command
-   *     invocation.
-   * @deprecated Use state method parameter instead.
-   */
-  @Deprecated
-  Optional<T> getState();
 }

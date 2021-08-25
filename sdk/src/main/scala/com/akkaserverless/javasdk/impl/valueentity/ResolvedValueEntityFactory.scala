@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.impl.valueentity
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
-import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 
 class ResolvedValueEntityFactory(delegate: ValueEntityFactory,
@@ -27,6 +26,6 @@ class ResolvedValueEntityFactory(delegate: ValueEntityFactory,
     extends ValueEntityFactory
     with ResolvedEntityFactory {
 
-  override def create(context: ValueEntityContext): ValueEntityHandler =
+  override def create(context: ValueEntityContext): ValueEntityHandler[_, _] =
     delegate.create(context)
 }

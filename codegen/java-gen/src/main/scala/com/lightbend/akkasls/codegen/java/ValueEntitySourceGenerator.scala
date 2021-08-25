@@ -87,31 +87,21 @@ object ValueEntitySourceGenerator {
       Some(entity.state),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.AnySupport",
-        "com.akkaserverless.javasdk.impl.EntityExceptions",
-        "com.akkaserverless.javasdk.impl.valueentity.AdaptedCommandContextWithState",
-        "com.akkaserverless.javasdk.lowlevel.ValueEntityHandler",
         "com.akkaserverless.javasdk.valueentity.CommandContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntityBase",
-        "com.google.protobuf.Any",
-        "com.google.protobuf.Descriptors",
-        "com.google.protobuf.GeneratedMessageV3",
-        "java.util.Optional",
-        "scalapb.UnknownFieldSet"
+        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"
       )
     )
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
     val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
 
-    val cases = service.commands
+    val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.fqn.name
         val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
         s"""|case "$methodName":
-            |  return entity.${lowerFirst(methodName)}(
-            |      parsedState,
-            |      ${inputType}.parseFrom(command.getValue()));
+            |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
             |""".stripMargin
       }
 
@@ -124,58 +114,18 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler implements ValueEntityHandler {
-        |
-        |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
-        |      ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
-        |  public static final String entityType = "${entity.entityType}";
-        |
-        |  private final ${className} entity;
-        |  
-        |  public ${className}Handler(${className} entity) {
-        |    this.entity = entity;
-        |  }
+        |public class ${className}Handler implements ValueEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
         |
         |  @Override
-        |  public ValueEntityBase.Effect<? extends GeneratedMessageV3> handleCommand(
-        |      Any command, Any state, CommandContext<Any> context) throws Throwable {
-        |      
-        |    $outerClassAndState parsedState =
-        |      $outerClassAndState.parseFrom(state.getValue());
+        |  public ValueEntityBase.Effect<?> handleCommand(
+        |      String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
+        |    switch (commandName) {
         |
-        |    CommandContext<$outerClassAndState> adaptedContext =
-        |        new AdaptedCommandContextWithState(context, parsedState);
+        |      ${Syntax.indent(commandCases, 6)}
         |
-        |    entity.setCommandContext(Optional.of(adaptedContext));
-        |    
-        |    try {
-        |      switch (context.commandName()) {
-        |
-        |        ${Syntax.indent(cases, 8)}
-        |
-        |        default:
-        |          throw new EntityExceptions.EntityException(
-        |              context.entityId(),
-        |              context.commandId(),
-        |              context.commandName(),
-        |              "No command handler found for command ["
-        |                  + context.commandName()
-        |                  + "] on "
-        |                  + entity.getClass());
-        |      }
-        |    } finally {
-        |      entity.setCommandContext(Optional.empty());
+        |      default:
+        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
         |    }
-        |  }
-        |  
-        |  @Override
-        |  public com.google.protobuf.any.Any emptyState() {
-        |    return com.google.protobuf.any.Any.apply(
-        |        AnySupport.DefaultTypeUrlPrefix()
-        |          + "/"
-        |          + ${outerClassAndState}.getDescriptor().getFullName(),
-        |        entity.emptyState().toByteString(),
-        |        UnknownFieldSet.empty());
         |  }
         |}""".stripMargin
 

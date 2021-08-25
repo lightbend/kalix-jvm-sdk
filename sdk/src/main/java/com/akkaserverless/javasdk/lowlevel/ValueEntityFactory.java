@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.lowlevel;
 
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 
 /**
@@ -32,5 +33,5 @@ public interface ValueEntityFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ValueEntityHandler create(ValueEntityContext context);
+  ValueEntityHandler<?, ?> create(ValueEntityContext context);
 }
