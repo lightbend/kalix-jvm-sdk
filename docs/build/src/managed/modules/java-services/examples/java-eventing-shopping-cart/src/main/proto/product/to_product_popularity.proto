@@ -1,0 +1,72 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// tag::subscribing[]
+// tag::actions[]
+syntax = "proto3";
+
+package shopping.product.actions;
+
+import "akkaserverless/annotations.proto";
+import "cart/shopping_cart_domain.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+// end::actions[]
+// end::subscribing[]
+/*
+ * Adapt events from the EventSourcedEntity ShoppingCart to commands for the
+ * ProductPopularity ValueEntity events are read from event log, converted to
+ * commands and forwarded to ProductPopularity ValueEntity
+ */
+// tag::subscribing[]
+// tag::actions[]
+service ToProductPopularityService {
+
+  // end::actions[]
+  // <1>
+  // tag::actions[]
+  rpc ForwardAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
+    // end::actions[]
+    option (akkaserverless.method).eventing.in = { // <2>
+      event_sourced_entity: "eventsourced-shopping-cart" // <3>
+    };
+    // tag::actions[]
+  }
+  // end::actions[]
+  // end::subscribing[]
+  // tag::actions[]
+
+  rpc ForwardRemoved(shopping.cart.domain.ItemRemoved) returns (google.protobuf.Empty) {
+    // end::actions[]
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "eventsourced-shopping-cart"
+    };
+  // tag::actions[]
+  }
+  // end::actions[]
+
+  // tag::catchOthers[]
+  // handle other events which are not managed above
+  rpc CatchOthers(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity:  "eventsourced-shopping-cart"
+    };
+  }
+  // end::catchOthers[]
+// tag::subscribing[]
+// tag::actions[]
+}
+// end::actions[]
+// end::subscribing[]

@@ -1,9 +1,0 @@
-== Accessing the Entity ID
-
-For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the CloudEvent metadata field `subject`, via the ActionContext and the CloudEvent metadata:
-
-[source]
-
-----
-context.metadata().asCloudEvent().subject()
-----
