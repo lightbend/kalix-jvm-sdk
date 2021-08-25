@@ -109,10 +109,13 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |/** An event sourced entity. */
       |public abstract class AbstractMyServiceEntity extends EventSourcedEntityBase<EntityOuterClass.MyState> {
       |    
+      |    /** Command handler for "Set". */
       |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
       |    
+      |    /** Command handler for "Get". */
       |    public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
       |    
+      |    /** Event handler for "SetEvent". */
       |    public abstract EntityOuterClass.MyState setEvent(EntityOuterClass.MyState currentState, EntityOuterClass.SetEvent setEvent);
       |}""".stripMargin
     )
@@ -141,7 +144,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
          |
-         |/** An event sourced entity handler */
+         |/**
+         | * An event sourced entity handler that is the glue between the Protobuf service <code>MyService</code>
+         | * and the command and event handler methods in the <code>MyEntity</code> class.
+         | */
          |public class MyServiceEntityHandler extends EventSourcedEntityHandler<EntityOuterClass.MyState, MyEntity> {
          |
          |  public MyServiceEntityHandler(MyEntity entity) {
@@ -209,7 +215,12 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.google.protobuf.Descriptors;
          |import java.util.function.Function;
          |
-         |/** An event sourced entity provider */
+         |/**
+         | * An event sourced entity provider that defines how to register and create the entity for
+         | * the Protobuf service <code>MyService</code>.
+         | *
+         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+         | */
          |public class MyServiceProvider implements EventSourcedEntityProvider<EntityOuterClass.MyState, MyService> {
          |
          |  private final Function<EventSourcedContext, MyService> entityFactory;

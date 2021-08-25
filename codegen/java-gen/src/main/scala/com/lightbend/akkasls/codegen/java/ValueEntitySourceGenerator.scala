@@ -120,7 +120,10 @@ object ValueEntitySourceGenerator {
         |
         |$imports
         |
-        |/** A value entity handler */
+        |/**
+        | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
+        | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
+        | */
         |public class ${className}Handler implements ValueEntityHandler {
         |
         |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
@@ -210,7 +213,12 @@ object ValueEntitySourceGenerator {
         |
         |$imports
         |
-        |/** A value entity provider */
+        |/**
+        | * A value entity provider that defines how to register and create the entity for
+        | * the Protobuf service <code>${service.fqn.name}</code>.
+        | *
+        | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+        | */
         |public class ${className}Provider implements ValueEntityProvider {
         |
         |  private final Function<ValueEntityContext, ${className}> entityFactory;
@@ -288,7 +296,12 @@ object ValueEntitySourceGenerator {
         val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
         val outputType = qualifiedType(cmd.outputType)
 
-        s"public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});"
+        s"""|/** Command handler for "${cmd.fqn.name}". */
+            |public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(
+             cmd.inputType.name
+           )});
+            |""".stripMargin
+
       }
 
     s"""|$managedCodeCommentString

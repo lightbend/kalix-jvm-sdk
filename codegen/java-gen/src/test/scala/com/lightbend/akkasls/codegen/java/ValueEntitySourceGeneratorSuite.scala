@@ -98,7 +98,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |/** A value entity. */
          |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
          |
+         |  /** Command handler for "Set". */
          |  public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
+         |
+         |  /** Command handler for "Get". */
          |  public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
          |
          |}""".stripMargin
@@ -136,7 +139,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import java.util.Optional;
          |import scalapb.UnknownFieldSet;
          |
-         |/** A value entity handler */
+         |/**
+         | * A value entity handler that is the glue between the Protobuf service <code>MyService</code>
+         | * and the command handler methods in the <code>MyValueEntity</code> class.
+         | */
          |public class MyServiceHandler implements ValueEntityHandler {
          |
          |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
@@ -235,7 +241,12 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.google.protobuf.Descriptors;
          |import java.util.function.Function;
          |
-         |/** A value entity provider */
+         |/**
+         | * A value entity provider that defines how to register and create the entity for
+         | * the Protobuf service <code>MyService</code>.
+         | *
+         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+         | */
          |public class MyServiceProvider implements ValueEntityProvider {
          |
          |  private final Function<ValueEntityContext, MyService> entityFactory;
