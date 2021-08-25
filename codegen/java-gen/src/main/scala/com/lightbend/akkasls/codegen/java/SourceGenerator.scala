@@ -203,12 +203,15 @@ object SourceGenerator extends PrettyPrinter {
             cmd.inputType :: cmd.outputType :: Nil
           }
 
+        val otherDescriptors = collectRelevantTypeDescriptors(relevantTypes, service.fqn)
+        val sep = if (otherDescriptors.isEmpty) "" else ","
+
         List(
           ".registerView(\n" ++
           (if (service.transformedUpdates.nonEmpty) s"  ${service.fqn.name}.class,\n" else "") ++
           s"""|  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
-              |  "${service.viewId}",
-              |  ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+              |  "${service.viewId}"$sep
+              |  ${Syntax.indent(otherDescriptors, 4)}
               |)""".stripMargin
         )
 
@@ -218,12 +221,15 @@ object SourceGenerator extends PrettyPrinter {
             cmd.inputType :: cmd.outputType :: Nil
           }
 
+        val otherDescriptors = collectRelevantTypeDescriptors(relevantTypes, service.fqn)
+        val sep = if (otherDescriptors.isEmpty) "" else ","
+
         List(
           s"""
            |.registerAction(
            |    ${service.fqn.name}.class,
-           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
-           |    ${Syntax.indent(collectRelevantTypeDescriptors(relevantTypes, service.fqn), 4)}
+           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}")$sep
+           |    ${Syntax.indent(otherDescriptors, 4)}
            |)
            |""".stripMargin
         )
