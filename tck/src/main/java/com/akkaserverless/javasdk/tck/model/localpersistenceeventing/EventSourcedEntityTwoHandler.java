@@ -45,7 +45,7 @@ public class EventSourcedEntityTwoHandler
     //    try {
     switch (commandName) {
       case "EmitJsonEvent":
-        // FIXME Json
+        // FIXME Json. Enable TCK tests for eventing again, see RunTck.java
         //          return entity().emitJsonEvent(state, LocalPersistenceEventing.JsonEvent);
         throw new IllegalStateException("JSON not implemented yet");
 
