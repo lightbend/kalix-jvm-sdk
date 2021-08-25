@@ -43,7 +43,7 @@ public class EventSourcedTwoEntityHandler
       String commandName, Persisted state, Any command, CommandContext context) {
     try {
       switch (commandName) {
-        case "Request":
+        case "Call":
           // FIXME could parsing to the right type also be pulled out of here?
           return entity().call(state, Request.parseFrom(command.getValue()));
 
