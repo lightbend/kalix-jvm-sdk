@@ -253,9 +253,20 @@ object SourceGenerator extends PrettyPrinter {
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      if (serv.fqn.parent.javaPackage != mainClassPackageName)
-        serv.fqn.fullName :: s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}" :: Nil
-      else List.empty
+      val includeServiceFqn =
+        serv match {
+          case _: ModelBuilder.ActionService => true
+          case view: ModelBuilder.ViewService => view.transformedUpdates.nonEmpty
+          case _ => false
+        }
+
+      if (serv.fqn.parent.javaPackage != mainClassPackageName) {
+        val outerClass = s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}"
+        if (includeServiceFqn)
+          List(serv.fqn.fullName, outerClass)
+        else
+          List(outerClass)
+      } else List.empty
     }
 
     val otherImports = model.services.values.flatMap { serv =>
