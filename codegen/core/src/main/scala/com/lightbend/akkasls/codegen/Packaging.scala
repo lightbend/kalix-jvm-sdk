@@ -29,7 +29,18 @@ case class FullyQualifiedName(
     name: String,
     parent: PackageNaming
 ) {
-  lazy val fullName = s"${parent.pkg}.$name"
+  lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
+  lazy val fullName = {
+    if (parent.javaMultipleFiles) name
+    else
+      parent.javaOuterClassnameOption
+        .map(outer => s"$outer.$name")
+        .getOrElse(name)
+  }
+
+  lazy val typeImport = s"${parent.javaPackage}.$fullName"
+  lazy val descriptorImport = s"${parent.javaPackage}.${parent.javaOuterClassname}"
+
 }
 
 object FullyQualifiedName {
@@ -64,9 +75,6 @@ object FullyQualifiedName {
         case ServiceType.SERVICE_TYPE_VIEW =>
           if (descriptor.getName.endsWith("View")) descriptor.getName + "Impl"
           else descriptor.getName + "View"
-        case ServiceType.SERVICE_TYPE_ACTION =>
-          if (descriptor.getName.endsWith("Action")) descriptor.getName + "Impl"
-          else descriptor.getName + "Action"
         case _ => descriptor.getName
       },
       packageNaming

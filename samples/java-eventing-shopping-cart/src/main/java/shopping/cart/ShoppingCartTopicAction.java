@@ -18,21 +18,17 @@ package shopping.cart;
 
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.api.ShoppingCartTopic;
 
 /** This action illustrates the consumption from a topic (shopping-cart-operations). */
-@Action
 public class ShoppingCartTopicAction {
 
   private final String forwardTo = "shopping.cart.api.ShoppingCartService";
 
   /** Akka Serverless expects some CloudEvent metadata to determine the target protobuf type. */
-  @Handler
   public Reply<Empty> protobufFromTopic(
       ShoppingCartTopic.TopicOperation message, ActionContext ctx) {
     if ("add".equals(message.getOperation())) {
@@ -56,7 +52,6 @@ public class ShoppingCartTopicAction {
    * Note that the protobuf rpc is declared with `Any`, but this method accepts a class annotated
    * with `@com.akkaserverless.javasdk.Jsonable`.
    */
-  @Handler
   public Reply<Empty> jsonFromTopic(TopicMessage message, ActionContext ctx) {
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem add =

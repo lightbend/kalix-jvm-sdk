@@ -286,15 +286,6 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
         ex.toString should ===("java.lang.RuntimeException: foo")
       }
 
-      "fail if there's a action handler" in {
-        val ex = the[RuntimeException] thrownBy create(new {
-            @com.akkaserverless.javasdk.action.Handler
-            def processAdded(msg: String) =
-              State(msg)
-          }, method())
-        ex.getMessage should include("not allowed")
-      }
-
     }
 
   }

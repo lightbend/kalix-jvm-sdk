@@ -73,12 +73,10 @@ object TestData {
       s"com.example.Entity$suffix"
     )
 
-  def simpleActionService(
-      proto: PackageNaming = serviceProto(),
-      suffix: String = ""
-  ): ModelBuilder.ActionService =
+  def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
+
     ModelBuilder.ActionService(
-      FullyQualifiedName(s"MyService$suffix", proto),
+      FullyQualifiedName(proto.name, proto.name, proto),
       List(
         ModelBuilder.Command(
           FullyQualifiedName("SimpleMethod", proto),
@@ -95,6 +93,13 @@ object TestData {
           streamedOutput = true
         ),
         ModelBuilder.Command(
+          FullyQualifiedName("StreamedInputMethod", proto),
+          FullyQualifiedName("MyRequest", proto),
+          FullyQualifiedName("Empty", externalProto),
+          streamedInput = true,
+          streamedOutput = false
+        ),
+        ModelBuilder.Command(
           FullyQualifiedName("FullStreamedMethod", proto),
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
@@ -103,6 +108,7 @@ object TestData {
         )
       )
     )
+  }
 
   def simpleViewService(
       proto: PackageNaming = serviceProto(),

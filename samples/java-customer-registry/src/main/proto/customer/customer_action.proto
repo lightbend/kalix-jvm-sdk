@@ -14,33 +14,19 @@
 
 syntax = "proto3";
 
-package com.example;
+package customer.action;
 
-// FIXME: action generation requires a java_outer_classname
-// this should not be mandatory, it isn't for the other components
-option java_outer_classname = "EchoActionModel";
+option java_outer_classname = "CustomerActionModel";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "value-entities/user_api.proto";
+import "customer/customer_api.proto";
 
-message Person {
-    string name = 1;
-}
 
-message Hello {
-  string message = 1;
-}
-
-service EchoAction {
-    option (akkaserverless.service) = {
+service CustomerAction {
+  option (akkaserverless.service) = {
       type : SERVICE_TYPE_ACTION
     };
-    rpc SayHello(Person) returns (Hello) {
-    }
-
-    // example importing a type coming from another file
-    rpc Create(CreateUser) returns (google.protobuf.Empty){
-
-    }
+  rpc Create(api.Customer) returns (google.protobuf.Empty) {
+  }
 }

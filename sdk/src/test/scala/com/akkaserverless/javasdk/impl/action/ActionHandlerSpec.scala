@@ -16,31 +16,39 @@
 
 package com.akkaserverless.javasdk.impl.action
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
+
+import scala.compat.java8.FutureConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.action.{ActionContext, ActionCreationContext, MessageEnvelope}
-import com.akkaserverless.javasdk.impl.{AnySupport, ResolvedServiceCallFactory}
-import com.akkaserverless.javasdk.{Context, ServiceCallFactory}
-import com.akkaserverless.protocol.action.{ActionCommand, ActionResponse, Actions}
+import com.akkaserverless.javasdk.action.ActionContext
+import com.akkaserverless.javasdk.action.MessageEnvelope
+import com.akkaserverless.javasdk.actionspec.ActionspecApi
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
+import com.akkaserverless.javasdk.Context
+import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.action.Action
+import com.akkaserverless.protocol.action.ActionCommand
+import com.akkaserverless.protocol.action.ActionResponse
+import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import java.util.concurrent.{CompletableFuture, CompletionStage}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Inside
+import org.scalatest.OptionValues
 
-import org.scalatest.{BeforeAndAfterAll, Inside, OptionValues}
-import scala.compat.java8.FutureConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-import com.akkaserverless.javasdk.actionspec.ActionspecApi
-import com.akkaserverless.javasdk.lowlevel.ActionHandler
-
-class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
+class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 
   private implicit val system = ActorSystem("ActionsSpec")
 
@@ -55,7 +63,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
     system.terminate()
   }
 
-  def create(handler: ActionHandler): Actions = {
+  def create(handler: ActionHandler[_]): Actions = {
     val service = new ActionService(
       _ => handler,
       serviceDescriptor,
@@ -73,9 +81,9 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   "The action service" should {
     "invoke unary commands" in {
       val service = create(new AbstractHandler {
+
         override def handleUnary(commandName: String,
-                                 message: MessageEnvelope[protobuf.Any],
-                                 context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] =
+                                 message: MessageEnvelope[Any]): CompletionStage[javasdk.Reply[Any]] =
           CompletableFuture.completedFuture(createOutReply("out: " + extractInField(message)))
       })
 
@@ -92,9 +100,10 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
     "invoke streamed in commands" in {
       val service = create(new AbstractHandler {
-        override def handleStreamedIn(commandName: String,
-                                      stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                      context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] =
+        override def handleStreamedIn(
+            commandName: String,
+            stream: Source[MessageEnvelope[Any], NotUsed]
+        ): CompletionStage[javasdk.Reply[Any]] =
           stream.asScala
             .map(extractInField)
             .runWith(Sink.seq)
@@ -122,8 +131,7 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
     "invoke streamed out commands" in {
       val service = create(new AbstractHandler {
         override def handleStreamedOut(commandName: String,
-                                       message: MessageEnvelope[protobuf.Any],
-                                       context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = {
+                                       message: MessageEnvelope[Any]): Source[javasdk.Reply[Any], NotUsed] = {
           val in = extractInField(message)
           akka.stream.scaladsl.Source(1 to 3).map(idx => createOutReply(s"out $idx: $in")).asJava
         }
@@ -147,9 +155,10 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
     "invoke streamed commands" in {
       val service = create(new AbstractHandler {
-        override def handleStreamed(commandName: String,
-                                    stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                    context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] =
+        override def handleStreamed(
+            commandName: String,
+            stream: Source[MessageEnvelope[Any], NotUsed]
+        ): Source[javasdk.Reply[Any], NotUsed] =
           stream.asScala
             .map(extractInField)
             .map(in => createOutReply(s"out: $in"))
@@ -180,14 +189,14 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
   }
 
-  private def createOutAny(field: String) =
-    protobuf.Any.pack(ActionspecApi.Out.newBuilder().setField(field).build())
+  private def createOutAny(field: String): Any =
+    ActionspecApi.Out.newBuilder().setField(field).build()
 
-  private def createOutReply(field: String): javasdk.Reply[protobuf.Any] =
+  private def createOutReply(field: String): javasdk.Reply[Any] =
     javasdk.Reply.message(createOutAny(field))
 
-  private def extractInField(message: MessageEnvelope[protobuf.Any]) =
-    message.payload().unpack(classOf[ActionspecApi.In]).getField
+  private def extractInField(message: MessageEnvelope[Any]) =
+    message.payload().asInstanceOf[ActionspecApi.In].getField
 
   private def createInPayload(field: String) =
     Some(ScalaPbAny.fromJavaProto(protobuf.Any.pack(ActionspecApi.In.newBuilder().setField(field).build())))
@@ -195,22 +204,22 @@ class ActionsSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   private def extractOutField(payload: Option[ScalaPbAny]) =
     ScalaPbAny.toJavaProto(payload.value).unpack(classOf[ActionspecApi.Out]).getField
 
-  private trait AbstractHandler extends ActionHandler {
-    override def handleUnary(commandName: String,
-                             message: MessageEnvelope[protobuf.Any],
-                             context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] = ???
+  class TestAction extends Action
+
+  private abstract class AbstractHandler extends ActionHandler[TestAction](new TestAction) {
+    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): CompletionStage[javasdk.Reply[Any]] =
+      ???
 
     override def handleStreamedOut(commandName: String,
-                                   message: MessageEnvelope[protobuf.Any],
-                                   context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = ???
+                                   message: MessageEnvelope[Any]): Source[javasdk.Reply[Any], NotUsed] = ???
 
     override def handleStreamedIn(commandName: String,
-                                  stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                  context: ActionContext): CompletionStage[javasdk.Reply[protobuf.Any]] = ???
+                                  stream: Source[MessageEnvelope[Any], NotUsed]): CompletionStage[javasdk.Reply[Any]] =
+      ???
 
     override def handleStreamed(commandName: String,
-                                stream: Source[MessageEnvelope[protobuf.Any], NotUsed],
-                                context: ActionContext): Source[javasdk.Reply[protobuf.Any], NotUsed] = ???
+                                stream: Source[MessageEnvelope[Any], NotUsed]): Source[javasdk.Reply[Any], NotUsed] =
+      ???
   }
 
 }

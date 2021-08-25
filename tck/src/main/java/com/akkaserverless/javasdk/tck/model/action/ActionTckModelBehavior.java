@@ -30,34 +30,26 @@ import com.akkaserverless.tck.model.ActionTwo;
 
 import java.util.concurrent.CompletionStage;
 
-@Action
-public class ActionTckModelBehavior {
+public class ActionTckModelBehavior extends Action {
 
   private final ActorSystem system = ActorSystem.create("ActionTckModel");
 
-  public ActionTckModelBehavior() {}
+  public ActionTckModelBehavior(ActionCreationContext creationContext) {}
 
-  @Handler
-  public CompletionStage<Reply<Response>> processUnary(Request request, ActionContext context) {
-    return Source.single(request).via(responses(context)).runWith(singleResponse(), system);
+  public CompletionStage<Reply<Response>> processUnary(Request request) {
+    return Source.single(request).via(responses(actionContext())).runWith(singleResponse(), system);
   }
 
-  @Handler
-  public CompletionStage<Reply<Response>> processStreamedIn(
-      Source<Request, NotUsed> requests, ActionContext context) {
-    return requests.via(responses(context)).runWith(singleResponse(), system);
+  public CompletionStage<Reply<Response>> processStreamedIn(Source<Request, NotUsed> requests) {
+    return requests.via(responses(actionContext())).runWith(singleResponse(), system);
   }
 
-  @Handler
-  public Source<Reply<Response>, NotUsed> processStreamedOut(
-      Request request, ActionContext context) {
-    return Source.single(request).via(responses(context));
+  public Source<Reply<Response>, NotUsed> processStreamedOut(Request request) {
+    return Source.single(request).via(responses(actionContext()));
   }
 
-  @Handler
-  public Source<Reply<Response>, NotUsed> processStreamed(
-      Source<Request, NotUsed> requests, ActionContext context) {
-    return requests.via(responses(context));
+  public Source<Reply<Response>, NotUsed> processStreamed(Source<Request, NotUsed> requests) {
+    return requests.via(responses(actionContext()));
   }
 
   private Flow<Request, Reply<Response>, NotUsed> responses(ActionContext context) {

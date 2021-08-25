@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.action;
 
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.google.protobuf.Descriptors;
 
 /**
- * Low level interface to implement {@link Action} components.
- *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link Action}.
+ * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using a <code>
+ * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
+ * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */
-public interface ActionFactory {
-  ActionHandler<?> create(ActionCreationContext context);
+public interface ActionProvider {
+  // TODO: do we need/have ActionOptions?
+  Descriptors.ServiceDescriptor serviceDescriptor();
+
+  ActionHandler newHandler(ActionCreationContext context);
+
+  Descriptors.FileDescriptor[] additionalDescriptors();
 }

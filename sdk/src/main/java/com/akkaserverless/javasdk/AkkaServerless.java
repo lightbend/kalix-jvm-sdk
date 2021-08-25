@@ -23,11 +23,12 @@ import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.action.ActionProvider;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
 import com.akkaserverless.javasdk.impl.action.ActionService;
-import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
+import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
 import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
@@ -138,20 +139,22 @@ public final class AkkaServerless {
      * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
      * implementing the action.
      *
-     * @param actionHandler The action handler.
      * @param descriptor The descriptor for the service that this action implements.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
      *     protobuf types when needed.
      * @return This Akka Serverless builder.
      */
     public AkkaServerless registerAction(
-        ActionHandler actionHandler,
+        ActionFactory actionFactory,
         Descriptors.ServiceDescriptor descriptor,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
       final AnySupport anySupport = newAnySupport(additionalDescriptors);
 
-      ActionService service = new ActionService(context -> actionHandler, descriptor, anySupport);
+      ActionFactory resolvedActionFactory =
+          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
+
+      ActionService service = new ActionService(resolvedActionFactory, descriptor, anySupport);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -326,39 +329,6 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated Action service.
-   *
-   * <p>The action class must be annotated with {@link Action}.
-   *
-   * @param actionClass The action class, its constructor may accept an {@link
-   *     ActionCreationContext}.
-   * @param descriptor The descriptor for the service that this action implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This Akka Serverless builder.
-   */
-  public AkkaServerless registerAction(
-      Class<?> actionClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    if (!actionClass.isAnnotationPresent(Action.class)) {
-      throw new IllegalArgumentException(
-          actionClass + " does not declare an " + Action.class.getName() + " annotation!");
-    }
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-    services.put(
-        descriptor.getFullName(),
-        system ->
-            new ActionService(
-                AnnotationBasedActionSupport.forClass(
-                    actionClass, anySupport, descriptor, Materializer.matFromSystem(system)),
-                descriptor,
-                anySupport));
-    return this;
-  }
-
-  /**
    * Register a value based entity using a {{@link ValueEntityProvider}}. The concrete <code>
    * ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for
    * example <code>CustomerEntityProvider</code>.
@@ -458,6 +428,18 @@ public final class AkkaServerless {
     return this;
   }
 
+  /**
+   * Register a value based entity using a {{@link ActionProvider}}. The concrete <code>
+   * ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
+   * <code>CustomerActionProvider</code>.
+   *
+   * @return This stateful service builder.
+   */
+  public AkkaServerless register(ActionProvider provider) {
+    return lowLevel()
+        .registerAction(
+            provider::newHandler, provider.serviceDescriptor(), provider.additionalDescriptors());
+  }
   /**
    * This is a low level API intended for custom (eg, non reflection based) mechanisms for
    * implementing the components.

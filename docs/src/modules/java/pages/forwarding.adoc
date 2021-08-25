@@ -34,7 +34,6 @@ import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
 
 @Action

@@ -254,7 +254,7 @@ object EntityServiceSourceGenerator {
           "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
           "com.google.protobuf.Descriptors",
           "java.util.function.Function"
-        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+        ) ++ relevantTypes.map(_.descriptorImport)
     )
 
     val descriptors =
@@ -679,4 +679,5 @@ object EntityServiceSourceGenerator {
     val types = commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq :+ state.fqn
     generateImports(types, packageName, otherImports)
   }
+
 }

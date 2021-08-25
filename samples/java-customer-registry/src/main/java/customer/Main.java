@@ -6,6 +6,8 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import customer.action.CustomerActionImpl;
+import customer.action.CustomerActionProvider;
 import customer.domain.CustomerDomain;
 import customer.domain.CustomerValueEntityProvider;
 import customer.view.CustomerViewModel;
@@ -25,7 +27,8 @@ public final class Main {
                     "customerByName",
                     CustomerDomain.getDescriptor())
             // end::register[]
-            .register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
+            .register(CustomerValueEntityProvider.of(CustomerValueEntity::new))
+            .register(CustomerActionProvider.of(CustomerActionImpl::new));
   }
 
   public static void main(String[] args) throws Exception {
