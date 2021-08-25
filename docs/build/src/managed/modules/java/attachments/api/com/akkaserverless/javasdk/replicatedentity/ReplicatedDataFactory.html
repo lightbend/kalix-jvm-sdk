@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -124,7 +123,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">CommandContext</a></code>, <code><a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityCreationContext</a></code>, <code><a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a>&lt;Output&gt;</code></dd>
+<dd><code><a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">CommandContext</a></code>, <code><a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityCreationContext</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">ReplicatedDataFactory</span></pre>
@@ -157,52 +156,52 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="Flag.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Flag</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newFlag()">newFlag</a></span>()</code></th>
+<td class="colFirst"><code><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newCounter()">newCounter</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new Flag.</div>
+<div class="block">Create a new counter.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="GCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GCounter</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newGCounter()">newGCounter</a></span>()</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newRegister(T)">newRegister</a></span>&#8203;(T&nbsp;value)</code></th>
 <td class="colLast">
-<div class="block">Create a new GCounter.</div>
+<div class="block">Create a new ReplicatedRegister.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="GSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GSet</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newGSet()">newGSet</a></span>()</code></th>
+<td class="colFirst"><code>&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedCounterMap()">newReplicatedCounterMap</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new GSet.</div>
+<div class="block">Create a new map of counters.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="LWWRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">LWWRegister</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newLWWRegister(T)">newLWWRegister</a></span>&#8203;(T&nbsp;value)</code></th>
+<td class="colFirst"><code>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;<br><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;K,&#8203;V&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedMap()">newReplicatedMap</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new LWWRegister.</div>
+<div class="block">Create a new ReplicatedMap.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;<br><a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORMap</a>&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newORMap()">newORMap</a></span>()</code></th>
+<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br><a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;K,&#8203;V&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedMultiMap()">newReplicatedMultiMap</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new ORMap.</div>
+<div class="block">Create a new multimap (map of sets).</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ORSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORSet</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newORSet()">newORSet</a></span>()</code></th>
+<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br><a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedRegisterMap()">newReplicatedRegisterMap</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new ORSet.</div>
+<div class="block">Create a new map of registers.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="PNCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">PNCounter</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newPNCounter()">newPNCounter</a></span>()</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newReplicatedSet()">newReplicatedSet</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a new PNCounter.</div>
+<div class="block">Create a new ReplicatedSet.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
@@ -229,104 +228,76 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="newGCounter()">
+<a id="newCounter()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newGCounter</h4>
-<pre class="methodSignature"><a href="GCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GCounter</a>&nbsp;newGCounter()</pre>
-<div class="block">Create a new GCounter.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new GCounter.</dd>
-</dl>
+<h4>newCounter</h4>
+<pre class="methodSignature"><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&nbsp;newCounter()</pre>
+<div class="block">Create a new counter.</div>
 </li>
 </ul>
-<a id="newPNCounter()">
+<a id="newReplicatedCounterMap()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newPNCounter</h4>
-<pre class="methodSignature"><a href="PNCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">PNCounter</a>&nbsp;newPNCounter()</pre>
-<div class="block">Create a new PNCounter.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new PNCounter.</dd>
-</dl>
+<h4>newReplicatedCounterMap</h4>
+<pre class="methodSignature">&lt;K&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;K&gt;&nbsp;newReplicatedCounterMap()</pre>
+<div class="block">Create a new map of counters.</div>
 </li>
 </ul>
-<a id="newGSet()">
+<a id="newReplicatedSet()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newGSet</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="GSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">GSet</a>&lt;T&gt;&nbsp;newGSet()</pre>
-<div class="block">Create a new GSet.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new GSet.</dd>
-</dl>
+<h4>newReplicatedSet</h4>
+<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;&nbsp;newReplicatedSet()</pre>
+<div class="block">Create a new ReplicatedSet.</div>
 </li>
 </ul>
-<a id="newORSet()">
+<a id="newReplicatedMultiMap()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newORSet</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ORSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORSet</a>&lt;T&gt;&nbsp;newORSet()</pre>
-<div class="block">Create a new ORSet.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new ORSet.</dd>
-</dl>
+<h4>newReplicatedMultiMap</h4>
+<pre class="methodSignature">&lt;K,&#8203;V&gt;&nbsp;<a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedMultiMap()</pre>
+<div class="block">Create a new multimap (map of sets).</div>
 </li>
 </ul>
-<a id="newFlag()">
+<a id="newRegister(java.lang.Object)">
+<!--   -->
+</a><a id="newRegister(T)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newFlag</h4>
-<pre class="methodSignature"><a href="Flag.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Flag</a>&nbsp;newFlag()</pre>
-<div class="block">Create a new Flag.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new Flag.</dd>
-</dl>
+<h4>newRegister</h4>
+<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;T&gt;&nbsp;newRegister&#8203;(T&nbsp;value)</pre>
+<div class="block">Create a new ReplicatedRegister.</div>
 </li>
 </ul>
-<a id="newLWWRegister(java.lang.Object)">
-<!--   -->
-</a><a id="newLWWRegister(T)">
+<a id="newReplicatedRegisterMap()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newLWWRegister</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="LWWRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">LWWRegister</a>&lt;T&gt;&nbsp;newLWWRegister&#8203;(T&nbsp;value)</pre>
-<div class="block">Create a new LWWRegister.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new LWWRegister.</dd>
-</dl>
+<h4>newReplicatedRegisterMap</h4>
+<pre class="methodSignature">&lt;K,&#8203;V&gt;&nbsp;<a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedRegisterMap()</pre>
+<div class="block">Create a new map of registers.</div>
 </li>
 </ul>
-<a id="newORMap()">
+<a id="newReplicatedMap()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>newORMap</h4>
-<pre class="methodSignature">&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;&nbsp;<a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ORMap</a>&lt;K,&#8203;V&gt;&nbsp;newORMap()</pre>
-<div class="block">Create a new ORMap.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new ORMap.</dd>
-</dl>
+<h4>newReplicatedMap</h4>
+<pre class="methodSignature">&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;&nbsp;<a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;K,&#8203;V&gt;&nbsp;newReplicatedMap()</pre>
+<div class="block">Create a new ReplicatedMap.</div>
 </li>
 </ul>
 <a id="newVote()">
@@ -337,10 +308,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>newVote</h4>
 <pre class="methodSignature"><a href="Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Vote</a>&nbsp;newVote()</pre>
 <div class="block">Create a new Vote.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new Vote.</dd>
-</dl>
 </li>
 </ul>
 </li>

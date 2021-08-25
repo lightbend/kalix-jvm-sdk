@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -332,7 +331,8 @@ extends Object</pre>
             String&nbsp;viewId,
             com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
 <td class="colLast">
-<div class="block">Experimental API: Register a view.</div>
+<div class="block">Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
+ by the proxy.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
@@ -769,7 +769,8 @@ extends Object</pre>
 public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerView&#8203;(com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
                                    String&nbsp;viewId,
                                    com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Experimental API: Register a view.</div>
+<div class="block">Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
+ by the proxy.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>descriptor</code> - The descriptor of the view.</dd>

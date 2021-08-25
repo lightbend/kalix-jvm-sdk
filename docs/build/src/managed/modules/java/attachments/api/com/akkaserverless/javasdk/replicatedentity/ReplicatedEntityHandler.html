@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
+var data = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,14 +157,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Handle the given command.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../Reply.html" title="interface in com.akkaserverless.javasdk">Reply</a>&lt;com.google.protobuf.Any&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleStreamedCommand(com.google.protobuf.Any,com.akkaserverless.javasdk.replicatedentity.StreamedCommandContext)">handleStreamedCommand</a></span>&#8203;(com.google.protobuf.Any&nbsp;command,
-                     <a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a>&lt;com.google.protobuf.Any&gt;&nbsp;context)</code></th>
-<td class="colLast">
-<div class="block">Handle the given stream command.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -186,32 +177,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="handleCommand(com.google.protobuf.Any,com.akkaserverless.javasdk.replicatedentity.CommandContext)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>handleCommand</h4>
 <pre class="methodSignature"><a href="../Reply.html" title="interface in com.akkaserverless.javasdk">Reply</a>&lt;com.google.protobuf.Any&gt;&nbsp;handleCommand&#8203;(com.google.protobuf.Any&nbsp;command,
                                              <a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">CommandContext</a>&nbsp;context)</pre>
 <div class="block">Handle the given command. During the handling of a command, a Replicated Entity may be created
  (if not already created) and updated.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>command</code> - The command to handle.</dd>
-<dd><code>context</code> - The context for the command.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A reply to the command, if any is sent.</dd>
-</dl>
-</li>
-</ul>
-<a id="handleStreamedCommand(com.google.protobuf.Any,com.akkaserverless.javasdk.replicatedentity.StreamedCommandContext)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>handleStreamedCommand</h4>
-<pre class="methodSignature"><a href="../Reply.html" title="interface in com.akkaserverless.javasdk">Reply</a>&lt;com.google.protobuf.Any&gt;&nbsp;handleStreamedCommand&#8203;(com.google.protobuf.Any&nbsp;command,
-                                                     <a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">StreamedCommandContext</a>&lt;com.google.protobuf.Any&gt;&nbsp;context)</pre>
-<div class="block">Handle the given stream command. During the handling of a command, a Replicated Entity may be
- created (if not already created) and updated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>command</code> - The command to handle.</dd>

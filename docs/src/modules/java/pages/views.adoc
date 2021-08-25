@@ -1,0 +1,273 @@
+= Implementing Views
+
+include::ROOT:partial$include.adoc[]
+
+You can access a single https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entity] with its https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Akka Serverless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+
+Views can be defined from any of the following:
+
+* xref:value-entity[Value Entities state changes]
+* xref:event-sourced-entity[Event Sourced Entity events]
+* xref:topic-view[Messages received from subscribing to topics on a broker]
+
+The remainder of this page describes:
+
+* <<_how_to_transform_results>>
+* <<#changing>>
+* <<#query>>
+
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Akka Serverless does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+
+[#value-entity]
+== Creating a View from a Value Entity
+
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
+
+* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Akka Serverless to store the View.
+
+* xref:register-view[Register the View].
+
+This example assumes the following `customer` state is defined in a `customer_domain.proto` file:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
+----
+
+<1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
+
+=== Define the View service descriptor
+
+To get a View of multiple customers by their name, define the View as a `service` in Protobuf:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
+----
+
+<1> The `UpdateCustomer` method defines how Akka Serverless will update the view.
+<2> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `@ValueEntity(entityType = "customers")` annotation of the Value Entity.
+<3> The `(akkaserverless.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
+<4> The `GetCustomers` method defines the query to retrieve a stream of customers.
+<5> The `(akkaserverless.method).view.query` annotation defines that this method is used as a query of the View.
+
+
+If the query should only return one result, remove the `stream` from the return type:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
+----
+
+<1> Without `stream` when expecting single result.
+
+When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
+
+[#register-view]
+=== Registering a View
+
+Once you've defined a View, register it with  link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless`] by invoking the `registerView` method. In addition to passing the service descriptor of the View, and a unique identifier of the View, you also need to pass any descriptors that you use for state. In this example, that is the `customer_domain.proto` descriptor.
+
+[source,java,indent=0]
+----
+include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register]
+----
+
+[#event-sourced-entity]
+== Creating a View from an Event Sourced Entity
+
+Create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
+
+. <<_define_a_view_descriptor_to_consume_events>>
+. <<_create_a_transformation_class>>
+. <<#es_register>>
+
+
+The example assumes a `customer_domain.proto` file that defines the events that will update the View on name changes:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;events]
+----
+
+=== Define a View descriptor to consume events
+
+The following lines in the `.proto` file define a View to consume the `CustomerCreated` and `CustomerNameChanged` events:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
+----
+
+<1> The `akkaserverless.service` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
+<2> Define an update method for each event.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the `@EventSourcedEntity(entityType = "customers")` annotation of the Event Sourced Entity.
+<4> Enable `transform_updates` to build the View state from the events.
+<5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
+<6> Enable `transform_updates` for all update methods.
+
+See <<#query>> for more examples of valid query syntax.
+
+=== Create a transformation class
+
+Next, you need to define a Java class that transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
+all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` `UpdateHandler`:
+
+[source,java,indent=0]
+----
+include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameViewImpl.java[tag=process-events]
+----
+
+<1> The class must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`@View`] annotation.
+<2> It extends the generated `AbstractCustomerByNameViewImpl` which requires all link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] methods.
+<3> One method for each event.
+
+The first method parameter is the parameter in the Protobuf service call, the event.
+
+A second parameter corresponds to the state of a customer entity. It is wrapped in an `Optional` as there is no state before the first event, thus the `Optional` will be empty.
+
+The method may also take an link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandlerContext.html[`UpdateHandlerContext`] parameter.
+
+NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
+
+[#es_register]
+=== Register the View
+
+Register the View class with `AkkaServerless`:
+
+[source,java,indent=0]
+----
+include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register-with-class]
+----
+
+[#topic-view]
+== Creating a View from a topic
+
+The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
+----
+
+<1> This is the only difference from <<event-sourced-entity>>.
+
+== How to transform results
+
+When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
+
+ifdef::review[REVIEWERS: it would be nice to have use cases describing why they might want to use these different transformation techniques. And does this information apply to all views, regardless of whether they were created from entities or topics?]
+
+=== Relational projection
+
+Instead of using `SELECT *` you can define what columns that will be used in the response message:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
+----
+
+In a similar way, you can include values from the request message in the response, for example `:request_id`:
+
+[source,proto,indent=0]
+----
+SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
+----
+
+=== Response message including the result
+
+Instead of streamed results you can include the results in a repeated field in the response message:
+
+[source,proto,indent=0]
+----
+include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
+----
+
+<1> The response message contains a `repeated` field.
+<2> The return type is not `streamed`.
+<3> The `repeated` field is referenced in the query with `* AS results`.
+
+// anchor for error messages, do not remove.
+[#changing]
+== How to modify a View
+
+Akka Serverless creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+If the query is changed, Akka Serverless might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Akka Serverless needs to build a View with the index on the `city` column.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = :city
+----
+
+Such changes require you to define a new View. Akka Serverless will then rebuild it from the source event log or value changes.
+
+WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View will be built from new messages published to the topic.
+
+Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
+
+
+. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf and different `viewId` when <<register-view>>. Keep the old `registerView`.
+. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
+. Remove the old View definition and rename the `service` to the old name if the public API is compatible.
+. Deploy the second change.
+
+The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
+
+[#query]
+== Query syntax reference
+
+Define View queries in a language that is similar to SQL. The following examples illustrate the syntax. To retrieve:
+
+* All customers without any filtering conditions (no WHERE clause):
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers
+----
+
+* Customers with a name matching the `customer_name` property of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+* Customers matching the `customer_name` AND `city` properties of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name AND address.city = :city
+----
+
+* Customers in a city matching a literal value:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = 'New York'
+----
+
+=== Filter predicates
+
+Use the following filter predicates to further refine results:
+
+* `=` equals
+* `!=` not equals
+* `>` greater than
+* `>=` greater than or equals
+* `<` less than
+* `\<=` less than or equals
+
+Combine filter conditions with the `AND` and `OR` operators.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND address.city = 'New York' OR
+  name = :customer_name AND address.city = 'San Francisco'
+----

@@ -1,5 +1,7 @@
 package com.example.domain;
 
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.reply.MessageReply;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.example.CounterApi;
 import org.junit.Test;
@@ -15,14 +17,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 // tag::class[]
 public class CounterTest {
     private final String entityId = "entityId1";
-    private CounterImpl entity;
+    private Counter entity;
 // end::class[]
     private static class MockedContextFailure extends RuntimeException {};
 
     // tag::increase[] 
     @Test
     public void increaseNoPriorState() {
-        entity = new CounterImpl(entityId); // <1>
+        entity = new Counter(entityId); // <1>
         CommandContext<CounterDomain.CounterState> context = contextWithoutState(); // <2>
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build(); // <3>
@@ -33,7 +35,7 @@ public class CounterTest {
     // end::increase[]
     @Test
     public void increaseWithPriorState() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.IncreaseValue message = CounterApi.IncreaseValue.newBuilder().setValue(42).build();
@@ -44,7 +46,7 @@ public class CounterTest {
 
     @Test
     public void increaseShouldFailWithNegativeValue() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(27);
         Mockito.when(context.fail(anyString()))
                 .thenReturn(new MockedContextFailure());
@@ -57,7 +59,7 @@ public class CounterTest {
 
     @Test
     public void decreaseNoPriorState() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         CommandContext<CounterDomain.CounterState> context = contextWithoutState();
 
         CounterApi.DecreaseValue message = CounterApi.DecreaseValue.newBuilder().setValue(42).build();
@@ -68,7 +70,7 @@ public class CounterTest {
     
     @Test
     public void resetTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
         CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.ResetValue message = CounterApi.ResetValue.newBuilder().build();
@@ -79,14 +81,14 @@ public class CounterTest {
     
     @Test
     public void getCurrentCounterTest() {
-        entity = new CounterImpl(entityId);
+        entity = new Counter(entityId);
 
         CommandContext<CounterDomain.CounterState> context = getCounterStateCommandContext(13);
 
         CounterApi.GetCounter message = CounterApi.GetCounter.newBuilder().build();
-        CounterApi.CurrentCounter reply = entity.getCurrentCounter(message, context);
+        Reply<CounterApi.CurrentCounter> reply = entity.getCurrentCounter(message, context);
 
-        assertThat(reply.getValue(), is(13));
+        assertThat(((MessageReply<CounterApi.CurrentCounter>) reply).payload().getValue(), is(13));
     }
     // tag::contextWithoutState[]
     private CommandContext<CounterDomain.CounterState> contextWithoutState() {

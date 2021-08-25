@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// tag::declarations[]
 syntax = "proto3";
 
 package customer.view;
@@ -20,6 +21,9 @@ option java_outer_classname = "CustomerViewModel";
 
 import "customer/customer_domain.proto";
 import "akkaserverless/annotations.proto";
+import "google/protobuf/any.proto";
+
+// end::declarations[]
 
 // tag::service[]
 service CustomerByName {
@@ -116,17 +120,21 @@ service CustomersResponseByName {
 
 // tag::service-event-sourced[]
 service CustomerByNameView {
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) { // <1>
+  option (akkaserverless.service) = { // <1>
+    type: SERVICE_TYPE_VIEW
+  };
+
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) { // <2>
     option (akkaserverless.method).eventing.in = {
-      event_sourced_entity: "customers" // <2>
+      event_sourced_entity: "customers" // <3>
     };
     option (akkaserverless.method).view.update = {
       table: "customers"
-      transform_updates: true // <3>
+      transform_updates: true // <4>
     };
   }
 
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) { // <4>
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) { // <2>
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
     };
@@ -135,6 +143,16 @@ service CustomerByNameView {
       transform_updates: true // <6>
     };
   }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers" // <5>
+     };
+     option (akkaserverless.method).view.update = {
+       table: "customers"
+       transform_updates: true // <6>
+     };
+  };
 
   rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
     option (akkaserverless.method).view.query = {
@@ -165,6 +183,16 @@ service CustomerByNameViewFromTopic {
       transform_updates: true
     };
   }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers"
+     };
+     option (akkaserverless.method).view.update = {
+       table: "customers"
+       transform_updates: true
+     };
+  };
 
   rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
     option (akkaserverless.method).view.query = {

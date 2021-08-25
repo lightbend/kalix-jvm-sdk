@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -101,78 +100,44 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 <div class="contentContainer">
 <section role="region">
-<h2 title="Class Hierarchy">Class Hierarchy</h2>
-<ul>
-<li class="circle">java.lang.Object
-<ul>
-<li class="circle">java.util.AbstractMap&lt;K,&#8203;V&gt; (implements java.util.Map&lt;K,&#8203;V&gt;)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="LWWRegisterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">LWWRegisterMap</span></a>&lt;K,&#8203;V&gt; (implements java.util.Map&lt;K,&#8203;V&gt;)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="PNCounterMap.html" title="class in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">PNCounterMap</span></a>&lt;K&gt; (implements java.util.Map&lt;K,&#8203;V&gt;)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</section>
-<section role="region">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">com.akkaserverless.javasdk.<a href="../ComponentOptions.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">ComponentOptions</span></a>
+<ul>
+<li class="circle">com.akkaserverless.javasdk.<a href="../EntityOptions.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">EntityOptions</span></a>
+<ul>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedEntityOptions</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">com.akkaserverless.javasdk.<a href="../Context.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">Context</span></a>
 <ul>
 <li class="circle">com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">ClientActionContext</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
-</ul>
-</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">SubscriptionContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
 </ul>
 </li>
 <li class="circle">com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">EffectContext</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
-</ul>
-</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamCancelledContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">SubscriptionContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
 </ul>
 </li>
 <li class="circle">com.akkaserverless.javasdk.<a href="../EntityContext.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">EntityContext</span></a>
 <ul>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedEntityContext</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
-</ul>
-</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>)</li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedEntityCreationContext</span></a> (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamCancelledContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="SubscriptionContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">SubscriptionContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>)</li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="circle">com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">MetadataContext</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
 </ul>
 </li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamCancelledContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamCancelledContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">CommandContext</a>)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="circle">com.akkaserverless.javasdk.<a href="../EntityOptions.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">EntityOptions</span></a>
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedEntityOptions</span></a></li>
 </ul>
 </li>
 <li class="circle">java.lang.Iterable&lt;T&gt;
@@ -181,38 +146,28 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.util.Set&lt;E&gt;
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="GSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">GSet</span></a>&lt;T&gt; (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ORSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ORSet</span></a>&lt;T&gt; (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>)</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedSet</span></a>&lt;T&gt; (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>)</li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="circle">java.util.Map&lt;K,&#8203;V&gt;
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ORMap</span></a>&lt;K,&#8203;V&gt; (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>)</li>
 </ul>
 </li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedData</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="Flag.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">Flag</span></a></li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="GCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">GCounter</span></a></li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="GSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">GSet</span></a>&lt;T&gt; (also extends java.util.Set&lt;E&gt;)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="LWWRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">LWWRegister</span></a>&lt;T&gt;</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ORMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ORMap</span></a>&lt;K,&#8203;V&gt; (also extends java.util.Map&lt;K,&#8203;V&gt;)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ORSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ORSet</span></a>&lt;T&gt; (also extends java.util.Set&lt;E&gt;)</li>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="PNCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">PNCounter</span></a></li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedCounter</span></a></li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedCounterMap</span></a>&lt;K&gt;</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedMap</span></a>&lt;K,&#8203;V&gt;</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedMultiMap</span></a>&lt;K,&#8203;V&gt;</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedRegister</span></a>&lt;T&gt;</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedRegisterMap</span></a>&lt;K,&#8203;V&gt;</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedSet</span></a>&lt;T&gt; (also extends java.util.Set&lt;E&gt;)</li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">Vote</span></a></li>
 </ul>
 </li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedDataFactory</span></a>
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)
-<ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="StreamedCommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">StreamedCommandContext</span></a>&lt;Output&gt; (also extends com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>)</li>
-</ul>
-</li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">CommandContext</span></a> (also extends com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, com.akkaserverless.javasdk.<a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a>, com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedEntityCreationContext</span></a> (also extends com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a>)</li>
 </ul>
 </li>
@@ -234,7 +189,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.lang.Enum&lt;E&gt; (implements java.lang.Comparable&lt;T&gt;, java.io.Serializable)
 <ul>
-<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="LWWRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">LWWRegister.Clock</span></a></li>
+<li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">ReplicatedRegister.Clock</span></a></li>
 <li class="circle">com.akkaserverless.javasdk.replicatedentity.<a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity"><span class="typeNameLink">WriteConsistency</span></a></li>
 </ul>
 </li>

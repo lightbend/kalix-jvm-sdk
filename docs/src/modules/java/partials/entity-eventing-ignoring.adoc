@@ -1,0 +1,12 @@
+include::ROOT:partial$include.adoc[]
+
+== Ignoring events
+
+When listening to an event log, **all** events emitted by the Event Sourced entity must be matched by a Protobuf service method. In case your component is interested only in certain events, you may declare a method to receive all events that are not received by the other methods.
+
+[source,protobuf,indent=2]
+----
+include::java:example$java-eventing-shopping-cart/src/main/proto/product/to_product_popularity.proto[tag=catchOthers]
+----
+
+The corresponding implementation must exist in the component.

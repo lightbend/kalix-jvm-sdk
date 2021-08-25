@@ -1,0 +1,90 @@
+= Forwarding and effects in Java
+
+include::ROOT:partial$include.adoc[]
+
+include::partial$forwarding.adoc[]
+
+== Looking up service call references
+
+To issue forwards or emit effects you need to look up the destination component and operation from the service call factory. The context of the component or operation allows access to the service call factory. The lookup requires the fully-qualified service name and the operation name (as stated in the protobuf definition of the service), and you pass in the parameter type of the target Java method.
+
+You might want to look up the service call reference in the originating entity's constructor. That way, you only have to look it up once.
+
+[source,java,indent=4]
+----
+private final ServiceCallRef<Hotitems.Item> itemAddedToCartRef;
+
+public ShoppingCartEntity(Context ctx) {
+    itemAddedToCartRef =
+        ctx.serviceCallFactory()
+            .lookup("example.shoppingcart.ShoppingCartService", "ItemAddedToCart", Hotitems.Item.class);
+}
+----
+
+
+== Forwarding a command
+
+To allow forwarding a request, change the service implementation method to return `com.akkaserverless.javadsk.Reply<T>` where `T` corresponds to the return type as specified in the protobuf definition.
+
+To create the forwarding reply, create a service call based to pass data to the component and use the `Reply.forward(...)` factory method to construct the reply instance.
+
+[source,java,indent=0]
+----
+import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.action.Action;
+import com.akkaserverless.javasdk.action.ActionContext;
+import com.akkaserverless.javasdk.action.Handler;
+import com.google.protobuf.Empty;
+
+@Action
+public class ToProductPopularityAction {
+    private final String serviceName = "shopping.product.api.ProductPopularityService";
+
+    @Handler
+    public Reply<Empty> forwardAdded(ShoppingCart.ItemAdded in, ActionContext ctx) {
+
+        ServiceCallRef<ProductApi.IncreasePopularity> increaseCall =
+            ctx.serviceCallFactory()
+                .lookup(serviceName, "Increase", ProductApi.IncreasePopularity.class);
+
+        ProductApi.IncreasePopularity increase =
+            ProductApi.IncreasePopularity.newBuilder()
+                .setProductId(in.getItem().getProductId())
+                .setQuantity(in.getItem().getQuantity())
+                .build();
+
+        return Reply.forward(increaseCall.createCall(increase));
+    }
+}
+----
+
+include::partial$forwarding-effects.adoc[]
+
+== Emitting an effect
+
+To allow emitting effects after processing a request, change the service implementation method to return `com.akkaserverless.javadsk.Reply<T>` where `T` corresponds to the return type as specified in the protobuf definition.
+
+For example, upon successful completion of the `addItem` command by `ShoppingCartEntity`, if you also want to emit an effect on the `HotItems` entity, you would invoke the `effect` service call as:
+
+[source,java,indent=0]
+----
+    @CommandHandler
+    public Reply<Empty> addItem(Shoppingcart.AddLineItem item, CommandContext ctx) {
+      // ... Validate and emit event
+
+      // prepare effect
+      Hotitems.Item item =
+          Hotitems.Item.newBuilder()
+              .setProductId(item.getProductId())
+              .setName(item.getName())
+              .setQuantity(item.getQuantity())
+              .build();
+
+      return Reply
+          .message(Empty.getDefaultInstance())
+          .addEffects(Effect.of(itemAddedToCartRef.createCall(item)));
+    }
+----
+
+Please note that, contrary to command forwarding, the result of the effect is ignored by the current command `addItem`.

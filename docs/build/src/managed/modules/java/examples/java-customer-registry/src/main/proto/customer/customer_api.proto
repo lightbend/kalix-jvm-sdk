@@ -42,10 +42,22 @@ message ChangeNameRequest {
   string new_name = 2;
 }
 
+message ChangeAddressRequest {
+  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  Address new_address = 2;
+}
+
 service CustomerService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "customer.domain.CustomerValueEntity"
+  };
+
   rpc Create(Customer) returns (google.protobuf.Empty) {}
 
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
+
+  rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
 
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }

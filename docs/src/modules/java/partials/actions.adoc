@@ -1,0 +1,25 @@
+include::ROOT:partial$include.adoc[]
+
+Actions are stateless functions that can be triggered in multiple ways. For example, by
+
+- a gRPC service call
+- an HTTP service call
+- a new item in an Event Sourced Entity's journal
+- a forwarded call from another component
+
+.Use case: request conversion
+****
+You can use Actions to convert incoming data into a different format before forwarding a call to a different component.
+
+A service might need to offer a request data format that does not correspond directly with the commands of an Event Sourced Entity. By exposing a service implemented by an Action, the Action implementation can adapt the data format to the command (or commands) expected by the Event Sourced Entity. The incoming requests get forwarded to the target component.
+****
+
+.Use case: listening to a journal
+****
+To listen to an Event Sourced Entity's journal, an Action can be set up for Eventing.
+****
+
+The Event Sourced Entity journal contains events that capture all state changes.
+By subscribing to the journal with the Event Sourced Entity name, another component can receive all events of that type emitted by an Event Sourced Entity.
+
+Together with xref:topic-eventing.adoc[Topic publishing], this may be used to inform other services asynchronously about certain events.

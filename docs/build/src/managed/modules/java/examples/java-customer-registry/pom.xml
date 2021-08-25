@@ -10,14 +10,15 @@
   <name>Customer Registry</name>
 
   <properties>
+    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerTag>${project.version}</dockerTag>
+    <mainClass>customer.Main</mainClass>
+
+    <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <akkasls.dockerImage>my-docker-repo/${project.artifactId}</akkasls.dockerImage>
-    <akkasls.dockerTag>${project.version}</akkasls.dockerTag>
-    <akkasls.mainClass>customer.Main</akkasls.mainClass>
-    <jdk.target>11</jdk.target>
-    <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
+    <akkaserverless-sdk.version>0.7.0-beta.18</akkaserverless-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
@@ -200,9 +201,9 @@
       </plugin>
 
       <plugin>
-        <groupId>com.lightbend</groupId>
-        <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.31.0</version>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-maven-plugin</artifactId>
+	      <version>${akkaserverless-sdk.version}</version>
         <executions>
           <execution>
             <goals>
@@ -294,28 +295,6 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <dependencies>
     <dependency>

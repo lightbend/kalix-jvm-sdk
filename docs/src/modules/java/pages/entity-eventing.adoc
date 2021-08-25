@@ -1,0 +1,23 @@
+= Subscribing to a journal
+
+include::ROOT:partial$include.adoc[]
+include::partial$entity-eventing.adoc[]
+
+To retrieve the entity ID from the event metadata, configure the action method to accept the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] as a second parameter. The entity ID becomes available from the context metadata.
+
+[source,java,indent=0]
+
+----
+@Action
+public class TriggerCheckoutAction {
+    @Handler
+    public ActionReply<Empty> checkout(ShoppingCart.CheckedOut in, ActionContext ctx) {
+      Optional<String> entityId = ctx.eventSubject();
+      ...
+    }
+}
+----
+
+include::partial$get-entity-id.adoc[]
+
+include::partial$entity-eventing-ignoring.adoc[]
