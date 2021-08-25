@@ -35,31 +35,18 @@ public class EventSourcedTwoEntityHandler
 
   @Override
   public Persisted handleEvent(Persisted state, Object event) {
-    throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+    throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
   }
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, Persisted state, Any command, CommandContext context) {
-    try {
-      switch (commandName) {
-        case "Call":
-          // FIXME could parsing to the right type also be pulled out of here?
-          return entity().call(state, Request.parseFrom(command.getValue()));
+      String commandName, Persisted state, Object command, CommandContext context) {
+    switch (commandName) {
+      case "Call":
+        return entity().call(state, (Request) command);
 
-        default:
-          throw new EntityExceptions.EntityException(
-              context.entityId(),
-              context.commandId(),
-              commandName,
-              "No command handler found for command ["
-                  + commandName
-                  + "] on "
-                  + entity().getClass());
-      }
-    } catch (InvalidProtocolBufferException ex) {
-      // This is if command payload cannot be parsed
-      throw new RuntimeException(ex);
+      default:
+        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
     }
   }
 }

@@ -169,10 +169,7 @@ object EntityServiceSourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
-        "com.akkaserverless.javasdk.impl.EntityExceptions",
-        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler",
-        "com.google.protobuf.Any",
-        "com.google.protobuf.InvalidProtocolBufferException"
+        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler"
       )
     )
 
@@ -183,22 +180,20 @@ object EntityServiceSourceGenerator {
 
     val eventCases = entity.events.zipWithIndex.map {
         case (evt, i) =>
-          val methodName = evt.fqn.name
           val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
           s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
               |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
       }.toSeq :+
       s"""|} else {
-        |  throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
-        |}""".stripMargin
+          |  throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+          |}""".stripMargin
 
     val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.fqn.name
         val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
         s"""|case "$methodName":
-            |  // FIXME could parsing to the right type also be pulled out of here?
-            |  return entity().${lowerFirst(methodName)}(state, ${inputType}.parseFrom(command.getValue()));
+            |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
             |""".stripMargin
       }
 
@@ -221,25 +216,13 @@ object EntityServiceSourceGenerator {
         |
         |  @Override
         |  public EventSourcedEntityBase.Effect<?> handleCommand(
-        |      String commandName, $outerClassAndState state, Any command, CommandContext context) {
-        |    try {
-        |      switch (commandName) {
+        |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
+        |    switch (commandName) {
         |
-        |        ${Syntax.indent(commandCases, 8)}
+        |      ${Syntax.indent(commandCases, 6)}
         |
-        |        default:
-        |          throw new EntityExceptions.EntityException(
-        |              context.entityId(),
-        |              context.commandId(),
-        |              commandName,
-        |              "No command handler found for command ["
-        |                  + commandName
-        |                  + "] on "
-        |                  + entity().getClass());
-        |      }
-        |    } catch (InvalidProtocolBufferException ex) {
-        |      // This is if command payload cannot be parsed
-        |      throw new RuntimeException(ex);
+        |      default:
+        |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
         |    }
         |  }
         |}""".stripMargin
@@ -270,10 +253,8 @@ object EntityServiceSourceGenerator {
     )
 
     val descriptors =
-      collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()")
-        .distinct
-        .sorted
+      (collectRelevantTypes(relevantTypes, service.fqn)
+        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""|$managedCodeCommentString
         |package $packageName;

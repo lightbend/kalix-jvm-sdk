@@ -19,9 +19,7 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
 import com.akkaserverless.javasdk.{AkkaServerless, AkkaServerlessRunner}
-import com.google.protobuf.Descriptors.{FileDescriptor, ServiceDescriptor}
 import com.typesafe.config.{Config, ConfigFactory}
-import scala.reflect.ClassTag
 
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider
 

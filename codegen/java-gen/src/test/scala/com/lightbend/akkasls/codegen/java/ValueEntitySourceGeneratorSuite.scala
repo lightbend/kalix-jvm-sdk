@@ -281,7 +281,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
          |    return new Descriptors.FileDescriptor[] {
          |      EntityOuterClass.getDescriptor(),
-         |      ExternalDomain.getDescriptor()
+         |      ExternalDomain.getDescriptor(),
+         |      ServiceOuterClass.getDescriptor()
          |    };
          |  }
          |}""".stripMargin

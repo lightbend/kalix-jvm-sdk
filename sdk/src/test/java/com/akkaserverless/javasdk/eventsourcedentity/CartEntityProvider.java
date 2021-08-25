@@ -68,7 +68,9 @@ public class CartEntityProvider
   @Override
   public final Descriptors.FileDescriptor[] additionalDescriptors() {
     return new Descriptors.FileDescriptor[] {
-      ShoppingCartDomain.getDescriptor(), EmptyProto.getDescriptor()
+      ShoppingCartApi.getDescriptor(),
+      ShoppingCartDomain.getDescriptor(),
+      EmptyProto.getDescriptor()
     };
   }
 }

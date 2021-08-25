@@ -18,9 +18,7 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-import com.akkaserverless.javasdk.impl.EntityExceptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
-import com.google.protobuf.Any;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityTwoHandler
@@ -35,14 +33,13 @@ public class EventSourcedEntityTwoHandler
     if (event instanceof JsonMessage) {
       return entity().handle(state, (JsonMessage) event);
     } else {
-      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
     }
   }
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, String state, Any command, CommandContext context) {
-    //    try {
+      String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
       case "EmitJsonEvent":
         // FIXME Json. Enable TCK tests for eventing again, see RunTck.java
@@ -50,15 +47,7 @@ public class EventSourcedEntityTwoHandler
         throw new IllegalStateException("JSON not implemented yet");
 
       default:
-        throw new EntityExceptions.EntityException(
-            context.entityId(),
-            context.commandId(),
-            commandName,
-            "No command handler found for command [" + commandName + "] on " + entity().getClass());
+        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
     }
-    //    } catch (InvalidProtocolBufferException ex) {
-    //      // This is if command payload cannot be parsed
-    //      throw new RuntimeException(ex);
-    //    }
   }
 }

@@ -137,12 +137,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-         |import com.akkaserverless.javasdk.impl.EntityExceptions;
          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
-         |import com.google.protobuf.Any;
-         |import com.google.protobuf.InvalidProtocolBufferException;
          |
          |/** An event sourced entity handler */
          |public class MyServiceEntityHandler extends EventSourcedEntityHandler<EntityOuterClass.MyState, MyEntity> {
@@ -156,37 +153,23 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |    if (event instanceof EntityOuterClass.SetEvent) {
          |      return entity().setEvent(state, (EntityOuterClass.SetEvent) event);
          |    } else {
-         |      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+         |      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
          |    }
          |  }
          |
          |  @Override
          |  public EventSourcedEntityBase.Effect<?> handleCommand(
-         |      String commandName, EntityOuterClass.MyState state, Any command, CommandContext context) {
-         |    try {
-         |      switch (commandName) {
+         |      String commandName, EntityOuterClass.MyState state, Object command, CommandContext context) {
+         |    switch (commandName) {
          |
-         |        case "Set":
-         |          // FIXME could parsing to the right type also be pulled out of here?
-         |          return entity().set(state, ServiceOuterClass.SetValue.parseFrom(command.getValue()));
+         |      case "Set":
+         |        return entity().set(state, (ServiceOuterClass.SetValue) command);
          |
-         |        case "Get":
-         |          // FIXME could parsing to the right type also be pulled out of here?
-         |          return entity().get(state, ServiceOuterClass.GetValue.parseFrom(command.getValue()));
+         |      case "Get":
+         |        return entity().get(state, (ServiceOuterClass.GetValue) command);
          |
-         |        default:
-         |          throw new EntityExceptions.EntityException(
-         |              context.entityId(),
-         |              context.commandId(),
-         |              commandName,
-         |              "No command handler found for command ["
-         |                  + commandName
-         |                  + "] on "
-         |                  + entity().getClass());
-         |      }
-         |    } catch (InvalidProtocolBufferException ex) {
-         |      // This is if command payload cannot be parsed
-         |      throw new RuntimeException(ex);
+         |      default:
+         |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
          |    }
          |  }
          |}""".stripMargin
@@ -272,7 +255,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
          |    return new Descriptors.FileDescriptor[] {
          |      EntityOuterClass.getDescriptor(),
-         |      ExternalDomain.getDescriptor()
+         |      ExternalDomain.getDescriptor(),
+         |      ServiceOuterClass.getDescriptor()
          |    };
          |  }
          |}""".stripMargin

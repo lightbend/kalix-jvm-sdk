@@ -18,11 +18,8 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-import com.akkaserverless.javasdk.impl.EntityExceptions;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityOneHandler
@@ -39,34 +36,19 @@ public class EventSourcedEntityOneHandler
     } else if (event instanceof LocalPersistenceEventing.EventTwo) {
       return entity().handle(state, (LocalPersistenceEventing.EventTwo) event);
     } else {
-      throw new IllegalArgumentException("Unknown event type [" + event.getClass() + "]");
+      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
     }
   }
 
   @Override
   public EventSourcedEntityBase.Effect<?> handleCommand(
-      String commandName, String state, Any command, CommandContext context) {
-    try {
-      switch (commandName) {
-        case "EmitEvent":
-          // FIXME could parsing to the right type also be pulled out of here?
-          return entity()
-              .emitEvent(
-                  state, LocalPersistenceEventing.EmitEventRequest.parseFrom(command.getValue()));
+      String commandName, String state, Object command, CommandContext context) {
+    switch (commandName) {
+      case "EmitEvent":
+        return entity().emitEvent(state, (LocalPersistenceEventing.EmitEventRequest) command);
 
-        default:
-          throw new EntityExceptions.EntityException(
-              context.entityId(),
-              context.commandId(),
-              commandName,
-              "No command handler found for command ["
-                  + commandName
-                  + "] on "
-                  + entity().getClass());
-      }
-    } catch (InvalidProtocolBufferException ex) {
-      // This is if command payload cannot be parsed
-      throw new RuntimeException(ex);
+      default:
+        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
     }
   }
 }

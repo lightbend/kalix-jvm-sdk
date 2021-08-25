@@ -167,8 +167,11 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
+
           val cmd =
-            ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+            service.anySupport.decode(
+              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+            )
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId,
