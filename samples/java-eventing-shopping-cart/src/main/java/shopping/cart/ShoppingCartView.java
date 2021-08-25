@@ -16,58 +16,71 @@
 
 package shopping.cart;
 
-import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.UpdateContext;
-import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
 
-import java.util.Optional;
-
-@View
-public class ShoppingCartView {
+// user view impl
+public class ShoppingCartView extends AbstractShoppingCartView {
 
   private static Logger LOG = LoggerFactory.getLogger(ShoppingCartView.class);
 
-  @UpdateHandler
-  public ShoppingCartViewModel.CartViewState processAdded(
-      ShoppingCartDomain.ItemAdded event,
-      Optional<ShoppingCartViewModel.CartViewState> state,
-      UpdateContext context) {
-    if (state.isPresent()) {
-      String cartId = state.get().getCartId();
-      int newNumberOfItems = state.get().getNumberOfItems() + event.getItem().getQuantity();
+  public ShoppingCartView(ViewContext context) {}
+
+  @Override
+  public ShoppingCartViewModel.CartViewState emptyState() {
+    return null;
+  }
+
+  @Override
+  public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemAdded(
+      ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.ItemAdded itemAdded) {
+    if (state != null) {
+      String cartId = state.getCartId();
+      int newNumberOfItems = state.getNumberOfItems() + itemAdded.getItem().getQuantity();
       LOG.info("Cart {} has {} items", cartId, newNumberOfItems);
-      return state.get().toBuilder().setNumberOfItems(newNumberOfItems).build();
+      return updateEffects()
+          .updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
     } else {
       String cartId =
-          context
+          updateContext()
               .eventSubject()
               .orElseGet(
                   () -> {
                     throw new IllegalArgumentException("Unknown eventSubject");
                   });
-      int newNumberOfItems = event.getItem().getQuantity();
+      int newNumberOfItems = itemAdded.getItem().getQuantity();
       LOG.info("New cart {} has {} items", cartId, newNumberOfItems);
-      return ShoppingCartViewModel.CartViewState.newBuilder()
-          .setCartId(cartId)
-          .setNumberOfItems(newNumberOfItems)
-          .build();
+      return updateEffects()
+          .updateState(
+              ShoppingCartViewModel.CartViewState.newBuilder()
+                  .setCartId(cartId)
+                  .setNumberOfItems(newNumberOfItems)
+                  .build());
     }
   }
 
-  @UpdateHandler
-  public ShoppingCartViewModel.CartViewState processRemoved(
-      ShoppingCartDomain.ItemRemoved event, ShoppingCartViewModel.CartViewState state) {
-    int newNumberOfItems = state.getNumberOfItems() - event.getQuantity();
-    return state.toBuilder().setNumberOfItems(newNumberOfItems).build();
+  @Override
+  public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemRemoved(
+      ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.ItemRemoved itemRemoved) {
+    if (state == null)
+      throw new IllegalArgumentException(
+          "Cannot remove item from unknown cart " + updateContext().eventSubject());
+    int newNumberOfItems = state.getNumberOfItems() - itemRemoved.getQuantity();
+    return updateEffects()
+        .updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
   }
 
-  @UpdateHandler
-  public ShoppingCartViewModel.CartViewState processCheckedOut(
-      ShoppingCartDomain.CheckedOut event, ShoppingCartViewModel.CartViewState state) {
-    return state.toBuilder().setCheckedOutTimestamp(event.getCheckedOutTimestamp()).build();
+  @Override
+  public UpdateEffect<ShoppingCartViewModel.CartViewState> processCheckedOut(
+      ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.CheckedOut checkedOut) {
+    if (state == null)
+      throw new IllegalArgumentException(
+          "Cannot check out unknown cart " + updateContext().eventSubject());
+    return updateEffects()
+        .updateState(
+            state.toBuilder().setCheckedOutTimestamp(checkedOut.getCheckedOutTimestamp()).build());
   }
 }

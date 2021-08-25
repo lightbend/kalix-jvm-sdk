@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.view;
 
 import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.view.ViewCreationContext;
+import com.google.protobuf.Descriptors;
 
-/**
- * Low level interface for handling messages in views.
- *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.view.View @View} and similar annotations should be used.
- */
-public interface ViewFactory {
-  /**
-   * Create a view handler for the given context.
-   *
-   * @param context The context.
-   * @return The handler for the given context.
-   */
-  ViewHandler create(ViewCreationContext context);
+public interface ViewProvider {
+
+  Descriptors.ServiceDescriptor serviceDescriptor();
+
+  String viewId();
+
+  ViewHandler newHandler(ViewCreationContext context);
+
+  Descriptors.FileDescriptor[] additionalDescriptors();
 }

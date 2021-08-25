@@ -16,36 +16,45 @@
 
 package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.UpdateContext;
 import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewCreationContext;
 import com.akkaserverless.tck.model.View.Event;
 import com.akkaserverless.tck.model.View.ViewState;
 
 import java.util.Optional;
 
-@View
-public class ViewTckModelBehavior {
+public class ViewTckModelBehavior extends View<ViewState> {
 
-  @UpdateHandler
-  public Optional<ViewState> processUpdateUnary(
-      Event event, Optional<ViewState> maybePreviousState, UpdateContext ctx) {
+  @SuppressWarnings("unused")
+  public ViewTckModelBehavior(ViewCreationContext context) {}
+
+  @Override
+  public ViewState emptyState() {
+    return null;
+  }
+
+  public View.UpdateEffect<ViewState> processUpdateUnary(ViewState state, Event event) {
     if (event.hasReturnAsIs()) {
-      return Optional.of(ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
+      return updateEffects()
+          .updateState(ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
     } else if (event.hasUppercaseThis()) {
-      return Optional.of(
-          ViewState.newBuilder().setData(event.getUppercaseThis().getData().toUpperCase()).build());
-    } else if (event.hasAppendToExistingState()) {
-      ViewState state = maybePreviousState.get();
-      return Optional.of(
-          state
-              .toBuilder()
-              .setData(state.getData() + event.getAppendToExistingState().getData())
-              .build());
+      return updateEffects()
+          .updateState(
+              ViewState.newBuilder()
+                  .setData(event.getUppercaseThis().getData().toUpperCase())
+                  .build());
+    } else if (event.hasAppendToExistingState()) {;
+      if (state == null) throw new IllegalArgumentException("State was null for " + event);
+      return updateEffects()
+          .updateState(
+              state
+                  .toBuilder()
+                  .setData(state.getData() + event.getAppendToExistingState().getData())
+                  .build());
     } else if (event.hasFail()) {
       throw new RuntimeException("Fail");
     } else if (event.hasIgnore()) {
-      return Optional.empty();
+      return updateEffects().ignore();
     } else {
       throw new RuntimeException("Unexpected event type " + event.getEventCase().name());
     }

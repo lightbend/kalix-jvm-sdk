@@ -16,22 +16,65 @@
 
 package com.akkaserverless.javasdk.view;
 
-import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
+import com.akkaserverless.javasdk.impl.view.ViewUpdateEffectImpl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Optional;
 
-/**
- * Transformation of incoming messages and previous state to updated state can be implemented in a
- * class annotated with <code>@View</code>. It must be registered with {@link
- * com.akkaserverless.javasdk.AkkaServerless#registerView AkkaServerless.registerView}.
- *
- * <p>The view class should define methods corresponding to the service calls (rpc) for view
- * updates. Those methods are annoted with {@link UpdateHandler}.
- */
-@AkkaServerlessAnnotation
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface View {}
+/** @param <S> The type of the state for this view. */
+public abstract class View<S> {
+
+  private Optional<UpdateContext> updateContext = Optional.empty();
+
+  /**
+   * Additional context and metadata for an update handler.
+   *
+   * <p>It will throw an exception if accessed from constructor.
+   */
+  protected final UpdateContext updateContext() {
+    return updateContext.orElseThrow(
+        () ->
+            new IllegalStateException(
+                "UpdateHandlerContext is only available when handling an update."));
+  }
+
+  /** INTERNAL API */
+  public final void setUpdateContext(Optional<UpdateContext> context) {
+    updateContext = context;
+  }
+
+  protected final UpdateEffect.Builder<S> updateEffects() {
+    return ViewUpdateEffectImpl.builder();
+  }
+
+  /**
+   * @return an empty state object or `null` to hand to the process method when an event for a
+   *     previously unknown subject id is seen.
+   */
+  public abstract S emptyState();
+
+  /**
+   * Construct the effect that is returned by the command handler. The effect describes next
+   * processing actions, such as emitting events and sending a reply.
+   *
+   * @param <S> The type of the state for this entity.
+   */
+  public interface UpdateEffect<S> {
+
+    interface Builder<S> {
+
+      UpdateEffect<S> updateState(S newState);
+
+      /** Ignore this event (and continue to process the next). */
+      UpdateEffect<S> ignore();
+
+      /**
+       * Trigger an error for the event. Returning this effect is equivalent to throwing an
+       * exception from the handler and will lead to retrying processing of the same event until it
+       * is handled successfully.
+       *
+       * @param description The description of the error.
+       */
+      UpdateEffect<S> error(String description);
+    }
+  }
+}
