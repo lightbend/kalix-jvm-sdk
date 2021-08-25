@@ -58,9 +58,15 @@ object FullyQualifiedName {
     FullyQualifiedName(
       descriptor.getName,
       serviceType match {
+        // View and Actions services clashes with akka-grpc service generation
+        // therefore we need to append [View,Action] to it (or Impl).
+        // FIXME: should we find a better solution for that?
         case ServiceType.SERVICE_TYPE_VIEW =>
           if (descriptor.getName.endsWith("View")) descriptor.getName + "Impl"
           else descriptor.getName + "View"
+        case ServiceType.SERVICE_TYPE_ACTION =>
+          if (descriptor.getName.endsWith("Action")) descriptor.getName + "Impl"
+          else descriptor.getName + "Action"
         case _ => descriptor.getName
       },
       packageNaming
