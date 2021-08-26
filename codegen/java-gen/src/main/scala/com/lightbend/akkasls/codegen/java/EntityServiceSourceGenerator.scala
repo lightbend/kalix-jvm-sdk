@@ -178,15 +178,20 @@ object EntityServiceSourceGenerator {
     val outerClassAndState =
       entity.state.map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}").getOrElse("Object")
 
-    val eventCases = entity.events.zipWithIndex.map {
-        case (evt, i) =>
-          val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
-          s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
+    val eventCases = {
+      if (entity.events.isEmpty)
+        List(s"throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());")
+      else
+        entity.events.zipWithIndex.map {
+          case (evt, i) =>
+            val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
+            s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
               |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
-      }.toSeq :+
-      s"""|} else {
+        }.toSeq :+
+        s"""|} else {
           |  throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
           |}""".stripMargin
+    }
 
     val commandCases = service.commands
       .map { cmd =>
