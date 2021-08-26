@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 
 /** A value entity handler */
 public class ViewTckSourceEntityHandler extends ValueEntityHandler<String, ViewTckSourceEntity> {
@@ -28,7 +28,7 @@ public class ViewTckSourceEntityHandler extends ValueEntityHandler<String, ViewT
   }
 
   @Override
-  public ValueEntityBase.Effect<?> handleCommand(
+  public ValueEntity.Effect<?> handleCommand(
       String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
       default:

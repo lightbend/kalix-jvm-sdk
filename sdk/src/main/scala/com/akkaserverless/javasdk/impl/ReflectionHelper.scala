@@ -29,7 +29,7 @@ import com.akkaserverless.javasdk.impl.effect.{
 }
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.reply.MessageReply
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase
+import com.akkaserverless.javasdk.valueentity.ValueEntity
 import com.google.protobuf.{Any => JavaPbAny}
 
 import java.lang.annotation.Annotation
@@ -314,7 +314,7 @@ private[impl] object ReflectionHelper {
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 
       getOutputParameterMapper(method.getName, serviceMethod.outputType, method.getGenericReturnType, anySupport)
-    } else if (method.getReturnType == classOf[ValueEntityBase.Effect[_]]) {
+    } else if (method.getReturnType == classOf[ValueEntity.Effect[_]]) {
       // TODO temporary implementation going via the effect, but not actually applying the effects yet here
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 

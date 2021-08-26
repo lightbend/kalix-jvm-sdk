@@ -88,7 +88,7 @@ object ValueEntitySourceGenerator {
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityBase",
+        "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"
       )
     )
@@ -121,7 +121,7 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public ValueEntityBase.Effect<?> handleCommand(
+        |  public ValueEntity.Effect<?> handleCommand(
         |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
@@ -239,7 +239,7 @@ object ValueEntitySourceGenerator {
       Some(entity.state),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.ValueEntityBase"
+        "com.akkaserverless.javasdk.valueentity.ValueEntity"
       )
     )
 
@@ -264,7 +264,7 @@ object ValueEntitySourceGenerator {
         |$imports
         |
         |/** A value entity. */
-        |public abstract class Abstract${className} extends ValueEntityBase<$outerClassAndState> {
+        |public abstract class Abstract${className} extends ValueEntity<$outerClassAndState> {
         |
         |  ${Syntax.indent(methods, 2)}
         |

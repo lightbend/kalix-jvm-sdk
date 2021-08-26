@@ -39,7 +39,7 @@ import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.View;
@@ -367,8 +367,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends ValueEntityBase<S>> AkkaServerless register(
-      ValueEntityProvider<S, E> provider) {
+  public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
     return lowLevel()
         .registerValueEntity(
             provider::newHandler,

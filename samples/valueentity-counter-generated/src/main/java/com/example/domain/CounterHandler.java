@@ -6,7 +6,7 @@ package com.example.domain;
 
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -21,7 +21,7 @@ public class CounterHandler extends ValueEntityHandler<CounterDomain.CounterStat
   }
 
   @Override
-  public ValueEntityBase.Effect<?> handleCommand(
+  public ValueEntity.Effect<?> handleCommand(
       String commandName, CounterDomain.CounterState state, Object command, CommandContext context) {
     switch (commandName) {
 

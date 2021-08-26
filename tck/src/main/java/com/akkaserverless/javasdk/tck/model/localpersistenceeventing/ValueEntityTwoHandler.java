@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 /** A value entity handler */
@@ -29,7 +29,7 @@ public class ValueEntityTwoHandler extends ValueEntityHandler<Object, ValueEntit
   }
 
   @Override
-  public ValueEntityBase.Effect<?> handleCommand(
+  public ValueEntity.Effect<?> handleCommand(
       String commandName, Object state, Object command, CommandContext context) {
     switch (commandName) {
       case "UpdateJsonValue":

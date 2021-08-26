@@ -16,12 +16,12 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.ValueEntity.Request;
 import com.akkaserverless.tck.model.ValueEntity.Response;
 
-public class ValueEntityConfiguredEntity extends ValueEntityBase<String> {
+public class ValueEntityConfiguredEntity extends ValueEntity<String> {
 
   public ValueEntityConfiguredEntity(ValueEntityContext context) {}
 

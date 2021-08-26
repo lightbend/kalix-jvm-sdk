@@ -24,7 +24,7 @@ import com.google.protobuf.Descriptors;
  * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the
  * specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
  */
-public interface ValueEntityProvider<S, E extends ValueEntityBase<S>> {
+public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
 
   ValueEntityOptions options();
 

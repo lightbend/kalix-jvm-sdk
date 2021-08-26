@@ -20,10 +20,10 @@ import java.util.Optional
 
 import com.akkaserverless.javasdk.valueentity.CommandContext
 import com.akkaserverless.javasdk.impl.EntityExceptions
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase
+import com.akkaserverless.javasdk.valueentity.ValueEntity
 
 object ValueEntityHandler {
-  final case class CommandResult(effect: ValueEntityBase.Effect[_])
+  final case class CommandResult(effect: ValueEntity.Effect[_])
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
 
@@ -35,7 +35,7 @@ object ValueEntityHandler {
  *
  * The concrete <code>ValueEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class ValueEntityHandler[S, E <: ValueEntityBase[S]](protected val entity: E) {
+abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: E) {
   import ValueEntityHandler._
 
   // "public" api against the impl/testkit
@@ -65,6 +65,6 @@ abstract class ValueEntityHandler[S, E <: ValueEntityBase[S]](protected val enti
   protected def handleCommand(commandName: String,
                               state: S,
                               command: Any,
-                              context: CommandContext): ValueEntityBase.Effect[_]
+                              context: CommandContext): ValueEntity.Effect[_]
 
 }
