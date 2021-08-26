@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.example.shoppingcart.ShoppingCartApi;
+package com.akkaserverless.javasdk.valueentity;
+
+import com.example.valueentity.shoppingcart.ShoppingCartApi;
+import com.example.valueentity.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
 import java.util.Comparator;
@@ -25,14 +26,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/**
- * A value entity.
- */
-public class ShoppingCart extends AbstractShoppingCart {
+/** A value entity. */
+public class CartEntity extends AbstractCartEntity {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public ShoppingCart(ValueEntityContext context) {
+  public CartEntity(ValueEntityContext context) {
     this.entityId = context.entityId();
   }
 
@@ -41,66 +40,45 @@ public class ShoppingCart extends AbstractShoppingCart {
     return ShoppingCartDomain.Cart.newBuilder().build();
   }
 
-  // tag::add-item[]
   @Override
   public Effect<Empty> addItem(
-          ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem addLineItem) {
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
-      return effects()
-              .error("Cannot add negative quantity to item " + addLineItem.getProductId());
+      return effects().error("Cannot add negative quantity to item " + addLineItem.getProductId());
     }
 
     ShoppingCartDomain.LineItem lineItem = updateItem(addLineItem, currentState);
     List<ShoppingCartDomain.LineItem> lineItems =
-            removeItemByProductId(currentState, addLineItem.getProductId());
+        removeItemByProductId(currentState, addLineItem.getProductId());
     lineItems.add(lineItem);
     lineItems.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     return effects()
-            .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build())
-            .thenReply(Empty.getDefaultInstance());
+        .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build())
+        .thenReply(Empty.getDefaultInstance());
   }
-  // end::add-item[]
+
   @Override
   public Effect<Empty> removeItem(
-          ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveLineItem removeLineItem) {
-    Optional<ShoppingCartDomain.LineItem> lineItem =
-            findItemByProductId(currentState, removeLineItem.getProductId());
-
-    if (!lineItem.isPresent()) {
-      return effects()
-              .error(
-                      "Cannot remove item "
-                              + removeLineItem.getProductId()
-                              + " because it is not in the cart.");
-    }
-
-    List<ShoppingCartDomain.LineItem> items =
-            removeItemByProductId(currentState, removeLineItem.getProductId());
-    items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
-    return effects()
-            .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build())
-            .thenReply(Empty.getDefaultInstance());
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveLineItem removeLineItem) {
+    throw new RuntimeException("Boom: " + removeLineItem.getProductId()); // always fail for testing
   }
 
-  // tag::get-cart[]
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
-          ShoppingCartDomain.Cart currentState, ShoppingCartApi.GetShoppingCart getShoppingCart) {
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.GetShoppingCart getShoppingCart) {
     List<ShoppingCartApi.LineItem> allItems =
-            currentState.getItemsList().stream()
-                    .map(this::convert)
-                    .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
-                    .collect(Collectors.toList());
+        currentState.getItemsList().stream()
+            .map(this::convert)
+            .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
+            .collect(Collectors.toList());
     return effects().reply(ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build());
   }
-  // end::get-cart[]
 
   @Override
   public Effect<Empty> removeCart(
-          ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
     return effects().deleteState().thenReply(Empty.getDefaultInstance());
   }
-
 
   private ShoppingCartDomain.LineItem updateItem(
       ShoppingCartApi.AddLineItem item, ShoppingCartDomain.Cart cart) {

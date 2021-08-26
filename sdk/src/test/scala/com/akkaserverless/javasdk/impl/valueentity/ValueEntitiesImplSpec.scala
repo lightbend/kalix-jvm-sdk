@@ -16,22 +16,13 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.EntityId
-import com.akkaserverless.javasdk.reply.MessageReply
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
-import com.akkaserverless.javasdk.valueentity.{CommandContext, CommandHandler, ValueEntity, ValueEntityBase}
+import com.akkaserverless.javasdk.valueentity.CartEntity
+import com.akkaserverless.javasdk.valueentity.CartEntityProvider
 import com.akkaserverless.testkit.TestProtocol
 import com.akkaserverless.testkit.valueentity.ValueEntityMessages
-import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
-import java.util.Optional
-import scala.collection.mutable
-import scala.reflect.ClassTag
-import com.akkaserverless.protocol.component.Failure
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut
+import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import ValueEntitiesImplSpec._
@@ -39,7 +30,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
   import ShoppingCart.Protocol._
   import ValueEntityMessages._
 
-  private val service: TestEntityService = ShoppingCart.testService
+  private val service: TestValueService = ShoppingCart.testService
   private val protocol: TestProtocol = TestProtocol(service.port)
 
   override def afterAll(): Unit = {
@@ -113,26 +104,26 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo"))
-        entity.expect(failure(1, s"No command handler found for command [foo] on ${ShoppingCart.TestCartClass}"))
+        entity.expect(failure(1, s"No command handler found for command [foo] on ${classOf[CartEntity]}"))
         entity.expectClosed()
       }
     }
 
-    "fail action when command handler uses context fail" in {
+    "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for Value entity [cart]: Cannot add negative quantity of item [foo]"
+        "Fail invoked for command [AddItem] for entity [cart]: Cannot add negative quantity to item foo"
       ) {
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-        entity.expect(actionFailure(1, "Cannot add negative quantity of item [foo]"))
-        entity.send(command(2, "cart", "GetCart"))
+        entity.expect(actionFailure(1, "Cannot add negative quantity to item foo"))
+        entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
         entity.expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
 
         entity.passivate()
         val reactivated = protocol.valueEntity.connect()
         reactivated.send(init(ShoppingCart.Name, "cart"))
-        reactivated.send(command(1, "cart", "GetCart"))
+        reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
         reactivated.expect(reply(1, EmptyCart))
         reactivated.passivate()
       }
@@ -146,7 +137,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         entity.expect(
           failure(
             1,
-            "Value entity unexpected failure: java.lang.RuntimeException: Boom: foo"
+            "Unexpected failure: java.lang.RuntimeException: Boom: foo"
           )
         )
         entity.expectClosed()
@@ -156,13 +147,13 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
     "manage entities with expected update commands" in {
       val entity = protocol.valueEntity.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
-      entity.send(command(1, "cart", "GetCart"))
+      entity.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(1, EmptyCart))
       entity.send(command(2, "cart", "AddItem", addItem("abc", "apple", 1)))
       entity.expect(reply(2, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 1)))))
       entity.send(command(3, "cart", "AddItem", addItem("abc", "apple", 2)))
       entity.expect(reply(3, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 3)))))
-      entity.send(command(4, "cart", "GetCart"))
+      entity.send(command(4, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(4, cart(Item("abc", "apple", 3))))
       entity.send(command(5, "cart", "AddItem", addItem("123", "banana", 4)))
       entity.expect(reply(5, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 3), Item("123", "banana", 4)))))
@@ -176,7 +167,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       reactivated.expect(
         reply(1, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 4), Item("123", "banana", 4))))
       )
-      reactivated.send(command(1, "cart", "GetCart"))
+      reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       reactivated.expect(reply(1, cart(Item("abc", "apple", 4), Item("123", "banana", 4))))
       reactivated.passivate()
     }
@@ -184,7 +175,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
     "manage entities with expected delete commands" in {
       val entity = protocol.valueEntity.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
-      entity.send(command(1, "cart", "GetCart"))
+      entity.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(1, EmptyCart))
       entity.send(command(2, "cart", "AddItem", addItem("abc", "apple", 1)))
       entity.expect(reply(2, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 1)))))
@@ -192,7 +183,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       entity.expect(reply(3, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 3)))))
       entity.send(command(4, "cart", "RemoveCart", removeCart("cart")))
       entity.expect(reply(4, EmptyJavaMessage, delete()))
-      entity.send(command(5, "cart", "GetCart"))
+      entity.send(command(5, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(5, EmptyCart))
       entity.passivate()
     }
@@ -207,17 +198,16 @@ object ValueEntitiesImplSpec {
 
     val Name: String = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService").getFullName
 
-    def testService: TestEntityService = service[TestCart]
-
-    def service[T: ClassTag]: TestEntityService =
-      TestEntity.service[T](
-        ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService"),
-        ShoppingCartDomain.getDescriptor
+    def testService: TestValueService =
+      TestValueEntity.service(
+        CartEntityProvider
+          .of(new CartEntity(_))
       )
 
     case class Item(id: String, name: String, quantity: Int)
 
     object Protocol {
+
       import scala.jdk.CollectionConverters._
 
       val EmptyCart: ShoppingCartApi.Cart = ShoppingCartApi.Cart.newBuilder.build
@@ -230,6 +220,9 @@ object ValueEntitiesImplSpec {
 
       def lineItem(id: String, name: String, quantity: Int): ShoppingCartApi.LineItem =
         ShoppingCartApi.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+
+      def getShoppingCart(id: String): ShoppingCartApi.GetShoppingCart =
+        ShoppingCartApi.GetShoppingCart.newBuilder.setCartId(id).build
 
       def addItem(id: String, name: String, quantity: Int): ShoppingCartApi.AddLineItem =
         ShoppingCartApi.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
@@ -248,82 +241,6 @@ object ValueEntitiesImplSpec {
 
       def domainCart(items: Item*): ShoppingCartDomain.Cart =
         ShoppingCartDomain.Cart.newBuilder.addAllItems(domainLineItems(items)).build
-    }
-
-    val TestCartClass: Class[_] = classOf[TestCart]
-
-    @ValueEntity(entityType = "valuebased-entity-shopping-cart")
-    class TestCart(@EntityId val entityId: String) extends ValueEntityBase[ShoppingCartDomain.Cart] {
-      import scala.jdk.CollectionConverters._
-      import scala.jdk.OptionConverters._
-
-      @CommandHandler
-      def getCart(ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[ShoppingCartApi.Cart] =
-        effects().reply(
-          ctx.getState.toScala
-            .map { c =>
-              val items = c.getItemsList.asScala.map(i => Item(i.getProductId, i.getName, i.getQuantity)).toSeq
-              Protocol.cart(items: _*)
-            }
-            .getOrElse(Protocol.EmptyCart)
-        )
-
-      @CommandHandler
-      def addItem(item: ShoppingCartApi.AddLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[Empty] = {
-        // update and then fail on negative quantities, for testing atomicity
-        val cart = updateCart(item, asMap(ctx.getState))
-        val items =
-          cart.values
-            .map(
-              i =>
-                ShoppingCartDomain.LineItem
-                  .newBuilder()
-                  .setProductId(i.id)
-                  .setName(i.name)
-                  .setQuantity(i.quantity)
-                  .build
-            )
-        if (item.getQuantity <= 0) ctx.fail(s"Cannot add negative quantity of item [${item.getProductId}]")
-        effects()
-          .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items.toList.asJava).build())
-          .thenReply(Empty.getDefaultInstance)
-      }
-
-      @CommandHandler
-      def removeItem(item: ShoppingCartApi.RemoveLineItem, ctx: CommandContext[ShoppingCartDomain.Cart]): Empty = {
-        if (true) throw new RuntimeException("Boom: " + item.getProductId) // always fail for testing
-        Empty.getDefaultInstance
-      }
-
-      @CommandHandler
-      def removeCart(item: ShoppingCartApi.RemoveShoppingCart,
-                     ctx: CommandContext[ShoppingCartDomain.Cart]): Effect[Empty] = {
-        effects().deleteState().thenReply(Empty.getDefaultInstance)
-      }
-
-      private def updateCart(item: ShoppingCartApi.AddLineItem,
-                             cart: mutable.Map[String, Item]): mutable.Map[String, Item] = {
-        val currentQuantity = cart.get(item.getProductId).map(_.quantity).getOrElse(0)
-        cart.update(
-          item.getProductId,
-          Item(item.getProductId, item.getName, currentQuantity + item.getQuantity)
-        )
-        cart
-      }
-
-      private def asMap(cart: Optional[ShoppingCartDomain.Cart]): mutable.Map[String, Item] = {
-        val map = cart.toScala match {
-          case Some(c) =>
-            c.getItemsList.asScala
-              .map(i => i.getProductId -> Item(i.getProductId, i.getName, i.getQuantity))
-              .toMap
-          case None => Map.empty
-        }
-
-        mutable.Map(map.toSeq: _*)
-      }
-
-      override protected def emptyState(): ShoppingCartDomain.Cart = ShoppingCartDomain.Cart.getDefaultInstance
     }
   }
 }

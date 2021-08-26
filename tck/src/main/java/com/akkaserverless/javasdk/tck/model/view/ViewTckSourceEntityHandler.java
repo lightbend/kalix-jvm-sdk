@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 
-/**
- * Low level interface for handling commands on a value based entity.
- *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
- * be used.
- */
-public interface ValueEntityFactory {
-  /**
-   * Create an entity handler for the given context.
-   *
-   * @param context The context.
-   * @return The handler for the given context.
-   */
-  ValueEntityHandler<?, ?> create(ValueEntityContext context);
+/** A value entity handler */
+public class ViewTckSourceEntityHandler extends ValueEntityHandler<String, ViewTckSourceEntity> {
+
+  public ViewTckSourceEntityHandler(ViewTckSourceEntity entity) {
+    super(entity);
+  }
+
+  @Override
+  public ValueEntityBase.Effect<?> handleCommand(
+      String commandName, String state, Object command, CommandContext context) {
+    switch (commandName) {
+      default:
+        throw new CommandHandlerNotFound(commandName);
+    }
+  }
 }

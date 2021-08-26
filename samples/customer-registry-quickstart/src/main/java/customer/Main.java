@@ -33,7 +33,7 @@ public final class Main {
         // This registerAll wrapper automatically registers any generated Actions, Views or Entities,
         // and is kept up-to-date with any changes in your protobuf definitions.
         // If you prefer, you may remove this wrapper and manually register these components.
-        registerAll(new AkkaServerless(), ctx -> new Customer(ctx.entityId()));
+        registerAll(new AkkaServerless(), Customer::new);
     
     public static void main(String[] args) throws Exception {
         LOG.info("starting the Akka Serverless service");

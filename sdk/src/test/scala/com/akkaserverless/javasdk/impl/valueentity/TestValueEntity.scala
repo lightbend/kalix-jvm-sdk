@@ -18,17 +18,18 @@ package com.akkaserverless.javasdk.impl.valueentity
 
 import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
-import com.akkaserverless.javasdk.{AkkaServerless, AkkaServerlessRunner}
-import com.google.protobuf.Descriptors.{FileDescriptor, ServiceDescriptor}
-import com.typesafe.config.{Config, ConfigFactory}
-import scala.reflect.ClassTag
+import com.akkaserverless.javasdk.AkkaServerless
+import com.akkaserverless.javasdk.AkkaServerlessRunner
+import com.akkaserverless.javasdk.valueentity.ValueEntityProvider
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
-object TestEntity {
-  def service[T: ClassTag](descriptor: ServiceDescriptor, fileDescriptors: FileDescriptor*): TestEntityService =
-    new TestEntityService(implicitly[ClassTag[T]].runtimeClass, descriptor, fileDescriptors)
+object TestValueEntity {
+  def service(entityProvider: ValueEntityProvider[_, _]): TestValueService =
+    new TestValueService(entityProvider)
 }
 
-class TestEntityService(entityClass: Class[_], descriptor: ServiceDescriptor, fileDescriptors: Seq[FileDescriptor]) {
+class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
@@ -43,7 +44,7 @@ class TestEntityService(entityClass: Class[_], descriptor: ServiceDescriptor, fi
   """))
 
   val runner: AkkaServerlessRunner = new AkkaServerless()
-    .registerValueEntity(entityClass, descriptor, fileDescriptors: _*)
+    .register(entityProvider)
     .createRunner(config)
 
   runner.run()

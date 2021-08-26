@@ -16,19 +16,16 @@
 
 package customer.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-@ValueEntity(entityType = "customers")
 public class Customer extends AbstractCustomer {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public Customer(@EntityId String entityId) {
-    this.entityId = entityId;
+  public Customer(ValueEntityContext context) {
+    this.entityId = context.entityId();
   }
 
   @Override

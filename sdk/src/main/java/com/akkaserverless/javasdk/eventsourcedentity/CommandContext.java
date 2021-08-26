@@ -20,13 +20,7 @@ import com.akkaserverless.javasdk.ClientActionContext;
 import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
-/**
- * An event sourced command context.
- *
- * <p>Methods annotated with {@link CommandHandler} may take this is a parameter. It allows emitting
- * new events in response to a command, along with forwarding the result to other entities, and
- * performing side effects on other entities.
- */
+/** An event sourced command context. */
 public interface CommandContext
     extends EventSourcedContext, ClientActionContext, SideEffectContext, MetadataContext {
   /**

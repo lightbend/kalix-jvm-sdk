@@ -30,7 +30,7 @@ import java.util.Optional;
 /** @param <S> The type of the state for this entity. */
 public abstract class ValueEntityBase<S> {
 
-  private Optional<CommandContext<S>> commandContext = Optional.empty();
+  private Optional<CommandContext> commandContext = Optional.empty();
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -40,21 +40,21 @@ public abstract class ValueEntityBase<S> {
    *
    * <p><code>null</code> is an allowed value.
    */
-  protected abstract S emptyState();
+  public abstract S emptyState();
 
   /**
    * Additional context and meta data for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected CommandContext<S> commandContext() {
+  protected CommandContext commandContext() {
     return commandContext.orElseThrow(
         () ->
             new IllegalStateException("CommandContext is only available when handling a command."));
   }
 
   /** INTERNAL API */
-  public final void setCommandContext(Optional<CommandContext<S>> context) {
+  public final void setCommandContext(Optional<CommandContext> context) {
     commandContext = context;
   }
 

@@ -98,7 +98,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |/** A value entity. */
          |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
          |
+         |  /** Command handler for "Set". */
          |  public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
+         |
+         |  /** Command handler for "Get". */
          |  public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
          |
          |}""".stripMargin
@@ -122,81 +125,36 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | */
          |package com.example.service;
          |
-         |import com.akkaserverless.javasdk.impl.AnySupport;
-         |import com.akkaserverless.javasdk.impl.EntityExceptions;
-         |import com.akkaserverless.javasdk.impl.valueentity.AdaptedCommandContextWithState;
-         |import com.akkaserverless.javasdk.lowlevel.ValueEntityHandler;
+         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
          |import com.akkaserverless.javasdk.valueentity.CommandContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
-         |import com.google.protobuf.Any;
-         |import com.google.protobuf.Descriptors;
-         |import com.google.protobuf.GeneratedMessageV3;
-         |import java.util.Optional;
-         |import scalapb.UnknownFieldSet;
          |
-         |/** A value entity handler */
-         |public class MyServiceHandler implements ValueEntityHandler {
+         |/**
+         | * A value entity handler that is the glue between the Protobuf service <code>MyService</code>
+         | * and the command handler methods in the <code>MyValueEntity</code> class.
+         | */
+         |public class MyServiceHandler extends ValueEntityHandler<EntityOuterClass.MyState, MyValueEntity> {
          |
-         |  public static final Descriptors.ServiceDescriptor serviceDescriptor =
-         |      ServiceOuterClass.getDescriptor().findServiceByName("MyService");
-         |  public static final String entityType = "MyValueEntity";
-         |
-         |  private final MyService entity;
-         |  
-         |  public MyServiceHandler(MyService entity) {
-         |    this.entity = entity;
+         |  public MyServiceHandler(MyValueEntity entity) {
+         |    super(entity);
          |  }
          |
          |  @Override
-         |  public ValueEntityBase.Effect<? extends GeneratedMessageV3> handleCommand(
-         |      Any command, Any state, CommandContext<Any> context) throws Throwable {
-         |      
-         |    EntityOuterClass.MyState parsedState =
-         |      EntityOuterClass.MyState.parseFrom(state.getValue());
+         |  public ValueEntityBase.Effect<?> handleCommand(
+         |      String commandName, EntityOuterClass.MyState state, Object command, CommandContext context) {
+         |    switch (commandName) {
          |
-         |    CommandContext<EntityOuterClass.MyState> adaptedContext =
-         |        new AdaptedCommandContextWithState(context, parsedState);
+         |      case "Set":
+         |        return entity().set(state, (ServiceOuterClass.SetValue) command);
          |
-         |    entity.setCommandContext(Optional.of(adaptedContext));
-         |    
-         |    try {
-         |      switch (context.commandName()) {
+         |      case "Get":
+         |        return entity().get(state, (ServiceOuterClass.GetValue) command);
          |
-         |        case "Set":
-         |          return entity.set(
-         |              parsedState,
-         |              ServiceOuterClass.SetValue.parseFrom(command.getValue()));
-         |
-         |        case "Get":
-         |          return entity.get(
-         |              parsedState,
-         |              ServiceOuterClass.GetValue.parseFrom(command.getValue()));
-         |
-         |        default:
-         |          throw new EntityExceptions.EntityException(
-         |              context.entityId(),
-         |              context.commandId(),
-         |              context.commandName(),
-         |              "No command handler found for command ["
-         |                  + context.commandName()
-         |                  + "] on "
-         |                  + entity.getClass());
-         |      }
-         |    } finally {
-         |      entity.setCommandContext(Optional.empty());
+         |      default:
+         |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
          |    }
-         |  }
-         |  
-         |  @Override
-         |  public com.google.protobuf.any.Any emptyState() {
-         |    return com.google.protobuf.any.Any.apply(
-         |        AnySupport.DefaultTypeUrlPrefix()
-         |          + "/"
-         |          + EntityOuterClass.MyState.getDescriptor().getFullName(),
-         |        entity.emptyState().toByteString(),
-         |        UnknownFieldSet.empty());
          |  }
          |}""".stripMargin
     )
@@ -235,8 +193,13 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.google.protobuf.Descriptors;
          |import java.util.function.Function;
          |
-         |/** A value entity provider */
-         |public class MyServiceProvider implements ValueEntityProvider {
+         |/**
+         | * A value entity provider that defines how to register and create the entity for
+         | * the Protobuf service <code>MyService</code>.
+         | *
+         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+         | */
+         |public class MyServiceProvider implements ValueEntityProvider<EntityOuterClass.MyState, MyService> {
          |
          |  private final Function<ValueEntityContext, MyService> entityFactory;
          |  private final ValueEntityOptions options;

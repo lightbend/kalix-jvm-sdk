@@ -295,15 +295,6 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
         ex.getMessage should include("not allowed")
       }
 
-      "fail if there's a value entity command handler" in {
-        val ex = the[RuntimeException] thrownBy create(new {
-            @com.akkaserverless.javasdk.valueentity.CommandHandler
-            def processAdded(msg: String) =
-              State(msg)
-          }, method())
-        ex.getMessage should include("not allowed")
-      }
-
     }
 
   }

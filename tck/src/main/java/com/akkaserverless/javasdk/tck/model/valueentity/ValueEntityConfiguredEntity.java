@@ -16,22 +16,21 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.ValueEntity.Request;
 import com.akkaserverless.tck.model.ValueEntity.Response;
 
-@ValueEntity(entityType = "value-entity-configured")
 public class ValueEntityConfiguredEntity extends ValueEntityBase<String> {
 
-  @CommandHandler
-  public Effect<Response> call(Request request) {
+  public ValueEntityConfiguredEntity(ValueEntityContext context) {}
+
+  public Effect<Response> call(String state, Request request) {
     return effects().reply(Response.getDefaultInstance());
   }
 
   @Override
-  protected String emptyState() {
+  public String emptyState() {
     return null;
   }
 }

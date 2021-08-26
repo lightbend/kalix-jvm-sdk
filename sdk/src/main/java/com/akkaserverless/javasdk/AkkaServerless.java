@@ -26,14 +26,12 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
-import com.akkaserverless.javasdk.impl.ResolvedEntityFactory;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
 import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
-import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
@@ -41,7 +39,7 @@ import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.View;
@@ -186,7 +184,8 @@ public final class AkkaServerless {
       services.put(
           descriptor.getFullName(),
           system ->
-              new ValueEntityService(factory, descriptor, anySupport, entityType, entityOptions));
+              new ValueEntityService(
+                  resolvedFactory, descriptor, anySupport, entityType, entityOptions));
 
       return AkkaServerless.this;
     }
@@ -360,71 +359,6 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated value based entity.
-   *
-   * <p>The entity class must be annotated with {@link ValueEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerValueEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerValueEntity(
-        entityClass, descriptor, ValueEntityOptions.defaults(), additionalDescriptors);
-  }
-
-  /**
-   * Register an annotated value based entity.
-   *
-   * <p>The entity class must be annotated with {@link ValueEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerValueEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      ValueEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    ValueEntity entity = entityClass.getAnnotation(ValueEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass + " does not declare an " + ValueEntity.class.getName() + " annotation!");
-    }
-
-    final String entityType;
-    if (entity.entityType().isEmpty()) {
-      entityType = entityClass.getSimpleName();
-    } else {
-      entityType = entity.entityType();
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ValueEntityService service =
-        new ValueEntityService(
-            new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityType,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
    * Register a value based entity using a {{@link ValueEntityProvider}}. The concrete <code>
    * ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for
    * example <code>CustomerEntityProvider</code>.
@@ -433,7 +367,8 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public AkkaServerless register(ValueEntityProvider provider) {
+  public <S, E extends ValueEntityBase<S>> AkkaServerless register(
+      ValueEntityProvider<S, E> provider) {
     return lowLevel()
         .registerValueEntity(
             provider::newHandler,

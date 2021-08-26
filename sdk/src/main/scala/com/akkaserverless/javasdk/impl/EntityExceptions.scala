@@ -44,10 +44,10 @@ object EntityExceptions {
     def apply(command: Command, message: String, cause: Option[Throwable]): EntityException =
       EntityException(command.entityId, command.id, command.name, message, cause)
 
-    def apply(context: valueentity.CommandContext[_], message: String): EntityException =
+    def apply(context: valueentity.CommandContext, message: String): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, None)
 
-    def apply(context: valueentity.CommandContext[_], message: String, cause: Option[Throwable]): EntityException =
+    def apply(context: valueentity.CommandContext, message: String, cause: Option[Throwable]): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, cause)
 
     def apply(context: eventsourcedentity.CommandContext, message: String): EntityException =

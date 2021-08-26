@@ -73,7 +73,8 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
     }
 
   override final val componentType = EventSourcedEntities.name
-  final def withSnapshotEvery(snapshotEvery: Int): EventSourcedEntityService =
+
+  def withSnapshotEvery(snapshotEvery: Int): EventSourcedEntityService =
     if (snapshotEvery != this.snapshotEvery)
       new EventSourcedEntityService(this.factory,
                                     this.descriptor,
@@ -87,14 +88,13 @@ final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class EventSourcedEntitiesImpl(_system: ActorSystem,
+final class EventSourcedEntitiesImpl(system: ActorSystem,
                                      _services: Map[String, EventSourcedEntityService],
                                      rootContext: Context,
                                      configuration: Configuration)
     extends EventSourcedEntities {
   import EntityExceptions._
 
-  private final val system = _system
   private val log = Logging(system.eventStream, this.getClass)
   private final val services = _services.iterator.map {
     case (name, service) =>
@@ -258,18 +258,18 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       }
   }
 
-  trait AbstractContext extends EventSourcedContext {
+  private trait AbstractContext extends EventSourcedContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  class CommandContextImpl(override val entityId: String,
-                           override val sequenceNumber: Long,
-                           override val commandName: String,
-                           override val commandId: Long,
-                           override val metadata: Metadata,
-                           val anySupport: AnySupport,
-                           val snapshotEvery: Int,
-                           val log: LoggingAdapter)
+  private class CommandContextImpl(override val entityId: String,
+                                   override val sequenceNumber: Long,
+                                   override val commandName: String,
+                                   override val commandId: Long,
+                                   override val metadata: Metadata,
+                                   val anySupport: AnySupport,
+                                   val snapshotEvery: Int,
+                                   val log: LoggingAdapter)
       extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
@@ -282,8 +282,10 @@ final class EventSourcedEntitiesImpl(_system: ActorSystem,
       log.error("Fail invoked for command [{}] for entity [{}]: {}", commandName, entityId, message)
   }
 
-  class EventSourcedContextImpl(override final val entityId: String) extends EventSourcedContext with AbstractContext
-  class EventContextImpl(entityId: String, override final val sequenceNumber: Long)
+  private class EventSourcedContextImpl(override final val entityId: String)
+      extends EventSourcedContext
+      with AbstractContext
+  private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
       extends EventSourcedContextImpl(entityId)
       with EventContext
 }

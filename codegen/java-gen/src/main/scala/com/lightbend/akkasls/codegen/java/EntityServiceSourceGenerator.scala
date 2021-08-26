@@ -202,7 +202,10 @@ object EntityServiceSourceGenerator {
         |
         |$imports
         |
-        |/** An event sourced entity handler */
+        |/**
+        | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
+        | * and the command and event handler methods in the <code>${entity.fqn.name}</code> class.
+        | */
         |public class ${className}Handler extends EventSourcedEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
         |
         |  public ${className}Handler(${entity.fqn.name} entity) {
@@ -261,7 +264,12 @@ object EntityServiceSourceGenerator {
         |
         |$imports
         |
-        |/** An event sourced entity provider */
+        |/**
+        | * An event sourced entity provider that defines how to register and create the entity for
+        | * the Protobuf service <code>${service.fqn.name}</code>.
+        | *
+        | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+        | */
         |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state
          .map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}")
          .getOrElse(
@@ -505,6 +513,8 @@ object EntityServiceSourceGenerator {
               service.commands.toSeq
                 .map { command =>
                   abstractMethod(
+                    s"""/** Command handler for "${command.fqn.name}". */""" <>
+                    line <>
                     "public",
                     "Effect" <> angles(qualifiedType(command.outputType)),
                     lowerFirst(command.fqn.name),
@@ -522,6 +532,8 @@ object EntityServiceSourceGenerator {
             ssep(
               entity.events.toSeq
                 .map { event =>
+                  s"""/** Event handler for "${event.fqn.name}". */""" <>
+                  line <>
                   abstractMethod(
                     "public",
                     qualifiedType(state.fqn),
