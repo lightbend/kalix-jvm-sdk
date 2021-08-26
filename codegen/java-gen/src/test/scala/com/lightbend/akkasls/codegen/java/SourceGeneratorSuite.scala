@@ -322,7 +322,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |  private static final Logger LOG = LoggerFactory.getLogger(SomeMain.class);
          |
          |  public static final AkkaServerless SERVICE =
-         |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
+         |    // This registerAll wrapper automatically registers any generated Actions, Views or Entities,
          |    // and is kept up-to-date with any changes in your protobuf definitions.
          |    // If you prefer, you may remove this wrapper and manually register these components.
          |    registerAll(new AkkaServerless(),
