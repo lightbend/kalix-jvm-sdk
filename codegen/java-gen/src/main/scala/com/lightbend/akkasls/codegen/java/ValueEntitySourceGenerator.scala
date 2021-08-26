@@ -114,11 +114,15 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler implements ValueEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |public class ${className}Handler extends ValueEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |
+        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |    super(entity);
+        |  }
         |
         |  @Override
         |  public ValueEntityBase.Effect<?> handleCommand(
-        |      String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
+        |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
         |      ${Syntax.indent(commandCases, 6)}
@@ -169,7 +173,7 @@ object ValueEntitySourceGenerator {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements ValueEntityProvider {
+        |public class ${className}Provider implements ValueEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, ${className}> {
         |
         |  private final Function<ValueEntityContext, ${className}> entityFactory;
         |  private final ValueEntityOptions options;

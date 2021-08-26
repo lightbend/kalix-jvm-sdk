@@ -15,11 +15,7 @@
  */
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
@@ -32,7 +28,6 @@ import java.util.stream.Collectors;
 /**
  * A value entity.
  */
-@ValueEntity(entityType = "shopping-cart")
 public class ShoppingCart extends AbstractShoppingCart {
   @SuppressWarnings("unused")
   private final String entityId;

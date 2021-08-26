@@ -135,11 +135,15 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | * A value entity handler that is the glue between the Protobuf service <code>MyService</code>
          | * and the command handler methods in the <code>MyValueEntity</code> class.
          | */
-         |public class MyServiceHandler implements ValueEntityHandler<EntityOuterClass.MyState, MyValueEntity> {
+         |public class MyServiceHandler extends ValueEntityHandler<EntityOuterClass.MyState, MyValueEntity> {
+         |
+         |  public MyServiceHandler(MyValueEntity entity) {
+         |    super(entity);
+         |  }
          |
          |  @Override
          |  public ValueEntityBase.Effect<?> handleCommand(
-         |      String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
+         |      String commandName, EntityOuterClass.MyState state, Object command, CommandContext context) {
          |    switch (commandName) {
          |
          |      case "Set":
@@ -195,7 +199,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | *
          | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
          | */
-         |public class MyServiceProvider implements ValueEntityProvider {
+         |public class MyServiceProvider implements ValueEntityProvider<EntityOuterClass.MyState, MyService> {
          |
          |  private final Function<ValueEntityContext, MyService> entityFactory;
          |  private final ValueEntityOptions options;

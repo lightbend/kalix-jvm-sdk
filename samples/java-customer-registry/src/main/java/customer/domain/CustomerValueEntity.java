@@ -38,6 +38,7 @@ public class CustomerValueEntity extends AbstractCustomerValueEntity {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
+  @Override
   public Effect<Empty> changeAddress(
       CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
     CustomerDomain.CustomerState updatedState =
@@ -85,7 +86,8 @@ public class CustomerValueEntity extends AbstractCustomerValueEntity {
         .build();
   }
 
-  protected CustomerDomain.CustomerState emptyState() {
+  @Override
+  public CustomerDomain.CustomerState emptyState() {
     return CustomerDomain.CustomerState.getDefaultInstance();
   }
 }

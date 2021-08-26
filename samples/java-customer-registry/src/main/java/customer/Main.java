@@ -17,18 +17,18 @@ public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  public static final AkkaServerless SERVICE =
+      // tag::register[]
+      new AkkaServerless()
+          .registerView(
+              CustomerViewModel.getDescriptor().findServiceByName("CustomerByName"),
+              "customerByName",
+              CustomerDomain.getDescriptor())
+          // end::register[]
+          .register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
+
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");
-    // tag::register[]
-    new AkkaServerless()
-        .registerView(
-            CustomerViewModel.getDescriptor().findServiceByName("CustomerByName"),
-            "customerByName",
-            CustomerDomain.getDescriptor())
-        // end::register[]
-        .register(CustomerValueEntityProvider.of(CustomerValueEntity::new))
-        .start()
-        .toCompletableFuture()
-        .get();
+    SERVICE.start().toCompletableFuture().get();
   }
 }
