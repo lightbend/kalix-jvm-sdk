@@ -20,9 +20,9 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register a value based entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a
- * <code>ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for
- * the specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
+ * Register a value based entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a <code>
+ * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the
+ * specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
  */
 public interface ValueEntityProvider<S, E extends ValueEntityBase<S>> {
 
