@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // tag::declarations[]
-
 syntax = "proto3";
 
 package customer.api;
@@ -24,9 +23,7 @@ import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
 // end::declarations[]
-
 // tag::messages[]
-
 message Customer {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
   string email = 2;
@@ -40,9 +37,7 @@ message Address {
 }
 
 // end::messages[]
-
 // tag::method-messages[]
-
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
 }
@@ -58,10 +53,7 @@ message ChangeAddressRequest {
 }
 
 // end::method-messages[]
-
-
 // tag::service[]
-
 service CustomerService {
   option (akkaserverless.service) = {
     type: SERVICE_TYPE_ENTITY

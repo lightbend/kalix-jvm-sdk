@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // tag::declarations[]
-
 syntax = "proto3";
 
 package customer.domain;
@@ -23,9 +22,7 @@ option java_outer_classname = "CustomerDomain";
 import "akkaserverless/annotations.proto";
 
 // end::declarations[]
-
 // tag::entity[]
-
 option (akkaserverless.file).value_entity = {
   name: "Customer"
   entity_type: "customers"
@@ -33,9 +30,7 @@ option (akkaserverless.file).value_entity = {
 };
 
 // end::entity[]
-
 // tag::domain[]
-
 message CustomerState {
   string customer_id = 1;
   string email = 2;
@@ -47,5 +42,4 @@ message Address {
   string street = 1;
   string city = 2;
 }
-
 // end::domain[]
