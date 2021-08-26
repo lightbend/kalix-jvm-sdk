@@ -16,25 +16,26 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
-import com.google.protobuf.Empty;
 
-public class ValueEntityOne extends ValueEntityBase<Object> {
-  public ValueEntityOne(ValueEntityContext context) {}
+/** A value entity handler */
+public class ValueEntityOneHandler extends ValueEntityHandler<Object, ValueEntityOne> {
 
-  public Effect<Empty> updateValue(
-      Object state, LocalPersistenceEventing.UpdateValueRequest value) {
-    if (value.hasValueOne()) {
-      return effects().updateState(value.getValueOne()).thenReply(Empty.getDefaultInstance());
-    } else {
-      return effects().updateState(value.getValueTwo()).thenReply(Empty.getDefaultInstance());
-    }
+  public ValueEntityOneHandler(ValueEntityOne entity) {
+    super(entity);
   }
 
   @Override
-  public Object emptyState() {
-    return null;
+  public ValueEntityBase.Effect<?> handleCommand(
+      String commandName, Object state, Object command, CommandContext context) {
+    switch (commandName) {
+      case "UpdateValue":
+        return entity().updateValue(state, (LocalPersistenceEventing.UpdateValueRequest) command);
+      default:
+        throw new CommandHandlerNotFound(commandName);
+    }
   }
 }

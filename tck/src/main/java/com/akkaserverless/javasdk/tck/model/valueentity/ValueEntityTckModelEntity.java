@@ -16,26 +16,22 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.*;
-import com.akkaserverless.javasdk.reply.MessageReply;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
 import com.akkaserverless.tck.model.ValueEntity.Persisted;
 import com.akkaserverless.tck.model.ValueEntity.Request;
-import com.akkaserverless.tck.model.ValueEntity.Response;
 import com.akkaserverless.tck.model.ValueEntity.RequestAction;
+import com.akkaserverless.tck.model.ValueEntity.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ValueEntity(entityType = "value-entity-tck-model")
 public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
 
   private final ServiceCallRef<Request> serviceTwoCall;
-
-  private String state = "";
 
   public ValueEntityTckModelEntity(Context context) {
     serviceTwoCall =
@@ -44,20 +40,20 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
             .lookup("akkaserverless.tck.model.valueentity.ValueEntityTwo", "Call", Request.class);
   }
 
-  @CommandHandler
-  public Effect<Response> process(Request request, CommandContext<Persisted> context) {
+  public Effect<Response> process(Persisted state, Request request) {
     // FIXME the effect API doesn't support all combinations, and that might be fine?
+    String value = state.getValue();
     Effect.OnSuccessBuilder<Persisted> builder = null;
     Effect<Response> result = null;
     List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
-          state = action.getUpdate().getValue();
-          builder = effects().updateState(Persisted.newBuilder().setValue(state).build());
+          value = action.getUpdate().getValue();
+          builder = effects().updateState(Persisted.newBuilder().setValue(value).build());
           break;
         case DELETE:
-          state = "";
+          value = "";
           builder = effects().deleteState();
           break;
         case FORWARD:
@@ -77,10 +73,10 @@ public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
       }
     }
     if (builder == null && result == null) {
-      return effects().reply(Response.newBuilder().setMessage(state).build()).addSideEffects(e);
+      return effects().reply(Response.newBuilder().setMessage(value).build()).addSideEffects(e);
     }
     if (result == null) {
-      return builder.thenReply(Response.newBuilder().setMessage(state).build()).addSideEffects(e);
+      return builder.thenReply(Response.newBuilder().setMessage(value).build()).addSideEffects(e);
     } else {
       return result.addSideEffects(e);
     }

@@ -20,7 +20,12 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntityProvider;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntityProvider;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntityProvider;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
+import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity;
+import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntityProvider;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
@@ -55,18 +60,14 @@ public final class JavaSdkTck {
               ActionTwoBehavior.class,
               Action.getDescriptor().findServiceByName("ActionTwo"),
               Action.getDescriptor())
-          .registerValueEntity(
-              ValueEntityTckModelEntity.class,
-              ValueEntity.getDescriptor().findServiceByName("ValueEntityTckModel"),
-              ValueEntity.getDescriptor())
-          .registerValueEntity(
-              ValueEntityTwoEntity.class,
-              ValueEntity.getDescriptor().findServiceByName("ValueEntityTwo"))
-          .registerValueEntity(
-              ValueEntityConfiguredEntity.class,
-              ValueEntity.getDescriptor().findServiceByName("ValueEntityConfigured"),
-              ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100))))
+          .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
+          .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
+          .register(
+              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new)
+                  .withOptions(
+                      ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
+                          .withPassivationStrategy(
+                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
           .registerReplicatedEntity(
               TckModelReplicatedEntity.class,
               ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityTckModel"),
@@ -119,22 +120,22 @@ public final class JavaSdkTck {
                   com.akkaserverless.javasdk.tck.model.localpersistenceeventing
                           .EventSourcedEntityTwo
                       ::new))
-          .registerValueEntity(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne.class,
-              LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityOne"),
-              LocalPersistenceEventing.getDescriptor())
-          .registerValueEntity(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo.class,
-              LocalPersistenceEventing.getDescriptor().findServiceByName("ValueEntityTwo"),
-              LocalPersistenceEventing.getDescriptor())
+          .register(
+              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOneProvider
+                  .of(
+                      com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne
+                          ::new))
+          .register(
+              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwoProvider
+                  .of(
+                      com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo
+                          ::new))
           .registerView(
               com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior.class,
               View.getDescriptor().findServiceByName("ViewTckModel"),
               "tck-view",
               View.getDescriptor())
-          .registerValueEntity(
-              com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity.class,
-              View.getDescriptor().findServiceByName("ViewTckSource"));
+          .register(ViewTckSourceEntityProvider.of(ViewTckSourceEntity::new));
 
   public static void main(String[] args) throws Exception {
     SERVICE.start().toCompletableFuture().get();

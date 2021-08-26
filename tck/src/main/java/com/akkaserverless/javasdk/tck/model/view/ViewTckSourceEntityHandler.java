@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.valueentity;
+package com.akkaserverless.javasdk.tck.model.view;
 
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.tck.model.ValueEntity.Request;
-import com.akkaserverless.tck.model.ValueEntity.Response;
 
-public class ValueEntityTwoEntity extends ValueEntityBase<String> {
+/** A value entity handler */
+public class ViewTckSourceEntityHandler extends ValueEntityHandler<String, ViewTckSourceEntity> {
 
-  public ValueEntityTwoEntity(ValueEntityContext context) {}
-
-  public Effect<Response> call(String state, Request request) {
-    return effects().reply(Response.getDefaultInstance());
+  public ViewTckSourceEntityHandler(ViewTckSourceEntity entity) {
+    super(entity);
   }
 
   @Override
-  public String emptyState() {
-    return null;
+  public ValueEntityBase.Effect<?> handleCommand(
+      String commandName, String state, Object command, CommandContext context) {
+    switch (commandName) {
+      default:
+        throw new CommandHandlerNotFound(commandName);
+    }
   }
 }
