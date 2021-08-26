@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // tag::declarations[]
-
 syntax = "proto3";
 
 package customer.view;
@@ -24,9 +23,7 @@ import "customer/customer_domain.proto";
 import "akkaserverless/annotations.proto";
 
 // end::declarations[]
-
 // tag::name[]
-
 service CustomerByName {
   option (akkaserverless.service) = {
     type: SERVICE_TYPE_VIEW
@@ -53,8 +50,6 @@ message ByNameRequest {
 }
 
 // end::name[]
-
-
 // tag::email[]
 service CustomerByEmail {
   option (akkaserverless.service) = {
