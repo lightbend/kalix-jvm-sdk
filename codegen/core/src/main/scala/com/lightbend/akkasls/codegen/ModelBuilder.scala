@@ -48,7 +48,7 @@ object ModelBuilder {
   case class EventSourcedEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
-      state: Option[State],
+      state: State,
       events: Iterable[Event]
   ) extends Entity(fqn, entityType)
 
@@ -258,9 +258,7 @@ object ModelBuilder {
       EventSourcedEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
-        Option(rawEntity.getState)
-          .filter(_.nonEmpty)
-          .map(name => State(FullyQualifiedName(name, protoReference))),
+        State(FullyQualifiedName(rawEntity.getState, protoReference)),
         rawEntity.getEventsList.asScala
           .map(event => Event(FullyQualifiedName(event, protoReference)))
       )

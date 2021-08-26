@@ -18,8 +18,6 @@ package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Syntax
-import com.lightbend.akkasls.codegen.Syntax._
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
 object ValueEntitySourceGenerator {
   import SourceGenerator._
@@ -34,7 +32,7 @@ object ValueEntitySourceGenerator {
 
     val imports = generateImports(
       service.commands,
-      Some(entity.state),
+      entity.state,
       packageName,
       otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext")
     )
@@ -60,11 +58,11 @@ object ValueEntitySourceGenerator {
         |$imports
         |
         |/** A value entity. */
-        |public class $className extends Abstract${className} {
+        |public class $className extends Abstract$className {
         |  @SuppressWarnings("unused")
         |  private final String entityId;
         |
-        |  public ${className}(ValueEntityContext context) {
+        |  public $className(ValueEntityContext context) {
         |    this.entityId = context.entityId();
         |  }
         |
@@ -84,7 +82,7 @@ object ValueEntitySourceGenerator {
 
     val imports = generateImports(
       service.commands,
-      Some(entity.state),
+      entity.state,
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
@@ -173,18 +171,18 @@ object ValueEntitySourceGenerator {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements ValueEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, ${className}> {
+        |public class ${className}Provider implements ValueEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, $className> {
         |
-        |  private final Function<ValueEntityContext, ${className}> entityFactory;
+        |  private final Function<ValueEntityContext, $className> entityFactory;
         |  private final ValueEntityOptions options;
         |
         |  /** Factory method of ${className}Provider */
-        |  public static ${className}Provider of(Function<ValueEntityContext, ${className}> entityFactory) {
+        |  public static ${className}Provider of(Function<ValueEntityContext, $className> entityFactory) {
         |    return new ${className}Provider(entityFactory, ValueEntityOptions.defaults());
         |  }
         | 
         |  private ${className}Provider(
-        |      Function<ValueEntityContext, ${className}> entityFactory,
+        |      Function<ValueEntityContext, $className> entityFactory,
         |      ValueEntityOptions options) {
         |    this.entityFactory = entityFactory;
         |    this.options = options;
@@ -236,7 +234,7 @@ object ValueEntitySourceGenerator {
 
     val imports = generateImports(
       service.commands,
-      Some(entity.state),
+      entity.state,
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntity"
@@ -264,7 +262,7 @@ object ValueEntitySourceGenerator {
         |$imports
         |
         |/** A value entity. */
-        |public abstract class Abstract${className} extends ValueEntity<$outerClassAndState> {
+        |public abstract class Abstract$className extends ValueEntity<$outerClassAndState> {
         |
         |  ${Syntax.indent(methods, 2)}
         |

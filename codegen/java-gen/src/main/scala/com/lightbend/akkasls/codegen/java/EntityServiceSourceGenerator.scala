@@ -70,23 +70,23 @@ object EntityServiceSourceGenerator {
     )
 
     val handlerClassName = className + "Handler"
-    val handlerSourcePath = handlerSource(service, entity, packageName, className).map { doc =>
+    val handlerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
       path.getParent.toFile.mkdirs()
       Files.write(
         path,
-        doc.getBytes(Charsets.UTF_8)
+        handlerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
       )
       path
     }
 
     val providerClassName = className + "Provider"
-    val providerSourcePath = providerSource(service, entity, packageName, className).map { src =>
+    val providerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
       path.getParent.toFile.mkdirs()
       Files.write(
         path,
-        src.getBytes(Charsets.UTF_8)
+        providerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
       )
       path
     }
@@ -135,9 +135,9 @@ object EntityServiceSourceGenerator {
         ).getBytes(Charsets.UTF_8)
       )
 
-      List(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles ++ providerSourcePath.toList ++ handlerSourcePath.toList
+      Vector(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles :+ providerSourcePath :+ handlerSourcePath
     } else {
-      List(interfaceSourcePath) ++ providerSourcePath.toList ++ handlerSourcePath.toList
+      Vector(interfaceSourcePath) :+ providerSourcePath :+ handlerSourcePath
     }
   }
 
@@ -151,7 +151,7 @@ object EntityServiceSourceGenerator {
   ): String = {
     entity match {
       case eventSourcedEntity: EventSourcedEntity =>
-        eventSourcedEntitySource(service, eventSourcedEntity, packageName, className, interfaceClassName, entityType)
+        eventSourcedEntitySource(service, eventSourcedEntity, packageName, className, interfaceClassName)
       case valueEntity: ValueEntity =>
         ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className)
     }
@@ -174,9 +174,7 @@ object EntityServiceSourceGenerator {
     )
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    // FIXME why do we support None state?
-    val outerClassAndState =
-      entity.state.map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}").getOrElse("Object")
+    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
 
     val eventCases = {
       if (entity.events.isEmpty)
@@ -242,10 +240,9 @@ object EntityServiceSourceGenerator {
                                                   packageName: String,
                                                   className: String): String = {
     val relevantTypes = {
-      entity.state.map(_.fqn).toList ++
       service.commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
-      }
+      }.toSeq :+ entity.state.fqn
     }
 
     val imports = generateImports(
@@ -275,22 +272,18 @@ object EntityServiceSourceGenerator {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state
-         .map(s => s"${entity.fqn.parent.javaOuterClassname}.${s.fqn.name}")
-         .getOrElse(
-           "Object"
-         )}, ${className}> {
+        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, $className> {
         |
-        |  private final Function<EventSourcedContext, ${className}> entityFactory;
+        |  private final Function<EventSourcedContext, $className> entityFactory;
         |  private final EventSourcedEntityOptions options;
         |
         |  /** Factory method of ${className}Provider */
-        |  public static ${className}Provider of(Function<EventSourcedContext, ${className}> entityFactory) {
+        |  public static ${className}Provider of(Function<EventSourcedContext, $className> entityFactory) {
         |    return new ${className}Provider(entityFactory, EventSourcedEntityOptions.defaults());
         |  }
         | 
         |  private ${className}Provider(
-        |      Function<EventSourcedContext, ${className}> entityFactory,
+        |      Function<EventSourcedContext, $className> entityFactory,
         |      EventSourcedEntityOptions options) {
         |    this.entityFactory = entityFactory;
         |    this.options = options;
@@ -335,12 +328,11 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String,
-      interfaceClassName: String,
-      entityType: String
+      interfaceClassName: String
   ): String = {
     val messageTypes = service.commands.toSeq
         .flatMap(command => Seq(command.inputType, command.outputType)) ++
-      entity.state.toSeq.map(_.fqn) ++ entity.events.map(_.fqn)
+      entity.events.map(_.fqn) :+ entity.state.fqn
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -373,72 +365,67 @@ object EntityServiceSourceGenerator {
           "this.entityId" <+> equal <+> "context.entityId()" <> semi
         } <> line <>
         line <>
-        (entity.state match {
-          case Some(state) =>
-            "@Override" <>
-            line <>
-            method(
-              "public",
-              qualifiedType(state.fqn),
-              "emptyState",
-              Nil,
-              emptyDoc
-            )(
-              "throw new UnsupportedOperationException" <> parens(
-                dquotes("Not implemented yet, replace with your empty entity state")
-              ) <> semi
-            ) <>
-            line <>
-            line <>
+        "@Override" <>
+        line <>
+        method(
+          "public",
+          qualifiedType(entity.state.fqn),
+          "emptyState",
+          Nil,
+          emptyDoc
+        )(
+          "throw new UnsupportedOperationException" <> parens(
+            dquotes("Not implemented yet, replace with your empty entity state")
+          ) <> semi
+        ) <>
+        line <>
+        line <>
+        ssep(
+          service.commands.toSeq
+            .map { command =>
+              "@Override" <>
+              line <>
+              method(
+                "public",
+                "Effect" <> angles(qualifiedType(command.outputType)),
+                lowerFirst(command.fqn.name),
+                List(
+                  qualifiedType(entity.state.fqn) <+> "currentState",
+                  qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                ),
+                emptyDoc
+              ) {
+                "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
+              }
+            }
+            .to[immutable.Seq],
+          line <> line
+        ) <> line <> line <>
+        (entity match {
+          case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
             ssep(
-              service.commands.toSeq
-                .map { command =>
+              events.toSeq
+                .map { event =>
                   "@Override" <>
                   line <>
                   method(
                     "public",
-                    "Effect" <> angles(qualifiedType(command.outputType)),
-                    lowerFirst(command.fqn.name),
+                    qualifiedType(entity.state.fqn),
+                    lowerFirst(event.fqn.name),
                     List(
-                      qualifiedType(state.fqn) <+> "currentState",
-                      qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                      qualifiedType(entity.state.fqn) <+> "currentState",
+                      qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
                     ),
                     emptyDoc
                   ) {
-                    "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
+                    "throw new RuntimeException" <> parens(
+                      notImplementedError("event", event.fqn)
+                    ) <> semi
                   }
                 }
                 .to[immutable.Seq],
               line <> line
-            ) <> line <> line <>
-            (entity match {
-              case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
-                ssep(
-                  events.toSeq
-                    .map { event =>
-                      "@Override" <>
-                      line <>
-                      method(
-                        "public",
-                        qualifiedType(state.fqn),
-                        lowerFirst(event.fqn.name),
-                        List(
-                          qualifiedType(state.fqn) <+> "currentState",
-                          qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                        ),
-                        emptyDoc
-                      ) {
-                        "throw new RuntimeException" <> parens(
-                          notImplementedError("event", event.fqn)
-                        ) <> semi
-                      }
-                    }
-                    .to[immutable.Seq],
-                  line <> line
-                )
-              case _ => emptyDoc
-            })
-
+            )
           case _ => emptyDoc
         })
       }
@@ -461,24 +448,24 @@ object EntityServiceSourceGenerator {
   private[codegen] def handlerSource(service: ModelBuilder.EntityService,
                                      entity: ModelBuilder.Entity,
                                      packageName: String,
-                                     className: String): Option[String] = {
+                                     className: String): String = {
     entity match {
       case entity: ModelBuilder.EventSourcedEntity =>
-        Some(EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className))
+        EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
       case entity: ValueEntity =>
-        Some(ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className))
+        ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className)
     }
   }
 
   private[codegen] def providerSource(service: ModelBuilder.EntityService,
                                       entity: ModelBuilder.Entity,
                                       packageName: String,
-                                      className: String): Option[String] = {
+                                      className: String): String = {
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        Some(eventSourcedEntityProvider(service, eventSourcedEntity, packageName, className))
+        eventSourcedEntityProvider(service, eventSourcedEntity, packageName, className)
       case valueEntity: ValueEntity =>
-        Some(ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className))
+        ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className)
     }
   }
 
@@ -489,8 +476,7 @@ object EntityServiceSourceGenerator {
       className: String
   ): String = {
     val messageTypes = service.commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ entity.state.toSeq
-        .map(_.fqn) ++ entity.events.map(_.fqn)
+        .flatMap(command => Seq(command.inputType, command.outputType)) ++ entity.events.map(_.fqn) :+ entity.state.fqn
 
     val imports = (messageTypes
       .filterNot(_.parent.javaPackage == packageName)
@@ -508,53 +494,49 @@ object EntityServiceSourceGenerator {
         line
       ) <> line <>
       line <>
-      (entity.state match {
-        case Some(state) =>
-          "/** An event sourced entity. */" <>
-          line <>
-          `class`("public abstract", s"Abstract$className extends EventSourcedEntity<${qualifiedType(state.fqn)}>") {
-            line <>
-            ssep(
-              service.commands.toSeq
-                .map { command =>
-                  abstractMethod(
-                    s"""/** Command handler for "${command.fqn.name}". */""" <>
-                    line <>
-                    "public",
-                    "Effect" <> angles(qualifiedType(command.outputType)),
-                    lowerFirst(command.fqn.name),
-                    List(
-                      qualifiedType(state.fqn) <+> "currentState",
-                      qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
-                    )
-                  ) <> semi
-                }
-                .to[immutable.Seq],
-              line <> line
-            ) <>
-            line <>
-            line <>
-            ssep(
-              entity.events.toSeq
-                .map { event =>
-                  s"""/** Event handler for "${event.fqn.name}". */""" <>
-                  line <>
-                  abstractMethod(
-                    "public",
-                    qualifiedType(state.fqn),
-                    lowerFirst(event.fqn.name),
-                    List(
-                      qualifiedType(state.fqn) <+> "currentState",
-                      qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                    )
-                  ) <> semi
-                }
-                .to[immutable.Seq],
-              line <> line
-            )
-          }
-        case _ => emptyDoc
-      })
+      "/** An event sourced entity. */" <>
+      line <>
+      `class`("public abstract", s"Abstract$className extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}>") {
+        line <>
+        ssep(
+          service.commands.toSeq
+            .map { command =>
+              abstractMethod(
+                s"""/** Command handler for "${command.fqn.name}". */""" <>
+                line <>
+                "public",
+                "Effect" <> angles(qualifiedType(command.outputType)),
+                lowerFirst(command.fqn.name),
+                List(
+                  qualifiedType(entity.state.fqn) <+> "currentState",
+                  qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
+                )
+              ) <> semi
+            }
+            .to[immutable.Seq],
+          line <> line
+        ) <>
+        line <>
+        line <>
+        ssep(
+          entity.events.toSeq
+            .map { event =>
+              s"""/** Event handler for "${event.fqn.name}". */""" <>
+              line <>
+              abstractMethod(
+                "public",
+                qualifiedType(entity.state.fqn),
+                lowerFirst(event.fqn.name),
+                List(
+                  qualifiedType(entity.state.fqn) <+> "currentState",
+                  qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
+                )
+              ) <> semi
+            }
+            .to[immutable.Seq],
+          line <> line
+        )
+      }
     ).layout
   }
 
@@ -690,11 +672,11 @@ object EntityServiceSourceGenerator {
   }
 
   private[codegen] def generateImports(commands: Iterable[Command],
-                                       state: Option[State],
+                                       state: State,
                                        packageName: String,
                                        otherImports: Seq[String]): String = {
 
-    val types = state.map(_.fqn) ++ commands.flatMap(command => Seq(command.inputType, command.outputType))
+    val types = commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq :+ state.fqn
     generateImports(types, packageName, otherImports)
   }
 }
