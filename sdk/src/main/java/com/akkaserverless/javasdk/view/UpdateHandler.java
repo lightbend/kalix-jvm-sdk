@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * event of an event sourced entity or for the first change of a value entity there is no previous
  * state and then <code>Optional.empty</code> or <code>null</code> is used for the state parameter.
  *
- * <p>The method may also take a {@link UpdateHandlerContext} parameter.
+ * <p>The method may also take a {@link UpdateContext} parameter.
  *
  * <p>The method should return the updated (new) state.
  */

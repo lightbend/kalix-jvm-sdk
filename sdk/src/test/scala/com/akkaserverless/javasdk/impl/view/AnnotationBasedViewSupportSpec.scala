@@ -48,7 +48,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
   class MockHandlerContext(override val commandName: String = "ProcessAdded",
                            override val metadata: Metadata = new MetadataImpl(Nil).withSubject("entity-1").asMetadata(),
                            override val state: Optional[JavaPbAny] = Optional.empty[JavaPbAny])
-      extends UpdateHandlerContext
+      extends UpdateContext
       with StateContext
       with BaseContext {
     override def viewId(): String = "foo"
@@ -222,7 +222,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @UpdateHandler
-            def processAdded(msg: String, ctx: UpdateHandlerContext): State = {
+            def processAdded(msg: String, ctx: UpdateContext): State = {
               ctx.commandName() should ===("ProcessAdded")
               State(msg)
             }
@@ -236,7 +236,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
         val handler = create(
           new {
             @UpdateHandler
-            def processAdded(msg: String, state: State, ctx: UpdateHandlerContext): State = {
+            def processAdded(msg: String, state: State, ctx: UpdateContext): State = {
               ctx.commandName() should ===("ProcessAdded")
               State(s"${state.value}-$msg")
             }
@@ -259,7 +259,7 @@ class AnnotationBasedViewSupportSpec extends AnyWordSpec with Matchers {
       "fail if there's two handlers for the same command" in {
         a[RuntimeException] should be thrownBy create(new {
           @UpdateHandler
-          def processAdded(msg: String, ctx: UpdateHandlerContext) =
+          def processAdded(msg: String, ctx: UpdateContext) =
             State(msg)
           @UpdateHandler
           def processAdded(msg: String) =

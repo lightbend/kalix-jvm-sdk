@@ -17,17 +17,15 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
-
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
-
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.lowlevel.ViewFactory
-import com.akkaserverless.javasdk.view.UpdateHandlerContext
+import com.akkaserverless.javasdk.view.UpdateContext
 import com.akkaserverless.javasdk.view.ViewContext
 import com.akkaserverless.protocol.{view => pv}
 import com.google.protobuf.Descriptors
@@ -101,7 +99,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               val commandName = receiveEvent.commandName
               val msg = ScalaPbAny.toJavaProto(receiveEvent.payload.get)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val context = new HandlerContextImpl(service.viewId, commandName, metadata, state)
+              val context = new ContextImpl(service.viewId, commandName, metadata, state)
 
               val reply = try {
                 handler.handle(msg, context)
@@ -148,11 +146,11 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  private final class HandlerContextImpl(override val viewId: String,
-                                         override val commandName: String,
-                                         override val metadata: Metadata,
-                                         override val state: Optional[JavaPbAny])
-      extends UpdateHandlerContext
+  private final class ContextImpl(override val viewId: String,
+                                  override val commandName: String,
+                                  override val metadata: Metadata,
+                                  override val state: Optional[JavaPbAny])
+      extends UpdateContext
       with AbstractContext
       with StateContext {
 
