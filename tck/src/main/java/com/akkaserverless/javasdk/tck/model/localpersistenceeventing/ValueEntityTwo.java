@@ -16,12 +16,12 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-public class ValueEntityTwo extends ValueEntityBase<Object> {
+public class ValueEntityTwo extends ValueEntity<Object> {
   public ValueEntityTwo(ValueEntityContext context) {}
 
   public Effect<Empty> updateJsonValue(Object state, LocalPersistenceEventing.JsonValue value) {

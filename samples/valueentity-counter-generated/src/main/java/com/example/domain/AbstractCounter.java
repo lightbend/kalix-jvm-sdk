@@ -4,12 +4,12 @@
  */
 package com.example.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
 /** A value entity. */
-public abstract class AbstractCounter extends ValueEntityBase<CounterDomain.CounterState> {
+public abstract class AbstractCounter extends ValueEntity<CounterDomain.CounterState> {
 
   /** Command handler for "Increase". */
   public abstract Effect<Empty> increase(CounterDomain.CounterState currentState, CounterApi.IncreaseValue increaseValue);

@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
 import com.akkaserverless.tck.model.EventSourcedEntity.Request;
@@ -36,7 +36,7 @@ public class EventSourcedConfiguredEntityHandler
   }
 
   @Override
-  public EventSourcedEntityBase.Effect<?> handleCommand(
+  public EventSourcedEntity.Effect<?> handleCommand(
       String commandName, Persisted state, Object command, CommandContext context) {
     switch (commandName) {
       case "Call":

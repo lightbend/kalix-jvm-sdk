@@ -28,7 +28,7 @@ public class CartEntityHandler extends ValueEntityHandler<ShoppingCartDomain.Car
   }
 
   @Override
-  public ValueEntityBase.Effect<?> handleCommand(
+  public ValueEntity.Effect<?> handleCommand(
       String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
     switch (commandName) {
       case "AddItem":

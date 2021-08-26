@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.impl
 import akka.NotUsed
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase
 import com.akkaserverless.javasdk.impl.effect.{
   ErrorReplyImpl,
   ForwardReplyImpl,
@@ -29,9 +28,8 @@ import com.akkaserverless.javasdk.impl.effect.{
 }
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.reply.MessageReply
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase
+import com.akkaserverless.javasdk.valueentity.ValueEntity
 import com.google.protobuf.{Any => JavaPbAny}
-
 import java.lang.annotation.Annotation
 import java.lang.reflect.{
   AccessibleObject,
@@ -44,8 +42,11 @@ import java.lang.reflect.{
   WildcardType
 }
 import java.util.Optional
+
 import scala.reflect.ClassTag
 import scala.util.Try
+
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
 
 /**
  * How we do reflection:
@@ -314,7 +315,7 @@ private[impl] object ReflectionHelper {
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 
       getOutputParameterMapper(method.getName, serviceMethod.outputType, method.getGenericReturnType, anySupport)
-    } else if (method.getReturnType == classOf[ValueEntityBase.Effect[_]]) {
+    } else if (method.getReturnType == classOf[ValueEntity.Effect[_]]) {
       // TODO temporary implementation going via the effect, but not actually applying the effects yet here
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 
@@ -326,7 +327,7 @@ private[impl] object ReflectionHelper {
           case NoReply(_) => Reply.noReply()
           case NoSecondaryEffectImpl => Reply.noReply()
         }
-    } else if (method.getReturnType == classOf[EventSourcedEntityBase.Effect[_]]) {
+    } else if (method.getReturnType == classOf[EventSourcedEntity.Effect[_]]) {
       // TODO temporary implementation going via the effect, but not actually applying the effects yet here
       verifyOutputType(getFirstParameter(method.getGenericReturnType))
 

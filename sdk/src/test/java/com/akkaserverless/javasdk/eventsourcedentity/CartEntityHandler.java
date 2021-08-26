@@ -40,7 +40,7 @@ final class CartEntityHandler
   }
 
   @Override
-  public EventSourcedEntityBase.Effect<?> handleCommand(
+  public EventSourcedEntity.Effect<?> handleCommand(
       String commandName, ShoppingCartDomain.Cart state, Object command, CommandContext context) {
     switch (commandName) {
       case "AddItem":

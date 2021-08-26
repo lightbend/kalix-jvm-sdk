@@ -16,10 +16,10 @@
 
 package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 
-public class ViewTckSourceEntity extends ValueEntityBase<String> {
+public class ViewTckSourceEntity extends ValueEntity<String> {
   public ViewTckSourceEntity(ValueEntityContext context) {}
 
   @Override

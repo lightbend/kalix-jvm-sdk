@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-public class EventSourcedEntityOne extends EventSourcedEntityBase<String> {
+public class EventSourcedEntityOne extends EventSourcedEntity<String> {
 
   public EventSourcedEntityOne(EventSourcedContext context) {}
 

@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 
 /** An event sourced entity handler */
@@ -38,7 +38,7 @@ public class EventSourcedEntityTwoHandler
   }
 
   @Override
-  public EventSourcedEntityBase.Effect<?> handleCommand(
+  public EventSourcedEntity.Effect<?> handleCommand(
       String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
       case "EmitJsonEvent":

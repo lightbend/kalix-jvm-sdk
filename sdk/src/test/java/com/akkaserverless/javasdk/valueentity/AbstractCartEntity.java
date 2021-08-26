@@ -21,7 +21,7 @@ import com.example.valueentity.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
 /** A value entity. */
-public abstract class AbstractCartEntity extends ValueEntityBase<ShoppingCartDomain.Cart> {
+public abstract class AbstractCartEntity extends ValueEntity<ShoppingCartDomain.Cart> {
 
   public abstract Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem addLineItem);

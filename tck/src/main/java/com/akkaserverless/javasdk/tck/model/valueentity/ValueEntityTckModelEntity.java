@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.ValueEntity.Persisted;
 import com.akkaserverless.tck.model.ValueEntity.Request;
 import com.akkaserverless.tck.model.ValueEntity.RequestAction;
@@ -29,7 +29,7 @@ import com.akkaserverless.tck.model.ValueEntity.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueEntityTckModelEntity extends ValueEntityBase<Persisted> {
+public class ValueEntityTckModelEntity extends ValueEntity<Persisted> {
 
   private final ServiceCallRef<Request> serviceTwoCall;
 

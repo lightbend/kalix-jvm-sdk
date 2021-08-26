@@ -29,7 +29,7 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase.Effect
+import com.akkaserverless.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
 

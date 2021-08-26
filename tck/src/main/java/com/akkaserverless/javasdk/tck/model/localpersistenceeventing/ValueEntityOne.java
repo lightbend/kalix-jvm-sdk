@@ -16,12 +16,12 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-public class ValueEntityOne extends ValueEntityBase<Object> {
+public class ValueEntityOne extends ValueEntity<Object> {
   public ValueEntityOne(ValueEntityContext context) {}
 
   public Effect<Empty> updateValue(

@@ -22,7 +22,7 @@ import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
@@ -39,7 +39,7 @@ import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.View;
@@ -367,8 +367,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends ValueEntityBase<S>> AkkaServerless register(
-      ValueEntityProvider<S, E> provider) {
+  public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
     return lowLevel()
         .registerValueEntity(
             provider::newHandler,
@@ -389,7 +388,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends EventSourcedEntityBase<S>> AkkaServerless register(
+  public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
       EventSourcedEntityProvider<S, E> provider) {
     return lowLevel()
         .registerEventSourcedEntity(

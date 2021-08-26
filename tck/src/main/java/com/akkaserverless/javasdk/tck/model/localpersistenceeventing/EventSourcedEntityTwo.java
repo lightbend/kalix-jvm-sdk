@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-public class EventSourcedEntityTwo extends EventSourcedEntityBase<String> {
+public class EventSourcedEntityTwo extends EventSourcedEntity<String> {
 
   public EventSourcedEntityTwo(EventSourcedContext context) {}
 
@@ -29,7 +29,7 @@ public class EventSourcedEntityTwo extends EventSourcedEntityBase<String> {
     return "";
   }
 
-  public EventSourcedEntityBase.Effect<Empty> emitJsonEvent(
+  public EventSourcedEntity.Effect<Empty> emitJsonEvent(
       String currentState, LocalPersistenceEventing.JsonEvent event) {
     return effects()
         .emitEvent(new JsonMessage(event.getMessage()))

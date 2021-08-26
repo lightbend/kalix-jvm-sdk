@@ -91,12 +91,12 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | */
          |package com.example.service;
          |
-         |import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
          |
          |/** A value entity. */
-         |public abstract class AbstractMyService extends ValueEntityBase<EntityOuterClass.MyState> {
+         |public abstract class AbstractMyService extends ValueEntity<EntityOuterClass.MyState> {
          |
          |  /** Command handler for "Set". */
          |  public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
@@ -127,7 +127,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
          |import com.akkaserverless.javasdk.valueentity.CommandContext;
-         |import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
+         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
          |
@@ -142,7 +142,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  }
          |
          |  @Override
-         |  public ValueEntityBase.Effect<?> handleCommand(
+         |  public ValueEntity.Effect<?> handleCommand(
          |      String commandName, EntityOuterClass.MyState state, Object command, CommandContext context) {
          |    switch (commandName) {
          |

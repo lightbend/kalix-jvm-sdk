@@ -18,8 +18,8 @@ package com.akkaserverless.javasdk.tck.model.valueentity;
 
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityBase;
-import com.akkaserverless.tck.model.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.tck.model.ValueEntity.Request;
 
 /** A value entity handler */
 public class ValueEntityConfiguredEntityHandler
@@ -30,11 +30,11 @@ public class ValueEntityConfiguredEntityHandler
   }
 
   @Override
-  public ValueEntityBase.Effect<?> handleCommand(
+  public ValueEntity.Effect<?> handleCommand(
       String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
       case "Call":
-        return entity().call(state, (ValueEntity.Request) command);
+        return entity().call(state, (Request) command);
       default:
         throw new CommandHandlerNotFound(commandName);
     }

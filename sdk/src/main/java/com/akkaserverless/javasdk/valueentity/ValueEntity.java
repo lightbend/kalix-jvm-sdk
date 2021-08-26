@@ -25,10 +25,8 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 import java.util.Collection;
 import java.util.Optional;
 
-// FIXME rename to ValueEntity when the old annotation is removed
-
 /** @param <S> The type of the state for this entity. */
-public abstract class ValueEntityBase<S> {
+public abstract class ValueEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
 
