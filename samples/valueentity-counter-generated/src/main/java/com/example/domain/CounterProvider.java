@@ -14,8 +14,13 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
 import java.util.function.Function;
 
-/** A value entity provider */
-public class CounterProvider implements ValueEntityProvider {
+/**
+ * A value entity provider that defines how to register and create the entity for
+ * the Protobuf service <code>CounterService</code>.
+ *
+ * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ */
+public class CounterProvider implements ValueEntityProvider<CounterDomain.CounterState, Counter> {
 
   private final Function<ValueEntityContext, Counter> entityFactory;
   private final ValueEntityOptions options;
@@ -59,6 +64,7 @@ public class CounterProvider implements ValueEntityProvider {
   @Override
   public final Descriptors.FileDescriptor[] additionalDescriptors() {
     return new Descriptors.FileDescriptor[] {
+      CounterApi.getDescriptor(),
       CounterDomain.getDescriptor(),
       EmptyProto.getDescriptor()
     };
