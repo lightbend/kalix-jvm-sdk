@@ -17,13 +17,10 @@
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-import com.akkaserverless.javasdk.impl.EntityExceptions;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
 import com.akkaserverless.tck.model.EventSourcedEntity.Request;
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /** An event sourced entity handler */
 public class EventSourcedTwoEntityHandler
@@ -39,7 +36,7 @@ public class EventSourcedTwoEntityHandler
   }
 
   @Override
-  public EventSourcedEntityBase.Effect<?> handleCommand(
+  public EventSourcedEntity.Effect<?> handleCommand(
       String commandName, Persisted state, Object command, CommandContext context) {
     switch (commandName) {
       case "Call":

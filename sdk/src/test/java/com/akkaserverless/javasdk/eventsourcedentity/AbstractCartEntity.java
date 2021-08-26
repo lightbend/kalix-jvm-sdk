@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
@@ -25,7 +24,7 @@ import com.google.protobuf.Empty;
  * Generated entity baseclass, extended by user entity impl, helps getting the impl in sync with
  * protobuf def
  */
-public abstract class AbstractCartEntity extends EventSourcedEntityBase<ShoppingCartDomain.Cart> {
+public abstract class AbstractCartEntity extends EventSourcedEntity<ShoppingCartDomain.Cart> {
 
   public abstract Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem command);

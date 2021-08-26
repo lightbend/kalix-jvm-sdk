@@ -20,7 +20,7 @@ import java.util.Optional
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.javasdk.eventsourcedentity.EventContext
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.javasdk.impl.EntityExceptions
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
@@ -43,7 +43,7 @@ object EventSourcedEntityHandler {
  *
  * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](protected val entity: E) {
+abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protected val entity: E) {
   import EventSourcedEntityHandler._
 
   private var state: Option[S] = None
@@ -128,6 +128,6 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntityBase[S]](prot
   protected def handleCommand(commandName: String,
                               state: S,
                               command: Any,
-                              context: CommandContext): EventSourcedEntityBase.Effect[_]
+                              context: CommandContext): EventSourcedEntity.Effect[_]
 
 }

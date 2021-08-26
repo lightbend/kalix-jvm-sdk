@@ -17,12 +17,12 @@
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
 import com.akkaserverless.tck.model.EventSourcedEntity.Request;
 import com.akkaserverless.tck.model.EventSourcedEntity.Response;
 
-public class EventSourcedTwoEntity extends EventSourcedEntityBase<Persisted> {
+public class EventSourcedTwoEntity extends EventSourcedEntity<Persisted> {
 
   public EventSourcedTwoEntity(EventSourcedContext context) {}
 
@@ -31,7 +31,7 @@ public class EventSourcedTwoEntity extends EventSourcedEntityBase<Persisted> {
     return Persisted.getDefaultInstance();
   }
 
-  public EventSourcedEntityBase.Effect<Response> call(Persisted currentState, Request request) {
+  public EventSourcedEntity.Effect<Response> call(Persisted currentState, Request request) {
     return effects().reply(Response.getDefaultInstance());
   }
 }

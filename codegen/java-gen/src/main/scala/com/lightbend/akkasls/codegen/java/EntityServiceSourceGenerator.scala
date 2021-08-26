@@ -168,7 +168,7 @@ object EntityServiceSourceGenerator {
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler"
       )
     )
@@ -218,7 +218,7 @@ object EntityServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public EventSourcedEntityBase.Effect<?> handleCommand(
+        |  public EventSourcedEntity.Effect<?> handleCommand(
         |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
@@ -342,8 +342,8 @@ object EntityServiceSourceGenerator {
       .map(typeImport) ++
     Seq(
       "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect"
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect"
     )).distinct.sorted
 
     pretty(
@@ -491,7 +491,7 @@ object EntityServiceSourceGenerator {
       .filterNot(_.parent.javaPackage == packageName)
       .map(typeImport) ++
     Seq(
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase"
+      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity"
     )).distinct.sorted
 
     pretty(
@@ -507,7 +507,7 @@ object EntityServiceSourceGenerator {
         case Some(state) =>
           "/** An event sourced entity. */" <>
           line <>
-          `class`("public abstract", s"Abstract$className extends EventSourcedEntityBase<${qualifiedType(state.fqn)}>") {
+          `class`("public abstract", s"Abstract$className extends EventSourcedEntity<${qualifiedType(state.fqn)}>") {
             line <>
             ssep(
               service.commands.toSeq

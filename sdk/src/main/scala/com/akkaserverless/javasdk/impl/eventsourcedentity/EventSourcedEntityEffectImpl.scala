@@ -28,9 +28,9 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect.Builder
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect.OnSuccessBuilder
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
 
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 

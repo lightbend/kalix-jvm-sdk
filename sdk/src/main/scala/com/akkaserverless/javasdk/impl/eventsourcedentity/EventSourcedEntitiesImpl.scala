@@ -143,7 +143,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler = service.factory
       .create(new EventSourcedContextImpl(init.entityId))
-      .asInstanceOf[EventSourcedEntityHandler[Any, EventSourcedEntityBase[Any]]]
+      .asInstanceOf[EventSourcedEntityHandler[Any, EventSourcedEntity[Any]]]
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {

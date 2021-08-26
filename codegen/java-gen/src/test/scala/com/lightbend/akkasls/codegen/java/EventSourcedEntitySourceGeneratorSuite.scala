@@ -48,8 +48,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |package com.example.service;
       |
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
@@ -102,12 +102,12 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
       |/** An event sourced entity. */
-      |public abstract class AbstractMyServiceEntity extends EventSourcedEntityBase<EntityOuterClass.MyState> {
+      |public abstract class AbstractMyServiceEntity extends EventSourcedEntity<EntityOuterClass.MyState> {
       |    
       |    /** Command handler for "Set". */
       |    public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
@@ -139,7 +139,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |package com.example.service;
          |
          |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
          |import com.example.service.persistence.EntityOuterClass;
          |import com.external.Empty;
@@ -164,7 +164,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  }
          |
          |  @Override
-         |  public EventSourcedEntityBase.Effect<?> handleCommand(
+         |  public EventSourcedEntity.Effect<?> handleCommand(
          |      String commandName, EntityOuterClass.MyState state, Object command, CommandContext context) {
          |    switch (commandName) {
          |

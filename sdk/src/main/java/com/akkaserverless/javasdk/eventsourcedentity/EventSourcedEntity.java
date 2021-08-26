@@ -26,10 +26,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
-// FIXME rename to EventSourcedEntity when the old annotation is removed
-
 /** @param <S> The type of the state for this entity. */
-public abstract class EventSourcedEntityBase<S> {
+public abstract class EventSourcedEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
   private Optional<EventContext> eventContext = Optional.empty();

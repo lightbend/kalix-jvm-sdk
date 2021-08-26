@@ -25,7 +25,7 @@ import com.google.protobuf.Descriptors;
  * generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider
  * </code>.
  */
-public interface EventSourcedEntityProvider<S, E extends EventSourcedEntityBase<S>> {
+public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> {
 
   EventSourcedEntityOptions options();
 

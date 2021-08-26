@@ -22,7 +22,7 @@ import akka.annotation.ApiMayChange;
 import akka.stream.Materializer;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.javasdk.impl.AnySupport;
@@ -388,7 +388,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends EventSourcedEntityBase<S>> AkkaServerless register(
+  public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
       EventSourcedEntityProvider<S, E> provider) {
     return lowLevel()
         .registerEventSourcedEntity(
