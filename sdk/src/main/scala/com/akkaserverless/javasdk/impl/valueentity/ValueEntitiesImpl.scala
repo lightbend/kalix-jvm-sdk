@@ -125,11 +125,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
     val thisEntityId = init.entityId
 
     val initState: Option[Any] = init.state match {
-      case Some(ValueEntityInitState(stateOpt, _)) =>
-        stateOpt match {
-          case Some(state) => Some(service.anySupport.decode(state))
-          case None => None
-        }
+      case Some(ValueEntityInitState(stateOpt, _)) => stateOpt.map(service.anySupport.decode)
       case None => throw new IllegalStateException("ValueEntityInit state is mandatory")
     }
 
