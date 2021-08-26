@@ -34,11 +34,11 @@ public class ShoppingCartViewHandler
 
   @Override
   public View.UpdateEffect<ShoppingCartViewModel.CartViewState> handleUpdate(
-      String commandName,
+      String eventName,
       ShoppingCartViewModel.CartViewState state,
       Object message,
       UpdateContext context) {
-    switch (commandName) {
+    switch (eventName) {
       case "ItemAdded":
         return view().processItemAdded(state, (ShoppingCartDomain.ItemAdded) message);
 
@@ -51,9 +51,9 @@ public class ShoppingCartViewHandler
       default:
         throw new ViewException(
             context.viewId(),
-            context.commandName(),
-            "No command handler found for command ["
-                + context.commandName()
+            eventName,
+            "No update handler found for event ["
+                + eventName
                 + "] on "
                 + view().getClass().toString(),
             Option.empty());

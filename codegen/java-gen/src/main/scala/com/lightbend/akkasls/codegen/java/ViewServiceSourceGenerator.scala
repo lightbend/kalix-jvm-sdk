@@ -18,9 +18,10 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
+import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
-import _root_.java.nio.file.{Files, Path}
 
+import _root_.java.nio.file.{Files, Path}
 import scala.collection.immutable
 
 /**
@@ -64,11 +65,11 @@ object ViewServiceSourceGenerator {
     )
 
     if (!implSourcePath.toFile.exists()) {
-      // Now we generate the entity
+      // Now we generate the view
       implSourcePath.getParent.toFile.mkdirs()
       Files.write(
         implSourcePath,
-        source(
+        viewSource(
           service,
           packageName,
           implClassName,
@@ -81,8 +82,79 @@ object ViewServiceSourceGenerator {
       List(interfaceSourcePath)
     }
   }
+  private[codegen] def viewHandler(service: ModelBuilder.EntityService,
+                                          entity: ModelBuilder.ViewService,
+                                          packageName: String,
+                                          className: String): String = {
 
-  private[codegen] def source(
+    val imports = generateImports(
+      service.commands,
+      None, // FIXME Some(entity.state), view state?
+      packageName,
+      otherImports = Seq(
+        "import com.akkaserverless.javasdk.impl.view.ViewException",
+        "import com.akkaserverless.javasdk.impl.view.ViewHandler",
+        "import com.akkaserverless.javasdk.view.UpdateContext",
+        "import com.akkaserverless.javasdk.view.View",
+        "import scala.Option"
+      )
+    )
+
+    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
+    val outerClassAndState = ??? // s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+    val cases = service.commands
+      .map { cmd =>
+        val methodName = cmd.fqn.name
+        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        s"""|case "$methodName":
+            |  return view().${lowerFirst(methodName)}(
+            |      state,
+            |      (${inputType}) event);
+            |""".stripMargin
+      }
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** A value entity handler */
+        |public class ${className}Handler extends ViewHandler<$outerClassAndState, ${className}> {
+        |
+        |  public ${className}Handler(${className} view) {
+        |    super(view);
+        |  }
+        |
+        |  public ${className}Handler(${className} entity) {
+        |    this.entity = entity;
+        |  }
+        |
+        |  @Override
+        |  public View.UpdateEffect<$outerClassAndState> handleUpdate(
+        |      String eventName,
+        |      $outerClassAndState state,
+        |      Object event,
+        |      UpdateContext context) {
+        |
+        |    switch (eventName) {
+        |      ${Syntax.indent(cases, 6)}
+        |
+        |      default:
+        |        throw new ViewException(
+        |            context.viewId(),
+        |            eventName,
+        |            "No command handler found for command ["
+        |                + eventName
+        |                + "] on "
+        |                + view().getClass().toString(),
+        |            Option.empty());
+        |    }
+        |
+        |}""".stripMargin
+  }
+
+
+  private[codegen] def viewSource(
       service: ModelBuilder.ViewService,
       packageName: String,
       className: String,

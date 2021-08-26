@@ -32,20 +32,20 @@ public class ViewTckModelBehaviorHandler
 
   @Override
   public View.UpdateEffect<com.akkaserverless.tck.model.View.ViewState> handleUpdate(
-      String commandName,
+      String eventName,
       com.akkaserverless.tck.model.View.ViewState state,
       Object event,
       UpdateContext context) {
-    switch (commandName) {
+    switch (eventName) {
       case "ProcessUpdateUnary":
         return view().processUpdateUnary(state, (com.akkaserverless.tck.model.View.Event) event);
 
       default:
         throw new ViewException(
             context.viewId(),
-            context.commandName(),
-            "No command handler found for command ["
-                + context.commandName()
+            eventName,
+            "No update handler found for event ["
+                + eventName
                 + "] on "
                 + view().getClass().toString(),
             Option.empty());

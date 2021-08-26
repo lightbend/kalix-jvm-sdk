@@ -28,7 +28,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
     val interfaceClassName = "AbstractMyServiceEntity"
 
     val generatedSrc =
-      ViewServiceSourceGenerator.source(
+      ViewServiceSourceGenerator.viewSource(
         service,
         packageName,
         className,
