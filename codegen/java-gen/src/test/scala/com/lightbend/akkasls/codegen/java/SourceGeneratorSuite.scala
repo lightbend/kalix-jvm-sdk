@@ -148,7 +148,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                   "com/example/service/AbstractMyService4View.java"
                 ),
                 generatedSourceDirectory.resolve(
-                  "com/example/service/MainComponentRegistrations.java"
+                  "com/example/service/AkkaServerlessFactory.java"
                 ),
                 sourceDirectory.resolve("com/example/service/Main.java")
               )
@@ -187,9 +187,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
-    val generatedSrc = SourceGenerator.mainComponentRegistrationsSource(
+    val generatedSrc = SourceGenerator.akkaServerlessFactorySource(
       mainPackageName,
-      mainClassName,
       ModelBuilder.Model(services, entities)
     )
     assertEquals(
@@ -220,12 +219,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.external.ExternalDomain;
         |import java.util.function.Function;
         |
-        |public final class SomeMainComponentRegistrations {
+        |public final class AkkaServerlessFactory {
         |
-        |  public static AkkaServerless registerAll(AkkaServerless akkaServerless,
+        |  public static AkkaServerless withComponents(
         |      Function<EventSourcedContext, MyEntity1> createMyEntity1,
         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
         |      Function<EventSourcedContext, MyEntity3> createMyEntity3) {
+        |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
         |      .register(MyEntity1Provider.of(createMyEntity1))
         |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
@@ -253,9 +253,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
-    val generatedSrc = SourceGenerator.mainComponentRegistrationsSource(
+    val generatedSrc = SourceGenerator.akkaServerlessFactorySource(
       mainPackageName,
-      mainClassName,
       ModelBuilder.Model(services, entities)
     )
     assertEquals(
@@ -271,9 +270,11 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.EntityOuterClass;
         |import com.example.service.view.ServiceOuterClass;
         |
-        |public final class SomeMainComponentRegistrations {
+        |public final class AkkaServerlessFactory {
         |
-        |  public static AkkaServerless registerAll(AkkaServerless akkaServerless) {
+        |  public static AkkaServerless withComponents(
+        |      ) {
+        |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
         |      .registerView(
         |        ServiceOuterClass.getDescriptor().findServiceByName("MyService"),
@@ -315,24 +316,25 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.persistence.MyEntity1;
          |import com.example.service.persistence.MyEntity3;
          |import com.example.service.persistence.MyValueEntity2;
-         |import static com.example.service.SomeMainComponentRegistrations.registerAll;
          |
          |public final class SomeMain {
          |
          |  private static final Logger LOG = LoggerFactory.getLogger(SomeMain.class);
          |
-         |  public static final AkkaServerless SERVICE =
-         |    // This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities,
+         |  public static AkkaServerless createAkkaServerless() {
+         |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
          |    // and is kept up-to-date with any changes in your protobuf definitions.
-         |    // If you prefer, you may remove this wrapper and manually register these components.
-         |    registerAll(new AkkaServerless(),
+         |    // If you prefer, you may remove this and manually register these components in a
+         |    // `new AkkaServerless()` instance.
+         |    return AkkaServerlessFactory.withComponents(
          |      MyEntity1::new,
          |      MyValueEntity2::new,
          |      MyEntity3::new);
+         |  }
          |
          |  public static void main(String[] args) throws Exception {
          |    LOG.info("starting the Akka Serverless service");
-         |    SERVICE.start();
+         |    createAkkaServerless().start();
          |  }
          |}""".stripMargin
     )

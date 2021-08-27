@@ -20,7 +20,6 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static customer.MainComponentRegistrations.registerAll;
 import customer.domain.CustomerDomain;
 import customer.domain.Customer;
 import customer.view.CustomerViewModel;
@@ -28,15 +27,17 @@ import customer.view.CustomerViewModel;
 public final class Main {
     
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-    
-    public static final AkkaServerless SERVICE =
-        // This registerAll wrapper automatically registers any generated Actions, Views or Entities,
+
+    public static AkkaServerless createAkkaServerless() {
+        // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
         // and is kept up-to-date with any changes in your protobuf definitions.
-        // If you prefer, you may remove this wrapper and manually register these components.
-        registerAll(new AkkaServerless(), Customer::new);
+        // If you prefer, you may remove this and manually register these components in a
+        // `new AkkaServerless()` instance.
+        return AkkaServerlessFactory.withComponents(Customer::new);
+    }
     
     public static void main(String[] args) throws Exception {
         LOG.info("starting the Akka Serverless service");
-        SERVICE.start();
+        createAkkaServerless().start();
     }
 }

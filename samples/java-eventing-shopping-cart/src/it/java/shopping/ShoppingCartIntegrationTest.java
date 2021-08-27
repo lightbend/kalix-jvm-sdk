@@ -30,7 +30,7 @@ public class ShoppingCartIntegrationTest {
 
   @ClassRule
   public static final AkkaServerlessTestkitResource testkit =
-      new AkkaServerlessTestkitResource(Main.SERVICE);
+      new AkkaServerlessTestkitResource(Main.createAkkaServerless());
 
   private final ShoppingCartServiceClient client;
 
