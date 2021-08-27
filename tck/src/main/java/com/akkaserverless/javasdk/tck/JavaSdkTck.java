@@ -132,6 +132,6 @@ public final class JavaSdkTck {
           .register(ViewTckSourceEntityProvider.of(ViewTckSourceEntity::new));
 
   public static void main(String[] args) throws Exception {
-    SERVICE.start().toCompletableFuture().get();
+    SERVICE.start();
   }
 }

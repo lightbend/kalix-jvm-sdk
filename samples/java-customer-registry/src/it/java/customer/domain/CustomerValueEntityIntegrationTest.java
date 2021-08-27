@@ -21,7 +21,8 @@ public class CustomerValueEntityIntegrationTest {
      * The test kit starts both the service container and the Akka Serverless proxy.
      */
     @ClassRule
-    public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(Main.SERVICE);
+    public static final AkkaServerlessTestkitResource testkit =
+            new AkkaServerlessTestkitResource(Main.createAkkaServerless());
     
     /**
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.

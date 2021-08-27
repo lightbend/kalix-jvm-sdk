@@ -593,7 +593,7 @@ object EntityServiceSourceGenerator {
           "testkit",
           assignmentSeparator = Some(" ")
         ) {
-          "new" <+> "AkkaServerlessTestkitResource" <> parens(mainClassName + ".SERVICE") <> semi
+          line <> "new" <+> "AkkaServerlessTestkitResource" <> parens(mainClassName + ".createAkkaServerless()") <> semi
         } <> line <>
         line <>
         "/**" <> line <>

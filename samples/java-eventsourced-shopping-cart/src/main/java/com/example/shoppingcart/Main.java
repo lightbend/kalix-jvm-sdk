@@ -9,21 +9,22 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.shoppingcart.domain.ShoppingCart;
-import static com.example.shoppingcart.MainComponentRegistrations.registerAll;
 
 public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-  public static final AkkaServerless SERVICE =
-    // This registerAll wrapper automatically registers any generated Actions, Views or Entities,
+  public static AkkaServerless createAkkaServerless() {
+    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this wrapper and manually register these components.
-    registerAll(new AkkaServerless(),
-      ShoppingCart::new);
+    // If you prefer, you may remove this and manually register these components in a
+    // `new AkkaServerless()` instance.
+    return AkkaServerlessFactory.withComponents(
+        ShoppingCart::new);
+  }
 
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");
-    SERVICE.start();
+    createAkkaServerless().start();
   }
 }
