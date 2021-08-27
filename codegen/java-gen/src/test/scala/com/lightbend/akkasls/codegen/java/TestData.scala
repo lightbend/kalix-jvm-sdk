@@ -151,7 +151,7 @@ object TestData {
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
       s"MyEntity$suffix",
-      Some(ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))),
+      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))),
       List(
         ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))
       )
