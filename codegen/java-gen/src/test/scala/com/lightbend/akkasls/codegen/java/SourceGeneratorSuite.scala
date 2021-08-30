@@ -82,12 +82,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
             val service3Proto =
               TestData.serviceProto("3").copy(pkg = "com.example.service.something")
             val service4Proto = TestData.serviceProto("4")
+            val service5Proto = TestData.serviceProto("5")
 
             val services = Map(
               "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
               "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
               "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
-              "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4")
+              "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
+              "com.example.Service5" -> TestData.simpleActionService(service5Proto)
             )
 
             val entities = Map(
@@ -147,6 +149,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/AbstractMyService4View.java"
                 ),
+                sourceDirectory.resolve("com/example/service/MyService5Action.java"),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/AbstractMyService5Action.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MyService5ActionProvider.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MyService5ActionHandler.java"
+                ),
                 generatedSourceDirectory.resolve(
                   "com/example/service/AkkaServerlessFactory.java"
                 ),
@@ -170,12 +182,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val service2Proto = TestData.serviceProto("2")
     val service3Proto = TestData.serviceProto("3").copy(pkg = "com.example.service.something")
     val service4Proto = TestData.serviceProto("4").copy(pkg = "com.example.service.view")
+    val service5Proto = TestData.serviceProto("5")
 
     val services = Map(
       "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
       "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
       "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
-      "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4")
+      "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
+      "com.example.Service5" -> TestData.simpleActionService(service5Proto)
     )
 
     val entities = Map(
@@ -201,6 +215,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
+        |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.service.persistence.EntityOuterClass1;
@@ -224,12 +239,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |  public static AkkaServerless withComponents(
         |      Function<EventSourcedContext, MyEntity1> createMyEntity1,
         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
-        |      Function<EventSourcedContext, MyEntity3> createMyEntity3) {
+        |      Function<EventSourcedContext, MyEntity3> createMyEntity3,
+        |      Function<ActionCreationContext, MyService5Action> createMyService5Action) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
         |      .register(MyEntity1Provider.of(createMyEntity1))
-        |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
         |      .register(MyEntity3Provider.of(createMyEntity3))
+        |      .register(MyService5ActionProvider.of(createMyService5Action))
+        |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
         |      .registerView(
         |        MyService4View.class,
         |        ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
@@ -296,10 +313,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
       "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3")
     )
 
+    val services = Map(
+      "com.example.Service1" -> TestData.simpleActionService()
+    )
+
     val generatedSrc = SourceGenerator.mainSource(
       mainPackageName,
       mainClassName,
-      entities
+      entities,
+      services
     )
     assertEquals(
       generatedSrc,
@@ -313,6 +335,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.AkkaServerless;
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
+         |import com.example.service.MyServiceAction;
          |import com.example.service.persistence.MyEntity1;
          |import com.example.service.persistence.MyEntity3;
          |import com.example.service.persistence.MyValueEntity2;
@@ -329,7 +352,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    return AkkaServerlessFactory.withComponents(
          |      MyEntity1::new,
          |      MyValueEntity2::new,
-         |      MyEntity3::new);
+         |      MyEntity3::new,
+         |      MyServiceAction::new);
          |  }
          |
          |  public static void main(String[] args) throws Exception {

@@ -67,7 +67,7 @@ object SourceGenerator extends PrettyPrinter {
           case None =>
             // TODO perhaps we even want to make this an error, to really go all-in on codegen?
             log.warning(
-              "Service [" + service.fqn.fullName + "] refers to entity [" + service.componentFullName +
+              "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
               "], but no entity configuration is found for that component name"
             )
             Seq.empty
@@ -97,11 +97,7 @@ object SourceGenerator extends PrettyPrinter {
         ActionServiceSourceGenerator.generate(
           service,
           sourceDirectory,
-          testSourceDirectory,
-          integrationTestSourceDirectory,
-          generatedSourceDirectory,
-          mainClassPackageName,
-          mainClassName
+          generatedSourceDirectory
         )
       case _ => Seq.empty
     } ++ {
@@ -126,7 +122,7 @@ object SourceGenerator extends PrettyPrinter {
         mainClassPath.getParent.toFile.mkdirs()
         Files.write(
           mainClassPath,
-          mainSource(mainClassPackageName, mainClassName, model.entities).getBytes(Charsets.UTF_8)
+          mainSource(mainClassPackageName, mainClassName, model.entities, model.services).getBytes(Charsets.UTF_8)
         )
         List(akkaServerlessFactorySourcePath, mainClassPath)
       } else {
@@ -186,84 +182,68 @@ object SourceGenerator extends PrettyPrinter {
       mainClassPackageName: String,
       model: ModelBuilder.Model
   ): String = {
-    val registrations = model.services.values.flatMap {
-      case service: ModelBuilder.EntityService =>
-        model.entities.get(service.componentFullName).toSeq.map {
-          case entity: ModelBuilder.EventSourcedEntity =>
-            s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
-          case entity: ModelBuilder.ValueEntity =>
-            s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
-        }
-
-      case service: ModelBuilder.ViewService =>
-        val relevantTypes =
-          service.commands.flatMap { cmd =>
-            cmd.inputType :: cmd.outputType :: Nil
+    val registrations = model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName).toSeq.map {
+            case entity: ModelBuilder.EventSourcedEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
+            case entity: ModelBuilder.ValueEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
           }
 
-        val otherDescriptors = collectRelevantTypeDescriptors(relevantTypes, service.fqn)
-        val sep = if (otherDescriptors.isEmpty) "" else ","
+        case service: ModelBuilder.ViewService =>
+          val relevantTypes =
+            service.commands.flatMap { cmd =>
+              cmd.inputType :: cmd.outputType :: Nil
+            }
 
-        List(
-          ".registerView(\n" ++
-          (if (service.transformedUpdates.nonEmpty) s"  ${service.fqn.name}.class,\n" else "") ++
-          s"""|  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
+          val otherDescriptors = collectRelevantTypeDescriptors(relevantTypes, service.fqn)
+          val sep = if (otherDescriptors.isEmpty) "" else ","
+
+          List(
+            ".registerView(\n" ++
+            (if (service.transformedUpdates.nonEmpty) s"  ${service.fqn.name}.class,\n" else "") ++
+            s"""|  ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}"),
               |  "${service.viewId}"$sep
               |  ${Syntax.indent(otherDescriptors, 4)}
               |)""".stripMargin
-        )
+          )
 
-      case service: ModelBuilder.ActionService =>
-        val relevantTypes =
-          service.commands.flatMap { cmd =>
-            cmd.inputType :: cmd.outputType :: Nil
-          }
+        case service: ModelBuilder.ActionService =>
+          List(s".register(${service.providerName}.of(create${service.className}))")
 
-        val otherDescriptors = collectRelevantTypeDescriptors(relevantTypes, service.fqn)
-        val sep = if (otherDescriptors.isEmpty) "" else ","
-
-        List(
-          s"""
-           |.registerAction(
-           |    ${service.fqn.name}.class,
-           |    ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.protoName}")$sep
-           |    ${Syntax.indent(otherDescriptors, 4)}
-           |)
-           |""".stripMargin
-        )
-
-    }.toList
+      }
+      .toList
+      .sorted
 
     val entityImports = model.entities.values.flatMap { ety =>
       if (ety.fqn.parent.javaPackage != mainClassPackageName) {
         val imports =
-          ety.fqn.fullName ::
+          ety.fqn.fullQualifiedName ::
           s"${ety.fqn.parent.javaPackage}.${ety.fqn.parent.javaOuterClassname}" ::
           Nil
         ety match {
           case _: ModelBuilder.EventSourcedEntity =>
-            s"${ety.fqn.fullName}Provider" :: imports
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
           case _: ModelBuilder.ValueEntity =>
-            s"${ety.fqn.fullName}Provider" :: imports
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
           case _ => imports
         }
       } else List.empty
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      val includeServiceFqn =
-        serv match {
-          case _: ModelBuilder.ActionService => true
-          case view: ModelBuilder.ViewService => view.transformedUpdates.nonEmpty
-          case _ => false
-        }
-
       if (serv.fqn.parent.javaPackage != mainClassPackageName) {
         val outerClass = s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}"
-        if (includeServiceFqn)
-          List(serv.fqn.fullName, outerClass)
-        else
-          List(outerClass)
+        serv match {
+          case actionServ: ModelBuilder.ActionService =>
+            List(actionServ.classNameQualified, actionServ.providerNameQualified, outerClass)
+          case view: ModelBuilder.ViewService =>
+            if (view.transformedUpdates.nonEmpty) List(serv.fqn.fullQualifiedName, outerClass)
+            else List(outerClass)
+          case _ => List(outerClass)
+        }
       } else List.empty
     }
 
@@ -276,23 +256,29 @@ object SourceGenerator extends PrettyPrinter {
       }
     }
 
-    val contextImports = model.entities.values
-      .collect {
-        case _: ModelBuilder.EventSourcedEntity =>
-          List(
-            "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
-            "java.util.function.Function"
-          )
-        case _: ModelBuilder.ValueEntity =>
-          List(
-            "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-            "java.util.function.Function"
-          )
-      }
-      .flatten
-      .toSet
+    val entityContextImports = model.entities.values.collect {
+      case _: ModelBuilder.EventSourcedEntity =>
+        List(
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+          "java.util.function.Function"
+        )
+      case _: ModelBuilder.ValueEntity =>
+        List(
+          "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+          "java.util.function.Function"
+        )
+    }.flatten
 
-    val creatorParameters =
+    val serviceContextImports = model.services.values.collect {
+      case _: ModelBuilder.ActionService =>
+        List(
+          "com.akkaserverless.javasdk.action.ActionCreationContext",
+          "java.util.function.Function"
+        )
+    }.flatten
+    val contextImports = (entityContextImports ++ serviceContextImports).toSet
+
+    val entityCreators =
       model.entities.values.collect {
         case entity: ModelBuilder.EventSourcedEntity =>
           s"Function<EventSourcedContext, ${entity.fqn.name}> create${entity.fqn.name}"
@@ -300,6 +286,12 @@ object SourceGenerator extends PrettyPrinter {
           s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
       }.toList
 
+    val serviceCreators = model.services.values.collect {
+      case service: ModelBuilder.ActionService =>
+        s"Function<ActionCreationContext, ${service.className}> create${service.className}"
+    }.toList
+
+    val creatorParameters = entityCreators ::: serviceCreators
     val imports =
       (List("com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports ++ contextImports).distinct.sorted
         .map(pkg => s"import $pkg;")
@@ -325,21 +317,34 @@ object SourceGenerator extends PrettyPrinter {
   private[codegen] def mainSource(
       mainClassPackageName: String,
       mainClassName: String,
-      entities: Map[String, Entity]
+      entities: Map[String, Entity],
+      services: Map[String, Service]
   ): String = {
+
+    val entityImports = entities.values.collect {
+      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.ValueEntity => entity.fqn.fullQualifiedName
+    }.toSeq
+
+    val serviceImports = services.values.collect {
+      case service: ModelBuilder.ActionService => service.classNameQualified
+    }.toSeq
+
     val componentImports = generateImports(
       Iterable.empty,
       mainClassPackageName,
-      entities.values.collect {
-        case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullName
-        case entity: ModelBuilder.ValueEntity => entity.fqn.fullName
-      }.toSeq
+      entityImports ++ serviceImports
     )
-    val registrationParameters = entities.values.collect {
+    val entityRegistrationParameters = entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
       case entity: ModelBuilder.ValueEntity => s"${entity.fqn.name}::new"
     }.toList
 
+    val serviceRegistrationParameters = services.values.collect {
+      case service: ModelBuilder.ActionService => s"${service.className}::new"
+    }.toList
+
+    val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
     s"""|$generatedCodeCommentString
         |
         |package $mainClassPackageName;

@@ -50,7 +50,7 @@ object ReplySupport {
       asProtocol(forward.serviceCall().metadata())
     )
 
-  def effectsFrom(reply: javasdk.Reply[JavaPbAny]): List[component.SideEffect] = {
+  def effectsFrom(reply: javasdk.Reply[_]): List[component.SideEffect] = {
     val replyEffects: List[SideEffect] = reply match {
       case impl: ReplyImpl[_] =>
         impl._effects

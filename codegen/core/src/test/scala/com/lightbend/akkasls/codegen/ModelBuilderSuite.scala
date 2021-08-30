@@ -100,7 +100,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       assertEquals(
         model.entities,
-        Map(entity.fqn.fullName -> entity)
+        Map(entity.fqn.fullQualifiedName -> entity)
       )
 
       assertEquals(
@@ -132,7 +132,7 @@ class ModelBuilderSuite extends munit.FunSuite {
                 streamedOutput = false
               )
             ),
-            entity.fqn.fullName
+            entity.fqn.fullQualifiedName
           )
         )
       )
@@ -195,7 +195,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       assertEquals(
         model.entities,
-        Map(entity.fqn.fullName -> entity)
+        Map(entity.fqn.fullQualifiedName -> entity)
       )
 
       assertEquals(
@@ -234,7 +234,7 @@ class ModelBuilderSuite extends munit.FunSuite {
                 streamedOutput = false
               )
             ),
-            entity.fqn.fullName
+            entity.fqn.fullQualifiedName
           )
         )
       )

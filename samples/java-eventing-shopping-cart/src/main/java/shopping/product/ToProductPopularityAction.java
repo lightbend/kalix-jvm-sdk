@@ -19,10 +19,8 @@ package shopping.product;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
 // tag::annotation[]
-import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
 // end::annotation[]
@@ -32,7 +30,6 @@ import shopping.cart.domain.ShoppingCartDomain;
 import shopping.product.api.ProductPopularityApi;
 // tag::annotation[]
 
-@Action
 public class ToProductPopularityAction {
   // end::annotation[]
   private static final Logger LOG = LoggerFactory.getLogger(ToProductPopularityAction.class);
@@ -51,7 +48,6 @@ public class ToProductPopularityAction {
   }
 
   // tag::methods[]
-  @Handler
   public Reply<Empty> forwardAdded(ShoppingCartDomain.ItemAdded in, ActionContext ctx) {
     // end::methods[]
 
@@ -67,7 +63,6 @@ public class ToProductPopularityAction {
   }
   // tag::forwardRemoved[]
 
-  @Handler
   public Reply<Empty> forwardRemoved(ShoppingCartDomain.ItemRemoved in, ActionContext ctx) { // <1>
     // end::methods[]
 
@@ -93,7 +88,6 @@ public class ToProductPopularityAction {
   // end::forwardRemoved[]
   // end::methods[]
 
-  @Handler
   public Empty catchOthers(Any in) {
     return Empty.getDefaultInstance();
   }

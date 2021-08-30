@@ -68,7 +68,12 @@ object ModelBuilder {
   sealed abstract class Service(
       val fqn: FullyQualifiedName,
       val commands: Iterable[Command]
-  )
+  ) {
+    lazy val commandTypes =
+      commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+  }
 
   /**
    * A Service backed by an Action - a serverless function that is executed based on a trigger.
@@ -77,7 +82,22 @@ object ModelBuilder {
   case class ActionService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command]
-  ) extends Service(fqn, commands)
+  ) extends Service(fqn, commands) {
+
+    private val baseClassName =
+      if (fqn.name.endsWith("Action")) fqn.name
+      else fqn.name + "Action"
+
+    val className =
+      if (fqn.name.endsWith("Action")) fqn.name + "Impl"
+      else fqn.name + "Action"
+    val interfaceName = "Abstract" + baseClassName
+    val handlerName = baseClassName + "Handler"
+    val providerName = baseClassName + "Provider"
+
+    val classNameQualified = s"${fqn.parent.javaPackage}.$className"
+    val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
+  }
 
   /**
    * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
@@ -212,13 +232,13 @@ object ModelBuilder {
               )
             case _ => None
           }
-        } yield serviceName.fullName -> service
+        } yield serviceName.fullQualifiedName -> service
 
         Model(
           existingServices ++ services,
           existingEntities ++
-          extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullName -> entity) ++
-          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullName -> entity)
+          extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity)
         )
     }
 

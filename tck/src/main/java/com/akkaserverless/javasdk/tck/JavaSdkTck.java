@@ -22,8 +22,11 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
+import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehaviorProvider;
 import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
+import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriberProvider;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ConfiguredReplicatedEntity;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwo;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.TckModelReplicatedEntity;
@@ -46,14 +49,8 @@ import java.time.Duration;
 public final class JavaSdkTck {
   public static AkkaServerless SERVICE =
       new AkkaServerless()
-          .registerAction(
-              ActionTckModelBehavior.class,
-              Action.getDescriptor().findServiceByName("ActionTckModel"),
-              Action.getDescriptor())
-          .registerAction(
-              ActionTwoBehavior.class,
-              Action.getDescriptor().findServiceByName("ActionTwo"),
-              Action.getDescriptor())
+          .register(ActionTckModelBehaviorProvider.of(ActionTckModelBehavior::new))
+          .register(ActionTwoBehaviorProvider.of(ActionTwoBehavior::new))
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
           .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
           .register(
@@ -98,10 +95,7 @@ public final class JavaSdkTck {
                       EventSourcedEntityOptions.defaults()
                           .withPassivationStrategy(
                               PassivationStrategy.timeout(Duration.ofMillis(100)))))
-          .registerAction(
-              LocalPersistenceSubscriber.class,
-              LocalPersistenceEventing.getDescriptor()
-                  .findServiceByName("LocalPersistenceSubscriberModel"))
+          .register(LocalPersistenceSubscriberProvider.of(LocalPersistenceSubscriber::new))
           .register(
               com.akkaserverless.javasdk.tck.model.localpersistenceeventing
                   .EventSourcedEntityOneProvider.of(

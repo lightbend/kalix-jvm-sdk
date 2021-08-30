@@ -16,15 +16,25 @@
 
 package com.akkaserverless.javasdk.action;
 
-import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
+import java.util.Optional;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public abstract class Action {
 
-/** An action. */
-@AkkaServerlessAnnotation
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Action {}
+  private Optional<ActionContext> actionContext = Optional.empty();
+
+  /**
+   * Additional context and metadata for a message handler.
+   *
+   * <p>It will throw an exception if accessed from constructor.
+   */
+  protected final ActionContext actionContext() {
+    return actionContext.orElseThrow(
+        () ->
+            new IllegalStateException("ActionContext is only available when handling a message."));
+  }
+
+  /** INTERNAL API */
+  public final void setActionContext(Optional<ActionContext> context) {
+    actionContext = context;
+  }
+}

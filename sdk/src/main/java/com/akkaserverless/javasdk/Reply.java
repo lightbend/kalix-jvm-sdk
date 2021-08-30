@@ -25,6 +25,7 @@ import com.akkaserverless.javasdk.reply.ForwardReply;
 import com.akkaserverless.javasdk.reply.MessageReply;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * A return type to allow returning forwards or failures, and attaching effects to messages.
@@ -112,5 +113,9 @@ public interface Reply<T> {
    */
   static <T> Reply<T> noReply() {
     return NoReply.apply();
+  }
+
+  public default Reply<Object> mapToObject() {
+    return (Reply<Object>) this;
   }
 }
