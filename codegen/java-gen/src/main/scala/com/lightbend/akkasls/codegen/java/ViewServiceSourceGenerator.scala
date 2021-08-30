@@ -83,9 +83,9 @@ object ViewServiceSourceGenerator {
     }
   }
   private[codegen] def viewHandler(service: ModelBuilder.EntityService,
-                                          entity: ModelBuilder.ViewService,
-                                          packageName: String,
-                                          className: String): String = {
+                                   entity: ModelBuilder.ViewService,
+                                   packageName: String,
+                                   className: String): String = {
 
     val imports = generateImports(
       service.commands,
@@ -152,7 +152,6 @@ object ViewServiceSourceGenerator {
         |
         |}""".stripMargin
   }
-
 
   private[codegen] def viewSource(
       service: ModelBuilder.ViewService,

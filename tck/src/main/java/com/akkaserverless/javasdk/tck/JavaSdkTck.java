@@ -21,8 +21,11 @@ import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
+import com.akkaserverless.javasdk.tck.model.valueentity.*;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehaviorProvider;
+import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity;
+import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntityProvider;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
@@ -34,11 +37,6 @@ import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersis
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ConfiguredReplicatedEntity;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwo;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.TckModelReplicatedEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntityProvider;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntityProvider;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
 import com.akkaserverless.javasdk.view.ViewProvider;
 import com.akkaserverless.tck.model.Action;
 import com.akkaserverless.tck.model.ReplicatedEntity;
@@ -119,11 +117,7 @@ public final class JavaSdkTck {
                   .of(
                       com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo
                           ::new))
-          .registerView(
-              com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior.class,
-              View.getDescriptor().findServiceByName("ViewTckModel"),
-              "tck-view",
-              View.getDescriptor())
+          .register(ViewTckModelBehaviorProvider.of(ViewTckModelBehavior::new))
           .register(ViewTckSourceEntityProvider.of(ViewTckSourceEntity::new));
 
   public static void main(String[] args) throws Exception {
