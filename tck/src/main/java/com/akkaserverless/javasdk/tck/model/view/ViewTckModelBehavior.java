@@ -17,16 +17,14 @@
 package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.view.View;
-import com.akkaserverless.javasdk.view.ViewCreationContext;
+import com.akkaserverless.javasdk.view.ViewContext;
 import com.akkaserverless.tck.model.View.Event;
 import com.akkaserverless.tck.model.View.ViewState;
-
-import java.util.Optional;
 
 public class ViewTckModelBehavior extends View<ViewState> {
 
   @SuppressWarnings("unused")
-  public ViewTckModelBehavior(ViewCreationContext context) {}
+  public ViewTckModelBehavior(ViewContext context) {}
 
   @Override
   public ViewState emptyState() {

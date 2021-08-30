@@ -30,7 +30,9 @@ public class ViewTckModelBehaviorHandler
 
   @Override
   public View.UpdateEffect<com.akkaserverless.tck.model.View.ViewState> handleUpdate(
-      String eventName, com.akkaserverless.tck.model.View.ViewState state, Object event) {
+      String eventName,
+      com.akkaserverless.tck.model.View.ViewState state,
+      Object event) {
     switch (eventName) {
       case "ProcessUpdateUnary":
         return view().processUpdateUnary(state, (com.akkaserverless.tck.model.View.Event) event);

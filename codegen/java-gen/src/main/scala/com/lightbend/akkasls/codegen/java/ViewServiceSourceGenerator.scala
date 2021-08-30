@@ -46,6 +46,9 @@ object ViewServiceSourceGenerator {
       mainClassPackageName: String,
       mainClassName: String
   ): Iterable[Path] = {
+
+    val generatedSources = Seq.newBuilder[Path]
+
     val packageName = service.fqn.parent.javaPackage
     val className = service.fqn.name
     val packagePath = packageAsPath(packageName)
@@ -54,58 +57,59 @@ object ViewServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = "Abstract" + className
     val interfaceSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
-
+      generatedSourceDirectory.resolve(packagePath.resolve(service.interfaceName + ".java"))
     interfaceSourcePath.getParent.toFile.mkdirs()
     Files.write(
       interfaceSourcePath,
-      interfaceSource(service, packageName, className).getBytes(Charsets.UTF_8)
+      interfaceSource(service, packageName).getBytes(Charsets.UTF_8)
     )
+    generatedSources += interfaceSourcePath
 
+    // Only if there is no user view code already present
     if (!implSourcePath.toFile.exists()) {
-      // Now we generate the view
       implSourcePath.getParent.toFile.mkdirs()
       Files.write(
         implSourcePath,
-        viewSource(
-          service,
-          packageName,
-          implClassName,
-          interfaceClassName
-        ).getBytes(Charsets.UTF_8)
+        viewSource(service, packageName).getBytes(Charsets.UTF_8)
       )
-
-      List(implSourcePath, interfaceSourcePath)
-    } else {
-      List(interfaceSourcePath)
+      generatedSources += implSourcePath
     }
+
+    val handlerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.handlerName + ".java"))
+    Files.write(
+      handlerSourcePath,
+      viewHandler(service, packageName).getBytes(Charsets.UTF_8)
+    )
+    generatedSources += handlerSourcePath
+
+    val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
+    Files.write(
+      providerSourcePath,
+      viewProvider(service, packageName).getBytes(Charsets.UTF_8)
+    )
+    generatedSources += providerSourcePath
+
+    generatedSources.result()
   }
-  private[codegen] def viewHandler(service: ModelBuilder.EntityService,
-                                   entity: ModelBuilder.ViewService,
-                                   packageName: String,
-                                   className: String): String = {
+  private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
 
     val imports = generateImports(
-      service.commands,
-      None, // FIXME Some(entity.state), view state?
+      view.commands,
+      view.state,
       packageName,
       otherImports = Seq(
-        "import com.akkaserverless.javasdk.impl.view.ViewException",
-        "import com.akkaserverless.javasdk.impl.view.ViewHandler",
-        "import com.akkaserverless.javasdk.view.UpdateContext",
-        "import com.akkaserverless.javasdk.view.View",
-        "import scala.Option"
+        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
+        "com.akkaserverless.javasdk.impl.view.ViewHandler",
+        "com.akkaserverless.javasdk.view.View"
       )
     )
 
-    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    val outerClassAndState = ??? // s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
-    val cases = service.commands
+    val serviceApiOuterClass = view.fqn.parent.javaOuterClassname
+    val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.fqn.name
-        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        val inputType = qualifiedType(cmd.inputType)
         s"""|case "$methodName":
             |  return view().${lowerFirst(methodName)}(
             |      state,
@@ -118,152 +122,161 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
-        |/** A value entity handler */
-        |public class ${className}Handler extends ViewHandler<$outerClassAndState, ${className}> {
+        |/** A view handler */
+        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.className}> {
         |
-        |  public ${className}Handler(${className} view) {
+        |  public ${view.handlerName}(${view.className} view) {
         |    super(view);
         |  }
         |
-        |  public ${className}Handler(${className} entity) {
-        |    this.entity = entity;
-        |  }
-        |
         |  @Override
-        |  public View.UpdateEffect<$outerClassAndState> handleUpdate(
+        |  public View.UpdateEffect<${qualifiedType(view.state.fqn)}> handleUpdate(
         |      String eventName,
-        |      $outerClassAndState state,
-        |      Object event,
-        |      UpdateContext context) {
+        |      ${qualifiedType(view.state.fqn)} state,
+        |      Object event) {
         |
         |    switch (eventName) {
         |      ${Syntax.indent(cases, 6)}
         |
         |      default:
-        |        throw new ViewException(
-        |            context.viewId(),
-        |            eventName,
-        |            "No command handler found for command ["
-        |                + eventName
-        |                + "] on "
-        |                + view().getClass().toString(),
-        |            Option.empty());
+        |        throw new UpdateHandlerNotFound(eventName);
         |    }
+        |  }
         |
         |}""".stripMargin
   }
 
+  private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
+    val imports = generateImports(
+      Nil,
+      packageName,
+      Seq(
+        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
+        "com.akkaserverless.javasdk.impl.view.ViewHandler",
+        "com.akkaserverless.javasdk.view.ViewProvider",
+        "com.akkaserverless.javasdk.view.ViewCreationContext",
+        "com.akkaserverless.javasdk.view.View",
+        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+        view.fqn.fullQualifiedName,
+        "com.google.protobuf.Descriptors",
+        "com.google.protobuf.EmptyProto",
+        "java.util.function.Function"
+      )
+    )
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |public class ${view.providerName} implements ViewProvider {
+        |
+        |  private final Function<ViewCreationContext, ${view.className}> viewFactory;
+        |
+        |  /** Factory method of ${view.className} */
+        |  public static ${view.providerName} of(
+        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
+        |    return new ${view.providerName}(viewFactory);
+        |  }
+        |
+        |  private ${view.providerName}(
+        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
+        |    this.viewFactory = viewFactory;
+        |  }
+        |
+        |  @Override
+        |  public String viewId() {
+        |    return "${view.viewId}";
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
+        |    return ${view.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${view.fqn.name}");
+        |  }
+        |
+        |  @Override
+        |  public final ${view.handlerName} newHandler(ViewCreationContext context) {
+        |    return new ${view.handlerName}(viewFactory.apply(context));
+        |  }
+        |
+        |  @Override
+        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
+        |    return new Descriptors.FileDescriptor[] {${view.fqn.parent.javaOuterClassname}.getDescriptor()};
+        |  }
+        |}""".stripMargin
+  }
+
   private[codegen] def viewSource(
-      service: ModelBuilder.ViewService,
-      packageName: String,
-      className: String,
-      interfaceClassName: String
+      view: ModelBuilder.ViewService,
+      packageName: String
   ): String = {
-    val messageTypes =
-      service.transformedUpdates.toSeq.flatMap(command => Seq(command.inputType, command.outputType))
 
-    val imports = (messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++ immutable.Seq(
-      "com.akkaserverless.javasdk.view.View",
-      "java.util.Optional"
-    )).distinct.sorted.to[immutable.Seq]
+    val imports = generateImports(
+      view.commandTypes,
+      packageName,
+      Seq(
+        "com.akkaserverless.javasdk.view.View",
+        "com.akkaserverless.javasdk.view.ViewContext",
+        "java.util.function.Function"
+      )
+    )
 
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "/** A view. */" <> line <>
-      "@View" <> line <>
-      `class`("public", s"$className extends $interfaceClassName") {
-        ssep(
-          service.transformedUpdates.toSeq
-            .map { update =>
-              "@Override" <>
-              line <>
-              method(
-                "public",
-                qualifiedType(update.outputType),
-                lowerFirst(update.fqn.name),
-                List(
-                  qualifiedType(update.inputType) <+> "event",
-                  "Optional" <> angles(
-                    qualifiedType(update.outputType)
-                  ) <+> "state"
-                ),
-                emptyDoc
-              ) {
-                "throw new RuntimeException" <> parens(
-                  notImplementedError("update", update.fqn)
-                ) <> semi
-              }
-            }
-            .to[immutable.Seq],
-          line <> line
-        )
-      }
-    ).layout
+    val handlers = view.transformedUpdates.map { update =>
+      val stateType = qualifiedType(update.outputType)
+      s"""@Override
+         |public UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
+         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.fqn.name)}) {
+         |  throw new RuntimeException("Update handler for '${update.fqn.name}' not implemented yet");
+         |}""".stripMargin
+    }
+
+    s"""$managedCodeCommentString
+       |package $packageName;
+       |
+       |$imports
+       |
+       |public class ${view.className} extends ${view.interfaceName} {
+       |
+       |  public ${view.className}(ViewContext context) {}
+       |
+       |  @Override
+       |  public ${qualifiedType(view.state.fqn)} emptyState() {
+       |    throw new RuntimeException("Empty state for '${view.className}' not implemented yet");
+       |  }
+       |
+       |  ${Syntax.indent(handlers, 2)}
+       |}""".stripMargin
   }
 
   private[codegen] def interfaceSource(
-      service: ModelBuilder.ViewService,
-      packageName: String,
-      className: String
+      view: ModelBuilder.ViewService,
+      packageName: String
   ): String = {
-    val messageTypes =
-      service.transformedUpdates.toSeq.flatMap(command => immutable.Seq(command.inputType, command.outputType))
+    val imports = generateImports(
+      view.commandTypes,
+      packageName,
+      Seq(
+        "com.akkaserverless.javasdk.view.View",
+        "java.util.function.Function"
+      )
+    )
 
-    val imports = (messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++
-    Seq(
-      "com.akkaserverless.javasdk.view.*",
-      "java.util.Optional"
-    )).distinct
-      .to[immutable.Seq]
-      .sorted
+    val handlers = view.transformedUpdates.map { update =>
+      val stateType = qualifiedType(update.outputType)
+      s"""public abstract UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
+         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.fqn.name)});""".stripMargin
 
-    pretty(
-      managedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "/** A view. */" <> line <>
-      `class`("public abstract", "Abstract" + className) {
-        ssep(
-          immutable
-            .Seq(
-              service.transformedUpdates.toSeq
-                .map { update =>
-                  "@UpdateHandler" <>
-                  line <>
-                  abstractMethod(
-                    "public",
-                    qualifiedType(update.outputType),
-                    lowerFirst(update.fqn.name),
-                    List(
-                      qualifiedType(update.inputType) <+> "event",
-                      "Optional" <> angles(
-                        qualifiedType(update.outputType)
-                      ) <+> "state"
-                    )
-                  ) <> semi
-                }
-            )
-            .flatten,
-          line <> line
-        )
-      }
-    ).layout
+    }
+
+    s"""$managedCodeCommentString
+      |package $packageName;
+      |
+      |$imports
+      |
+      |public abstract class ${view.interfaceName} extends View<${qualifiedType(view.state.fqn)}> {
+      |
+      |  ${Syntax.indent(handlers, 2)}
+      |}""".stripMargin
   }
 
 }

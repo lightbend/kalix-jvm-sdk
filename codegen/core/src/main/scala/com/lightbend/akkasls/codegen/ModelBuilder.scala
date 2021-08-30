@@ -109,7 +109,19 @@ object ModelBuilder {
       viewId: String,
       transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands) {
-    require(fqn.name.endsWith("View") || fqn.name.endsWith("Impl"))
+
+    val className =
+      if (fqn.name.endsWith("View")) fqn.name
+      else fqn.name + "View"
+
+    val interfaceName = "Abstract" + className
+    val handlerName = className + "Handler"
+    val providerName = className + "Provider"
+
+    val classNameQualified = s"${fqn.parent.javaPackage}.$className"
+    val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
+
+    val state = State(commands.head.outputType)
   }
 
   /**
@@ -207,14 +219,6 @@ object ModelBuilder {
                   method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
                 ).map(viewOptions => (method, viewOptions))
               }
-              val relevantTypes = methods.flatMap(
-                method =>
-                  Seq(
-                    method.getInputType(),
-                    method.getOutputType()
-                  )
-              )
-
               Some(
                 ViewService(
                   serviceName,

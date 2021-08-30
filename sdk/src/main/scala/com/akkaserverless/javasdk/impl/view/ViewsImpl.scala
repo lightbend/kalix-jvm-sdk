@@ -26,7 +26,8 @@ import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect
 import com.akkaserverless.javasdk.lowlevel.ViewFactory
-import com.akkaserverless.javasdk.view.{UpdateContext, View, ViewContext, ViewCreationContext}
+import com.akkaserverless.javasdk.view.ViewCreationContext
+import com.akkaserverless.javasdk.view.{UpdateContext, View, ViewContext}
 import com.akkaserverless.protocol.{view => pv}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{Any => ScalaPbAny}
