@@ -30,6 +30,6 @@ public interface UpdateContext extends ViewContext, MetadataContext {
    */
   Optional<String> eventSubject();
 
-  /** The name of the command being executed. */
-  String commandName();
+  /** The name of the event being handled. */
+  String eventName();
 }

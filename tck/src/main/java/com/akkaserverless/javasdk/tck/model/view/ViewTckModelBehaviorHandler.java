@@ -16,11 +16,9 @@
 
 package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.impl.view.ViewException;
+import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
 import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.view.UpdateContext;
 import com.akkaserverless.javasdk.view.View;
-import scala.Option;
 
 // FIXME handwritten version for now (awaiting codegen)
 public class ViewTckModelBehaviorHandler
@@ -32,23 +30,13 @@ public class ViewTckModelBehaviorHandler
 
   @Override
   public View.UpdateEffect<com.akkaserverless.tck.model.View.ViewState> handleUpdate(
-      String eventName,
-      com.akkaserverless.tck.model.View.ViewState state,
-      Object event,
-      UpdateContext context) {
+      String eventName, com.akkaserverless.tck.model.View.ViewState state, Object event) {
     switch (eventName) {
       case "ProcessUpdateUnary":
         return view().processUpdateUnary(state, (com.akkaserverless.tck.model.View.Event) event);
 
       default:
-        throw new ViewException(
-            context.viewId(),
-            eventName,
-            "No update handler found for event ["
-                + eventName
-                + "] on "
-                + view().getClass().toString(),
-            Option.empty());
+        throw new UpdateHandlerNotFound(eventName);
     }
   }
 }

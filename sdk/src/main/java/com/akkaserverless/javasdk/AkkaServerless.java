@@ -393,7 +393,7 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register a view using a {{@link ViewProvider}}. The concrete <code>
+   * Register a view using a {@link ViewProvider}. The concrete <code>
    * ViewProvider</code> is generated for the specific views defined in Protobuf, for example <code>
    * CustomerViewProvider</code>.
    *

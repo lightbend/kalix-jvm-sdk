@@ -33,8 +33,7 @@ public abstract class View<S> {
   protected final UpdateContext updateContext() {
     return updateContext.orElseThrow(
         () ->
-            new IllegalStateException(
-                "UpdateHandlerContext is only available when handling an update."));
+            new IllegalStateException("UpdateContext is only available when handling an update."));
   }
 
   /** INTERNAL API */

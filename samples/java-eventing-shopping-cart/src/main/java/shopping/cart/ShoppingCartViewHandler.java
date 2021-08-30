@@ -16,11 +16,9 @@
 
 package shopping.cart;
 
-import com.akkaserverless.javasdk.impl.view.ViewException;
+import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
 import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.view.UpdateContext;
 import com.akkaserverless.javasdk.view.View;
-import scala.Option;
 import shopping.cart.domain.ShoppingCartDomain;
 import shopping.cart.view.ShoppingCartViewModel;
 
@@ -36,8 +34,7 @@ public class ShoppingCartViewHandler
   public View.UpdateEffect<ShoppingCartViewModel.CartViewState> handleUpdate(
       String eventName,
       ShoppingCartViewModel.CartViewState state,
-      Object message,
-      UpdateContext context) {
+      Object message) {
     switch (eventName) {
       case "ItemAdded":
         return view().processItemAdded(state, (ShoppingCartDomain.ItemAdded) message);
@@ -49,14 +46,7 @@ public class ShoppingCartViewHandler
         return view().processCheckedOut(state, (ShoppingCartDomain.CheckedOut) message);
 
       default:
-        throw new ViewException(
-            context.viewId(),
-            eventName,
-            "No update handler found for event ["
-                + eventName
-                + "] on "
-                + view().getClass().toString(),
-            Option.empty());
+        throw new UpdateHandlerNotFound(eventName);
     }
   }
 }

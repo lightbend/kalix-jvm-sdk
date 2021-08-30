@@ -35,6 +35,11 @@ private[impl] object ViewException {
     ViewException(viewId = "", commandName = "", message, None)
 
   def apply(context: UpdateContext, message: String, cause: Option[Throwable]): ViewException =
-    ViewException(context.viewId, context.commandName, message, cause)
+    ViewException(context.viewId, context.eventName, message, cause)
 
 }
+
+/**
+ * INTERNAL API
+ */
+final case class UpdateHandlerNotFound(eventName: String) extends RuntimeException

@@ -29,12 +29,20 @@ abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
     }
     try {
       view.setUpdateContext(Optional.of(context))
-      handleUpdate(context.commandName(), stateOrEmpty, event, context)
+      handleUpdate(context.eventName(), stateOrEmpty, event)
+    } catch {
+      case missing: UpdateHandlerNotFound =>
+        throw new ViewException(
+          context.viewId,
+          missing.eventName,
+          "No update handler found for event [" + missing.eventName + "] on " + view.getClass.toString,
+          Option.empty
+        )
     } finally {
       view.setUpdateContext(Optional.empty())
     }
   }
 
-  def handleUpdate(commandName: String, state: S, event: Any, context: UpdateContext): View.UpdateEffect[S]
+  def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
 
 }

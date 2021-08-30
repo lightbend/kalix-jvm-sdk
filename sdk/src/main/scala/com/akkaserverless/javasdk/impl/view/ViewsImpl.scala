@@ -101,7 +101,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
               val commandName = receiveEvent.commandName
               val msg = service.anySupport.decode(ScalaPbAny.toJavaProto(receiveEvent.payload.get))
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val context = new ContextImpl(service.viewId, commandName, metadata)
+              val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
               val effect = try {
                 handler.handleUpdate(state, msg, context)
@@ -148,9 +148,9 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  private final class ContextImpl(override val viewId: String,
-                                  override val commandName: String,
-                                  override val metadata: Metadata)
+  private final class UpdateContextImpl(override val viewId: String,
+                                        override val eventName: String,
+                                        override val metadata: Metadata)
       extends UpdateContext
       with AbstractContext {
 
