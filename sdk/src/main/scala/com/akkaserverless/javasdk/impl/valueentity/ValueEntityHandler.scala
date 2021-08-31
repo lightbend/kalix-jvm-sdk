@@ -46,8 +46,6 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
   private def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
-      // FIXME null should be allowed, issue #167
-      require(emptyState != null, "Entity empty state is not allowed to be null")
       state = Option(emptyState)
       emptyState
     case Some(state) => state
