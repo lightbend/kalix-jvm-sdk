@@ -4,6 +4,7 @@
  */
 package customer.view;
 
+// tag::process-events[]
 import com.akkaserverless.javasdk.view.ViewContext;
 import com.google.protobuf.Any;
 import customer.domain.CustomerDomain;
@@ -40,3 +41,4 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
     return updateEffects().ignore();
   }
 }
+// end::process-events[]
