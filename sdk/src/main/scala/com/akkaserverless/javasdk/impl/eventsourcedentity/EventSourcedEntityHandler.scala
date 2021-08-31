@@ -48,7 +48,7 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
 
   private var state: Option[S] = None
 
-  final protected def stateOrEmpty(): S = state match {
+  private def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
       // FIXME null should be allowed, issue #167
@@ -63,6 +63,8 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
 
   // "public" api against the impl/testkit
   final def handleSnapshot(snapshot: S): Unit = setState(snapshot)
+
+  // "public" api against the impl/testkit
   final def handleEvent(event: Object, context: EventContext): Unit = {
     entity.setEventContext(Optional.of(context))
     try {

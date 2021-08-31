@@ -31,7 +31,6 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.reply.ErrorReply
 import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
@@ -199,7 +198,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) =>
-              throw EntityException(command, s"Unexpected failure: ${error}", Some(error))
+              throw EntityException(command, s"Unexpected failure: $error", Some(error))
           } finally {
             context.deactivate() // Very important!
           }
@@ -248,7 +247,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
                  )
                ))
           }
-        case (_, InInit(i)) =>
+        case (_, InInit(_)) =>
           throw ProtocolException(init, "Entity already inited")
         case (_, InEmpty) =>
           throw ProtocolException(init, "Received empty/unknown message")
