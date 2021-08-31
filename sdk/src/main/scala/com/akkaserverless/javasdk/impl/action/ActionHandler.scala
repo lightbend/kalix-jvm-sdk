@@ -132,7 +132,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   def handleStreamed(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Source[Reply[Any], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
-    action.setActionContext(Optional.of(context))
+    action._internalSetActionContext(Optional.of(context))
     try {
       func()
     } catch {
@@ -141,7 +141,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
           s"No call handler found for call $name on ${action.getClass.getName}"
         )
     } finally {
-      action.setActionContext(Optional.empty())
+      action._internalSetActionContext(Optional.empty())
     }
   }
 }

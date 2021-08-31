@@ -36,7 +36,6 @@ import com.akkaserverless.javasdk.impl.effect.EffectSupport
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.NoPrimaryEffect
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandResult
 import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
@@ -86,7 +85,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
 
   import EntityExceptions._
 
-  private final implicit val ec: ExecutionContext = system.dispatcher
+  private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = Logging(system.eventStream, this.getClass)
 
   /**
@@ -124,21 +123,23 @@ final class ValueEntitiesImpl(system: ActorSystem,
     val handler = service.factory.create(new ValueEntityContextImpl(init.entityId))
     val thisEntityId = init.entityId
 
-    val initState: Option[Any] = init.state match {
-      case Some(ValueEntityInitState(stateOpt, _)) => stateOpt.map(service.anySupport.decode)
-      case None => throw new IllegalStateException("ValueEntityInit state is mandatory")
+    init.state match {
+      case Some(ValueEntityInitState(stateOpt, _)) =>
+        stateOpt.map(service.anySupport.decode).foreach(handler._internalSetInitState)
+      case None =>
+        throw new IllegalStateException("ValueEntityInitState is mandatory")
     }
 
     Flow[ValueEntityStreamIn]
       .map(_.message)
-      .scan[(Option[Any], Option[ValueEntityStreamOut.Message])]((initState, None)) {
-        case (_, InCommand(command)) if thisEntityId != command.entityId =>
+      .map {
+        case InCommand(command) if thisEntityId != command.entityId =>
           throw ProtocolException(command, "Receiving Value entity is not the intended recipient of command")
 
-        case (_, InCommand(command)) if command.payload.isEmpty =>
+        case InCommand(command) if command.payload.isEmpty =>
           throw ProtocolException(command, "No command payload for Value entity")
 
-        case ((state, _), InCommand(command)) =>
+        case InCommand(command) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
 
@@ -156,12 +157,12 @@ final class ValueEntitiesImpl(system: ActorSystem,
           )
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
-            handler.handleCommand(command.name, state, cmd, context)
+            handler._internalHandleCommand(command.name, cmd, context)
           } catch {
             case FailInvoked => new ValueEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) =>
-              throw EntityException(command, s"Unexpected failure: ${error}", Some(error))
+              throw EntityException(command, s"Unexpected failure: $error", Some(error))
           } finally {
             context.deactivate() // Very important!
           }
@@ -181,49 +182,43 @@ final class ValueEntitiesImpl(system: ActorSystem,
                         command.name,
                         thisEntityId,
                         error.description)
-              // rollback the state if something went wrong by using the old state
-              (state,
-               Some(
-                 OutReply(
-                   ValueEntityReply(
-                     commandId = command.id,
-                     clientAction = clientAction
-                   )
-                 )
-               ))
+              ValueEntityStreamOut(
+                OutReply(
+                  ValueEntityReply(
+                    commandId = command.id,
+                    clientAction = clientAction
+                  )
+                )
+              )
 
             case _ => // non-error
-              val (nextState: Option[Any], action: Option[ValueEntityAction]) = effect.primaryEffect match {
+              val action: Option[ValueEntityAction] = effect.primaryEffect match {
                 case DeleteState =>
-                  (None, Some(ValueEntityAction(Delete(ValueEntityDelete()))))
+                  Some(ValueEntityAction(Delete(ValueEntityDelete())))
                 case UpdateState(newState) =>
                   val newStateScalaPbAny = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
-                  (Some(newState), Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny))))))
+                  Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
                 case _ =>
-                  (state, None)
+                  None
               }
 
-              (nextState,
-               Some(
-                 OutReply(
-                   ValueEntityReply(
-                     command.id,
-                     clientAction,
-                     context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
-                     action
-                   )
-                 )
-               ))
+              ValueEntityStreamOut(
+                OutReply(
+                  ValueEntityReply(
+                    command.id,
+                    clientAction,
+                    context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                    action
+                  )
+                )
+              )
           }
 
-        case (_, InInit(_)) =>
+        case InInit(_) =>
           throw ProtocolException(init, "Value entity already inited")
 
-        case (_, InEmpty) =>
+        case InEmpty =>
           throw ProtocolException(init, "Value entity received empty/unknown message")
-      }
-      .collect {
-        case (_, Some(message)) => ValueEntityStreamOut(message)
       }
   }
 

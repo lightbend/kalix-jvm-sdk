@@ -20,6 +20,9 @@ import java.util.Optional
 
 import com.akkaserverless.javasdk.valueentity.CommandContext
 import com.akkaserverless.javasdk.impl.EntityExceptions
+import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.valueentity.ValueEntity
 
 object ValueEntityHandler {
@@ -38,14 +41,26 @@ object ValueEntityHandler {
 abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: E) {
   import ValueEntityHandler._
 
-  // "public" api against the impl/testkit
-  final def handleCommand(commandName: String,
-                          state: Option[Any],
-                          command: Any,
-                          context: CommandContext): CommandResult = {
+  private var state: Option[S] = None
+
+  private def stateOrEmpty(): S = state match {
+    case None =>
+      val emptyState = entity.emptyState()
+      state = Option(emptyState)
+      emptyState
+    case Some(state) => state
+  }
+
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalSetInitState(s: Any): Unit = {
+    state = Some(s.asInstanceOf[S])
+  }
+
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
     val commandEffect = try {
-      entity.setCommandContext(Optional.of(context))
-      handleCommand(commandName, state.asInstanceOf[Option[S]].getOrElse(entity.emptyState()), command, context)
+      entity._internalSetCommandContext(Optional.of(context))
+      handleCommand(commandName, stateOrEmpty(), command, context)
         .asInstanceOf[ValueEntityEffectImpl[Any]]
     } catch {
       case CommandHandlerNotFound(name) =>
@@ -56,7 +71,15 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
           s"No command handler found for command [$name] on ${entity.getClass}"
         )
     } finally {
-      entity.setCommandContext(Optional.empty())
+      entity._internalSetCommandContext(Optional.empty())
+    }
+
+    if (!commandEffect.hasError()) {
+      commandEffect.primaryEffect match {
+        case UpdateState(newState) => state = Some(newState.asInstanceOf[S])
+        case DeleteState => state = None
+        case _ =>
+      }
     }
 
     CommandResult(commandEffect)

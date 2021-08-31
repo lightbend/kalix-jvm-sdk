@@ -78,6 +78,9 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[Effect[T]]
   }
 
+  def hasError(): Boolean =
+    _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
+
   override def noReply[T](): Effect[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[Effect[T]]

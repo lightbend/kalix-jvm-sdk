@@ -48,7 +48,7 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
 
   private var state: Option[S] = None
 
-  final protected def stateOrEmpty(): S = state match {
+  private def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
       // FIXME null should be allowed, issue #167
@@ -61,10 +61,12 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
   private def setState(newState: S): Unit =
     state = Option(newState)
 
-  // "public" api against the impl/testkit
-  final def handleSnapshot(snapshot: S): Unit = setState(snapshot)
-  final def handleEvent(event: Object, context: EventContext): Unit = {
-    entity.setEventContext(Optional.of(context))
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleSnapshot(snapshot: S): Unit = setState(snapshot)
+
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleEvent(event: Object, context: EventContext): Unit = {
+    entity._internalSetEventContext(Optional.of(context))
     try {
       val newState = handleEvent(stateOrEmpty(), event)
       setState(newState)
@@ -72,16 +74,18 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
       case EventHandlerNotFound(eventClass) =>
         throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
     } finally {
-      entity.setEventContext(Optional.empty())
+      entity._internalSetEventContext(Optional.empty())
     }
   }
-  final def handleCommand(commandName: String,
-                          command: Any,
-                          context: CommandContext,
-                          snapshotEvery: Int,
-                          eventContextFactory: Long => EventContext): CommandResult = {
+
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleCommand(commandName: String,
+                                   command: Any,
+                                   context: CommandContext,
+                                   snapshotEvery: Int,
+                                   eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
-      entity.setCommandContext(Optional.of(context))
+      entity._internalSetCommandContext(Optional.of(context))
       handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
     } catch {
       case CommandHandlerNotFound(name) =>
@@ -92,7 +96,7 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
           s"No command handler found for command [$name] on ${entity.getClass}"
         )
     } finally {
-      entity.setCommandContext(Optional.empty())
+      entity._internalSetCommandContext(Optional.empty())
     }
     var currentSequence = context.sequenceNumber()
     commandEffect.primaryEffect match {
@@ -100,14 +104,14 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
         var shouldSnapshot = false
         events.foreach { event =>
           try {
-            entity.setEventContext(Optional.of(eventContextFactory(currentSequence)))
+            entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
             val newState = handleEvent(stateOrEmpty(), event)
             setState(newState)
           } catch {
             case EventHandlerNotFound(eventClass) =>
               throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
           } finally {
-            entity.setEventContext(Optional.empty())
+            entity._internalSetEventContext(Optional.empty())
           }
           currentSequence += 1
           shouldSnapshot = shouldSnapshot || (snapshotEvery > 0 && currentSequence % snapshotEvery == 0)
