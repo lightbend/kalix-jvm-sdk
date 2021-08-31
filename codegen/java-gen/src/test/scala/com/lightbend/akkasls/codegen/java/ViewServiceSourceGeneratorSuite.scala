@@ -53,12 +53,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  public UpdateEffect<ServiceOuterClass.ViewState> created(
-        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated created) {
+        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated entityCreated) {
         |    throw new UnsupportedOperationException("Update handler for 'Created' not implemented yet");
         |  }
         |  @Override
         |  public UpdateEffect<ServiceOuterClass.ViewState> updated(
-        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated updated) {
+        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated entityUpdated) {
         |    throw new UnsupportedOperationException("Update handler for 'Updated' not implemented yet");
         |  }
         |}""".stripMargin
@@ -86,9 +86,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |public abstract class AbstractMyServiceView extends View<ServiceOuterClass.ViewState> {
         |
         |  public abstract UpdateEffect<ServiceOuterClass.ViewState> created(
-        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated created);
+        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated entityCreated);
         |  public abstract UpdateEffect<ServiceOuterClass.ViewState> updated(
-        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated updated);
+        |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated entityUpdated);
         |}""".stripMargin
     )
   }

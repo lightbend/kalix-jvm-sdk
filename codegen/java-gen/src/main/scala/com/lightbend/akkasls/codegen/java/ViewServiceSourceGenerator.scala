@@ -219,7 +219,7 @@ object ViewServiceSourceGenerator {
       val stateType = qualifiedType(update.outputType)
       s"""@Override
          |public UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
-         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.fqn.name)}) {
+         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)}) {
          |  throw new UnsupportedOperationException("Update handler for '${update.fqn.name}' not implemented yet");
          |}""".stripMargin
     }
@@ -258,7 +258,7 @@ object ViewServiceSourceGenerator {
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
       s"""public abstract UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
-         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.fqn.name)});""".stripMargin
+         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)});""".stripMargin
 
     }
 
