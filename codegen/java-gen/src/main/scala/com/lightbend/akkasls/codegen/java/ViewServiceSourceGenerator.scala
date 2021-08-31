@@ -185,7 +185,7 @@ object ViewServiceSourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${view.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${view.fqn.name}");
+        |    return ${view.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${view.fqn.protoName}");
         |  }
         |
         |  @Override

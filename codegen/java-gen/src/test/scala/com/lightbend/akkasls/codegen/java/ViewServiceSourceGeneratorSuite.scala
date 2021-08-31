@@ -193,7 +193,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |
        |  @Override
        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-       |    return ServiceOuterClass.getDescriptor().findServiceByName("MyServiceView");
+       |    return ServiceOuterClass.getDescriptor().findServiceByName("MyService");
        |  }
        |
        |  @Override
