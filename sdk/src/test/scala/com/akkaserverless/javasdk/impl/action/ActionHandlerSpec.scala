@@ -207,19 +207,17 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
   class TestAction extends Action
 
   private abstract class AbstractHandler extends ActionHandler[TestAction](new TestAction) {
-    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): CompletionStage[javasdk.Reply[Any]] =
+    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
       ???
 
-    override def handleStreamedOut(commandName: String,
-                                   message: MessageEnvelope[Any]): Source[javasdk.Reply[Any], NotUsed] = ???
+    def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = ???
 
     override def handleStreamedIn(commandName: String,
-                                  stream: Source[MessageEnvelope[Any], NotUsed]): CompletionStage[javasdk.Reply[Any]] =
+                                  stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[Any] =
       ???
 
-    override def handleStreamed(commandName: String,
-                                stream: Source[MessageEnvelope[Any], NotUsed]): Source[javasdk.Reply[Any], NotUsed] =
-      ???
+    def handleStreamed(commandName: String,
+                       stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
   }
 
 }

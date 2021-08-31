@@ -42,9 +42,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @return A future of the message to return.
    */
   @throws[Throwable]
-  final def handleUnary(commandName: String,
-                        message: MessageEnvelope[Any],
-                        context: ActionContext): CompletionStage[Reply[Any]] =
+  final def handleUnary(commandName: String, message: MessageEnvelope[Any], context: ActionContext): Action.Effect[_] =
     callWithContext(context) { () =>
       handleUnary(commandName, message)
     }
@@ -57,7 +55,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @return A future of the message to return.
    */
   @throws[Throwable]
-  def handleUnary(commandName: String, message: MessageEnvelope[Any]): CompletionStage[Reply[Any]]
+  def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_]
 
   /**
    * Handle a streamed out call call.
@@ -69,7 +67,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    */
   final def handleStreamedOut(commandName: String,
                               message: MessageEnvelope[Any],
-                              context: ActionContext): Source[Reply[Any], NotUsed] =
+                              context: ActionContext): Source[Action.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamedOut(commandName, message)
     }
@@ -81,7 +79,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param message     The message envelope of the message.
    * @return The stream of messages to return.
    */
-  def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Reply[Any], NotUsed]
+  def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed]
 
   /**
    * Handle a streamed in call.
@@ -93,7 +91,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    */
   final def handleStreamedIn(commandName: String,
                              stream: Source[MessageEnvelope[Any], NotUsed],
-                             context: ActionContext): CompletionStage[Reply[Any]] =
+                             context: ActionContext): Action.Effect[_] =
     callWithContext(context) { () =>
       handleStreamedIn(commandName, stream)
     }
@@ -105,7 +103,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param stream      The stream of messages to handle.
    * @return A future of the message to return.
    */
-  def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): CompletionStage[Reply[Any]]
+  def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_]
 
   /**
    * Handle a full duplex streamed in call.
@@ -117,7 +115,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    */
   final def handleStreamed(commandName: String,
                            stream: Source[MessageEnvelope[Any], NotUsed],
-                           context: ActionContext): Source[Reply[Any], NotUsed] =
+                           context: ActionContext): Source[Action.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamed(commandName, stream)
     }
@@ -129,7 +127,8 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param stream      The stream of messages to handle.
    * @return The stream of messages to return.
    */
-  def handleStreamed(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Source[Reply[Any], NotUsed]
+  def handleStreamed(commandName: String,
+                     stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
     action.setActionContext(Optional.of(context))

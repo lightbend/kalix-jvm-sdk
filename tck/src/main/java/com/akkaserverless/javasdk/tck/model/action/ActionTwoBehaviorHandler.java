@@ -19,9 +19,9 @@ package com.akkaserverless.javasdk.tck.model.action;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
-import com.akkaserverless.tck.model.Action;
 
 import java.util.concurrent.CompletionStage;
 
@@ -32,18 +32,18 @@ public class ActionTwoBehaviorHandler extends ActionHandler<ActionTwoBehavior> {
   }
 
   @Override
-  public CompletionStage<Reply<Object>> handleUnary(
-      String commandName, MessageEnvelope<Object> message) throws Throwable {
+  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message)
+      throws Throwable {
     switch (commandName) {
       case "Call":
-        return action().call((Action.OtherRequest) message.payload()).thenApply(Reply::mapToObject);
+        return action().call((com.akkaserverless.tck.model.Action.OtherRequest) message.payload());
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
     }
   }
 
   @Override
-  public Source<Reply<Object>, NotUsed> handleStreamedOut(
+  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(
       String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       default:
@@ -52,7 +52,7 @@ public class ActionTwoBehaviorHandler extends ActionHandler<ActionTwoBehavior> {
   }
 
   @Override
-  public CompletionStage<Reply<Object>> handleStreamedIn(
+  public Action.Effect<?> handleStreamedIn(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     switch (commandName) {
       default:
@@ -61,7 +61,7 @@ public class ActionTwoBehaviorHandler extends ActionHandler<ActionTwoBehavior> {
   }
 
   @Override
-  public Source<Reply<Object>, NotUsed> handleStreamed(
+  public Source<Action.Effect<?>, NotUsed> handleStreamed(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     switch (commandName) {
       default:

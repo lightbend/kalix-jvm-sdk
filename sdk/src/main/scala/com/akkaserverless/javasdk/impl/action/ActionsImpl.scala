@@ -85,6 +85,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     ActionResponse(response, ReplySupport.effectsFrom(msg))
   }
 
+  private def effectToResponse(msg: Action.Effect[_], anySupport: AnySupport): Future[ActionResponse] = {
+    // FIXME actual transform
+    ???
+  }
+
   /**
    * Handle a unary command.
    * The input command will contain the service name, command name, request metadata and the command
@@ -96,11 +101,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
       case Some(service) =>
         val context = createContext(in)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
-        service.factory
+        val effect = service.factory
           .create(creationContext)
           .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          .toScala
-          .map(msg => replyToActionResponse(msg, service.anySupport))
+        effectToResponse(effect, service.anySupport)
       case None =>
         Future.successful(
           ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName)))
@@ -139,7 +143,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              service.factory
+              val effect = service.factory
                 .create(creationContext)
                 .handleStreamedIn(
                   call.name,
@@ -150,8 +154,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   }.asJava,
                   createContext(call)
                 )
-                .toScala
-                .map(msg => replyToActionResponse(msg, service.anySupport))
+              effectToResponse(effect, service.anySupport)
             case None =>
               Future.successful(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
@@ -177,7 +180,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           .create(creationContext)
           .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
           .asScala
-          .map(msg => replyToActionResponse(msg, service.anySupport))
+          .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
@@ -228,7 +231,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   createContext(call)
                 )
                 .asScala
-                .map(msg => replyToActionResponse(msg, service.anySupport))
+                .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
             case None =>
               Source.single(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
