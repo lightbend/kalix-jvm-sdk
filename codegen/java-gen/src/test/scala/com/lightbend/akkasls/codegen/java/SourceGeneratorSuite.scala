@@ -149,6 +149,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/AbstractMyService4View.java"
                 ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MyService4ViewHandler.java"
+                ),
+                generatedSourceDirectory.resolve(
+                  "com/example/service/MyService4ViewProvider.java"
+                ),
                 sourceDirectory.resolve("com/example/service/MyService5Action.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/AbstractMyService5Action.java"
@@ -166,11 +172,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
               )
             )
 
-            // Test that the main, source and test files are being written to
-            assertEquals(Files.readAllBytes(sources.head).head.toChar, '/')
-            assertEquals(Files.readAllBytes(sources.drop(1).head).head.toChar, '/')
-            assertEquals(Files.readAllBytes(sources.drop(3).head).head.toChar, '/')
-
+            // Test that the files were written to
+            sources.foreach { source =>
+              assertEquals(Files.readAllBytes(source).head.toChar, '/', s"$source did not start with '/'")
+            }
           } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)
       } finally FileUtils.deleteDirectory(testSourceDirectory.toFile)
@@ -218,6 +223,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+        |import com.akkaserverless.javasdk.view.ViewCreationContext;
         |import com.example.service.persistence.EntityOuterClass1;
         |import com.example.service.persistence.EntityOuterClass2;
         |import com.example.service.persistence.EntityOuterClass3;
@@ -230,6 +236,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.persistence.MyValueEntity2Provider;
         |import com.example.service.something.ServiceOuterClass3;
         |import com.example.service.view.MyService4View;
+        |import com.example.service.view.MyService4ViewProvider;
         |import com.example.service.view.ServiceOuterClass4;
         |import com.external.ExternalDomain;
         |import java.util.function.Function;
@@ -240,19 +247,15 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |      Function<EventSourcedContext, MyEntity1> createMyEntity1,
         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
         |      Function<EventSourcedContext, MyEntity3> createMyEntity3,
+        |      Function<ViewCreationContext, MyService4View> createMyService4View,
         |      Function<ActionCreationContext, MyService5Action> createMyService5Action) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
         |      .register(MyEntity1Provider.of(createMyEntity1))
         |      .register(MyEntity3Provider.of(createMyEntity3))
+        |      .register(MyService4ViewProvider.of(createMyService4View))
         |      .register(MyService5ActionProvider.of(createMyService5Action))
-        |      .register(MyValueEntity2Provider.of(createMyValueEntity2))
-        |      .registerView(
-        |        MyService4View.class,
-        |        ServiceOuterClass4.getDescriptor().findServiceByName("MyService4"),
-        |        "my-view-id4",
-        |        EntityOuterClass4.getDescriptor()
-        |      );
+        |      .register(MyValueEntity2Provider.of(createMyValueEntity2));
         |  }
         |}""".stripMargin
     )
@@ -284,20 +287,20 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
+        |import com.akkaserverless.javasdk.view.ViewCreationContext;
         |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.view.MyServiceView;
+        |import com.example.service.view.MyServiceViewProvider;
         |import com.example.service.view.ServiceOuterClass;
+        |import java.util.function.Function;
         |
         |public final class AkkaServerlessFactory {
         |
         |  public static AkkaServerless withComponents(
-        |      ) {
+        |      Function<ViewCreationContext, MyServiceView> createMyServiceView) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
-        |      .registerView(
-        |        ServiceOuterClass.getDescriptor().findServiceByName("MyService"),
-        |        "my-view-id",
-        |        EntityOuterClass.getDescriptor()
-        |      );
+        |      .register(MyServiceViewProvider.of(createMyServiceView));
         |  }
         |}""".stripMargin
     )

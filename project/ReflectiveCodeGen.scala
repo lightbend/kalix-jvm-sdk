@@ -16,6 +16,7 @@ object ReflectiveCodeGen extends AutoPlugin {
   override def requires = AkkaGrpcPlugin
   override def trigger = noTrigger
 
+  // FIXME cannot be repeatedly run, requires a clean in between generation runs for all classes to be found
   override def projectSettings =
     Seq(
       Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),

@@ -16,19 +16,19 @@
 
 package com.akkaserverless.javasdk.impl.view
 
-import com.akkaserverless.javasdk.view.ViewBase
+import com.akkaserverless.javasdk.view.View
 
 object ViewUpdateEffectImpl {
-  sealed trait PrimaryUpdateEffect[S] extends ViewBase.UpdateEffect[S]
+  sealed trait PrimaryUpdateEffect[S] extends View.UpdateEffect[S]
   case class Update[S](state: S) extends PrimaryUpdateEffect[S]
   case object Ignore extends PrimaryUpdateEffect[Any]
-  case class Error(description: String) extends PrimaryUpdateEffect[Any]
+  case class Error[T](description: String) extends PrimaryUpdateEffect[T]
 
-  private val _builder = new ViewBase.UpdateEffect.Builder[Any] {
-    override def updateState(newState: Any): ViewBase.UpdateEffect[Any] = Update(newState)
-    override def ignore(): ViewBase.UpdateEffect[Any] = Ignore.asInstanceOf[PrimaryUpdateEffect[Any]]
-    override def error(description: String): ViewBase.UpdateEffect[Any] = Error(description)
+  private val _builder = new View.UpdateEffect.Builder[Any] {
+    override def updateState(newState: Any): View.UpdateEffect[Any] = Update(newState)
+    override def ignore(): View.UpdateEffect[Any] = Ignore.asInstanceOf[PrimaryUpdateEffect[Any]]
+    override def error(description: String): View.UpdateEffect[Any] = Error(description)
   }
-  def builder[S](): ViewBase.UpdateEffect.Builder[S] =
-    _builder.asInstanceOf[ViewBase.UpdateEffect.Builder[S]]
+  def builder[S](): View.UpdateEffect.Builder[S] =
+    _builder.asInstanceOf[View.UpdateEffect.Builder[S]]
 }

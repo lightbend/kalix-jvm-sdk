@@ -35,7 +35,6 @@ import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicate
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
-import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
 import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
@@ -44,6 +43,7 @@ import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewProvider;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
@@ -393,39 +393,19 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated view.
+   * Register a view using a {@link ViewProvider}. The concrete <code>
+   * ViewProvider</code> is generated for the specific views defined in Protobuf, for example <code>
+   * CustomerViewProvider</code>.
    *
-   * <p>The view class must be annotated with {@link com.akkaserverless.javasdk.view.View}.
-   *
-   * @param viewClass The view class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param viewId The id of this view, used for persistence.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerView(
-      Class<?> viewClass,
-      Descriptors.ServiceDescriptor descriptor,
-      String viewId,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    View view = viewClass.getAnnotation(View.class);
-    if (view == null) {
-      throw new IllegalArgumentException(
-          viewClass + " does not declare an " + View.class.getName() + " annotation!");
-    }
-
-    AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ViewService service =
-        new ViewService(
-            Optional.of(new AnnotationBasedViewSupport(viewClass, anySupport, descriptor)),
-            descriptor,
-            anySupport,
-            viewId);
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
+  public AkkaServerless register(ViewProvider provider) {
+    return lowLevel()
+        .registerView(
+            provider::newHandler,
+            provider.serviceDescriptor(),
+            provider.viewId(),
+            provider.additionalDescriptors());
   }
 
   /**

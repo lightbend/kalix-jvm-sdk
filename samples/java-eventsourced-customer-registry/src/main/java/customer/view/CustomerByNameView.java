@@ -1,46 +1,44 @@
-/* This code was initialised by Akka Serverless tooling.
- * As long as this file exists it will not be re-generated.
- * You are free to make changes to this file.
+/* This code is managed by Akka Serverless tooling.
+ * It will be re-generated to reflect any changes to your protobuf definitions.
+ * DO NOT EDIT
  */
-
 package customer.view;
 
 // tag::process-events[]
-import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewContext;
 import com.google.protobuf.Any;
 import customer.domain.CustomerDomain;
-import java.util.Optional;
 
-@View // <1>
-public class CustomerByNameView extends AbstractCustomerByNameView { // <2>
+// <1>
+public class CustomerByNameView extends AbstractCustomerByNameView {
 
-    @Override // <3>
-    public CustomerDomain.CustomerState processCustomerCreated(
-        CustomerDomain.CustomerCreated event, Optional<CustomerDomain.CustomerState> state) {
-        if (state.isPresent()) {
-            return state.get(); // already created
-        } else {
-            return event.getCustomer();
-        }
+  public CustomerByNameView(ViewContext context) {}
+
+  @Override
+  public CustomerDomain.CustomerState emptyState() {
+    return null;
+  }
+
+  @Override // <2>
+  public UpdateEffect<CustomerDomain.CustomerState> processCustomerCreated(
+    CustomerDomain.CustomerState state, CustomerDomain.CustomerCreated customerCreated) {
+    if (state != null) {
+      return updateEffects().ignore(); // already created
+    } else {
+      return updateEffects().updateState(customerCreated.getCustomer());
     }
+  }
 
-    @Override // <3>
-    public CustomerDomain.CustomerState processCustomerNameChanged(
-        CustomerDomain.CustomerNameChanged event, Optional<CustomerDomain.CustomerState> state) {
-        if (state.isPresent()) {
-            return state.get().toBuilder().setName(event.getNewName()).build();
-        } else {
-            throw new RuntimeException("Received `CustomerNameChanged`, but no state exists.");
-        }
-    }
+  @Override // <3>
+  public UpdateEffect<CustomerDomain.CustomerState> processCustomerNameChanged(
+    CustomerDomain.CustomerState state, CustomerDomain.CustomerNameChanged customerNameChanged) {
+    return updateEffects().updateState(state.toBuilder().setName(customerNameChanged.getNewName()).build());
+  }
 
-    @Override // <3>
-    public CustomerDomain.CustomerState ignoreOtherEvents(
-        Any event, Optional<CustomerDomain.CustomerState> state) {
-        return state.orElseThrow(
-            () ->
-                new RuntimeException(
-                    "Received `" + event.getClass().getSimpleName() + "`, but no state exists."));
-    }
+  @Override
+  public UpdateEffect<CustomerDomain.CustomerState> ignoreOtherEvents(
+    CustomerDomain.CustomerState state, Any any) {
+    return updateEffects().ignore();
+  }
 }
 // end::process-events[]

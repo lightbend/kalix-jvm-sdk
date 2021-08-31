@@ -339,6 +339,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             FullyQualifiedName("ShoppingCartViewService", "ShoppingCartViewServiceView", shoppingCartProto),
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
+            transformedUpdates,
             transformedUpdates
           )
         )

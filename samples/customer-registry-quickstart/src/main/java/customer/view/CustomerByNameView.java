@@ -5,15 +5,22 @@
 
 package customer.view;
 
-import com.akkaserverless.javasdk.view.View;
+import com.akkaserverless.javasdk.view.ViewCreationContext;
 import customer.domain.CustomerDomain;
-import java.util.Optional;
 
 /** A view. */
-@View
 public class CustomerByNameView extends AbstractCustomerByNameView {
+
+    public CustomerByNameView(ViewCreationContext context) {
+    }
+
     @Override
-    public CustomerDomain.CustomerState updateCustomer(CustomerDomain.CustomerState event, Optional<CustomerDomain.CustomerState> state) {
-        return event;
+    public CustomerDomain.CustomerState emptyState() {
+        return null;
+    }
+
+    @Override
+    public UpdateEffect<CustomerDomain.CustomerState> updateCustomer(CustomerDomain.CustomerState state, CustomerDomain.CustomerState customerState) {
+        return updateEffects().updateState(customerState);
     }
 }
