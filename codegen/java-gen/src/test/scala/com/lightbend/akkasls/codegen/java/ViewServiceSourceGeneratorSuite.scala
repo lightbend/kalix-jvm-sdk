@@ -48,18 +48,18 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  public ServiceOuterClass.ViewState emptyState() {
-        |    throw new RuntimeException("Empty state for 'MyServiceView' not implemented yet");
+        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
         |  }
         |
         |  @Override
         |  public UpdateEffect<ServiceOuterClass.ViewState> created(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated created) {
-        |    throw new RuntimeException("Update handler for 'Created' not implemented yet");
+        |    throw new UnsupportedOperationException("Update handler for 'Created' not implemented yet");
         |  }
         |  @Override
         |  public UpdateEffect<ServiceOuterClass.ViewState> updated(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated updated) {
-        |    throw new RuntimeException("Update handler for 'Updated' not implemented yet");
+        |    throw new UnsupportedOperationException("Update handler for 'Updated' not implemented yet");
         |  }
         |}""".stripMargin
     )

@@ -220,7 +220,7 @@ object ViewServiceSourceGenerator {
       s"""@Override
          |public UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
          |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.fqn.name)}) {
-         |  throw new RuntimeException("Update handler for '${update.fqn.name}' not implemented yet");
+         |  throw new UnsupportedOperationException("Update handler for '${update.fqn.name}' not implemented yet");
          |}""".stripMargin
     }
 
@@ -235,7 +235,7 @@ object ViewServiceSourceGenerator {
        |
        |  @Override
        |  public ${qualifiedType(view.state.fqn)} emptyState() {
-       |    throw new RuntimeException("Empty state for '${view.viewClassName}' not implemented yet");
+       |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
        |  }
        |
        |  ${Syntax.indent(handlers, 2)}
