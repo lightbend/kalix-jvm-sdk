@@ -150,7 +150,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      handler.handleSnapshot(service.anySupport.decode(ScalaPbAny.toJavaProto(any)))
+      handler._internalHandleSnapshot(service.anySupport.decode(ScalaPbAny.toJavaProto(any)))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -161,7 +161,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
           // Note that these only come on replay
           val context = new EventContextImpl(thisEntityId, event.sequence)
           val ev = service.anySupport.decode(ScalaPbAny.toJavaProto(event.payload.get)).asInstanceOf[AnyRef] // FIXME empty?
-          handler.handleEvent(ev, context)
+          handler._internalHandleEvent(ev, context)
           (event.sequence, None)
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
@@ -189,11 +189,11 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
                             secondaryEffect: SecondaryEffectImpl,
                             snapshot: Option[Any],
                             endSequenceNumber) = try {
-            handler.handleCommand(command.name,
-                                  cmd,
-                                  context,
-                                  service.snapshotEvery,
-                                  seqNr => new EventContextImpl(thisEntityId, seqNr))
+            handler._internalHandleCommand(command.name,
+                                           cmd,
+                                           context,
+                                           service.snapshotEvery,
+                                           seqNr => new EventContextImpl(thisEntityId, seqNr))
           } catch {
             case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e

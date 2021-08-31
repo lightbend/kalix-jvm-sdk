@@ -125,7 +125,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
 
     init.state match {
       case Some(ValueEntityInitState(stateOpt, _)) =>
-        stateOpt.map(service.anySupport.decode).foreach(handler.setInitState)
+        stateOpt.map(service.anySupport.decode).foreach(handler._internalSetInitState)
       case None =>
         throw new IllegalStateException("ValueEntityInitState is mandatory")
     }
@@ -157,7 +157,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
           )
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
-            handler.handleCommand(command.name, cmd, context)
+            handler._internalHandleCommand(command.name, cmd, context)
           } catch {
             case FailInvoked => new ValueEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e

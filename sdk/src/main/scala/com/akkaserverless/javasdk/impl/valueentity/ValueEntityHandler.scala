@@ -53,13 +53,13 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
     case Some(state) => state
   }
 
-  // "public" api against the impl/testkit
-  final def setInitState(s: Any): Unit = {
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalSetInitState(s: Any): Unit = {
     state = Some(s.asInstanceOf[S])
   }
 
-  // "public" api against the impl/testkit
-  final def handleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
     val commandEffect = try {
       entity.setCommandContext(Optional.of(context))
       handleCommand(commandName, stateOrEmpty(), command, context)

@@ -61,11 +61,11 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
   private def setState(newState: S): Unit =
     state = Option(newState)
 
-  // "public" api against the impl/testkit
-  final def handleSnapshot(snapshot: S): Unit = setState(snapshot)
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleSnapshot(snapshot: S): Unit = setState(snapshot)
 
-  // "public" api against the impl/testkit
-  final def handleEvent(event: Object, context: EventContext): Unit = {
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleEvent(event: Object, context: EventContext): Unit = {
     entity.setEventContext(Optional.of(context))
     try {
       val newState = handleEvent(stateOrEmpty(), event)
@@ -77,11 +77,13 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
       entity.setEventContext(Optional.empty())
     }
   }
-  final def handleCommand(commandName: String,
-                          command: Any,
-                          context: CommandContext,
-                          snapshotEvery: Int,
-                          eventContextFactory: Long => EventContext): CommandResult = {
+
+  /** INTERNAL API */ // "public" api against the impl/testkit
+  final def _internalHandleCommand(commandName: String,
+                                   command: Any,
+                                   context: CommandContext,
+                                   snapshotEvery: Int,
+                                   eventContextFactory: Long => EventContext): CommandResult = {
     val commandEffect = try {
       entity.setCommandContext(Optional.of(context))
       handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
