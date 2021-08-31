@@ -52,7 +52,7 @@ public abstract class ValueEntity<S> {
   }
 
   /** INTERNAL API */
-  public final void setCommandContext(Optional<CommandContext> context) {
+  public final void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
   }
 

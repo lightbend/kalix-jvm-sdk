@@ -59,7 +59,7 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
   /** INTERNAL API */ // "public" api against the impl/testkit
   final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
     val commandEffect = try {
-      entity.setCommandContext(Optional.of(context))
+      entity._internalSetCommandContext(Optional.of(context))
       handleCommand(commandName, stateOrEmpty(), command, context)
         .asInstanceOf[ValueEntityEffectImpl[Any]]
     } catch {
@@ -71,7 +71,7 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
           s"No command handler found for command [$name] on ${entity.getClass}"
         )
     } finally {
-      entity.setCommandContext(Optional.empty())
+      entity._internalSetCommandContext(Optional.empty())
     }
 
     if (!commandEffect.hasError()) {
