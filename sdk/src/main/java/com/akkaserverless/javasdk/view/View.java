@@ -37,7 +37,7 @@ public abstract class View<S> {
   }
 
   /** INTERNAL API */
-  public final void setUpdateContext(Optional<UpdateContext> context) {
+  public final void _internalSetUpdateContext(Optional<UpdateContext> context) {
     updateContext = context;
   }
 

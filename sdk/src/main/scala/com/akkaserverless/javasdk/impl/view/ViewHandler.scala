@@ -22,13 +22,14 @@ import java.util.Optional
 
 abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
 
-  final def handleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_] = {
+  /** INTERNAL API */
+  final def _internalHandleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_] = {
     val stateOrEmpty: S = state match {
       case Some(preExisting) => preExisting.asInstanceOf[S]
       case None => view.emptyState()
     }
     try {
-      view.setUpdateContext(Optional.of(context))
+      view._internalSetUpdateContext(Optional.of(context))
       handleUpdate(context.eventName(), stateOrEmpty, event)
     } catch {
       case missing: UpdateHandlerNotFound =>
@@ -39,7 +40,7 @@ abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
           Option.empty
         )
     } finally {
-      view.setUpdateContext(Optional.empty())
+      view._internalSetUpdateContext(Optional.empty())
     }
   }
 
