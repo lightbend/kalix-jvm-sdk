@@ -70,7 +70,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
     val packageName = "com.example.service"
 
     val generatedSrc =
-      ViewServiceSourceGenerator.interfaceSource(service, packageName)
+      ViewServiceSourceGenerator.abstractView(service, packageName)
     assertEquals(
       generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
@@ -163,7 +163,6 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |
        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
        |import com.akkaserverless.javasdk.impl.view.ViewHandler;
-       |import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
        |import com.akkaserverless.javasdk.view.View;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewProvider;

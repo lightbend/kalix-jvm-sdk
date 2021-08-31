@@ -18,6 +18,7 @@ package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import customer.view.CustomerByNameView;
+import customer.view.CustomerByEmailView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

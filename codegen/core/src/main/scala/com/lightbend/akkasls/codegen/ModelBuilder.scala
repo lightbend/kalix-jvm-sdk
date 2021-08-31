@@ -110,15 +110,15 @@ object ModelBuilder {
       transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands) {
 
-    val className =
+    val viewClassName =
       if (fqn.name.endsWith("View")) fqn.name
       else fqn.name + "View"
 
-    val interfaceName = "Abstract" + className
-    val handlerName = className + "Handler"
-    val providerName = className + "Provider"
+    val abstractViewName = "Abstract" + viewClassName
+    val handlerName = viewClassName + "Handler"
+    val providerName = viewClassName + "Provider"
 
-    val classNameQualified = s"${fqn.parent.javaPackage}.$className"
+    val classNameQualified = s"${fqn.parent.javaPackage}.$viewClassName"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
 
     val state = State(commands.head.outputType)

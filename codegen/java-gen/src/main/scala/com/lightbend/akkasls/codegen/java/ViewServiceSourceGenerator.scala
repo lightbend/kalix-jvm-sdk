@@ -25,15 +25,14 @@ import _root_.java.nio.file.{Files, Path}
 import scala.collection.immutable
 
 /**
- * Responsible for generating Java source from an entity model
+ * Responsible for generating Java sources for a view
  */
 object ViewServiceSourceGenerator {
   import SourceGenerator._
 
   /**
-   * Generate Java source from views where the target source and test source directories have no existing source.
-   *
-   * Also generates a main source file if it does not already exist.
+   * Generate Java sources for provider, handler, abstract baseclass for a view,
+   * and also the user view source file if it does not already exist.
    *
    * Impure.
    */
@@ -42,29 +41,26 @@ object ViewServiceSourceGenerator {
       sourceDirectory: Path,
       testSourceDirectory: Path,
       integrationTestSourceDirectory: Path,
-      generatedSourceDirectory: Path,
-      mainClassPackageName: String,
-      mainClassName: String
+      generatedSourceDirectory: Path
   ): Iterable[Path] = {
-
+    // Note that we generate all sources also with no transformations - no actual logic operations to make
+    // adding such later minimal fuss in the user code
     val generatedSources = Seq.newBuilder[Path]
 
     val packageName = service.fqn.parent.javaPackage
-    val className = service.fqn.name
     val packagePath = packageAsPath(packageName)
 
-    val implClassName = className
     val implSourcePath =
-      sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
+      sourceDirectory.resolve(packagePath.resolve(service.viewClassName + ".java"))
 
-    val interfaceSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(service.interfaceName + ".java"))
-    interfaceSourcePath.getParent.toFile.mkdirs()
+    val abstractViewPath =
+      generatedSourceDirectory.resolve(packagePath.resolve(service.abstractViewName + ".java"))
+    abstractViewPath.getParent.toFile.mkdirs()
     Files.write(
-      interfaceSourcePath,
-      interfaceSource(service, packageName).getBytes(Charsets.UTF_8)
+      abstractViewPath,
+      abstractView(service, packageName).getBytes(Charsets.UTF_8)
     )
-    generatedSources += interfaceSourcePath
+    generatedSources += abstractViewPath
 
     // Only if there is no user view code already present
     if (!implSourcePath.toFile.exists()) {
@@ -92,8 +88,8 @@ object ViewServiceSourceGenerator {
 
     generatedSources.result()
   }
-  private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
 
+  private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
     val imports = generateImports(
       view.commands,
       view.state,
@@ -105,7 +101,6 @@ object ViewServiceSourceGenerator {
       )
     )
 
-    val serviceApiOuterClass = view.fqn.parent.javaOuterClassname
     val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.fqn.name
@@ -123,9 +118,9 @@ object ViewServiceSourceGenerator {
         |$imports
         |
         |/** A view handler */
-        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.className}> {
+        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.viewClassName}> {
         |
-        |  public ${view.handlerName}(${view.className} view) {
+        |  public ${view.handlerName}(${view.viewClassName} view) {
         |    super(view);
         |  }
         |
@@ -156,8 +151,7 @@ object ViewServiceSourceGenerator {
         "com.akkaserverless.javasdk.view.ViewProvider",
         "com.akkaserverless.javasdk.view.ViewCreationContext",
         "com.akkaserverless.javasdk.view.View",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
-        view.fqn.fullQualifiedName,
+        view.classNameQualified,
         "com.google.protobuf.Descriptors",
         "com.google.protobuf.EmptyProto",
         "java.util.function.Function"
@@ -171,16 +165,16 @@ object ViewServiceSourceGenerator {
         |
         |public class ${view.providerName} implements ViewProvider {
         |
-        |  private final Function<ViewCreationContext, ${view.className}> viewFactory;
+        |  private final Function<ViewCreationContext, ${view.viewClassName}> viewFactory;
         |
-        |  /** Factory method of ${view.className} */
+        |  /** Factory method of ${view.viewClassName} */
         |  public static ${view.providerName} of(
-        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
+        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory) {
         |    return new ${view.providerName}(viewFactory);
         |  }
         |
         |  private ${view.providerName}(
-        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
+        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory) {
         |    this.viewFactory = viewFactory;
         |  }
         |
@@ -235,20 +229,20 @@ object ViewServiceSourceGenerator {
        |
        |$imports
        |
-       |public class ${view.className} extends ${view.interfaceName} {
+       |public class ${view.viewClassName} extends ${view.abstractViewName} {
        |
-       |  public ${view.className}(ViewContext context) {}
+       |  public ${view.viewClassName}(ViewContext context) {}
        |
        |  @Override
        |  public ${qualifiedType(view.state.fqn)} emptyState() {
-       |    throw new RuntimeException("Empty state for '${view.className}' not implemented yet");
+       |    throw new RuntimeException("Empty state for '${view.viewClassName}' not implemented yet");
        |  }
        |
        |  ${Syntax.indent(handlers, 2)}
        |}""".stripMargin
   }
 
-  private[codegen] def interfaceSource(
+  private[codegen] def abstractView(
       view: ModelBuilder.ViewService,
       packageName: String
   ): String = {
@@ -273,7 +267,7 @@ object ViewServiceSourceGenerator {
       |
       |$imports
       |
-      |public abstract class ${view.interfaceName} extends View<${qualifiedType(view.state.fqn)}> {
+      |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
       |
       |  ${Syntax.indent(handlers, 2)}
       |}""".stripMargin

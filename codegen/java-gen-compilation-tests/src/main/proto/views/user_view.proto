@@ -32,7 +32,6 @@ service UserByName {
     };
     option (akkaserverless.method).view.update = {
       table: "users"
-      // TODO in codegen: added this to trigger codegen
       transform_updates: true
     };
   }
@@ -46,4 +45,20 @@ service UserByName {
 
 message ByNameRequest {
   string user_name = 1;
+}
+
+// test coverage for a view with no transformations
+service AdditionalView {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
+  rpc UpdateCustomer(domain.UserState) returns (domain.UserState) {
+    option (akkaserverless.method).eventing.in = {
+      value_entity: "users_no_transform"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "users_no_transform"
+    };
+  }
 }

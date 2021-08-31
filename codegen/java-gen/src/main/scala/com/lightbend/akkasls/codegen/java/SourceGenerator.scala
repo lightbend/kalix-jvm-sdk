@@ -83,15 +83,13 @@ object SourceGenerator extends PrettyPrinter {
               mainClassName
             )
         }
-      case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
+      case service: ModelBuilder.ViewService =>
         ViewServiceSourceGenerator.generate(
           service,
           sourceDirectory,
           testSourceDirectory,
           integrationTestSourceDirectory,
-          generatedSourceDirectory,
-          mainClassPackageName,
-          mainClassName
+          generatedSourceDirectory
         )
       case service: ModelBuilder.ActionService =>
         ActionServiceSourceGenerator.generate(
@@ -193,7 +191,7 @@ object SourceGenerator extends PrettyPrinter {
           }
 
         case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}.of(create${service.className}))")
+          List(s".register(${service.providerName}.of(create${service.viewClassName}))")
 
         case service: ModelBuilder.ActionService =>
           List(s".register(${service.providerName}.of(create${service.className}))")
@@ -279,7 +277,7 @@ object SourceGenerator extends PrettyPrinter {
       case service: ModelBuilder.ActionService =>
         s"Function<ActionCreationContext, ${service.className}> create${service.className}"
       case view: ModelBuilder.ViewService =>
-        s"Function<ViewCreationContext, ${view.className}> create${view.className}"
+        s"Function<ViewCreationContext, ${view.viewClassName}> create${view.viewClassName}"
     }.toList
 
     val creatorParameters = entityCreators ::: serviceCreators
@@ -334,7 +332,7 @@ object SourceGenerator extends PrettyPrinter {
 
     val serviceRegistrationParameters = services.values.collect {
       case service: ModelBuilder.ActionService => s"${service.className}::new"
-      case view: ModelBuilder.ViewService => s"${view.className}::new"
+      case view: ModelBuilder.ViewService => s"${view.viewClassName}::new"
     }.toList
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
