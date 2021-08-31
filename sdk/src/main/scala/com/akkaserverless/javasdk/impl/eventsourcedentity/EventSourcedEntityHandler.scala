@@ -51,9 +51,8 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
   private def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
-      // FIXME null should be allowed, issue #167
-      require(emptyState != null, "Entity empty state is not allowed to be null")
-      state = Option(emptyState)
+      // null is allowed as emptyState
+      state = Some(emptyState)
       emptyState
     case Some(state) => state
   }
@@ -106,6 +105,8 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
           try {
             entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
             val newState = handleEvent(stateOrEmpty(), event)
+            if (newState == null)
+              throw new IllegalArgumentException("Event handler must not return null as the updated state.")
             setState(newState)
           } catch {
             case EventHandlerNotFound(eventClass) =>
@@ -117,6 +118,8 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
           shouldSnapshot = shouldSnapshot || (snapshotEvery > 0 && currentSequence % snapshotEvery == 0)
         }
         // snapshotting final state since that is the "atomic" write
+        // emptyState can be null but null snapshot should not be stored, but that can't even
+        // happen since event handler is not allowed to return null as newState
         val endState = stateOrEmpty()
         val snapshot =
           if (shouldSnapshot) Option(endState)

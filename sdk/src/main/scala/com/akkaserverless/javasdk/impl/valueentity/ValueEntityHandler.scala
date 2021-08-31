@@ -46,7 +46,8 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
   private def stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
-      state = Option(emptyState)
+      // null is allowed as emptyState
+      state = Some(emptyState)
       emptyState
     case Some(state) => state
   }
@@ -76,7 +77,10 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
 
     if (!commandEffect.hasError()) {
       commandEffect.primaryEffect match {
-        case UpdateState(newState) => state = Some(newState.asInstanceOf[S])
+        case UpdateState(newState) =>
+          if (newState == null)
+            throw new IllegalArgumentException("updateState with null state is not allowed.")
+          state = Some(newState.asInstanceOf[S])
         case DeleteState => state = None
         case _ =>
       }
