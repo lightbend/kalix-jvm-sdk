@@ -31,6 +31,11 @@ message AddLineItem {
   int32 quantity = 4;
 }
 
+message AddLineItems {
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  repeated LineItem items = 2;
+}
+
 message RemoveLineItem {
   string cart_id = 1 [(akkaserverless.field).entity_key = true];
   string product_id = 2;
@@ -57,6 +62,8 @@ service ShoppingCartService {
       body: "*"
     };
   }
+
+  rpc AddItems(AddLineItems) returns (google.protobuf.Empty);
 
   rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
     option (google.api.http).post = "/cart/{cart_id}/items/{product_id}/remove";

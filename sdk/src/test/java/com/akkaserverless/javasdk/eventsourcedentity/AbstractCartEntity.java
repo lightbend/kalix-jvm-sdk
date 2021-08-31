@@ -29,6 +29,9 @@ public abstract class AbstractCartEntity extends EventSourcedEntity<ShoppingCart
   public abstract Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem command);
 
+  public abstract Effect<Empty> addItems(
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItems command);
+
   public abstract Effect<Empty> removeItem(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveLineItem command);
 

@@ -65,6 +65,29 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       reactivated.passivate()
     }
 
+    "handle emit of several events" in {
+      val entity = protocol.eventSourced.connect()
+      entity.send(init(ShoppingCart.Name, "cart"))
+      entity.send(
+        command(1,
+                "cart",
+                "AddItems",
+                addItems(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2)))
+      )
+      entity.expect(
+        reply(
+          1,
+          EmptyJavaMessage,
+          persist(itemAdded("abc", "apple", 1), itemAdded("123", "banana", 4), itemAdded("456", "pear", 2))
+          // note that snapshot every 2nd, but after all events and therefore including pear
+            .withSnapshot(cartSnapshot(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2)))
+        )
+      )
+      entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
+      entity.expect(reply(2, cart(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2))))
+      entity.passivate()
+    }
+
     "fail when first message is not init" in {
       service.expectLogError("Terminating entity due to unexpected failure") {
         val entity = protocol.eventSourced.connect()
@@ -215,10 +238,10 @@ object EventSourcedEntitiesImplSpec {
       val EmptyCart: ShoppingCartApi.Cart = ShoppingCartApi.Cart.newBuilder.build
 
       def cart(items: Item*): ShoppingCartApi.Cart =
-        ShoppingCartApi.Cart.newBuilder.addAllItems(lineItems(items)).build
+        ShoppingCartApi.Cart.newBuilder.addAllItems(lineItems(items.sortBy(_.id))).build
 
       def lineItems(items: Seq[Item]): java.lang.Iterable[ShoppingCartApi.LineItem] =
-        items.sortBy(_.id).map(item => lineItem(item.id, item.name, item.quantity)).asJava
+        items.map(item => lineItem(item.id, item.name, item.quantity)).asJava
 
       def lineItem(id: String, name: String, quantity: Int): ShoppingCartApi.LineItem =
         ShoppingCartApi.LineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
@@ -228,6 +251,9 @@ object EventSourcedEntitiesImplSpec {
 
       def addItem(id: String, name: String, quantity: Int): ShoppingCartApi.AddLineItem =
         ShoppingCartApi.AddLineItem.newBuilder.setProductId(id).setName(name).setQuantity(quantity).build
+
+      def addItems(items: Item*): ShoppingCartApi.AddLineItems =
+        ShoppingCartApi.AddLineItems.newBuilder.addAllItems(lineItems(items).asScala.toList.asJava).build
 
       def removeItem(id: String): ShoppingCartApi.RemoveLineItem =
         ShoppingCartApi.RemoveLineItem.newBuilder.setProductId(id).build
