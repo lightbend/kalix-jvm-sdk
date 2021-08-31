@@ -113,7 +113,23 @@ object TestData {
   def simpleViewService(
       proto: PackageNaming = serviceProto(),
       suffix: String = ""
-  ): ModelBuilder.ViewService =
+  ): ModelBuilder.ViewService = {
+    val updates = List(
+      ModelBuilder.Command(
+        FullyQualifiedName("Created", proto),
+        FullyQualifiedName("EntityCreated", domainProto(suffix)),
+        FullyQualifiedName("ViewState", proto),
+        streamedInput = false,
+        streamedOutput = false
+      ),
+      ModelBuilder.Command(
+        FullyQualifiedName("Updated", proto),
+        FullyQualifiedName("EntityUpdated", domainProto(suffix)),
+        FullyQualifiedName("ViewState", proto),
+        streamedInput = false,
+        streamedOutput = false
+      )
+    )
     ModelBuilder.ViewService(
       FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
       List(
@@ -133,23 +149,10 @@ object TestData {
         )
       ),
       s"my-view-id$suffix",
-      List(
-        ModelBuilder.Command(
-          FullyQualifiedName("Created", proto),
-          FullyQualifiedName("EntityCreated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto),
-          streamedInput = false,
-          streamedOutput = false
-        ),
-        ModelBuilder.Command(
-          FullyQualifiedName("Updated", proto),
-          FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto),
-          streamedInput = false,
-          streamedOutput = false
-        )
-      )
+      updates,
+      updates
     )
+  }
 
   def eventSourcedEntity(
       suffix: String = ""

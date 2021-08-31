@@ -105,8 +105,11 @@ object ModelBuilder {
    */
   case class ViewService(
       override val fqn: FullyQualifiedName,
+      /** all commands - queries and updates */
       override val commands: Iterable[Command],
       viewId: String,
+      /** all updates, also non-transformed */
+      updates: Iterable[Command],
       transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands) {
 
@@ -121,7 +124,7 @@ object ModelBuilder {
     val classNameQualified = s"${fqn.parent.javaPackage}.$viewClassName"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
 
-    val state = State(commands.head.outputType)
+    val state = State(updates.head.outputType)
   }
 
   /**
@@ -219,11 +222,16 @@ object ModelBuilder {
                   method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
                 ).map(viewOptions => (method, viewOptions))
               }
+              val updates = methodDetails.collect {
+                case (method, viewOptions) if viewOptions.hasUpdate =>
+                  Command.from(method)
+              }
               Some(
                 ViewService(
                   serviceName,
                   commands,
                   viewId = serviceDescriptor.getName(),
+                  updates = updates,
                   transformedUpdates = methodDetails
                     .collect {
                       case (method, viewOptions)
