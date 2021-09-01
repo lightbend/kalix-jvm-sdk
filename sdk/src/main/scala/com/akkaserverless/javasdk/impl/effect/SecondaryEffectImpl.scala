@@ -19,10 +19,37 @@ package com.akkaserverless.javasdk.impl.effect
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.impl.effect
+import com.akkaserverless.protocol.component.ClientAction
+import com.google.protobuf.{Any => JavaPbAny}
 
 sealed trait SecondaryEffectImpl {
   def sideEffects: Vector[SideEffect]
   def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl
+
+  final def replyToClientAction(commandId: Long,
+                                allowNoReply: Boolean,
+                                restartOnFailure: Boolean): Option[ClientAction] = {
+    this match {
+      case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
+        Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
+      case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
+        Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(forward))))
+      case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
+        Some(
+          ClientAction(
+            ClientAction.Action
+              .Failure(com.akkaserverless.protocol.component.Failure(commandId, failure.description, restartOnFailure))
+          )
+        )
+      case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
+        if (allowNoReply) {
+          None
+        } else {
+          throw new RuntimeException("No reply or forward returned by command handler!")
+        }
+    }
+  }
 }
 
 case object NoSecondaryEffectImpl extends SecondaryEffectImpl {

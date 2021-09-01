@@ -18,10 +18,9 @@ package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.reply.{NoReply, ReplySupport}
-import com.akkaserverless.javasdk.{ClientActionContext, Context, ServiceCall, SideEffectContext}
+import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.reply._
 import com.akkaserverless.protocol.component._
-import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 import scala.util.control.NoStackTrace
 
@@ -34,55 +33,15 @@ private[impl] trait ActivatableContext extends Context {
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
 }
 
-private[impl] trait AbstractSideEffectContext extends SideEffectContext {
-  self: ActivatableContext =>
-
-  private final var _sideEffects = List.empty[SideEffect]
-
-  override final def effect(effect: ServiceCall, synchronous: Boolean): Unit = {
-    checkActive()
-    _sideEffects = SideEffect(
-        serviceName = effect.ref().method().getService.getFullName,
-        commandName = effect.ref().method().getName,
-        payload = Some(ScalaPbAny.fromJavaProto(effect.message())),
-        synchronous = synchronous
-      ) :: _sideEffects
-  }
-
-  final def sideEffects: List[SideEffect] = _sideEffects.reverse
-}
-
-private[impl] trait AbstractClientActionContext extends ClientActionContext {
+// FIXME this is only used by ReplicatedEntity and should be implemented like in other entities.
+//   See SecondaryEffectImpl.replyToClientAction
+private[impl] trait AbstractClientActionContext {
   self: ActivatableContext =>
 
   def commandId: Long
 
   private final var error: Option[String] = None
   private final var forward: Option[Forward] = None
-
-  override final def fail(errorMessage: String): RuntimeException = {
-    checkActive()
-    if (error.isEmpty) {
-      error = Some(errorMessage)
-      logError(errorMessage)
-      throw FailInvoked
-    } else throw new IllegalStateException("fail(…) already previously invoked!")
-  }
-
-  @Deprecated
-  override final def forward(to: ServiceCall): Unit = {
-    checkActive()
-    if (forward.isDefined) {
-      throw new IllegalStateException("This context has already forwarded.")
-    }
-    forward = Some(
-      Forward(
-        serviceName = to.ref().method().getService.getFullName,
-        commandName = to.ref().method().getName,
-        payload = Some(ScalaPbAny.fromJavaProto(to.message()))
-      )
-    )
-  }
 
   final def hasError: Boolean = error.isDefined
 
@@ -116,36 +75,6 @@ private[impl] trait AbstractClientActionContext extends ClientActionContext {
             }
         }
     }
-
-  final def replyToClientAction(secondaryEffect: SecondaryEffectImpl,
-                                allowNoReply: Boolean,
-                                restartOnFailure: Boolean): Option[ClientAction] = {
-    error match {
-      case Some(msg) => Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, msg, restartOnFailure))))
-      case None =>
-        secondaryEffect match {
-          case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
-            if (forward.isDefined) {
-              throw new IllegalStateException(
-                "Both a reply was returned, and a forward message was sent, choose one or the other."
-              )
-            }
-            Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
-          case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
-            Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(forward))))
-          case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
-            Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description, restartOnFailure))))
-          case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
-            if (forward.isDefined) {
-              Some(ClientAction(ClientAction.Action.Forward(forward.get)))
-            } else if (allowNoReply) {
-              None
-            } else {
-              throw new RuntimeException("No reply or forward returned by command handler!")
-            }
-        }
-    }
-  }
 
 }
 

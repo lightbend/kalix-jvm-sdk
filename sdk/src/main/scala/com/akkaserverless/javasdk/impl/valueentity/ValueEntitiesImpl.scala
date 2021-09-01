@@ -22,7 +22,6 @@ import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.event.LoggingAdapter
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
@@ -152,8 +151,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
             thisEntityId,
             command.name,
             command.id,
-            metadata,
-            log
+            metadata
           )
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
@@ -174,7 +172,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
           }
 
           val clientAction =
-            context.replyToClientAction(serializedSecondaryEffect, allowNoReply = false, restartOnFailure = false)
+            serializedSecondaryEffect.replyToClientAction(command.id, allowNoReply = false, restartOnFailure = false)
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
@@ -207,7 +205,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
                   ValueEntityReply(
                     command.id,
                     clientAction,
-                    context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                    EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
                     action
                   )
                 )
@@ -229,18 +227,10 @@ final class ValueEntitiesImpl(system: ActorSystem,
   private final class CommandContextImpl(override val entityId: String,
                                          override val commandName: String,
                                          override val commandId: Long,
-                                         override val metadata: Metadata,
-                                         val log: LoggingAdapter)
+                                         override val metadata: Metadata)
       extends CommandContext
       with AbstractContext
-      with AbstractClientActionContext
-      with AbstractSideEffectContext
-      with ActivatableContext {
-
-    override protected def logError(message: String): Unit =
-      log.error("Fail invoked for command [{}] for Value entity [{}]: {}", commandName, entityId, message)
-
-  }
+      with ActivatableContext
 
   private final class ValueEntityContextImpl(override val entityId: String)
       extends ValueEntityContext

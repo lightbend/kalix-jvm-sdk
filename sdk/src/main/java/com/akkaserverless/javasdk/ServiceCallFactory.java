@@ -19,8 +19,8 @@ package com.akkaserverless.javasdk;
 /**
  * A service call factory.
  *
- * <p>This is used to create {@link ServiceCall}'s that can be passed to {@link
- * SideEffectContext#effect(ServiceCall)} and {@link ClientActionContext#forward(ServiceCall)} f}.
+ * <p>This is used to create {@link ServiceCall}'s that can be passed to <code>forward</code> of the
+ * entity <code>Effect</code></code>.
  */
 public interface ServiceCallFactory {
 
