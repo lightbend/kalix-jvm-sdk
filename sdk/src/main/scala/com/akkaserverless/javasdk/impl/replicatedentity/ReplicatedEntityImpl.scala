@@ -191,7 +191,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
       //   See SecondaryEffectImpl.replyToClientAction
       val clientAction = ctx.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
-      if (!reply.isInstanceOf[ErrorReply[_]]) {
+      if (reply.isInstanceOf[ErrorReply[_]]) {
         verifyNoDelta("failed command handling")
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(
