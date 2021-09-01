@@ -334,102 +334,67 @@ object EntityServiceSourceGenerator {
         .flatMap(command => Seq(command.inputType, command.outputType)) ++
       entity.events.map(_.fqn) :+ entity.state.fqn
 
-    val imports = (messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++
-    Seq(
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect"
-    )).distinct.sorted
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      Seq(
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect"
+      )
+    )
 
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "/** An event sourced entity. */" <> line <>
-      `class`("public", s"$className extends $interfaceClassName") {
-        "@SuppressWarnings" <> parens(dquotes("unused")) <> line <>
-        "private" <+> "final" <+> "String" <+> "entityId" <> semi <> line <>
-        line <>
-        constructor(
-          "public",
-          className,
-          List("EventSourcedEntityContext" <+> "context")
-        ) {
-          "this.entityId" <+> equal <+> "context.entityId()" <> semi
-        } <> line <>
-        line <>
-        "@Override" <>
-        line <>
-        method(
-          "public",
-          qualifiedType(entity.state.fqn),
-          "emptyState",
-          Nil,
-          emptyDoc
-        )(
-          "throw new UnsupportedOperationException" <> parens(
-            dquotes("Not implemented yet, replace with your empty entity state")
-          ) <> semi
-        ) <>
-        line <>
-        line <>
-        ssep(
-          service.commands.toSeq
-            .map { command =>
-              "@Override" <>
-              line <>
-              method(
-                "public",
-                "Effect" <> angles(qualifiedType(command.outputType)),
-                lowerFirst(command.fqn.name),
-                List(
-                  qualifiedType(entity.state.fqn) <+> "currentState",
-                  qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
-                ),
-                emptyDoc
-              ) {
-                "return effects().error" <> parens(notImplementedError("command", command.fqn)) <> semi
-              }
-            }
-            .to[immutable.Seq],
-          line <> line
-        ) <> line <> line <>
-        (entity match {
-          case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
-            ssep(
-              events.toSeq
-                .map { event =>
-                  "@Override" <>
-                  line <>
-                  method(
-                    "public",
-                    qualifiedType(entity.state.fqn),
-                    lowerFirst(event.fqn.name),
-                    List(
-                      qualifiedType(entity.state.fqn) <+> "currentState",
-                      qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                    ),
-                    emptyDoc
-                  ) {
-                    "throw new RuntimeException" <> parens(
-                      notImplementedError("event", event.fqn)
-                    ) <> semi
-                  }
-                }
-                .to[immutable.Seq],
-              line <> line
-            )
-          case _ => emptyDoc
-        })
+    val commandHandlers =
+      service.commands
+        .map { command =>
+          s"""|@Override
+              |public Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.fqn.name)}(${qualifiedType(
+               entity.state.fqn
+             )} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)}) {
+              |  return effects().error("The command handler for `${command.fqn.name}` is not implemented, yet");
+              |}
+              |""".stripMargin
+        }
+
+    val eventHandlers =
+      entity match {
+        case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
+          events.map { event =>
+            s"""|@Override
+                |public ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
+                 entity.state.fqn
+               )} currentState, ${qualifiedType(event.fqn)} ${lowerFirst(event.fqn.name)}) {
+                |  throw new RuntimeException("The event handler for `${event.fqn.name}` is not implemented, yet");
+                |}""".stripMargin
+          }
       }
-    ).layout
+
+    s"""$generatedCodeCommentString
+       |package $packageName;
+       |
+       |$imports
+       |
+       |/** An event sourced entity. */
+       |public class $className extends ${interfaceClassName} {
+       |
+       |  @SuppressWarnings("unused")
+       |  private final String entityId;
+       |
+       |  public $className(EventSourcedEntityContext context) {
+       |    this.entityId = context.entityId();
+       |  }
+       |
+       |  @Override
+       |  public ${qualifiedType(entity.state.fqn)} emptyState() {
+       |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
+       |  }
+       |
+       |  ${Syntax.indent(commandHandlers, num = 2)}
+       |
+       |  ${Syntax.indent(eventHandlers, num = 2)}
+       |
+       |}""".stripMargin
   }
 
   private[codegen] def interfaceSource(
@@ -475,69 +440,46 @@ object EntityServiceSourceGenerator {
       packageName: String,
       className: String
   ): String = {
-    val messageTypes = service.commands.toSeq
-        .flatMap(command => Seq(command.inputType, command.outputType)) ++ entity.events.map(_.fqn) :+ entity.state.fqn
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      Seq("com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity")
+    )
 
-    val imports = (messageTypes
-      .filterNot(_.parent.javaPackage == packageName)
-      .map(typeImport) ++
-    Seq(
-      "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity"
-    )).distinct.sorted
+    val commandHandlers = service.commands.map { command =>
+      s"""|/** Command handler for "${command.fqn.name}". */
+          |public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.fqn.name)}(${qualifiedType(
+           entity.state.fqn
+         )} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)});
+         |""".stripMargin
+    }
 
-    pretty(
-      managedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "/** An event sourced entity. */" <>
-      line <>
-      `class`("public abstract", s"Abstract$className extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}>") {
-        line <>
-        ssep(
-          service.commands.toSeq
-            .map { command =>
-              abstractMethod(
-                s"""/** Command handler for "${command.fqn.name}". */""" <>
-                line <>
-                "public",
-                "Effect" <> angles(qualifiedType(command.outputType)),
-                lowerFirst(command.fqn.name),
-                List(
-                  qualifiedType(entity.state.fqn) <+> "currentState",
-                  qualifiedType(command.inputType) <+> lowerFirst(command.inputType.name)
-                )
-              ) <> semi
-            }
-            .to[immutable.Seq],
-          line <> line
-        ) <>
-        line <>
-        line <>
-        ssep(
-          entity.events.toSeq
-            .map { event =>
-              s"""/** Event handler for "${event.fqn.name}". */""" <>
-              line <>
-              abstractMethod(
-                "public",
-                qualifiedType(entity.state.fqn),
-                lowerFirst(event.fqn.name),
-                List(
-                  qualifiedType(entity.state.fqn) <+> "currentState",
-                  qualifiedType(event.fqn) <+> lowerFirst(event.fqn.name)
-                )
-              ) <> semi
-            }
-            .to[immutable.Seq],
-          line <> line
-        )
-      }
-    ).layout
+    val eventHandlers = entity.events.map { event =>
+      s"""|/** Event handler for "${event.fqn.name}". */
+          |public abstract ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
+           entity.state.fqn
+         )} currentState, ${qualifiedType(
+           event.fqn
+         )} ${lowerFirst(
+           event.fqn.name
+         )});
+         |""".stripMargin
+    }
+
+    s"""|$managedCodeCommentString
+        |package $packageName;
+        |
+        |$imports
+        |
+        |/** An event sourced entity. */
+        |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
+        |
+        |  ${Syntax.indent(commandHandlers, num = 2)}
+        |
+        |  ${Syntax.indent(eventHandlers, num = 2)}
+        |
+        |}""".stripMargin
   }
 
   private[codegen] def integrationTestSource(
@@ -550,111 +492,65 @@ object EntityServiceSourceGenerator {
   ): String = {
     val serviceName = service.fqn.name
 
-    val messageTypes =
+    val state =
       entity match {
-        case _: ModelBuilder.EventSourcedEntity =>
-          Seq.empty
-        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
+        case es: ModelBuilder.EventSourcedEntity => es.state
+        case ModelBuilder.ValueEntity(_, _, state) => state
       }
 
-    val imports = messageTypes
-        .filterNot(_.parent.javaPackage == packageName)
-        .map(typeImport) ++
-      List(mainClassPackageName + "." + mainClassName) ++
+    val imports = generateImports(
+      service.commands,
+      state,
+      packageName,
       List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
       Seq(
         "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource",
         "org.junit.ClassRule",
-        "org.junit.Test"
-      ).distinct.sorted
+        "org.junit.Test",
+        mainClassPackageName + "." + mainClassName
+      )
+    )
 
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> packageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.to[immutable.Seq].map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      "import" <+> "static" <+> "java.util.concurrent.TimeUnit.*" <> semi <> line <>
-      line <>
-      """// Example of an integration test calling our service via the Akka Serverless proxy""" <> line <>
-      """// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`""" <> line <>
-      `class`("public", testClassName) {
-        line <>
-        "/**" <> line <>
-        " * The test kit starts both the service container and the Akka Serverless proxy." <> line <>
-        " */" <> line <>
-        "@ClassRule" <> line <>
-        field(
-          "public" <+> "static" <+> "final",
-          "AkkaServerlessTestkitResource",
-          "testkit",
-          assignmentSeparator = Some(" ")
-        ) {
-          line <> "new" <+> "AkkaServerlessTestkitResource" <> parens(mainClassName + ".createAkkaServerless()") <> semi
-        } <> line <>
-        line <>
-        "/**" <> line <>
-        " * Use the generated gRPC client to call the service through the Akka Serverless proxy." <> line <>
-        " */" <> line <>
-        field(
-          "private" <+> "final",
-          serviceName + "Client",
-          "client",
-          assignmentSeparator = None
-        )(emptyDoc) <> semi <> line <>
-        line <>
-        constructor(
-          "public",
-          testClassName,
-          List.empty
-        ) {
-          "client" <+> equal <+> serviceName <> "Client" <> dot <> "create" <> parens(
-            ssep(
-              List(
-                "testkit" <> dot <> "getGrpcClientSettings" <> parens(
-                  emptyDoc
-                ),
-                "testkit" <> dot <> "getActorSystem" <> parens(emptyDoc)
-              ),
-              comma <> space
-            )
-          ) <> semi
-        } <> line <>
-        line <>
-        ssep(
-          service.commands.toSeq
-            .map {
-              command =>
-                "@Test" <> line <>
-                method(
-                  "public",
-                  "void",
-                  lowerFirst(command.fqn.name) + "OnNonExistingEntity",
-                  List.empty,
-                  "throws" <+> "Exception" <> space
-                ) {
-                  "// TODO: set fields in command, and provide assertions to match replies" <> line <>
-                  "//" <+> "client" <> dot <> lowerFirst(command.fqn.name) <> parens(
-                    qualifiedType(
-                      command.inputType
-                    ) <> dot <> "newBuilder().build()"
-                  ) <> line <>
-                  "//" <+> indent(
-                    dot <> "toCompletableFuture" <> parens(emptyDoc) <> dot <> "get" <> parens(
-                      ssep(List("2", "SECONDS"), comma <> space)
-                    ) <> semi,
-                    8
-                  )
-                }
-            }
-            .to[immutable.Seq],
-          line <> line
-        )
-      }
-    ).layout
+    val testCases = service.commands.map { command =>
+      s"""|@Test
+          |public void ${lowerFirst(command.fqn.name)}OnNonExistingEntity() throws Exception {
+          |  // TODO: set fields in command, and provide assertions to match replies
+          |  // client.${lowerFirst(command.fqn.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
+          |  //         .toCompletableFuture().get(2, SECONDS);
+          |}
+          |""".stripMargin
+
+    }
+
+    s"""$generatedCodeCommentString
+      |package $packageName;
+      |
+      |$imports
+      |
+      |import static java.util.concurrent.TimeUnit.*;
+      |
+      |// Example of an integration test calling our service via the Akka Serverless proxy
+      |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
+      |public class $testClassName {
+      |
+      |  /**
+      |   * The test kit starts both the service container and the Akka Serverless proxy.
+      |   */
+      |  @ClassRule
+      |  public static final AkkaServerlessTestkitResource testkit =
+      |    new AkkaServerlessTestkitResource(${mainClassName}.createAkkaServerless());
+      |
+      |  /**
+      |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+      |   */
+      |  private final ${serviceName}Client client;
+      |
+      |  public ${testClassName}() {
+      |    client = ${serviceName}Client.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+      |  }
+      |
+      |  ${Syntax.indent(testCases, num = 2)}
+      |}""".stripMargin
   }
 
   private[codegen] def generateImports(types: Iterable[FullyQualifiedName],

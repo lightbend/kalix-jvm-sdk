@@ -19,7 +19,6 @@ package java
 
 import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
 
 import _root_.java.nio.file.{Files, Path}
 import scala.collection.immutable
