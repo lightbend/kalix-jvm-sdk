@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.NoSuchElementException;
 import org.mockito.*;
 import com.example.shoppingcart.domain.ShoppingCartTestKit;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
 import com.akkaserverless.javasdk.testkit.Result;
 

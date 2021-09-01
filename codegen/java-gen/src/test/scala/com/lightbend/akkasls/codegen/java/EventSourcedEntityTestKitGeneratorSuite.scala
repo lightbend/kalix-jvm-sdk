@@ -46,7 +46,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |import com.example.shoppingcart.domain.ShoppingCart;
       |import com.example.shoppingcart.domain.ShoppingCartDomain;
       |import com.example.shoppingcart.ShoppingCartApi;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
       |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
       |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
@@ -83,11 +83,11 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |        return this.events;
       |    }
       |
-      |    private <Reply> List<Object> getEvents(EventSourcedEntityBase.Effect<Reply> effect){
+      |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
       |        return CollectionConverters.asJava(helper.getEvents(effect));
       |    }
       |
-      |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ShoppingCartDomain.Cart state){
+      |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state){
       |        return (Reply) helper.getReply(effect, state);
       |    }
       |
@@ -101,7 +101,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |        }
       |    }
       |
-      |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntityBase.Effect<Reply> effect){
+      |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
       |        List<Object> events = getEvents(effect); 
       |        this.events.add(events);
       |        for(Object e: events){
@@ -112,17 +112,17 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |    }
       |
       |    public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
-      |        EventSourcedEntityBase.Effect<Empty> effect = entity.addItem(state, command);
+      |        EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
       |        return interpretEffects(effect);
       |    }
       |
       |    public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
-      |        EventSourcedEntityBase.Effect<Empty> effect = entity.removeItem(state, command);
+      |        EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
       |        return interpretEffects(effect);
       |    }
       |
       |    public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
-      |        EventSourcedEntityBase.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
+      |        EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
       |        return interpretEffects(effect);
       |    }
       |}""".stripMargin

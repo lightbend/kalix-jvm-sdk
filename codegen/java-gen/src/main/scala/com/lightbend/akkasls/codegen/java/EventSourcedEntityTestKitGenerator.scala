@@ -70,7 +70,7 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.List",
         "java.util.NoSuchElementException",
         "scala.jdk.javaapi.CollectionConverters",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
@@ -119,11 +119,11 @@ object EventSourcedEntityTestKitGenerator {
             |        return this.events;
             |    }
             |
-            |    private <Reply> List<Object> getEvents(EventSourcedEntityBase.Effect<Reply> effect){
+            |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
             |        return CollectionConverters.asJava(helper.getEvents(effect));
             |    }
             |
-            |    private <Reply> Reply getReplyOfType(EventSourcedEntityBase.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
+            |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
             |        return (Reply) helper.getReply(effect, state);
             |    }
             |
@@ -131,7 +131,7 @@ object EventSourcedEntityTestKitGenerator {
             |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
             |    }
             |
-            |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntityBase.Effect<Reply> effect){
+            |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
             |        List<Object> events = getEvents(effect); 
             |        this.events.add(events);
             |        for(Object e: events){
@@ -161,7 +161,7 @@ object EventSourcedEntityTestKitGenerator {
     service.commands
       .map { command =>
         s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
-            |    EventSourcedEntityBase.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
+            |    EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
             |    return interpretEffects(effect);
             |}
             |""".stripMargin + "\n"

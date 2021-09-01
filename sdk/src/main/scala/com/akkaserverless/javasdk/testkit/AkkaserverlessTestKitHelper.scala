@@ -16,9 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit
 
-import java.util.NoSuchElementException
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityBase.Effect
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
 import com.akkaserverless.javasdk.impl.effect.{ErrorReplyImpl, ForwardReplyImpl, MessageReplyImpl, NoReply}
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{EmitEvents, NoPrimaryEffect}
