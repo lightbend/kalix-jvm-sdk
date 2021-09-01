@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.eventsourcedentity;
 
 /** Context for an event. */
-public interface EventContext extends EventSourcedContext {
+public interface EventContext extends EventSourcedEntityContext {
   /**
    * The sequence number of the current event being processed.
    *

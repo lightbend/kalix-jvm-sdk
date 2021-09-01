@@ -20,7 +20,6 @@ import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 /** User implementation of entity */
 public class CartEntity extends AbstractCartEntity {
 
-  public CartEntity(EventSourcedContext context) {}
+  public CartEntity(EventSourcedEntityContext context) {}
 
   @Override
   public ShoppingCartDomain.Cart emptyState() {

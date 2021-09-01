@@ -221,7 +221,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
-        |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+        |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.akkaserverless.javasdk.view.ViewCreationContext;
         |import com.example.service.persistence.EntityOuterClass1;
@@ -244,9 +244,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class AkkaServerlessFactory {
         |
         |  public static AkkaServerless withComponents(
-        |      Function<EventSourcedContext, MyEntity1> createMyEntity1,
+        |      Function<EventSourcedEntityContext, MyEntity1> createMyEntity1,
         |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
-        |      Function<EventSourcedContext, MyEntity3> createMyEntity3,
+        |      Function<EventSourcedEntityContext, MyEntity3> createMyEntity3,
         |      Function<ViewCreationContext, MyService4View> createMyService4View,
         |      Function<ActionCreationContext, MyService5Action> createMyService5Action) {
         |    AkkaServerless akkaServerless = new AkkaServerless();

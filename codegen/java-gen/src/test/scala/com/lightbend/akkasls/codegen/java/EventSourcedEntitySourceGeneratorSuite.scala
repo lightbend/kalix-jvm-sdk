@@ -47,9 +47,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |
       |package com.example.service;
       |
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
       |import com.example.service.persistence.EntityOuterClass;
       |import com.external.Empty;
       |
@@ -58,7 +58,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |    @SuppressWarnings("unused")
       |    private final String entityId;
       |    
-      |    public MyServiceEntity(EventSourcedContext context) {
+      |    public MyServiceEntity(EventSourcedEntityContext context) {
       |        this.entityId = context.entityId();
       |    }
       |    
@@ -205,7 +205,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          | */
          |package com.example.service;
          |
-         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
          |import com.example.service.ServiceOuterClass;
@@ -223,16 +223,16 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          | */
          |public class MyServiceProvider implements EventSourcedEntityProvider<EntityOuterClass.MyState, MyService> {
          |
-         |  private final Function<EventSourcedContext, MyService> entityFactory;
+         |  private final Function<EventSourcedEntityContext, MyService> entityFactory;
          |  private final EventSourcedEntityOptions options;
          |
          |  /** Factory method of MyServiceProvider */
-         |  public static MyServiceProvider of(Function<EventSourcedContext, MyService> entityFactory) {
+         |  public static MyServiceProvider of(Function<EventSourcedEntityContext, MyService> entityFactory) {
          |    return new MyServiceProvider(entityFactory, EventSourcedEntityOptions.defaults());
          |  }
          | 
          |  private MyServiceProvider(
-         |      Function<EventSourcedContext, MyService> entityFactory,
+         |      Function<EventSourcedEntityContext, MyService> entityFactory,
          |      EventSourcedEntityOptions options) {
          |    this.entityFactory = entityFactory;
          |    this.options = options;
@@ -258,7 +258,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  }
          |
          |  @Override
-         |  public final MyServiceHandler newHandler(EventSourcedContext context) {
+         |  public final MyServiceHandler newHandler(EventSourcedEntityContext context) {
          |    return new MyServiceHandler(entityFactory.apply(context));
          |  }
          |

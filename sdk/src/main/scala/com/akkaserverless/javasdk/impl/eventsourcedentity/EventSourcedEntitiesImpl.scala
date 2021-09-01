@@ -140,7 +140,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler = service.factory
-      .create(new EventSourcedContextImpl(init.entityId))
+      .create(new EventSourcedEntityContextImpl(init.entityId))
       .asInstanceOf[EventSourcedEntityHandler[Any, EventSourcedEntity[Any]]]
     val thisEntityId = init.entityId
 
@@ -249,7 +249,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
       }
   }
 
-  private trait AbstractContext extends EventSourcedContext {
+  private trait AbstractContext extends EventSourcedEntityContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
@@ -262,10 +262,10 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
       with AbstractContext
       with ActivatableContext
 
-  private class EventSourcedContextImpl(override final val entityId: String)
-      extends EventSourcedContext
+  private class EventSourcedEntityContextImpl(override final val entityId: String)
+      extends EventSourcedEntityContext
       with AbstractContext
   private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
-      extends EventSourcedContextImpl(entityId)
+      extends EventSourcedEntityContextImpl(entityId)
       with EventContext
 }

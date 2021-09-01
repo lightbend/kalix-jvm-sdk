@@ -33,7 +33,7 @@ public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> 
 
   String entityType();
 
-  EventSourcedEntityHandler<S, E> newHandler(EventSourcedContext context);
+  EventSourcedEntityHandler<S, E> newHandler(EventSourcedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }
