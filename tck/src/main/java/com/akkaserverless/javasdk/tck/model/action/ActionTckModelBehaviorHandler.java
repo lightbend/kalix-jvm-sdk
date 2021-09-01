@@ -29,8 +29,7 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
   }
 
   @Override
-  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message)
-      throws Throwable {
+  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessUnary":
         return action()

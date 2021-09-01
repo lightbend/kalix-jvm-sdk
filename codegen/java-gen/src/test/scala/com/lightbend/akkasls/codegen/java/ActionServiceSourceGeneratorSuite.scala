@@ -38,7 +38,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.external.Empty;
         |import java.util.concurrent.CompletionStage;
@@ -50,25 +49,25 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  /** Handler for "SimpleMethod". */
         |  @Override
-        |  public CompletionStage<Reply<Empty>> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
+        |  public Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
         |    throw new RuntimeException("The command handler for `SimpleMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "StreamedOutputMethod". */
         |  @Override
-        |  public Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
+        |  public Source<Effect<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
         |    throw new RuntimeException("The command handler for `StreamedOutputMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "StreamedInputMethod". */
         |  @Override
-        |  public CompletionStage<Reply<Empty>> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
+        |  public Effect<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `StreamedInputMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "FullStreamedMethod". */
         |  @Override
-        |  public Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
+        |  public Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `FullStreamedMethod` is not implemented, yet");
         |  }
         |}""".stripMargin
@@ -93,7 +92,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.external.Empty;
         |import java.util.concurrent.CompletionStage;
@@ -105,25 +103,25 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  /** Handler for "SimpleMethod". */
         |  @Override
-        |  public CompletionStage<Reply<Empty>> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
+        |  public Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
         |    throw new RuntimeException("The command handler for `SimpleMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "StreamedOutputMethod". */
         |  @Override
-        |  public Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
+        |  public Source<Effect<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
         |    throw new RuntimeException("The command handler for `StreamedOutputMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "StreamedInputMethod". */
         |  @Override
-        |  public CompletionStage<Reply<Empty>> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
+        |  public Effect<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `StreamedInputMethod` is not implemented, yet");
         |  }
         |
         |  /** Handler for "FullStreamedMethod". */
         |  @Override
-        |  public Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
+        |  public Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `FullStreamedMethod` is not implemented, yet");
         |  }
         |}""".stripMargin
@@ -146,7 +144,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
         |import java.util.concurrent.CompletionStage;
@@ -155,16 +152,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |public abstract class AbstractMyServiceAction extends Action {
         |
         |  /** Handler for "SimpleMethod". */
-        |  public abstract CompletionStage<Reply<Empty>> simpleMethod(ServiceOuterClass.MyRequest myRequest);
+        |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
         |
         |  /** Handler for "StreamedOutputMethod". */
-        |  public abstract Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest);
+        |  public abstract Source<Effect<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest);
         |
         |  /** Handler for "StreamedInputMethod". */
-        |  public abstract CompletionStage<Reply<Empty>> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
+        |  public abstract Effect<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
         |
         |  /** Handler for "FullStreamedMethod". */
-        |  public abstract Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
+        |  public abstract Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
         |}""".stripMargin
     )
   }
@@ -188,7 +185,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
         |import java.util.concurrent.CompletionStage;
@@ -197,16 +193,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |public abstract class AbstractMyServiceAction extends Action {
         |
         |  /** Handler for "SimpleMethod". */
-        |  public abstract CompletionStage<Reply<Empty>> simpleMethod(ServiceOuterClass.MyRequest myRequest);
+        |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
         |
         |  /** Handler for "StreamedOutputMethod". */
-        |  public abstract Source<Reply<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest);
+        |  public abstract Source<Effect<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest);
         |
         |  /** Handler for "StreamedInputMethod". */
-        |  public abstract CompletionStage<Reply<Empty>> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
+        |  public abstract Effect<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
         |
         |  /** Handler for "FullStreamedMethod". */
-        |  public abstract Source<Reply<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
+        |  public abstract Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
         |}""".stripMargin
     )
   }
@@ -227,7 +223,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
+        |import com.akkaserverless.javasdk.action.Action;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
@@ -240,48 +236,44 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleUnary(String commandName, MessageEnvelope<Object> message) throws Throwable {
+        |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "SimpleMethod":
         |        return action()
-        |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload())
-        |                 .thenApply(Reply::mapToObject);
+        |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
         |        return action()
-        |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload())
-        |                 .map(Reply::mapToObject);
+        |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "StreamedInputMethod":
         |        return action()
-        |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()))
-        |                 .thenApply(Reply::mapToObject);
+        |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
         |        return action()
-        |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()))
-        |                 .map(Reply::mapToObject);
+        |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
@@ -308,7 +300,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.Reply;
+        |import com.akkaserverless.javasdk.action.Action;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
@@ -321,48 +313,44 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleUnary(String commandName, MessageEnvelope<Object> message) throws Throwable {
+        |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "SimpleMethod":
         |        return action()
-        |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload())
-        |                 .thenApply(Reply::mapToObject);
+        |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
         |        return action()
-        |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload())
-        |                 .map(Reply::mapToObject);
+        |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "StreamedInputMethod":
         |        return action()
-        |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()))
-        |                 .thenApply(Reply::mapToObject);
+        |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
         |        return action()
-        |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()))
-        |                 .map(Reply::mapToObject);
+        |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }

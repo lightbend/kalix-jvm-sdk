@@ -101,7 +101,6 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.Reply",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "java.util.concurrent.CompletionStage"
       )
@@ -116,28 +115,28 @@ object ActionServiceSourceGenerator {
       if (isUnary(cmd)) {
         s"""|/** Handler for "$methodName". */
             |@Override
-            |public CompletionStage<Reply<$outputType>> ${lowerFirst(methodName)}($inputTypeFullName $input) {
+            |public Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input) {
             |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
             |}""".stripMargin
       } else if (isStreamOut(cmd)) {
         s"""
            |/** Handler for "$methodName". */
            |@Override
-           |public Source<Reply<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input) {
+           |public Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
       } else if (isStreamIn(cmd)) {
         s"""
            |/** Handler for "$methodName". */
            |@Override
-           |public CompletionStage<Reply<$outputType>> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
+           |public Effect<$outputType> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
       } else {
         s"""
            |/** Handler for "$methodName". */
            |@Override
-           |public Source<Reply<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
+           |public Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
       }
@@ -167,7 +166,6 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.Reply",
         "com.akkaserverless.javasdk.action.Action",
         "java.util.concurrent.CompletionStage"
       )
@@ -181,19 +179,19 @@ object ActionServiceSourceGenerator {
 
       if (isUnary(cmd)) {
         s"""|/** Handler for "$methodName". */
-            |public abstract CompletionStage<Reply<$outputType>> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
+            |public abstract Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
       } else if (isStreamOut(cmd)) {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract Source<Reply<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
+           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
       } else if (isStreamIn(cmd)) {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract CompletionStage<Reply<$outputType>> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
+           |public abstract Effect<$outputType> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       } else {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract Source<Reply<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
+           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       }
     }
 
@@ -221,8 +219,7 @@ object ActionServiceSourceGenerator {
 
       s"""|case "$methodName":
           |  return action()
-          |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload())
-          |           .thenApply(Reply::mapToObject);
+          |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload());
           |""".stripMargin
     }
 
@@ -232,8 +229,7 @@ object ActionServiceSourceGenerator {
 
       s"""|case "$methodName":
           |  return action()
-          |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload())
-          |           .map(Reply::mapToObject);
+          |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload());
           |""".stripMargin
     }
 
@@ -243,8 +239,7 @@ object ActionServiceSourceGenerator {
 
       s"""|case "$methodName":
           |  return action()
-          |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()))
-          |           .thenApply(Reply::mapToObject);
+          |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()));
           |""".stripMargin
     }
 
@@ -254,8 +249,7 @@ object ActionServiceSourceGenerator {
 
       s"""|case "$methodName":
           |  return action()
-          |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()))
-          |           .map(Reply::mapToObject);
+          |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()));
           |""".stripMargin
     }
 
@@ -265,7 +259,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.Reply",
+        "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.MessageEnvelope",
         "com.akkaserverless.javasdk.impl.action.ActionHandler",
         "java.util.concurrent.CompletionStage"
@@ -285,7 +279,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleUnary(String commandName, MessageEnvelope<Object> message) throws Throwable {
+        |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Syntax.indent(unaryCases, 6)}
         |      default:
@@ -294,7 +288,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Syntax.indent(streamOutCases, 6)}
         |      default:
@@ -303,7 +297,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public CompletionStage<Reply<Object>> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Syntax.indent(streamInCases, 6)}
         |      default:
@@ -312,7 +306,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public Source<Reply<Object>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Syntax.indent(streamInOutCases, 6)}
         |      default:
