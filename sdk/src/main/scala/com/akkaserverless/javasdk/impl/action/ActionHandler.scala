@@ -16,17 +16,14 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import java.util.Optional
-import java.util.concurrent.CompletionStage
-
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.akkaserverless.javasdk.Reply
 import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.action.ActionContext
 import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.EntityExceptions
 import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
+
+import java.util.Optional
 
 object ActionHandler {
   case class HandlerNotFound(val commandName: String) extends RuntimeException
@@ -131,7 +128,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
                      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
-    action.setActionContext(Optional.of(context))
+    action._internalSetActionContext(Optional.of(context))
     try {
       func()
     } catch {
@@ -140,7 +137,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
           s"No call handler found for call $name on ${action.getClass.getName}"
         )
     } finally {
-      action.setActionContext(Optional.empty())
+      action._internalSetActionContext(Optional.empty())
     }
   }
 }

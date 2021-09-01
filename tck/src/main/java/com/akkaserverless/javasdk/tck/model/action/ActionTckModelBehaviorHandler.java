@@ -46,7 +46,8 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
       String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessStreamedOut":
-        // FIXME can we get away from a unchecked cast for streamed response somehow (even though it is safe)?
+        // FIXME can we get away from a unchecked cast for streamed response somehow (even though it
+        // is safe)?
         return (Source<Action.Effect<?>, NotUsed>)
             (Object)
                 action()

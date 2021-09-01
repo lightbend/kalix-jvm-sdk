@@ -16,9 +16,9 @@
 
 package com.akkaserverless.javasdk.action;
 
-import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -40,12 +40,12 @@ public abstract class Action {
   }
 
   /** INTERNAL API */
-  public final void setActionContext(Optional<ActionContext> context) {
+  public final void _internalSetActionContext(Optional<ActionContext> context) {
     actionContext = context;
   }
 
   public final Effect.Builder effects() {
-    throw new UnsupportedOperationException("tbd");
+    return ActionEffectImpl.Builder$.MODULE$;
   }
 
   /** @param <T> The type of the message that must be returned by this call. */
@@ -62,8 +62,7 @@ public abstract class Action {
 
       <S> Effect<S> asyncMessage(CompletionStage<S> message);
 
-      // FIXME needed mostly for the TCK, to turn CompletionStage<Effect<S>> into an Effect<S> with an async on the "inside" not sure if it is actually useful elsewhere
-      <S> Effect<S> flatten(CompletionStage<Effect<S>> futureEffect);
+      <S> Effect<S> asyncEffect(CompletionStage<Effect<S>> futureEffect);
     }
 
     boolean isEmpty();

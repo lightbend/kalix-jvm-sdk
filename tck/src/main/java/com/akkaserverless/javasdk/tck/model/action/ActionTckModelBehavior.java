@@ -21,11 +21,9 @@ import akka.actor.ActorSystem;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.*;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.tck.model.Action.*;
 import com.akkaserverless.tck.model.ActionTwo;
 
@@ -39,50 +37,65 @@ public class ActionTckModelBehavior extends Action {
 
   public ActionTckModelBehavior(ActionCreationContext creationContext) {}
 
+  // FIXME async + stateful action context will be a pain for users
   public Effect<Response> processUnary(Request request) {
     return effects()
-        .flatten(Source.single(request).via(responses()).runWith(singleResponse(), system));
+        .asyncEffect(
+            Source.single(request)
+                .via(responses(actionContext()))
+                .runWith(singleResponse(), system));
   }
 
   public Effect<Response> processStreamedIn(Source<Request, NotUsed> requests) {
-    return effects().flatten(requests.via(responses()).runWith(singleResponse(), system));
+    return effects()
+        .asyncEffect(requests.via(responses(actionContext())).runWith(singleResponse(), system));
   }
 
   public Source<Effect<Response>, NotUsed> processStreamedOut(Request request) {
-    return Source.single(request).via(responses());
+    return Source.single(request).via(responses(actionContext()));
   }
 
   public Source<Effect<Response>, NotUsed> processStreamed(Source<Request, NotUsed> requests) {
-    return requests.via(responses());
+    return requests.via(responses(actionContext()));
   }
 
-  private Flow<Request, Effect<Response>, NotUsed> responses() {
+  private Flow<Request, Effect<Response>, NotUsed> responses(ActionContext context) {
     return Flow.of(Request.class)
         .flatMapConcat(request -> Source.from(request.getGroupsList()))
-        .map(group -> response(group));
+        .map(group -> response(group, context));
   }
 
-  private Effect<Response> response(ProcessGroup group) {
+  private Effect<Response> response(ProcessGroup group, ActionContext context) {
     Effect<Response> effect = effects().noReply();
     List<SideEffect> sideEffects = new ArrayList<>();
+    // TCK tests expect the logic to be imperative, building something up and then discarding on
+    // failure but effect
+    // api is not imperative so we have to keep track of failure instead
+    boolean didFail = false;
     for (ProcessStep step : group.getStepsList()) {
       switch (step.getStepCase()) {
         case REPLY:
-          effect =
-              effects()
-                  .message(Response.newBuilder().setMessage(step.getReply().getMessage()).build());
+          if (!didFail) {
+            effect =
+                effects()
+                    .message(
+                        Response.newBuilder().setMessage(step.getReply().getMessage()).build());
+          }
           break;
         case FORWARD:
-          effect = effects().forward(serviceTwoRequest(step.getForward().getId()));
+          if (!didFail) {
+            effect = effects().forward(serviceTwoRequest(step.getForward().getId(), context));
+          }
           break;
         case EFFECT:
           com.akkaserverless.tck.model.Action.SideEffect sideEffect = step.getEffect();
           sideEffects.add(
               com.akkaserverless.javasdk.SideEffect.of(
-                  serviceTwoRequest(sideEffect.getId()), sideEffect.getSynchronous()));
+                  serviceTwoRequest(sideEffect.getId(), context), sideEffect.getSynchronous()));
           break;
         case FAIL:
           effect = effects().error(step.getFail().getMessage());
+          didFail = true;
       }
     }
     return effect.addSideEffects(sideEffects);
@@ -97,8 +110,8 @@ public class ActionTckModelBehavior extends Action {
                 : next.addSideEffects(reply.sideEffects()));
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
-    return actionContext()
+  private ServiceCall serviceTwoRequest(String id, ActionContext context) {
+    return context
         .serviceCallFactory()
         .lookup(ActionTwo.name, "Call", OtherRequest.class)
         .createCall(OtherRequest.newBuilder().setId(id).build());
