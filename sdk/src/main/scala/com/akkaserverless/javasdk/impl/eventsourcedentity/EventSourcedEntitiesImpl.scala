@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.event.LoggingAdapter
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
@@ -173,14 +172,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
             )
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
-            new CommandContextImpl(thisEntityId,
-                                   sequence,
-                                   command.name,
-                                   command.id,
-                                   metadata,
-                                   service.anySupport,
-                                   service.snapshotEvery,
-                                   log)
+            new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
 
           // FIXME we'd want to somehow share this handle-command-apply-event logic to get the end effect ready for asserting in the testkit
           // FIXME a bit mixed concerns here, esp with the serialization to PbAny but it's either that or pushing this into the handler and making
@@ -210,9 +202,9 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
           }
 
           val clientAction =
-            context.replyToClientAction(serializedSecondaryEffect,
-                                        allowNoReply = false,
-                                        restartOnFailure = events.nonEmpty)
+            serializedSecondaryEffect.replyToClientAction(command.id,
+                                                          allowNoReply = false,
+                                                          restartOnFailure = events.nonEmpty)
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
@@ -265,20 +257,10 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
                                    override val sequenceNumber: Long,
                                    override val commandName: String,
                                    override val commandId: Long,
-                                   override val metadata: Metadata,
-                                   val anySupport: AnySupport,
-                                   val snapshotEvery: Int,
-                                   val log: LoggingAdapter)
+                                   override val metadata: Metadata)
       extends CommandContext
       with AbstractContext
-      with AbstractClientActionContext
-      with ActivatableContext {
-
-    final var performSnapshot: Boolean = false
-
-    override protected def logError(message: String): Unit =
-      log.error("Fail invoked for command [{}] for entity [{}]: {}", commandName, entityId, message)
-  }
+      with ActivatableContext
 
   private class EventSourcedContextImpl(override final val entityId: String)
       extends EventSourcedContext

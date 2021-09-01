@@ -187,9 +187,11 @@ class ReplicatedEntityImpl(system: ActorSystem,
         ctx.deactivate()
       }
 
+      // FIXME replyToClientAction should be implemented like in other entities.
+      //   See SecondaryEffectImpl.replyToClientAction
       val clientAction = ctx.replyToClientAction(reply, allowNoReply = true, restartOnFailure = false)
 
-      if (ctx.hasError && !reply.isInstanceOf[ErrorReply[_]]) {
+      if (!reply.isInstanceOf[ErrorReply[_]]) {
         verifyNoDelta("failed command handling")
         ReplicatedEntityStreamOut(
           ReplicatedEntityStreamOut.Message.Reply(

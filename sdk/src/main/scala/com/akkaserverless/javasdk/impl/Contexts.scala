@@ -33,7 +33,8 @@ private[impl] trait ActivatableContext extends Context {
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
 }
 
-// FIXME can this be removed or merged into some of the other AbstractContext?
+// FIXME this is only used by ReplicatedEntity and should be implemented like in other entities.
+//   See SecondaryEffectImpl.replyToClientAction
 private[impl] trait AbstractClientActionContext {
   self: ActivatableContext =>
 
@@ -74,36 +75,6 @@ private[impl] trait AbstractClientActionContext {
             }
         }
     }
-
-  final def replyToClientAction(secondaryEffect: SecondaryEffectImpl,
-                                allowNoReply: Boolean,
-                                restartOnFailure: Boolean): Option[ClientAction] = {
-    error match {
-      case Some(msg) => Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, msg, restartOnFailure))))
-      case None =>
-        secondaryEffect match {
-          case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
-            if (forward.isDefined) {
-              throw new IllegalStateException(
-                "Both a reply was returned, and a forward message was sent, choose one or the other."
-              )
-            }
-            Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
-          case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
-            Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(forward))))
-          case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
-            Some(ClientAction(ClientAction.Action.Failure(Failure(commandId, failure.description, restartOnFailure))))
-          case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
-            if (forward.isDefined) {
-              Some(ClientAction(ClientAction.Action.Forward(forward.get)))
-            } else if (allowNoReply) {
-              None
-            } else {
-              throw new RuntimeException("No reply or forward returned by command handler!")
-            }
-        }
-    }
-  }
 
 }
 
