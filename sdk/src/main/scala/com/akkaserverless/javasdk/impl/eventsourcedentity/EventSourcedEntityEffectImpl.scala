@@ -68,12 +68,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this
   }
 
-  override def emitEvents(event1: Any, additionalEvents: Any*): OnSuccessBuilder[S] = {
-    _primaryEffect = EmitEvents(event1 +: additionalEvents.toVector)
-    this
-  }
-
-  override def emitEvents(events: util.Collection[_]): OnSuccessBuilder[S] = {
+  override def emitEvents(events: util.List[_]): OnSuccessBuilder[S] = {
     _primaryEffect = EmitEvents(events.toVector)
     this
   }

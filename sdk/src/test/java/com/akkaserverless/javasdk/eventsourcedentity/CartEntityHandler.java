@@ -45,6 +45,8 @@ final class CartEntityHandler
     switch (commandName) {
       case "AddItem":
         return entity().addItem(state, (ShoppingCartApi.AddLineItem) command);
+      case "AddItems":
+        return entity().addItems(state, (ShoppingCartApi.AddLineItems) command);
       case "RemoveItem":
         return entity().removeItem(state, (ShoppingCartApi.RemoveLineItem) command);
       case "GetCart":

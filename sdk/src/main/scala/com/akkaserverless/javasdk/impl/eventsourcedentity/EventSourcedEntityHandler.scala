@@ -116,7 +116,7 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
           currentSequence += 1
           shouldSnapshot = shouldSnapshot || (snapshotEvery > 0 && currentSequence % snapshotEvery == 0)
         }
-        // FIXME currently snapshotting final state after applying all events even if trigger was mid-event stream?
+        // snapshotting final state since that is the "atomic" write
         val endState = stateOrEmpty()
         val snapshot =
           if (shouldSnapshot) Option(endState)

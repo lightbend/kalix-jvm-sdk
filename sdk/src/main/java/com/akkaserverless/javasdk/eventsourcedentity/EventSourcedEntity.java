@@ -20,9 +20,9 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.reply.MessageReply;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -94,9 +94,7 @@ public abstract class EventSourcedEntity<S> {
 
       OnSuccessBuilder<S> emitEvent(Object event);
 
-      OnSuccessBuilder<S> emitEvents(Object event1, Object... additionalEvents);
-
-      OnSuccessBuilder<S> emitEvents(Collection<? extends Object> event);
+      OnSuccessBuilder<S> emitEvents(List<?> event);
 
       /**
        * Create a message reply.

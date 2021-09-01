@@ -45,16 +45,42 @@ public class CartEntity extends AbstractCartEntity {
           .error("Cannot add negative quantity of item [" + command.getProductId() + "]");
     } else {
       return effects()
-          .emitEvent(
-              ShoppingCartDomain.ItemAdded.newBuilder()
-                  .setItem(
-                      ShoppingCartDomain.LineItem.newBuilder()
-                          .setProductId(command.getProductId())
-                          .setName(command.getName())
-                          .setQuantity(command.getQuantity())
-                          .build())
-                  .build())
+          .emitEvent(createItemAddedEvent(command))
           .thenReply(newState -> Empty.getDefaultInstance());
+    }
+  }
+
+  private ShoppingCartDomain.ItemAdded createItemAddedEvent(ShoppingCartApi.AddLineItem command) {
+    return createItemAddedEvent(command.getProductId(), command.getName(), command.getQuantity());
+  }
+
+  private ShoppingCartDomain.ItemAdded createItemAddedEvent(ShoppingCartApi.LineItem item) {
+    return createItemAddedEvent(item.getProductId(), item.getName(), item.getQuantity());
+  }
+
+  private ShoppingCartDomain.ItemAdded createItemAddedEvent(
+      String productId, String name, int quantity) {
+    return ShoppingCartDomain.ItemAdded.newBuilder()
+        .setItem(
+            ShoppingCartDomain.LineItem.newBuilder()
+                .setProductId(productId)
+                .setName(name)
+                .setQuantity(quantity)
+                .build())
+        .build();
+  }
+
+  @Override
+  public Effect<Empty> addItems(
+      ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItems command) {
+    if (command.getItemsList().stream().anyMatch(item -> item.getQuantity() <= 0)) {
+      return effects().error("Cannot add negative quantity of item");
+    } else {
+      List<ShoppingCartDomain.ItemAdded> events =
+          command.getItemsList().stream()
+              .map(this::createItemAddedEvent)
+              .collect(Collectors.toList());
+      return effects().emitEvents(events).thenReply(newState -> Empty.getDefaultInstance());
     }
   }
 
