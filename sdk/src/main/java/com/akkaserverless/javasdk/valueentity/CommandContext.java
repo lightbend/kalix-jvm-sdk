@@ -16,15 +16,13 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.ClientActionContext;
 import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 import java.util.Optional;
 
 /** A value based entity command context. */
-public interface CommandContext
-    extends ValueEntityContext, ClientActionContext, SideEffectContext, MetadataContext {
+public interface CommandContext extends ValueEntityContext, SideEffectContext, MetadataContext {
 
   /**
    * The name of the command being executed.

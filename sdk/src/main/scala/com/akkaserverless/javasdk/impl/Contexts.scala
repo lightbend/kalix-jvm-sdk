@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.reply.{NoReply, ReplySupport}
-import com.akkaserverless.javasdk.{ClientActionContext, Context, ServiceCall, SideEffectContext}
+import com.akkaserverless.javasdk.{Context, ServiceCall, SideEffectContext}
 import com.akkaserverless.javasdk.reply._
 import com.akkaserverless.protocol.component._
 import com.google.protobuf.any.{Any => ScalaPbAny}
@@ -52,37 +52,14 @@ private[impl] trait AbstractSideEffectContext extends SideEffectContext {
   final def sideEffects: List[SideEffect] = _sideEffects.reverse
 }
 
-private[impl] trait AbstractClientActionContext extends ClientActionContext {
+// FIXME can this be removed or merged into some of the other AbstractContext?
+private[impl] trait AbstractClientActionContext {
   self: ActivatableContext =>
 
   def commandId: Long
 
   private final var error: Option[String] = None
   private final var forward: Option[Forward] = None
-
-  override final def fail(errorMessage: String): RuntimeException = {
-    checkActive()
-    if (error.isEmpty) {
-      error = Some(errorMessage)
-      logError(errorMessage)
-      throw FailInvoked
-    } else throw new IllegalStateException("fail(…) already previously invoked!")
-  }
-
-  @Deprecated
-  override final def forward(to: ServiceCall): Unit = {
-    checkActive()
-    if (forward.isDefined) {
-      throw new IllegalStateException("This context has already forwarded.")
-    }
-    forward = Some(
-      Forward(
-        serviceName = to.ref().method().getService.getFullName,
-        commandName = to.ref().method().getName,
-        payload = Some(ScalaPbAny.fromJavaProto(to.message()))
-      )
-    )
-  }
 
   final def hasError: Boolean = error.isDefined
 
