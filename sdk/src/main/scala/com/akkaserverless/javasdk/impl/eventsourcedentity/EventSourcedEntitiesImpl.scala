@@ -240,7 +240,7 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
                    EventSourcedReply(
                      command.id,
                      clientAction,
-                     context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                     EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
                      serializedEvents,
                      serializedSnapshot
                    )
@@ -272,7 +272,6 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
       extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
-      with AbstractSideEffectContext
       with ActivatableContext {
 
     final var performSnapshot: Boolean = false

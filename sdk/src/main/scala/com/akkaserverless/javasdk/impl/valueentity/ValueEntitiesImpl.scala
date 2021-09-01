@@ -207,7 +207,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
                   ValueEntityReply(
                     command.id,
                     clientAction,
-                    context.sideEffects ++ EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                    EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
                     action
                   )
                 )
@@ -234,7 +234,6 @@ final class ValueEntitiesImpl(system: ActorSystem,
       extends CommandContext
       with AbstractContext
       with AbstractClientActionContext
-      with AbstractSideEffectContext
       with ActivatableContext {
 
     override protected def logError(message: String): Unit =

@@ -16,11 +16,10 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.SideEffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
 /** An event sourced command context. */
-public interface CommandContext extends EventSourcedContext, SideEffectContext, MetadataContext {
+public interface CommandContext extends EventSourcedContext, MetadataContext {
   /**
    * The current sequence number of events in this entity.
    *

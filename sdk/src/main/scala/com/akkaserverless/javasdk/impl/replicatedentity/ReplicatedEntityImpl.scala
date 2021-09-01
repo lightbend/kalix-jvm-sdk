@@ -207,7 +207,7 @@ class ReplicatedEntityImpl(system: ActorSystem,
               commandId = command.id,
               clientAction = clientAction,
               stateAction = stateAction,
-              sideEffects = ctx.sideEffects ++ ReplySupport.effectsFrom(reply)
+              sideEffects = ReplySupport.effectsFrom(reply)
             )
           )
         )
@@ -218,7 +218,6 @@ class ReplicatedEntityImpl(system: ActorSystem,
         extends CommandContext
         with AbstractReplicatedEntityContext
         with CapturingReplicatedEntityFactory
-        with AbstractSideEffectContext
         with AbstractClientActionContext
         with DeletableContext
         with ActivatableContext {

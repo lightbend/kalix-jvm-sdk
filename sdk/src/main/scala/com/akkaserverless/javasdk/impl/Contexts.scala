@@ -18,10 +18,9 @@ package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.reply.{NoReply, ReplySupport}
-import com.akkaserverless.javasdk.{Context, ServiceCall, SideEffectContext}
+import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.reply._
 import com.akkaserverless.protocol.component._
-import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
 import scala.util.control.NoStackTrace
 
@@ -32,24 +31,6 @@ private[impl] trait ActivatableContext extends Context {
   private final var active = true
   final def deactivate(): Unit = active = false
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
-}
-
-private[impl] trait AbstractSideEffectContext extends SideEffectContext {
-  self: ActivatableContext =>
-
-  private final var _sideEffects = List.empty[SideEffect]
-
-  override final def effect(effect: ServiceCall, synchronous: Boolean): Unit = {
-    checkActive()
-    _sideEffects = SideEffect(
-        serviceName = effect.ref().method().getService.getFullName,
-        commandName = effect.ref().method().getName,
-        payload = Some(ScalaPbAny.fromJavaProto(effect.message())),
-        synchronous = synchronous
-      ) :: _sideEffects
-  }
-
-  final def sideEffects: List[SideEffect] = _sideEffects.reverse
 }
 
 // FIXME can this be removed or merged into some of the other AbstractContext?
