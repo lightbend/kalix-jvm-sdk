@@ -27,7 +27,6 @@ object Dependencies {
   val JUnitJupiterVersion = "5.7.1"
 
   val CommonsIoVerison = "2.8.0"
-  val KiamaVersion = "2.4.0"
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
@@ -36,7 +35,6 @@ object Dependencies {
   val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % KiamaVersion
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
   val logbackContrib = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
 
@@ -99,7 +97,6 @@ object Dependencies {
       )
 
   val codegenJava = deps ++= Seq(
-        kiama,
         commonsIo,
         logback % Test,
         munit % Test,
