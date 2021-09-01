@@ -21,7 +21,6 @@ import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
@@ -78,7 +77,7 @@ public class LocalPersistenceSubscriber extends Action {
     String id = cloudEvent.subject().orElse("");
     if (step.hasReply()) {
       return effects()
-          .message(
+          .reply(
               LocalPersistenceEventing.Response.newBuilder()
                   .setId(id)
                   .setMessage(step.getReply().getMessage())

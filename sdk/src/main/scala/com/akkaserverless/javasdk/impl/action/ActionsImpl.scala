@@ -37,6 +37,7 @@ import com.google.protobuf.{Any => JavaPbAny}
 import java.util.Optional
 import scala.collection.immutable
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,
@@ -83,11 +84,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           toProtocol(forward.metadata())
         )
         Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
-      case asyncEffect @ AsyncEffect(futureEffect, _) =>
+      case AsyncEffect(futureEffect, sideEffects) =>
         // FIXME double check this side effect handover
         futureEffect.flatMap { effect =>
-          val withSurroundingSideEffects = effect.addSideEffects(asyncEffect.sideEffects())
-          // FIXME double check: is it thread safe to pass/use any like this?
+          val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
           effectToResponse(withSurroundingSideEffects, anySupport)
         }
       case ErrorEffect(description, sideEffects) =>

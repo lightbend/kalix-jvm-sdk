@@ -32,10 +32,10 @@ import scala.jdk.FutureConverters.CompletionStageOps
 
 object ActionEffectImpl {
   sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
-    def addSideEffect(sideEffect: SideEffect): Action.Effect[T] = withSideEffects(internalSideEffects() :+ sideEffect)
-    def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
+    override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
+      withSideEffects(internalSideEffects() ++ sideEffects)
+    override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects.asScala)
-    def sideEffects(): util.Collection[SideEffect] = internalSideEffects().asJava
 
     protected def internalSideEffects(): immutable.Seq[SideEffect]
     protected def withSideEffects(sideEffects: immutable.Seq[SideEffect]): Action.Effect[T]
@@ -70,13 +70,13 @@ object ActionEffectImpl {
   }
 
   object Builder extends Action.Effect.Builder {
-    def message[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
-    def message[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
+    def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
+    def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     def forward[S](serviceCall: ServiceCall): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def noReply[S](): Action.Effect[S] = NoReply(Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
-    def asyncMessage[S](futureMessage: CompletionStage[S]): Action.Effect[S] = AsyncEffect(
-      futureMessage.asScala.map(s => Builder.message[S](s))(ExecutionContext.parasitic),
+    def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] = AsyncEffect(
+      futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic),
       Nil
     )
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
@@ -85,5 +85,7 @@ object ActionEffectImpl {
         Nil
       )
   }
+
+  def builder(): Action.Effect.Builder = Builder
 
 }

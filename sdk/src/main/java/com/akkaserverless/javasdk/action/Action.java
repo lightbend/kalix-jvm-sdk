@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.action;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
@@ -45,32 +46,99 @@ public abstract class Action {
   }
 
   public final Effect.Builder effects() {
-    return ActionEffectImpl.Builder$.MODULE$;
+    return ActionEffectImpl.builder();
   }
 
-  /** @param <T> The type of the message that must be returned by this call. */
+  /**
+   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   *
+   * @param <T> The type of the message that must be returned by this call.
+   */
   public interface Effect<T> {
-    interface Builder {
-      // FIXME should it rather be "Reply"?
-      <S> Effect<S> message(S message);
 
+    /**
+     * Construct the effect that is returned by the command handler. The effect describes next
+     * processing actions, such as sending a reply.
+     */
+    interface Builder {
+      /**
+       * Create a message reply.
+       *
+       * @param message The payload of the reply.
+       * @return A message reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
+      <S> Effect<S> reply(S message);
+
+      /**
+       * Create a message reply.
+       *
+       * @param message The payload of the reply.
+       * @param metadata The metadata for the message.
+       * @return A message reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
+      <S> Effect<S> reply(S message, Metadata metadata);
+
+      /**
+       * Create a forward reply.
+       *
+       * @param serviceCall The service call representing the forward.
+       * @return A forward reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
       <S> Effect<S> forward(ServiceCall serviceCall);
 
+      /**
+       * Create a reply that contains neither a message nor a forward nor an error.
+       *
+       * @return The reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
       <S> Effect<S> noReply();
 
+      /**
+       * Create an error reply.
+       *
+       * @param description The description of the error.
+       * @return An error reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
       <S> Effect<S> error(String description);
 
-      <S> Effect<S> asyncMessage(CompletionStage<S> message);
+      /**
+       * Create a message reply from an async operation result.
+       *
+       * @param message The future payload of the reply.
+       * @return A message reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
+      <S> Effect<S> asyncReply(CompletionStage<S> message);
 
+      /**
+       * Create a reply from an async operation result returning an effect.
+       *
+       * @param futureEffect The future effect to reply with.
+       * @return A reply, the actual type depends on the nested Effect.
+       * @param <S> The type of the message that must be returned by this call.
+       */
       <S> Effect<S> asyncEffect(CompletionStage<Effect<S>> futureEffect);
     }
 
-    boolean isEmpty();
+    /**
+     * Attach the given side effects to this reply.
+     *
+     * @param sideEffects The effects to attach.
+     * @return A new reply with the attached effects.
+     */
+    Effect<T> addSideEffect(SideEffect... sideEffects);
 
-    Effect<T> addSideEffect(SideEffect sideEffect);
-
+    /**
+     * Attach the given side effects to this reply.
+     *
+     * @param sideEffects The effects to attach.
+     * @return A new reply with the attached effects.
+     */
     Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
-
-    Collection<SideEffect> sideEffects();
   }
 }
