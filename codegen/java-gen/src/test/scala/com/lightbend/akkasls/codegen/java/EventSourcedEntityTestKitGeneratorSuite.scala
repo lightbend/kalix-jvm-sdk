@@ -43,7 +43,6 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       | */
       |package com.example.shoppingcart.domain;
       |
-      |import com.example.shoppingcart.ShoppingCartApi;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
       |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
