@@ -59,71 +59,71 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |
       |public class ShoppingCartTestKit {
       |
-      |    private ShoppingCartDomain.Cart state;
-      |    private ShoppingCart entity;
-      |    private List<Object> events = new ArrayList<Object>();
-      |    private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
+      |  private ShoppingCartDomain.Cart state;
+      |  private ShoppingCart entity;
+      |  private List<Object> events = new ArrayList<Object>();
+      |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
       |
-      |    public ShoppingCartTestKit(ShoppingCart entity){
-      |        this.state = entity.emptyState();
-      |        this.entity = entity;
-      |    }
+      |  public ShoppingCartTestKit(ShoppingCart entity) {
+      |    this.state = entity.emptyState();
+      |    this.entity = entity;
+      |  }
       |
-      |    public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state){
-      |        this.state = state;
-      |        this.entity = entity;
-      |    }
+      |  public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
+      |    this.state = state;
+      |    this.entity = entity;
+      |  }
       |
-      |    public ShoppingCartDomain.Cart getState(){
-      |            return state;
-      |    }
+      |  public ShoppingCartDomain.Cart getState() {
+      |    return state;
+      |  }
       |
-      |    public List<Object> getAllEvents(){
-      |        return this.events;
-      |    }
+      |  public List<Object> getAllEvents() {
+      |    return this.events;
+      |  }
       |
-      |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
-      |        return CollectionConverters.asJava(helper.getEvents(effect));
-      |    }
+      |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
+      |    return CollectionConverters.asJava(helper.getEvents(effect));
+      |  }
       |
-      |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state){
-      |        return (Reply) helper.getReply(effect, state);
-      |    }
+      |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
+      |    return (Reply) helper.getReply(effect, state);
+      |  }
       |
-      |    private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
-      |        if (event instanceof ShoppingCartDomain.ItemAdded) {
-      |            return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
-      |        } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
-      |            return entity.itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
-      |        } else {
-      |            throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
-      |        }
+      |  private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
+      |    if (event instanceof ShoppingCartDomain.ItemAdded) {
+      |      return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
+      |    } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
+      |      return entity.itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
+      |    } else {
+      |      throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
       |    }
+      |  }
       |
-      |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
-      |        List<Object> events = getEvents(effect); 
-      |        this.events.add(events);
-      |        for(Object e: events){
-      |            this.state = handleEvent(state,e);
-      |        }
-      |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-      |        return new Result(reply, events);
+      |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+      |    List<Object> events = getEvents(effect); 
+      |    this.events.add(events);
+      |    for(Object e: events) {
+      |      this.state = handleEvent(state,e);
       |    }
+      |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+      |    return new Result(reply, events);
+      |  }
       |
-      |    public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
-      |        EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
-      |        return interpretEffects(effect);
-      |    }
+      |  public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
+      |    EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
+      |    return interpretEffects(effect);
+      |  }
       |
-      |    public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
-      |        EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
-      |        return interpretEffects(effect);
-      |    }
+      |  public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
+      |    EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
+      |    return interpretEffects(effect);
+      |  }
       |
-      |    public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
-      |        EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
-      |        return interpretEffects(effect);
-      |    }
+      |  public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
+      |    EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
+      |    return interpretEffects(effect);
+      |  }
       |}""".stripMargin
 
     assertNoDiff(sourceCode, expected)

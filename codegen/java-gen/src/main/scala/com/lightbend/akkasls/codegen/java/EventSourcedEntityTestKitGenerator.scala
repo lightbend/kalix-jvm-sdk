@@ -91,52 +91,52 @@ object EventSourcedEntityTestKitGenerator {
           |
           |public class ${testkitClassName} {
           |
-          |    private ${domainClassName}.${entityStateName} state;
-          |    private ${entityClassName} entity;
-          |    private List<Object> events = new ArrayList<Object>();
-          |    private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
+          |  private ${domainClassName}.${entityStateName} state;
+          |  private ${entityClassName} entity;
+          |  private List<Object> events = new ArrayList<Object>();
+          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
           |
-          |    public ${testkitClassName}(${entityClassName} entity){
-          |        this.state = entity.emptyState();
-          |        this.entity = entity;
+          |  public ${testkitClassName}(${entityClassName} entity) {
+          |    this.state = entity.emptyState();
+          |    this.entity = entity;
+          |  }
+          |
+          |  public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state) {
+          |    this.state = state;
+          |    this.entity = entity;
+          |  }
+          |
+          |  public ${domainClassName}.${entityStateName} getState() {
+          |    return state;
+          |  }
+          |
+          |  public List<Object> getAllEvents() {
+          |    return this.events;
+          |  }
+          |
+          |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
+          |    return CollectionConverters.asJava(helper.getEvents(effect));
+          |  }
+          |
+          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state) {
+          |    return (Reply) helper.getReply(effect, state);
+          |  }
+          |
+          |  private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
+          |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
+          |  }
+          |
+          |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+          |    List<Object> events = getEvents(effect); 
+          |    this.events.add(events);
+          |    for(Object e: events) {
+          |      this.state = handleEvent(state,e);
           |    }
+          |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+          |    return new Result(reply, events);
+          |  }
           |
-          |    public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state){
-          |        this.state = state;
-          |        this.entity = entity;
-          |    }
-          |
-          |    public ${domainClassName}.${entityStateName} getState(){
-          |            return state;
-          |    }
-          |
-          |    public List<Object> getAllEvents(){
-          |        return this.events;
-          |    }
-          |
-          |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
-          |        return CollectionConverters.asJava(helper.getEvents(effect));
-          |    }
-          |
-          |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
-          |        return (Reply) helper.getReply(effect, state);
-          |    }
-          |
-          |    private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
-          |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
-          |    }
-          |
-          |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
-          |        List<Object> events = getEvents(effect); 
-          |        this.events.add(events);
-          |        for(Object e: events){
-          |            this.state = handleEvent(state,e);
-          |        }
-          |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-          |        return new Result(reply, events);
-          |    }
-          |
-          |    ${Syntax.indent(generateServices(service), 4)}
+          |  ${Syntax.indent(generateServices(service), 2)}
           |}""".stripMargin
   }
 
@@ -155,8 +155,8 @@ object EventSourcedEntityTestKitGenerator {
     service.commands
       .map { command =>
         s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
-            |    EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
-            |    return interpretEffects(effect);
+            |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
+            |  return interpretEffects(effect);
             |}
             |""".stripMargin + "\n"
       }
@@ -169,18 +169,18 @@ object EventSourcedEntityTestKitGenerator {
 
     val top =
       s"""|if (event instanceof ${domainClassName}.${events.head.fqn.name}) {
-          |    return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);
+          |  return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);
           |""".stripMargin
 
     val middle = events.tail.map { event =>
       s"""|} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
-          |    return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+          |  return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
     }
 
     val bottom =
       s"""
         |} else {
-        |    throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
+        |  throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
         |}""".stripMargin
 
     top + middle.mkString("\n") + bottom
