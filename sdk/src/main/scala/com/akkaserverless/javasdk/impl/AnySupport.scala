@@ -338,31 +338,27 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
   private def resolveTypeUrl(typeName: String): Option[ResolvedType[_]] =
     allTypes.get(typeName).map(resolveTypeDescriptor)
 
-  private def decodeJson(typeUrl: String, bytes: ByteString) = {
-    val jsonType = typeUrl.substring(AkkaServerlessJson.length)
+  def decodeJson[T](allowedClass: Class[T], typeUrl: String, bytes: ByteString): T = {
+    if (!typeUrl.startsWith(AkkaServerlessJson)) {
+      throw new IllegalArgumentException(
+        s"Protobuf bytes with type url [$typeUrl] cannot be decoded as JSON, must start with ${AkkaServerlessJson}"
+      )
+    }
+    // FIXME do something with the jsonType in the string? (not sure how that is useful, discerning multiple types of jsons, who puts it in there?)
+    // val jsonType = typeUrl.substring(AkkaServerlessJson.length)
     reflectionCache
       .getOrElseUpdate(
-        "$json$" + jsonType,
-        Try {
-          try {
-            val jsonClass = classLoader.loadClass(jsonType)
-            if (!jsonClass.isAnnotationPresent(classOf[Jsonable])) {
-              throw SerializationException(
-                s"Illegal CloudEvents json class, no @Jsonable annotation is present: $jsonType"
-              )
-            }
-            new JacksonResolvedType(jsonClass.asInstanceOf[Class[Any]],
-                                    typeUrl,
-                                    objectMapper.readerFor(jsonClass),
-                                    objectMapper.writerFor(jsonClass))
-          } catch {
-            case cnfe: ClassNotFoundException =>
-              throw SerializationException("Could not load JSON class: " + jsonType, cnfe)
-          }
-        }
+        "$json$" + allowedClass.toString,
+        Try(
+          new JacksonResolvedType(allowedClass.asInstanceOf[Class[Any]],
+                                  typeUrl,
+                                  objectMapper.readerFor(allowedClass),
+                                  objectMapper.writerFor(allowedClass))
+        )
       )
       .get
       .parseFrom(bytesToPrimitive(BytesPrimitive, bytes))
+      .asInstanceOf[T]
   }
 
   def encodeJava(value: Any): JavaPbAny =
@@ -411,11 +407,11 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
         )
     }
 
-  def decode(any: ScalaPbAny): Any = decode(any.typeUrl, any.value)
+  def decode(any: JavaPbAny): Any = decode(ScalaPbAny.fromJavaProto(any))
 
-  def decode(any: JavaPbAny): Any = decode(any.getTypeUrl, any.getValue)
-
-  private def decode(typeUrl: String, bytes: ByteString): Any =
+  def decode(any: ScalaPbAny): Any = {
+    val typeUrl = any.typeUrl
+    val bytes = any.value
     if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
       NameToPrimitives.get(typeUrl) match {
         case Some(primitive) =>
@@ -424,7 +420,9 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           throw SerializationException("Unknown primitive type url: " + typeUrl)
       }
     } else if (typeUrl.startsWith(AkkaServerlessJson)) {
-      decodeJson(typeUrl, bytes)
+      // the general decode does not actually handle json but returns it as is (but as Scala PB any) and let the user
+      // decide which json type to try decode it into
+      ScalaPbAny.toJavaProto(any)
     } else {
       val typeName = typeUrl.split("/", 2) match {
         case Array(host, typeName) =>
@@ -450,6 +448,7 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           throw SerializationException("Unable to find descriptor for type: " + typeUrl)
       }
     }
+  }
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)

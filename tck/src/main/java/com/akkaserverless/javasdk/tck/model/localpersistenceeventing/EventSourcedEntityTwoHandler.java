@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityTwoHandler
@@ -42,9 +43,7 @@ public class EventSourcedEntityTwoHandler
       String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
       case "EmitJsonEvent":
-        // FIXME Json. Enable TCK tests for eventing again, see RunTck.java
-        //          return entity().emitJsonEvent(state, LocalPersistenceEventing.JsonEvent);
-        throw new IllegalStateException("JSON not implemented yet");
+        return entity().emitJsonEvent(state, (LocalPersistenceEventing.JsonEvent) command);
 
       default:
         throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);

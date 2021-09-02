@@ -38,9 +38,6 @@ public final class RunTck {
     try {
       new GenericContainer<>(DockerImageName.parse(TCK_IMAGE).withTag(TCK_VERSION))
           .withEnv("TCK_SERVICE_HOST", "host.testcontainers.internal")
-          .withCommand(
-              "-Dakkaserverless.tck.ignore-tests.0=eventing") // FIXME disabled because of lack of
-          // JSON support
           .withLogConsumer(new LogConsumer().withRemoveAnsiCodes(false))
           .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy())
           .start();

@@ -51,6 +51,6 @@ public class LocalPersistenceSubscriberProvider implements ActionProvider {
 
   @Override
   public Descriptors.FileDescriptor[] additionalDescriptors() {
-    return new Descriptors.FileDescriptor[0];
+    return new Descriptors.FileDescriptor[] {LocalPersistenceEventing.getDescriptor()};
   }
 }

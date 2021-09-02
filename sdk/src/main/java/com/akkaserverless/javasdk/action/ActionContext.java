@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.action;
 import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.MetadataContext;
+import com.google.protobuf.Any;
 
 import java.util.Optional;
 
@@ -41,4 +42,14 @@ public interface ActionContext extends MetadataContext {
    * emitted from an entity.
    */
   Optional<String> eventSubject();
+
+  /**
+   * Try to deserialize the protobuf any message to the given class annotated
+   *
+   * @param jsonClass The class to deserialize to.
+   * @param any A protobuf Any message with the type `json.akkaserverless.com/JsonValue`.
+   * @param <T> The type of the deserialized message
+   * @return The deserialized message
+   */
+  <T> T deserializeJson(Class<T> jsonClass, Any any);
 }

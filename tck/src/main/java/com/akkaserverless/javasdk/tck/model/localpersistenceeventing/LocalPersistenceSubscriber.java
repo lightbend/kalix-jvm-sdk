@@ -18,63 +18,73 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import com.google.protobuf.Any;
 
 public class LocalPersistenceSubscriber extends Action {
 
   public LocalPersistenceSubscriber(ActionCreationContext creationContext) {}
 
   public Action.Effect<LocalPersistenceEventing.Response> processEventOne(
-      ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.EventOne eventOne) {
-    return convert(context, cloudEvent, eventOne.getStep());
+      LocalPersistenceEventing.EventOne eventOne) {
+    return convert(actionContext(), eventOne.getStep());
   }
 
   public Source<Action.Effect<LocalPersistenceEventing.Response>, NotUsed> processEventTwo(
-      ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.EventTwo eventTwo) {
-    return Source.from(eventTwo.getStepList()).map(step -> convert(context, cloudEvent, step));
+      LocalPersistenceEventing.EventTwo eventTwo) {
+    ActionContext context = actionContext();
+    return Source.from(eventTwo.getStepList()).map(step -> convert(context, step));
   }
 
-  public LocalPersistenceEventing.Response processAnyEvent(
-      JsonMessage jsonMessage, CloudEvent cloudEvent) {
-    return LocalPersistenceEventing.Response.newBuilder()
-        .setId(cloudEvent.subject().orElse(""))
-        .setMessage(jsonMessage.message)
-        .build();
+  public Action.Effect<LocalPersistenceEventing.Response> processAnyEvent(Any any) {
+    JsonMessage jsonMessage = actionContext().deserializeJson(JsonMessage.class, any);
+    return effects()
+        .reply(
+            LocalPersistenceEventing.Response.newBuilder()
+                .setId(actionContext().eventSubject().orElse(""))
+                .setMessage(jsonMessage.message)
+                .build());
   }
 
   public Action.Effect<LocalPersistenceEventing.Response> processValueOne(
-      ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ValueOne valueOne) {
-    return convert(context, cloudEvent, valueOne.getStep());
+      LocalPersistenceEventing.ValueOne valueOne) {
+    ActionContext context = actionContext();
+    return convert(context, valueOne.getStep());
   }
 
   public Source<Action.Effect<LocalPersistenceEventing.Response>, NotUsed> processValueTwo(
-      ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ValueTwo valueTwo) {
-    return Source.from(valueTwo.getStepList()).map(step -> convert(context, cloudEvent, step));
+      LocalPersistenceEventing.ValueTwo valueTwo) {
+    ActionContext context = actionContext();
+    return Source.from(valueTwo.getStepList()).map(step -> convert(context, step));
   }
 
-  public LocalPersistenceEventing.Response processAnyValue(
-      JsonMessage jsonMessage, CloudEvent cloudEvent) {
-    return LocalPersistenceEventing.Response.newBuilder()
-        .setId(cloudEvent.subject().orElse(""))
-        .setMessage(jsonMessage.message)
-        .build();
+  public Effect<LocalPersistenceEventing.Response> processAnyValue(Any any) {
+    JsonMessage jsonMessage = actionContext().deserializeJson(JsonMessage.class, any);
+    return effects()
+        .reply(
+            LocalPersistenceEventing.Response.newBuilder()
+                .setId(actionContext().eventSubject().orElse(""))
+                .setMessage(jsonMessage.message)
+                .build());
   }
 
-  public LocalPersistenceEventing.Response effect(LocalPersistenceEventing.EffectRequest request) {
-    return LocalPersistenceEventing.Response.newBuilder()
-        .setId(request.getId())
-        .setMessage(request.getMessage())
-        .build();
+  public Effect<LocalPersistenceEventing.Response> effect(
+      LocalPersistenceEventing.EffectRequest request) {
+    return effects()
+        .reply(
+            LocalPersistenceEventing.Response.newBuilder()
+                .setId(request.getId())
+                .setMessage(request.getMessage())
+                .build());
   }
 
   private Action.Effect<LocalPersistenceEventing.Response> convert(
-      ActionContext context, CloudEvent cloudEvent, LocalPersistenceEventing.ProcessStep step) {
-    String id = cloudEvent.subject().orElse("");
+      ActionContext context, LocalPersistenceEventing.ProcessStep step) {
+    String id = context.eventSubject().orElse("");
     if (step.hasReply()) {
       return effects()
           .reply(

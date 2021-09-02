@@ -21,6 +21,8 @@ import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import com.google.protobuf.Any;
 
 public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersistenceSubscriber> {
 
@@ -32,19 +34,19 @@ public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersis
   public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessEventOne":
-        throw new RuntimeException("not implemented");
+        return action().processEventOne((LocalPersistenceEventing.EventOne) message.payload());
 
       case "ProcessAnyEvent":
-        throw new RuntimeException("not implemented");
+        return action().processAnyEvent((Any) message.payload());
 
       case "ProcessValueOne":
-        throw new RuntimeException("not implemented");
+        return action().processValueOne((LocalPersistenceEventing.ValueOne) message.payload());
 
       case "ProcessAnyValue":
-        throw new RuntimeException("not implemented");
+        return action().processAnyValue((Any) message.payload());
 
       case "Effect":
-        throw new RuntimeException("not implemented");
+        return action().effect((LocalPersistenceEventing.EffectRequest) message.payload());
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
@@ -56,10 +58,14 @@ public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersis
       String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessEventTwo":
-        throw new RuntimeException("not implemented");
+        return (Source<Action.Effect<?>, NotUsed>)
+            (Object)
+                action().processEventTwo((LocalPersistenceEventing.EventTwo) message.payload());
 
       case "ProcessValueTwo":
-        throw new RuntimeException("not implemented");
+        return (Source<Action.Effect<?>, NotUsed>)
+            (Object)
+                action().processValueTwo((LocalPersistenceEventing.ValueTwo) message.payload());
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
