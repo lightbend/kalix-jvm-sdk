@@ -30,7 +30,7 @@ public class ShoppingCartTest {
         ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
 
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart("entityId1"));
+        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart());
 
         //WHEN 
         Result<Empty> resultA = testKit.addItem(commandA);
