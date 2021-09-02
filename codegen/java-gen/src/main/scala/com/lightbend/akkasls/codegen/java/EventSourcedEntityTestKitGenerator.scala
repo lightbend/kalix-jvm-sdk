@@ -18,7 +18,6 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import com.lightbend.akkasls.codegen.java.SourceGenerator._
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
@@ -85,65 +84,63 @@ object EventSourcedEntityTestKitGenerator {
 
     val testkitClassName = s"${entityClassName}TestKit"
 
-    pretty(
-      s"""$managedCodeCommentString
-            |package ${entity.fqn.parent.pkg};
-            |
-            |import ${entity.fqn.parent.pkg}.$entityClassName;
-            |import ${entity.fqn.parent.pkg}.$domainClassName;
-            |import ${service.fqn.parent.pkg}.${service.fqn.parent.javaOuterClassname};
-            |$imports
-            |
-            |public class ${testkitClassName} {
-            |
-            |    private ${domainClassName}.${entityStateName} state;
-            |    private ${entityClassName} entity;
-            |    private List<Object> events = new ArrayList<Object>();
-            |    private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
-            |
-            |    public ${testkitClassName}(${entityClassName} entity){
-            |        this.state = entity.emptyState();
-            |        this.entity = entity;
-            |    }
-            |
-            |    public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state){
-            |        this.state = state;
-            |        this.entity = entity;
-            |    }
-            |
-            |    public ${domainClassName}.${entityStateName} getState(){
-            |            return state;
-            |    }
-            |
-            |    public List<Object> getAllEvents(){
-            |        return this.events;
-            |    }
-            |
-            |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
-            |        return CollectionConverters.asJava(helper.getEvents(effect));
-            |    }
-            |
-            |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
-            |        return (Reply) helper.getReply(effect, state);
-            |    }
-            |
-            |    private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
-            |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
-            |    }
-            |
-            |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
-            |        List<Object> events = getEvents(effect); 
-            |        this.events.add(events);
-            |        for(Object e: events){
-            |            this.state = handleEvent(state,e);
-            |        }
-            |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-            |        return new Result(reply, events);
-            |    }
-            |
-            |    ${Syntax.indent(generateServices(service), 4)}
-            |}""".stripMargin
-    ).layout
+    s"""$managedCodeCommentString
+          |package ${entity.fqn.parent.pkg};
+          |
+          |import ${entity.fqn.parent.pkg}.$entityClassName;
+          |import ${entity.fqn.parent.pkg}.$domainClassName;
+          |import ${service.fqn.parent.pkg}.${service.fqn.parent.javaOuterClassname};
+          |$imports
+          |
+          |public class ${testkitClassName} {
+          |
+          |    private ${domainClassName}.${entityStateName} state;
+          |    private ${entityClassName} entity;
+          |    private List<Object> events = new ArrayList<Object>();
+          |    private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
+          |
+          |    public ${testkitClassName}(${entityClassName} entity){
+          |        this.state = entity.emptyState();
+          |        this.entity = entity;
+          |    }
+          |
+          |    public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state){
+          |        this.state = state;
+          |        this.entity = entity;
+          |    }
+          |
+          |    public ${domainClassName}.${entityStateName} getState(){
+          |            return state;
+          |    }
+          |
+          |    public List<Object> getAllEvents(){
+          |        return this.events;
+          |    }
+          |
+          |    private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect){
+          |        return CollectionConverters.asJava(helper.getEvents(effect));
+          |    }
+          |
+          |    private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state){
+          |        return (Reply) helper.getReply(effect, state);
+          |    }
+          |
+          |    private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
+          |        ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 8)}
+          |    }
+          |
+          |    private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect){
+          |        List<Object> events = getEvents(effect); 
+          |        this.events.add(events);
+          |        for(Object e: events){
+          |            this.state = handleEvent(state,e);
+          |        }
+          |        Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+          |        return new Result(reply, events);
+          |    }
+          |
+          |    ${Syntax.indent(generateServices(service), 4)}
+          |}""".stripMargin
   }
 
   def generateServices(service: ModelBuilder.EntityService): String = {
