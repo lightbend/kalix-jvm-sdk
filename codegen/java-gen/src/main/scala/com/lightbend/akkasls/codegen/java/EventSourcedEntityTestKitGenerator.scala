@@ -58,7 +58,6 @@ object EventSourcedEntityTestKitGenerator {
                                           entity: ModelBuilder.EventSourcedEntity,
                                           packageName: String,
                                           className: String): String = {
-    //Review I can add them with this
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -73,9 +72,10 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.AkkaServerlessTestKitHelper",
-        "com.akkaserverless.javasdk.testkit.Result"
-      ) //TODO find out why this is added when generate Imports
+        "com.akkaserverless.javasdk.testkit.Result",
+        "com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper"
+      )
+      //TODO find out why this is added when generate Imports
     ).replace(s"import ${entity.fqn.parent.pkg}.${entity.fqn.parent.javaOuterClassname};\n", "")
 
     val domainClassName = entity.fqn.parent.javaOuterClassname

@@ -50,8 +50,8 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
       |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
       |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
-      |import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKitHelper;
       |import com.akkaserverless.javasdk.testkit.Result;
+      |import com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper;
       |import com.google.protobuf.Empty;
       |import java.util.ArrayList;
       |import java.util.List;

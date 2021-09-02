@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit
+package com.akkaserverless.javasdk.testkit.internal
 
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
 import com.akkaserverless.javasdk.impl.effect.{ErrorReplyImpl, ForwardReplyImpl, MessageReplyImpl, NoReply}
@@ -40,15 +40,15 @@ class AkkaServerlessTestKitHelper[S] {
     }
   }
 
-  def getReply[R](effect: Effect[_], state: S) = {
+  def getReply[R](effect: Effect[R], state: S): R = {
     effect match {
       case ese: EventSourcedEntityEffectImpl[S] =>
         val reply = ese.secondaryEffect(state)
         reply match {
-          case mri: MessageReplyImpl[S] => mri.message
-          case fr: ForwardReplyImpl[S] => new NotImplementedError(fr.toString)
-          case er: ErrorReplyImpl[S] => new NotImplementedError(er.toString)
-          case nr @ NoReply(x) => nr
+          case mri: MessageReplyImpl[R] => mri.message
+          case fr: ForwardReplyImpl[R] => throw new NotImplementedError(fr.toString)
+          case er: ErrorReplyImpl[R] => throw new NotImplementedError(er.toString)
+          case nr: NoReply[R] => throw new IllegalStateException("This effect does not include a reply")
         }
     }
   }

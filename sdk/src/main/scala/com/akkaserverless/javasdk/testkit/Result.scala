@@ -42,18 +42,15 @@ private[testkit] class Result[Reply](val reply: Reply, events: java.util.List[An
   }
 
   private def eventOf[E: ClassTag]: E = {
-    try {
-      eventsIterator.next match {
-        case e: E => e
-        case other =>
-          val expectedClass = implicitly[ClassTag[E]].runtimeClass
-          throw new NoSuchElementException(
-            s"expected [$expectedClass] but found ${other.getClass}"
-          )
-      }
-    } catch {
-      case _: NoSuchElementException =>
-        throw new NoSuchElementException("It's empty. There is no events to consume.")
+    if (!eventsIterator.hasNext)
+      throw new NoSuchElementException("No more events found")
+    eventsIterator.next match {
+      case e: E => e
+      case other =>
+        val expectedClass = implicitly[ClassTag[E]].runtimeClass
+        throw new NoSuchElementException(
+          s"expected [$expectedClass] but found ${other.getClass}"
+        )
     }
   }
 }

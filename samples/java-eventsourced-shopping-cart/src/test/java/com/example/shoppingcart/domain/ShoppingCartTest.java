@@ -23,20 +23,16 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-
-        //GIVEN
-        ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
-                .setName("nameA").setQuantity(1).build();
-        ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
-                .setName("nameB").setQuantity(2).build();
-
         ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart());
 
-        //WHEN 
+        ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
+                .setName("nameA").setQuantity(1).build();
         Result<Empty> resultA = testKit.addItem(commandA);
+
+        ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
+                .setName("nameB").setQuantity(2).build();
         testKit.addItem(commandB);
 
-        //THEN
         assertEquals(1, resultA.getAllEvents().size());
         assertEquals(2, testKit.getAllEvents().size());
 
