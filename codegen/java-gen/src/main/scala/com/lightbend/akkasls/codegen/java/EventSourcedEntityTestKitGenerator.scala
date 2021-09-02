@@ -75,8 +75,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.Result",
         "com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper"
       )
-      //TODO find out why this is added when generate Imports
-    ).replace(s"import ${entity.fqn.parent.pkg}.${entity.fqn.parent.javaOuterClassname};\n", "")
+    )
 
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
