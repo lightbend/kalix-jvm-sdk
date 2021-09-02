@@ -26,7 +26,11 @@ import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
 import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.MetadataImpl
+import com.akkaserverless.javasdk.impl.ResolvedServiceCall
 import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
+import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
+import com.akkaserverless.javasdk.impl.reply.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions
@@ -52,18 +56,14 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
   private val serviceDescriptor =
     ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
-
+  private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
   override protected def afterAll(): Unit = {
     super.afterAll()
     system.terminate()
   }
 
   def create(handler: ActionHandler[_]): Actions = {
-    val service = new ActionService(
-      _ => handler,
-      serviceDescriptor,
-      new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
-    )
+    val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
 
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
@@ -185,6 +185,44 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
               extractOutField(payload) should ===(s"out: in ${idx + 1}")
           }
       }
+    }
+
+    "pass over side effects from an outer async effect to the inner one" in {
+      val dummyResolvedMethod = ResolvedServiceMethod(
+        serviceDescriptor.getMethods.get(0),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getInputType),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getOutputType)
+      )
+
+      val service = create(new AbstractHandler {
+
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] = {
+          createAsyncReplyEffect(Future {
+            createReplyEffect("reply").addSideEffect(
+              SideEffectImpl(ResolvedServiceCall(dummyResolvedMethod,
+                                                 anySupport.encodeJava(message.payload()),
+                                                 MetadataImpl.Empty),
+                             false)
+            )
+          }).addSideEffect(
+            SideEffectImpl(ResolvedServiceCall(dummyResolvedMethod,
+                                               anySupport.encodeJava(message.payload()),
+                                               MetadataImpl.Empty),
+                           true)
+          )
+        }
+      })
+
+      val reply = Await.result(service.handleUnary(
+                                 ActionCommand(serviceName, "Unary", createInPayload("in"))
+                               ),
+                               10.seconds)
+
+      reply match {
+        case ActionResponse(_, sideEffects, _) =>
+          sideEffects should have size (2)
+      }
+
     }
 
   }

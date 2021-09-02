@@ -85,7 +85,6 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         )
         Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
-        // FIXME double check this side effect handover
         futureEffect.flatMap { effect =>
           val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
           effectToResponse(withSurroundingSideEffects, anySupport)
