@@ -43,8 +43,6 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       | */
       |package com.example.shoppingcart.domain;
       |
-      |import com.example.shoppingcart.domain.ShoppingCart;
-      |import com.example.shoppingcart.domain.ShoppingCartDomain;
       |import com.example.shoppingcart.ShoppingCartApi;
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
@@ -52,6 +50,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
       |import com.akkaserverless.javasdk.testkit.Result;
       |import com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper;
+      |import com.example.shoppingcart.domain.ShoppingCartDomain;
       |import com.google.protobuf.Empty;
       |import java.util.ArrayList;
       |import java.util.List;

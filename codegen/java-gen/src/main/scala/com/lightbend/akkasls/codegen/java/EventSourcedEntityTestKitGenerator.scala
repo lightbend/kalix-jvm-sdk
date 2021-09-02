@@ -86,8 +86,6 @@ object EventSourcedEntityTestKitGenerator {
     s"""$managedCodeCommentString
           |package ${entity.fqn.parent.pkg};
           |
-          |import ${entity.fqn.parent.pkg}.$entityClassName;
-          |import ${entity.fqn.parent.pkg}.$domainClassName;
           |import ${service.fqn.parent.pkg}.${service.fqn.parent.javaOuterClassname};
           |$imports
           |
