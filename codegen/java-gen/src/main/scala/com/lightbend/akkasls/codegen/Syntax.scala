@@ -23,6 +23,12 @@ object Syntax {
   def indent(lines: Iterable[String], num: Int): String =
     indent(lines.mkString(break), num)
 
+  /*
+   * Be mindful that `Syntax.indent` does not indent the first line,
+   * so the invocation itself needs to be indented as required.
+   *
+   * Empty lines are not indented either.
+   */
   def indent(str: String, num: Int): String =
     str
       .split(break)

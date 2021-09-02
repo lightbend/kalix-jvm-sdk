@@ -30,12 +30,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ShoppingCart extends AbstractShoppingCart {
-  @SuppressWarnings("unused")
-  private final String entityId;
-
-  public ShoppingCart(EventSourcedEntityContext context) {
-    this.entityId = context.entityId();
-  }
 
   @Override
   public ShoppingCartDomain.Cart emptyState() {
