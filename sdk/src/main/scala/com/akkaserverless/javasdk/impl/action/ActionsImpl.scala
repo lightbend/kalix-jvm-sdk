@@ -79,7 +79,6 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         val response = component.Forward(
           forward.ref().method().getService.getFullName,
           forward.ref().method().getName,
-          // FIXME encodeJava the message?
           Some(ScalaPbAny.fromJavaProto(forward.message())),
           toProtocol(forward.metadata())
         )

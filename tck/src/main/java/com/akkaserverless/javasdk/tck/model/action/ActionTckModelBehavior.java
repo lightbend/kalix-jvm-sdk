@@ -48,7 +48,6 @@ public class ActionTckModelBehavior extends Action {
   public Effect<Response> processStreamedIn(Source<Request, NotUsed> requests) {
     // All request steps should be combined to produce a single response after the request stream
     // completes.
-    // FIXME async + closing over stateful action context will be a pain for users
     ActionContext actionContext = actionContext();
     CompletionStage<ArrayList<ProcessGroup>> processGroups =
         requests
