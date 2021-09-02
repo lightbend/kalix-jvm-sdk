@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
@@ -26,7 +26,7 @@ class ResolvedEventSourcedEntityFactory(delegate: EventSourcedEntityFactory,
     extends EventSourcedEntityFactory
     with ResolvedEntityFactory {
 
-  override def create(context: EventSourcedContext): EventSourcedEntityHandler[_, _] =
+  override def create(context: EventSourcedEntityContext): EventSourcedEntityHandler[_, _] =
     delegate.create(context)
 
 }

@@ -22,7 +22,7 @@ import com.google.protobuf.Empty;
 
 public class EventSourcedEntityTwo extends EventSourcedEntity<String> {
 
-  public EventSourcedEntityTwo(EventSourcedContext context) {}
+  public EventSourcedEntityTwo(EventSourcedEntityContext context) {}
 
   @Override
   public String emptyState() {

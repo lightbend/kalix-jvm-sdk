@@ -240,7 +240,7 @@ object SourceGenerator {
     val entityContextImports = model.entities.values.collect {
       case _: ModelBuilder.EventSourcedEntity =>
         List(
-          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
           "java.util.function.Function"
         )
       case _: ModelBuilder.ValueEntity =>
@@ -267,7 +267,7 @@ object SourceGenerator {
     val entityCreators =
       model.entities.values.collect {
         case entity: ModelBuilder.EventSourcedEntity =>
-          s"Function<EventSourcedContext, ${entity.fqn.name}> create${entity.fqn.name}"
+          s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
         case entity: ModelBuilder.ValueEntity =>
           s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
       }.toList

@@ -27,16 +27,18 @@ import java.util.function.Function;
 public class CartEntityProvider
     implements EventSourcedEntityProvider<ShoppingCartDomain.Cart, CartEntity> {
 
-  private final Function<EventSourcedContext, CartEntity> entityFactory;
+  private final Function<EventSourcedEntityContext, CartEntity> entityFactory;
   private final EventSourcedEntityOptions options;
 
   /** Factory method of CartProvider */
-  public static CartEntityProvider of(Function<EventSourcedContext, CartEntity> entityFactory) {
+  public static CartEntityProvider of(
+      Function<EventSourcedEntityContext, CartEntity> entityFactory) {
     return new CartEntityProvider(entityFactory, EventSourcedEntityOptions.defaults());
   }
 
   private CartEntityProvider(
-      Function<EventSourcedContext, CartEntity> entityFactory, EventSourcedEntityOptions options) {
+      Function<EventSourcedEntityContext, CartEntity> entityFactory,
+      EventSourcedEntityOptions options) {
     this.entityFactory = entityFactory;
     this.options = options;
   }
@@ -61,7 +63,7 @@ public class CartEntityProvider
   }
 
   @Override
-  public final CartEntityHandler newHandler(EventSourcedContext context) {
+  public final CartEntityHandler newHandler(EventSourcedEntityContext context) {
     return new CartEntityHandler(entityFactory.apply(context));
   }
 

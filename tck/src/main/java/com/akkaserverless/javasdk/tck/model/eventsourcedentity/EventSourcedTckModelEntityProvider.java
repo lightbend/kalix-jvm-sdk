@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.tck.model.EventSourcedEntity;
@@ -30,18 +30,18 @@ import java.util.function.Function;
 public class EventSourcedTckModelEntityProvider
     implements EventSourcedEntityProvider<Persisted, EventSourcedTckModelEntity> {
 
-  private final Function<EventSourcedContext, EventSourcedTckModelEntity> entityFactory;
+  private final Function<EventSourcedEntityContext, EventSourcedTckModelEntity> entityFactory;
   private final EventSourcedEntityOptions options;
 
   /** Factory method of EventSourcedTckModelEntityProvider */
   public static EventSourcedTckModelEntityProvider of(
-      Function<EventSourcedContext, EventSourcedTckModelEntity> entityFactory) {
+      Function<EventSourcedEntityContext, EventSourcedTckModelEntity> entityFactory) {
     return new EventSourcedTckModelEntityProvider(
         entityFactory, EventSourcedEntityOptions.defaults());
   }
 
   private EventSourcedTckModelEntityProvider(
-      Function<EventSourcedContext, EventSourcedTckModelEntity> entityFactory,
+      Function<EventSourcedEntityContext, EventSourcedTckModelEntity> entityFactory,
       EventSourcedEntityOptions options) {
     this.entityFactory = entityFactory;
     this.options = options;
@@ -67,7 +67,7 @@ public class EventSourcedTckModelEntityProvider
   }
 
   @Override
-  public final EventSourcedTckModelEntityHandler newHandler(EventSourcedContext context) {
+  public final EventSourcedTckModelEntityHandler newHandler(EventSourcedEntityContext context) {
     return new EventSourcedTckModelEntityHandler(entityFactory.apply(context));
   }
 

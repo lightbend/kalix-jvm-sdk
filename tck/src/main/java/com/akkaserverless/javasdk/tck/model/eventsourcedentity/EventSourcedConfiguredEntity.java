@@ -24,7 +24,7 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 
 public class EventSourcedConfiguredEntity extends EventSourcedEntity<Persisted> {
 
-  public EventSourcedConfiguredEntity(EventSourcedContext context) {}
+  public EventSourcedConfiguredEntity(EventSourcedEntityContext context) {}
 
   @Override
   public Persisted emptyState() {

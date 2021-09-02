@@ -249,7 +249,7 @@ object EntityServiceSourceGenerator {
       relevantTypes,
       packageName,
       otherImports = Seq(
-          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions",
           "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
           "com.google.protobuf.Descriptors",
@@ -274,16 +274,16 @@ object EntityServiceSourceGenerator {
         | */
         |public class ${className}Provider implements EventSourcedEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, $className> {
         |
-        |  private final Function<EventSourcedContext, $className> entityFactory;
+        |  private final Function<EventSourcedEntityContext, $className> entityFactory;
         |  private final EventSourcedEntityOptions options;
         |
         |  /** Factory method of ${className}Provider */
-        |  public static ${className}Provider of(Function<EventSourcedContext, $className> entityFactory) {
+        |  public static ${className}Provider of(Function<EventSourcedEntityContext, $className> entityFactory) {
         |    return new ${className}Provider(entityFactory, EventSourcedEntityOptions.defaults());
         |  }
         | 
         |  private ${className}Provider(
-        |      Function<EventSourcedContext, $className> entityFactory,
+        |      Function<EventSourcedEntityContext, $className> entityFactory,
         |      EventSourcedEntityOptions options) {
         |    this.entityFactory = entityFactory;
         |    this.options = options;
@@ -309,7 +309,7 @@ object EntityServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${className}Handler newHandler(EventSourcedContext context) {
+        |  public final ${className}Handler newHandler(EventSourcedEntityContext context) {
         |    return new ${className}Handler(entityFactory.apply(context));
         |  }
         |
@@ -339,7 +339,7 @@ object EntityServiceSourceGenerator {
       entity.state,
       packageName,
       Seq(
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect"
       )
@@ -381,7 +381,7 @@ object EntityServiceSourceGenerator {
        |  @SuppressWarnings("unused")
        |  private final String entityId;
        |
-       |  public $className(EventSourcedContext context) {
+       |  public $className(EventSourcedEntityContext context) {
        |    this.entityId = context.entityId();
        |  }
        |

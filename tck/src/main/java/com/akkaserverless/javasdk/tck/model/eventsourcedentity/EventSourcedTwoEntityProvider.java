@@ -16,12 +16,11 @@
 
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.tck.model.EventSourcedEntity;
 import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.EmptyProto;
 
@@ -31,17 +30,17 @@ import java.util.function.Function;
 public class EventSourcedTwoEntityProvider
     implements EventSourcedEntityProvider<Persisted, EventSourcedTwoEntity> {
 
-  private final Function<EventSourcedContext, EventSourcedTwoEntity> entityFactory;
+  private final Function<EventSourcedEntityContext, EventSourcedTwoEntity> entityFactory;
   private final EventSourcedEntityOptions options;
 
   /** Factory method of EventSourcedTwoEntityProvider */
   public static EventSourcedTwoEntityProvider of(
-      Function<EventSourcedContext, EventSourcedTwoEntity> entityFactory) {
+      Function<EventSourcedEntityContext, EventSourcedTwoEntity> entityFactory) {
     return new EventSourcedTwoEntityProvider(entityFactory, EventSourcedEntityOptions.defaults());
   }
 
   private EventSourcedTwoEntityProvider(
-      Function<EventSourcedContext, EventSourcedTwoEntity> entityFactory,
+      Function<EventSourcedEntityContext, EventSourcedTwoEntity> entityFactory,
       EventSourcedEntityOptions options) {
     this.entityFactory = entityFactory;
     this.options = options;
@@ -67,7 +66,7 @@ public class EventSourcedTwoEntityProvider
   }
 
   @Override
-  public final EventSourcedTwoEntityHandler newHandler(EventSourcedContext context) {
+  public final EventSourcedTwoEntityHandler newHandler(EventSourcedEntityContext context) {
     return new EventSourcedTwoEntityHandler(entityFactory.apply(context));
   }
 

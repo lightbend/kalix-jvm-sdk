@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
@@ -29,17 +29,17 @@ import java.util.function.Function;
 public class EventSourcedEntityTwoProvider
     implements EventSourcedEntityProvider<String, EventSourcedEntityTwo> {
 
-  private final Function<EventSourcedContext, EventSourcedEntityTwo> entityFactory;
+  private final Function<EventSourcedEntityContext, EventSourcedEntityTwo> entityFactory;
   private final EventSourcedEntityOptions options;
 
   /** Factory method of EventSourcedEntityTwoProvider */
   public static EventSourcedEntityTwoProvider of(
-      Function<EventSourcedContext, EventSourcedEntityTwo> entityFactory) {
+      Function<EventSourcedEntityContext, EventSourcedEntityTwo> entityFactory) {
     return new EventSourcedEntityTwoProvider(entityFactory, EventSourcedEntityOptions.defaults());
   }
 
   private EventSourcedEntityTwoProvider(
-      Function<EventSourcedContext, EventSourcedEntityTwo> entityFactory,
+      Function<EventSourcedEntityContext, EventSourcedEntityTwo> entityFactory,
       EventSourcedEntityOptions options) {
     this.entityFactory = entityFactory;
     this.options = options;
@@ -65,7 +65,7 @@ public class EventSourcedEntityTwoProvider
   }
 
   @Override
-  public final EventSourcedEntityTwoHandler newHandler(EventSourcedContext context) {
+  public final EventSourcedEntityTwoHandler newHandler(EventSourcedEntityContext context) {
     return new EventSourcedEntityTwoHandler(entityFactory.apply(context));
   }
 

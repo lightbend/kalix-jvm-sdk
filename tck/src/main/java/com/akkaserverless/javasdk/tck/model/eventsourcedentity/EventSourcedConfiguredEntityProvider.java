@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.akkaserverless.tck.model.EventSourcedEntity;
@@ -30,18 +30,18 @@ import java.util.function.Function;
 public class EventSourcedConfiguredEntityProvider
     implements EventSourcedEntityProvider<Persisted, EventSourcedConfiguredEntity> {
 
-  private final Function<EventSourcedContext, EventSourcedConfiguredEntity> entityFactory;
+  private final Function<EventSourcedEntityContext, EventSourcedConfiguredEntity> entityFactory;
   private final EventSourcedEntityOptions options;
 
   /** Factory method of EventSourcedConfiguredEntityProvider */
   public static EventSourcedConfiguredEntityProvider of(
-      Function<EventSourcedContext, EventSourcedConfiguredEntity> entityFactory) {
+      Function<EventSourcedEntityContext, EventSourcedConfiguredEntity> entityFactory) {
     return new EventSourcedConfiguredEntityProvider(
         entityFactory, EventSourcedEntityOptions.defaults());
   }
 
   private EventSourcedConfiguredEntityProvider(
-      Function<EventSourcedContext, EventSourcedConfiguredEntity> entityFactory,
+      Function<EventSourcedEntityContext, EventSourcedConfiguredEntity> entityFactory,
       EventSourcedEntityOptions options) {
     this.entityFactory = entityFactory;
     this.options = options;
@@ -67,7 +67,7 @@ public class EventSourcedConfiguredEntityProvider
   }
 
   @Override
-  public final EventSourcedConfiguredEntityHandler newHandler(EventSourcedContext context) {
+  public final EventSourcedConfiguredEntityHandler newHandler(EventSourcedEntityContext context) {
     return new EventSourcedConfiguredEntityHandler(entityFactory.apply(context));
   }
 
