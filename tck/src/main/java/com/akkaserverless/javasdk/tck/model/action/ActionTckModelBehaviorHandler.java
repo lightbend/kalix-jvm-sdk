@@ -18,12 +18,9 @@ package com.akkaserverless.javasdk.tck.model.action;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
-import com.akkaserverless.tck.model.Action;
-
-import java.util.concurrent.CompletionStage;
 
 public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelBehavior> {
 
@@ -32,13 +29,11 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
   }
 
   @Override
-  public CompletionStage<Reply<Object>> handleUnary(
-      String commandName, MessageEnvelope<Object> message) throws Throwable {
+  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessUnary":
         return action()
-            .processUnary((Action.Request) message.payload())
-            .thenApply(Reply::mapToObject);
+            .processUnary((com.akkaserverless.tck.model.Action.Request) message.payload());
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
@@ -46,13 +41,15 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
   }
 
   @Override
-  public Source<Reply<Object>, NotUsed> handleStreamedOut(
+  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(
       String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessStreamedOut":
-        return action()
-            .processStreamedOut((Action.Request) message.payload())
-            .map(Reply::mapToObject);
+        return (Source<Action.Effect<?>, NotUsed>)
+            (Object)
+                action()
+                    .processStreamedOut(
+                        (com.akkaserverless.tck.model.Action.Request) message.payload());
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
@@ -60,13 +57,13 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
   }
 
   @Override
-  public CompletionStage<Reply<Object>> handleStreamedIn(
+  public Action.Effect<?> handleStreamedIn(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     switch (commandName) {
       case "ProcessStreamedIn":
         return action()
-            .processStreamedIn(stream.map(el -> (Action.Request) el.payload()))
-            .thenApply(Reply::mapToObject);
+            .processStreamedIn(
+                stream.map(el -> (com.akkaserverless.tck.model.Action.Request) el.payload()));
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);
@@ -74,13 +71,16 @@ public class ActionTckModelBehaviorHandler extends ActionHandler<ActionTckModelB
   }
 
   @Override
-  public Source<Reply<Object>, NotUsed> handleStreamed(
+  public Source<Action.Effect<?>, NotUsed> handleStreamed(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     switch (commandName) {
       case "ProcessStreamed":
-        return action()
-            .processStreamed(stream.map(el -> (Action.Request) el.payload()))
-            .map(Reply::mapToObject);
+        return (Source<Action.Effect<?>, NotUsed>)
+            (Object)
+                action()
+                    .processStreamed(
+                        stream.map(
+                            el -> (com.akkaserverless.tck.model.Action.Request) el.payload()));
 
       default:
         throw new ActionHandler.HandlerNotFound(commandName);

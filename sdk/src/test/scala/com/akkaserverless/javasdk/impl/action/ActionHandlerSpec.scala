@@ -16,37 +16,36 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-
-import scala.compat.java8.FutureConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.action.ActionContext
-import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.actionspec.ActionspecApi
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.action.Action
+import com.akkaserverless.javasdk.action.MessageEnvelope
+import com.akkaserverless.javasdk.actionspec.ActionspecApi
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.MetadataImpl
+import com.akkaserverless.javasdk.impl.ResolvedServiceCall
+import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
+import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
+import com.akkaserverless.javasdk.impl.reply.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Inside
 import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
 
@@ -57,18 +56,14 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
   private val serviceDescriptor =
     ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
-
+  private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
   override protected def afterAll(): Unit = {
     super.afterAll()
     system.terminate()
   }
 
   def create(handler: ActionHandler[_]): Actions = {
-    val service = new ActionService(
-      _ => handler,
-      serviceDescriptor,
-      new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
-    )
+    val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
 
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
@@ -82,9 +77,8 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     "invoke unary commands" in {
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String,
-                                 message: MessageEnvelope[Any]): CompletionStage[javasdk.Reply[Any]] =
-          CompletableFuture.completedFuture(createOutReply("out: " + extractInField(message)))
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+          createReplyEffect("out: " + extractInField(message))
       })
 
       val reply = Await.result(service.handleUnary(
@@ -103,12 +97,13 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
         override def handleStreamedIn(
             commandName: String,
             stream: Source[MessageEnvelope[Any], NotUsed]
-        ): CompletionStage[javasdk.Reply[Any]] =
-          stream.asScala
-            .map(extractInField)
-            .runWith(Sink.seq)
-            .map(ins => createOutReply("out: " + ins.mkString(", ")))
-            .toJava
+        ): Action.Effect[Any] =
+          createAsyncReplyEffect(
+            stream.asScala
+              .map(extractInField)
+              .runWith(Sink.seq)
+              .map(ins => createReplyEffect("out: " + ins.mkString(", ")))
+          )
       })
 
       val reply = Await.result(
@@ -131,9 +126,13 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     "invoke streamed out commands" in {
       val service = create(new AbstractHandler {
         override def handleStreamedOut(commandName: String,
-                                       message: MessageEnvelope[Any]): Source[javasdk.Reply[Any], NotUsed] = {
+                                       message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
           val in = extractInField(message)
-          akka.stream.scaladsl.Source(1 to 3).map(idx => createOutReply(s"out $idx: $in")).asJava
+          akka.stream.scaladsl
+            .Source(1 to 3)
+            .asJava
+            .map(idx => createReplyEffect(s"out $idx: $in"))
+            .asInstanceOf[Source[Action.Effect[_], NotUsed]]
         }
       })
 
@@ -158,11 +157,12 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
         override def handleStreamed(
             commandName: String,
             stream: Source[MessageEnvelope[Any], NotUsed]
-        ): Source[javasdk.Reply[Any], NotUsed] =
+        ): Source[Action.Effect[_], NotUsed] =
           stream.asScala
             .map(extractInField)
-            .map(in => createOutReply(s"out: $in"))
+            .map(in => createReplyEffect(s"out: $in"))
             .asJava
+            .asInstanceOf[Source[Action.Effect[_], NotUsed]]
       })
 
       val replies = Await.result(
@@ -187,13 +187,54 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
       }
     }
 
+    "pass over side effects from an outer async effect to the inner one" in {
+      val dummyResolvedMethod = ResolvedServiceMethod(
+        serviceDescriptor.getMethods.get(0),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getInputType),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getOutputType)
+      )
+
+      val service = create(new AbstractHandler {
+
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] = {
+          createAsyncReplyEffect(Future {
+            createReplyEffect("reply").addSideEffect(
+              SideEffectImpl(ResolvedServiceCall(dummyResolvedMethod,
+                                                 anySupport.encodeJava(message.payload()),
+                                                 MetadataImpl.Empty),
+                             false)
+            )
+          }).addSideEffect(
+            SideEffectImpl(ResolvedServiceCall(dummyResolvedMethod,
+                                               anySupport.encodeJava(message.payload()),
+                                               MetadataImpl.Empty),
+                           true)
+          )
+        }
+      })
+
+      val reply = Await.result(service.handleUnary(
+                                 ActionCommand(serviceName, "Unary", createInPayload("in"))
+                               ),
+                               10.seconds)
+
+      reply match {
+        case ActionResponse(_, sideEffects, _) =>
+          sideEffects should have size (2)
+      }
+
+    }
+
   }
 
   private def createOutAny(field: String): Any =
     ActionspecApi.Out.newBuilder().setField(field).build()
 
-  private def createOutReply(field: String): javasdk.Reply[Any] =
-    javasdk.Reply.message(createOutAny(field))
+  private def createReplyEffect(field: String): Action.Effect[Any] =
+    ActionEffectImpl.ReplyEffect(createOutAny(field), None, Nil)
+
+  private def createAsyncReplyEffect(future: Future[Action.Effect[Any]]): Action.Effect[Any] =
+    ActionEffectImpl.AsyncEffect(future, Nil)
 
   private def extractInField(message: MessageEnvelope[Any]) =
     message.payload().asInstanceOf[ActionspecApi.In].getField
@@ -207,19 +248,17 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
   class TestAction extends Action
 
   private abstract class AbstractHandler extends ActionHandler[TestAction](new TestAction) {
-    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): CompletionStage[javasdk.Reply[Any]] =
+    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
       ???
 
-    override def handleStreamedOut(commandName: String,
-                                   message: MessageEnvelope[Any]): Source[javasdk.Reply[Any], NotUsed] = ???
+    def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = ???
 
     override def handleStreamedIn(commandName: String,
-                                  stream: Source[MessageEnvelope[Any], NotUsed]): CompletionStage[javasdk.Reply[Any]] =
+                                  stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[Any] =
       ???
 
-    override def handleStreamed(commandName: String,
-                                stream: Source[MessageEnvelope[Any], NotUsed]): Source[javasdk.Reply[Any], NotUsed] =
-      ???
+    def handleStreamed(commandName: String,
+                       stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
   }
 
 }

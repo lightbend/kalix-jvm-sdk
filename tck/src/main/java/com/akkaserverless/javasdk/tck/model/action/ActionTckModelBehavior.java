@@ -21,13 +21,16 @@ import akka.actor.ActorSystem;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.*;
-import com.akkaserverless.javasdk.Reply;
+import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
 import com.akkaserverless.tck.model.Action.*;
 import com.akkaserverless.tck.model.ActionTwo;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public class ActionTckModelBehavior extends Action {
@@ -36,68 +39,89 @@ public class ActionTckModelBehavior extends Action {
 
   public ActionTckModelBehavior(ActionCreationContext creationContext) {}
 
-  public CompletionStage<Reply<Response>> processUnary(Request request) {
-    return Source.single(request).via(responses(actionContext())).runWith(singleResponse(), system);
+  public Effect<Response> processUnary(Request request) {
+    // Multiple request steps should be combined to give just one response, with subsequent steps
+    // taking precedence.
+    return response(request.getGroupsList(), actionContext());
   }
 
-  public CompletionStage<Reply<Response>> processStreamedIn(Source<Request, NotUsed> requests) {
-    return requests.via(responses(actionContext())).runWith(singleResponse(), system);
+  public Effect<Response> processStreamedIn(Source<Request, NotUsed> requests) {
+    // All request steps should be combined to produce a single response after the request stream
+    // completes.
+    ActionContext actionContext = actionContext();
+    CompletionStage<ArrayList<ProcessGroup>> processGroups =
+        requests
+            .fold(
+                new ArrayList<ProcessGroup>(),
+                (acc, request) -> {
+                  acc.addAll(request.getGroupsList());
+                  return acc;
+                })
+            .runWith(Sink.head(), system);
+    CompletionStage<Effect<Response>> effect =
+        processGroups.thenApply(groups -> response(groups, actionContext));
+    return effects().asyncEffect(effect);
   }
 
-  public Source<Reply<Response>, NotUsed> processStreamedOut(Request request) {
-    return Source.single(request).via(responses(actionContext()));
+  public Source<Effect<Response>, NotUsed> processStreamedOut(Request request) {
+    ActionContext actionContext = actionContext();
+    // The single request may contain multiple grouped steps, each group corresponding to an
+    // expected response.
+    return Source.from(request.getGroupsList())
+        .map(groupList -> response(Collections.singletonList(groupList), actionContext));
   }
 
-  public Source<Reply<Response>, NotUsed> processStreamed(Source<Request, NotUsed> requests) {
-    return requests.via(responses(actionContext()));
+  public Source<Effect<Response>, NotUsed> processStreamed(Source<Request, NotUsed> requests) {
+    // Each request may contain multiple grouped steps, each group corresponding to an expected
+    // response.
+    ActionContext actionContext = actionContext();
+    return requests
+        .mapConcat(request -> request.getGroupsList())
+        .map(groupList -> response(Collections.singletonList(groupList), actionContext));
   }
 
-  private Flow<Request, Reply<Response>, NotUsed> responses(ActionContext context) {
-    return Flow.of(Request.class)
-        .flatMapConcat(request -> Source.from(request.getGroupsList()))
-        .map(group -> response(group, context));
-  }
-
-  private Reply<Response> response(ProcessGroup group, ActionContext context) {
-    Reply<Response> reply = Reply.noReply();
-    for (ProcessStep step : group.getStepsList()) {
-      switch (step.getStepCase()) {
-        case REPLY:
-          reply =
-              Reply.message(Response.newBuilder().setMessage(step.getReply().getMessage()).build())
-                  .addSideEffects(reply.sideEffects());
-          break;
-        case FORWARD:
-          reply =
-              Reply.<Response>forward(serviceTwoRequest(context, step.getForward().getId()))
-                  .addSideEffects(reply.sideEffects());
-          break;
-        case EFFECT:
-          SideEffect effect = step.getEffect();
-          reply =
-              reply.addSideEffects(
-                  com.akkaserverless.javasdk.SideEffect.of(
-                      serviceTwoRequest(context, effect.getId()), effect.getSynchronous()));
-          break;
-        case FAIL:
-          reply =
-              Reply.<Response>failure(step.getFail().getMessage())
-                  .addSideEffects(reply.sideEffects());
+  private Effect<Response> response(List<ProcessGroup> groups, ActionContext context) {
+    Effect<Response> effect = null;
+    List<SideEffect> sideEffects = new ArrayList<>();
+    // TCK tests expect the logic to be imperative, building something up and then discarding on
+    // failure but effect
+    // api is not imperative so we have to keep track of failure instead
+    boolean didFail = false;
+    for (ProcessGroup group : groups) {
+      for (ProcessStep step : group.getStepsList()) {
+        switch (step.getStepCase()) {
+          case REPLY:
+            if (!didFail) {
+              effect =
+                  effects()
+                      .reply(
+                          Response.newBuilder().setMessage(step.getReply().getMessage()).build());
+            }
+            break;
+          case FORWARD:
+            if (!didFail) {
+              effect = effects().forward(serviceTwoRequest(step.getForward().getId(), context));
+            }
+            break;
+          case EFFECT:
+            com.akkaserverless.tck.model.Action.SideEffect sideEffect = step.getEffect();
+            sideEffects.add(
+                com.akkaserverless.javasdk.SideEffect.of(
+                    serviceTwoRequest(sideEffect.getId(), context), sideEffect.getSynchronous()));
+            break;
+          case FAIL:
+            effect = effects().error(step.getFail().getMessage());
+            didFail = true;
+        }
       }
     }
-    return reply;
+    if (effect == null) {
+      effect = effects().noReply();
+    }
+    return effect.addSideEffects(sideEffects);
   }
 
-  private Sink<Reply<Response>, CompletionStage<Reply<Response>>> singleResponse() {
-    return Sink.fold(
-        Reply.noReply(),
-        (reply, next) ->
-            next.isEmpty()
-                ? reply.addSideEffects(next.sideEffects())
-                : next.addSideEffects(reply.sideEffects()));
-  }
-
-  private ServiceCall serviceTwoRequest(Context context, String id) {
+  private ServiceCall serviceTwoRequest(String id, ActionContext context) {
     return context
         .serviceCallFactory()
         .lookup(ActionTwo.name, "Call", OtherRequest.class)

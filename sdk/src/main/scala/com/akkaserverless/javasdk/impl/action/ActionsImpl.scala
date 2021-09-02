@@ -16,32 +16,28 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import java.util.Optional
-
-import scala.compat.java8.FutureConverters._
-import scala.concurrent.Future
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.reply.ReplySupport
 import com.akkaserverless.javasdk.lowlevel.ActionFactory
-import com.akkaserverless.javasdk.reply.ErrorReply
-import com.akkaserverless.javasdk.reply.ForwardReply
-import com.akkaserverless.javasdk.reply.MessageReply
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions
+import com.akkaserverless.protocol.component
 import com.akkaserverless.protocol.component.Failure
-import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
+
+import java.util.Optional
+import scala.collection.immutable
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,
@@ -70,20 +66,58 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
 
-  private def replyToActionResponse(msg: javasdk.Reply[Any], anySupport: AnySupport): ActionResponse = {
-    val response = msg match {
-      case message: MessageReply[Any] =>
-        val encodedReply = Reply.message(anySupport.encodeJava(message.payload()))
-        ActionResponse.Response.Reply(ReplySupport.asProtocol(encodedReply))
-      case forward: ForwardReply[Any] =>
-        ActionResponse.Response.Forward(ReplySupport.asProtocol(forward))
-      case failure: ErrorReply[Any] =>
-        ActionResponse.Response.Failure(Failure(description = failure.description()))
-      // ie, NoReply
-      case _ => ActionResponse.Response.Empty
+  private def effectToResponse(effect: Action.Effect[_], anySupport: AnySupport): Future[ActionResponse] = {
+    import ActionEffectImpl._
+    effect match {
+      case ReplyEffect(message, metadata, sideEffects) =>
+        val response = component.Reply(
+          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))),
+          metadata.flatMap(toProtocol)
+        )
+        Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(sideEffects)))
+      case ForwardEffect(forward, sideEffects) =>
+        val response = component.Forward(
+          forward.ref().method().getService.getFullName,
+          forward.ref().method().getName,
+          Some(ScalaPbAny.fromJavaProto(forward.message())),
+          toProtocol(forward.metadata())
+        )
+        Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
+      case AsyncEffect(futureEffect, sideEffects) =>
+        futureEffect.flatMap { effect =>
+          val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
+          effectToResponse(withSurroundingSideEffects, anySupport)
+        }
+      case ErrorEffect(description, sideEffects) =>
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Failure(Failure(description = description)), toProtocol(sideEffects))
+        )
+      case NoReply(sideEffects) =>
+        Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(sideEffects)))
+      case unknown =>
+        throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
     }
-    ActionResponse(response, ReplySupport.effectsFrom(msg))
   }
+
+  private def toProtocol(sideEffects: immutable.Seq[SideEffect]): Seq[component.SideEffect] =
+    sideEffects.map { sideEffect =>
+      component.SideEffect(
+        sideEffect.serviceCall().ref().method().getService.getFullName,
+        sideEffect.serviceCall().ref().method().getName,
+        Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
+        sideEffect.synchronous(),
+        toProtocol(sideEffect.serviceCall().metadata())
+      )
+    }
+
+  private def toProtocol(metadata: com.akkaserverless.javasdk.Metadata): Option[component.Metadata] =
+    metadata match {
+      case impl: MetadataImpl if impl.entries.nonEmpty =>
+        Some(component.Metadata(impl.entries))
+      case _: MetadataImpl => None
+      case other =>
+        throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
+    }
 
   /**
    * Handle a unary command.
@@ -96,11 +130,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
       case Some(service) =>
         val context = createContext(in)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
-        service.factory
+        val effect = service.factory
           .create(creationContext)
           .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          .toScala
-          .map(msg => replyToActionResponse(msg, service.anySupport))
+        effectToResponse(effect, service.anySupport)
       case None =>
         Future.successful(
           ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName)))
@@ -139,7 +172,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              service.factory
+              val effect = service.factory
                 .create(creationContext)
                 .handleStreamedIn(
                   call.name,
@@ -150,8 +183,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   }.asJava,
                   createContext(call)
                 )
-                .toScala
-                .map(msg => replyToActionResponse(msg, service.anySupport))
+              effectToResponse(effect, service.anySupport)
             case None =>
               Future.successful(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
@@ -177,7 +209,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           .create(creationContext)
           .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
           .asScala
-          .map(msg => replyToActionResponse(msg, service.anySupport))
+          .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
@@ -228,7 +260,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                   createContext(call)
                 )
                 .asScala
-                .map(msg => replyToActionResponse(msg, service.anySupport))
+                .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
             case None =>
               Source.single(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))

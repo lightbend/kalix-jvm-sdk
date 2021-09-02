@@ -5,7 +5,6 @@
 
 package customer.action;
 
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
@@ -25,7 +24,7 @@ public class CustomerActionImpl extends AbstractCustomerAction {
 
   /** Handler for "Create". */
   @Override
-  public CompletionStage<Reply<Empty>> create(CustomerApi.Customer customer) {
+  public Effect<Empty> create(CustomerApi.Customer customer) {
 
     ServiceCallRef<CustomerApi.Customer> callRef =
         creationContext.serviceCallFactory().lookup(
@@ -33,7 +32,6 @@ public class CustomerActionImpl extends AbstractCustomerAction {
             "Create",
             CustomerApi.Customer.class);
 
-    Reply<Empty> reply = Reply.forward(callRef.createCall(customer));
-    return CompletableFuture.completedFuture(reply);
+    return effects().forward(callRef.createCall(customer));
   }
 }
