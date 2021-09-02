@@ -21,6 +21,7 @@ import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf.{ByteString, Empty}
+import com.google.protobuf.{Any => JavaPbAny}
 import org.scalatest.OptionValues
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -97,12 +98,22 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "support se/deserializing bytes" in testPrimitive("bytes", ByteString.copyFromUtf8("foo"), ByteString.EMPTY)
     "support se/deserializing booleans" in testPrimitive("bool", true, false)
 
-    "support se/deserializing json" in {
+    "not automagically deserialize json" in {
+      val myJsonable = new MyJsonable
+      myJsonable.field = "foo"
+      // FIXME should we still auto-encode though, not really useable anyway with the generated return types?
+      val any = anySupport.encodeScala(myJsonable)
+      any.typeUrl should ===(AnySupport.AkkaServerlessJson + classOf[MyJsonable].getName)
+      val decoded = anySupport.decode(any)
+      decoded shouldBe an[JavaPbAny]
+    }
+
+    "support explicitly deserialize json" in {
       val myJsonable = new MyJsonable
       myJsonable.field = "foo"
       val any = anySupport.encodeScala(myJsonable)
       any.typeUrl should ===(AnySupport.AkkaServerlessJson + classOf[MyJsonable].getName)
-      anySupport.decode(any).asInstanceOf[MyJsonable].field should ===("foo")
+      anySupport.decodeJson(classOf[MyJsonable], any.typeUrl, any.value).field should ===("foo")
     }
 
   }
