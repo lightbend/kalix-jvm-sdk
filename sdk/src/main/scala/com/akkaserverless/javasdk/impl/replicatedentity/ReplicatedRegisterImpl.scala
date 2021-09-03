@@ -61,7 +61,7 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](anySupport: AnyS
     customClockValue = 0
   }
 
-  override val applyDelta = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.Register(ReplicatedRegisterDelta(Some(any), _, _, _)) =>
       resetDelta()
       this.value = anySupport.decode(any).asInstanceOf[T]

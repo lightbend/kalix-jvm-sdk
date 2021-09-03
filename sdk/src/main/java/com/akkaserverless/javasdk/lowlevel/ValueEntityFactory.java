@@ -22,9 +22,8 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 /**
  * Low level interface for handling commands on a value based entity.
  *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity @ValueEntity} and similar annotations should
- * be used.
+ * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
+ * com.akkaserverless.javasdk.valueentity.ValueEntity} should be used.
  */
 public interface ValueEntityFactory {
   /**

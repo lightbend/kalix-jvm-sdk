@@ -14,35 +14,37 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package com.akkaserverless.javasdk.replicatedentity;
 
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl;
 
 import java.util.Collection;
 import java.util.Optional;
 
-/** @param <S> The type of the state for this entity. */
-public abstract class ValueEntity<S> {
+/** @param <D> The replicated data type for this entity. */
+public abstract class ReplicatedEntityBase<D extends ReplicatedData> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
 
   /**
-   * Implement by returning the initial empty state object. This object will be passed into the
-   * command handlers, until a new state replaces it.
+   * Implement by returning the initial empty replicated data object. This object will be passed
+   * into the command handlers.
    *
-   * <p>Also known as "zero state" or "neutral state".
+   * <p>Also known as the "zero" or "neutral" state.
    *
-   * <p><code>null</code> is an allowed value.
+   * <p>The initial data cannot be <code>null</code>.
+   *
+   * @param factory the factory to create the initial empty replicated data object
    */
-  public abstract S emptyState();
+  public abstract D emptyData(ReplicatedDataFactory factory);
 
   /**
    * Additional context and metadata for a command handler.
    *
-   * <p>It will throw an exception if accessed from constructor.
+   * <p>It will throw an exception if accessed from the entity constructor.
    */
   protected CommandContext commandContext() {
     return commandContext.orElseThrow(
@@ -55,28 +57,33 @@ public abstract class ValueEntity<S> {
     commandContext = context;
   }
 
-  protected Effect.Builder<S> effects() {
-    return new ValueEntityEffectImpl<S>();
+  protected Effect.Builder effects() {
+    return new ReplicatedEntityEffectImpl<>();
   }
 
   /**
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
-   * @param <T> The type of the message that must be returned by this call.
+   * @param <R> The type of the reply message that must be returned by this call.
    */
-  public interface Effect<T> {
+  public interface Effect<R> {
 
     /**
      * Construct the effect that is returned by the command handler. The effect describes next
-     * processing actions, such as emitting events and sending a reply.
-     *
-     * @param <S> The type of the state for this entity.
+     * processing actions, such as sending a reply or deleting an entity.
      */
-    interface Builder<S> {
+    interface Builder {
 
-      OnSuccessBuilder<S> updateState(S newState);
-
-      OnSuccessBuilder<S> deleteState();
+      /**
+       * Delete the replicated entity.
+       *
+       * <p>When a replicated entity is deleted, it may not be created again. Additionally,
+       * replicated entity deletion results in tombstones that get accumulated for the life of the
+       * cluster. If you expect to delete replicated entities frequently, it's recommended that you
+       * store them in a single or sharded {@link ReplicatedMap}, rather than individual replicated
+       * entities.
+       */
+      OnSuccessBuilder delete();
 
       /**
        * Create a message reply.
@@ -126,10 +133,10 @@ public abstract class ValueEntity<S> {
       <T> Effect<T> noReply();
     }
 
-    interface OnSuccessBuilder<S> {
+    interface OnSuccessBuilder {
 
       /**
-       * Reply after for example <code>updateState</code>.
+       * Reply after for example <code>delete</code>.
        *
        * @param message The payload of the reply.
        * @return A message reply.
@@ -138,7 +145,7 @@ public abstract class ValueEntity<S> {
       <T> Effect<T> thenReply(T message);
 
       /**
-       * Reply after for example <code>updateState</code>.
+       * Reply after for example <code>delete</code>.
        *
        * @param message The payload of the reply.
        * @param metadata The metadata for the message.
@@ -148,7 +155,7 @@ public abstract class ValueEntity<S> {
       <T> Effect<T> thenReply(T message, Metadata metadata);
 
       /**
-       * Create a forward reply after for example <code>updateState</code>.
+       * Create a forward reply after for example <code>delete</code>.
        *
        * @param serviceCall The service call representing the forward.
        * @return A forward reply.
@@ -173,7 +180,7 @@ public abstract class ValueEntity<S> {
      * @param sideEffects The effects to attach.
      * @return A new reply with the attached effects.
      */
-    Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
+    Effect<R> addSideEffects(Collection<SideEffect> sideEffects);
 
     /**
      * Attach the given effects to this reply.
@@ -181,6 +188,6 @@ public abstract class ValueEntity<S> {
      * @param effects The effects to attach.
      * @return A new reply with the attached effects.
      */
-    Effect<T> addSideEffects(SideEffect... effects);
+    Effect<R> addSideEffects(SideEffect... effects);
   }
 }

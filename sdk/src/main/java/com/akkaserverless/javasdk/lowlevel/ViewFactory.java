@@ -22,8 +22,8 @@ import com.akkaserverless.javasdk.view.ViewCreationContext;
 /**
  * Low level interface for handling messages in views.
  *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.view.View @View} and similar annotations should be used.
+ * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
+ * com.akkaserverless.javasdk.view.View} should be used.
  */
 public interface ViewFactory {
   /**

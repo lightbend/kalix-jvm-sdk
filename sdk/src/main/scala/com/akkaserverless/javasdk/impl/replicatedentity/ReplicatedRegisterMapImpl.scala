@@ -85,7 +85,7 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](anySupport
     cleared = false
   }
 
-  override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(ReplicatedRegisterMapDelta(cleared, removed, updated, _)) =>
       if (cleared) registers.clear()
       removed.foreach(key => registers.remove(anySupport.decode(key).asInstanceOf[K]))

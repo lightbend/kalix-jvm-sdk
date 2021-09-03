@@ -43,7 +43,7 @@ public abstract class EventSourcedEntity<S> {
   public abstract S emptyState();
 
   /**
-   * Additional context and meta data for a command handler.
+   * Additional context and metadata for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor or event handler.
    */
@@ -59,7 +59,7 @@ public abstract class EventSourcedEntity<S> {
   }
 
   /**
-   * Additional context and meta data for an event handler.
+   * Additional context and metadata for an event handler.
    *
    * <p>It will throw an exception if accessed from constructor or command handler.
    */

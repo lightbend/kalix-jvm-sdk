@@ -41,3 +41,14 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
     newData(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
   override def newVote(): Vote = newData(new VoteImpl)
 }
+
+final class ReplicatedDataFactoryImpl(override val anySupport: AnySupport) extends AbstractReplicatedEntityFactory {
+  private var _internalData: InternalReplicatedData = _
+  def internalData: InternalReplicatedData = _internalData
+  override protected def newData[D <: InternalReplicatedData](data: D): D = {
+    if (_internalData ne null)
+      throw new IllegalStateException("A ReplicatedDataFactory must only be used to create one replicated data object")
+    _internalData = data
+    data
+  }
+}

@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.{eventsourcedentity, valueentity}
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityInit
 import com.akkaserverless.protocol.value_entity.ValueEntityInit
 
 object EntityExceptions {
@@ -64,11 +65,17 @@ object EntityExceptions {
     def apply(command: Command, message: String): EntityException =
       EntityException(command.entityId, command.id, command.name, "Protocol error: " + message, None)
 
+    def apply(entityId: String, message: String): EntityException =
+      EntityException(entityId, commandId = 0, commandName = "", "Protocol error: " + message, None)
+
     def apply(init: ValueEntityInit, message: String): EntityException =
-      EntityException(init.entityId, commandId = 0, commandName = "", "Protocol error: " + message, None)
+      ProtocolException(init.entityId, message)
 
     def apply(init: EventSourcedInit, message: String): EntityException =
-      EntityException(init.entityId, commandId = 0, commandName = "", "Protocol error: " + message, None)
+      ProtocolException(init.entityId, message)
+
+    def apply(init: ReplicatedEntityInit, message: String): EntityException =
+      ProtocolException(init.entityId, message)
   }
 
   def failure(cause: Throwable): Failure = cause match {

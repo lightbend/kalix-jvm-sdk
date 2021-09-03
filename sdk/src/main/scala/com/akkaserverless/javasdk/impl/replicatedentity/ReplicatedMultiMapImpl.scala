@@ -98,7 +98,7 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](anySupport: A
     cleared = false
   }
 
-  override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(ReplicatedMultiMapDelta(cleared, removed, updated, _)) =>
       if (cleared) entries.clear()
       removed.foreach(key => entries.remove(anySupport.decode(key).asInstanceOf[K]))

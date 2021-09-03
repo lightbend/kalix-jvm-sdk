@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using an <code>
- * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
- * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
+ * Register a value based entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a <code>
+ *  ReplicatedEntityProvider</code>. The concrete <code>ReplicatedEntityProvider</code> is generated
+ * for the specific entities defined in Protobuf.
  */
-public interface ActionProvider {
-  // TODO: do we need/have ActionOptions?
+public interface ReplicatedEntityProvider<
+    D extends ReplicatedData, E extends ReplicatedEntityBase<D>> {
+
+  ReplicatedEntityOptions options();
+
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  ActionHandler newHandler(ActionCreationContext context);
+  String entityType();
+
+  ReplicatedEntityHandler<D, E> newHandler(ReplicatedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

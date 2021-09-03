@@ -54,7 +54,7 @@ private[replicatedentity] final class VoteImpl extends InternalReplicatedData wi
 
   override def resetDelta(): Unit = selfVoteChanged = false
 
-  override val applyDelta = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.Vote(VoteDelta(selfVote, votesFor, totalVoters, _)) =>
       this.selfVote = selfVote
       this.voters = totalVoters
