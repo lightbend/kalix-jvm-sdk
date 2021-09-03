@@ -16,24 +16,28 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.CommandContext;
-import com.akkaserverless.javasdk.replicatedentity.CommandHandler;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.tck.model.ReplicatedEntity.Request;
 import com.akkaserverless.tck.model.ReplicatedEntity.RequestAction;
 import com.akkaserverless.tck.model.ReplicatedEntity.Response;
 
-@ReplicatedEntity
-public class ReplicatedEntityTwo {
-  // create replicated data to be able to call delete
-  public ReplicatedEntityTwo(ReplicatedCounter counter) {}
+public class ReplicatedEntityTwoEntity extends ReplicatedEntityBase<ReplicatedCounter> {
 
-  @CommandHandler
-  public Response call(Request request, CommandContext context) {
-    for (RequestAction action : request.getActionsList()) {
-      if (action.hasDelete()) context.delete();
+  public ReplicatedEntityTwoEntity(ReplicatedEntityContext context) {}
+
+  @Override
+  public ReplicatedCounter emptyData(ReplicatedDataFactory factory) {
+    return factory.newCounter();
+  }
+
+  public Effect<Response> call(ReplicatedCounter counter, Request request) {
+    if (request.getActionsList().stream().anyMatch(RequestAction::hasDelete)) {
+      return effects().delete().thenReply(Response.getDefaultInstance());
+    } else {
+      return effects().reply(Response.getDefaultInstance());
     }
-    return Response.getDefaultInstance();
   }
 }

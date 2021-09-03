@@ -16,27 +16,24 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.replicatedentity.*;
 import com.akkaserverless.tck.model.ReplicatedEntity.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-@ReplicatedEntity
-public class TckModelReplicatedEntity {
+public class ReplicatedEntityTckModelEntity extends ReplicatedEntityBase<ReplicatedData> {
 
-  private final ReplicatedData replicatedData;
-
+  private final String entityId;
   private final ServiceCallRef<Request> serviceTwo;
 
-  public TckModelReplicatedEntity(ReplicatedEntityCreationContext context) {
-    @SuppressWarnings("unchecked")
-    Optional<ReplicatedData> initialised =
-        (Optional<ReplicatedData>) initialData(context.entityId(), context);
-    replicatedData = initialised.orElseGet(() -> createReplicatedData(context.entityId(), context));
+  public ReplicatedEntityTckModelEntity(ReplicatedEntityContext context) {
+    entityId = context.entityId();
     serviceTwo =
         context
             .serviceCallFactory()
@@ -46,33 +43,13 @@ public class TckModelReplicatedEntity {
                 Request.class);
   }
 
-  private static String replicatedDataType(String name) {
-    return name.split("-")[0];
+  @Override
+  public ReplicatedData emptyData(ReplicatedDataFactory factory) {
+    return createReplicatedData(entityId, factory);
   }
 
-  private static Optional<? extends ReplicatedData> initialData(
-      String name, ReplicatedEntityContext context) {
-    String dataType = replicatedDataType(name);
-    switch (dataType) {
-      case "ReplicatedCounter":
-        return context.state(ReplicatedCounter.class);
-      case "ReplicatedSet":
-        return context.state(ReplicatedSet.class);
-      case "ReplicatedRegister":
-        return context.state(ReplicatedRegister.class);
-      case "ReplicatedMap":
-        return context.state(ReplicatedMap.class);
-      case "ReplicatedCounterMap":
-        return context.state(ReplicatedCounterMap.class);
-      case "ReplicatedRegisterMap":
-        return context.state(ReplicatedRegisterMap.class);
-      case "ReplicatedMultiMap":
-        return context.state(ReplicatedMultiMap.class);
-      case "Vote":
-        return context.state(Vote.class);
-      default:
-        throw new IllegalArgumentException("Unknown replicated data type: " + dataType);
-    }
+  private static String replicatedDataType(String name) {
+    return name.split("-")[0];
   }
 
   private static ReplicatedData createReplicatedData(String name, ReplicatedDataFactory factory) {
@@ -99,34 +76,41 @@ public class TckModelReplicatedEntity {
     }
   }
 
-  @CommandHandler
-  public Reply<Response> process(Request request, CommandContext context) {
-    Reply<Response> reply = null;
+  public Effect<Response> process(ReplicatedData data, Request request) {
+    Effect.OnSuccessBuilder builder = null;
+    Effect<Response> result = null;
     List<SideEffect> e = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
-          applyUpdate(replicatedData, action.getUpdate());
+          applyUpdate(data, action.getUpdate());
           break;
         case DELETE:
-          context.delete();
+          builder = effects().delete();
           break;
         case FORWARD:
-          reply = Reply.forward(serviceTwoRequest(action.getForward().getId()));
+          if (builder == null) {
+            result = effects().forward(serviceTwoRequest(action.getForward().getId()));
+          } else {
+            result = builder.thenForward(serviceTwoRequest(action.getForward().getId()));
+          }
           break;
         case EFFECT:
-          Effect effect = action.getEffect();
+          com.akkaserverless.tck.model.ReplicatedEntity.Effect effect = action.getEffect();
           e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
-          reply = Reply.failure(action.getFail().getMessage());
+          result = effects().error(action.getFail().getMessage());
           break;
       }
     }
-    if (reply == null) {
-      reply = Reply.message(responseValue());
+    if (builder == null && result == null) {
+      return effects().reply(responseValue(data)).addSideEffects(e);
+    } else if (result == null) {
+      return builder.thenReply(responseValue(data)).addSideEffects(e);
+    } else {
+      return result.addSideEffects(e);
     }
-    return reply.addSideEffects(e);
   }
 
   private void applyUpdate(ReplicatedData replicatedData, Update update) {
@@ -311,8 +295,8 @@ public class TckModelReplicatedEntity {
     }
   }
 
-  private Response responseValue() {
-    return Response.newBuilder().setState(dataState(replicatedData)).build();
+  private Response responseValue(ReplicatedData data) {
+    return Response.newBuilder().setState(dataState(data)).build();
   }
 
   private State dataState(ReplicatedData replicatedData) {

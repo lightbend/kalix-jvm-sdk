@@ -16,16 +16,23 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.CommandHandler;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.tck.model.ReplicatedEntity.Request;
 import com.akkaserverless.tck.model.ReplicatedEntity.Response;
 
-@ReplicatedEntity
-public class ConfiguredReplicatedEntity {
+public class ReplicatedEntityConfiguredEntity extends ReplicatedEntityBase<ReplicatedCounter> {
 
-  @CommandHandler
-  public Response call(Request request) {
-    return Response.getDefaultInstance();
+  public ReplicatedEntityConfiguredEntity(ReplicatedEntityContext context) {}
+
+  @Override
+  public ReplicatedCounter emptyData(ReplicatedDataFactory factory) {
+    return factory.newCounter();
+  }
+
+  public Effect<Response> call(ReplicatedCounter counter, Request request) {
+    return effects().reply(Response.getDefaultInstance());
   }
 }
