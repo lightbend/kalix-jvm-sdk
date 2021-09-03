@@ -2,15 +2,15 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto"; // <1>
+import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
-package com.example; // <2>
+package com.example.counter;
 
-option java_outer_classname = "CounterApi"; // <3>
+option java_outer_classname = "CounterApi";
 
-message IncreaseValue { // <4>
-  string counter_id = 1 [(akkaserverless.field).entity_key = true]; // <5>
+message IncreaseValue {
+  string counter_id = 1 [(akkaserverless.field).entity_key = true];
   int64 value = 2;
 }
 
@@ -23,16 +23,16 @@ message GetCounter {
   string counter_id = 1 [(akkaserverless.field).entity_key = true];
 }
 
-message CurrentCounter { // <6>
+message CurrentCounter {
   int64 value = 1;
 }
 
-service CounterService { // <7>
-// FIXME codegen for ReplicatedEntity
-//  option (akkaserverless.service) = { // <8>
-//    type : SERVICE_TYPE_ENTITY
-//     component : ".domain.Counter"
-//  };
+service CounterService {
+  // FIXME codegen for ReplicatedEntity
+  // option (akkaserverless.service) = {
+  //   type: SERVICE_TYPE_ENTITY
+  //   component: ".domain.Counter"
+  // };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease (DecreaseValue) returns (google.protobuf.Empty);

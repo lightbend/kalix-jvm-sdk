@@ -238,8 +238,8 @@ jobs:
           name: Replicated Entity "Counter" sample
           command: |
             cd samples/replicatedentity-counter
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Eventing "Shopping Cart" sample
           command: |
