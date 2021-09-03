@@ -1,3 +1,8 @@
+/* This code was initialised by Akka Serverless tooling.
+ * As long as this file exists it will not be re-generated.
+ * You are free to make changes to this file.
+ */
+
 package com.example.domain;
 
 import com.akkaserverless.javasdk.valueentity.CommandContext;
@@ -13,57 +18,55 @@ public class CounterTest {
     private Counter entity;
     private CommandContext<CounterDomain.CounterState> context = Mockito.mock(CommandContext.class);
     
-    private class MockedContextFailure extends RuntimeException {};
-    
     @Test
     public void increaseTest() {
         entity = new Counter(entityId);
         
-        Mockito.when(context.fail("The command handler for `Increase` is not implemented, yet"))
-            .thenReturn(new MockedContextFailure());
+        // TODO: write your mock here
+        // Mockito.when(context.[...]).thenReturn([...]);
         
-        // TODO: set fields in command, and update assertions to match implementation
-        assertThrows(MockedContextFailure.class, () -> {
-            entity.increaseWithReply(CounterApi.IncreaseValue.newBuilder().build(), context);
-        });
+        // TODO: set fields in command, and update assertions to verify implementation
+        // assertEquals([expected],
+        //    entity.increase(CounterApi.IncreaseValue.newBuilder().build(), context);
+        // );
     }
     
     @Test
     public void decreaseTest() {
         entity = new Counter(entityId);
         
-        Mockito.when(context.fail("The command handler for `Decrease` is not implemented, yet"))
-            .thenReturn(new MockedContextFailure());
+        // TODO: write your mock here
+        // Mockito.when(context.[...]).thenReturn([...]);
         
-        // TODO: set fields in command, and update assertions to match implementation
-        assertThrows(MockedContextFailure.class, () -> {
-            entity.decreaseWithReply(CounterApi.DecreaseValue.newBuilder().build(), context);
-        });
+        // TODO: set fields in command, and update assertions to verify implementation
+        // assertEquals([expected],
+        //    entity.decrease(CounterApi.DecreaseValue.newBuilder().build(), context);
+        // );
     }
     
     @Test
     public void resetTest() {
         entity = new Counter(entityId);
         
-        Mockito.when(context.fail("The command handler for `Reset` is not implemented, yet"))
-            .thenReturn(new MockedContextFailure());
+        // TODO: write your mock here
+        // Mockito.when(context.[...]).thenReturn([...]);
         
-        // TODO: set fields in command, and update assertions to match implementation
-        assertThrows(MockedContextFailure.class, () -> {
-            entity.resetWithReply(CounterApi.ResetValue.newBuilder().build(), context);
-        });
+        // TODO: set fields in command, and update assertions to verify implementation
+        // assertEquals([expected],
+        //    entity.reset(CounterApi.ResetValue.newBuilder().build(), context);
+        // );
     }
     
     @Test
     public void getCurrentCounterTest() {
         entity = new Counter(entityId);
         
-        Mockito.when(context.fail("The command handler for `GetCurrentCounter` is not implemented, yet"))
-            .thenReturn(new MockedContextFailure());
+        // TODO: write your mock here
+        // Mockito.when(context.[...]).thenReturn([...]);
         
-        // TODO: set fields in command, and update assertions to match implementation
-        assertThrows(MockedContextFailure.class, () -> {
-            entity.getCurrentCounterWithReply(CounterApi.GetCounter.newBuilder().build(), context);
-        });
+        // TODO: set fields in command, and update assertions to verify implementation
+        // assertEquals([expected],
+        //    entity.getCurrentCounter(CounterApi.GetCounter.newBuilder().build(), context);
+        // );
     }
 }
