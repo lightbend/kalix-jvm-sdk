@@ -48,30 +48,31 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/javascript/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```
 > curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
 The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter
+> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter 
 ERROR:
   Code: Unknown
   Message: The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in your entity.
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
+> your entity.
 
 
 ## Deploying
 
 To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
-and configure a Docker Registry for your container image.
+and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)

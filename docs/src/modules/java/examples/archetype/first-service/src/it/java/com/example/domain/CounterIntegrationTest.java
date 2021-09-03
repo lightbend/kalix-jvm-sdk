@@ -1,3 +1,8 @@
+/* This code was initialised by Akka Serverless tooling.
+ * As long as this file exists it will not be re-generated.
+ * You are free to make changes to this file.
+ */
+
 package com.example.domain;
 
 import com.example.Main;
@@ -9,7 +14,7 @@ import org.junit.Test;
 import static java.util.concurrent.TimeUnit.*;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class CounterIntegrationTest {
     
     /**
