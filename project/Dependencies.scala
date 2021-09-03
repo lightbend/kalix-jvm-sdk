@@ -14,10 +14,10 @@ object Dependencies {
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.6.15"
+  val AkkaVersion = "2.6.16"
   val AkkaHttpVersion = "10.2.6" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
-  val JacksonDatabindVersion = "2.11.4" // Akka 2.6.14: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
+  val JacksonDatabindVersion = "2.11.4" // Akka 2.6.16: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.3"
   val LogbackContribVersion = "0.1.5"
