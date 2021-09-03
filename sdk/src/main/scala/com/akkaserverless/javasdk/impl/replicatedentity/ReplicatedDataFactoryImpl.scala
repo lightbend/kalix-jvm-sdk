@@ -19,13 +19,25 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.impl.AnySupport
 
-trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
-  protected def anySupport: AnySupport
-  protected def newData[D <: InternalReplicatedData](data: D): D
+final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends ReplicatedDataFactory {
+  private var _internalData: InternalReplicatedData = _
+
+  def internalData: InternalReplicatedData = _internalData
+
+  private def newData[D <: InternalReplicatedData](data: D): D = {
+    if (_internalData ne null)
+      throw new IllegalStateException("A ReplicatedDataFactory must only be used to create one replicated data object")
+    _internalData = data
+    data
+  }
+
   override def newCounter(): ReplicatedCounter = newData(new ReplicatedCounterImpl)
+
   override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] =
     newData(new ReplicatedCounterMapImpl[K](anySupport))
+
   override def newReplicatedSet[T](): ReplicatedSet[T] = newData(new ReplicatedSetImpl[T](anySupport))
+
   override def newRegister[T](value: T): ReplicatedRegister[T] = {
     val register = newData(new ReplicatedRegisterImpl[T](anySupport))
     if (value != null) {
@@ -33,22 +45,15 @@ trait AbstractReplicatedEntityFactory extends ReplicatedDataFactory {
     }
     register
   }
+
   override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] =
     newData(new ReplicatedRegisterMapImpl[K, V](anySupport))
+
   override def newReplicatedMultiMap[K, V](): ReplicatedMultiMap[K, V] =
     newData(new ReplicatedMultiMapImpl[K, V](anySupport))
+
   override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] =
     newData(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
-  override def newVote(): Vote = newData(new VoteImpl)
-}
 
-final class ReplicatedDataFactoryImpl(override val anySupport: AnySupport) extends AbstractReplicatedEntityFactory {
-  private var _internalData: InternalReplicatedData = _
-  def internalData: InternalReplicatedData = _internalData
-  override protected def newData[D <: InternalReplicatedData](data: D): D = {
-    if (_internalData ne null)
-      throw new IllegalStateException("A ReplicatedDataFactory must only be used to create one replicated data object")
-    _internalData = data
-    data
-  }
+  override def newVote(): Vote = newData(new VoteImpl)
 }

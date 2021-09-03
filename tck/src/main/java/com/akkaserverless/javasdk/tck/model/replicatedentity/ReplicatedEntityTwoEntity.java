@@ -18,13 +18,13 @@ package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.tck.model.ReplicatedEntity.Request;
 import com.akkaserverless.tck.model.ReplicatedEntity.RequestAction;
 import com.akkaserverless.tck.model.ReplicatedEntity.Response;
 
-public class ReplicatedEntityTwoEntity extends ReplicatedEntityBase<ReplicatedCounter> {
+public class ReplicatedEntityTwoEntity extends ReplicatedEntity<ReplicatedCounter> {
 
   public ReplicatedEntityTwoEntity(ReplicatedEntityContext context) {}
 

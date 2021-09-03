@@ -34,7 +34,6 @@ import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Descriptors, Any => JavaPbAny}
 
-import java.util.Optional
 import scala.util.control.NonFatal
 
 final class ReplicatedEntityService(
@@ -177,7 +176,7 @@ object ReplicatedEntitiesImpl {
       if (entityId != command.entityId)
         throw ProtocolException(command, "Entity is not the intended recipient of command")
 
-      val context = new ReplicatedEntityCommandContext(entityId, command, rootContext, service.anySupport)
+      val context = new ReplicatedEntityCommandContext(entityId, command, rootContext)
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
       val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
 
@@ -248,18 +247,13 @@ object ReplicatedEntitiesImpl {
       with ActivatableContext {
 
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-
-    // TODO: will be removed
-    override def state[D <: ReplicatedData](replicatedDataType: Class[D]): Optional[D] = Optional.empty
   }
 
   private final class ReplicatedEntityCommandContext(
       override val entityId: String,
       command: Command,
-      rootContext: Context,
-      override val anySupport: AnySupport
+      rootContext: Context
   ) extends CommandContext
-      with AbstractReplicatedEntityFactory // TODO: will be removed
       with ActivatableContext {
 
     override val commandId: Long = command.id
@@ -269,14 +263,5 @@ object ReplicatedEntitiesImpl {
     override val metadata: Metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-
-    // TODO: will be removed
-    override def state[D <: ReplicatedData](replicatedDataType: Class[D]): Optional[D] = Optional.empty
-
-    // TODO: will be removed
-    override def delete(): Unit = ???
-
-    // TODO: will be removed
-    override protected def newData[D <: InternalReplicatedData](data: D): D = ???
   }
 }

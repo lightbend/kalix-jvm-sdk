@@ -25,7 +25,7 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase.Effect
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity.Effect
 
 import java.util.{Collection => JCollection}
 import scala.jdk.CollectionConverters._

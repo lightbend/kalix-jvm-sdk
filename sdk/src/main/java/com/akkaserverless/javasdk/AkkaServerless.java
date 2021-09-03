@@ -28,9 +28,7 @@ import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
-import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityService;
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
 import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
@@ -38,7 +36,6 @@ import com.akkaserverless.javasdk.impl.view.ViewService;
 import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
@@ -102,34 +99,6 @@ public final class AkkaServerless {
                   entityType,
                   entityOptions.snapshotEvery(),
                   entityOptions));
-
-      return AkkaServerless.this;
-    }
-
-    /**
-     * Register a replicated entity factory.
-     *
-     * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-     * implementing the entity.
-     *
-     * @param factory The replicated entity factory.
-     * @param descriptor The descriptor for the service that this entity implements.
-     * @param entityOptions The options for this entity.
-     * @param additionalDescriptors Any additional descriptors that should be used to look up
-     *     protobuf types when needed.
-     * @return This stateful service builder.
-     */
-    public AkkaServerless registerReplicatedEntity(
-        ReplicatedEntityHandlerFactory factory,
-        Descriptors.ServiceDescriptor descriptor,
-        ReplicatedEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
-
-      services.put(
-          descriptor.getFullName(),
-          system ->
-              new ReplicatedEntityStatefulService(
-                  factory, descriptor, newAnySupport(additionalDescriptors), entityOptions));
 
       return AkkaServerless.this;
     }
@@ -301,67 +270,6 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated replicated entity.
-   *
-   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerReplicatedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerReplicatedEntity(
-        entityClass, descriptor, ReplicatedEntityOptions.defaults(), additionalDescriptors);
-  }
-
-  /**
-   * Register an annotated replicated entity.
-   *
-   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerReplicatedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      ReplicatedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    ReplicatedEntity entity = entityClass.getAnnotation(ReplicatedEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass
-              + " does not declare an "
-              + ReplicatedEntity.class.getName()
-              + " annotation!");
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
-    ReplicatedEntityStatefulService service =
-        new ReplicatedEntityStatefulService(
-            new AnnotationBasedReplicatedEntitySupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
    * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
    * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
    * example <code>CustomerEntityProvider</code>.
@@ -371,7 +279,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <D extends ReplicatedData, E extends ReplicatedEntityBase<D>> AkkaServerless register(
+  public <D extends ReplicatedData, E extends ReplicatedEntity<D>> AkkaServerless register(
       ReplicatedEntityProvider<D, E> provider) {
     return lowLevel()
         .registerReplicatedEntity(

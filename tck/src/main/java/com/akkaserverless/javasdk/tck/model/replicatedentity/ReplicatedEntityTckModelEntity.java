@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ReplicatedEntityTckModelEntity extends ReplicatedEntityBase<ReplicatedData> {
+public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedData> {
 
   private final String entityId;
   private final ServiceCallRef<Request> serviceTwo;

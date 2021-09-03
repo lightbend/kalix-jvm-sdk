@@ -24,8 +24,7 @@ import com.google.protobuf.Descriptors;
  *  ReplicatedEntityProvider</code>. The concrete <code>ReplicatedEntityProvider</code> is generated
  * for the specific entities defined in Protobuf.
  */
-public interface ReplicatedEntityProvider<
-    D extends ReplicatedData, E extends ReplicatedEntityBase<D>> {
+public interface ReplicatedEntityProvider<D extends ReplicatedData, E extends ReplicatedEntity<D>> {
 
   ReplicatedEntityOptions options();
 

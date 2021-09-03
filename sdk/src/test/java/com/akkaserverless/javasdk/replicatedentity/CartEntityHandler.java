@@ -29,7 +29,7 @@ public class CartEntityHandler
   }
 
   @Override
-  public ReplicatedEntityBase.Effect<?> handleCommand(
+  public ReplicatedEntity.Effect<?> handleCommand(
       String commandName,
       ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> data,
       Object command,

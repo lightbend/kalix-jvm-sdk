@@ -17,14 +17,14 @@
 package com.akkaserverless.javasdk.lowlevel;
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityBase;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 
 /**
  * Low level interface for handling commands on a replicated entity.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * ReplicatedEntityBase} should be used.
+ * ReplicatedEntity} should be used.
  */
 public interface ReplicatedEntityFactory {
   /**

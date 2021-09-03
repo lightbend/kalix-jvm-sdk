@@ -23,12 +23,7 @@ import akka.actor.{ActorSystem, CoordinatedShutdown}
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import com.akkaserverless.javasdk.impl.action.{ActionService, ActionsImpl}
-import com.akkaserverless.javasdk.impl.replicatedentity.{
-  ReplicatedEntitiesImpl,
-  ReplicatedEntityImpl,
-  ReplicatedEntityService,
-  ReplicatedEntityStatefulService
-}
+import com.akkaserverless.javasdk.impl.replicatedentity.{ReplicatedEntitiesImpl, ReplicatedEntityService}
 import com.akkaserverless.javasdk.impl.valueentity.{ValueEntitiesImpl, ValueEntityService}
 import com.akkaserverless.javasdk.impl.eventsourcedentity.{EventSourcedEntitiesImpl, EventSourcedEntityService}
 import com.akkaserverless.javasdk.impl.{DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod}
@@ -126,11 +121,6 @@ final class AkkaServerlessRunner private[this] (
             if serviceClass == classOf[EventSourcedEntityService] =>
           val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, rootContext, configuration)
           route orElse EventSourcedEntitiesHandler.partial(eventSourcedImpl)
-
-        case (route, (serviceClass, services: Map[String, ReplicatedEntityStatefulService] @unchecked))
-            if serviceClass == classOf[ReplicatedEntityStatefulService] =>
-          val replicatedEntityImpl = new ReplicatedEntityImpl(system, services, rootContext)
-          route orElse ReplicatedEntitiesHandler.partial(replicatedEntityImpl)
 
         case (route, (serviceClass, services: Map[String, ReplicatedEntityService] @unchecked))
             if serviceClass == classOf[ReplicatedEntityService] =>

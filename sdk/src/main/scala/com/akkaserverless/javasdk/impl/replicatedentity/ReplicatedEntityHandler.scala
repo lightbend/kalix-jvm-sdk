@@ -17,11 +17,11 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import java.util.Optional
-import com.akkaserverless.javasdk.replicatedentity.{CommandContext, ReplicatedData, ReplicatedEntityBase}
+import com.akkaserverless.javasdk.replicatedentity.{CommandContext, ReplicatedData, ReplicatedEntity}
 import com.akkaserverless.javasdk.impl.{AnySupport, EntityExceptions}
 
 object ReplicatedEntityHandler {
-  final case class CommandResult(effect: ReplicatedEntityBase.Effect[_])
+  final case class CommandResult(effect: ReplicatedEntity.Effect[_])
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
 }
@@ -33,7 +33,7 @@ object ReplicatedEntityHandler {
  *
  * <p>The concrete <code>ReplicatedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntityBase[D]](protected val entity: E) {
+abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntity[D]](protected val entity: E) {
   import ReplicatedEntityHandler._
 
   private var data: D = _
@@ -76,6 +76,6 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
   protected def handleCommand(commandName: String,
                               data: D,
                               command: Any,
-                              context: CommandContext): ReplicatedEntityBase.Effect[_]
+                              context: CommandContext): ReplicatedEntity.Effect[_]
 
 }
