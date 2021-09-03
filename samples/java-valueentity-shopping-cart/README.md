@@ -51,7 +51,7 @@ requests at the path `/[package].[entity name]/[method]`. For example, using `cu
 * Send an AddItem command:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.shoppingcart.ShoppingCartService/AddItem -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
 ```
 
 For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
