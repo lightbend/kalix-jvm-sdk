@@ -20,7 +20,7 @@ mvn install
 
 ```shell
 cd samples/java-valueentity-shopping-cart
-mvn -Dakkaserverless-maven-plugin.version="0.7.0-beta.10-1-370-413a4e8e-SNAPSHOT" compile
+mvn -Dakkaserverless-sdk.version="0.7.0-beta.10-1-370-413a4e8e-SNAPSHOT" compile
 ```
 
 Be careful not to accidentally check in the `maven-java` `pom.xml` files with changed version.
