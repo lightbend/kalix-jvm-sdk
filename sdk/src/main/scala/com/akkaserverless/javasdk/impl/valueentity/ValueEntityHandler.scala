@@ -20,7 +20,6 @@ import java.util.Optional
 
 import com.akkaserverless.javasdk.valueentity.CommandContext
 import com.akkaserverless.javasdk.impl.EntityExceptions
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.valueentity.ValueEntity

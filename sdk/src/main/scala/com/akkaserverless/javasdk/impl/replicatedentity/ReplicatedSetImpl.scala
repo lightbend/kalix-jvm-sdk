@@ -117,7 +117,7 @@ private[replicatedentity] class ReplicatedSetImpl[T](anySupport: AnySupport)
     removed.clear()
   }
 
-  override val applyDelta = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.ReplicatedSet(ReplicatedSetDelta(cleared, removed, added, _)) =>
       if (cleared) {
         value.clear()

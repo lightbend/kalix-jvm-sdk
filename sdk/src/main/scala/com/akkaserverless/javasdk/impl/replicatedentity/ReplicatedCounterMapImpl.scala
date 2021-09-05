@@ -85,7 +85,7 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](anySupport: An
     cleared = false
   }
 
-  override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.ReplicatedCounterMap(ReplicatedCounterMapDelta(cleared, removed, updated, _)) =>
       if (cleared) counters.clear()
       removed.foreach(key => counters.remove(anySupport.decode(key).asInstanceOf[K]))

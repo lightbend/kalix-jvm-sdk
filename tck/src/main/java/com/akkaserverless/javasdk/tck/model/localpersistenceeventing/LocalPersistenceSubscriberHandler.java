@@ -18,12 +18,9 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
-
-import java.util.concurrent.CompletionStage;
 
 public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersistenceSubscriber> {
 
@@ -32,8 +29,7 @@ public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersis
   }
 
   @Override
-  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message)
-      throws Throwable {
+  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessEventOne":
         throw new RuntimeException("not implemented");

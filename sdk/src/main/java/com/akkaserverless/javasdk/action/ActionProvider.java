@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.impl.action.ActionHandler;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using a <code>
+ * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using an <code>
  * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
  * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */

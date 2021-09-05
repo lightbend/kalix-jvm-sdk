@@ -21,27 +21,43 @@ import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
-import com.akkaserverless.javasdk.tck.model.valueentity.*;
+import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
+import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehaviorProvider;
+import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
+import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntityProvider;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntityProvider;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntity;
+import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOne;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOneProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwo;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwoProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriberProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOneProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwoProvider;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityConfiguredEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityConfiguredEntityProvider;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTckModelEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTckModelEntityProvider;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntity;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntityProvider;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntity;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntityProvider;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntity;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntityProvider;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
+import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntityProvider;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehaviorProvider;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntityProvider;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
-import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehaviorProvider;
-import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
-import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriberProvider;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ConfiguredReplicatedEntity;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwo;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.TckModelReplicatedEntity;
-import com.akkaserverless.javasdk.view.ViewProvider;
-import com.akkaserverless.tck.model.Action;
-import com.akkaserverless.tck.model.ReplicatedEntity;
-import com.akkaserverless.tck.model.View;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 import java.time.Duration;
 
@@ -58,65 +74,33 @@ public final class JavaSdkTck {
                       ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
                           .withPassivationStrategy(
                               PassivationStrategy.timeout(Duration.ofMillis(100)))))
-          .registerReplicatedEntity(
-              TckModelReplicatedEntity.class,
-              ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityTckModel"),
-              ReplicatedEntity.getDescriptor())
-          .registerReplicatedEntity(
-              ReplicatedEntityTwo.class,
-              ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityTwo"))
-          .registerReplicatedEntity(
-              ConfiguredReplicatedEntity.class,
-              ReplicatedEntity.getDescriptor().findServiceByName("ReplicatedEntityConfigured"),
-              ReplicatedEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                  .withPassivationStrategy(PassivationStrategy.timeout(Duration.ofMillis(100)))
-                  .withWriteConsistency(WriteConsistency.ALL))
+          .register(ReplicatedEntityTckModelEntityProvider.of(ReplicatedEntityTckModelEntity::new))
+          .register(ReplicatedEntityTwoEntityProvider.of(ReplicatedEntityTwoEntity::new))
           .register(
-              com.akkaserverless.javasdk.tck.model.eventsourcedentity
-                  .EventSourcedTckModelEntityProvider.of(
-                      com.akkaserverless.javasdk.tck.model.eventsourcedentity
-                              .EventSourcedTckModelEntity
-                          ::new)
+              ReplicatedEntityConfiguredEntityProvider.of(ReplicatedEntityConfiguredEntity::new)
+                  .withOptions(
+                      ReplicatedEntityOptions.defaults()
+                          // required timeout of 100 millis for TCK tests
+                          .withPassivationStrategy(
+                              PassivationStrategy.timeout(Duration.ofMillis(100)))
+                          // required write consistency for TCK tests
+                          .withWriteConsistency(WriteConsistency.ALL)))
+          .register(
+              EventSourcedTckModelEntityProvider.of(EventSourcedTckModelEntity::new)
                   .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(5)))
+          .register(EventSourcedTwoEntityProvider.of(EventSourcedTwoEntity::new))
           .register(
-              com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider
-                  .of(
-                      com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntity
-                          ::new))
-          .register(
-              com.akkaserverless.javasdk.tck.model.eventsourcedentity
-                  .EventSourcedConfiguredEntityProvider.of(
-                      com.akkaserverless.javasdk.tck.model.eventsourcedentity
-                              .EventSourcedConfiguredEntity
-                          ::new)
+              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new)
                   // required timeout of 100 millis for TCK tests
                   .withOptions(
                       EventSourcedEntityOptions.defaults()
                           .withPassivationStrategy(
                               PassivationStrategy.timeout(Duration.ofMillis(100)))))
           .register(LocalPersistenceSubscriberProvider.of(LocalPersistenceSubscriber::new))
-          .register(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing
-                  .EventSourcedEntityOneProvider.of(
-                  com.akkaserverless.javasdk.tck.model.localpersistenceeventing
-                          .EventSourcedEntityOne
-                      ::new))
-          .register(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing
-                  .EventSourcedEntityTwoProvider.of(
-                  com.akkaserverless.javasdk.tck.model.localpersistenceeventing
-                          .EventSourcedEntityTwo
-                      ::new))
-          .register(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOneProvider
-                  .of(
-                      com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne
-                          ::new))
-          .register(
-              com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwoProvider
-                  .of(
-                      com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo
-                          ::new))
+          .register(EventSourcedEntityOneProvider.of(EventSourcedEntityOne::new))
+          .register(EventSourcedEntityTwoProvider.of(EventSourcedEntityTwo::new))
+          .register(ValueEntityOneProvider.of(ValueEntityOne::new))
+          .register(ValueEntityTwoProvider.of(ValueEntityTwo::new))
           .register(ViewTckModelBehaviorProvider.of(ViewTckModelBehavior::new))
           .register(ViewTckSourceEntityProvider.of(ViewTckSourceEntity::new));
 

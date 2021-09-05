@@ -14,7 +14,7 @@
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}</dockerTag>
-    <mainClass>com.example.Main</mainClass>
+    <mainClass>com.example.counter.Main</mainClass>
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -201,8 +201,8 @@
         </configuration>
       </plugin>
 
-      <!-- FIXME codegen for ReplictedEntity -->
-      <plugin>
+      <!-- FIXME codegen for ReplicatedEntity -->
+      <!-- <plugin>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
 	      <version>${akkaserverless-sdk.version}</version>
@@ -219,7 +219,7 @@
           <mainClass>${mainClass}</mainClass>
           <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
-      </plugin>
+      </plugin> -->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.valueentity;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
 import java.util.Collection;
@@ -32,7 +31,7 @@ public abstract class ValueEntity<S> {
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
-   * command and event handlers, until a new state replaces it.
+   * command handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
    *
@@ -41,7 +40,7 @@ public abstract class ValueEntity<S> {
   public abstract S emptyState();
 
   /**
-   * Additional context and meta data for a command handler.
+   * Additional context and metadata for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor.
    */

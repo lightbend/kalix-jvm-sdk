@@ -30,7 +30,7 @@ import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.javasdk.impl.ResolvedServiceCall
 import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.impl.reply.SideEffectImpl
+import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions

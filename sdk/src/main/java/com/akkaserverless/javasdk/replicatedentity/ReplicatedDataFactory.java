@@ -47,7 +47,7 @@ public interface ReplicatedDataFactory {
   <K, V> ReplicatedRegisterMap<K, V> newReplicatedRegisterMap();
 
   /** Create a new ReplicatedMap. */
-  <K, V extends ReplicatedData> ReplicatedMap<K, V> newReplicatedMap(); // FIXME make internal
+  <K, V extends ReplicatedData> ReplicatedMap<K, V> newReplicatedMap();
 
   /** Create a new Vote. */
   Vote newVote();

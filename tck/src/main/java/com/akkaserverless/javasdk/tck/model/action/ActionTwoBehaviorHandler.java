@@ -18,12 +18,9 @@ package com.akkaserverless.javasdk.tck.model.action;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
-
-import java.util.concurrent.CompletionStage;
 
 public class ActionTwoBehaviorHandler extends ActionHandler<ActionTwoBehavior> {
 
@@ -32,8 +29,7 @@ public class ActionTwoBehaviorHandler extends ActionHandler<ActionTwoBehavior> {
   }
 
   @Override
-  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message)
-      throws Throwable {
+  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "Call":
         return action().call((com.akkaserverless.tck.model.Action.OtherRequest) message.payload());

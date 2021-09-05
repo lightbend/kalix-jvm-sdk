@@ -41,7 +41,7 @@ private[replicatedentity] final class ReplicatedCounterImpl extends InternalRepl
 
   override def resetDelta(): Unit = deltaValue = 0
 
-  override val applyDelta = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.Counter(ReplicatedCounterDelta(increment, _)) =>
       value += increment
   }

@@ -23,7 +23,8 @@ import com.akkaserverless.javasdk.impl.action.ActionHandler;
 /**
  * Low level interface to implement {@link Action} components.
  *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link Action}.
+ * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
+ * Action} should be used.
  */
 public interface ActionFactory {
   ActionHandler<?> create(ActionCreationContext context);

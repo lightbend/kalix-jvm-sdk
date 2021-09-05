@@ -63,27 +63,15 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
       value.get(key)
     } else {
       val encodedKey = anySupport.encodeScala(key)
-      var internalData: InternalReplicatedData = null
-      val data = create(new AbstractReplicatedEntityFactory {
-        override protected def anySupport: AnySupport = ReplicatedMapImpl.this.anySupport
-        override protected def newData[D <: InternalReplicatedData](data: D): D = {
-          if (internalData != null) {
-            throw new IllegalStateException(
-              "getOrCreate creation callback must only be used to create one replicated data item at a time"
-            )
-          }
-          internalData = data
-          data
-        }
-      })
-      if (data == null) {
+      val dataFactory = new ReplicatedDataFactoryImpl(anySupport)
+      val data = create(dataFactory)
+      if (data eq null) {
         throw new IllegalArgumentException("getOrCreate creation callback must return a Replicated Data object")
-      } else if (data != internalData) {
+      } else if (data ne dataFactory.internalData) {
         throw new IllegalArgumentException(
           "Replicated Data returned by getOrCreate creation callback must have been created by the ReplicatedDataFactory passed to it"
         )
       }
-
       value.put(key, data)
       added.put(key, (encodedKey, data))
       data
@@ -151,7 +139,7 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
     value.values().asScala.foreach(_.resetDelta())
   }
 
-  override val applyDelta = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
     case ReplicatedEntityDelta.Delta.ReplicatedMap(ReplicatedMapDelta(cleared, removed, updated, added, _)) =>
       if (cleared) {
         value.clear()

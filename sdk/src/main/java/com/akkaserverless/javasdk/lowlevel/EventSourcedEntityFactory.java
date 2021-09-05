@@ -22,9 +22,8 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHand
 /**
  * Low level interface for handling events and commands on an entity.
  *
- * <p>Generally, this should not be needed, instead, a class annotated with the {@link
- * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity @EventSourcedEntity} and similar
- * annotations should be used.
+ * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
+ * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity} should be used.
  */
 public interface EventSourcedEntityFactory {
   /**
