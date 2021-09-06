@@ -27,6 +27,10 @@ import "google/protobuf/any.proto";
 
 // tag::service[]
 service CustomerByName {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <1>
     option (akkaserverless.method).eventing.in = { // <2>
       value_entity: "customers"
@@ -49,6 +53,10 @@ message ByNameRequest {
 // end::service[]
 
 service CustomerByEmail {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (akkaserverless.method).eventing.in = {
       value_entity: "customers"
@@ -78,6 +86,10 @@ message CustomerSummary {
 }
 
 service CustomerSummaryByName {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc GetCustomers(ByNameRequest) returns (stream CustomerSummary) {
     option (akkaserverless.method).view.query = {
       query: "SELECT customer_id AS id, name FROM customers WHERE name = :customer_name"
@@ -101,6 +113,10 @@ message CustomersResponse {
 }
 
 service CustomersResponseByName {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc GetCustomers(ByNameRequest) returns (CustomersResponse) { // <2>
     option (akkaserverless.method).view.query = {
       query: "SELECT * AS results FROM customers WHERE name = :customer_name" // <3>

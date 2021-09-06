@@ -6,14 +6,14 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import customer.action.CustomerActionImpl;
-import customer.action.CustomerActionProvider;
-import customer.domain.CustomerDomain;
-import customer.domain.CustomerValueEntityProvider;
-import customer.view.CustomerViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import customer.action.CustomerActionImpl;
 import customer.domain.CustomerValueEntity;
+import customer.view.CustomerByEmailView;
+import customer.view.CustomerByNameView;
+import customer.view.CustomerSummaryByNameView;
+import customer.view.CustomersResponseByNameView;
 
 public final class Main {
 
@@ -21,14 +21,15 @@ public final class Main {
 
   public static AkkaServerless createAkkaServerless() {
     // tag::register[]
-    return new AkkaServerless()
-            .registerView(
-                    CustomerViewModel.getDescriptor().findServiceByName("CustomerByName"),
-                    "customerByName",
-                    CustomerDomain.getDescriptor())
-            // end::register[]
-            .register(CustomerValueEntityProvider.of(CustomerValueEntity::new))
-            .register(CustomerActionProvider.of(CustomerActionImpl::new));
+    return AkkaServerlessFactory.withComponents(
+      CustomerValueEntity::new,
+      CustomerSummaryByNameView::new,
+      CustomerByEmailView::new,
+      CustomersResponseByNameView::new,
+      CustomerActionImpl::new,
+      CustomerByNameView::new
+    );
+    // end::register[]
   }
 
   public static void main(String[] args) throws Exception {
