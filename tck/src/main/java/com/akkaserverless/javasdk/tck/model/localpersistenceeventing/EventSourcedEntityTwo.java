@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
+import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
@@ -32,7 +33,8 @@ public class EventSourcedEntityTwo extends EventSourcedEntity<String> {
   public EventSourcedEntity.Effect<Empty> emitJsonEvent(
       String currentState, LocalPersistenceEventing.JsonEvent event) {
     return effects()
-        .emitEvent(new JsonMessage(event.getMessage()))
+        // FIXME requirement to use JSON events should be removed from TCK
+        .emitEvent(JsonSupport.encodeJson(new JsonMessage(event.getMessage())))
         .thenReply(__ -> Empty.getDefaultInstance());
   }
 

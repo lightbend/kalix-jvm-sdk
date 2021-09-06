@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
@@ -41,7 +42,7 @@ public class LocalPersistenceSubscriber extends Action {
   }
 
   public Action.Effect<LocalPersistenceEventing.Response> processAnyEvent(Any any) {
-    JsonMessage jsonMessage = actionContext().deserializeJson(JsonMessage.class, any);
+    JsonMessage jsonMessage = JsonSupport.decodeJson(JsonMessage.class, any);
     return effects()
         .reply(
             LocalPersistenceEventing.Response.newBuilder()
@@ -63,7 +64,7 @@ public class LocalPersistenceSubscriber extends Action {
   }
 
   public Effect<LocalPersistenceEventing.Response> processAnyValue(Any any) {
-    JsonMessage jsonMessage = actionContext().deserializeJson(JsonMessage.class, any);
+    JsonMessage jsonMessage = JsonSupport.decodeJson(JsonMessage.class, any);
     return effects()
         .reply(
             LocalPersistenceEventing.Response.newBuilder()

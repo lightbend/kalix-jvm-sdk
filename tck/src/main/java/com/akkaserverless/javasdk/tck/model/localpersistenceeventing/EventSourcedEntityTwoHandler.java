@@ -16,10 +16,12 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
+import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import com.google.protobuf.Any;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityTwoHandler
@@ -31,8 +33,9 @@ public class EventSourcedEntityTwoHandler
 
   @Override
   public String handleEvent(String state, Object event) {
-    if (event instanceof JsonMessage) {
-      return entity().handle(state, (JsonMessage) event);
+    // FIXME requirement to use JSON events should be removed from TCK
+    if (event instanceof Any) {
+      return entity().handle(state, JsonSupport.decodeJson(JsonMessage.class, (Any) event));
     } else {
       throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
     }

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.Jsonable
+import com.akkaserverless.javasdk.JsonSupport
 import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
@@ -99,28 +99,14 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "support se/deserializing booleans" in testPrimitive("bool", true, false)
 
     "not automagically deserialize json" in {
-      val myJsonable = new MyJsonable
-      myJsonable.field = "foo"
-      // FIXME should we still auto-encode though, not really useable anyway with the generated return types?
-      val any = anySupport.encodeScala(myJsonable)
-      any.typeUrl should ===(AnySupport.AkkaServerlessJson + classOf[MyJsonable].getName)
+      val any = JavaPbAny
+        .newBuilder()
+        .setTypeUrl(JsonSupport.AKKA_SERVERLESS_JSON + "suffix")
+        .setValue(ByteString.EMPTY)
+        .build();
       val decoded = anySupport.decode(any)
       decoded shouldBe an[JavaPbAny]
     }
-
-    "support explicitly deserialize json" in {
-      val myJsonable = new MyJsonable
-      myJsonable.field = "foo"
-      val any = anySupport.encodeScala(myJsonable)
-      any.typeUrl should ===(AnySupport.AkkaServerlessJson + classOf[MyJsonable].getName)
-      anySupport.decodeJson(classOf[MyJsonable], any.typeUrl, any.value).field should ===("foo")
-    }
-
   }
 
-}
-
-@Jsonable
-class MyJsonable {
-  @BeanProperty var field: String = _
 }

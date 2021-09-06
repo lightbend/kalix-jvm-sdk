@@ -281,9 +281,6 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         metadata.asCloudEvent().subject()
       else
         Optional.empty()
-
-    def deserializeJson[T](jsonClass: Class[T], any: JavaPbAny): T =
-      anySupport.decodeJson(jsonClass, any.getTypeUrl, any.getValue)
   }
 }
 
