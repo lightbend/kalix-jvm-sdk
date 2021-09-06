@@ -17,6 +17,8 @@
 package com.lightbend.akkasls.codegen
 package java
 
+import com.lightbend.akkasls.codegen.java.TestData.command
+
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
   test(
@@ -181,26 +183,20 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
     ModelBuilder.EntityService(
       FullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
-        ModelBuilder.Command(
+        command(
           FullyQualifiedName("AddItem", shoppingCartProto),
           FullyQualifiedName("AddLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto),
-          streamedInput = false,
-          streamedOutput = false
+          FullyQualifiedName("Empty", googleEmptyProto)
         ),
-        ModelBuilder.Command(
+        command(
           FullyQualifiedName("RemoveItem", shoppingCartProto),
           FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto),
-          streamedInput = false,
-          streamedOutput = false
+          FullyQualifiedName("Empty", googleEmptyProto)
         ),
-        ModelBuilder.Command(
+        command(
           FullyQualifiedName("GetCart", shoppingCartProto),
           FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-          FullyQualifiedName("Cart", shoppingCartProto),
-          streamedInput = false,
-          streamedOutput = false
+          FullyQualifiedName("Cart", shoppingCartProto)
         )
       ),
       entity.fqn.fullName
