@@ -14,12 +14,14 @@ import com.google.protobuf.Empty;
 /**
  * A Counter represented as a value entity.
  */
-public class Counter extends AbstractCounter {
-  
+public class Counter extends AbstractCounter { // <1>
+
+    // end::class[]
     @SuppressWarnings("unused")
+    // tag::class[]
     private final String entityId;
 
-    public Counter(ValueEntityContext context) { // <1>
+    public Counter(ValueEntityContext context) { // <2>
         this.entityId = context.entityId();
     }
     // end::class[]
@@ -31,15 +33,18 @@ public class Counter extends AbstractCounter {
     
       // tag::increase[]
       @Override
-      public Effect<Empty> increase(CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
+      public Effect<Empty> increase(
+          CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
         if (command.getValue() < 0) { // <1>
-          return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
+          return effects().error("Increase requires a positive value. It was [" +
+              command.getValue() + "].");
         }
         CounterDomain.CounterState newState =  // <2>
-                currentState.toBuilder().setValue(currentState.getValue() + command.getValue()).build();
+                currentState.toBuilder().setValue(currentState.getValue() +
+                    command.getValue()).build();
         return effects()
                 .updateState(newState) // <3>
-                .thenReply(Empty.getDefaultInstance());
+                .thenReply(Empty.getDefaultInstance());  // <4>
     }
     // end::increase[]
 
@@ -48,17 +53,20 @@ public class Counter extends AbstractCounter {
             CounterDomain.CounterState currentState,
             CounterApi.DecreaseValue command) {
       if (command.getValue() < 0) {
-        return effects().error("Decrease requires a positive value. It was [" + command.getValue() + "].");
+        return effects().error("Decrease requires a positive value. It was [" +
+            command.getValue() + "].");
       }
       CounterDomain.CounterState newState =
-          currentState.toBuilder().setValue(currentState.getValue() - command.getValue()).build();
+          currentState.toBuilder().setValue(currentState.getValue() -
+              command.getValue()).build();
       return effects()
           .updateState(newState)
           .thenReply(Empty.getDefaultInstance());
     }
     
     @Override
-    public Effect<Empty> reset(CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
+    public Effect<Empty> reset(
+        CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
       CounterDomain.CounterState newState =
           currentState.toBuilder().setValue(0).build();
       return effects()
@@ -72,7 +80,8 @@ public class Counter extends AbstractCounter {
             CounterDomain.CounterState currentState, // <1>
             CounterApi.GetCounter command) {
         CounterApi.CurrentCounter current =
-                CounterApi.CurrentCounter.newBuilder().setValue(currentState.getValue()).build(); // <2>
+                CounterApi.CurrentCounter.newBuilder()
+                    .setValue(currentState.getValue()).build(); // <2>
         return effects().reply(current);
     }
     // end::getCurrentCounter[]

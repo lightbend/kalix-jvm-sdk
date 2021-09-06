@@ -68,7 +68,7 @@ public abstract class ValueEntity<S> {
 
     /**
      * Construct the effect that is returned by the command handler. The effect describes next
-     * processing actions, such as emitting events and sending a reply.
+     * processing actions, such as updating state and sending a reply.
      *
      * @param <S> The type of the state for this entity.
      */
