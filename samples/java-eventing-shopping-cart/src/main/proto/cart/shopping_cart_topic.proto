@@ -33,6 +33,9 @@ message TopicOperation {
 }
 
 service ShoppingCartTopicService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ACTION
+    };
 
     rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) {
         option (akkaserverless.method).eventing.in = {

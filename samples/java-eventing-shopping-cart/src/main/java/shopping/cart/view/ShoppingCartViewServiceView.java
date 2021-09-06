@@ -1,33 +1,19 @@
-/*
- * Copyright 2021 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/* This code is managed by Akka Serverless tooling.
+ * It will be re-generated to reflect any changes to your protobuf definitions.
+ * DO NOT EDIT
  */
-
-package shopping.cart;
+package shopping.cart.view;
 
 import com.akkaserverless.javasdk.view.ViewContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shopping.cart.domain.ShoppingCartDomain;
-import shopping.cart.view.ShoppingCartViewModel;
 
-// user view impl
-public class ShoppingCartView extends AbstractShoppingCartView {
+public class ShoppingCartViewServiceView extends AbstractShoppingCartViewServiceView {
 
-  private static Logger LOG = LoggerFactory.getLogger(ShoppingCartView.class);
+  private static Logger LOG = LoggerFactory.getLogger(ShoppingCartViewServiceView.class);
 
-  public ShoppingCartView(ViewContext context) {}
+  public ShoppingCartViewServiceView(ViewContext context) {}
 
   @Override
   public ShoppingCartViewModel.CartViewState emptyState() {
@@ -35,7 +21,7 @@ public class ShoppingCartView extends AbstractShoppingCartView {
   }
 
   @Override
-  public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemAdded(
+  public UpdateEffect<ShoppingCartViewModel.CartViewState> processAdded(
       ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.ItemAdded itemAdded) {
     if (state != null) {
       String cartId = state.getCartId();
@@ -61,10 +47,9 @@ public class ShoppingCartView extends AbstractShoppingCartView {
                   .build());
     }
   }
-
   @Override
-  public UpdateEffect<ShoppingCartViewModel.CartViewState> processItemRemoved(
-      ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.ItemRemoved itemRemoved) {
+  public UpdateEffect<ShoppingCartViewModel.CartViewState> processRemoved(
+    ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.ItemRemoved itemRemoved) {
     if (state == null)
       throw new IllegalArgumentException(
           "Cannot remove item from unknown cart " + updateContext().eventSubject());
@@ -72,10 +57,9 @@ public class ShoppingCartView extends AbstractShoppingCartView {
     return updateEffects()
         .updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
   }
-
   @Override
   public UpdateEffect<ShoppingCartViewModel.CartViewState> processCheckedOut(
-      ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.CheckedOut checkedOut) {
+    ShoppingCartViewModel.CartViewState state, ShoppingCartDomain.CheckedOut checkedOut) {
     if (state == null)
       throw new IllegalArgumentException(
           "Cannot check out unknown cart " + updateContext().eventSubject());

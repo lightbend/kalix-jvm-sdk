@@ -23,7 +23,7 @@ option java_outer_classname = "ProductPopularityDomain";
 import "akkaserverless/annotations.proto";
 
 option (akkaserverless.file).value_entity = {
-  name: "ProductPopularity"
+  name: "ProductPopularityValueEntity"
   entity_type: "product-popularity"
   state: "Popularity"
 };
