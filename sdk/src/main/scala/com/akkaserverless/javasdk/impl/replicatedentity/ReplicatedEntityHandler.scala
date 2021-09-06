@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.UpdateData
+
 import java.util.Optional
 import com.akkaserverless.javasdk.replicatedentity.{CommandContext, ReplicatedData, ReplicatedEntity}
 import com.akkaserverless.javasdk.impl.{AnySupport, EntityExceptions}
@@ -53,12 +55,16 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
   /** INTERNAL API */ // "public" api against the impl/testkit
   final def _internalData(): InternalReplicatedData = data.asInstanceOf[InternalReplicatedData]
 
+  private def copyData(): D = _internalData().copy().asInstanceOf[D]
+
   /** INTERNAL API */ // "public" api against the impl/testkit
   final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
     val commandEffect = try {
       entity._internalSetCommandContext(Optional.of(context))
-      handleCommand(commandName, data, command, context)
-        .asInstanceOf[ReplicatedEntityEffectImpl[Any]]
+      // Note: replicated data objects are currently mutable, so we pass a copy to the command.
+      // If the update effect is not used then we still have the old replicated data (without delta).
+      handleCommand(commandName, copyData(), command, context)
+        .asInstanceOf[ReplicatedEntityEffectImpl[D, Any]]
     } catch {
       case CommandHandlerNotFound(name) =>
         throw new EntityExceptions.EntityException(
@@ -70,6 +76,16 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
     } finally {
       entity._internalSetCommandContext(Optional.empty())
     }
+
+    if (!commandEffect.hasError) {
+      commandEffect.primaryEffect match {
+        case UpdateData(newData) =>
+          require(newData ne null, "update effect with null data is not allowed")
+          data = newData.asInstanceOf[D]
+        case _ =>
+      }
+    }
+
     CommandResult(commandEffect)
   }
 

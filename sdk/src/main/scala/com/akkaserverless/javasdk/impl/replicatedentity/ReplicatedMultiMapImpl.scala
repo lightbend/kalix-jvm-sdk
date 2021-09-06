@@ -28,13 +28,15 @@ import java.util.{Collection => JCollection, Collections => JCollections, Set =>
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](anySupport: AnySupport)
-    extends ReplicatedMultiMap[K, V]
+private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
+    anySupport: AnySupport,
+    _entries: mutable.Map[K, ReplicatedSetImpl[V]] = mutable.Map.empty[K, ReplicatedSetImpl[V]]
+) extends ReplicatedMultiMap[K, V]
     with InternalReplicatedData {
 
   override val name = "ReplicatedMultiMap"
 
-  private val entries = mutable.Map.empty[K, ReplicatedSetImpl[V]]
+  private val entries = _entries
   private val removed = mutable.Set.empty[K]
   private var cleared = false
 
@@ -77,6 +79,11 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](anySupport: A
   override def containsKey(key: K): Boolean = entries.contains(key)
 
   override def containsValue(key: K, value: V): Boolean = entries.get(key).fold(false)(_.contains(value))
+
+  override def copy(): ReplicatedMultiMapImpl[K, V] =
+    new ReplicatedMultiMapImpl(anySupport, entries.map {
+      case (key, set) => key -> set.copy()
+    })
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || entries.values.exists(_.hasDelta)
 

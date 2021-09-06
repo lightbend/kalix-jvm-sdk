@@ -50,5 +50,5 @@ public interface ReplicatedDataFactory {
   <K, V extends ReplicatedData> ReplicatedMap<K, V> newReplicatedMap();
 
   /** Create a new Vote. */
-  Vote newVote();
+  ReplicatedVote newVote();
 }

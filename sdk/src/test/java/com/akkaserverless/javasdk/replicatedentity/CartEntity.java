@@ -34,21 +34,15 @@ public class CartEntity extends AbstractCartEntity {
   }
 
   @Override
-  public ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> emptyData(
-      ReplicatedDataFactory factory) {
-    return factory.newReplicatedRegisterMap();
-  }
-
-  @Override
   public Effect<Empty> addItem(
-      ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> currentData,
+      ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> cart,
       ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
       return effects().error("Cannot add negative quantity to item " + addLineItem.getProductId());
     }
 
-    currentData.setValue(addLineItem.getProductId(), updateItem(addLineItem, currentData));
-    return effects().reply(Empty.getDefaultInstance());
+    cart.setValue(addLineItem.getProductId(), updateItem(addLineItem, cart));
+    return effects().update(cart).thenReply(Empty.getDefaultInstance());
   }
 
   @Override

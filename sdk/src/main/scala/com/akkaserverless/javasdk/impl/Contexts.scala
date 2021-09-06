@@ -17,14 +17,9 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.Context
-import scala.util.control.NoStackTrace
 
 private[impl] trait ActivatableContext extends Context {
   private final var active = true
   final def deactivate(): Unit = active = false
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
-}
-
-object FailInvoked extends RuntimeException with NoStackTrace {
-  override def toString: String = "CommandContext.fail(…) invoked"
 }

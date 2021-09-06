@@ -38,7 +38,7 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
       case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(_) =>
         new ReplicatedMultiMapImpl[Any, Any](anySupport)
       case ReplicatedEntityDelta.Delta.Vote(_) =>
-        new VoteImpl
+        new ReplicatedVoteImpl
       case _ =>
         throw new RuntimeException(s"Received unexpected replicated entity delta: ${delta.delta}")
     }

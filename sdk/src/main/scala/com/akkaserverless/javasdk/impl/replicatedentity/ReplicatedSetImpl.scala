@@ -25,12 +25,15 @@ import scala.jdk.CollectionConverters._
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
 
-private[replicatedentity] class ReplicatedSetImpl[T](anySupport: AnySupport)
-    extends util.AbstractSet[T]
-    with InternalReplicatedData
-    with ReplicatedSet[T] {
+private[replicatedentity] class ReplicatedSetImpl[T](
+    anySupport: AnySupport,
+    _value: util.HashSet[T] = new util.HashSet[T]()
+) extends util.AbstractSet[T]
+    with ReplicatedSet[T]
+    with InternalReplicatedData {
+
   override final val name = "ReplicatedSet"
-  private val value = new util.HashSet[T]()
+  private val value = _value
   private val added = new util.HashSet[ScalaPbAny]()
   private val removed = new util.HashSet[ScalaPbAny]()
   private var cleared = false
@@ -103,6 +106,8 @@ private[replicatedentity] class ReplicatedSetImpl[T](anySupport: AnySupport)
     removed.clear()
     added.clear()
   }
+
+  override def copy(): ReplicatedSetImpl[T] = new ReplicatedSetImpl(anySupport, new util.HashSet(value))
 
   override def hasDelta: Boolean = cleared || !added.isEmpty || !removed.isEmpty
 

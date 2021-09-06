@@ -187,7 +187,6 @@ final class EventSourcedEntitiesImpl(system: ActorSystem,
                                            service.snapshotEvery,
                                            seqNr => new EventContextImpl(thisEntityId, seqNr))
           } catch {
-            case FailInvoked => new EventSourcedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) =>
               throw EntityException(command, s"Unexpected failure: $error", Some(error))

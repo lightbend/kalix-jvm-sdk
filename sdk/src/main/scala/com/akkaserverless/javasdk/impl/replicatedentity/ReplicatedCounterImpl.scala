@@ -19,9 +19,12 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter
 import com.akkaserverless.protocol.replicated_entity.{ReplicatedCounterDelta, ReplicatedEntityDelta}
 
-private[replicatedentity] final class ReplicatedCounterImpl extends InternalReplicatedData with ReplicatedCounter {
+private[replicatedentity] final class ReplicatedCounterImpl(_value: Long = 0)
+    extends ReplicatedCounter
+    with InternalReplicatedData {
+
   override final val name = "ReplicatedCounter"
-  private var value: Long = 0
+  private var value: Long = _value
   private var deltaValue: Long = 0
 
   override def getValue: Long = value
@@ -33,6 +36,8 @@ private[replicatedentity] final class ReplicatedCounterImpl extends InternalRepl
   }
 
   override def decrement(by: Long): Long = increment(-by)
+
+  override def copy(): ReplicatedCounterImpl = new ReplicatedCounterImpl(value)
 
   override def hasDelta: Boolean = deltaValue != 0
 

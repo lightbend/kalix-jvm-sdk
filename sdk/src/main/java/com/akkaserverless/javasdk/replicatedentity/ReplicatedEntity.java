@@ -57,8 +57,8 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
     commandContext = context;
   }
 
-  protected Effect.Builder effects() {
-    return new ReplicatedEntityEffectImpl<>();
+  protected <R> Effect.Builder<D> effects() {
+    return new ReplicatedEntityEffectImpl<D, R>();
   }
 
   /**
@@ -71,8 +71,13 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
     /**
      * Construct the effect that is returned by the command handler. The effect describes next
      * processing actions, such as sending a reply or deleting an entity.
+     *
+     * @param <D> The replicated data type for this entity.
      */
-    interface Builder {
+    interface Builder<D> {
+
+      /** Update the underlying replicated data for the replicated entity. */
+      OnSuccessBuilder update(D newData);
 
       /**
        * Delete the replicated entity.

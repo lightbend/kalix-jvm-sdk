@@ -32,7 +32,7 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{M
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{Message => Out}
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Descriptors, Any => JavaPbAny}
+import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
 
@@ -159,9 +159,8 @@ object ReplicatedEntitiesImpl {
 
     handler._internalInitialData(initialData, service.anySupport)
 
-    private val data = handler._internalData()
-
     def handleDelta(delta: ReplicatedEntityDelta): Unit = {
+      val data = handler._internalData()
       data.applyDelta.applyOrElse(
         delta.delta, { noMatch: ReplicatedEntityDelta.Delta =>
           throw ProtocolException(
@@ -180,15 +179,16 @@ object ReplicatedEntitiesImpl {
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
       val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
 
-      val CommandResult(effect: ReplicatedEntityEffectImpl[_]) = try {
+      val CommandResult(effect: ReplicatedEntityEffectImpl[_, _]) = try {
         handler._internalHandleCommand(command.name, cmd, context)
       } catch {
-        case FailInvoked => new ReplicatedEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
         case e: EntityException => throw e
         case NonFatal(error) => throw EntityException(command, s"Unexpected failure: $error", Some(error))
       } finally {
         context.deactivate()
       }
+
+      val data = handler._internalData()
 
       val serializedSecondaryEffect = effect.secondaryEffect match {
         case MessageReplyImpl(message, metadata, sideEffects) =>

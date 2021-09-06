@@ -29,13 +29,15 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
-private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](anySupport: AnySupport)
-    extends ReplicatedRegisterMap[K, V]
+private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
+    anySupport: AnySupport,
+    _registers: mutable.Map[K, ReplicatedRegisterImpl[V]] = mutable.Map.empty[K, ReplicatedRegisterImpl[V]]
+) extends ReplicatedRegisterMap[K, V]
     with InternalReplicatedData {
 
   override val name = "ReplicatedRegisterMap"
 
-  private val registers = mutable.Map.empty[K, ReplicatedRegisterImpl[V]]
+  private val registers = _registers
   private val removed = mutable.Set.empty[K]
   private var cleared = false
 
@@ -65,6 +67,11 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](anySupport
     registers.clear()
     removed.clear()
   }
+
+  override def copy(): ReplicatedRegisterMapImpl[K, V] =
+    new ReplicatedRegisterMapImpl(anySupport, registers.map {
+      case (key, register) => key -> register.copy()
+    })
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || registers.values.exists(_.hasDelta)
 

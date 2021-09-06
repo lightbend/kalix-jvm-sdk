@@ -157,7 +157,6 @@ final class ValueEntitiesImpl(system: ActorSystem,
           val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
             handler._internalHandleCommand(command.name, cmd, context)
           } catch {
-            case FailInvoked => new ValueEntityEffectImpl[JavaPbAny]() // Ignore, error already captured
             case e: EntityException => throw e
             case NonFatal(error) =>
               throw EntityException(command, s"Unexpected failure: $error", Some(error))
