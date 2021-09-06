@@ -36,6 +36,12 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
   }
 
   @Override
+  public UpdateEffect<CustomerDomain.CustomerState> processCustomerAddressChanged(
+    CustomerDomain.CustomerState state, CustomerDomain.CustomerAddressChanged customerAddressChanged) {
+    return updateEffects().updateState(state.toBuilder().setAddress(customerAddressChanged.getNewAddress()).build());
+  }
+
+  @Override
   public UpdateEffect<CustomerDomain.CustomerState> ignoreOtherEvents(
     CustomerDomain.CustomerState state, Any any) {
     return updateEffects().ignore();
