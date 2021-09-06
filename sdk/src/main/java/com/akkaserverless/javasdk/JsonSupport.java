@@ -65,7 +65,7 @@ public final class JsonSupport {
       ByteString json = UnsafeByteOperations.unsafeWrap(objectMapper.writeValueAsBytes(value));
       return Any.newBuilder().setTypeUrl(AKKA_SERVERLESS_JSON + jsonType).setValue(json).build();
     } catch (JsonProcessingException ex) {
-      throw new IllegalArgumentException("Could not encode [" + value.getClass() + "] as JSON", ex);
+      throw new IllegalArgumentException("Could not encode [" + value.getClass().getName() + "] as JSON", ex);
     }
   }
 
