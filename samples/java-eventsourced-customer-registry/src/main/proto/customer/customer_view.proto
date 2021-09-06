@@ -55,6 +55,16 @@ service CustomerByName {
     };
   }
 
+  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
@@ -86,6 +96,16 @@ service CustomerByNameFromTopic {
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "customers"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (domain.CustomerState) {
     option (akkaserverless.method).eventing.in = {
       topic: "customers"
     };
