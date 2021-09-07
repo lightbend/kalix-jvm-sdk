@@ -114,10 +114,21 @@ object ActionServiceSourceGenerator {
       val outputType = cmd.outputType.fullName
 
       if (isUnary(cmd)) {
+        val jsonTopicHint = {
+          // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
+          if (cmd.inFromTopic && cmd.inputType.fullQualifiedName == "com.google.protobuf.Any")
+            """|// JSON input from a topic can be decoded using JsonSupport.decodeJson(MyClass.class, any)
+               |  """.stripMargin
+          else if (cmd.outToTopic && cmd.outputType.fullQualifiedName == "com.google.protobuf.Any")
+            """|// JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
+               |  """.stripMargin
+          else ""
+        }
+
         s"""|/** Handler for "$methodName". */
             |@Override
             |public Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input) {
-            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
+            |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
             |}""".stripMargin
       } else if (isStreamOut(cmd)) {
         s"""

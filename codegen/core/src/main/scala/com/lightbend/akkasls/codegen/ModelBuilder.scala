@@ -144,17 +144,24 @@ object ModelBuilder {
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName,
       streamedInput: Boolean,
-      streamedOutput: Boolean
+      streamedOutput: Boolean,
+      inFromTopic: Boolean,
+      outToTopic: Boolean
   )
 
   object Command {
-    def from(method: Descriptors.MethodDescriptor): Command = Command(
-      FullyQualifiedName.from(method),
-      FullyQualifiedName.from(method.getInputType),
-      FullyQualifiedName.from(method.getOutputType),
-      streamedInput = method.isClientStreaming,
-      streamedOutput = method.isServerStreaming
-    )
+    def from(method: Descriptors.MethodDescriptor): Command = {
+      val eventing = method.getOptions.getExtension(com.akkaserverless.Annotations.method).getEventing
+      Command(
+        FullyQualifiedName.from(method),
+        FullyQualifiedName.from(method.getInputType),
+        FullyQualifiedName.from(method.getOutputType),
+        streamedInput = method.isClientStreaming,
+        streamedOutput = method.isServerStreaming,
+        inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
+        outToTopic = eventing.hasOut && eventing.getOut.hasTopic
+      )
+    }
   }
 
   /**

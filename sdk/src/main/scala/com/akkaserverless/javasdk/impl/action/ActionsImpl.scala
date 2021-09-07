@@ -128,7 +128,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in)
+        val context = createContext(in, service.anySupport)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
         val effect = service.factory
           .create(creationContext)
@@ -181,7 +181,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call)
+                  createContext(call, service.anySupport)
                 )
               effectToResponse(effect, service.anySupport)
             case None =>
@@ -203,7 +203,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleStreamedOut(in: ActionCommand): Source[ActionResponse, NotUsed] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in)
+        val context = createContext(in, service.anySupport)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
         service.factory
           .create(creationContext)
@@ -257,7 +257,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call)
+                  createContext(call, service.anySupport)
                 )
                 .asScala
                 .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
@@ -268,12 +268,12 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           }
       }
 
-  private def createContext(in: ActionCommand): ActionContext = {
+  private def createContext(in: ActionCommand, anySupport: AnySupport): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata)
+    new ActionContextImpl(metadata, anySupport)
   }
 
-  class ActionContextImpl(override val metadata: Metadata) extends ActionContext {
+  class ActionContextImpl(override val metadata: Metadata, anySupport: AnySupport) extends ActionContext {
     override val serviceCallFactory: ServiceCallFactory = rootContext.serviceCallFactory()
 
     override def eventSubject(): Optional[String] =

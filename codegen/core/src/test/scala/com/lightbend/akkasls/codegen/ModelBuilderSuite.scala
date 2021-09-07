@@ -37,6 +37,16 @@ class ModelBuilderSuite extends munit.FunSuite {
     override def error(message: String): Unit = log.error(message)
   }
 
+  def command(
+      fqn: FullyQualifiedName,
+      inputType: FullyQualifiedName,
+      outputType: FullyQualifiedName,
+      streamedInput: Boolean = false,
+      streamedOutput: Boolean = false,
+      inFromTopic: Boolean = false,
+      outToTopic: Boolean = false
+  ) = ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
+
   test("EventSourcedEntity introspection") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
@@ -110,26 +120,20 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Cart", shoppingCartProto)
               )
             ),
             entity.fqn.fullQualifiedName
@@ -205,33 +209,25 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Empty", googleEmptyProto)
               ),
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Cart", shoppingCartProto)
               ),
-              ModelBuilder.Command(
+              command(
                 FullyQualifiedName("RemoveCart", shoppingCartProto),
                 FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto),
-                streamedInput = false,
-                streamedOutput = false
+                FullyQualifiedName("Empty", googleEmptyProto)
               )
             ),
             entity.fqn.fullQualifiedName
@@ -300,34 +296,27 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val transformedUpdates =
         List(
-          ModelBuilder.Command(
+          command(
             FullyQualifiedName("ProcessAdded", shoppingCartProto),
             FullyQualifiedName("ItemAdded", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto),
-            streamedInput = false,
-            streamedOutput = false
+            FullyQualifiedName("CartViewState", shoppingCartProto)
           ),
-          ModelBuilder.Command(
+          command(
             FullyQualifiedName("ProcessRemoved", shoppingCartProto),
             FullyQualifiedName("ItemRemoved", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto),
-            streamedInput = false,
-            streamedOutput = false
+            FullyQualifiedName("CartViewState", shoppingCartProto)
           ),
-          ModelBuilder.Command(
+          command(
             FullyQualifiedName("ProcessCheckedOut", shoppingCartProto),
             FullyQualifiedName("CheckedOut", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto),
-            streamedInput = false,
-            streamedOutput = false
+            FullyQualifiedName("CartViewState", shoppingCartProto)
           )
         )
       val queries = List(
-        ModelBuilder.Command(
+        command(
           FullyQualifiedName("GetCheckedOutCarts", shoppingCartProto),
           FullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartProto),
           FullyQualifiedName("CartViewState", shoppingCartProto),
-          streamedInput = false,
           streamedOutput = true
         )
       )
