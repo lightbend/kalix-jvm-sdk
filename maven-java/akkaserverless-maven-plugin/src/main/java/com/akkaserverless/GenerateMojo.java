@@ -119,6 +119,7 @@ public class GenerateMojo extends AbstractMojo {
                   });
   
                   project.addCompileSourceRoot(generatedSourceDirectory.toString());
+                  project.addTestCompileSourceRoot(generatedTestSourceDirectory.toString());
                   
                 } else {
                         throw new RuntimeException(new MojoExecutionException(
