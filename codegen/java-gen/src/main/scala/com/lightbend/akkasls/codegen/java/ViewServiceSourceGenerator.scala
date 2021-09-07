@@ -223,7 +223,7 @@ object ViewServiceSourceGenerator {
          |}""".stripMargin
     }
 
-    s"""$managedCodeCommentString
+    s"""$generatedCodeCommentString
        |package $packageName;
        |
        |$imports
