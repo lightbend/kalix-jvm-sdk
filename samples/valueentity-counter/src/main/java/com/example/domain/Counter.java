@@ -24,27 +24,27 @@ public class Counter extends AbstractCounter { // <1>
     public Counter(ValueEntityContext context) {
         this.entityId = context.entityId();
     }
+
+    @Override
+    public CounterDomain.CounterState emptyState() { // <2>
+      return CounterDomain.CounterState.getDefaultInstance();
+    }
     // end::class[]
-    
-      @Override
-      public CounterDomain.CounterState emptyState() {
-        return CounterDomain.CounterState.getDefaultInstance();
+
+    // tag::increase[]
+    @Override
+    public Effect<Empty> increase(
+        CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
+      if (command.getValue() < 0) { // <1>
+        return effects().error("Increase requires a positive value. It was [" +
+            command.getValue() + "].");
       }
-    
-      // tag::increase[]
-      @Override
-      public Effect<Empty> increase(
-          CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
-        if (command.getValue() < 0) { // <1>
-          return effects().error("Increase requires a positive value. It was [" +
-              command.getValue() + "].");
-        }
-        CounterDomain.CounterState newState =  // <2>
-                currentState.toBuilder().setValue(currentState.getValue() +
-                    command.getValue()).build();
-        return effects()
-                .updateState(newState) // <3>
-                .thenReply(Empty.getDefaultInstance());  // <4>
+      CounterDomain.CounterState newState =  // <2>
+              currentState.toBuilder().setValue(currentState.getValue() +
+                  command.getValue()).build();
+      return effects()
+              .updateState(newState) // <3>
+              .thenReply(Empty.getDefaultInstance());  // <4>
     }
     // end::increase[]
 

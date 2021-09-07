@@ -45,6 +45,7 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-shopping-cart/ "${managed_examples}/java-eventsourced-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 
