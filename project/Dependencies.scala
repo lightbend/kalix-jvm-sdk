@@ -51,7 +51,6 @@ object Dependencies {
   val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
-  val mockito = "org.mockito" % "mockito-core" % "3.7.0"
 
   private val deps = libraryDependencies
 
