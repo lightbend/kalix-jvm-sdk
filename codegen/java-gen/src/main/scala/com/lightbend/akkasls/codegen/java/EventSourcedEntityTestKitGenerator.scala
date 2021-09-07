@@ -33,15 +33,11 @@ object EventSourcedEntityTestKitGenerator {
     val sourceCode = generateSource(service, entity, packageName, className)
 
     val packagePath = packageAsPath(packageName)
-    val generatedSourceDirectoryPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
+    val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
 
-    if (!generatedSourceDirectoryPath.toFile.exists) {
-      Files.write(generatedSourceDirectoryPath, sourceCode.getBytes(Charsets.UTF_8))
-      List(generatedSourceDirectoryPath)
-    } else {
-      Nil
-    }
-
+    testKitPath.getParent.toFile.mkdirs()
+    Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
+    List(testKitPath)
   }
 
   private[codegen] def generateSource(service: ModelBuilder.EntityService,
@@ -73,7 +69,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.Result",
-        "com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper"
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
       )
     )
 

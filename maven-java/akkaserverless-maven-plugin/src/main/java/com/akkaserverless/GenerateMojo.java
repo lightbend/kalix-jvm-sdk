@@ -48,6 +48,10 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java", required = true)
     private File generatedSourceDirectory;
 
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/akkaserverless/java", required = true)
+  private File generatedTestSourceDirectory;
+
     // src/main/java
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sourceDirectory", required = true)
@@ -105,6 +109,7 @@ public class GenerateMojo extends AbstractMojo {
                           testSourceDirectory.toPath(),
                           integrationTestSourceDirectory.toPath(),
                           generatedSourceDirectory.toPath(),
+                          generatedTestSourceDirectory.toPath(),
                           mainClass,
                           log);
                   Path absBaseDir = baseDir.toPath().toAbsolutePath();
@@ -114,6 +119,7 @@ public class GenerateMojo extends AbstractMojo {
                   });
   
                   project.addCompileSourceRoot(generatedSourceDirectory.toString());
+                  project.addTestCompileSourceRoot(generatedTestSourceDirectory.toString());
                   
                 } else {
                         throw new RuntimeException(new MojoExecutionException(

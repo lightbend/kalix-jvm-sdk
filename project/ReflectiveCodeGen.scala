@@ -28,6 +28,7 @@ object ReflectiveCodeGen extends AutoPlugin {
   def runAkkaServerlessCodegen(classpath: Classpath,
                                protobufDescriptor: File,
                                genSrcDir: File,
+                               testSrcManaged: File,
                                logger: Logger): Seq[File] = {
 
     val cp = classpath.map(_.data)
@@ -42,9 +43,10 @@ object ReflectiveCodeGen extends AutoPlugin {
       |import com.lightbend.akkasls.codegen.java.SourceGenerator
       |import scala.collection.immutable
       |
-      |(protobufDescriptor: java.io.File, genSrcDir: java.io.File, logger: sbt.util.Logger) => {
+      |(protobufDescriptor: java.io.File, genSrcDir: java.io.File, genTestSrcDir: java.io.File, logger: sbt.util.Logger) => {
       |  
       |  val path = genSrcDir.toPath
+      |  val testPath = genTestSrcDir.toPath
       |  
       |  implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
       |      override def debug(message: String): Unit = logger.debug(message)
@@ -54,13 +56,13 @@ object ReflectiveCodeGen extends AutoPlugin {
       |    }
       |  
       |  SourceGenerator
-      |    .generate(protobufDescriptor, path, path, path, path, "com.example.Main")
+      |    .generate(protobufDescriptor, path, path, path, path, testPath, "com.example.Main")
       |    .map(_.toFile).to[immutable.Seq]
       |}  
       """.stripMargin
 
-    val generatorsF = tb.eval(tb.parse(source)).asInstanceOf[(File, File, sbt.util.Logger) => Seq[File]]
-    generatorsF(protobufDescriptor, genSrcDir, logger)
+    val generatorsF = tb.eval(tb.parse(source)).asInstanceOf[(File, File, File, sbt.util.Logger) => Seq[File]]
+    generatorsF(protobufDescriptor, genSrcDir, testSrcManaged, logger)
 
   }
 
@@ -69,8 +71,9 @@ object ReflectiveCodeGen extends AutoPlugin {
       .task {
         val cp = (ProjectRef(file("."), "codegenJava") / Compile / fullClasspath).value
         val srcManaged = (Compile / sourceManaged).value
+        val testSrcManaged = (Test / sourceManaged).value
         val sbtLogger = streams.value.log
-        runAkkaServerlessCodegen(cp, protobufDescriptorSetOut.value, srcManaged, sbtLogger)
+        runAkkaServerlessCodegen(cp, protobufDescriptorSetOut.value, srcManaged, testSrcManaged, sbtLogger)
       }
       .dependsOn(Compile / PB.generate)
 

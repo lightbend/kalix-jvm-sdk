@@ -43,6 +43,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         try {
           val generatedSourceDirectory =
             Files.createTempDirectory("generated-source-generator-test")
+          val generatedTestSourceDirectory =
+            Files.createTempDirectory("generated-test-source-generator-test")
           try {
 
             val source1 =
@@ -106,6 +108,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               testSourceDirectory,
               integrationTestSourceDirectory,
               generatedSourceDirectory,
+              generatedTestSourceDirectory,
               "com.example.service.Main"
             )
 
@@ -124,7 +127,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity1Provider.java"
                 ),
-                generatedSourceDirectory.resolve(
+                generatedTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity1TestKit.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyValueEntity2.java"),
@@ -137,7 +140,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/persistence/MyValueEntity2Handler.java"
                 ),
-                generatedSourceDirectory.resolve(
+                generatedTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyValueEntity2TestKit.java"
                 ),
                 sourceDirectory.resolve("com/example/service/persistence/MyEntity3.java"),
@@ -150,7 +153,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3IntegrationTest.java"
                 ),
-                generatedSourceDirectory.resolve(
+                generatedTestSourceDirectory.resolve(
                   "com/example/service/persistence/MyEntity3TestKit.java"
                 ),
                 generatedSourceDirectory.resolve(
