@@ -28,13 +28,15 @@ import java.util.{Set => JSet}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] final class ReplicatedCounterMapImpl[K](anySupport: AnySupport)
-    extends ReplicatedCounterMap[K]
+private[replicatedentity] final class ReplicatedCounterMapImpl[K](
+    anySupport: AnySupport,
+    _counters: mutable.Map[K, ReplicatedCounterImpl] = mutable.Map.empty[K, ReplicatedCounterImpl]
+) extends ReplicatedCounterMap[K]
     with InternalReplicatedData {
 
   override val name = "ReplicatedCounterMap"
 
-  private val counters = mutable.Map.empty[K, ReplicatedCounterImpl]
+  private val counters = _counters
   private val removed = mutable.Set.empty[K]
   private var cleared = false
 
@@ -64,6 +66,11 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](anySupport: An
     counters.clear()
     removed.clear()
   }
+
+  override def copy(): ReplicatedCounterMapImpl[K] =
+    new ReplicatedCounterMapImpl(anySupport, counters.map {
+      case (key, counter) => key -> counter.copy()
+    })
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || counters.values.exists(_.hasDelta)
 

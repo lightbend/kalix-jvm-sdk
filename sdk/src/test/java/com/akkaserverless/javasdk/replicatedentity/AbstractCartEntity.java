@@ -21,7 +21,7 @@ import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 
 public abstract class AbstractCartEntity
-    extends ReplicatedEntity<ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem>> {
+    extends ReplicatedRegisterMapEntity<String, ShoppingCartDomain.LineItem> {
 
   public abstract Effect<Empty> addItem(
       ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> currentData,

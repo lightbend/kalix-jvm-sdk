@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package com.akkaserverless.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-
-private[replicatedentity] trait InternalReplicatedData extends ReplicatedData {
-  def name: String
-  def copy(): InternalReplicatedData
-  def hasDelta: Boolean
-  def delta: ReplicatedEntityDelta.Delta
-  def resetDelta(): Unit
-  def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit]
+public class ReplicatedCounterMapEntity<K> extends ReplicatedEntity<ReplicatedCounterMap<K>> {
+  @Override
+  public ReplicatedCounterMap<K> emptyData(ReplicatedDataFactory factory) {
+    return factory.newReplicatedCounterMap();
+  }
 }

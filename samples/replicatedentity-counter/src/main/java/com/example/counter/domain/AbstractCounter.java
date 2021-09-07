@@ -2,12 +2,12 @@
 
 package com.example.counter.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
 import com.example.counter.CounterApi;
 import com.google.protobuf.Empty;
 
-public abstract class AbstractCounter extends ReplicatedEntity<ReplicatedCounter> {
+public abstract class AbstractCounter extends ReplicatedCounterEntity {
 
   public abstract Effect<Empty> increase(ReplicatedCounter currentData, CounterApi.IncreaseValue command);
 

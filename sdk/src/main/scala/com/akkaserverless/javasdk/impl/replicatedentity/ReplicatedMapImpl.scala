@@ -47,13 +47,16 @@ private object ReplicatedMapImpl {
  *   efficiently implement operations that it implements in O(n) time that we can do in O(1) time, such as
  *   get/remove/containsKey.
  */
-private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicatedData](anySupport: AnySupport)
-    extends ReplicatedMap[K, V]
+private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicatedData](
+    anySupport: AnySupport,
+    _value: util.HashMap[K, V] = new util.HashMap[K, V]()
+) extends ReplicatedMap[K, V]
     with InternalReplicatedData {
+
   import ReplicatedMapImpl.log
 
   override final val name = "ReplicatedMap"
-  private val value = new util.HashMap[K, V]()
+  private val value = _value
   private val added = new util.HashMap[K, (ScalaPbAny, V)]()
   private val removed = new util.HashSet[ScalaPbAny]()
   private var cleared = false
@@ -105,6 +108,11 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
     removed.clear()
     added.clear()
   }
+
+  override def copy(): ReplicatedMapImpl[K, V] =
+    new ReplicatedMapImpl(anySupport, new util.HashMap(value.asScala.map {
+      case (key, data) => key -> data.copy().asInstanceOf[V]
+    }.asJava))
 
   override def hasDelta: Boolean =
     if (cleared || !added.isEmpty || !removed.isEmpty) {

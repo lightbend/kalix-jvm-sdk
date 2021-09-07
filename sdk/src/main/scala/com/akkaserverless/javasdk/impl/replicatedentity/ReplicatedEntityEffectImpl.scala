@@ -25,6 +25,7 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity.Effect
 
 import java.util.{Collection => JCollection}
@@ -32,11 +33,15 @@ import scala.jdk.CollectionConverters._
 
 object ReplicatedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
+  case class UpdateData(newData: ReplicatedData) extends PrimaryEffectImpl
   case object DeleteEntity extends PrimaryEffectImpl
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
-class ReplicatedEntityEffectImpl[R] extends Effect.Builder with Effect.OnSuccessBuilder with Effect[R] {
+class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
+    extends Effect.Builder[D]
+    with Effect.OnSuccessBuilder
+    with Effect[R] {
   import ReplicatedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
@@ -45,6 +50,11 @@ class ReplicatedEntityEffectImpl[R] extends Effect.Builder with Effect.OnSuccess
   def primaryEffect: PrimaryEffectImpl = _primaryEffect
 
   def secondaryEffect: SecondaryEffectImpl = _secondaryEffect
+
+  override def update(newData: D): Effect.OnSuccessBuilder = {
+    _primaryEffect = UpdateData(newData)
+    this
+  }
 
   override def delete(): Effect.OnSuccessBuilder = {
     _primaryEffect = DeleteEntity

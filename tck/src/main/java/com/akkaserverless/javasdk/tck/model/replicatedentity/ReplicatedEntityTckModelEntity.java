@@ -79,11 +79,11 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
   public Effect<Response> process(ReplicatedData data, Request request) {
     Effect.OnSuccessBuilder builder = null;
     Effect<Response> result = null;
-    List<SideEffect> e = new ArrayList<>();
+    List<SideEffect> sideEffects = new ArrayList<>();
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
-          applyUpdate(data, action.getUpdate());
+          builder = effects().update(applyUpdate(data, action.getUpdate()));
           break;
         case DELETE:
           builder = effects().delete();
@@ -97,7 +97,8 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
           break;
         case EFFECT:
           com.akkaserverless.tck.model.ReplicatedEntity.Effect effect = action.getEffect();
-          e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
+          sideEffects.add(
+              SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:
           result = effects().error(action.getFail().getMessage());
@@ -105,15 +106,15 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
       }
     }
     if (builder == null && result == null) {
-      return effects().reply(responseValue(data)).addSideEffects(e);
+      return effects().reply(responseValue(data)).addSideEffects(sideEffects);
     } else if (result == null) {
-      return builder.thenReply(responseValue(data)).addSideEffects(e);
+      return builder.thenReply(responseValue(data)).addSideEffects(sideEffects);
     } else {
-      return result.addSideEffects(e);
+      return result.addSideEffects(sideEffects);
     }
   }
 
-  private void applyUpdate(ReplicatedData replicatedData, Update update) {
+  private ReplicatedData applyUpdate(ReplicatedData replicatedData, Update update) {
     switch (update.getUpdateCase()) {
       case COUNTER:
         ((ReplicatedCounter) replicatedData).increment(update.getCounter().getChange());
@@ -290,9 +291,10 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
         }
         break;
       case VOTE:
-        ((Vote) replicatedData).vote(update.getVote().getSelfVote());
+        ((ReplicatedVote) replicatedData).vote(update.getVote().getSelfVote());
         break;
     }
+    return replicatedData;
   }
 
   private Response responseValue(ReplicatedData data) {
@@ -373,8 +375,8 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
       }
       entries.sort(Comparator.comparing(ReplicatedMultiMapEntryValue::getKey));
       builder.setReplicatedMultiMap(ReplicatedMultiMapValue.newBuilder().addAllEntries(entries));
-    } else if (replicatedData instanceof Vote) {
-      Vote vote = (Vote) replicatedData;
+    } else if (replicatedData instanceof ReplicatedVote) {
+      ReplicatedVote vote = (ReplicatedVote) replicatedData;
       builder.setVote(
           VoteValue.newBuilder()
               .setSelfVote(vote.getSelfVote())

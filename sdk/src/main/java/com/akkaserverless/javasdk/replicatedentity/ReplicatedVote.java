@@ -21,7 +21,7 @@ package com.akkaserverless.javasdk.replicatedentity;
  *
  * <p>This replicated data type is used to allow all the nodes in a cluster to vote on a condition.
  */
-public interface Vote extends ReplicatedData {
+public interface ReplicatedVote extends ReplicatedData {
   /**
    * Get the current value for this nodes vote.
    *

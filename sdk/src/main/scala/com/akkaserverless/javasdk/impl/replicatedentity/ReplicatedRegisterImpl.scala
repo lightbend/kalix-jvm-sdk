@@ -27,11 +27,14 @@ import java.util.Objects
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
 
-private[replicatedentity] final class ReplicatedRegisterImpl[T](anySupport: AnySupport)
-    extends InternalReplicatedData
-    with ReplicatedRegister[T] {
+private[replicatedentity] final class ReplicatedRegisterImpl[T](
+    anySupport: AnySupport,
+    _value: T = null.asInstanceOf[T]
+) extends ReplicatedRegister[T]
+    with InternalReplicatedData {
+
   override final val name = "ReplicatedRegister"
-  private var value: T = _
+  private var value: T = _value
   private var deltaValue: Option[ScalaPbAny] = None
   private var clock: ReplicatedRegister.Clock = ReplicatedRegister.Clock.DEFAULT
   private var customClockValue: Long = 0
@@ -49,6 +52,8 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](anySupport: AnyS
   }
 
   override def get(): T = value
+
+  override def copy(): ReplicatedRegisterImpl[T] = new ReplicatedRegisterImpl(anySupport, value)
 
   override def hasDelta: Boolean = deltaValue.isDefined
 

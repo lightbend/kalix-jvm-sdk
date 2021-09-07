@@ -55,5 +55,5 @@ final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends Replicated
   override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] =
     newData(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
 
-  override def newVote(): Vote = newData(new VoteImpl)
+  override def newVote(): ReplicatedVote = newData(new ReplicatedVoteImpl)
 }

@@ -13,11 +13,6 @@ public class Counter extends AbstractCounter {
   }
 
   @Override
-  public ReplicatedCounter emptyData(ReplicatedDataFactory factory) {
-    return factory.newCounter();
-  }
-
-  @Override
   public Effect<Empty> increase(ReplicatedCounter counter, CounterApi.IncreaseValue command) {
     if (command.getValue() < 0) {
       return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
@@ -25,7 +20,7 @@ public class Counter extends AbstractCounter {
 
     counter.increment(command.getValue());
 
-    return effects().reply(Empty.getDefaultInstance());
+    return effects().update(counter).thenReply(Empty.getDefaultInstance());
   }
 
   @Override
@@ -36,7 +31,7 @@ public class Counter extends AbstractCounter {
 
     counter.decrement(command.getValue());
 
-    return effects().reply(Empty.getDefaultInstance());
+    return effects().update(counter).thenReply(Empty.getDefaultInstance());
   }
 
   @Override
