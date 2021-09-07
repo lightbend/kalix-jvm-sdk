@@ -61,7 +61,6 @@ A Value Entity implementation is a Java class where you define how each command 
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
-<2> By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters.
 
 We need to implement all methods our Value Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
 
@@ -102,13 +101,13 @@ include::java:example$valueentity-counter/src/main/java/com/example/domain/Count
 
 To make Akka Serverless aware of the Value Entity, we need to register it with the service.
 
-From the code generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
 
 [source,java]
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/Main.java[]
 ----
 
-If you change the constructor of the `Counter` class you will see a compilation error here and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
+By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
-When more components are added the `AkkaServerlessFactory` is re-generated and you have to adjust the registration from the `Main` class.
+When more components are added the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.

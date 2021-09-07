@@ -21,7 +21,7 @@ public class Counter extends AbstractCounter { // <1>
     // tag::class[]
     private final String entityId;
 
-    public Counter(ValueEntityContext context) { // <2>
+    public Counter(ValueEntityContext context) {
         this.entityId = context.entityId();
     }
     // end::class[]
