@@ -5,6 +5,8 @@
 
 package shopping;
 
+// tag::ToProductPopularityAction[]
+// tag::RegisterEventSourcedEntity[]
 import com.akkaserverless.javasdk.AkkaServerless;
 // end::RegisterEventSourcedEntity[]
 // end::ToProductPopularityAction[]
@@ -50,9 +52,10 @@ public final class Main {
         // consume shopping cart events published to 'shopping-cart-events' topic
       ShoppingCartAnalyticsServiceAction::new,
       // view of the shopping carts
-      ShoppingCartViewServiceView::new);
+      ShoppingCartViewServiceView::new
       // tag::ToProductPopularityAction[]
       // tag::RegisterEventSourcedEntity[]
+    );
   }
 
   public static void main(String[] args) throws Exception {
@@ -60,3 +63,5 @@ public final class Main {
     createAkkaServerless().start();
   }
 }
+// end::RegisterEventSourcedEntity[]
+// end::ToProductPopularityAction[]

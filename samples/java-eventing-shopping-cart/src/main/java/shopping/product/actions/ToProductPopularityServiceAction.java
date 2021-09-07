@@ -37,7 +37,7 @@ public class ToProductPopularityServiceAction extends AbstractToProductPopularit
 
   // tag::methods[]
   @Override
-  public Effect<Empty> forwardAdded(ShoppingCartDomain.ItemAdded itemAdded) {
+  public Effect<Empty> forwardAdded(ShoppingCartDomain.ItemAdded itemAdded) {  // <1>
     // end::methods[]
 
     ProductPopularityApi.IncreasePopularity increase =
