@@ -138,7 +138,7 @@ The Akka Serverless Maven plugin creates a unit test stub for each class. Use th
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]
 ----
-include::example$archetype/first-service/src/test/java/com/example/domain/CounterTest.java[]
+//FIXME include::example$archetype/first-service/src/test/java/com/example/domain/CounterTest.java[]
 ----
 
 Use the `verify` command to run all unit tests.
