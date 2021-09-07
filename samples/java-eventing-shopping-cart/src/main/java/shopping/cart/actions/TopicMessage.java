@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package shopping.cart;
-
-import com.akkaserverless.javasdk.Jsonable;
+package shopping.cart.actions;
 
 import java.beans.BeanProperty;
 
 /** The JSON formatted message to be read from a Pub/Sub topic. */
-@Jsonable
 public class TopicMessage {
   String operation;
   String cartId;

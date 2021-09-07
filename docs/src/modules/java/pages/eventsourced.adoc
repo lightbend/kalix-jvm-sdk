@@ -9,7 +9,7 @@ Create an Event Sourced Entity by annotating it with the link:{attachmentsdir}/a
 
 [source,java,indent=0]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=class]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=class]
 ----
 
 The link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html#entityType()[`entityType` {tab-icon}, window="new"] provides a namespace for journal events. Use the simple name for the Entity class. To have a more unique reference, the example above uses `eventsourced-shopping-cart`.
@@ -34,7 +34,7 @@ Each Entity should store its state locally in a mutable variable, either a mutab
 
 [source,java,indent=4]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=state]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=state]
 ----
 
 == Constructing
@@ -43,7 +43,7 @@ Akka Serverless constructs instances of the Event Sourced Entity class on demand
 
 [source,java,indent=4]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=constructor]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=constructor]
 ----
 
 == Handling commands
@@ -56,7 +56,7 @@ The following shows the implementation of the `GetCart` command handler:
 
 [source,java,indent=0]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=getCart]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=getCart]
 ----
 
 == Emitting events
@@ -67,7 +67,7 @@ IMPORTANT: The **only** way for a command handler to modify Entity state is by e
 
 [source,java,indent=0]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=addItem]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=addItem]
 ----
 
 This command handler also validates the command, ensuring the quantity of items added is greater than zero. Invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/ClientActionContext.html#fail(java.lang.String)[`context.fail` {tab-icon}, window="new"] fails the command - this method throws - no need to explicitly throw an exception.
@@ -91,28 +91,14 @@ The following example shows an event handler for the `ItemAdded` event with a ut
 
 [source,java,indent=0]
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=itemAdded]
+include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemAdded]
 ----
 
-== Producing and handling snapshots
+== Snapshots
 
 Snapshots are an important optimization for Event Sourced Entities that emit many events. Rather than reading the entire journal upon loading or restart, Akka Serverless can initiate them from a snapshot.
 
-To produce a snapshot, declare a method annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/Snapshot.html[`@Snapshot` {tab-icon}, window="new"]. It takes a context class of type link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/SnapshotContext.html[`SnapshotContext` {tab-icon}, window="new"], and must return a snapshot of the current state in serializable form.
-
-[source,java,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=snapshot]
-----
-
-When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received, and passed to a snapshot handler. Snapshot handlers are declared by annotating a method with link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/SnapshotHandler.html[`@SnapshotHandler` {tab-icon}, window="new"], and it can take a context class of type link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/SnapshotContext.html[`SnapshotContext` {tab-icon}, window="new"].
-
-Multiple snapshot handlers may be defined to handle different types of snapshots. The type matching is done in the same way as for events.
-
-[source,java,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/ShoppingCartEntity.java[tag=handleSnapshot]
-----
+Snapshots are handled automatically by Akka Serverless without any specific code required. By default, a snapshot is taken for every 100:th event emitted. Tuning how often a snapshot of the state is taken can be configured using config or programmatically handing a `EventSourcedEntityOptions` to the provider when registering the entity.
 
 == Registering the Entity
 
