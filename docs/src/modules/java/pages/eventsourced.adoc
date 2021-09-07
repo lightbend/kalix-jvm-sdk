@@ -3,7 +3,7 @@
 include::ROOT:partial$include.adoc[]
 include::partial$eventsourced.adoc[]
 
-https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Akka Serverless needs to serialize that data to send it to the underlying data store. The most straightforward way to persist the state is with Protocol Buffers using `protobuf` types.
+https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Akka Serverless needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
 While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
@@ -69,11 +69,11 @@ We need to implement all methods our Event Sourced Entity offers as https://deve
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers show in the implementation class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting event and sending a reply.
+Command handlers show in the implementation class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
 
 === Updating state
 
-In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to emit an event and send a reply. The state is updated by the event handler.
+In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to emit an event and then send a reply once the event is stored successfully. The state is updated by the event handler.
 
 IMPORTANT: The **only** way for a command handler to modify Entity state is by emitting an event. Any modifications made directly to the state (or instance variables) from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
 
