@@ -55,6 +55,7 @@ object SourceGenerator {
       testSourceDirectory: Path,
       integrationTestSourceDirectory: Path,
       generatedSourceDirectory: Path,
+      generatedTestSourceDirectory: Path,
       mainClass: String
   )(implicit log: Log): Iterable[Path] = {
 
@@ -84,7 +85,7 @@ object SourceGenerator {
             EventSourcedEntityTestKitGenerator.generate(
               entity,
               service,
-              generatedSourceDirectory
+              generatedTestSourceDirectory
             )
         }
       case service: ModelBuilder.ViewService =>
@@ -138,6 +139,7 @@ object SourceGenerator {
                testSourceDirectory: Path,
                integrationTestSourceDirectory: Path,
                generatedSourceDirectory: Path,
+               generatedTestSourceDirectory: Path,
                mainClass: String)(implicit log: Log): Iterable[Path] = {
     val descriptors =
       DescriptorSet.fileDescriptors(protobufDescriptor) match {
@@ -159,6 +161,7 @@ object SourceGenerator {
       testSourceDirectory,
       integrationTestSourceDirectory,
       generatedSourceDirectory,
+      generatedTestSourceDirectory,
       mainClass
     )
 
