@@ -31,7 +31,7 @@ This example assumes the following `customer` state is defined in a `customer_do
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
+include::java:example$java-valueentity-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
 ----
 
 <1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
@@ -42,7 +42,7 @@ To get a View of multiple customers by their name, define the View as a `service
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
+include::java:example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
 ----
 
 <1> The `UpdateCustomer` method defines how Akka Serverless will update the view.
@@ -56,7 +56,7 @@ If the query should only return one result, remove the `stream` from the return 
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
+include::java:example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
 ----
 
 <1> Without `stream` when expecting single result.
@@ -70,7 +70,7 @@ Once you've defined a View, register it with  link:{attachmentsdir}/api/com/akka
 
 [source,java,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register]
+include::java:example$java-valueentity-customer-registry/src/main/java/customer/Main.java[tag=register]
 ----
 
 [#event-sourced-entity]
@@ -164,7 +164,7 @@ Instead of using `SELECT *` you can define what columns that will be used in the
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
+include::java:example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
 ----
 
 In a similar way, you can include values from the request message in the response, for example `:request_id`:
@@ -180,7 +180,7 @@ Instead of streamed results you can include the results in a repeated field in t
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
+include::java:example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
 ----
 
 <1> The response message contains a `repeated` field.

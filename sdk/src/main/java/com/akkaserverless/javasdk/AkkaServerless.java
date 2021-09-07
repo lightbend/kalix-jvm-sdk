@@ -208,7 +208,7 @@ public final class AkkaServerless {
      *     protobuf types when needed.
      * @return This stateful service builder.
      */
-    public AkkaServerless registerView(
+    private AkkaServerless registerView(
         ViewFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String viewId,
@@ -329,29 +329,6 @@ public final class AkkaServerless {
             provider.entityType(),
             provider.options(),
             provider.additionalDescriptors());
-  }
-
-  /**
-   * Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
-   * by the proxy.
-   *
-   * @param descriptor The descriptor of the view.
-   * @param viewId The id of this view, used for persistence.
-   * @param additionalDescriptors Any additional descriptors that may need to be loaded to support
-   *     it.
-   * @return This stateful service builder.
-   */
-  @ApiMayChange
-  public AkkaServerless registerView(
-      Descriptors.ServiceDescriptor descriptor,
-      String viewId,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ViewService service = new ViewService(Optional.empty(), descriptor, anySupport, viewId);
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
   }
 
   /**

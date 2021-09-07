@@ -197,12 +197,12 @@ lazy val `java-eventing-shopping-cart` = project
   )
   .settings(attachProtobufDescriptorSets)
 
-lazy val `java-customer-registry` = project
-  .in(file("samples/java-customer-registry"))
+lazy val `java-valueentity-customer-registry` = project
+  .in(file("samples/java-valueentity-customer-registry"))
   .dependsOn(sdk)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
-    name := "java-customer-registry",
+    name := "java-valueentity-customer-registry",
     libraryDependencies ++= Seq(
         "ch.qos.logback" % "logback-classic" % LogbackVersion,
         "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
