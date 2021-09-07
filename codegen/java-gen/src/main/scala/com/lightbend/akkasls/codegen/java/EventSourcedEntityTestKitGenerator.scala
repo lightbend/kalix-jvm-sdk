@@ -73,7 +73,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.Result",
-        "com.akkaserverless.javasdk.testkit.internal.AkkaServerlessTestKitHelper"
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
       )
     )
 
