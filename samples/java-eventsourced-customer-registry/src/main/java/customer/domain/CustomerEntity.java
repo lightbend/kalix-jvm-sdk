@@ -23,11 +23,13 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return CustomerDomain.CustomerState.getDefaultInstance();
     }
 
+    @Override
     public Effect<CustomerApi.Customer> getCustomer(
         CustomerDomain.CustomerState state, CustomerApi.GetCustomerRequest command) {
         return effects().reply(convertToApi(state));
     }
 
+    @Override
     public Effect<Empty> create(
         CustomerDomain.CustomerState currentState, CustomerApi.Customer request) {
         CustomerDomain.CustomerState domainCustomer = convertToDomain(request);
@@ -36,6 +38,7 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
     }
 
+    @Override
     public Effect<Empty> changeName(
         CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest request) {
         if (currentState.equals(CustomerDomain.CustomerState.getDefaultInstance())) {
@@ -47,6 +50,7 @@ public class CustomerEntity extends AbstractCustomerEntity {
         }
     }
 
+    @Override
     public Effect<Empty> changeAddress(
         CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
         CustomerDomain.CustomerAddressChanged event =
@@ -56,16 +60,19 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
     }
 
+    @Override
     public CustomerDomain.CustomerState customerCreated(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerCreated event) {
         return currentState.toBuilder().mergeFrom(event.getCustomer()).build();
     }
 
+    @Override
     public CustomerDomain.CustomerState customerNameChanged(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerNameChanged event) {
         return currentState.toBuilder().setName(event.getNewName()).build();
     }
 
+    @Override
     public CustomerDomain.CustomerState customerAddressChanged(
         CustomerDomain.CustomerState currentState, CustomerDomain.CustomerAddressChanged event) {
         return currentState.toBuilder().setAddress(event.getNewAddress()).build();
