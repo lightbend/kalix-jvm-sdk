@@ -25,7 +25,7 @@ The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sour
 [source,proto]
 .src/main/proto/shoppingcart/shoppingcart_domain.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[]
+include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=domain]
 ----
 
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
@@ -69,7 +69,9 @@ We need to implement all methods our Event Sourced Entity offers as https://deve
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers are implemented in the implementation class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
+Command handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractShoppingCart`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
 
 === Updating state
 
@@ -88,12 +90,20 @@ include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shopp
 <4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
 
 
-The current state is created from the event and previous state:
+The new state is created from the event and previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`.
 
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
 include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
+----
+
+Note that you have to define the events in the `(akkaserverless.file).event_sourced_entity`:
+
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_domain.proto
+----
+include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=event_sourced_entity]
 ----
 
 === Retrieving state

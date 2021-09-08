@@ -67,7 +67,9 @@ We need to implement all methods our Value Entity offers as https://developer.li
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers show in the implementation class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+Command handlers are implemented in the `Counter` class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCounter`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
 
 === Updating state
 
