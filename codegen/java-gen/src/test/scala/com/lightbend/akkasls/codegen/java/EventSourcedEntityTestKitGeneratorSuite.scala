@@ -49,7 +49,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
       |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
       |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
-      |import com.akkaserverless.javasdk.testkit.Result;
+      |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
       |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
       |import com.example.shoppingcart.domain.ShoppingCartDomain;
       |import com.google.protobuf.Empty;
@@ -101,27 +101,27 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |    }
       |  }
       |
-      |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+      |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
       |    List<Object> events = getEvents(effect); 
       |    this.events.add(events);
       |    for(Object e: events) {
       |      this.state = handleEvent(state,e);
       |    }
       |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-      |    return new Result(reply, events);
+      |    return new EventSourcedResult(reply, events);
       |  }
       |
-      |  public Result<Empty> addItem(ShoppingCartApi.AddLineItem command) {
+      |  public EventSourcedResult<Empty> addItem(ShoppingCartApi.AddLineItem command) {
       |    EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
       |    return interpretEffects(effect);
       |  }
       |
-      |  public Result<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
+      |  public EventSourcedResult<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
       |    EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
       |    return interpretEffects(effect);
       |  }
       |
-      |  public Result<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
+      |  public EventSourcedResult<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
       |    EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
       |    return interpretEffects(effect);
       |  }

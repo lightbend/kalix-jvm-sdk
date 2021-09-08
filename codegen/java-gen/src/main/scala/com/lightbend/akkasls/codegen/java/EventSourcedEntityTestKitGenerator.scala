@@ -25,12 +25,12 @@ import _root_.java.nio.file.{Files, Path}
 
 object EventSourcedEntityTestKitGenerator {
 
-  def generate(entity: ModelBuilder.Entity,
+  def generate(entity: ModelBuilder.EventSourcedEntity,
                service: ModelBuilder.EntityService,
                generatedSourceDirectory: Path): Iterable[Path] = {
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
-    val sourceCode = generateSource(service, entity, packageName, className)
+    val sourceCode = generateSourceCode(service, entity, packageName, className)
 
     val packagePath = packageAsPath(packageName)
     val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
@@ -38,17 +38,6 @@ object EventSourcedEntityTestKitGenerator {
     testKitPath.getParent.toFile.mkdirs()
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
     List(testKitPath)
-  }
-
-  private[codegen] def generateSource(service: ModelBuilder.EntityService,
-                                      entity: ModelBuilder.Entity,
-                                      packageName: String,
-                                      className: String): String = {
-    entity match {
-      case entity: ModelBuilder.EventSourcedEntity => generateSourceCode(service, entity, packageName, className)
-      case entity: ModelBuilder.ValueEntity => "/** FIXME implement Value Entity testkit */"
-      case entity: ModelBuilder.ReplicatedEntity => "/** FIXME implement Replicated Entity testkit */"
-    }
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
@@ -69,7 +58,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.Result",
+        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
       )
     )
@@ -77,7 +66,7 @@ object EventSourcedEntityTestKitGenerator {
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
     val entityStateName = entity.state.fqn.name
-
+    val stateClassName = s"${domainClassName}.${entityStateName}"
     val testkitClassName = s"${entityClassName}TestKit"
 
     s"""$managedCodeCommentString
@@ -87,22 +76,22 @@ object EventSourcedEntityTestKitGenerator {
           |
           |public class ${testkitClassName} {
           |
-          |  private ${domainClassName}.${entityStateName} state;
-          |  private ${entityClassName} entity;
+          |  private $stateClassName state;
+          |  private $entityClassName entity;
           |  private List<Object> events = new ArrayList<Object>();
-          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
+          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
           |
           |  public ${testkitClassName}(${entityClassName} entity) {
           |    this.state = entity.emptyState();
           |    this.entity = entity;
           |  }
           |
-          |  public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state) {
+          |  public ${testkitClassName}(${entityClassName} entity, $stateClassName state) {
           |    this.state = state;
           |    this.entity = entity;
           |  }
           |
-          |  public ${domainClassName}.${entityStateName} getState() {
+          |  public $stateClassName getState() {
           |    return state;
           |  }
           |
@@ -114,22 +103,22 @@ object EventSourcedEntityTestKitGenerator {
           |    return CollectionConverters.asJava(helper.getEvents(effect));
           |  }
           |
-          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state) {
+          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, $stateClassName state) {
           |    return (Reply) helper.getReply(effect, state);
           |  }
           |
-          |  private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
+          |  private $stateClassName handleEvent($stateClassName state, Object event) {
           |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
           |  }
           |
-          |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+          |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
           |    List<Object> events = getEvents(effect); 
           |    this.events.add(events);
           |    for(Object e: events) {
           |      this.state = handleEvent(state,e);
           |    }
           |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-          |    return new Result(reply, events);
+          |    return new EventSourcedResult(reply, events);
           |  }
           |
           |  ${Syntax.indent(generateServices(service), 2)}
@@ -150,7 +139,7 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
             |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
             |  return interpretEffects(effect);
             |}
