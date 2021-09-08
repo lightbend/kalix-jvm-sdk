@@ -13,11 +13,4 @@ public class CustomerByEmailView extends AbstractCustomerByEmailView {
 
   public CustomerByEmailView(ViewContext context) {}
 
-  @Override
-  public CustomerDomain.CustomerState emptyState() {
-    // Not actually invoked when not using "transform_updates: true"
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
-  }
-
-  
 }
