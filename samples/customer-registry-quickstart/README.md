@@ -4,12 +4,12 @@
 
 ## Designing
 
-To understand the Akka Serverless concepts that are a basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html) in the documentation.
+To understand the Akka Serverless concepts that are the basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html) in the documentation.
 
 
 ## Developing
 
-This project demonstrates use of Value Entity and View components.
+This project demonstrates the use of Value Entity and View components.
 To understand more about these components, see [Developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
 and in particular the [Java section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
 
