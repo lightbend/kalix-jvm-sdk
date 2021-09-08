@@ -1,6 +1,7 @@
 package com.example.counter.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.*;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.example.counter.CounterApi;
 import com.google.protobuf.Empty;
 

@@ -229,6 +229,12 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
+          name: Replicated Entity "Shopping Cart" sample
+          command: |
+            cd samples/java-replicatedentity-shopping-cart
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+      - run:
           name: Value Entity "Counter" sample
           command: |
             cd samples/valueentity-counter

@@ -41,6 +41,15 @@ echo "Generated value-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
+--proto_path="$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart" \
+--descriptor_set_out=replicated-shoppingcart.desc \
+"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto" \
+"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto"
+
+echo "Generated replicated-shoppingcart.desc"
+
+protoc --include_imports \
+--proto_path="$1/protocols/sdk/src/main/protobuf" \
 --proto_path="$2/samples/java-eventing-shopping-cart/src/main/proto" \
 --proto_path="$2/samples/java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_domain.proto" \
 --descriptor_set_out=view-shoppingcart.desc \

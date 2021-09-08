@@ -23,7 +23,9 @@ import _root_.java.nio.file.{Files, Path}
 
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedEntity
 import com.lightbend.akkasls.codegen.ModelBuilder.State
+import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
 
 /**
@@ -154,6 +156,8 @@ object EntityServiceSourceGenerator {
         eventSourcedEntitySource(service, eventSourcedEntity, packageName, className, interfaceClassName)
       case valueEntity: ValueEntity =>
         ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className)
+      case replicatedEntity: ReplicatedEntity =>
+        ReplicatedEntitySourceGenerator.replicatedEntitySource(service, replicatedEntity, packageName, className)
     }
   }
 
@@ -408,6 +412,8 @@ object EntityServiceSourceGenerator {
         abstractEventSourcedEntity(service, eventSourcedEntity, packageName, className)
       case valueEntity: ModelBuilder.ValueEntity =>
         ValueEntitySourceGenerator.abstractValueEntity(service, valueEntity, packageName, className)
+      case replicatedEntity: ReplicatedEntity =>
+        ReplicatedEntitySourceGenerator.abstractReplicatedEntity(service, replicatedEntity, packageName, className)
     }
 
   private[codegen] def handlerSource(service: ModelBuilder.EntityService,
@@ -419,6 +425,8 @@ object EntityServiceSourceGenerator {
         EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
       case entity: ValueEntity =>
         ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className)
+      case entity: ReplicatedEntity =>
+        ReplicatedEntitySourceGenerator.replicatedEntityHandler(service, entity, packageName, className)
     }
   }
 
@@ -431,6 +439,8 @@ object EntityServiceSourceGenerator {
         eventSourcedEntityProvider(service, eventSourcedEntity, packageName, className)
       case valueEntity: ValueEntity =>
         ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className)
+      case replicatedEntity: ReplicatedEntity =>
+        ReplicatedEntitySourceGenerator.replicatedEntityProvider(service, replicatedEntity, packageName, className)
     }
   }
 
@@ -492,15 +502,20 @@ object EntityServiceSourceGenerator {
   ): String = {
     val serviceName = service.fqn.name
 
-    val state =
-      entity match {
-        case es: ModelBuilder.EventSourcedEntity => es.state
-        case ModelBuilder.ValueEntity(_, _, state) => state
-      }
+    val importTypes = commandTypes(service.commands) ++
+      (entity match {
+        case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.fqn)
+        case ModelBuilder.ValueEntity(_, _, state) => Seq(state.fqn)
+        case ModelBuilder.ReplicatedEntity(_, _, data) => data.typeArguments.map(_.fqn)
+      })
+
+    val extraImports = entity match {
+      case ModelBuilder.ReplicatedEntity(_, _, data) => ReplicatedEntitySourceGenerator.extraImports(data)
+      case _ => Seq.empty
+    }
 
     val imports = generateImports(
-      service.commands,
-      state,
+      importTypes,
       packageName,
       List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
       Seq(
@@ -508,7 +523,7 @@ object EntityServiceSourceGenerator {
         "org.junit.ClassRule",
         "org.junit.Test",
         mainClassPackageName + "." + mainClassName
-      )
+      ) ++ extraImports
     )
 
     val testCases = service.commands.map { command =>
@@ -571,9 +586,18 @@ object EntityServiceSourceGenerator {
                                        state: State,
                                        packageName: String,
                                        otherImports: Seq[String]): String = {
-
-    val types = commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq :+ state.fqn
+    val types = commandTypes(commands) :+ state.fqn
     generateImports(types, packageName, otherImports)
   }
 
+  private[codegen] def generateImports(commands: Iterable[Command],
+                                       typeArguments: Iterable[TypeArgument],
+                                       packageName: String,
+                                       otherImports: Seq[String]): String = {
+    val types = commandTypes(commands) ++ typeArguments.map(_.fqn)
+    generateImports(types, packageName, otherImports)
+  }
+
+  private[codegen] def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
+    commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 }

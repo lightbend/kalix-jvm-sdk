@@ -45,7 +45,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-         |import com.example.service.persistence.EntityOuterClass;
+         |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |
          |/** A value entity. */
@@ -92,7 +92,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
-         |import com.example.service.persistence.EntityOuterClass;
+         |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |
          |/** A value entity. */
@@ -128,7 +128,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
          |import com.akkaserverless.javasdk.valueentity.CommandContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
-         |import com.example.service.persistence.EntityOuterClass;
+         |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |
          |/**
@@ -187,7 +187,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
          |import com.example.service.ServiceOuterClass;
-         |import com.example.service.persistence.EntityOuterClass;
+         |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |import com.external.ExternalDomain;
          |import com.google.protobuf.Descriptors;

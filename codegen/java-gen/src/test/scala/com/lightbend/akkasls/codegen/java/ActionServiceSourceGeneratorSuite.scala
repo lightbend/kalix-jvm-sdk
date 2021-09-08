@@ -507,7 +507,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
-        |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.domain.EntityOuterClass;
         |import com.google.protobuf.Any;
         |import com.google.protobuf.Empty;
         |import java.util.concurrent.CompletionStage;

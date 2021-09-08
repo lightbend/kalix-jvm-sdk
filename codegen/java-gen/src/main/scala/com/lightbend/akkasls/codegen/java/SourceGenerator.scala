@@ -195,6 +195,8 @@ object SourceGenerator {
               s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
             case entity: ModelBuilder.ValueEntity =>
               s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
+            case entity: ModelBuilder.ReplicatedEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
           }
 
         case service: ModelBuilder.ViewService =>
@@ -217,6 +219,8 @@ object SourceGenerator {
           case _: ModelBuilder.EventSourcedEntity =>
             s"${ety.fqn.fullQualifiedName}Provider" :: imports
           case _: ModelBuilder.ValueEntity =>
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
+          case _: ModelBuilder.ReplicatedEntity =>
             s"${ety.fqn.fullQualifiedName}Provider" :: imports
           case _ => imports
         }
@@ -256,6 +260,11 @@ object SourceGenerator {
           "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
           "java.util.function.Function"
         )
+      case _: ModelBuilder.ReplicatedEntity =>
+        List(
+          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
+          "java.util.function.Function"
+        )
     }.flatten
 
     val serviceContextImports = model.services.values.collect {
@@ -278,6 +287,8 @@ object SourceGenerator {
           s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
         case entity: ModelBuilder.ValueEntity =>
           s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        case entity: ModelBuilder.ReplicatedEntity =>
+          s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
       }.toList
 
     val serviceCreators = model.services.values.collect {
@@ -320,6 +331,7 @@ object SourceGenerator {
     val entityImports = entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
       case entity: ModelBuilder.ValueEntity => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.ReplicatedEntity => entity.fqn.fullQualifiedName
     }.toSeq
 
     val serviceImports = services.values.collect {
@@ -335,6 +347,7 @@ object SourceGenerator {
     val entityRegistrationParameters = entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
       case entity: ModelBuilder.ValueEntity => s"${entity.fqn.name}::new"
+      case entity: ModelBuilder.ReplicatedEntity => s"${entity.fqn.name}::new"
     }.toList
 
     val serviceRegistrationParameters = services.values.collect {

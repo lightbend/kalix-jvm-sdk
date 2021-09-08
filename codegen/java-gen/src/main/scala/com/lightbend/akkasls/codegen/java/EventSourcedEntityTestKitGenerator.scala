@@ -47,6 +47,7 @@ object EventSourcedEntityTestKitGenerator {
     entity match {
       case entity: ModelBuilder.EventSourcedEntity => generateSourceCode(service, entity, packageName, className)
       case entity: ModelBuilder.ValueEntity => "/** FIXME implement Value Entity testkit */"
+      case entity: ModelBuilder.ReplicatedEntity => "/** FIXME implement Replicated Entity testkit */"
     }
   }
 

@@ -6,9 +6,8 @@ import "akkaserverless/annotations.proto";
 
 option java_outer_classname = "CounterDomain";
 
-// FIXME codegen for ReplicatedEntity
-// option (akkaserverless.file).replicated_entity = {
-//   name: "Counter"
-//   entity_type: "counter"
-//   replicated_counter: {}
-// };
+option (akkaserverless.file).replicated_entity = {
+  name: "Counter"
+  entity_type: "counter"
+  replicated_counter: {}
+};
