@@ -69,7 +69,7 @@ We need to implement all methods our Event Sourced Entity offers as https://deve
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers show in the implementation class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
+Command handlers are implemented in the implementation class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
 
 === Updating state
 
@@ -120,7 +120,7 @@ From the code-generation, the registration gets automatically inserted in the ge
 include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
 ----
 
-By default, the generated constructor has a `EventSourcedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
+By default, the generated constructor has an `EventSourcedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
 When more components are added the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.
 
