@@ -61,7 +61,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import java.util.function.Function;
         |import scala.jdk.javaapi.CollectionConverters;
         |
-        |public class ShoppingCartTestKit {
+        |public final class ShoppingCartTestKit {
         |
         |  private ShoppingCartDomain.Cart state;
         |  private ShoppingCart entity;

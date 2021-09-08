@@ -27,17 +27,27 @@ object EventSourcedEntityTestKitGenerator {
 
   def generate(entity: ModelBuilder.EventSourcedEntity,
                service: ModelBuilder.EntityService,
+               testSourceDirectory: Path,
                generatedSourceDirectory: Path): Iterable[Path] = {
+    var generatedFiles: Seq[Path] = Vector.empty
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
-    val sourceCode = generateSourceCode(service, entity, packageName, className)
 
     val packagePath = packageAsPath(packageName)
     val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
-
     testKitPath.getParent.toFile.mkdirs()
+    val sourceCode = generateSourceCode(service, entity, packageName, className)
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
-    List(testKitPath)
+    generatedFiles :+= testKitPath
+
+    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
+    if (!testFilePath.toFile.exists()) {
+      testFilePath.getParent.toFile.mkdirs()
+      Files.write(testFilePath, generateTestSources(service, entity, packageName).getBytes(Charsets.UTF_8))
+      generatedFiles :+= testFilePath
+    }
+
+    generatedFiles
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
@@ -180,6 +190,75 @@ object EventSourcedEntityTestKitGenerator {
         |}""".stripMargin
 
     top + middle.mkString("\n") + bottom
+  }
+
+  def generateTestSources(service: ModelBuilder.EntityService,
+                          entity: ModelBuilder.EventSourcedEntity,
+                          packageName: String): String = {
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      otherImports = Seq(
+        "com.google.protobuf.Empty",
+        "java.util.ArrayList",
+        "java.util.List",
+        "java.util.NoSuchElementException",
+        "scala.jdk.javaapi.CollectionConverters",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
+        "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
+        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
+        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
+        "com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext",
+        "org.junit.Test"
+      )
+    )
+
+    val entityClassName = entity.fqn.name
+    val testkitClassName = s"${entityClassName}TestKit"
+
+    val dummyTestCases = service.commands.map { command =>
+      s"""|@Test
+          |public void ${lowerFirst(command.fqn.name)}Test() {
+          |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+          |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.fqn.name)}(${command.inputType.name}.newBuilder()...build());
+          |}
+          |
+          |""".stripMargin
+    }
+
+    s"""$generatedCodeCommentString
+      |package ${entity.fqn.parent.pkg};
+      |
+      |$imports
+      |
+      |import static org.junit.Assert.*;
+      |
+      |public class ${entityClassName}Test {
+      |
+      |  @Test
+      |  public void exampleTest() {
+      |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+      |    // use the testkit to execute a command
+      |    // of events emitted, or a final updated state:
+      |    // EventSourcedResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+      |    // verify the emitted events
+      |    // ExpectedEvent actualEvent = result.getNextEventOfType(ExpectedEvent.class);
+      |    // assertEquals(expectedEvent, actualEvent)
+      |    // verify the final state after applying the events
+      |    // assertEquals(expectedState, testKit.getState());
+      |    // verify the response
+      |    // SomeResponse actualResponse = result.getReply();
+      |    // assertEquals(expectedResponse, actualResponse);
+      |  }
+      |
+      |  ${Syntax.indent(dummyTestCases, 2)}
+      |
+      |}
+      |""".stripMargin
   }
 
 }

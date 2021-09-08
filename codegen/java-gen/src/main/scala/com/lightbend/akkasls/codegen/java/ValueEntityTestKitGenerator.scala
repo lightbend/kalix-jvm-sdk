@@ -31,6 +31,7 @@ object ValueEntityTestKitGenerator {
 
   def generate(entity: ModelBuilder.ValueEntity,
                service: ModelBuilder.EntityService,
+               testSourceDirectory: Path,
                generatedSourceDirectory: Path): Iterable[Path] = {
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
@@ -81,7 +82,7 @@ object ValueEntityTestKitGenerator {
        |
        |$imports
        |
-       |public class ${testkitClassName} {
+       |public final class ${testkitClassName} {
        |
        |  private $stateClassName state;
        |  private $entityClassName entity;
