@@ -18,20 +18,7 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        // FIXME avoid having to create this
-        ValueEntityContext valueEntityCreationContext = new ValueEntityContext() {
-            @Override
-            public String entityId() {
-                return "cart";
-            }
-
-            @Override
-            public ServiceCallFactory serviceCallFactory() {
-                throw new UnsupportedOperationException("not implemented yet");
-            }
-        };
-
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart(valueEntityCreationContext));
+        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
 
         ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("nameA").setQuantity(1).build();

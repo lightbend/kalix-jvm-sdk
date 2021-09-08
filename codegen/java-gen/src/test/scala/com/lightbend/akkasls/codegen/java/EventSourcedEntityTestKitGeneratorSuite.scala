@@ -46,24 +46,35 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       |package com.example.shoppingcart.domain;
       |
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
       |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
       |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
       |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
       |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
+      |import com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext;
       |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
       |import com.example.shoppingcart.domain.ShoppingCartDomain;
       |import com.google.protobuf.Empty;
       |import java.util.ArrayList;
       |import java.util.List;
       |import java.util.NoSuchElementException;
+      |import java.util.function.Function;
       |import scala.jdk.javaapi.CollectionConverters;
       |
-      |public class ShoppingCartTestKit {
+      |public final class ShoppingCartTestKit {
       |
       |  private ShoppingCartDomain.Cart state;
       |  private ShoppingCart entity;
       |  private List<Object> events = new ArrayList<Object>();
       |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
+      |
+      |  public static ShoppingCartTestKit of(Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
+      |    return of("testkit-entity-id", entityFactory);
+      |  }
+      |
+      |  public static ShoppingCartTestKit of(String entityId, Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
+      |    return new ShoppingCartTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+      |  }
       |
       |  public ShoppingCartTestKit(ShoppingCart entity) {
       |    this.state = entity.emptyState();

@@ -48,14 +48,17 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
+        |import com.akkaserverless.javasdk.testkit.TestKitValueEntityContext;
         |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
         |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
+        |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
         |import java.util.ArrayList;
         |import java.util.List;
         |import java.util.NoSuchElementException;
+        |import java.util.function.Function;
         |import scala.jdk.javaapi.CollectionConverters;
         |
         |public class ShoppingCartTestKit {
@@ -63,6 +66,14 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |  private ShoppingCartDomain.Cart state;
         |  private ShoppingCart entity;
         |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
+        |
+        |  public static ShoppingCartTestKit of(Function<ValueEntityContext, ShoppingCart> entityFactory) {
+        |    return of("testkit-entity-id", entityFactory);
+        |  }
+        |
+        |  public static ShoppingCartTestKit of(String entityId, Function<ValueEntityContext, ShoppingCart> entityFactory) {
+        |    return new ShoppingCartTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)));
+        |  }
         |
         |  public ShoppingCartTestKit(ShoppingCart entity) {
         |    this.state = entity.emptyState();

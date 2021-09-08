@@ -55,11 +55,14 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.NoSuchElementException",
         "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
+        "com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext",
+        "java.util.function.Function"
       )
     )
 
@@ -74,12 +77,20 @@ object EventSourcedEntityTestKitGenerator {
           |
           |$imports
           |
-          |public class ${testkitClassName} {
+          |public final class ${testkitClassName} {
           |
           |  private $stateClassName state;
           |  private $entityClassName entity;
           |  private List<Object> events = new ArrayList<Object>();
           |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
+          |
+          |  public static $testkitClassName of(Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
+          |    return of("testkit-entity-id", entityFactory);
+          |  }
+          |
+          |  public static $testkitClassName of(String entityId, Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
+          |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+          |  }
           |
           |  public ${testkitClassName}(${entityClassName} entity) {
           |    this.state = entity.emptyState();

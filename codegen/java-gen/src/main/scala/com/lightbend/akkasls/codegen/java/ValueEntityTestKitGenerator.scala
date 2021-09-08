@@ -62,7 +62,10 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
+        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
+        "com.akkaserverless.javasdk.testkit.TestKitValueEntityContext",
+        "java.util.function.Function"
       )
     )
 
@@ -83,6 +86,14 @@ object ValueEntityTestKitGenerator {
        |  private $stateClassName state;
        |  private $entityClassName entity;
        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
+       |
+       |  public static $testkitClassName of(Function<ValueEntityContext, $entityClassName> entityFactory) {
+       |    return of("testkit-entity-id", entityFactory);
+       |  }
+       |
+       |  public static $testkitClassName of(String entityId, Function<ValueEntityContext, $entityClassName> entityFactory) {
+       |    return new $testkitClassName(entityFactory.apply(new TestKitValueEntityContext(entityId)));
+       |  }
        |
        |  public ${testkitClassName}($entityClassName entity) {
        |    this.state = entity.emptyState();
