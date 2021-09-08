@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
 
 // tag::class[]
 public class ShoppingCart extends AbstractShoppingCart { // <1>
+  @SuppressWarnings("unused")
+  private final String entityId;
+
+  public ShoppingCart(EventSourcedEntityContext context) { this.entityId = context.entityId(); }
 
   @Override
   public ShoppingCartDomain.Cart emptyState() { // <2>
