@@ -71,6 +71,25 @@ object EntityServiceSourceGenerator {
       interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8)
     )
 
+    val implSourceFiles = if (!implSourcePath.toFile.exists()) {
+      // Now we generate the entity
+      implSourcePath.getParent.toFile.mkdirs()
+      Files.write(
+        implSourcePath,
+        source(
+          service,
+          entity,
+          packageName,
+          implClassName,
+          interfaceClassName,
+          entity.entityType
+        ).getBytes(Charsets.UTF_8)
+      )
+      List(implSourcePath)
+    } else {
+      List.empty
+    }
+
     val handlerClassName = className + "Handler"
     val handlerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
@@ -93,54 +112,36 @@ object EntityServiceSourceGenerator {
       path
     }
 
-    if (!implSourcePath.toFile.exists()) {
-      // We're going to generate an entity - let's see if we can generate its test...
-      val testClassName = className + "Test"
-      val testSourcePath =
-        testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-      val testSourceFiles = Nil // FIXME add new unit test generation
+    // unit test
+    val testClassName = className + "Test"
+    val testSourcePath =
+      testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
+    val testSourceFiles = Nil // FIXME add new unit test generation
 
-      // ...and then its integration test
-      val integrationTestClassName = className + "IntegrationTest"
-      val integrationTestSourcePath =
-        integrationTestSourceDirectory
-          .resolve(packagePath.resolve(integrationTestClassName + ".java"))
-      val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
-        integrationTestSourcePath.getParent.toFile.mkdirs()
-        Files.write(
-          integrationTestSourcePath,
-          integrationTestSource(
-            mainClassPackageName,
-            mainClassName,
-            service,
-            entity,
-            packageName,
-            integrationTestClassName
-          ).getBytes(Charsets.UTF_8)
-        )
-        List(integrationTestSourcePath)
-      } else {
-        List.empty
-      }
-
-      // Now we generate the entity
-      implSourcePath.getParent.toFile.mkdirs()
+    // integration test
+    val integrationTestClassName = className + "IntegrationTest"
+    val integrationTestSourcePath =
+      integrationTestSourceDirectory
+        .resolve(packagePath.resolve(integrationTestClassName + ".java"))
+    val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
+      integrationTestSourcePath.getParent.toFile.mkdirs()
       Files.write(
-        implSourcePath,
-        source(
+        integrationTestSourcePath,
+        integrationTestSource(
+          mainClassPackageName,
+          mainClassName,
           service,
           entity,
           packageName,
-          implClassName,
-          interfaceClassName,
-          entity.entityType
+          integrationTestClassName
         ).getBytes(Charsets.UTF_8)
       )
-
-      Vector(implSourcePath, interfaceSourcePath) ++ testSourceFiles ++ integrationTestSourceFiles :+ providerSourcePath :+ handlerSourcePath
+      List(integrationTestSourcePath)
     } else {
-      Vector(interfaceSourcePath) :+ providerSourcePath :+ handlerSourcePath
+      List.empty
     }
+
+    implSourceFiles ++ testSourceFiles ++ integrationTestSourceFiles :+ interfaceSourcePath :+ providerSourcePath :+ handlerSourcePath
   }
 
   private[codegen] def source(
