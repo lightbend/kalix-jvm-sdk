@@ -7,14 +7,11 @@ package com.example.shoppingcart.domain;
 
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntityCreationContext;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 import org.junit.Test;
-import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
 
 public class ShoppingCartTest {
@@ -22,7 +19,7 @@ public class ShoppingCartTest {
     @Test
     public void addItemTest() {
         // FIXME avoid having to create this
-        ValueEntityCreationContext valueEntityCreationContext = new ValueEntityCreationContext() {
+        ValueEntityContext valueEntityCreationContext = new ValueEntityContext() {
             @Override
             public String entityId() {
                 return "cart";
