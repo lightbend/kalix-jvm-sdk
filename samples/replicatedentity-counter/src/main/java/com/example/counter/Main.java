@@ -1,5 +1,3 @@
-// FIXME codegen for ReplicatedEntity
-
 package com.example.counter;
 
 import com.akkaserverless.javasdk.AkkaServerless;
@@ -12,10 +10,6 @@ public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static AkkaServerless createAkkaServerless() {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(Counter::new);
   }
 

@@ -39,7 +39,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.view.View;
         |import com.akkaserverless.javasdk.view.ViewContext;
-        |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.domain.EntityOuterClass;
         |import java.util.function.Function;
         |
         |public class MyServiceView extends AbstractMyServiceView {
@@ -80,7 +80,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.view.View;
-        |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.domain.EntityOuterClass;
         |import java.util.function.Function;
         |
         |public abstract class AbstractMyServiceView extends View<ServiceOuterClass.ViewState> {
@@ -111,7 +111,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |import com.akkaserverless.javasdk.impl.view.ViewHandler;
         |import com.akkaserverless.javasdk.view.View;
-        |import com.example.service.persistence.EntityOuterClass;
+        |import com.example.service.domain.EntityOuterClass;
         |
         |/** A view handler */
         |public class MyServiceViewHandler extends ViewHandler<ServiceOuterClass.ViewState, MyServiceView> {

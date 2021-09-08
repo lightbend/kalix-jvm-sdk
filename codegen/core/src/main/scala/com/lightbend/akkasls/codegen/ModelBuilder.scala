@@ -53,14 +53,56 @@ object ModelBuilder {
   ) extends Entity(fqn, entityType)
 
   /**
-   * A type of Entity that stores its state using a journal of events, and restores its state
-   * by replaying that journal.
+   * A type of Entity that stores its current state directly.
    */
   case class ValueEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
       state: State
   ) extends Entity(fqn, entityType)
+
+  /**
+   * A type of Entity that replicates its current state using CRDTs.
+   */
+  case class ReplicatedEntity(
+      override val fqn: FullyQualifiedName,
+      override val entityType: String,
+      data: ReplicatedData
+  ) extends Entity(fqn, entityType)
+
+  /**
+   * The underlying replicated data type for a Replicated Entity.
+   */
+  sealed abstract class ReplicatedData(
+      val shortName: String,
+      val typeArguments: Iterable[TypeArgument]
+  ) {
+    def this(shortName: String, typeArguments: TypeArgument*) = this(shortName, typeArguments)
+
+    val name: String = "Replicated" + shortName
+  }
+
+  case object ReplicatedCounter extends ReplicatedData("Counter")
+
+  case class ReplicatedRegister(value: TypeArgument) extends ReplicatedData("Register", value)
+
+  case class ReplicatedSet(element: TypeArgument) extends ReplicatedData("Set", element)
+
+  case class ReplicatedMap(key: TypeArgument) extends ReplicatedData("Map", key)
+
+  case class ReplicatedCounterMap(key: TypeArgument) extends ReplicatedData("CounterMap", key)
+
+  case class ReplicatedRegisterMap(key: TypeArgument, value: TypeArgument)
+      extends ReplicatedData("RegisterMap", key, value)
+
+  case class ReplicatedMultiMap(key: TypeArgument, value: TypeArgument) extends ReplicatedData("MultiMap", key, value)
+
+  case object ReplicatedVote extends ReplicatedData("Vote")
+
+  /**
+   * Type argument for generic replicated data types with type parameters.
+   */
+  case class TypeArgument(fqn: FullyQualifiedName)
 
   /**
    * A Service backed by Akka Serverless; either an Action, View or Entity
@@ -257,7 +299,8 @@ object ModelBuilder {
           existingServices ++ services,
           existingEntities ++
           extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
-          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity)
+          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+          extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity)
         )
     }
 
@@ -326,6 +369,64 @@ object ModelBuilder {
         rawEntity.getEntityType,
         State(FullyQualifiedName(rawEntity.getState, protoReference))
       )
+    }
+  }
+
+  /**
+   * Extracts any defined replicated entity from the provided protobuf file descriptor
+   *
+   * @param descriptor the file descriptor to extract from
+   */
+  private def extractReplicatedEntityDefinition(
+      descriptor: Descriptors.FileDescriptor
+  )(implicit log: Log): Option[ReplicatedEntity] = {
+    import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
+
+    val rawEntity =
+      descriptor.getOptions
+        .getExtension(com.akkaserverless.Annotations.file)
+        .getReplicatedEntity
+    log.debug("Raw replicated entity name: " + rawEntity.getName)
+
+    val protoReference = PackageNaming.from(descriptor)
+
+    Option(rawEntity.getName).filter(_.nonEmpty).flatMap { name =>
+      val dataType = rawEntity.getReplicatedDataCase match {
+        case ReplicatedDataCase.REPLICATED_COUNTER =>
+          Some(ReplicatedCounter)
+        case ReplicatedDataCase.REPLICATED_REGISTER =>
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegister.getValue, protoReference))
+          Some(ReplicatedRegister(value))
+        case ReplicatedDataCase.REPLICATED_SET =>
+          val element = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedSet.getElement, protoReference))
+          Some(ReplicatedSet(element))
+        case ReplicatedDataCase.REPLICATED_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMap.getKey, protoReference))
+          Some(ReplicatedMap(key))
+        case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedCounterMap.getKey, protoReference))
+          Some(ReplicatedCounterMap(key))
+        case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getKey, protoReference))
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getValue, protoReference))
+          Some(ReplicatedRegisterMap(key, value))
+        case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getKey, protoReference))
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getValue, protoReference))
+          Some(ReplicatedMultiMap(key, value))
+        case ReplicatedDataCase.REPLICATED_VOTE =>
+          Some(ReplicatedVote)
+        case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
+          None
+      }
+
+      dataType.map { data =>
+        ReplicatedEntity(
+          FullyQualifiedName(name, protoReference),
+          rawEntity.getEntityType,
+          data
+        )
+      }
     }
   }
 

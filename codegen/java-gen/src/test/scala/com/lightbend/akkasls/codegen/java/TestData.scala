@@ -31,7 +31,7 @@ object TestData {
   def domainProto(suffix: String = ""): PackageNaming =
     PackageNaming(
       s"Domain$suffix",
-      "com.example.service.persistence",
+      "com.example.service.domain",
       None,
       None,
       Some(s"EntityOuterClass$suffix"),
@@ -195,5 +195,12 @@ object TestData {
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
       s"MyValueEntity$suffix",
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))
+    )
+
+  def replicatedEntity(data: ModelBuilder.ReplicatedData, suffix: String = ""): ModelBuilder.ReplicatedEntity =
+    ModelBuilder.ReplicatedEntity(
+      FullyQualifiedName(s"MyReplicatedEntity$suffix", domainProto(suffix)),
+      s"MyReplicatedEntity$suffix",
+      data
     )
 }

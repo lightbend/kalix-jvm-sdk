@@ -3,7 +3,6 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "google/api/annotations.proto";
 
 package com.example.counter;
 
@@ -28,11 +27,10 @@ message CurrentCounter {
 }
 
 service CounterService {
-  // FIXME codegen for ReplicatedEntity
-  // option (akkaserverless.service) = {
-  //   type: SERVICE_TYPE_ENTITY
-  //   component: ".domain.Counter"
-  // };
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: ".domain.Counter"
+  };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease (DecreaseValue) returns (google.protobuf.Empty);

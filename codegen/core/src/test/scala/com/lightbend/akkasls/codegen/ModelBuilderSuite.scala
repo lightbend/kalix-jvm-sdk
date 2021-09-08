@@ -237,6 +237,101 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
+  test("ReplicatedEntity introspection") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve("descriptor-sets/replicated-shoppingcart.desc")
+
+    val registry = ExtensionRegistry.newInstance()
+    registry.add(com.akkaserverless.Annotations.service)
+    registry.add(com.akkaserverless.Annotations.file)
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(
+        descriptors
+      )
+
+      val shoppingCartProto =
+        PackageNaming(
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false
+        )
+
+      val domainProto =
+        PackageNaming(
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false
+        )
+
+      val googleEmptyProto =
+        PackageNaming(
+          "Empty",
+          "google.protobuf",
+          Some("google.golang.org/protobuf/types/known/emptypb"),
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true
+        )
+
+      val entity = ModelBuilder.ReplicatedEntity(
+        FullyQualifiedName("ShoppingCart", domainProto),
+        "shopping-cart",
+        ModelBuilder.ReplicatedCounterMap(ModelBuilder.TypeArgument(FullyQualifiedName("Product", domainProto)))
+      )
+
+      assertEquals(
+        model.entities,
+        Map(entity.fqn.fullQualifiedName -> entity)
+      )
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+            List(
+              command(
+                FullyQualifiedName("AddItem", shoppingCartProto),
+                FullyQualifiedName("AddLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
+              ),
+              command(
+                FullyQualifiedName("RemoveItem", shoppingCartProto),
+                FullyQualifiedName("RemoveLineItem", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
+              ),
+              command(
+                FullyQualifiedName("GetCart", shoppingCartProto),
+                FullyQualifiedName("GetShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Cart", shoppingCartProto)
+              ),
+              command(
+                FullyQualifiedName("RemoveCart", shoppingCartProto),
+                FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
+                FullyQualifiedName("Empty", googleEmptyProto)
+              )
+            ),
+            entity.fqn.fullQualifiedName
+          )
+        )
+      )
+    }.get
+  }
+
   test("View introspection") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
