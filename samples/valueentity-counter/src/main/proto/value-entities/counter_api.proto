@@ -1,11 +1,11 @@
 // This is the public API offered by your entity.
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto"; // <1>
-import "google/api/annotations.proto";
+package com.example; // <1>
 
-package com.example; // <2>
+import "akkaserverless/annotations.proto"; // <2>
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option java_outer_classname = "CounterApi"; // <3>
 

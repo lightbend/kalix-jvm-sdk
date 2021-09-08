@@ -1,31 +1,17 @@
-// Copyright 2021 Lightbend Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // This is the public API offered by the shopping cart entity.
 
 syntax = "proto3";
 
-package com.example.shoppingcart;
+package com.example.shoppingcart; // <2>
 
-option java_outer_classname = "ShoppingCartApi";
-
-import "akkaserverless/annotations.proto";
+import "akkaserverless/annotations.proto"; // <1>
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-message AddLineItem {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+option java_outer_classname = "ShoppingCartApi"; // <3>
+
+message AddLineItem { // <4>
+  string cart_id = 1 [(akkaserverless.field).entity_key = true]; // <5>
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
@@ -46,12 +32,12 @@ message LineItem {
   int32 quantity = 3;
 }
 
-message Cart {
+message Cart { // <6>
   repeated LineItem items = 1;
 }
 
-service ShoppingCartService {
-  option (akkaserverless.service) = {
+service ShoppingCartService { // <7>
+  option (akkaserverless.service) = { // <8>
     type: SERVICE_TYPE_ENTITY
     component: ".domain.ShoppingCart"
   };

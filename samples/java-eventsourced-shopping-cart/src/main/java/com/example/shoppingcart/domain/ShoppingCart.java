@@ -29,22 +29,25 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ShoppingCart extends AbstractShoppingCart {
+// tag::class[]
+public class ShoppingCart extends AbstractShoppingCart { // <1>
 
   @Override
-  public ShoppingCartDomain.Cart emptyState() {
+  public ShoppingCartDomain.Cart emptyState() { // <2>
     return ShoppingCartDomain.Cart.getDefaultInstance();
   }
+  // end::class[]
 
+  // tag::addItem[]
   @Override
   public Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState,
       ShoppingCartApi.AddLineItem command) {
-    if (command.getQuantity() <= 0) {
+    if (command.getQuantity() <= 0) { // <1>
       return effects().error("Cannot add negative quantity of to item" + command.getProductId());
     }
 
-    ShoppingCartDomain.ItemAdded event =
+    ShoppingCartDomain.ItemAdded event = // <2>
         ShoppingCartDomain.ItemAdded.newBuilder()
             .setItem(
                 ShoppingCartDomain.LineItem.newBuilder()
@@ -54,8 +57,11 @@ public class ShoppingCart extends AbstractShoppingCart {
                     .build())
             .build();
 
-    return effects().emitEvent(event).thenReply(newState -> Empty.getDefaultInstance());
+    return effects()
+            .emitEvent(event) // <3>
+            .thenReply(newState -> Empty.getDefaultInstance()); // <4>
   }
+  // end::addItem[]
 
   @Override
   public Effect<Empty> removeItem(
@@ -70,22 +76,36 @@ public class ShoppingCart extends AbstractShoppingCart {
     ShoppingCartDomain.ItemRemoved event =
         ShoppingCartDomain.ItemRemoved.newBuilder().setProductId(command.getProductId()).build();
 
-    return effects().emitEvent(event).thenReply(newState -> Empty.getDefaultInstance());
+    return effects()
+            .emitEvent(event)
+            .thenReply(newState -> Empty.getDefaultInstance());
   }
 
+  // tag::getCart[]
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
-      ShoppingCartDomain.Cart currentState,
+      ShoppingCartDomain.Cart currentState, // <1>
       ShoppingCartApi.GetShoppingCart command) {
     List<ShoppingCartApi.LineItem> apiItems =
         currentState.getItemsList().stream()
             .map(this::convert)
             .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
             .collect(Collectors.toList());
-    ShoppingCartApi.Cart apiCart = ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems).build();
+    ShoppingCartApi.Cart apiCart =
+            ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems).build(); // <2>
     return effects().reply(apiCart);
   }
 
+  private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
+    return ShoppingCartApi.LineItem.newBuilder()
+            .setProductId(item.getProductId())
+            .setName(item.getName())
+            .setQuantity(item.getQuantity())
+            .build();
+  }
+  // end::getCart[]
+
+  // tag::itemAdded[]
   @Override
   public ShoppingCartDomain.Cart itemAdded(
       ShoppingCartDomain.Cart currentState,
@@ -99,6 +119,8 @@ public class ShoppingCart extends AbstractShoppingCart {
     return ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build();
   }
 
+  // end::itemAdded[]
+
   @Override
   public ShoppingCartDomain.Cart itemRemoved(
       ShoppingCartDomain.Cart currentState,
@@ -109,14 +131,7 @@ public class ShoppingCart extends AbstractShoppingCart {
     return ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build();
   }
 
-  private ShoppingCartApi.LineItem convert(ShoppingCartDomain.LineItem item) {
-    return ShoppingCartApi.LineItem.newBuilder()
-        .setProductId(item.getProductId())
-        .setName(item.getName())
-        .setQuantity(item.getQuantity())
-        .build();
-  }
-
+  // tag::itemAdded[]
   private ShoppingCartDomain.LineItem updateItem(
       ShoppingCartDomain.LineItem item, ShoppingCartDomain.Cart cart) {
     return findItemByProductId(cart, item.getProductId())
@@ -137,4 +152,5 @@ public class ShoppingCart extends AbstractShoppingCart {
         .filter(lineItem -> !lineItem.getProductId().equals(productId))
         .collect(Collectors.toList());
   }
+  // end::itemAdded[]
 }

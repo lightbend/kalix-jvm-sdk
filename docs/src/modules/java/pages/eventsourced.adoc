@@ -3,108 +3,147 @@
 include::ROOT:partial$include.adoc[]
 include::partial$eventsourced.adoc[]
 
-== Creating an Event Sourced Entity
+https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Akka Serverless needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
-Create an Event Sourced Entity by annotating it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html[`@EventSourcedEntity` {tab-icon}, window="new"] annotation.
+While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data storage format, which should be private.
+
+The steps necessary to implement an Event Sourced Entity include:
+
+. Defining the API and domain objects in `.proto` files.
+. Implementing behavior in command and event handlers.
+. Creating and initializing the Entity.
+
+
+The sections on this page walk through these steps using a shopping cart service as an example.
+
+== Defining the `proto` files
+
+NOTE: Our Event Sourced Entity example is a shopping cart service.
+
+The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sourced Entity. The entity manages line items of a cart and stores events `ItemAdded` and `ItemRemoved` to represent changes to the cart. Real world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_domain.proto
+----
+include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=domain]
+----
+
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
+<4> The protobuf option `(akkaserverless.file).event_sourced_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<5> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<6> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<7> `state` points to the protobuf message representing the entity's state which is kept by Akka Serverless. It is stored as snapshots.
+<8> `events` points to the protobuf message representing the entity's events, which are stored by Akka Serverless.
+
+The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
+
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_api.proto
+----
+include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
+<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
+<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+
+== Implementing behavior
+
+A Event Sourced Entity implementation is a Java class where you define how each command is implemented. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the `ShoppingCart.java` file exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
+
+[source,java]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+
+We need to implement all methods our Event Sourced Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+Command handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as emitting events and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractShoppingCart`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+=== Updating state
+
+In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to emit an event and then send a reply once the event is stored successfully. The state is updated by the event handler.
+
+IMPORTANT: The **only** way for a command handler to modify Entity state is by emitting an event. Any modifications made directly to the state (or instance variables) from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
 
 [source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=class]
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
 ----
+<1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current incoming `AddLineItem` we create a new `ItemAdded` event representing the change of the cart.
+<3> We store the event by returning an `Effect` with `effects().emit`.
+<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
 
-The link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html#entityType()[`entityType` {tab-icon}, window="new"] provides a namespace for journal events. Use the simple name for the Entity class. To have a more unique reference, the example above uses `eventsourced-shopping-cart`.
 
-[#persistence]
-== Serializing
-
-Event Sourced Entities persist events and snapshots, and these need to be serialized. Akka Serverless automatically detects if an emitted event is in `protobuf` format, and serializes it as such. For other serialization options, including JSON, see xref:serialization.adoc[].
-
-TIP: While `protobuf` is the format for persisting events, we recommend that you do not persist the `protobuf` messages from your service interface. Rather, create new messages, even if they are identical. While this may introduce some type conversion overhead, it allows the public interface of the service to evolve independently from the private data storage format.
-
-For the shopping cart example, `shopping_cart_domain.proto` defines the Entity's domain objects:
-
-[source,proto,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_domain.proto[tag=events-and-state]
-----
-
-== Storing state
-
-Each Entity should store its state locally in a mutable variable, either a mutable field or a mutable structure such as a collection. In this example, the state is coded as a map of the product `id` values to products.
-
-[source,java,indent=4]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=state]
-----
-
-== Constructing
-
-Akka Serverless constructs instances of the Event Sourced Entity class on demand. The constructor below shows how the unique ID of the entity is injected and stored in link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`entityId` {tab-icon}, window="new"].
-
-[source,java,indent=4]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=constructor]
-----
-
-== Handling commands
-
-Add your business logic by implementing https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_Command handlers_] that are invoked by incoming messages. Declare a command handler by annotating a method with `@CommandHandler`. By default, the name of the command that the method handles will be the name of the method with the first letter capitalized. So, a method called `getCart` will handle a gRPC service call command named `GetCart`. This can be overridden by setting the `name` parameter on the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandHandler.html[`@CommandHandler` {tab-icon}, window="new"] annotation.
-
-The command handler also can take the gRPC service call input type as a parameter to receive the command message. This is optional. For example, our `GetCart` service call doesn't need any information from the message, since it's just returning the current state. Meanwhile, the `AddItem` service call does need information from the message, since it needs to know the product id, description and quantity to add to the cart. The return type of the command handler must be the output type for the gRPC service call, this will be sent as the reply.
-
-The following shows the implementation of the `GetCart` command handler:
+The new state is created from the event and previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`.
 
 [source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=getCart]
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
 ----
 
-== Emitting events
+Note that you have to define the events in the `(akkaserverless.file).event_sourced_entity`:
 
-Commands can modify state by emitting events. A command handler can emit an event by taking in a link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] parameter, and invoking the link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/CommandContext.html#emit(java.lang.Object)[`emit` {tab-icon}, window="new"] method on it. 
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_domain.proto
+----
+include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=event_sourced_entity]
+----
 
-IMPORTANT: The **only** way for a command handler to modify Entity state is by emitting an event. Any modifications made directly to the state from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
+=== Retrieving state
+
+The following example shows the implementation of the `GetCart` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it:
 
 [source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=addItem]
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+----
+<1> The current state is passed to the method.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
+
+== Registering the Entity
+
+To make Akka Serverless aware of the Event Sourced Entity, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+
+[source,java]
+.src/main/java/com/example/shoppingcart/Main.java
+----
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
 ----
 
-This command handler also validates the command, ensuring the quantity of items added is greater than zero. Invoking link:{attachmentsdir}/api/com/akkaserverless/javasdk/ClientActionContext.html#fail(java.lang.String)[`context.fail` {tab-icon}, window="new"] fails the command - this method throws - no need to explicitly throw an exception.
+By default, the generated constructor has an `EventSourcedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
-== Handling events
-
-Event handlers update the state of the Event Sourced Entity, based on an event. Event handlers are invoked:
-
-. When restoring Event Sourced Entities from the journal, before any commands are handled.
-. Each time a new event is emitted.
-
-Event handlers are the only safe place to mutate Entity state.
-
-Declare an event handler by annotating a method with link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventHandler.html[`@EventHandler` {tab-icon}, window="new"]. They take a context class of type link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventContext.html[`EventContext` {tab-icon}, window="new"].
-
-A single Entity can have multiple event handlers. Akka Serverless chooses one based on the type of event they handle. By default, Akka Serverless looks for the event handler's single non-context parameter. Some event handler methods do not take a non-context parameter, because the event type is all that is necessary to handle the event. In this case, specify the type using the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/eventsourcedentity/EventHandler.html#eventClass()[`eventClass` {tab-icon}, window="new"] parameter on the `@EventHandler` annotation.
-
-Event handlers may be declared for a superclass or interface based on type. For example, an event handler that declares an `Object` parameter handles all events. In the case where multiple event handlers match, Akka Serverless chooses the most specific event handler from all superclass interfaces.
-
-The following example shows an event handler for the `ItemAdded` event with a utility method, `convert`:
-
-[source,java,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemAdded]
-----
+When more components are added the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.
 
 == Snapshots
 
 Snapshots are an important optimization for Event Sourced Entities that emit many events. Rather than reading the entire journal upon loading or restart, Akka Serverless can initiate them from a snapshot.
 
-Snapshots are handled automatically by Akka Serverless without any specific code required. By default, a snapshot is taken for every 100:th event emitted. Tuning how often a snapshot of the state is taken can be configured using config or programmatically handing a `EventSourcedEntityOptions` to the provider when registering the entity.
+Snapshots are stored and handled automatically by Akka Serverless without any specific code required. Snapshots are stored after a configured number of events:
 
-== Registering the Entity
-
-Once you've created your Entity, you can register it with the link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless` {tab-icon}, window="new"] server by invoking the `registerEventSourcedEntity` method. In addition to passing your Event Sourced Entity class and protobuf service descriptor, you also need to pass any descriptors that you use for persisting events, for example, `ShoppingCart` as defined in the `shopping-cart-domain.proto` descriptor.
-
-[source,java,indent=0]
+[source,conf,indent=0]
+.src/main/resources/application.conf
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=RegisterEventSourcedEntity]
+include::example$java-eventsourced-shopping-cart/src/main/resources/application.conf[tag=snapshot-every]
 ----
+
+When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received.
