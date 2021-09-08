@@ -198,9 +198,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6Provider.java"
                 ),
-                generatedTestSourceDirectory.resolve(
+                /* generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6TestKit.java"
-                ),
+                ), */
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"
                 ),
