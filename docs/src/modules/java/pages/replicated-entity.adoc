@@ -1,0 +1,138 @@
+= Implementing Replicated Entities in Java
+
+include::ROOT:partial$include.adoc[]
+
+ifdef::todo[TODO: add glossary link for Replicated Entity to the main docs]
+
+Replicated Entities distribute state using a https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type[conflict-free replicated data type (CRDT)]. Data is shared across multiple instances of a Replicated Entity and is eventually consistent to provide high availability with low latency. The underlying CRDT semantics allow Replicated Entity instances to update their state independently and concurrently and without coordination. The state changes will always converge without conflicts, but note that with the state being eventually consistent, reading the current data may return an out-of-date value.
+
+Akka Serverless needs to serialize the data to replicate, and this is done with Protocol Buffers using `protobuf` types. While Protocol Buffers are the recommended format for state, we recommend that you do not use your service's public `protobuf` messages in the replicated data. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data format, which should be private.
+
+The steps necessary to implement a Replicated Entity include:
+
+. Defining the API and domain objects in `.proto` files.
+. Implementing behavior in command handlers.
+. Creating and initializing the Replicated Entity.
+
+The sections on this page walk through these steps using a shopping cart service as an example.
+
+
+== Defining the `proto` files
+
+NOTE: Our Replicated Entity example is a shopping cart service.
+
+The following `shoppingcart_domain.proto` file defines our "Shopping Cart" Replicated Entity. The entity manages line items of a cart and stores these as a link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html[Replicated Counter Map {tab-icon}, window="new"], mapping from each item's product details to its quantity. The counter for each item can be incremented independently in separate Replicated Entity instances and will converge to a total quantity.
+
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_domain.proto
+----
+include::example$java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[]
+----
+
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
+<4> The protobuf option `(akkaserverless.file).replicated_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<5> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<6> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
+<7> `replicated_counter_map` describes the Replicated Data type for this entity.
+<8> `key` points to the protobuf message representing the counter map's key type.
+
+NOTE: Each Replicated Entity is associated with one underlying Replicated Data type. Replicated Data types that are generic, accepting type parameters for key, value, or element types, are used with `protobuf` messages and can represent structured data. In this shopping cart example, the keys of the counter map are products that have an id and name.
+
+The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
+
+[source,proto]
+.src/main/proto/shoppingcart/shoppingcart_api.proto
+----
+include::example$java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
+<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
+<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+
+
+== Implementing behavior
+
+A Replicated Entity implementation is a Java class where you define how each command is implemented. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the `ShoppingCart.java` file exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
+
+[source,java]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMapEntity.html[`ReplicatedCounterMapEntity` {tab-icon}, window="new"].
+
+We need to implement all methods our Replicated Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+Command handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current data value as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractShoppingCart`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+=== Updating state
+
+In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to update the underlying data and then send a reply.
+
+IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect. Any modifications made directly to data objects are not replicated.
+
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
+----
+<1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current incoming `AddLineItem` we create a new `Product` object to represent the item's key in the counter map.
+<3> We increment the counter for this item in the cart. A new counter will be created if the cart doesn't contain this item already.
+<4> We update the underlying data for the Replicated Entity by returning an `Effect` with `effects().update` and the updated data object.
+<5> An acknowledgment that the command was successfully processed is sent with a reply message.
+
+=== Retrieving state
+
+The following example shows the implementation of the `GetCart` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it.
+
+IMPORTANT: The state of Replicated Entities is eventually consistent. An individual Replicated Entity instance may have an out-of-date value, if there are concurrent modifications made by another instance.
+
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+----
+<1> The current data is passed to the method. Note that this may not be the most up-to-date value, with concurrent modifications made by other instances of this Replicated Entity being replicated eventually.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
+
+=== Deleting state
+
+The following example shows the implementation of the `RemoveCart` command handler. Replicated Entity instances for a particular entity identifier can be deleted, using a delete `Effect`. Once deleted, an entity instance cannot be recreated, and all subsequent commands for that entity identifier will be rejected with an error.
+
+IMPORTANT: Caution should be taken with creating and deleting Replicated Entities, as Akka Serverless maintains the replicated state in memory and also retains tombstones for each deleted entity. Over time, if many Replicated Entities are created and deleted, this will result in hitting memory limits.
+
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=removeCart]
+----
+<1> The Replicated Entity instances for the associated entity key are deleted by using `effects().delete`.
+
+
+== Registering the Entity
+
+To make Akka Serverless aware of the Replicated Entity, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+
+[source,java]
+.src/main/java/com/example/shoppingcart/Main.java
+----
+include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
+----
+
+By default, the generated constructor has a `ReplicatedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
+
+When more components are added, the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.
