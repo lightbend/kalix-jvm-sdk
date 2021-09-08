@@ -69,7 +69,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.Result",
+        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
       )
     )
@@ -122,14 +122,14 @@ object EventSourcedEntityTestKitGenerator {
           |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
           |  }
           |
-          |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+          |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
           |    List<Object> events = getEvents(effect); 
           |    this.events.add(events);
           |    for(Object e: events) {
           |      this.state = handleEvent(state,e);
           |    }
           |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-          |    return new Result(reply, events);
+          |    return new EventSourcedResult(reply, events);
           |  }
           |
           |  ${Syntax.indent(generateServices(service), 2)}
@@ -150,7 +150,7 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
             |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
             |  return interpretEffects(effect);
             |}

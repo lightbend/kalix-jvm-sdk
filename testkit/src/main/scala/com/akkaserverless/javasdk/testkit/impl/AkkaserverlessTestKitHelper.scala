@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
@@ -25,13 +25,17 @@ import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
+import com.akkaserverless.javasdk.valueentity.ValueEntity
+
+import java.util.Optional
 
 /**
  * Internal API, called from generated testkit classes.
  */
 class AkkaServerlessTestKitHelper[S] {
 
-  def getEvents(effect: Effect[_]): List[Any] = {
+  def getEvents(effect: EventSourcedEntity.Effect[_]): List[Any] = {
     effect match {
       case ese: EventSourcedEntityEffectImpl[S] =>
         ese.primaryEffect match {
@@ -41,7 +45,7 @@ class AkkaServerlessTestKitHelper[S] {
     }
   }
 
-  def getReply[R](effect: Effect[R], state: S): R = {
+  def getReply[R](effect: EventSourcedEntity.Effect[R], state: S): R = {
     effect match {
       case ese: EventSourcedEntityEffectImpl[S] =>
         val reply = ese.secondaryEffect(state)
@@ -51,6 +55,29 @@ class AkkaServerlessTestKitHelper[S] {
           case er: ErrorReplyImpl[R @unchecked] => throw new NotImplementedError(er.toString)
           case nr: NoReply[R @unchecked] => throw new IllegalStateException("This effect does not include a reply")
           case NoSecondaryEffectImpl => throw new IllegalStateException("This effect does not include a reply")
+        }
+    }
+  }
+
+  def getReply[R](effect: ValueEntity.Effect[R]): R = {
+    effect match {
+      case ve: ValueEntityEffectImpl[S] =>
+        ve.secondaryEffect match {
+          case mri: MessageReplyImpl[R @unchecked] => mri.message
+          case fr: ForwardReplyImpl[R @unchecked] => throw new NotImplementedError(fr.toString)
+          case er: ErrorReplyImpl[R @unchecked] => throw new NotImplementedError(er.toString)
+          case nr: NoReply[R @unchecked] => throw new IllegalStateException("This effect does not include a reply")
+          case NoSecondaryEffectImpl => throw new IllegalStateException("This effect does not include a reply")
+        }
+    }
+  }
+
+  def updatedStateFrom(effect: ValueEntity.Effect[_]): Optional[Any] = {
+    effect match {
+      case ve: ValueEntityEffectImpl[_] =>
+        ve.primaryEffect match {
+          case ValueEntityEffectImpl.UpdateState(s) => Optional.of(s)
+          case _ => Optional.empty()
         }
     }
   }

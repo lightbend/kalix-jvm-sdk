@@ -5,15 +5,14 @@
 
 package com.example.shoppingcart.domain;
 
+import com.akkaserverless.javasdk.ServiceCallFactory;
+import com.akkaserverless.javasdk.testkit.ValueEntityResult;
+import com.akkaserverless.javasdk.valueentity.ValueEntityCreationContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 import org.junit.Test;
 import java.util.NoSuchElementException;
-import com.example.shoppingcart.domain.ShoppingCartTestKit;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
@@ -22,22 +21,28 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart());
+        // FIXME avoid having to create this
+        ValueEntityCreationContext valueEntityCreationContext = new ValueEntityCreationContext() {
+            @Override
+            public String entityId() {
+                return "cart";
+            }
+
+            @Override
+            public ServiceCallFactory serviceCallFactory() {
+                throw new UnsupportedOperationException("not implemented yet");
+            }
+        };
+
+        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart(valueEntityCreationContext));
 
         ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("nameA").setQuantity(1).build();
-        Result<Empty> resultA = testKit.addItem(commandA);
+        ValueEntityResult<Empty> resultA = testKit.addItem(commandA);
 
         ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
         testKit.addItem(commandB);
-
-        assertEquals(1, resultA.getAllEvents().size());
-        assertEquals(2, testKit.getAllEvents().size());
-
-        ShoppingCartDomain.ItemAdded itemAddedA = resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class);
-        assertEquals("nameA", itemAddedA.getItem().getName());
-        assertThrows(NoSuchElementException.class, () ->  resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
         assertEquals(Empty.getDefaultInstance(), resultA.getReply());
 
         ShoppingCartDomain.LineItem expectedLineItemA = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")
