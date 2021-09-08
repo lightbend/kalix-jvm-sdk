@@ -82,11 +82,15 @@ object SourceGenerator {
               mainClassPackageName,
               mainClassName
             ) ++
-            EventSourcedEntityTestKitGenerator.generate(
-              entity,
-              service,
-              generatedTestSourceDirectory
-            )
+            (entity match {
+              case ese: ModelBuilder.EventSourcedEntity =>
+                EventSourcedEntityTestKitGenerator.generate(ese, service, generatedTestSourceDirectory)
+              case ve: ModelBuilder.ValueEntity =>
+                ValueEntityTestKitGenerator.generate(ve, service, generatedTestSourceDirectory)
+              case re: ModelBuilder.ReplicatedEntity =>
+                // FIXME implement for replicated entity
+                Nil
+            })
         }
       case service: ModelBuilder.ViewService =>
         ViewServiceSourceGenerator.generate(

@@ -1,0 +1,181 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.lightbend.akkasls.codegen.java
+
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.java.TestData.command
+
+class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
+
+  test(
+    "it can generate an specific TestKit for the proto files " +
+    "in test/resources/testkit"
+  ) {
+
+    val packageName = "com.example.shoppingcart"
+    val entity = generateShoppingCartEntity
+    val service = generateShoppingCartService(entity)
+
+    val sourceCode = ValueEntityTestKitGenerator.generateSourceCode(
+      service,
+      entity,
+      packageName
+    )
+
+    val expected =
+      """/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |package com.example.shoppingcart.domain;
+        |
+        |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
+        |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
+        |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
+        |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
+        |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
+        |import com.akkaserverless.javasdk.valueentity.ValueEntity;
+        |import com.example.shoppingcart.domain.ShoppingCartDomain;
+        |import com.google.protobuf.Empty;
+        |import java.util.ArrayList;
+        |import java.util.List;
+        |import java.util.NoSuchElementException;
+        |import scala.jdk.javaapi.CollectionConverters;
+        |
+        |public class ShoppingCartTestKit {
+        |
+        |  private ShoppingCartDomain.Cart state;
+        |  private ShoppingCart entity;
+        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
+        |
+        |  public ShoppingCartTestKit(ShoppingCart entity) {
+        |    this.state = entity.emptyState();
+        |    this.entity = entity;
+        |  }
+        |
+        |  public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
+        |    this.state = state;
+        |    this.entity = entity;
+        |  }
+        |
+        |  public ShoppingCartDomain.Cart getState() {
+        |    return state;
+        |  }
+        |
+        |  private <Reply> Reply getReplyOfType(ValueEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
+        |    return (Reply) helper.getReply(effect);
+        |  }
+        |
+        |  private <Reply> ValueEntityResult<Reply> interpretEffects(ValueEntity.Effect<Reply> effect) {
+        |    helper.updatedStateFrom(effect).ifPresent(state ->
+        |      this.state = (ShoppingCartDomain.Cart) state
+        |    );
+        |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+        |    return new ValueEntityResult(reply);
+        |  }
+        |
+        |  public ValueEntityResult<Empty> addItem(ShoppingCartApi.AddLineItem addLineItem) {
+        |    ValueEntity.Effect<Empty> effect = entity.addItem(state, addLineItem);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public ValueEntityResult<Empty> removeItem(ShoppingCartApi.RemoveLineItem removeLineItem) {
+        |    ValueEntity.Effect<Empty> effect = entity.removeItem(state, removeLineItem);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public ValueEntityResult<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart getShoppingCart) {
+        |    ValueEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, getShoppingCart);
+        |    return interpretEffects(effect);
+        |  }
+        |}""".stripMargin
+
+    assertNoDiff(sourceCode, expected)
+  }
+
+  /**
+   * This ModelBuilder.EventSourcedEntity is equivalent to the
+   * entity in test/resources/testkit/shoppingcart_domain.proto
+  **/
+  def generateShoppingCartEntity(): ModelBuilder.ValueEntity = {
+
+    val domainProto =
+      PackageNaming(
+        "ShoppingcartDomain", // Cart here is lowerCase as per protobuf generation
+        "com.example.shoppingcart.domain",
+        None,
+        None,
+        Some("ShoppingCartDomain"),
+        javaMultipleFiles = false
+      )
+
+    ModelBuilder.ValueEntity(
+      FullyQualifiedName("ShoppingCart", domainProto),
+      "eventsourced-shopping-cart",
+      ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
+    )
+  }
+
+  /**
+   * This ModelBuilder.EntityService is equivalent to
+   * service in test/resources/testkit/shoppingcart_api.proto
+  **/
+  def generateShoppingCartService(entity: ModelBuilder.Entity): ModelBuilder.EntityService = {
+    val shoppingCartProto =
+      PackageNaming(
+        "ShoppingcartApi", // Cart here is lowerCase as per protobuf generation
+        "com.example.shoppingcart",
+        None,
+        None,
+        Some("ShoppingCartApi"),
+        javaMultipleFiles = false
+      )
+    val googleEmptyProto =
+      PackageNaming(
+        "Empty",
+        "google.protobuf",
+        Some("google.golang.org/protobuf/types/known/emptypb"),
+        Some("com.google.protobuf"),
+        Some("EmptyProto"),
+        javaMultipleFiles = true
+      )
+    ModelBuilder.EntityService(
+      FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+      List(
+        command(
+          FullyQualifiedName("AddItem", shoppingCartProto),
+          FullyQualifiedName("AddLineItem", shoppingCartProto),
+          FullyQualifiedName("Empty", googleEmptyProto)
+        ),
+        command(
+          FullyQualifiedName("RemoveItem", shoppingCartProto),
+          FullyQualifiedName("RemoveLineItem", shoppingCartProto),
+          FullyQualifiedName("Empty", googleEmptyProto)
+        ),
+        command(
+          FullyQualifiedName("GetCart", shoppingCartProto),
+          FullyQualifiedName("GetShoppingCart", shoppingCartProto),
+          FullyQualifiedName("Cart", shoppingCartProto)
+        )
+      ),
+      entity.fqn.fullName
+    )
+  }
+
+}
