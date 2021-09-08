@@ -208,11 +208,20 @@ object ViewServiceSourceGenerator {
       view.commandTypes,
       packageName,
       Seq(
-        "com.akkaserverless.javasdk.view.View",
-        "com.akkaserverless.javasdk.view.ViewContext",
-        "java.util.function.Function"
+        "com.akkaserverless.javasdk.view.ViewContext"
       )
     )
+
+    val emptyState =
+      if (view.transformedUpdates.isEmpty)
+        ""
+      else
+        s"""|
+            |  @Override
+            |  public ${qualifiedType(view.state.fqn)} emptyState() {
+            |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+            |  }
+            |""".stripMargin
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
@@ -231,12 +240,7 @@ object ViewServiceSourceGenerator {
        |public class ${view.viewClassName} extends ${view.abstractViewName} {
        |
        |  public ${view.viewClassName}(ViewContext context) {}
-       |
-       |  @Override
-       |  public ${qualifiedType(view.state.fqn)} emptyState() {
-       |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
-       |  }
-       |
+       |$emptyState
        |  ${Syntax.indent(handlers, 2)}
        |}""".stripMargin
   }
@@ -249,10 +253,20 @@ object ViewServiceSourceGenerator {
       view.commandTypes,
       packageName,
       Seq(
-        "com.akkaserverless.javasdk.view.View",
-        "java.util.function.Function"
+        "com.akkaserverless.javasdk.view.View"
       )
     )
+
+    val emptyState =
+      if (view.transformedUpdates.isEmpty)
+        s"""|
+            |  @Override
+            |  public ${qualifiedType(view.state.fqn)} emptyState() {
+            |    return null; // emptyState is only used with transform_updates=true
+            |  }
+            |""".stripMargin
+      else
+        ""
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
@@ -267,7 +281,7 @@ object ViewServiceSourceGenerator {
       |$imports
       |
       |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
-      |
+      |$emptyState
       |  ${Syntax.indent(handlers, 2)}
       |}""".stripMargin
   }

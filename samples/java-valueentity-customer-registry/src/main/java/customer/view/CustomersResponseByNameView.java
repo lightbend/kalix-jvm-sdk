@@ -4,20 +4,11 @@
  */
 package customer.view;
 
-import com.akkaserverless.javasdk.view.View;
 import com.akkaserverless.javasdk.view.ViewContext;
 import customer.domain.CustomerDomain;
-import java.util.function.Function;
 
 public class CustomersResponseByNameView extends AbstractCustomersResponseByNameView {
 
   public CustomersResponseByNameView(ViewContext context) {}
 
-  @Override
-  public CustomerDomain.CustomerState emptyState() {
-    // Not actually invoked when not using "transform_updates: true"
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
-  }
-
-  
 }
