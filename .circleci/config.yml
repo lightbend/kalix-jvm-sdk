@@ -205,6 +205,12 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
+          name: Fibonacci Action
+          command: |
+            cd samples/fibonacci-action
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+      - run:
           name: Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry
