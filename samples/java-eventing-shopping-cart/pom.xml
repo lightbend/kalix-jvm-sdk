@@ -49,6 +49,9 @@
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -125,7 +128,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.26.1</version>
+        <version>0.36.0</version>
         <configuration>
           <images>
             <image>
@@ -203,7 +206,7 @@
       <plugin>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
-	      <version>${akkaserverless-sdk.version}</version>
+        <version>${akkaserverless-sdk.version}</version>
         <executions>
           <execution>
             <goals>

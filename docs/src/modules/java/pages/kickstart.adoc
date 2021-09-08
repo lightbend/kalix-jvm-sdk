@@ -107,7 +107,7 @@ For more information on descriptors, see xref:java:proto.adoc[].
 
 === Component implementation
 
-For the default service description in the archetype, the plugin creates an abstract base class (eg. `CounterInterface`) which always reflects the latest service description.
+For the default service description in the archetype, the plugin creates an abstract base class (eg. `AbstractCounter`) which always reflects the latest service description.
 
 IMPORTANT: Do not modify the base class as it is regenerated on each invocation of `mvn compile`
 
@@ -133,7 +133,7 @@ For more details see xref:java:value-entity.adoc[].
 
 === Unit and integration tests
 
-The Akka Serverless Maven plugin creates a unit test stub for each class. Use this stub as a starting point to test the logic in your implementation. The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].
+The Akka Serverless Maven plugin creates a unit test stub for Entity. Use this stub as a starting point to test the logic in your implementation. The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].
 
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]

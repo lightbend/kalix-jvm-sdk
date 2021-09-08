@@ -1,37 +1,40 @@
 package com.example.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.valueentity.*;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
 /** A value entity. */
-@ValueEntity(entityType = "counter")
-public class Counter extends CounterInterface {
+public class Counter extends AbstractCounter {
     @SuppressWarnings("unused")
     private final String entityId;
-    
-    public Counter(@EntityId String entityId) {
-        this.entityId = entityId;
+
+    public Counter(ValueEntityContext context) {
+        this.entityId = context.entityId();
     }
-    
+
     @Override
-    protected Empty increase(CounterApi.IncreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        throw ctx.fail("The command handler for `Increase` is not implemented, yet");
+    public CounterDomain.CounterState emptyState() {
+        throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
     }
-    
+
     @Override
-    protected Empty decrease(CounterApi.DecreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        throw ctx.fail("The command handler for `Decrease` is not implemented, yet");
+    public Effect<Empty> increase(CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
+        return effects().error("The command handler for `Increase` is not implemented, yet");
     }
-    
+
     @Override
-    protected Empty reset(CounterApi.ResetValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        throw ctx.fail("The command handler for `Reset` is not implemented, yet");
+    public Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue command) {
+        return effects().error("The command handler for `Decrease` is not implemented, yet");
     }
-    
+
     @Override
-    protected CounterApi.CurrentCounter getCurrentCounter(CounterApi.GetCounter command, CommandContext<CounterDomain.CounterState> ctx) {
-        throw ctx.fail("The command handler for `GetCurrentCounter` is not implemented, yet");
+    public Effect<Empty> reset(CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
+        return effects().error("The command handler for `Reset` is not implemented, yet");
+    }
+
+    @Override
+    public Effect<CounterApi.CurrentCounter> getCurrentCounter(CounterDomain.CounterState currentState, CounterApi.GetCounter command) {
+        return effects().error("The command handler for `GetCurrentCounter` is not implemented, yet");
     }
 }
