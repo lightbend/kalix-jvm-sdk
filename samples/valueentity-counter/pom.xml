@@ -23,7 +23,6 @@
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
-
   <build>
     <resources>
       <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
@@ -218,7 +217,7 @@
       <plugin>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
-	      <version>${akkaserverless-sdk.version}</version>
+        <version>${akkaserverless-sdk.version}</version>
         <executions>
           <execution>
             <goals>
