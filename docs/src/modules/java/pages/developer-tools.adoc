@@ -1,0 +1,104 @@
+= Developer Tools
+
+include::ROOT:partial$include.adoc[]
+
+The Java tooling is published to Lightbend's public https://cloudsmith.io/~lightbend/repos/akkaserverless/packages/[Maven repository]. 
+
+== Kickstart
+
+A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _maven-archetype-akkasls_ provides the Kickstart tooling. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Akka Serverless SDK and associated development support tooling set up.
+
+The archetype is located at Lightbend's Maven repository. In order to use it, your global https://maven.apache.org/settings.html[Maven settings] must be configured to include this repository. Your active profile must be updated to include the following repository definition:
+
+[source,xml]
+----
+<repository>
+  <id>lightbend-akkaserverless</id>
+  <name>repo-lightbend-com-akkaserverless</name>
+  <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
+  <releases>
+    <enabled>true</enabled>
+    <updatePolicy>always</updatePolicy>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+    <updatePolicy>always</updatePolicy>
+  </snapshots>
+</repository>
+----
+
+With this configuration in place, the archetype can be used via the `mvn` CLI.
+[.tabset]
+Linux or MacOS::
++
+[source,command line]
+----
+mvn \
+  archetype:generate \
+  -DarchetypeGroupId=com.lightbend \
+  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeVersion=LATEST
+----
+
+Windows::
++
+[source,command line]
+----
+mvn ^
+  archetype:generate ^
+  -DarchetypeGroupId=com.lightbend ^
+  -DarchetypeArtifactId=maven-archetype-akkasls ^
+  -DarchetypeVersion=LATEST
+----
+
+
+== Ongoing development support
+The development support tooling is provided via a single Maven plugin; _akkasls-maven-plugin_. This plugin provides two Maven goals to support Protobuf driven interface-first development.
+
+=== Goals
+This plugin implements the following https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html[Maven Build Lifecycle] goals:
+
+* `generate`; generates implementation stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend. If you make further updates to your Protobuf specification after the initial generation, existing implementation is left unchanged but the abstract class is updated to align. This allows you to leverage native developer tooling to guide the desired changes.
+* `deploy`; simply invokes the `akkasls` command line tool to deploy the service to Akka Serverless. This relies on an existing installation of the CLI and uses configuration and credentials from that installation.
+
+NOTE: The deploy goal requires the Akka Serverless CLI to be installed on your system. Download the latest version as described in xref:akkasls:install-akkasls.adoc[installing the Akka Serverless CLI, window="new-doc"]
+
+=== Installation
+To use the plugin, add the following snippet to the `plugin` section of your project's POM:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<plugin>
+  <groupId>com.lightbend</groupId>
+  <artifactId>akkasls-maven-plugin</artifactId>
+  <version>{maven-archetype-version}</version>
+  <executions>
+  <execution>
+    <goals>
+      <goal>generate</goal>
+      <goal>deploy</goal>
+    </goals>
+  </execution>
+  </executions>
+</plugin>
+----
+
+As above, you'll also need to ensure the project's POM is configured to include the Lightbend repository. The following snippet should be added to the `repositories` section.
+[source,xml]
+----
+<repository>
+  <id>lightbend-akkaserverless</id>
+  <name>repo-lightbend-com-akkaserverless</name>
+  <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
+  <snapshots>
+    <enabled>false</enabled>
+  </snapshots>
+</repository>
+----
+
+=== Configuration
+The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to the plugin definition in your POM with any of the following options:
+
+* `akkaslsPath` path and name of the `akkasls` commmand line tool
+* `akkaslsContext` selects the context when calling `akkasls` if set
+* `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
