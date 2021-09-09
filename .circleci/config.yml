@@ -203,73 +203,86 @@ jobs:
           command: |
             cd samples/customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            # must also compile without the profile!
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Fibonacci Action
           command: |
             cd samples/fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Doc snippets
           command: |
             cd samples/doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Event Sourced Views "Customer Registry" sample
           command: |
             cd samples/java-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Value Entity "Shopping Cart" sample
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run: 
           name: Event Sourced Entity "Shopping Cart" sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Replicated Entity "Shopping Cart" sample
           command: |
             cd samples/java-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Value Entity "Counter" sample
           command: |
             cd samples/valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Replicated Entity "Counter" sample
           command: |
             cd samples/replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Eventing "Shopping Cart" sample
           command: |
             cd samples/java-eventing-shopping-cart
-            echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
-            # TODO: enable integration tests with -Pit
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile verify
+            echo "FIXME Integration tests disabled for codegen/API work"
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Replicated Entity examples
           command: |
             cd samples/replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - save_deps_cache
 
