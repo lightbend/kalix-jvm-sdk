@@ -14,7 +14,7 @@ Note that in this example we are adding an Action to an existing service, the Va
 [source,protobuf,indent=0]
 .src/main/proto/actions/double-counter.proto
 ----
-include::example$valueentity-counter-with-action-controller/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
+include::example$valueentity-counter/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
 ----
 <1> Import the Counter API definition
 <2> The Action mimics the Counter API
@@ -27,7 +27,7 @@ The class `DoubleCounterAction` gets generated for us based on the proto file de
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$valueentity-counter-with-action-controller/src/main/java/com/example/actions/DoubleCounterAction.java[tag=double-counter-action]
+include::example$valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=double-counter-action]
 ----
 
 <1> In the constructor, we use the `ActionCreationContext` to create a `ServiceCallRef` pointing to the `Increase` method in the `Counter` entity.
@@ -47,5 +47,5 @@ two registrations: the `Counter` and the `DoubleCounterAction`, and we need to a
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::example$valueentity-counter-with-action-controller/src/main/java/com/example/Main.java[tag=registration]
+include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=registration]
 ----

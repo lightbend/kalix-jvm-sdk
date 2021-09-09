@@ -49,7 +49,6 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
-	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter-with-action-controller/ "${managed_examples}/valueentity-counter-with-action-controller/"
 
 dev: clean managed validate-xrefs dev-html
 

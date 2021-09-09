@@ -11,7 +11,6 @@ import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
 // tag::double-counter-action[]
-
 /**
  * An action.
  */
