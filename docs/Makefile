@@ -42,6 +42,7 @@ apidocs:
 
 examples:
 	mkdir -p "${managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../samples/customer-registry-quickstart/ "${managed_examples}/customer-registry-quickstart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
