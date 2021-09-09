@@ -139,6 +139,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyEntity1TestKit.java"
                 ),
+                testSourceDirectory.resolve(
+                  "com/example/service/domain/MyEntity1Test.java"
+                ),
+                integrationTestSourceDirectory.resolve(
+                  "com/example/service/domain/MyEntity1IntegrationTest.java"
+                ),
                 sourceDirectory.resolve("com/example/service/domain/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve(
                   "com/example/service/domain/AbstractMyValueEntity2.java"
@@ -161,6 +167,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 ),
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/domain/MyEntity3IntegrationTest.java"
+                ),
+                testSourceDirectory.resolve(
+                  "com/example/service/domain/MyEntity3Test.java"
                 ),
                 generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyEntity3TestKit.java"
@@ -198,9 +207,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6Provider.java"
                 ),
-                generatedTestSourceDirectory.resolve(
+                /* generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6TestKit.java"
-                ),
+                ), */
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"
                 ),

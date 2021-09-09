@@ -30,7 +30,7 @@ TIP: Kickstart a project using the xref:java:kickstart.adoc[Java code generation
 [#_implement_components]
 == Implement components
 
-Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions.
+Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and View components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
 
 === Actions
 
@@ -40,20 +40,21 @@ Actions are stateless functions that can be triggered by gRPC or HTTP calls. The
 Stateful services encapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time. 
 
 
-TIP: To learn more about Akka Serverless entities see xref:java:value-entity.adoc[Implement a Value Entity] and xref:java:eventsourced.adoc[Implement an Event Sourced Entity].
+TIP: To learn more about Akka Serverless entities see xref:java:value-entity.adoc[Implementing Value Entities], xref:java:eventsourced.adoc[Implementing Event Sourced Entities], and xref:java:replicated-entity.adoc[Implementing Replicated Entities].
 
 If you would like to update multiple Entities from a single command, you can use forwarding and effects. 
 
-TIP: For more information see xref:java:forwarding.adoc[Forwarding and effects in Java].
+TIP: For more information see xref:java:forwarding.adoc[Forwarding and effects].
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
 For more details and examples take a look at the following topics:
 
-* Event Sourced Entities in xref:java:eventsourced.adoc[Java]
-* Value Entities in xref:java:value-entity.adoc[Java]
-* Subscribe to a journal in xref:java:entity-eventing.adoc[Java]
-* Set up pub/sub for xref:java:topic-eventing.adoc[Java]
+* xref:java:value-entity.adoc[Value Entities]
+* xref:java:eventsourced.adoc[Event Sourced Entities]
+* xref:java:replicated-entity.adoc[Replicated Entities]
+* xref:java:actions.adoc[Actions]
+* xref:java:views.adoc[Views]
 
 [#_create_unit_tests]
 == Create unit tests
@@ -76,6 +77,7 @@ Use Docker to package your service and any of its dependencies. See the followin
 You can test and debug your services by
 xref:java:run-locally.adoc[running them locally] before deploying to Akka Serverless.
 
+[#_deploy_to_akka_serverless]
 == Deploy to Akka Serverless
 
 After testing locally, deploy your service to Akka Serverless using the CLI or the Console. The following pages provide information about deployment:

@@ -6,24 +6,22 @@
 package customer;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import customer.domain.CustomerEntity;
-import customer.domain.CustomerEntityProvider;
-import customer.view.CustomerByNameView;
-import customer.view.CustomerByNameViewProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import customer.domain.CustomerEntity;
+import customer.view.CustomerByNameView;
 
 public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  // tag::register[]
   public static AkkaServerless createAkkaServerless() {
-    // tag::register-with-class[]
-    return new AkkaServerless()
-            .register(CustomerByNameViewProvider.of(CustomerByNameView::new))
-            // end::register-with-class[]
-            .register(CustomerEntityProvider.of(CustomerEntity::new));
+    return AkkaServerlessFactory.withComponents(
+      CustomerEntity::new,
+      CustomerByNameView::new);
   }
+  // end::register[]
 
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");

@@ -33,12 +33,64 @@ public class Customer extends AbstractCustomer {
     return CustomerDomain.CustomerState.getDefaultInstance();
   }
 
+  // tag::create[]
   @Override
   public Effect<Empty> create(
       CustomerDomain.CustomerState currentState, CustomerApi.Customer command) {
     CustomerDomain.CustomerState state = convertToDomain(command);
     return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
+
+  private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
+    CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
+    if (customer.hasAddress()) {
+      address = convertAddressToDomain(customer.getAddress());
+    }
+    return CustomerDomain.CustomerState.newBuilder()
+            .setCustomerId(customer.getCustomerId())
+            .setEmail(customer.getEmail())
+            .setName(customer.getName())
+            .setAddress(address)
+            .build();
+  }
+
+  private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
+    return CustomerDomain.Address.newBuilder()
+            .setStreet(address.getStreet())
+            .setCity(address.getCity())
+            .build();
+  }
+  // end::create[]
+
+  // tag::getCustomer[]
+  @Override
+  public Effect<CustomerApi.Customer> getCustomer(
+          CustomerDomain.CustomerState currentState,
+          CustomerApi.GetCustomerRequest command) {
+    if (currentState.getCustomerId().equals("")) {
+      return effects().error("Customer " + command.getCustomerId() + " has not been created.");
+    } else {
+      return effects().reply(convertToApi(currentState));
+    }
+  }
+
+  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
+    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
+    if (state.hasAddress()) {
+      address =
+              CustomerApi.Address.newBuilder()
+                      .setStreet(state.getAddress().getStreet())
+                      .setCity(state.getAddress().getCity())
+                      .build();
+    }
+    return CustomerApi.Customer.newBuilder()
+            .setCustomerId(state.getCustomerId())
+            .setEmail(state.getEmail())
+            .setName(state.getName())
+            .setAddress(address)
+            .build();
+  }
+  // end::getCustomer[]
 
   @Override
   public Effect<Empty> changeName(
@@ -57,47 +109,6 @@ public class Customer extends AbstractCustomer {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
-  @Override
-  public Effect<CustomerApi.Customer> getCustomer(
-      CustomerDomain.CustomerState currentState,
-      CustomerApi.GetCustomerRequest command) {
-    return effects().reply(convertToApi(currentState));
-  }
 
-  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
-    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
-    if (state.hasAddress()) {
-      address =
-          CustomerApi.Address.newBuilder()
-              .setStreet(state.getAddress().getStreet())
-              .setCity(state.getAddress().getCity())
-              .build();
-    }
-    return CustomerApi.Customer.newBuilder()
-        .setCustomerId(state.getCustomerId())
-        .setEmail(state.getEmail())
-        .setName(state.getName())
-        .setAddress(address)
-        .build();
-  }
 
-  private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
-    CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
-    if (customer.hasAddress()) {
-      address = convertAddressToDomain(customer.getAddress());
-    }
-    return CustomerDomain.CustomerState.newBuilder()
-        .setCustomerId(customer.getCustomerId())
-        .setEmail(customer.getEmail())
-        .setName(customer.getName())
-        .setAddress(address)
-        .build();
-  }
-
-  private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
-    return CustomerDomain.Address.newBuilder()
-        .setStreet(address.getStreet())
-        .setCity(address.getCity())
-        .build();
-  }
 }

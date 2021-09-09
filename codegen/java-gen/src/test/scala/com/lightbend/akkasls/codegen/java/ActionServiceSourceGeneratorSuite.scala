@@ -40,7 +40,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |/** An action. */
         |public class MyServiceAction extends AbstractMyServiceAction {
@@ -94,7 +93,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |/** An action. */
         |public class MyServiceActionImpl extends AbstractMyServiceAction {
@@ -146,7 +144,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends Action {
@@ -187,7 +184,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends Action {
@@ -227,7 +223,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |public class MyServiceActionHandler extends ActionHandler<MyServiceAction> {
         |
@@ -304,7 +299,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |public class MyServiceActionHandler extends ActionHandler<MyServiceActionImpl> {
         |
@@ -504,13 +498,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |package com.example.service;
         |
-        |import akka.NotUsed;
-        |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.example.service.domain.EntityOuterClass;
         |import com.google.protobuf.Any;
         |import com.google.protobuf.Empty;
-        |import java.util.concurrent.CompletionStage;
         |
         |/** An action. */
         |public class MyServiceAction extends AbstractMyServiceAction {

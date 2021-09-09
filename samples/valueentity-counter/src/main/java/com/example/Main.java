@@ -6,21 +6,36 @@
 package com.example;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.example.actions.DoubleCounterAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.domain.Counter;
 
+
+// tag::registration[]
+// tag::registration-value-entity[]
 public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-
   public static AkkaServerless createAkkaServerless() {
     // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
+    // end::registration-value-entity[]
+    return AkkaServerlessFactory.withComponents(
+            Counter::new,
+            DoubleCounterAction::new);
+
+    // end::registration[]
+    /* the comment hack bellow is needed to only show the Counter::new in the value entity docs
+    // tag::registration-value-entity[]
     return AkkaServerlessFactory.withComponents(
             Counter::new);
+    // end::registration-value-entity[]
+     */
+    // tag::registration-value-entity[]
+    // tag::registration[]
   }
 
   public static void main(String[] args) throws Exception {
@@ -28,3 +43,5 @@ public final class Main {
     createAkkaServerless().start();
   }
 }
+// end::registration-value-entity[]
+// end::registration[]

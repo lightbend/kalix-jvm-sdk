@@ -2,9 +2,9 @@
 
 syntax = "proto3";
 
-package com.example.shoppingcart; // <2>
+package com.example.shoppingcart; // <1>
 
-import "akkaserverless/annotations.proto"; // <1>
+import "akkaserverless/annotations.proto"; // <2>
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 

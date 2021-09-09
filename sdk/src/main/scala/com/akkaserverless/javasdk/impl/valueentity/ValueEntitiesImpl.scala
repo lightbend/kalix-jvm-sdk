@@ -30,6 +30,7 @@ import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.Service
 import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.impl.ValueEntityFactory
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.EffectSupport
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
@@ -37,7 +38,6 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandResult
-import com.akkaserverless.javasdk.lowlevel.ValueEntityFactory
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update

@@ -2925,9 +2925,9 @@ public final class CounterApi {
   static {
     java.lang.String[] descriptorData = {
       "\n value-entities/counter_api.proto\022\013com." +
-      "example\032\033google/protobuf/empty.proto\032 ak" +
-      "kaserverless/annotations.proto\032\034google/a" +
-      "pi/annotations.proto\"9\n\rIncreaseValue\022\031\n" +
+      "example\032 akkaserverless/annotations.prot" +
+      "o\032\034google/api/annotations.proto\032\033google/" +
+      "protobuf/empty.proto\"9\n\rIncreaseValue\022\031\n" +
       "\ncounter_id\030\001 \001(\tB\005\302C\002\010\001\022\r\n\005value\030\002 \001(\005\"" +
       "9\n\rDecreaseValue\022\031\n\ncounter_id\030\001 \001(\tB\005\302C" +
       "\002\010\001\022\r\n\005value\030\002 \001(\005\"\'\n\nResetValue\022\031\n\ncoun" +
@@ -2946,9 +2946,9 @@ public final class CounterApi {
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          com.google.protobuf.EmptyProto.getDescriptor(),
           com.akkaserverless.Annotations.getDescriptor(),
           com.google.api.AnnotationsProto.getDescriptor(),
+          com.google.protobuf.EmptyProto.getDescriptor(),
         });
     internal_static_com_example_IncreaseValue_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -2986,9 +2986,9 @@ public final class CounterApi {
     registry.add(com.akkaserverless.Annotations.service);
     com.google.protobuf.Descriptors.FileDescriptor
         .internalUpdateFileDescriptor(descriptor, registry);
-    com.google.protobuf.EmptyProto.getDescriptor();
     com.akkaserverless.Annotations.getDescriptor();
     com.google.api.AnnotationsProto.getDescriptor();
+    com.google.protobuf.EmptyProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

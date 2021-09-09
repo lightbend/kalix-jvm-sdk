@@ -19,18 +19,20 @@ public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  // tag::register[]
   public static AkkaServerless createAkkaServerless() {
-    // tag::register[]
     return AkkaServerlessFactory.withComponents(
       CustomerValueEntity::new,
+      // end::register[]
       CustomerSummaryByNameView::new,
       CustomerByEmailView::new,
       CustomersResponseByNameView::new,
       CustomerActionImpl::new,
+      // tag::register[]
       CustomerByNameView::new
     );
-    // end::register[]
   }
+  // end::register[]
 
   public static void main(String[] args) throws Exception {
     LOG.info("starting the Akka Serverless service");

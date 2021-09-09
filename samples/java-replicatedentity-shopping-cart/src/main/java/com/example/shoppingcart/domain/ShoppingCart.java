@@ -24,7 +24,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ShoppingCart extends AbstractShoppingCart {
+// tag::class[]
+public class ShoppingCart extends AbstractShoppingCart { // <1>
+  // end::class[]
+
   @SuppressWarnings("unused")
   private final String entityId;
 
@@ -32,24 +35,29 @@ public class ShoppingCart extends AbstractShoppingCart {
     this.entityId = context.entityId();
   }
 
+  // tag::addItem[]
   @Override
   public Effect<Empty> addItem(
       ReplicatedCounterMap<ShoppingCartDomain.Product> cart,
       ShoppingCartApi.AddLineItem addLineItem) {
 
-    if (addLineItem.getQuantity() <= 0) {
+    if (addLineItem.getQuantity() <= 0) { // <1>
       return effects().error("Cannot add negative quantity to item: " + addLineItem.getProductId());
     }
 
-    ShoppingCartDomain.Product product =
+    ShoppingCartDomain.Product product = // <2>
         ShoppingCartDomain.Product.newBuilder()
             .setId(addLineItem.getProductId())
             .setName(addLineItem.getName())
             .build();
 
-    cart.increment(product, addLineItem.getQuantity());
-    return effects().update(cart).thenReply(Empty.getDefaultInstance());
+    cart.increment(product, addLineItem.getQuantity()); // <3>
+
+    return effects()
+        .update(cart) // <4>
+        .thenReply(Empty.getDefaultInstance()); // <5>
   }
+  // end::addItem[]
 
   @Override
   public Effect<Empty> removeItem(
@@ -70,9 +78,10 @@ public class ShoppingCart extends AbstractShoppingCart {
     return effects().update(cart).thenReply(Empty.getDefaultInstance());
   }
 
+  // tag::getCart[]
   @Override
   public Effect<ShoppingCartApi.Cart> getCart(
-      ReplicatedCounterMap<ShoppingCartDomain.Product> cart,
+      ReplicatedCounterMap<ShoppingCartDomain.Product> cart, // <1>
       ShoppingCartApi.GetShoppingCart getShoppingCart) {
 
     List<ShoppingCartApi.LineItem> allItems =
@@ -87,14 +96,22 @@ public class ShoppingCart extends AbstractShoppingCart {
             .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
             .collect(Collectors.toList());
 
-    return effects().reply(ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build());
-  }
+    ShoppingCartApi.Cart apiCart = // <2>
+        ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build();
 
+    return effects().reply(apiCart);
+  }
+  // end::getCart[]
+
+  // tag::removeCart[]
   @Override
   public Effect<Empty> removeCart(
       ReplicatedCounterMap<ShoppingCartDomain.Product> cart,
       ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
 
-    return effects().delete().thenReply(Empty.getDefaultInstance());
+    return effects()
+        .delete() // <1>
+        .thenReply(Empty.getDefaultInstance());
   }
+  // end::removeCart[]
 }

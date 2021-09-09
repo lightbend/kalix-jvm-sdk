@@ -24,7 +24,6 @@ import com.akkaserverless.javasdk._
 import com.akkaserverless.javasdk.action._
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.lowlevel.ActionFactory
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions
@@ -33,11 +32,13 @@ import com.akkaserverless.protocol.component.Failure
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{Any => JavaPbAny}
-
 import java.util.Optional
+
 import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
+
+import com.akkaserverless.javasdk.impl.ActionFactory
 
 final class ActionService(val factory: ActionFactory,
                           override val descriptor: Descriptors.ServiceDescriptor,

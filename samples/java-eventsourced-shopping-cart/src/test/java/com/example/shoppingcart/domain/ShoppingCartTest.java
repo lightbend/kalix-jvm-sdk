@@ -20,7 +20,7 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart());
+        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
 
         ShoppingCartApi.AddLineItem apples = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("apples").setQuantity(1).build();

@@ -17,9 +17,9 @@
 package com.akkaserverless.javasdk.impl.action
 
 import com.akkaserverless.javasdk.action.ActionCreationContext
+import com.akkaserverless.javasdk.impl.ActionFactory
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.lowlevel.ActionFactory
 
 class ResolvedActionFactory(delegate: ActionFactory,
                             override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])

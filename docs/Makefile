@@ -42,12 +42,17 @@ apidocs:
 
 examples:
 	mkdir -p "${managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../samples/customer-registry-quickstart/ "${managed_examples}/customer-registry-quickstart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-shopping-cart/ "${managed_examples}/java-eventsourced-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-replicatedentity-shopping-cart/ "${managed_examples}/java-replicatedentity-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/replicatedentity-examples/ "${managed_examples}/replicatedentity-examples/"
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
+	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
+	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
 
 dev: clean managed validate-xrefs dev-html
 

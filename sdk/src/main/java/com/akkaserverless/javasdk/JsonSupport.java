@@ -16,12 +16,14 @@
 
 package com.akkaserverless.javasdk;
 
+import com.akkaserverless.javasdk.impl.AnySupport;
+import com.akkaserverless.javasdk.impl.AnySupport$;
+import com.akkaserverless.javasdk.impl.ByteStringEncoding;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.Any;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.UnsafeByteOperations;
+import com.google.protobuf.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -62,8 +64,14 @@ public final class JsonSupport {
    */
   public static <T> Any encodeJson(T value, String jsonType) {
     try {
-      ByteString json = UnsafeByteOperations.unsafeWrap(objectMapper.writeValueAsBytes(value));
-      return Any.newBuilder().setTypeUrl(AKKA_SERVERLESS_JSON + jsonType).setValue(json).build();
+      ByteString bytes =
+          UnsafeByteOperations.unsafeWrap(
+              objectMapper.writerFor(value.getClass()).writeValueAsBytes(value));
+      ByteString encodedBytes = ByteStringEncoding.encodePrimitiveBytes(bytes);
+      return Any.newBuilder()
+          .setTypeUrl(AKKA_SERVERLESS_JSON + jsonType)
+          .setValue(encodedBytes)
+          .build();
     } catch (JsonProcessingException ex) {
       throw new IllegalArgumentException(
           "Could not encode [" + value.getClass().getName() + "] as JSON", ex);
@@ -89,14 +97,16 @@ public final class JsonSupport {
               + "]");
     } else {
       try {
-        return objectMapper.readerFor(valueClass).readValue(any.getValue().toByteArray());
+        ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
+        return objectMapper.readerFor(valueClass).readValue(decodedBytes.toByteArray());
       } catch (IOException e) {
         throw new IllegalArgumentException(
             "JSON with type url ["
                 + any.getTypeUrl()
                 + "] could not be decoded into a ["
                 + valueClass.getName()
-                + "]");
+                + "]",
+            e);
       }
     }
   }

@@ -25,30 +25,29 @@ import _root_.java.nio.file.{Files, Path}
 
 object EventSourcedEntityTestKitGenerator {
 
-  def generate(entity: ModelBuilder.Entity,
+  def generate(entity: ModelBuilder.EventSourcedEntity,
                service: ModelBuilder.EntityService,
+               testSourceDirectory: Path,
                generatedSourceDirectory: Path): Iterable[Path] = {
+    var generatedFiles: Seq[Path] = Vector.empty
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
-    val sourceCode = generateSource(service, entity, packageName, className)
 
     val packagePath = packageAsPath(packageName)
     val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
-
     testKitPath.getParent.toFile.mkdirs()
+    val sourceCode = generateSourceCode(service, entity, packageName, className)
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
-    List(testKitPath)
-  }
+    generatedFiles :+= testKitPath
 
-  private[codegen] def generateSource(service: ModelBuilder.EntityService,
-                                      entity: ModelBuilder.Entity,
-                                      packageName: String,
-                                      className: String): String = {
-    entity match {
-      case entity: ModelBuilder.EventSourcedEntity => generateSourceCode(service, entity, packageName, className)
-      case entity: ModelBuilder.ValueEntity => "/** FIXME implement Value Entity testkit */"
-      case entity: ModelBuilder.ReplicatedEntity => "/** FIXME implement Replicated Entity testkit */"
+    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
+    if (!testFilePath.toFile.exists()) {
+      testFilePath.getParent.toFile.mkdirs()
+      Files.write(testFilePath, generateTestSources(service, entity, packageName).getBytes(Charsets.UTF_8))
+      generatedFiles :+= testFilePath
     }
+
+    generatedFiles
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
@@ -66,18 +65,21 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.NoSuchElementException",
         "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.Result",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper"
+        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
+        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
+        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
+        "java.util.function.Function"
       )
     )
 
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
     val entityStateName = entity.state.fqn.name
-
+    val stateClassName = s"${domainClassName}.${entityStateName}"
     val testkitClassName = s"${entityClassName}TestKit"
 
     s"""$managedCodeCommentString
@@ -85,27 +87,55 @@ object EventSourcedEntityTestKitGenerator {
           |
           |$imports
           |
-          |public class ${testkitClassName} {
+          |/**
+          | * TestKit for unit testing $entityClassName
+          | */
+          |public final class ${testkitClassName} {
           |
-          |  private ${domainClassName}.${entityStateName} state;
-          |  private ${entityClassName} entity;
+          |  private $stateClassName state;
+          |  private $entityClassName entity;
           |  private List<Object> events = new ArrayList<Object>();
-          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<${domainClassName}.${entityStateName}>();
+          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
           |
-          |  public ${testkitClassName}(${entityClassName} entity) {
+          |  /**
+          |   * Create a testkit instance of $entityClassName
+          |   * @param entityFactory A function that creates a $entityClassName based on the given EventSourcedEntityContext,
+          |   *                      a default entity id is used.
+          |   */
+          |  public static $testkitClassName of(Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
+          |    return of("testkit-entity-id", entityFactory);
+          |  }
+          |
+          |  /**
+          |   * Create a testkit instance of $entityClassName with a specific entity id.
+          |   */
+          |  public static $testkitClassName of(String entityId, Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
+          |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+          |  }
+          |
+          |  /** Construction is done through the static $testkitClassName.of-methods */
+          |  private ${testkitClassName}(${entityClassName} entity) {
           |    this.state = entity.emptyState();
           |    this.entity = entity;
           |  }
           |
-          |  public ${testkitClassName}(${entityClassName} entity, ${domainClassName}.${entityStateName} state) {
+          |  public ${testkitClassName}(${entityClassName} entity, $stateClassName state) {
           |    this.state = state;
           |    this.entity = entity;
           |  }
           |
-          |  public ${domainClassName}.${entityStateName} getState() {
+          |  /**
+          |   * @return The current state of the $entityClassName under test
+          |   */
+          |  public $stateClassName getState() {
           |    return state;
           |  }
           |
+          |  /**
+          |   * @return All events that has been emitted by command handlers since the creation of this testkit.
+          |   *         Individual sets of events from a single command handler invokation can be found in the
+          |   *         Result from calling it.
+          |   */
           |  public List<Object> getAllEvents() {
           |    return this.events;
           |  }
@@ -114,22 +144,22 @@ object EventSourcedEntityTestKitGenerator {
           |    return CollectionConverters.asJava(helper.getEvents(effect));
           |  }
           |
-          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ${domainClassName}.${entityStateName} state) {
+          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, $stateClassName state) {
           |    return (Reply) helper.getReply(effect, state);
           |  }
           |
-          |  private ${domainClassName}.${entityStateName} handleEvent(${domainClassName}.${entityStateName} state, Object event) {
+          |  private $stateClassName handleEvent($stateClassName state, Object event) {
           |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
           |  }
           |
-          |  private <Reply> Result<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-          |    List<Object> events = getEvents(effect); 
+          |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+          |    List<Object> events = getEvents(effect);
           |    this.events.add(events);
           |    for(Object e: events) {
           |      this.state = handleEvent(state,e);
           |    }
           |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-          |    return new Result(reply, events);
+          |    return new EventSourcedResult(reply, events);
           |  }
           |
           |  ${Syntax.indent(generateServices(service), 2)}
@@ -150,7 +180,7 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public Result<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
             |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
             |  return interpretEffects(effect);
             |}
@@ -180,6 +210,70 @@ object EventSourcedEntityTestKitGenerator {
         |}""".stripMargin
 
     top + middle.mkString("\n") + bottom
+  }
+
+  def generateTestSources(service: ModelBuilder.EntityService,
+                          entity: ModelBuilder.EventSourcedEntity,
+                          packageName: String): String = {
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      otherImports = Seq(
+        "com.google.protobuf.Empty",
+        "java.util.ArrayList",
+        "java.util.List",
+        "java.util.NoSuchElementException",
+        "scala.jdk.javaapi.CollectionConverters",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
+        "org.junit.Test"
+      )
+    )
+
+    val entityClassName = entity.fqn.name
+    val testkitClassName = s"${entityClassName}TestKit"
+
+    val dummyTestCases = service.commands.map { command =>
+      s"""|@Test
+          |public void ${lowerFirst(command.fqn.name)}Test() {
+          |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+          |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.fqn.name)}(${command.inputType.name}.newBuilder()...build());
+          |}
+          |
+          |""".stripMargin
+    }
+
+    s"""$generatedCodeCommentString
+      |package ${entity.fqn.parent.pkg};
+      |
+      |$imports
+      |
+      |import static org.junit.Assert.*;
+      |
+      |public class ${entityClassName}Test {
+      |
+      |  @Test
+      |  public void exampleTest() {
+      |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+      |    // use the testkit to execute a command
+      |    // of events emitted, or a final updated state:
+      |    // EventSourcedResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+      |    // verify the emitted events
+      |    // ExpectedEvent actualEvent = result.getNextEventOfType(ExpectedEvent.class);
+      |    // assertEquals(expectedEvent, actualEvent)
+      |    // verify the final state after applying the events
+      |    // assertEquals(expectedState, testKit.getState());
+      |    // verify the response
+      |    // SomeResponse actualResponse = result.getReply();
+      |    // assertEquals(expectedResponse, actualResponse);
+      |  }
+      |
+      |  ${Syntax.indent(dummyTestCases, 2)}
+      |
+      |}
+      |""".stripMargin
   }
 
 }

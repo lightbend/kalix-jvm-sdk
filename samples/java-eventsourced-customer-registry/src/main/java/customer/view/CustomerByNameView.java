@@ -9,19 +9,19 @@ import com.akkaserverless.javasdk.view.ViewContext;
 import com.google.protobuf.Any;
 import customer.domain.CustomerDomain;
 
-// <1>
-public class CustomerByNameView extends AbstractCustomerByNameView {
+public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
 
   public CustomerByNameView(ViewContext context) {}
 
   @Override
-  public CustomerDomain.CustomerState emptyState() {
+  public CustomerDomain.CustomerState emptyState() { // <2>
     return null;
   }
 
-  @Override // <2>
+  @Override // <3>
   public UpdateEffect<CustomerDomain.CustomerState> processCustomerCreated(
-    CustomerDomain.CustomerState state, CustomerDomain.CustomerCreated customerCreated) {
+    CustomerDomain.CustomerState state,
+    CustomerDomain.CustomerCreated customerCreated) {
     if (state != null) {
       return updateEffects().ignore(); // already created
     } else {
@@ -31,19 +31,24 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
 
   @Override // <3>
   public UpdateEffect<CustomerDomain.CustomerState> processCustomerNameChanged(
-    CustomerDomain.CustomerState state, CustomerDomain.CustomerNameChanged customerNameChanged) {
-    return updateEffects().updateState(state.toBuilder().setName(customerNameChanged.getNewName()).build());
+    CustomerDomain.CustomerState state,
+    CustomerDomain.CustomerNameChanged customerNameChanged) {
+    return updateEffects().updateState(
+        state.toBuilder().setName(customerNameChanged.getNewName()).build());
   }
 
-  @Override
+  @Override // <3>
   public UpdateEffect<CustomerDomain.CustomerState> processCustomerAddressChanged(
-    CustomerDomain.CustomerState state, CustomerDomain.CustomerAddressChanged customerAddressChanged) {
-    return updateEffects().updateState(state.toBuilder().setAddress(customerAddressChanged.getNewAddress()).build());
+    CustomerDomain.CustomerState state,
+    CustomerDomain.CustomerAddressChanged customerAddressChanged) {
+    return updateEffects().updateState(
+        state.toBuilder().setAddress(customerAddressChanged.getNewAddress()).build());
   }
 
   @Override
   public UpdateEffect<CustomerDomain.CustomerState> ignoreOtherEvents(
-    CustomerDomain.CustomerState state, Any any) {
+    CustomerDomain.CustomerState state,
+    Any any) {
     return updateEffects().ignore();
   }
 }
