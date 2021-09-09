@@ -27,7 +27,7 @@ public class ShoppingCartTest {
 
         ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
-        ValueEntityResult<Empty> testKit.addItem(commandB);
+        ValueEntityResult<Empty> resultB = testKit.addItem(commandB);
         assertEquals(Empty.getDefaultInstance(), resultB.getReply());
 
         ShoppingCartDomain.LineItem expectedLineItemA = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")

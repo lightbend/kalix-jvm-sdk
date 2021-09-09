@@ -20,6 +20,7 @@ import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Syntax
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
+import com.lightbend.akkasls.codegen.java.SourceGenerator.generatedCodeCommentString
 import com.lightbend.akkasls.codegen.java.SourceGenerator.lowerFirst
 import com.lightbend.akkasls.codegen.java.SourceGenerator.managedCodeCommentString
 import com.lightbend.akkasls.codegen.java.SourceGenerator.packageAsPath
@@ -33,6 +34,7 @@ object ValueEntityTestKitGenerator {
                service: ModelBuilder.EntityService,
                testSourceDirectory: Path,
                generatedSourceDirectory: Path): Iterable[Path] = {
+    var generatedFiles: Seq[Path] = Vector.empty
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
     val sourceCode = generateSourceCode(service, entity, packageName)
@@ -42,7 +44,16 @@ object ValueEntityTestKitGenerator {
 
     testKitPath.getParent.toFile.mkdirs()
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
-    List(testKitPath)
+    generatedFiles :+= testKitPath
+
+    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
+    if (!testFilePath.toFile.exists()) {
+      testFilePath.getParent.toFile.mkdirs()
+      Files.write(testFilePath, generateTestSources(service, entity, packageName).getBytes(Charsets.UTF_8))
+      generatedFiles :+= testFilePath
+    }
+
+    generatedFiles
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
@@ -164,6 +175,67 @@ object ValueEntityTestKitGenerator {
        |}""".stripMargin
       }
       .mkString("\n\n")
+  }
+
+  def generateTestSources(service: ModelBuilder.EntityService,
+                          entity: ModelBuilder.ValueEntity,
+                          packageName: String): String = {
+    val imports = generateImports(
+      service.commands,
+      entity.state,
+      packageName,
+      otherImports = Seq(
+        "com.google.protobuf.Empty",
+        "java.util.ArrayList",
+        "java.util.List",
+        "java.util.NoSuchElementException",
+        "scala.jdk.javaapi.CollectionConverters",
+        "com.akkaserverless.javasdk.valueentity.ValueEntity",
+        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+        "com.akkaserverless.javasdk.testkit.ValueEntityResult",
+        "org.junit.Test"
+      )
+    )
+
+    val entityClassName = entity.fqn.name
+    val testkitClassName = s"${entityClassName}TestKit"
+
+    val dummyTestCases = service.commands.map { command =>
+      s"""|@Test
+          |public void ${lowerFirst(command.fqn.name)}Test() {
+          |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+          |  // ValueEntityResult<${command.outputType.name}> result = testKit.${lowerFirst(command.fqn.name)}(${command.inputType.name}.newBuilder()...build());
+          |}
+          |
+          |""".stripMargin
+    }
+
+    s"""$generatedCodeCommentString
+       |package ${entity.fqn.parent.pkg};
+       |
+       |$imports
+       |
+       |import static org.junit.Assert.*;
+       |
+       |public class ${entityClassName}Test {
+       |
+       |  @Test
+       |  public void exampleTest() {
+       |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
+       |    // use the testkit to execute a command
+       |    // of events emitted, or a final updated state:
+       |    // ValueEntityResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+       |    // verify the response
+       |    // SomeResponse actualResponse = result.getReply();
+       |    // assertEquals(expectedResponse, actualResponse);
+       |    // verify the final state after the command
+       |    // assertEquals(expectedState, testKit.getState());
+       |  }
+       |
+       |  ${Syntax.indent(dummyTestCases, 2)}
+       |
+       |}
+       |""".stripMargin
   }
 
 }
