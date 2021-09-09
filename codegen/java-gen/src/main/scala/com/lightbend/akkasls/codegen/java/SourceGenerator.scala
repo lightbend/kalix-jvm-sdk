@@ -84,9 +84,12 @@ object SourceGenerator {
             ) ++
             (entity match {
               case ese: ModelBuilder.EventSourcedEntity =>
-                EventSourcedEntityTestKitGenerator.generate(ese, service, generatedTestSourceDirectory)
+                EventSourcedEntityTestKitGenerator.generate(ese,
+                                                            service,
+                                                            testSourceDirectory,
+                                                            generatedTestSourceDirectory)
               case ve: ModelBuilder.ValueEntity =>
-                ValueEntityTestKitGenerator.generate(ve, service, generatedTestSourceDirectory)
+                ValueEntityTestKitGenerator.generate(ve, service, testSourceDirectory, generatedTestSourceDirectory)
               case re: ModelBuilder.ReplicatedEntity =>
                 // FIXME implement for replicated entity
                 Nil

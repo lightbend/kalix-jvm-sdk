@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.util.NoSuchElementException;
 import com.example.shoppingcart.domain.ShoppingCartTestKit;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
 import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 
 import static org.junit.Assert.assertThrows;
@@ -22,7 +21,7 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        ShoppingCartTestKit testKit = new ShoppingCartTestKit(new ShoppingCart());
+        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
 
         ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("nameA").setQuantity(1).build();

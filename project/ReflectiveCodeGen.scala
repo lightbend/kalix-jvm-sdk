@@ -56,7 +56,7 @@ object ReflectiveCodeGen extends AutoPlugin {
       |    }
       |  
       |  SourceGenerator
-      |    .generate(protobufDescriptor, path, path, path, path, testPath, "com.example.Main")
+      |    .generate(protobufDescriptor, path, testPath, testPath, path, testPath, "com.example.Main")
       |    .map(_.toFile).to[immutable.Seq]
       |}  
       """.stripMargin
