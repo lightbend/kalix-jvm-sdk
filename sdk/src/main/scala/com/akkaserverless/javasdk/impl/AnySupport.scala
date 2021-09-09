@@ -123,6 +123,18 @@ object AnySupport {
     .asInstanceOf[Seq[(String, Primitive[Any])]]
     .toMap
 
+  /**
+   * INTERNAL API
+   */
+  private[akkaserverless] def encodePrimitiveBytes(bytes: ByteString): ByteString =
+    primitiveToBytes(BytesPrimitive, bytes)
+
+  /**
+   * INTERNAL API
+   */
+  private[akkaserverless] def decodePrimitiveBytes(bytes: ByteString): ByteString =
+    bytesToPrimitive(BytesPrimitive, bytes)
+
   private def primitiveToBytes[T](primitive: Primitive[T], value: T): ByteString =
     if (value != primitive.defaultValue) {
       val baos = new ByteArrayOutputStream()
@@ -421,3 +433,17 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)
+
+/**
+ * INTERNAL API
+ */
+// only here to avoid MODULE$ forwarder mess from Java
+private[akkaserverless] object ByteStringEncoding {
+
+  def encodePrimitiveBytes(bytes: ByteString): ByteString =
+    AnySupport.encodePrimitiveBytes(bytes)
+
+  def decodePrimitiveBytes(bytes: ByteString): ByteString =
+    AnySupport.decodePrimitiveBytes(bytes)
+
+}
