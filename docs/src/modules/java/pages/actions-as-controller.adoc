@@ -1,0 +1,52 @@
+= Actions as Controller
+
+Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC Controllers] by
+acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call
+to other components.
+
+== Defining the `proto` file
+
+To illustrate how you can use an Action as a Controller, we will build on top of the xref:value-entity.adoc[Value Entity Counter] example and add
+an Action that will take the incoming `Increase` command, double its value and forward to the request to `Counter` entity.
+
+Note that in this example we are adding an Action to an existing service, the Value Entity Counter service.
+
+[source,protobuf,indent=0]
+.src/main/proto/actions/double-counter.proto
+----
+include::example$valueentity-counter-with-action-controller/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
+----
+<1> Import the Counter API definition
+<2> The Action mimics the Counter API
+
+
+== Implementing the Action
+
+The class `DoubleCounterAction` gets generated for us based on the proto file defined above.
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/DoubleCounterAction.java
+----
+include::example$valueentity-counter-with-action-controller/src/main/java/com/example/actions/DoubleCounterAction.java[tag=double-counter-action]
+----
+
+<1> By default, the code generator will define a constructor accepting a `ActionCreationContext`, we will save it on a field for later use.
+<2> On incoming requests, we double the value of `IncreaseValue`
+<3> To call the Value Entity Service, we need to build a `ServiceCallRef`. For that purpose we use the `serviceCallFactory()` method from the `creationContext`
+<4> Once we have the `ServiceCallRef` we can create a call passing the new `increaseValueDoubled` to it and using is in the `forward`.
+
+== Registering the Action
+
+To make Akka Serverless aware of the Action, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+
+When we add an Action to an existing service, like we did here, the `Main` class needs to be adapted. In this example, we build on top
+of the Value Entity example. Therefore, the generated `AkkaServerlessFactory.withComponents` is now accepting
+two registrations: the `Counter` and the `DoubleCounterAction`, and we need to adapt it.
+
+[source,java]
+./src/main/java/com/example/Main.java
+----
+include::example$valueentity-counter-with-action-controller/src/main/java/com/example/Main.java[tag=registration]
+----
