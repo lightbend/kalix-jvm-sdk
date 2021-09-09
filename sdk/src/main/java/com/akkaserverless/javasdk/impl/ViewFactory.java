@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import com.akkaserverless.javasdk.impl.view.ViewHandler;
+import com.akkaserverless.javasdk.view.ViewCreationContext;
 
 /**
- * Low level interface for handling commands on a value based entity.
+ * Low level interface for handling messages in views.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity} should be used.
+ * com.akkaserverless.javasdk.view.View} should be used.
  */
-public interface ValueEntityFactory {
+public interface ViewFactory {
   /**
-   * Create an entity handler for the given context.
+   * Create a view handler for the given context.
    *
    * @param context The context.
    * @return The handler for the given context.
    */
-  ValueEntityHandler<?, ?> create(ValueEntityContext context);
+  ViewHandler create(ViewCreationContext context);
 }

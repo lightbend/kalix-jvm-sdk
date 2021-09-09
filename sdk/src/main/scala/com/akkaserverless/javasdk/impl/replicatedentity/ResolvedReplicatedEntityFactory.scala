@@ -16,9 +16,9 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
+import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityFactory
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext
 
 class ResolvedReplicatedEntityFactory(delegate: ReplicatedEntityFactory,

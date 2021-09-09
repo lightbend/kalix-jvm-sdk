@@ -18,12 +18,16 @@ package com.akkaserverless.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
-import akka.annotation.ApiMayChange;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.action.ActionProvider;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import com.akkaserverless.javasdk.impl.ActionFactory;
 import com.akkaserverless.javasdk.impl.AnySupport;
+import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory;
+import com.akkaserverless.javasdk.impl.ValueEntityFactory;
+import com.akkaserverless.javasdk.impl.ViewFactory;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
@@ -33,7 +37,6 @@ import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntity
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.javasdk.lowlevel.*;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
@@ -61,13 +64,13 @@ public final class AkkaServerless {
   private ClassLoader classLoader = getClass().getClassLoader();
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
+  private final LowLevelRegistration lowLevel = new LowLevelRegistration();
 
-  public class LowLevelRegistration {
+  private class LowLevelRegistration {
     /**
      * Register an event sourced entity factory.
      *
-     * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-     * implementing the entity.
+     * <p>This is a low level API intended for custom mechanisms for implementing the entity.
      *
      * @param factory The event sourced factory.
      * @param descriptor The descriptor for the service that this entity implements.
@@ -106,8 +109,7 @@ public final class AkkaServerless {
     /**
      * Register an Action handler.
      *
-     * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-     * implementing the action.
+     * <p>This is a low level API intended for custom mechanisms for implementing the action.
      *
      * @param descriptor The descriptor for the service that this action implements.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
@@ -134,8 +136,7 @@ public final class AkkaServerless {
     /**
      * Register a value based entity factory.
      *
-     * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-     * implementing the entity.
+     * <p>This is a low level API intended for custom mechanisms for implementing the entity.
      *
      * @param factory The value based entity factory.
      * @param descriptor The descriptor for the service that this entity implements.
@@ -198,8 +199,7 @@ public final class AkkaServerless {
     /**
      * Register a view factory.
      *
-     * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-     * implementing the view.
+     * <p>This is a low level API intended for custom mechanisms for implementing the view.
      *
      * @param factory The view factory.
      * @param descriptor The descriptor for the service that this entity implements.
@@ -281,13 +281,12 @@ public final class AkkaServerless {
    */
   public <D extends ReplicatedData, E extends ReplicatedEntity<D>> AkkaServerless register(
       ReplicatedEntityProvider<D, E> provider) {
-    return lowLevel()
-        .registerReplicatedEntity(
-            provider::newHandler,
-            provider.serviceDescriptor(),
-            provider.entityType(),
-            provider.options(),
-            provider.additionalDescriptors());
+    return lowLevel.registerReplicatedEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
@@ -300,13 +299,12 @@ public final class AkkaServerless {
    * @return This stateful service builder.
    */
   public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
-    return lowLevel()
-        .registerValueEntity(
-            provider::newHandler,
-            provider.serviceDescriptor(),
-            provider.entityType(),
-            provider.options(),
-            provider.additionalDescriptors());
+    return lowLevel.registerValueEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
@@ -322,13 +320,12 @@ public final class AkkaServerless {
    */
   public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
       EventSourcedEntityProvider<S, E> provider) {
-    return lowLevel()
-        .registerEventSourcedEntity(
-            provider::newHandler,
-            provider.serviceDescriptor(),
-            provider.entityType(),
-            provider.options(),
-            provider.additionalDescriptors());
+    return lowLevel.registerEventSourcedEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
@@ -339,12 +336,11 @@ public final class AkkaServerless {
    * @return This stateful service builder.
    */
   public AkkaServerless register(ViewProvider provider) {
-    return lowLevel()
-        .registerView(
-            provider::newHandler,
-            provider.serviceDescriptor(),
-            provider.viewId(),
-            provider.additionalDescriptors());
+    return lowLevel.registerView(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.viewId(),
+        provider.additionalDescriptors());
   }
 
   /**
@@ -355,16 +351,8 @@ public final class AkkaServerless {
    * @return This stateful service builder.
    */
   public AkkaServerless register(ActionProvider provider) {
-    return lowLevel()
-        .registerAction(
-            provider::newHandler, provider.serviceDescriptor(), provider.additionalDescriptors());
-  }
-  /**
-   * This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the components.
-   */
-  public AkkaServerless.LowLevelRegistration lowLevel() {
-    return new LowLevelRegistration();
+    return lowLevel.registerAction(
+        provider::newHandler, provider.serviceDescriptor(), provider.additionalDescriptors());
   }
 
   /**

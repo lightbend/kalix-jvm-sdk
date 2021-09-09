@@ -17,9 +17,9 @@
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext
+import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 
 class ResolvedEventSourcedEntityFactory(delegate: EventSourcedEntityFactory,
                                         override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])

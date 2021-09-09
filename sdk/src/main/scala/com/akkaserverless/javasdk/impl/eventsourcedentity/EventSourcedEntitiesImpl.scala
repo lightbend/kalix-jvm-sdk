@@ -29,7 +29,6 @@ import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
-import com.akkaserverless.javasdk.lowlevel.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
@@ -45,8 +44,9 @@ import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{Any => JavaPbAny}
-
 import scala.util.control.NonFatal
+
+import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
 
 final class EventSourcedEntityService(val factory: EventSourcedEntityFactory,
                                       override val descriptor: Descriptors.ServiceDescriptor,
