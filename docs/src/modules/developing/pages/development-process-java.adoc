@@ -30,7 +30,7 @@ TIP: Kickstart a project using the xref:java:kickstart.adoc[Java code generation
 [#_implement_components]
 == Implement components
 
-Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions.
+Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and View components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
 
 === Actions
 
@@ -76,6 +76,7 @@ Use Docker to package your service and any of its dependencies. See the followin
 You can test and debug your services by
 xref:java:run-locally.adoc[running them locally] before deploying to Akka Serverless.
 
+[#_deploy_to_akka_serverless]
 == Deploy to Akka Serverless
 
 After testing locally, deploy your service to Akka Serverless using the CLI or the Console. The following pages provide information about deployment:
