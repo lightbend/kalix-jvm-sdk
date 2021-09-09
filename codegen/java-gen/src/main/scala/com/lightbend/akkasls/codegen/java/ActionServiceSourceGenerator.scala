@@ -90,6 +90,14 @@ object ActionServiceSourceGenerator {
   private def isStreamIn(cmd: ModelBuilder.Command): Boolean = cmd.streamedInput && !cmd.streamedOutput
   private def isStreamOut(cmd: ModelBuilder.Command): Boolean = !cmd.streamedInput && cmd.streamedOutput
   private def isStreamInOut(cmd: ModelBuilder.Command): Boolean = cmd.streamedInput && cmd.streamedOutput
+  private def hasStream(cmd: ModelBuilder.Command): Boolean = isStreamIn(cmd) || isStreamOut(cmd) || isStreamInOut(cmd)
+
+  private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
+    if (commands.exists(c => hasStream(c)))
+      "akka.NotUsed" :: "akka.stream.javadsl.Source" :: Nil
+    else
+      Nil
+  }
 
   private[codegen] def actionSource(service: ModelBuilder.ActionService): String = {
 
@@ -100,11 +108,8 @@ object ActionServiceSourceGenerator {
       service.commandTypes,
       packageName,
       otherImports = Seq(
-        "akka.NotUsed",
-        "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.action.ActionCreationContext",
-        "java.util.concurrent.CompletionStage"
-      )
+          "com.akkaserverless.javasdk.action.ActionCreationContext"
+        ) ++ streamImports(service.commands)
     )
 
     val methods = service.commands.map { cmd =>
@@ -176,11 +181,8 @@ object ActionServiceSourceGenerator {
       service.commandTypes,
       packageName,
       otherImports = Seq(
-        "akka.NotUsed",
-        "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.action.Action",
-        "java.util.concurrent.CompletionStage"
-      )
+          "com.akkaserverless.javasdk.action.Action"
+        ) ++ streamImports(service.commands)
     )
 
     val methods = service.commands.map { cmd =>
@@ -273,8 +275,7 @@ object ActionServiceSourceGenerator {
         "akka.stream.javadsl.Source",
         "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.MessageEnvelope",
-        "com.akkaserverless.javasdk.impl.action.ActionHandler",
-        "java.util.concurrent.CompletionStage"
+        "com.akkaserverless.javasdk.impl.action.ActionHandler"
       )
     )
 
