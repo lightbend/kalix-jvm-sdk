@@ -16,12 +16,21 @@
 
 package com.akkaserverless.javasdk.impl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 
-/** Mark annotation for all AkkaServerless annotations */
-@Target(ElementType.ANNOTATION_TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface AkkaServerlessAnnotation {}
+/**
+ * Low level interface for handling commands on a value based entity.
+ *
+ * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
+ * com.akkaserverless.javasdk.valueentity.ValueEntity} should be used.
+ */
+public interface ValueEntityFactory {
+  /**
+   * Create an entity handler for the given context.
+   *
+   * @param context The context.
+   * @return The handler for the given context.
+   */
+  ValueEntityHandler<?, ?> create(ValueEntityContext context);
+}

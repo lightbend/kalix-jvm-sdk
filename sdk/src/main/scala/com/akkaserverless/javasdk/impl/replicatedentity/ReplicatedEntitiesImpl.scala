@@ -24,7 +24,6 @@ import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandResult
-import com.akkaserverless.javasdk.lowlevel.ReplicatedEntityFactory
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.{ComponentOptions, Context, Metadata, Service, ServiceCallFactory}
 import com.akkaserverless.protocol.entity.Command
@@ -33,8 +32,9 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.Descriptors
-
 import scala.util.control.NonFatal
+
+import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
 
 final class ReplicatedEntityService(
     val factory: ReplicatedEntityFactory,

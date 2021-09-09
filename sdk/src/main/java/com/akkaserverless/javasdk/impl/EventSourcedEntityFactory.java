@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.view.ViewCreationContext;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
 
 /**
- * Low level interface for handling messages in views.
+ * Low level interface for handling events and commands on an entity.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * com.akkaserverless.javasdk.view.View} should be used.
+ * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity} should be used.
  */
-public interface ViewFactory {
+public interface EventSourcedEntityFactory {
   /**
-   * Create a view handler for the given context.
+   * Create an entity handler for the given context.
    *
    * @param context The context.
    * @return The handler for the given context.
    */
-  ViewHandler create(ViewCreationContext context);
+  EventSourcedEntityHandler<?, ?> create(EventSourcedEntityContext context);
 }

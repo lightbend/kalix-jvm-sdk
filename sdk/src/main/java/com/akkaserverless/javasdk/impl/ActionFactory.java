@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.lowlevel;
+package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+import com.akkaserverless.javasdk.action.Action;
+import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.akkaserverless.javasdk.impl.action.ActionHandler;
 
 /**
- * Low level interface for handling commands on a replicated entity.
+ * Low level interface to implement {@link Action} components.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * ReplicatedEntity} should be used.
+ * Action} should be used.
  */
-public interface ReplicatedEntityFactory {
-  /**
-   * Create an entity handler for the given context.
-   *
-   * @param context The context.
-   * @return The handler for the given context.
-   */
-  ReplicatedEntityHandler<?, ?> create(ReplicatedEntityContext context);
+public interface ActionFactory {
+  ActionHandler<?> create(ActionCreationContext context);
 }
