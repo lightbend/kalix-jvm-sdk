@@ -1,0 +1,43 @@
+// tag::domain[]
+// These are the messages that get persisted - the events, plus the current
+// state (Cart) for snapshots.
+
+syntax = "proto3";
+
+package com.example.shoppingcart.domain; // <1>
+
+import "akkaserverless/annotations.proto"; // <2>
+
+option java_outer_classname = "ShoppingCartDomain"; // <3>
+
+// tag::event_sourced_entity[]
+// Describes how this domain relates to an event sourced entity
+option (akkaserverless.file).event_sourced_entity = { // <4>
+  name: "ShoppingCart" // <5>
+  entity_type: "shopping-cart" // <6>
+  state: "Cart" // <7>
+  events: ["ItemAdded", "ItemRemoved"] // <8>
+};
+// end::event_sourced_entity[]
+
+message LineItem {
+  string productId = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+// The item added event.
+message ItemAdded {
+  LineItem item = 1;
+}
+
+// The item removed event.
+message ItemRemoved {
+  string productId = 1;
+}
+
+// The shopping cart state.
+message Cart {
+  repeated LineItem items = 1;
+}
+// end::domain[]
