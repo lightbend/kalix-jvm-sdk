@@ -25,10 +25,6 @@ import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
-import com.akkaserverless.javasdk.valueentity.ValueEntity
-
-import java.util.Optional
 
 /**
  * Internal API, called from generated testkit classes.
@@ -55,29 +51,6 @@ class AkkaServerlessTestKitHelper[S] {
           case er: ErrorReplyImpl[R @unchecked] => throw new NotImplementedError(er.toString)
           case nr: NoReply[R @unchecked] => throw new IllegalStateException("This effect does not include a reply")
           case NoSecondaryEffectImpl => throw new IllegalStateException("This effect does not include a reply")
-        }
-    }
-  }
-
-  def getReply[R](effect: ValueEntity.Effect[R]): R = {
-    effect match {
-      case ve: ValueEntityEffectImpl[S] =>
-        ve.secondaryEffect match {
-          case mri: MessageReplyImpl[R @unchecked] => mri.message
-          case fr: ForwardReplyImpl[R @unchecked] => throw new NotImplementedError(fr.toString)
-          case er: ErrorReplyImpl[R @unchecked] => throw new NotImplementedError(er.toString)
-          case nr: NoReply[R @unchecked] => throw new IllegalStateException("This effect does not include a reply")
-          case NoSecondaryEffectImpl => throw new IllegalStateException("This effect does not include a reply")
-        }
-    }
-  }
-
-  def updatedStateFrom(effect: ValueEntity.Effect[_]): Optional[Any] = {
-    effect match {
-      case ve: ValueEntityEffectImpl[_] =>
-        ve.primaryEffect match {
-          case ValueEntityEffectImpl.UpdateState(s) => Optional.of(s)
-          case _ => Optional.empty()
         }
     }
   }

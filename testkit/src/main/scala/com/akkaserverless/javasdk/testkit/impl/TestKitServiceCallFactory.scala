@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.ServiceCallRef
+import com.akkaserverless.javasdk.testkit.ServiceCallDetails
 import com.google.protobuf
 import com.google.protobuf.Descriptors
 
@@ -28,7 +29,7 @@ import com.google.protobuf.Descriptors
  */
 object TestKitServiceCallFactory extends ServiceCallFactory {
 
-  private class TestKitServiceCallRef[T](serviceName: String, methodName: String, messageType: Class[T])
+  private class TestKitServiceCallRef[T](val serviceName: String, val methodName: String, messageType: Class[T])
       extends ServiceCallRef[T] {
     // never expected to be called while unittesting
     override def method(): Descriptors.MethodDescriptor =
@@ -38,8 +39,17 @@ object TestKitServiceCallFactory extends ServiceCallFactory {
       new TestKitServiceCall[T](this, message, metadata)
   }
 
-  private class TestKitServiceCall[T](override val ref: TestKitServiceCallRef[T], message: T, metadata: Metadata)
-      extends ServiceCall {
+  final class TestKitServiceCall[T](ref: TestKitServiceCallRef[T], message: T, metadata: Metadata)
+      extends ServiceCall
+      with ServiceCallDetails[T] {
+
+    // public API for inspection
+    override def getServiceName: String = ref.serviceName
+    override def getMethodName: String = ref.methodName
+    override def getMessage: T = message
+    override def getMetadata: Metadata = metadata
+
+    override def ref(): ServiceCallRef[_] = ref
     // never expected to be called while unittesting
     override def message(): protobuf.Any =
       throw new UnsupportedOperationException("Not supported by the testkit")
