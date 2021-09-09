@@ -4,7 +4,7 @@ include::ROOT:partial$include.adoc[]
 include::partial$actions.adoc[]
 
 
-== Defining the `proto` files
+== Defining the `proto` file
 
 An Action may implement any service method defined in a Protobuf definition. In this first example, we will show how to
 implement an Action as a pure stateless function. We will define a `FibonacciAction` that takes a number and return the
@@ -68,7 +68,7 @@ The Source may publish an arbitrary number of replies.
 ifdef::todo[TODO: add a streamed Fib series calculation]
 
 
-== Registering the Aciton
+== Registering the Action
 
 To make Akka Serverless aware of the Action, we need to register it with the service.
 
@@ -84,4 +84,4 @@ By default, the generated constructor has a `ActionCreationContext` parameter, b
 If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the 
 factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
-When more components are added the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.
+When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.

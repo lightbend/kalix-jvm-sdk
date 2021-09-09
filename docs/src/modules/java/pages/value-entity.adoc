@@ -109,9 +109,9 @@ From the code-generation, the registration gets automatically inserted in the ge
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/Main.java[]
+include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
 ----
 
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
-When more components are added the `AkkaServerlessFactory` is regenerated and you have to adjust the registration from the `Main` class.
+When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
