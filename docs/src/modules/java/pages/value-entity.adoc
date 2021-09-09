@@ -53,7 +53,7 @@ include::example$valueentity-counter/src/main/proto/value-entities/counter_api.p
 
 == Implementing behavior
 
-A Value Entity implementation is a Java class where you define how each command is implemented. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the `Counter.java` file exist, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
+A Value Entity implementation is a Java class where you define how each command is handled. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the `Counter.java` file exist, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
 
 [source,java]
 .src/main/java/com/example/domain/Counter.java
