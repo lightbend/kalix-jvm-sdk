@@ -40,103 +40,123 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     val expected =
       """/* This code is managed by Akka Serverless tooling.
-      | * It will be re-generated to reflect any changes to your protobuf definitions.
-      | * DO NOT EDIT
-      | */
-      |package com.example.shoppingcart.domain;
-      |
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-      |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-      |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
-      |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-      |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
-      |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-      |import com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext;
-      |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
-      |import com.example.shoppingcart.domain.ShoppingCartDomain;
-      |import com.google.protobuf.Empty;
-      |import java.util.ArrayList;
-      |import java.util.List;
-      |import java.util.NoSuchElementException;
-      |import java.util.function.Function;
-      |import scala.jdk.javaapi.CollectionConverters;
-      |
-      |public final class ShoppingCartTestKit {
-      |
-      |  private ShoppingCartDomain.Cart state;
-      |  private ShoppingCart entity;
-      |  private List<Object> events = new ArrayList<Object>();
-      |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
-      |
-      |  public static ShoppingCartTestKit of(Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
-      |    return of("testkit-entity-id", entityFactory);
-      |  }
-      |
-      |  public static ShoppingCartTestKit of(String entityId, Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
-      |    return new ShoppingCartTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
-      |  }
-      |
-      |  public ShoppingCartTestKit(ShoppingCart entity) {
-      |    this.state = entity.emptyState();
-      |    this.entity = entity;
-      |  }
-      |
-      |  public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
-      |    this.state = state;
-      |    this.entity = entity;
-      |  }
-      |
-      |  public ShoppingCartDomain.Cart getState() {
-      |    return state;
-      |  }
-      |
-      |  public List<Object> getAllEvents() {
-      |    return this.events;
-      |  }
-      |
-      |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
-      |    return CollectionConverters.asJava(helper.getEvents(effect));
-      |  }
-      |
-      |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
-      |    return (Reply) helper.getReply(effect, state);
-      |  }
-      |
-      |  private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
-      |    if (event instanceof ShoppingCartDomain.ItemAdded) {
-      |      return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
-      |    } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
-      |      return entity.itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
-      |    } else {
-      |      throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
-      |    }
-      |  }
-      |
-      |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-      |    List<Object> events = getEvents(effect); 
-      |    this.events.add(events);
-      |    for(Object e: events) {
-      |      this.state = handleEvent(state,e);
-      |    }
-      |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-      |    return new EventSourcedResult(reply, events);
-      |  }
-      |
-      |  public EventSourcedResult<Empty> addItem(ShoppingCartApi.AddLineItem command) {
-      |    EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
-      |    return interpretEffects(effect);
-      |  }
-      |
-      |  public EventSourcedResult<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
-      |    EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
-      |    return interpretEffects(effect);
-      |  }
-      |
-      |  public EventSourcedResult<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
-      |    EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
-      |    return interpretEffects(effect);
-      |  }
-      |}""".stripMargin
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */
+        |package com.example.shoppingcart.domain;
+        |
+        |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+        |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+        |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
+        |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
+        |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
+        |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
+        |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
+        |import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
+        |import com.example.shoppingcart.domain.ShoppingCartDomain;
+        |import com.google.protobuf.Empty;
+        |import java.util.ArrayList;
+        |import java.util.List;
+        |import java.util.NoSuchElementException;
+        |import java.util.function.Function;
+        |import scala.jdk.javaapi.CollectionConverters;
+        |
+        |/**
+        | * TestKit for unit testing ShoppingCart
+        | */
+        |public final class ShoppingCartTestKit {
+        |
+        |  private ShoppingCartDomain.Cart state;
+        |  private ShoppingCart entity;
+        |  private List<Object> events = new ArrayList<Object>();
+        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
+        |
+        |  /**
+        |   * Create a testkit instance of ShoppingCart
+        |   * @param entityFactory A function that creates a ShoppingCart based on the given EventSourcedEntityContext,
+        |   *                      a default entity id is used.
+        |   */
+        |  public static ShoppingCartTestKit of(Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
+        |    return of("testkit-entity-id", entityFactory);
+        |  }
+        |
+        |  /**
+        |   * Create a testkit instance of ShoppingCart with a specific entity id.
+        |   */
+        |  public static ShoppingCartTestKit of(String entityId, Function<EventSourcedEntityContext, ShoppingCart> entityFactory) {
+        |    return new ShoppingCartTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+        |  }
+        |
+        |  /** Construction is done through the static ShoppingCartTestKit.of-methods */
+        |  private ShoppingCartTestKit(ShoppingCart entity) {
+        |    this.state = entity.emptyState();
+        |    this.entity = entity;
+        |  }
+        |
+        |  public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
+        |    this.state = state;
+        |    this.entity = entity;
+        |  }
+        |
+        |  /**
+        |   * @return The current state of the ShoppingCart under test
+        |   */
+        |  public ShoppingCartDomain.Cart getState() {
+        |    return state;
+        |  }
+        |
+        |  /**
+        |   * @return All events that has been emitted by command handlers since the creation of this testkit.
+        |   *         Individual sets of events from a single command handler invokation can be found in the
+        |   *         Result from calling it.
+        |   */
+        |  public List<Object> getAllEvents() {
+        |    return this.events;
+        |  }
+        |
+        |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
+        |    return CollectionConverters.asJava(helper.getEvents(effect));
+        |  }
+        |
+        |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
+        |    return (Reply) helper.getReply(effect, state);
+        |  }
+        |
+        |  private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
+        |    if (event instanceof ShoppingCartDomain.ItemAdded) {
+        |      return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
+        |    } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
+        |      return entity.itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
+        |    } else {
+        |      throw new NoSuchElementException("Unknown event type [" + event.getClass() + "]");
+        |    }
+        |  }
+        |
+        |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
+        |    List<Object> events = getEvents(effect);
+        |    this.events.add(events);
+        |    for(Object e: events) {
+        |      this.state = handleEvent(state,e);
+        |    }
+        |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
+        |    return new EventSourcedResult(reply, events);
+        |  }
+        |
+        |  public EventSourcedResult<Empty> addItem(ShoppingCartApi.AddLineItem command) {
+        |    EventSourcedEntity.Effect<Empty> effect = entity.addItem(state, command);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public EventSourcedResult<Empty> removeItem(ShoppingCartApi.RemoveLineItem command) {
+        |    EventSourcedEntity.Effect<Empty> effect = entity.removeItem(state, command);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public EventSourcedResult<ShoppingCartApi.Cart> getCart(ShoppingCartApi.GetShoppingCart command) {
+        |    EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
+        |    return interpretEffects(effect);
+        |  }
+        |}""".stripMargin
 
     assertNoDiff(sourceCode, expected)
   }

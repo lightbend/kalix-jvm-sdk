@@ -71,7 +71,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
-        "com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext",
+        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
         "java.util.function.Function"
       )
     )
@@ -87,6 +87,9 @@ object EventSourcedEntityTestKitGenerator {
           |
           |$imports
           |
+          |/**
+          | * TestKit for unit testing $entityClassName
+          | */
           |public final class ${testkitClassName} {
           |
           |  private $stateClassName state;
@@ -94,15 +97,24 @@ object EventSourcedEntityTestKitGenerator {
           |  private List<Object> events = new ArrayList<Object>();
           |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
           |
+          |  /**
+          |   * Create a testkit instance of $entityClassName
+          |   * @param entityFactory A function that creates a $entityClassName based on the given EventSourcedEntityContext,
+          |   *                      a default entity id is used.
+          |   */
           |  public static $testkitClassName of(Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
           |    return of("testkit-entity-id", entityFactory);
           |  }
           |
+          |  /**
+          |   * Create a testkit instance of $entityClassName with a specific entity id.
+          |   */
           |  public static $testkitClassName of(String entityId, Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
           |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
           |  }
           |
-          |  public ${testkitClassName}(${entityClassName} entity) {
+          |  /** Construction is done through the static $testkitClassName.of-methods */
+          |  private ${testkitClassName}(${entityClassName} entity) {
           |    this.state = entity.emptyState();
           |    this.entity = entity;
           |  }
@@ -112,10 +124,18 @@ object EventSourcedEntityTestKitGenerator {
           |    this.entity = entity;
           |  }
           |
+          |  /**
+          |   * @return The current state of the $entityClassName under test
+          |   */
           |  public $stateClassName getState() {
           |    return state;
           |  }
           |
+          |  /**
+          |   * @return All events that has been emitted by command handlers since the creation of this testkit.
+          |   *         Individual sets of events from a single command handler invokation can be found in the
+          |   *         Result from calling it.
+          |   */
           |  public List<Object> getAllEvents() {
           |    return this.events;
           |  }
@@ -133,7 +153,7 @@ object EventSourcedEntityTestKitGenerator {
           |  }
           |
           |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-          |    List<Object> events = getEvents(effect); 
+          |    List<Object> events = getEvents(effect);
           |    this.events.add(events);
           |    for(Object e: events) {
           |      this.state = handleEvent(state,e);
@@ -207,12 +227,7 @@ object EventSourcedEntityTestKitGenerator {
         "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
-        "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
-        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
-        "com.akkaserverless.javasdk.testkit.TestKitEventSourcedEntityContext",
         "org.junit.Test"
       )
     )

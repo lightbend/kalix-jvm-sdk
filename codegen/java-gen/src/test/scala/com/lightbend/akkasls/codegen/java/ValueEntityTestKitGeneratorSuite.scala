@@ -48,9 +48,9 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
-        |import com.akkaserverless.javasdk.testkit.TestKitValueEntityContext;
         |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
         |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
+        |import com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
@@ -61,21 +61,33 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import java.util.function.Function;
         |import scala.jdk.javaapi.CollectionConverters;
         |
+        |/**
+        | * TestKit for unit testing ShoppingCart
+        | */
         |public final class ShoppingCartTestKit {
         |
         |  private ShoppingCartDomain.Cart state;
         |  private ShoppingCart entity;
         |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
         |
+        |  /**
+        |   * Create a testkit instance of ShoppingCart
+        |   * @param entityFactory A function that creates a ShoppingCart based on the given ValueEntityContext,
+        |   *                      a default entity id is used.
+        |   */
         |  public static ShoppingCartTestKit of(Function<ValueEntityContext, ShoppingCart> entityFactory) {
         |    return of("testkit-entity-id", entityFactory);
         |  }
         |
+        |  /**
+        |   * Create a testkit instance of ShoppingCart with a specific entity id.
+        |   */
         |  public static ShoppingCartTestKit of(String entityId, Function<ValueEntityContext, ShoppingCart> entityFactory) {
         |    return new ShoppingCartTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)));
         |  }
         |
-        |  public ShoppingCartTestKit(ShoppingCart entity) {
+        |  /** Construction is done through the static ShoppingCartTestKit.of-methods */
+        |  private ShoppingCartTestKit(ShoppingCart entity) {
         |    this.state = entity.emptyState();
         |    this.entity = entity;
         |  }
@@ -85,6 +97,9 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    this.entity = entity;
         |  }
         |
+        |  /**
+        |   * @return The current state of the ShoppingCart under test
+        |   */
         |  public ShoppingCartDomain.Cart getState() {
         |    return state;
         |  }

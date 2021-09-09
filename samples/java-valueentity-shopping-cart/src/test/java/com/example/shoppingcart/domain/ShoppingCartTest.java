@@ -23,14 +23,15 @@ public class ShoppingCartTest {
         ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("nameA").setQuantity(1).build();
         ValueEntityResult<Empty> resultA = testKit.addItem(commandA);
+        assertEquals(Empty.getDefaultInstance(), resultA.getReply());
 
         ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
-        testKit.addItem(commandB);
-        assertEquals(Empty.getDefaultInstance(), resultA.getReply());
+        ValueEntityResult<Empty> testKit.addItem(commandB);
+        assertEquals(Empty.getDefaultInstance(), resultB.getReply());
 
         ShoppingCartDomain.LineItem expectedLineItemA = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")
-                .setName("nameA").setQuantity(1).build();        
+                .setName("nameA").setQuantity(1).build();
         ShoppingCartDomain.LineItem expectedLineItemB = ShoppingCartDomain.LineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
         ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder()

@@ -65,7 +65,7 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
-        "com.akkaserverless.javasdk.testkit.TestKitValueEntityContext",
+        "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"
       )
     )
@@ -82,21 +82,33 @@ object ValueEntityTestKitGenerator {
        |
        |$imports
        |
+       |/**
+       | * TestKit for unit testing $entityClassName
+       | */
        |public final class ${testkitClassName} {
        |
        |  private $stateClassName state;
        |  private $entityClassName entity;
        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
        |
+       |  /**
+       |   * Create a testkit instance of $entityClassName
+       |   * @param entityFactory A function that creates a $entityClassName based on the given ValueEntityContext,
+       |   *                      a default entity id is used.
+       |   */
        |  public static $testkitClassName of(Function<ValueEntityContext, $entityClassName> entityFactory) {
        |    return of("testkit-entity-id", entityFactory);
        |  }
        |
+       |  /**
+       |   * Create a testkit instance of $entityClassName with a specific entity id.
+       |   */
        |  public static $testkitClassName of(String entityId, Function<ValueEntityContext, $entityClassName> entityFactory) {
        |    return new $testkitClassName(entityFactory.apply(new TestKitValueEntityContext(entityId)));
        |  }
        |
-       |  public ${testkitClassName}($entityClassName entity) {
+       |  /** Construction is done through the static $testkitClassName.of-methods */
+       |  private ${testkitClassName}($entityClassName entity) {
        |    this.state = entity.emptyState();
        |    this.entity = entity;
        |  }
@@ -106,6 +118,9 @@ object ValueEntityTestKitGenerator {
        |    this.entity = entity;
        |  }
        |
+       |  /**
+       |   * @return The current state of the $entityClassName under test
+       |   */
        |  public $stateClassName getState() {
        |    return state;
        |  }
