@@ -7,7 +7,7 @@ to other components.
 == Defining the `proto` file
 
 To illustrate how you can use an Action as a Controller, we will build on top of the xref:value-entity.adoc[Value Entity Counter] example and add
-an Action that will take the incoming `Increase` command, double its value and forward to the request to `Counter` entity.
+an Action that will take the incoming `Increase` command, double its value and forward the request to a `Counter` entity.
 
 Note that in this example we are adding an Action to an existing service, the Value Entity Counter service.
 
