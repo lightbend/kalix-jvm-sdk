@@ -259,6 +259,12 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION' - FIXME disabled for codegen/API work"
             # TODO: enable integration tests with -Pit
             # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+      - run:
+          name: Replicated Entity examples
+          command: |
+            cd samples/replicatedentity-examples
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - save_deps_cache
 
   publish:

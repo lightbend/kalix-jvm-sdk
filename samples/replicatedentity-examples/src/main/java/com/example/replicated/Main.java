@@ -3,12 +3,18 @@
  * You are free to make changes to this file.
  */
 
-package com.example.shoppingcart;
+package com.example.replicated;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.example.shoppingcart.domain.ShoppingCart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.example.replicated.counter.domain.SomeCounter;
+import com.example.replicated.countermap.domain.SomeCounterMap;
+import com.example.replicated.map.domain.SomeMap;
+import com.example.replicated.multimap.domain.SomeMultiMap;
+import com.example.replicated.register.domain.SomeRegister;
+import com.example.replicated.registermap.domain.SomeRegisterMap;
+import com.example.replicated.set.domain.SomeSet;
 
 public final class Main {
 
@@ -19,7 +25,14 @@ public final class Main {
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
-    return AkkaServerlessFactory.withComponents(ShoppingCart::new);
+    return AkkaServerlessFactory.withComponents(
+      SomeMap::new,
+      SomeRegisterMap::new,
+      SomeRegister::new,
+      SomeCounterMap::new,
+      SomeCounter::new,
+      SomeSet::new,
+      SomeMultiMap::new);
   }
 
   public static void main(String[] args) throws Exception {
