@@ -39,6 +39,7 @@ message Address {
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
 }
+// end::method-messages[]
 
 message ChangeNameRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
@@ -49,7 +50,7 @@ message ChangeAddressRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
   Address new_address = 2;
 }
-// end::method-messages[]
+
 // tag::service[]
 service CustomerService {
   option (akkaserverless.service) = {
@@ -59,10 +60,12 @@ service CustomerService {
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
 
+  rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
+
+  // end::service[]
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
 
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
-
-  rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
+  // tag::service[]
 }
 // end::service[]
