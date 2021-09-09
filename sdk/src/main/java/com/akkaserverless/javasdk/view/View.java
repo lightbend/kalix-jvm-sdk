@@ -41,7 +41,7 @@ public abstract class View<S> {
     updateContext = context;
   }
 
-  protected final UpdateEffect.Builder<S> updateEffects() {
+  protected final UpdateEffect.Builder<S> effects() {
     return ViewUpdateEffectImpl.builder();
   }
 

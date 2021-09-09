@@ -21,6 +21,6 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
 
     @Override
     public UpdateEffect<CustomerDomain.CustomerState> updateCustomer(CustomerDomain.CustomerState state, CustomerDomain.CustomerState customerState) {
-        return updateEffects().updateState(customerState);
+        return effects().updateState(customerState);
     }
 }
