@@ -1,10 +1,14 @@
 package com.example.json;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class JsonKeyValueMessage {
   public final String key;
   public final int value;
 
- public JsonKeyValueMessage(String key, int value) {
+ @JsonCreator
+ public JsonKeyValueMessage(@JsonProperty("key") String key, @JsonProperty("value") int value) {
   this.key = key;
   this.value = value;
  }
