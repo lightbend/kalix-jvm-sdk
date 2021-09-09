@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static java.util.concurrent.TimeUnit.*;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// tag::sample-it-test[]
 public class CounterIntegrationTest {
     
   /**
@@ -44,6 +45,7 @@ public class CounterIntegrationTest {
               .toCompletableFuture().get(2, SECONDS);
       assertThat(reply.getValue(), is(42));
   }
+  // end::sample-it-test[]
   
   @Test
   public void increase() throws Exception {

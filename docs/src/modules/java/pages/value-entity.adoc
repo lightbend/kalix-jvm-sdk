@@ -115,3 +115,30 @@ include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=reg
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
 When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+== Testing the Entity
+
+There are two ways to test a Value Entity, unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit and integration tests with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
+
+Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests on the other hand are more realistic and allow many entities, interaction with other components inside and outside of the service, for example actual publishing to a pub/sub topic.
+
+=== Unit tests
+
+To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the testkit to execute commands in the entity, get a `Result` back and assert the effects that the command led to.
+
+[source,java]
+./src/test/java/com/example/domain/CounterTest.java
+----
+include::example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
+----
+
+
+=== Integration tests
+FIXME text
+
+
+[source,java]
+./src/test/java/com/example/domain/CounterTest.java
+----
+include::example$valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
+----
