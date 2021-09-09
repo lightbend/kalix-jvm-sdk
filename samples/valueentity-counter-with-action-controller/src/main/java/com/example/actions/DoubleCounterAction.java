@@ -11,16 +11,26 @@ import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
 // tag::double-counter-action[]
-/** An action. */
+
+/**
+ * An action.
+ */
 public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
-  private final ActionCreationContext creationContext; // <1>
+  private final ServiceCallRef<CounterApi.IncreaseValue> callRef;
 
   public DoubleCounterAction(ActionCreationContext creationContext) {
-    this.creationContext = creationContext;
+    this.callRef =
+        creationContext.serviceCallFactory() // <1>
+            .lookup(
+                "com.example.CounterService",
+                "Increase",
+                CounterApi.IncreaseValue.class);
   }
 
-  /** Handler for "Increase". */
+  /**
+   * Handler for "Increase".
+   */
   @Override
   public Effect<Empty> increase(CounterApi.IncreaseValue increaseValue) {
 
@@ -28,14 +38,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build(); // <2>
 
-    ServiceCallRef<CounterApi.IncreaseValue> callRef = // <3>
-        creationContext.serviceCallFactory()
-          .lookup(
-              "com.example.CounterService",
-              "Increase",
-              CounterApi.IncreaseValue.class);
-
-    return effects().forward(callRef.createCall(increaseValueDoubled)); // <4>
+    return effects().forward(callRef.createCall(increaseValueDoubled)); // <3>
   }
 }
 // end::double-counter-action[]
