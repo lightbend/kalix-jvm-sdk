@@ -20,7 +20,7 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
-        ctx -> new ShoppingCart()
+        ShoppingCart::new
     );
   }
 
