@@ -211,6 +211,12 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
+          name: Doc snippets
+          command: |
+            cd samples/doc-snippets
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+      - run:
           name: Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry

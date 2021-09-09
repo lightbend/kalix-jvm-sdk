@@ -1,12 +1,12 @@
 = Serialization options for Java services
 
 include::ROOT:partial$include.adoc[]
-include::partial$serialization.adoc[]
 
-Akka Serverless functions serve gRPC interfaces, and the input and output messages get serialized to the `protobuf` format. However, in addition to these messages, Akka Serverless serializes other objects for persistence such as Event Sourced events and Entity snapshots. Akka Serverless supports `protobuf`, primitive type, and JSON serialization options for these values.
+You do not need to handle serialization for messages. Akka Serverless functions serve gRPC interfaces, and the input and output messages are `protobuf` messages that get serialized to the `protobuf` format.
 
-By default, Akka Serverless detects and handles `protobuf`, so we recommend using that unless you have requirements that are better met by using JSON.
+The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:proto.adoc#_transcoding_http[Transcoding HTTP].
 
+For messages consumed from or published to topics it can be needed to use another format than `protobuf`. Akka Serverless provides a utility to serialize and deserialize JSON messages.
 
 == Primitive types
 
@@ -41,11 +41,29 @@ Akka Serverless supports serializing the following primitive types:
 
 == JSON
 
-Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON. Any classes that are annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/Jsonable.html[`@Jsonable`] will be serialized to and from JSON using Jackson.
+Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
 
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
 
+[source,proto,indent=0]
+.src/main/proto/actions/json_api.proto
+----
+include::java:example$doc-snippets/src/main/proto/actions/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
 
+NOTE: The `type_url` in the `google.protobuf.Any` must start with `json.akkaserverless.com/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
 
-////
-Note that if you are using JSON values in CRDT sets or maps, the serialization of these values **must** be stable. This means you must not use maps or sets in your value, and you should define an explicit ordering for the fields in your objects, using the http://fasterxml.github.io/jackson-annotations/javadoc/2.9/com/fasterxml/jackson/annotation/JsonPropertyOrder.html[`@JsonPropertyOrder`] annotation. This constraint is explained in xref:developing:crdts.adoc[Using Replicated Entities].
-////
+The corresponding implementation class:
+
+[source,java,indent=0]
+.src/main/java/com/example/json/MyServiceAction.java
+----
+include::java:example$doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+----
+<1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
+<3> Encode the Java class `JsonKeyValueMessage` to JSON.
+
+Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
