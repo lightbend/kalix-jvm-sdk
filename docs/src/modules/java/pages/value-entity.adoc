@@ -124,7 +124,7 @@ Each way has its benefits, unit tests are faster and provide more immediate feed
 
 === Unit tests
 
-To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the testkit to execute commands in the entity, get a `Result` back and assert the effects that the command led to.
+To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the testkit to execute commands in the entity, get a `ValueEntityResult` back and assert the effects that the command led to, both the reply itself and the update to the state of the Entity.
 
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java
@@ -132,13 +132,18 @@ To unit test the Entity a test kit class to use is generated as well as an examp
 include::example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
 ----
 
+The unit tests can be run from maven using `mvn test` or if you prefer from inside your IDE the same way you usually run tests.
 
 === Integration tests
-FIXME text
 
+An example integration test class to start from is also generated for you. It uses an `AkkaServerlessTestkitResource` to start docker containers and interacts with the entity with an actual gRPC client.
 
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java
 ----
 include::example$valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
 ----
+
+The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
+
+Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also mean they take a bit more time to execute compared to the unit tests which are completely local and does not involve networking.

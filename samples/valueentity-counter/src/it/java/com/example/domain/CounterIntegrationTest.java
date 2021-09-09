@@ -16,7 +16,7 @@ import static org.hamcrest.CoreMatchers.*;
 
 import static java.util.concurrent.TimeUnit.*;
 
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::sample-it-test[]
 public class CounterIntegrationTest {
     
