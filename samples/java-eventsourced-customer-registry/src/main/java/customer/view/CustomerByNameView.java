@@ -23,9 +23,9 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
     CustomerDomain.CustomerState state,
     CustomerDomain.CustomerCreated customerCreated) {
     if (state != null) {
-      return updateEffects().ignore(); // already created
+      return effects().ignore(); // already created
     } else {
-      return updateEffects().updateState(customerCreated.getCustomer());
+      return effects().updateState(customerCreated.getCustomer());
     }
   }
 
@@ -33,7 +33,7 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
   public UpdateEffect<CustomerDomain.CustomerState> processCustomerNameChanged(
     CustomerDomain.CustomerState state,
     CustomerDomain.CustomerNameChanged customerNameChanged) {
-    return updateEffects().updateState(
+    return effects().updateState(
         state.toBuilder().setName(customerNameChanged.getNewName()).build());
   }
 
@@ -41,7 +41,7 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
   public UpdateEffect<CustomerDomain.CustomerState> processCustomerAddressChanged(
     CustomerDomain.CustomerState state,
     CustomerDomain.CustomerAddressChanged customerAddressChanged) {
-    return updateEffects().updateState(
+    return effects().updateState(
         state.toBuilder().setAddress(customerAddressChanged.getNewAddress()).build());
   }
 
@@ -49,7 +49,7 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
   public UpdateEffect<CustomerDomain.CustomerState> ignoreOtherEvents(
     CustomerDomain.CustomerState state,
     Any any) {
-    return updateEffects().ignore();
+    return effects().ignore();
   }
 }
 // end::process-events[]

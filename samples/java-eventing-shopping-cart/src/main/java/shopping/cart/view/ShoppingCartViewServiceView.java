@@ -27,7 +27,7 @@ public class ShoppingCartViewServiceView extends AbstractShoppingCartViewService
       String cartId = state.getCartId();
       int newNumberOfItems = state.getNumberOfItems() + itemAdded.getItem().getQuantity();
       LOG.info("Cart {} has {} items", cartId, newNumberOfItems);
-      return updateEffects()
+      return effects()
           .updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
     } else {
       String cartId =
@@ -39,7 +39,7 @@ public class ShoppingCartViewServiceView extends AbstractShoppingCartViewService
                   });
       int newNumberOfItems = itemAdded.getItem().getQuantity();
       LOG.info("New cart {} has {} items", cartId, newNumberOfItems);
-      return updateEffects()
+      return effects()
           .updateState(
               ShoppingCartViewModel.CartViewState.newBuilder()
                   .setCartId(cartId)
@@ -54,7 +54,7 @@ public class ShoppingCartViewServiceView extends AbstractShoppingCartViewService
       throw new IllegalArgumentException(
           "Cannot remove item from unknown cart " + updateContext().eventSubject());
     int newNumberOfItems = state.getNumberOfItems() - itemRemoved.getQuantity();
-    return updateEffects()
+    return effects()
         .updateState(state.toBuilder().setNumberOfItems(newNumberOfItems).build());
   }
   @Override
@@ -63,7 +63,7 @@ public class ShoppingCartViewServiceView extends AbstractShoppingCartViewService
     if (state == null)
       throw new IllegalArgumentException(
           "Cannot check out unknown cart " + updateContext().eventSubject());
-    return updateEffects()
+    return effects()
         .updateState(
             state.toBuilder().setCheckedOutTimestamp(checkedOut.getCheckedOutTimestamp()).build());
   }
