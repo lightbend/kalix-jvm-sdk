@@ -151,8 +151,8 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decrement(long)">decrement</a></span>&#8203;(long&nbsp;by)</code></th>
+<td class="colFirst"><code><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decrement(long)">decrement</a></span>&#8203;(long&nbsp;amount)</code></th>
 <td class="colLast">
 <div class="block">Decrement the counter.</div>
 </td>
@@ -165,8 +165,8 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#increment(long)">increment</a></span>&#8203;(long&nbsp;by)</code></th>
+<td class="colFirst"><code><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#increment(long)">increment</a></span>&#8203;(long&nbsp;amount)</code></th>
 <td class="colLast">
 <div class="block">Increment the counter.</div>
 </td>
@@ -198,7 +198,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <div class="block">Get the current value of the counter.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The current value of the counter.</dd>
+<dd>the current value of the counter</dd>
 </dl>
 </li>
 </ul>
@@ -208,15 +208,16 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <ul class="blockList">
 <li class="blockList">
 <h4>increment</h4>
-<pre class="methodSignature">long&nbsp;increment&#8203;(long&nbsp;by)</pre>
+<pre class="methodSignature"><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&nbsp;increment&#8203;(long&nbsp;amount)</pre>
 <div class="block">Increment the counter.
 
- <p>If <code>by</code> is negative, then the counter will be decremented by that much instead.</div>
+ <p>If <code>amount</code> is negative, then the counter will be decremented by that much
+ instead.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>by</code> - The amount to increment the counter by.</dd>
+<dd><code>amount</code> - the amount to increment the counter by</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new value of the counter.</dd>
+<dd>a new counter with incremented value</dd>
 </dl>
 </li>
 </ul>
@@ -226,15 +227,16 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>decrement</h4>
-<pre class="methodSignature">long&nbsp;decrement&#8203;(long&nbsp;by)</pre>
+<pre class="methodSignature"><a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&nbsp;decrement&#8203;(long&nbsp;amount)</pre>
 <div class="block">Decrement the counter.
 
- <p>If <code>by</code> is negative, then the counter will be incremented by that much instead.</div>
+ <p>If <code>amount</code> is negative, then the counter will be incremented by that much
+ instead.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>by</code> - The amount to decrement the counter by.</dd>
+<dd><code>amount</code> - the amount to decrement the counter by</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new value of the counter.</dd>
+<dd>a new counter with decremented value</dd>
 </dl>
 </li>
 </ul>

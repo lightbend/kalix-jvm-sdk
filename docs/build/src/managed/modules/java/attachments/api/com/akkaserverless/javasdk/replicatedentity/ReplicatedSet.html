@@ -27,6 +27,12 @@
     catch(err) {
     }
 //-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -91,7 +97,7 @@ loadScripts(document, 'script');</script>
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -110,7 +116,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.akkaserverless.javasdk.replicatedentity</a></div>
-<h2 title="Interface ReplicatedSet" class="title">Interface ReplicatedSet&lt;T&gt;</h2>
+<h2 title="Interface ReplicatedSet" class="title">Interface ReplicatedSet&lt;E&gt;</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -118,15 +124,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of elements.</dd>
+<dd><code>E</code> - The type of elements.</dd>
 </dl>
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code>java.util.Collection&lt;T&gt;</code>, <code>Iterable&lt;T&gt;</code>, <code><a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></code>, <code>java.util.Set&lt;T&gt;</code></dd>
+<dd><code>Iterable&lt;E&gt;</code>, <code><a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">ReplicatedSet&lt;T&gt;</span>
-extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>, java.util.Set&lt;T&gt;</pre>
+<pre>public interface <span class="typeNameLabel">ReplicatedSet&lt;E&gt;</span>
+extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>, Iterable&lt;E&gt;</pre>
 <div class="block">A Replicated Set that allows both the addition and removal of elements in a set.
 
  <p><pA removal can only be done if all of the additions that added the key have been seen by this
@@ -155,26 +161,293 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.java.util.Collection">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;java.util.Collection</h3>
-<code>parallelStream, removeIf, stream, toArray</code></li>
-</ul>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#add(E)">add</a></span>&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</code></th>
+<td class="colLast">
+<div class="block">Add an element to this set if it is not already present.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAll(java.util.Collection)">addAll</a></span>&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</code></th>
+<td class="colLast">
+<div class="block">Add elements to this set if they're not already present.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Remove all elements from this set.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(E)">contains</a></span>&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</code></th>
+<td class="colLast">
+<div class="block">Check whether this set contains the given element.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAll(java.util.Collection)">containsAll</a></span>&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</code></th>
+<td class="colLast">
+<div class="block">Check whether this set contains all the given elements.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>java.util.Set&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elements()">elements</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Elements of this set as a regular <code>Set</code>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEmpty()">isEmpty</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Check whether this set is empty.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(E)">remove</a></span>&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</code></th>
+<td class="colLast">
+<div class="block">Remove an element from this set if it is present.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAll(java.util.Collection)">removeAll</a></span>&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</code></th>
+<td class="colLast">
+<div class="block">Remove elements from this set if they're present.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#retainAll(java.util.Collection)">retainAll</a></span>&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</code></th>
+<td class="colLast">
+<div class="block">Retain only the elements that are contained in the given collection.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Get the number of elements in this set (its cardinality).</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.Iterable">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;java.lang.Iterable</h3>
-<code>forEach</code></li>
+<code>forEach, iterator, spliterator</code></li>
 </ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.java.util.Set">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;java.util.Set</h3>
-<code>add, addAll, clear, contains, containsAll, equals, hashCode, isEmpty, iterator, remove, removeAll, retainAll, size, spliterator, toArray, toArray</code></li>
+<h3>Method Detail</h3>
+<a id="size()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>size</h4>
+<pre class="methodSignature">int&nbsp;size()</pre>
+<div class="block">Get the number of elements in this set (its cardinality).</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the number of elements in the set</dd>
+</dl>
+</li>
+</ul>
+<a id="isEmpty()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isEmpty</h4>
+<pre class="methodSignature">boolean&nbsp;isEmpty()</pre>
+<div class="block">Check whether this set is empty.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> if this set contains no elements</dd>
+</dl>
+</li>
+</ul>
+<a id="elements()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>elements</h4>
+<pre class="methodSignature">java.util.Set&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements()</pre>
+<div class="block">Elements of this set as a regular <code>Set</code>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>elements as <code>Set</code></dd>
+</dl>
+</li>
+</ul>
+<a id="contains(java.lang.Object)">
+<!--   -->
+</a><a id="contains(E)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contains</h4>
+<pre class="methodSignature">boolean&nbsp;contains&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</pre>
+<div class="block">Check whether this set contains the given element.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>element</code> - element whose presence in this set is to be tested</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> if this set contains the specified element</dd>
+</dl>
+</li>
+</ul>
+<a id="add(java.lang.Object)">
+<!--   -->
+</a><a id="add(E)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>add</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;add&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</pre>
+<div class="block">Add an element to this set if it is not already present.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>element</code> - element to be added to this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new set with the additional element, or this unchanged set</dd>
+</dl>
+</li>
+</ul>
+<a id="remove(java.lang.Object)">
+<!--   -->
+</a><a id="remove(E)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;remove&#8203;(<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&nbsp;element)</pre>
+<div class="block">Remove an element from this set if it is present.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>element</code> - element to be removed from this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new set without the removed element, or this unchanged set</dd>
+</dl>
+</li>
+</ul>
+<a id="containsAll(java.util.Collection)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>containsAll</h4>
+<pre class="methodSignature">boolean&nbsp;containsAll&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</pre>
+<div class="block">Check whether this set contains all the given elements.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>elements</code> - collection to be checked for containment in this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> if this set contains all the given elements</dd>
+</dl>
+</li>
+</ul>
+<a id="addAll(java.util.Collection)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAll</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;addAll&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</pre>
+<div class="block">Add elements to this set if they're not already present.
+
+ <p>Effectively the <i>union</i> of two sets.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>elements</code> - collection containing elements to be added to this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new set with the additional elements, or this unchanged set</dd>
+</dl>
+</li>
+</ul>
+<a id="retainAll(java.util.Collection)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>retainAll</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;retainAll&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</pre>
+<div class="block">Retain only the elements that are contained in the given collection.
+
+ <p>Effectively the <i>intersection</i> of two sets.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>elements</code> - collection containing elements to be retained in this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new set with the retained elements, or this unchanged set</dd>
+</dl>
+</li>
+</ul>
+<a id="removeAll(java.util.Collection)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAll</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;removeAll&#8203;(java.util.Collection&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;elements)</pre>
+<div class="block">Remove elements from this set if they're present.
+
+ <p>Effectively the <i>asymmetric set difference</i> of two sets.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>elements</code> - collection containing elements to be removed from this set</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new set without the removed elements, or this unchanged set</dd>
+</dl>
+</li>
+</ul>
+<a id="clear()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>clear</h4>
+<pre class="methodSignature"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;&nbsp;clear()</pre>
+<div class="block">Remove all elements from this set.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new empty set</dd>
+</dl>
+</li>
 </ul>
 </li>
 </ul>
@@ -236,7 +509,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

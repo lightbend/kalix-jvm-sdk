@@ -1,66 +1,88 @@
+/* This code was initialised by Akka Serverless tooling.
+ * As long as this file exists it will not be re-generated.
+ * You are free to make changes to this file.
+ */
+
 package com.example.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.valueentity.*;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
+
 
 // tag::class[]
 /**
  * A Counter represented as a value entity.
  */
-@ValueEntity(entityType = "counter") // <1>
-public class Counter extends AbstractCounter {
+public class Counter extends AbstractCounter { // <1>
+
+    // end::class[]
     @SuppressWarnings("unused")
+    // tag::class[]
     private final String entityId;
 
-    public Counter(@EntityId String entityId) { // <2>
-        this.entityId = entityId;
+    public Counter(ValueEntityContext context) {
+        this.entityId = context.entityId();
     }
-// end::class[]
+
+    @Override
+    public CounterDomain.CounterState emptyState() { // <2>
+      return CounterDomain.CounterState.getDefaultInstance();
+    }
+    // end::class[]
 
     // tag::increase[]
     @Override
-    public Reply<Empty> increase(CounterApi.IncreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        if (command.getValue() < 0) { // <1>
-            throw ctx.fail("Increase requires a positive value. It was [" + command.getValue() + "].");
-        }
-        CounterDomain.CounterState state = ctx.getState() // <2>
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build()); // <3>
-        CounterDomain.CounterState newState =  // <4>
-                state.toBuilder().setValue(state.getValue() + command.getValue()).build();
-        ctx.updateState(newState); // <5>
-        return Reply.message(Empty.getDefaultInstance());
+    public Effect<Empty> increase(
+        CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
+      if (command.getValue() < 0) { // <1>
+        return effects().error("Increase requires a positive value. It was [" +
+            command.getValue() + "].");
+      }
+      CounterDomain.CounterState newState =  // <2>
+              currentState.toBuilder().setValue(currentState.getValue() +
+                  command.getValue()).build();
+      return effects()
+              .updateState(newState) // <3>
+              .thenReply(Empty.getDefaultInstance());  // <4>
     }
-// end::increase[]
+    // end::increase[]
 
     @Override
-    public Reply<Empty> decrease(CounterApi.DecreaseValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        if (command.getValue() < 0) {
-            throw ctx.fail("Decrease requires a positive value. It was [" + command.getValue() + "].");
-        }
-        CounterDomain.CounterState state = ctx.getState()
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
-        ctx.updateState(state.toBuilder().setValue(state.getValue() - command.getValue()).build());
-        return Reply.message(Empty.getDefaultInstance());
+    public Effect<Empty> decrease(
+            CounterDomain.CounterState currentState,
+            CounterApi.DecreaseValue command) {
+      if (command.getValue() < 0) {
+        return effects().error("Decrease requires a positive value. It was [" +
+            command.getValue() + "].");
+      }
+      CounterDomain.CounterState newState =
+          currentState.toBuilder().setValue(currentState.getValue() -
+              command.getValue()).build();
+      return effects()
+          .updateState(newState)
+          .thenReply(Empty.getDefaultInstance());
     }
-
+    
     @Override
-    public Reply<Empty> reset(CounterApi.ResetValue command, CommandContext<CounterDomain.CounterState> ctx) {
-        CounterDomain.CounterState state = ctx.getState()
-                .orElseGet(() -> CounterDomain.CounterState.newBuilder().build());
-        ctx.updateState(state.toBuilder().setValue(0).build());
-        return Reply.message(Empty.getDefaultInstance());
+    public Effect<Empty> reset(
+        CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
+      CounterDomain.CounterState newState =
+          currentState.toBuilder().setValue(0).build();
+      return effects()
+          .updateState(newState)
+          .thenReply(Empty.getDefaultInstance());
     }
-
+    
     // tag::getCurrentCounter[]
     @Override
-    public Reply<CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter command, CommandContext<CounterDomain.CounterState> ctx) {
-        CounterApi.CurrentCounter current = ctx.getState() // <1>
-                .map((state) -> CounterApi.CurrentCounter.newBuilder().setValue(state.getValue()).build()) // <2>
-                .orElseGet(() -> CounterApi.CurrentCounter.newBuilder().setValue(0).build()); // <3>
-        return Reply.message(current);
+    public Effect<CounterApi.CurrentCounter> getCurrentCounter(
+            CounterDomain.CounterState currentState, // <1>
+            CounterApi.GetCounter command) {
+        CounterApi.CurrentCounter current =
+                CounterApi.CurrentCounter.newBuilder()
+                    .setValue(currentState.getValue()).build(); // <2>
+        return effects().reply(current);
     }
     // end::getCurrentCounter[]
 }

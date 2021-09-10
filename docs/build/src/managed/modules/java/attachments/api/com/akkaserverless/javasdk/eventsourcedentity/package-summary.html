@@ -99,14 +99,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region"><a id="package.description">
 <!--   -->
 </a>
-<div class="block">Event Sourced Entity support.
-
- <p>Event Sourced Entities can be annotated with the <a href="EventSourcedEntity.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>@EventSourcedEntity</code></a> annotation,
- and supply command handlers using the <a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>@CommandHandler</code></a> annotation.
-
- <p>In addition, <a href="EventHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>@EventHandler</code></a>
- annotated methods should be defined to handle events, and <a href="Snapshot.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>@Snapshot</code></a> and <a href="SnapshotHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>@SnapshotHandler</code></a> annotated methods
- should be defined to produce and handle snapshots respectively.</div>
+<div class="block">Event Sourced Entity support.</div>
 </section>
 <ul class="blockList">
 <li class="blockList">
@@ -130,27 +123,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="EventSourcedContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedContext</a></th>
+<th class="colFirst" scope="row"><a href="EventSourcedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;T&gt;</th>
 <td class="colLast">
-<div class="block">Root context for all event sourcing contexts.</div>
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="EventSourcedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityCreationContext</a></th>
+<th class="colFirst" scope="row"><a href="EventSourcedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a>&lt;S&gt;</th>
 <td class="colLast">
-<div class="block">Creation context for <a href="EventSourcedEntity.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntity</code></a> annotated entities.</div>
+<div class="block">Construct the effect that is returned by the command handler.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="EventSourcedEntityFactory.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityFactory</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling events and commands on an entity.</div>
-</td>
+<th class="colFirst" scope="row"><a href="EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="EventSourcedEntityHandler.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityHandler</a></th>
+<th class="colFirst" scope="row"><a href="EventSourcedEntityContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityContext</a></th>
 <td class="colLast">
-<div class="block">Low level interface for handling events and commands on an entity.</div>
+<div class="block">Root context for all event sourcing contexts.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -160,9 +151,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="SnapshotContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">SnapshotContext</a></th>
+<th class="colFirst" scope="row"><a href="EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;S,&#8203;E extends <a href="EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;&gt;</th>
 <td class="colLast">
-<div class="block">A snapshot context.</div>
+<div class="block">Register an event sourced entity in <a href="../AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a
+ <code>EventSourcedEntityProvider</code>.</div>
 </td>
 </tr>
 </tbody>
@@ -170,41 +162,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity">CommandHandler</a></th>
-<td class="colLast">
-<div class="block">Marks a method as a command handler.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="EventHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity">EventHandler</a></th>
-<td class="colLast">
-<div class="block">Marks a method as an event handler.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="EventSourcedEntity.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a></th>
-<td class="colLast">
-<div class="block">An event sourced entity.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="Snapshot.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity">Snapshot</a></th>
-<td class="colLast">
-<div class="block">Marks a method as a snapshot method.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="SnapshotHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity">SnapshotHandler</a></th>
-<td class="colLast">
-<div class="block">Marks a method as a snapshot handler.</div>
-</td>
+<th class="colFirst" scope="row"><a href="EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>

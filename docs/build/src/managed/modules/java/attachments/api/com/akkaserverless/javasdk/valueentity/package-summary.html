@@ -99,11 +99,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region"><a id="package.description">
 <!--   -->
 </a>
-<div class="block">Value Entity support.
-
- <p>Value Entities can be annotated with the <a href="ValueEntity.html" title="annotation in com.akkaserverless.javasdk.valueentity"><code>@ValueEntity</code></a> annotation, and supply command
- handlers using the <a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.valueentity"><code>@CommandHandler</code></a>
- annotation.</div>
+<div class="block">Value Entity support.</div>
 </section>
 <ul class="blockList">
 <li class="blockList">
@@ -115,33 +111,31 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a>&lt;T&gt;</th>
+<th class="colFirst" scope="row"><a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a></th>
 <td class="colLast">
 <div class="block">A value based entity command context.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ValueEntityContext.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityContext</a></th>
+<th class="colFirst" scope="row"><a href="ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;</th>
 <td class="colLast">
-<div class="block">Root context for all value based entity contexts.</div>
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ValueEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityCreationContext</a></th>
+<th class="colFirst" scope="row"><a href="ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;S&gt;</th>
 <td class="colLast">
-<div class="block">Creation context for <a href="ValueEntity.html" title="annotation in com.akkaserverless.javasdk.valueentity"><code>ValueEntity</code></a> annotated entities.</div>
+<div class="block">Construct the effect that is returned by the command handler.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ValueEntityFactory.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityFactory</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling commands on a value based entity.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ValueEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ValueEntityHandler.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityHandler</a></th>
+<th class="colFirst" scope="row"><a href="ValueEntityContext.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityContext</a></th>
 <td class="colLast">
-<div class="block">Low level interface for handling commands on a value based entity.</div>
+<div class="block">Root context for all value based entity contexts.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -150,28 +144,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Root entity options for all value based entities.</div>
 </td>
 </tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a>&lt;S,&#8203;E extends <a href="ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;S&gt;&gt;</th>
+<td class="colLast">
+<div class="block">Register a value based entity in <a href="../AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a <code>
+ ValueEntityProvider</code>.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.valueentity">CommandHandler</a></th>
-<td class="colLast">
-<div class="block">Marks a method on a value based entity as a command handler.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ValueEntity.html" title="annotation in com.akkaserverless.javasdk.valueentity">ValueEntity</a></th>
-<td class="colLast">
-<div class="block">A value based entity.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>

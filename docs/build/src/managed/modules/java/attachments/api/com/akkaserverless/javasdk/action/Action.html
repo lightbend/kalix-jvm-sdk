@@ -27,6 +27,12 @@
     catch(err) {
     }
 //-->
+var data = {"i0":10,"i1":10,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -82,14 +88,16 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Required&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Element</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -108,17 +116,185 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.akkaserverless.javasdk.action</a></div>
-<h2 title="Annotation Type Action" class="title">Annotation Type Action</h2>
+<h2 title="Class Action" class="title">Class Action</h2>
 </div>
 <div class="contentContainer">
+<ul class="inheritance">
+<li>Object</li>
+<li>
+<ul class="inheritance">
+<li>com.akkaserverless.javasdk.action.Action</li>
+</ul>
+</li>
+</ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>@Target(TYPE)
-@Retention(RUNTIME)
-public @interface <span class="memberNameLabel">Action</span></pre>
-<div class="block">An action.</div>
+<pre>public abstract class <span class="typeNameLabel">Action</span>
+extends Object</pre>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.Effect.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect</a>&lt;<a href="Action.Effect.html" title="type parameter in Action.Effect">T</a>&gt;</span></code></th>
+<td class="colLast">
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Action</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#_internalSetActionContext(java.util.Optional)">_internalSetActionContext</a></span>&#8203;(java.util.Optional&lt;<a href="ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a>&gt;&nbsp;context)</code></th>
+<td class="colLast">
+<div class="block">INTERNAL API</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#actionContext()">actionContext</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Additional context and metadata for a message handler.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#effects()">effects</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Action</h4>
+<pre>public&nbsp;Action()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="actionContext()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>actionContext</h4>
+<pre class="methodSignature">protected final&nbsp;<a href="ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a>&nbsp;actionContext()</pre>
+<div class="block">Additional context and metadata for a message handler.
+
+ <p>It will throw an exception if accessed from constructor.</div>
+</li>
+</ul>
+<a id="_internalSetActionContext(java.util.Optional)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_internalSetActionContext</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;_internalSetActionContext&#8203;(java.util.Optional&lt;<a href="ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a>&gt;&nbsp;context)</pre>
+<div class="block">INTERNAL API</div>
+</li>
+</ul>
+<a id="effects()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>effects</h4>
+<pre class="methodSignature">public final&nbsp;<a href="Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a>&nbsp;effects()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 </li>
 </ul>
 </div>
@@ -167,14 +343,16 @@ public @interface <span class="memberNameLabel">Action</span></pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Required&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Element</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

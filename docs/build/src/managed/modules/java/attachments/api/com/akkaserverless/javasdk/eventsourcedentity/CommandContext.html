@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6};
+var data = {"i0":6,"i1":6,"i2":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -124,16 +124,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a></code>, <code><a href="../Context.html" title="interface in com.akkaserverless.javasdk">Context</a></code>, <code><a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a></code>, <code><a href="../EntityContext.html" title="interface in com.akkaserverless.javasdk">EntityContext</a></code>, <code><a href="EventSourcedContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedContext</a></code>, <code><a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></code></dd>
+<dd><code><a href="../Context.html" title="interface in com.akkaserverless.javasdk">Context</a></code>, <code><a href="../EntityContext.html" title="interface in com.akkaserverless.javasdk">EntityContext</a></code>, <code><a href="EventSourcedEntityContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityContext</a></code>, <code><a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">CommandContext</span>
-extends <a href="EventSourcedContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedContext</a>, <a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a>, <a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a>, <a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></pre>
-<div class="block">An event sourced command context.
-
- <p>Methods annotated with <a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>CommandHandler</code></a> may take this is a parameter. It allows emitting
- new events in response to a command, along with forwarding the result to other entities, and
- performing side effects on other entities.</div>
+extends <a href="EventSourcedEntityContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityContext</a>, <a href="../MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></pre>
+<div class="block">An event sourced command context.</div>
 </li>
 </ul>
 </div>
@@ -169,13 +165,6 @@ extends <a href="EventSourcedContext.html" title="interface in com.akkaserverles
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#emit(java.lang.Object)">emit</a></span>&#8203;(Object&nbsp;event)</code></th>
-<td class="colLast">
-<div class="block">Emit the given event.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sequenceNumber()">sequenceNumber</a></span>()</code></th>
 <td class="colLast">
@@ -184,25 +173,11 @@ extends <a href="EventSourcedContext.html" title="interface in com.akkaserverles
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.ClientActionContext">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.akkaserverless.javasdk.<a href="../ClientActionContext.html" title="interface in com.akkaserverless.javasdk">ClientActionContext</a></h3>
-<code><a href="../ClientActionContext.html#fail(java.lang.String)">fail</a>, <a href="../ClientActionContext.html#forward(com.akkaserverless.javasdk.ServiceCall)">forward</a></code></li>
-</ul>
-<ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.Context">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.akkaserverless.javasdk.<a href="../Context.html" title="interface in com.akkaserverless.javasdk">Context</a></h3>
 <code><a href="../Context.html#serviceCallFactory()">serviceCallFactory</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.EffectContext">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.akkaserverless.javasdk.<a href="../EffectContext.html" title="interface in com.akkaserverless.javasdk">EffectContext</a></h3>
-<code><a href="../EffectContext.html#effect(com.akkaserverless.javasdk.ServiceCall)">effect</a>, <a href="../EffectContext.html#effect(com.akkaserverless.javasdk.ServiceCall,boolean)">effect</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.akkaserverless.javasdk.EntityContext">
@@ -265,7 +240,7 @@ extends <a href="EventSourcedContext.html" title="interface in com.akkaserverles
 <a id="commandId()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>commandId</h4>
 <pre class="methodSignature">long&nbsp;commandId()</pre>
@@ -273,21 +248,6 @@ extends <a href="EventSourcedContext.html" title="interface in com.akkaserverles
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The id of the command.</dd>
-</dl>
-</li>
-</ul>
-<a id="emit(java.lang.Object)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>emit</h4>
-<pre class="methodSignature">void&nbsp;emit&#8203;(Object&nbsp;event)</pre>
-<div class="block">Emit the given event. The event will be persisted, and the handler of the event defined in the
- current behavior will immediately be executed to pick it up.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>event</code> - The event to emit.</dd>
 </dl>
 </li>
 </ul>

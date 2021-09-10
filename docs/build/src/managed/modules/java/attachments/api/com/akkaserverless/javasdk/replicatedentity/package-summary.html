@@ -101,13 +101,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <div class="block">Replicated Entity support.
 
- <p>Replicated Entities can be annotated with the <a href="ReplicatedEntity.html" title="annotation in com.akkaserverless.javasdk.replicatedentity"><code>@ReplicatedEntity</code></a> annotation, and
- supply command handlers using the <a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.replicatedentity"><code>@CommandHandler</code></a> annotation.
-
- <p>The data stored by a replicated entity can be stored in a subtype of <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a>. These can be created using a <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a>, which is a super-interface of
- both the <a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityCreationContext</code></a>,
- available for injection constructors, and of the <a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>CommandContext</code></a>, available for injection in
- <code>@CommandHandler</code> annotated methods.</div>
+ <p>The data stored by a replicated entity can be stored in a subtype of <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a>. These can be created using a <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a>.</div>
 </section>
 <ul class="blockList">
 <li class="blockList">
@@ -121,7 +115,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">CommandContext</a></th>
 <td class="colLast">
-<div class="block">Context for handling a command.</div>
+<div class="block">Command context for Replicated Entity.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -149,27 +143,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a></th>
+<th class="colFirst" scope="row"><a href="ReplicatedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect</a>&lt;R&gt;</th>
 <td class="colLast">
-<div class="block">Root context for all Replicated Entity contexts.</div>
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ReplicatedEntityCreationContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityCreationContext</a></th>
+<th class="colFirst" scope="row"><a href="ReplicatedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a>&lt;D&gt;</th>
 <td class="colLast">
-<div class="block">Context for Replicated Entity creation.</div>
+<div class="block">Construct the effect that is returned by the command handler.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ReplicatedEntityHandler.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityHandler</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling Replicated Entity commands.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ReplicatedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.OnSuccessBuilder</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ReplicatedEntityHandlerFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityHandlerFactory</a></th>
+<th class="colFirst" scope="row"><a href="ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a></th>
 <td class="colLast">
-<div class="block">Low level interface for handling commands for replicated entities.</div>
+<div class="block">Root context for all Replicated Entity contexts.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -179,40 +171,94 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
+<th class="colFirst" scope="row"><a href="ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>,&#8203;E extends <a href="ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;</th>
 <td class="colLast">
-<div class="block">A Replicated Map that allows both the addition and removal of objects in a map.</div>
+<div class="block">Register a value based entity in <a href="../AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a <code>
+  ReplicatedEntityProvider</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
+<td class="colLast">
+<div class="block">A Replicated Map that allows both the addition and removal of <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> objects.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;K,&#8203;V&gt;</th>
 <td class="colLast">
 <div class="block">A replicated map that maps keys to values, where each key may be associated with multiple values.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">A Last-Write-Wins Register.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;K,&#8203;V&gt;</th>
 <td class="colLast">
 <div class="block">A Map of registers.</div>
 </td>
 </tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;T&gt;</th>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;E&gt;</th>
 <td class="colLast">
 <div class="block">A Replicated Set that allows both the addition and removal of elements in a set.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="Vote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">Vote</a></th>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedVote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedVote</a></th>
 <td class="colLast">
 <div class="block">A Vote replicated data type.</div>
 </td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedCounterEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterEntity</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedCounterMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMapEntity</a>&lt;K&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedMapEntity</a>&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedMultiMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMapEntity</a>&lt;K,&#8203;V&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedRegisterEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterEntity</a>&lt;T&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedRegisterMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMapEntity</a>&lt;K,&#8203;V&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ReplicatedSetEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedSetEntity</a>&lt;T&gt;</th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReplicatedVoteEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedVoteEntity</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -228,36 +274,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a></th>
 <td class="colLast">
-<div class="block">A clock.</div>
+<div class="block">Clock for register replication</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a></th>
 <td class="colLast">
 <div class="block">Write consistency setting for replication of state updates for Replicated Entities.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li class="blockList">
-<table class="typeSummary">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Annotation Type</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="CommandHandler.html" title="annotation in com.akkaserverless.javasdk.replicatedentity">CommandHandler</a></th>
-<td class="colLast">
-<div class="block">Marks a method as a command handler.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ReplicatedEntity.html" title="annotation in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a></th>
-<td class="colLast">
-<div class="block">A replicated entity.</div>
 </td>
 </tr>
 </tbody>

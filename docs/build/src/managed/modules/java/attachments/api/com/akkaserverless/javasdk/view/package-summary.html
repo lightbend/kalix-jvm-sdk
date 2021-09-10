@@ -96,14 +96,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h1 title="Package" class="title">Package&nbsp;com.akkaserverless.javasdk.view</h1>
 </div>
 <div class="contentContainer">
-<section role="region"><a id="package.description">
-<!--   -->
-</a>
-<div class="block">View support.
-
- <p>Views can be annotated with the <a href="View.html" title="annotation in com.akkaserverless.javasdk.view"><code>@View</code></a> annotation,
- and supply handlers using the <a href="UpdateHandler.html" title="annotation in com.akkaserverless.javasdk.view"><code>@UpdateHandler</code></a> annotation.</div>
-</section>
 <ul class="blockList">
 <li class="blockList">
 <table class="typeSummary">
@@ -114,10 +106,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="UpdateHandlerContext.html" title="interface in com.akkaserverless.javasdk.view">UpdateHandlerContext</a></th>
+<th class="colFirst" scope="row"><a href="UpdateContext.html" title="interface in com.akkaserverless.javasdk.view">UpdateContext</a></th>
 <td class="colLast">
 <div class="block">Context for view update calls.</div>
 </td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="View.UpdateEffect.html" title="interface in com.akkaserverless.javasdk.view">View.UpdateEffect</a>&lt;S&gt;</th>
+<td class="colLast">
+<div class="block">Construct the effect that is returned by the command handler.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="View.UpdateEffect.Builder.html" title="interface in com.akkaserverless.javasdk.view">View.UpdateEffect.Builder</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ViewContext.html" title="interface in com.akkaserverless.javasdk.view">ViewContext</a></th>
@@ -128,44 +130,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="ViewCreationContext.html" title="interface in com.akkaserverless.javasdk.view">ViewCreationContext</a></th>
 <td class="colLast">
-<div class="block">Creation context for <a href="View.html" title="annotation in com.akkaserverless.javasdk.view"><code>View</code></a> annotated entities.</div>
+<div class="block">Creation context for <a href="View.html" title="class in com.akkaserverless.javasdk.view"><code>View</code></a> annotated entities.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ViewFactory.html" title="interface in com.akkaserverless.javasdk.view">ViewFactory</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling messages in views.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ViewUpdateHandler.html" title="interface in com.akkaserverless.javasdk.view">ViewUpdateHandler</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling messages on views.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a>&lt;S,&#8203;V extends <a href="View.html" title="class in com.akkaserverless.javasdk.view">View</a>&lt;S&gt;&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>
 </li>
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="UpdateHandler.html" title="annotation in com.akkaserverless.javasdk.view">UpdateHandler</a></th>
-<td class="colLast">
-<div class="block">A view service call handler for transforming updates.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="View.html" title="annotation in com.akkaserverless.javasdk.view">View</a></th>
-<td class="colLast">
-<div class="block">Transformation of incoming messages and previous state to updated state can be implemented in a
- class annotated with <code>@View</code>.</div>
-</td>
+<th class="colFirst" scope="row"><a href="View.html" title="class in com.akkaserverless.javasdk.view">View</a>&lt;S&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>

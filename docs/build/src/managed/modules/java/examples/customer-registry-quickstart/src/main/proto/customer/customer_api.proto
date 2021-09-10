@@ -21,7 +21,6 @@ option java_outer_classname = "CustomerApi";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-
 // end::declarations[]
 // tag::messages[]
 message Customer {
@@ -35,12 +34,12 @@ message Address {
   string street = 1;
   string city = 2;
 }
-
 // end::messages[]
 // tag::method-messages[]
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
 }
+// end::method-messages[]
 
 message ChangeNameRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
@@ -52,7 +51,6 @@ message ChangeAddressRequest {
   Address new_address = 2;
 }
 
-// end::method-messages[]
 // tag::service[]
 service CustomerService {
   option (akkaserverless.service) = {
@@ -62,10 +60,12 @@ service CustomerService {
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
 
+  rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
+
+  // end::service[]
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
 
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
-
-  rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
+  // tag::service[]
 }
 // end::service[]

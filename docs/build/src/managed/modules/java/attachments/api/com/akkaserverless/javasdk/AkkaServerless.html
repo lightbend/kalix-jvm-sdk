@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -210,157 +210,54 @@ extends Object</pre>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerAction(com.akkaserverless.javasdk.action.ActionHandler,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">registerAction</a></span>&#8203;(<a href="action/ActionHandler.html" title="interface in com.akkaserverless.javasdk.action">ActionHandler</a>&nbsp;actionHandler,
-              com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-              com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.action.ActionProvider)">register</a></span>&#8203;(<a href="action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a>&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register an Action handler.</div>
+<div class="block">Register an action using an {<a href="action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action"><code>ActionProvider</code></a>}.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerAction(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">registerAction</a></span>&#8203;(Class&lt;?&gt;&nbsp;actionClass,
-              com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-              com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
+<td class="colFirst"><code>&lt;S,&#8203;E extends <a href="eventsourcedentity/EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;&gt;<br><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider)">register</a></span>&#8203;(<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register an annotated Action service.</div>
+<div class="block">Register a event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerEventSourcedEntity(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,int,com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerEventSourcedEntity</a></span>&#8203;(<a href="eventsourcedentity/EventSourcedEntityFactory.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityFactory</a>&nbsp;factory,
-                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                          String&nbsp;entityType,
-                          int&nbsp;snapshotEvery,
-                          <a href="eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a>&nbsp;entityOptions,
-                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
+<td class="colFirst"><code>&lt;D extends <a href="replicatedentity/ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;<br><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider)">register</a></span>&#8203;(<a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D,&#8203;E&gt;&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register an event sourced entity factory.</div>
+<div class="block">Register a replicated entity using a <a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityProvider</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerEventSourcedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerEventSourcedEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                          <a href="eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a>&nbsp;entityOptions,
-                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
+<td class="colFirst"><code>&lt;S,&#8203;E extends <a href="valueentity/ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;S&gt;&gt;<br><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.valueentity.ValueEntityProvider)">register</a></span>&#8203;(<a href="valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register an annotated event sourced entity.</div>
+<div class="block">Register a value based entity using a {<a href="valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity"><code>ValueEntityProvider</code></a>}.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerEventSourcedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">registerEventSourcedEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.view.ViewProvider)">register</a></span>&#8203;(<a href="view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a>&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register an annotated event sourced entity.</div>
+<div class="block">Register a view using a <a href="view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view"><code>ViewProvider</code></a>.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerReplicatedEntity(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityHandlerFactory,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerReplicatedEntity</a></span>&#8203;(<a href="replicatedentity/ReplicatedEntityHandlerFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityHandlerFactory</a>&nbsp;factory,
-                        com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                        <a href="replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a>&nbsp;entityOptions,
-                        com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register a replicated entity factory.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerReplicatedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerReplicatedEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                        com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                        <a href="replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a>&nbsp;entityOptions,
-                        com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register an annotated replicated entity.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerReplicatedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">registerReplicatedEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                        com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                        com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register an annotated replicated entity.</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerValueEntity(com.akkaserverless.javasdk.valueentity.ValueEntityFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.akkaserverless.javasdk.valueentity.ValueEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerValueEntity</a></span>&#8203;(<a href="valueentity/ValueEntityFactory.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityFactory</a>&nbsp;factory,
-                   com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                   String&nbsp;entityType,
-                   <a href="valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityOptions</a>&nbsp;entityOptions,
-                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register a value based entity factory.</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerValueEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.valueentity.ValueEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">registerValueEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                   com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                   <a href="valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityOptions</a>&nbsp;entityOptions,
-                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register an annotated value based entity.</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerValueEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">registerValueEntity</a></span>&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                   com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register an annotated value based entity.</div>
-</td>
-</tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerView(com.akkaserverless.javasdk.view.ViewFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">registerView</a></span>&#8203;(<a href="view/ViewFactory.html" title="interface in com.akkaserverless.javasdk.view">ViewFactory</a>&nbsp;factory,
-            com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-            String&nbsp;viewId,
-            com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register a view factory.</div>
-</td>
-</tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerView(com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">registerView</a></span>&#8203;(com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-            String&nbsp;viewId,
-            com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
- by the proxy.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerView(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">registerView</a></span>&#8203;(Class&lt;?&gt;&nbsp;viewClass,
-            com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-            String&nbsp;viewId,
-            com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</code></th>
-<td class="colLast">
-<div class="block">Register an annotated view.</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
 <td class="colFirst"><code>java.util.concurrent.CompletionStage&lt;akka.Done&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Starts a server with the configured entities.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>java.util.concurrent.CompletionStage&lt;akka.Done&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(com.typesafe.config.Config)">start</a></span>&#8203;(com.typesafe.config.Config&nbsp;config)</code></th>
 <td class="colLast">
 <div class="block">Starts a server with the configured entities, using the supplied configuration.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withClassLoader(java.lang.ClassLoader)">withClassLoader</a></span>&#8203;(ClassLoader&nbsp;classLoader)</code></th>
 <td class="colLast">
@@ -368,7 +265,7 @@ extends Object</pre>
  the AkkaServerless class.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withTypeUrlPrefix(java.lang.String)">withTypeUrlPrefix</a></span>&#8203;(String&nbsp;prefix)</code></th>
 <td class="colLast">
@@ -483,352 +380,90 @@ extends Object</pre>
 </dl>
 </li>
 </ul>
-<a id="registerEventSourcedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">
+<a id="register(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerEventSourcedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerEventSourcedEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                                 com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                                 com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated event sourced entity.
+<h4>register</h4>
+<pre class="methodSignature">public&nbsp;&lt;D extends <a href="replicatedentity/ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D,&#8203;E&gt;&nbsp;provider)</pre>
+<div class="block">Register a replicated entity using a <a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityProvider</code></a>. The concrete <code>
+ ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
+ example <code>CustomerEntityProvider</code>.
 
- <p>The entity class must be annotated with <a href="eventsourcedentity/EventSourcedEntity.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntity</code></a>.</div>
+ <p><a href="replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityOptions</code></a> can be defined by in the <code>ReplicatedEntityProvider
+ </code>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This stateful service builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="registerEventSourcedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
+<a id="register(com.akkaserverless.javasdk.valueentity.ValueEntityProvider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerEventSourcedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerEventSourcedEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                                 com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                                 <a href="eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a>&nbsp;entityOptions,
-                                                 com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated event sourced entity.
+<h4>register</h4>
+<pre class="methodSignature">public&nbsp;&lt;S,&#8203;E extends <a href="valueentity/ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;S&gt;&gt;&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</pre>
+<div class="block">Register a value based entity using a {<a href="valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity"><code>ValueEntityProvider</code></a>}. The concrete <code>
+ ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for
+ example <code>CustomerEntityProvider</code>.
 
- <p>The entity class must be annotated with <a href="eventsourcedentity/EventSourcedEntity.html" title="annotation in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntity</code></a>.</div>
+ <p>{<a href="valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity"><code>ValueEntityOptions</code></a>} can be defined by in the <code>ValueEntityProvider</code>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityOptions</code> - The entity options.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This stateful service builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="registerEventSourcedEntity(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,int,com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
+<a id="register(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerEventSourcedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerEventSourcedEntity&#8203;(<a href="eventsourcedentity/EventSourcedEntityFactory.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityFactory</a>&nbsp;factory,
-                                                 com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                                 String&nbsp;entityType,
-                                                 int&nbsp;snapshotEvery,
-                                                 <a href="eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a>&nbsp;entityOptions,
-                                                 com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an event sourced entity factory.
+<h4>register</h4>
+<pre class="methodSignature">public&nbsp;&lt;S,&#8203;E extends <a href="eventsourcedentity/EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;&gt;&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</pre>
+<div class="block">Register a event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}. The concrete
+ <code>
+ EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
+ for example <code>CustomerEntityProvider</code>.
 
- <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
- implementing the entity.</div>
+ <p>{<a href="eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity"><code>EventSourcedEntityOptions</code></a>} can be defined by in the <code>
+ EventSourcedEntityProvider</code>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - The event sourced factory.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityType</code> - The persistence id for this entity.</dd>
-<dd><code>snapshotEvery</code> - Specifies how snapshots of the entity state should be made: Zero means use
-     default from configuration file. (Default) Any negative value means never snapshot. Any
-     positive value means snapshot at-or-after that number of events.</dd>
-<dd><code>entityOptions</code> - the options for this entity.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This stateful service builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="registerReplicatedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">
+<a id="register(com.akkaserverless.javasdk.view.ViewProvider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerReplicatedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerReplicatedEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                               com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                               com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated replicated entity.
-
- <p>The entity class must be annotated with <a href="replicatedentity/ReplicatedEntity.html" title="annotation in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntity</code></a>.</div>
+<h4>register</h4>
+<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a>&nbsp;provider)</pre>
+<div class="block">Register a view using a <a href="view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view"><code>ViewProvider</code></a>. The concrete <code>
+ ViewProvider</code> is generated for the specific views defined in Protobuf, for example <code>
+ CustomerViewProvider</code>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This stateful service builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="registerReplicatedEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
+<a id="register(com.akkaserverless.javasdk.action.ActionProvider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerReplicatedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerReplicatedEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                               com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                               <a href="replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a>&nbsp;entityOptions,
-                                               com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated replicated entity.
-
- <p>The entity class must be annotated with <a href="replicatedentity/ReplicatedEntity.html" title="annotation in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntity</code></a>.</div>
+<h4>register</h4>
+<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a>&nbsp;provider)</pre>
+<div class="block">Register an action using an {<a href="action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action"><code>ActionProvider</code></a>}. The concrete <code>
+ ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
+ <code>CustomerActionProvider</code>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityOptions</code> - The options for this entity.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerReplicatedEntity(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityHandlerFactory,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerReplicatedEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerReplicatedEntity&#8203;(<a href="replicatedentity/ReplicatedEntityHandlerFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityHandlerFactory</a>&nbsp;factory,
-                                               com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                               <a href="replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a>&nbsp;entityOptions,
-                                               com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register a replicated entity factory.
-
- <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
- implementing the entity.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - The replicated entity factory.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityOptions</code> - The options for this entity.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerAction(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerAction</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerAction&#8203;(Class&lt;?&gt;&nbsp;actionClass,
-                                     com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                     com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated Action service.
-
- <p>The action class must be annotated with <a href="action/Action.html" title="annotation in com.akkaserverless.javasdk.action"><code>Action</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actionClass</code> - The action class, its constructor may accept an <a href="action/ActionCreationContext.html" title="interface in com.akkaserverless.javasdk.action"><code>ActionCreationContext</code></a>.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this action implements.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This Akka Serverless builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerAction(com.akkaserverless.javasdk.action.ActionHandler,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerAction</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerAction&#8203;(<a href="action/ActionHandler.html" title="interface in com.akkaserverless.javasdk.action">ActionHandler</a>&nbsp;actionHandler,
-                                     com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                     com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an Action handler.
-
- <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
- implementing the action.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actionHandler</code> - The action handler.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this action implements.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This Akka Serverless builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerValueEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerValueEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerValueEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated value based entity.
-
- <p>The entity class must be annotated with <a href="valueentity/ValueEntity.html" title="annotation in com.akkaserverless.javasdk.valueentity"><code>ValueEntity</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerValueEntity(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,com.akkaserverless.javasdk.valueentity.ValueEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerValueEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerValueEntity&#8203;(Class&lt;?&gt;&nbsp;entityClass,
-                                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                          <a href="valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityOptions</a>&nbsp;entityOptions,
-                                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated value based entity.
-
- <p>The entity class must be annotated with <a href="valueentity/ValueEntity.html" title="annotation in com.akkaserverless.javasdk.valueentity"><code>ValueEntity</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entityClass</code> - The entity class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityOptions</code> - The options for this entity.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerValueEntity(com.akkaserverless.javasdk.valueentity.ValueEntityFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.akkaserverless.javasdk.valueentity.ValueEntityOptions,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerValueEntity</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerValueEntity&#8203;(<a href="valueentity/ValueEntityFactory.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityFactory</a>&nbsp;factory,
-                                          com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                          String&nbsp;entityType,
-                                          <a href="valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityOptions</a>&nbsp;entityOptions,
-                                          com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register a value based entity factory.
-
- <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
- implementing the entity.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - The value based entity factory.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>entityType</code> - The entity type name</dd>
-<dd><code>entityOptions</code> - The options for this entity.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerView(com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerView</h4>
-<pre class="methodSignature">@ApiMayChange
-public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerView&#8203;(com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                   String&nbsp;viewId,
-                                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
- by the proxy.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>descriptor</code> - The descriptor of the view.</dd>
-<dd><code>viewId</code> - The id of this view, used for persistence.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that may need to be loaded to support
-     it.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerView(java.lang.Class,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerView</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerView&#8203;(Class&lt;?&gt;&nbsp;viewClass,
-                                   com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                   String&nbsp;viewId,
-                                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register an annotated view.
-
- <p>The view class must be annotated with <a href="view/View.html" title="annotation in com.akkaserverless.javasdk.view"><code>View</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>viewClass</code> - The view class.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>viewId</code> - The id of this view, used for persistence.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This stateful service builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="registerView(com.akkaserverless.javasdk.view.ViewFactory,com.google.protobuf.Descriptors.ServiceDescriptor,java.lang.String,com.google.protobuf.Descriptors.FileDescriptor...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerView</h4>
-<pre class="methodSignature">public&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;registerView&#8203;(<a href="view/ViewFactory.html" title="interface in com.akkaserverless.javasdk.view">ViewFactory</a>&nbsp;factory,
-                                   com.google.protobuf.Descriptors.ServiceDescriptor&nbsp;descriptor,
-                                   String&nbsp;viewId,
-                                   com.google.protobuf.Descriptors.FileDescriptor...&nbsp;additionalDescriptors)</pre>
-<div class="block">Register a view factory.
-
- <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
- implementing the view.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - The view factory.</dd>
-<dd><code>descriptor</code> - The descriptor for the service that this entity implements.</dd>
-<dd><code>viewId</code> - The id of this view, used for persistence.</dd>
-<dd><code>additionalDescriptors</code> - Any additional descriptors that should be used to look up protobuf
-     types when needed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This stateful service builder.</dd>
 </dl>

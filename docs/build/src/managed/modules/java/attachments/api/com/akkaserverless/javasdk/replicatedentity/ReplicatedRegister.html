@@ -166,7 +166,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a></span></code></th>
 <td class="colLast">
-<div class="block">A clock.</div>
+<div class="block">Clock for register replication</div>
 </td>
 </tr>
 </table>
@@ -195,14 +195,14 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>default <a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a></code></td>
+<td class="colFirst"><code>default <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(T)">set</a></span>&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value)</code></th>
 <td class="colLast">
-<div class="block">Set the current value of the register, using the default clock.</div>
+<div class="block">Set the value of the register, using the default clock.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a></code></td>
+<td class="colFirst"><code><a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(T,com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister.Clock,long)">set</a></span>&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value,
    <a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a>&nbsp;clock,
    long&nbsp;customClockValue)</code></th>
@@ -238,7 +238,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <div class="block">Get the current value of the register.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The current value of the register.</dd>
+<dd>the current value of the register</dd>
 </dl>
 </li>
 </ul>
@@ -250,13 +250,13 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre class="methodSignature">default&nbsp;<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;set&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value)</pre>
-<div class="block">Set the current value of the register, using the default clock.</div>
+<pre class="methodSignature">default&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&gt;&nbsp;set&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value)</pre>
+<div class="block">Set the value of the register, using the default clock.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - The value of the register to set.</dd>
+<dd><code>value</code> - the new value of the register</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The old value of the register.</dd>
+<dd>a new register with updated value</dd>
 </dl>
 </li>
 </ul>
@@ -268,19 +268,18 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>set</h4>
-<pre class="methodSignature"><a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;set&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value,
-      <a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a>&nbsp;clock,
-      long&nbsp;customClockValue)</pre>
+<pre class="methodSignature"><a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&gt;&nbsp;set&#8203;(<a href="ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&nbsp;value,
+                          <a href="ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a>&nbsp;clock,
+                          long&nbsp;customClockValue)</pre>
 <div class="block">Set the current value of the register, using the given custom clock and clock value if
  required.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - The value of the register to set.</dd>
-<dd><code>clock</code> - The clock to use.</dd>
-<dd><code>customClockValue</code> - The custom clock value to use if the clock selected is a custom clock.
-     This is ignored if the clock is not a custom clock.</dd>
+<dd><code>value</code> - the new value of the register</dd>
+<dd><code>clock</code> - the clock to use for replication</dd>
+<dd><code>customClockValue</code> - the custom clock value to use, only if it's a custom clock</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The old value of the register.</dd>
+<dd>a new register with updated value</dd>
 </dl>
 </li>
 </ul>

@@ -27,6 +27,12 @@
     catch(err) {
     }
 //-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -82,14 +88,16 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#annotation.type.required.element.summary">Required</a>&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#annotation.type.element.detail">Element</a></li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -108,45 +116,127 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.akkaserverless.javasdk.valueentity</a></div>
-<h2 title="Annotation Type ValueEntity" class="title">Annotation Type ValueEntity</h2>
+<h2 title="Class ValueEntity" class="title">Class ValueEntity&lt;S&gt;</h2>
 </div>
 <div class="contentContainer">
+<ul class="inheritance">
+<li>Object</li>
+<li>
+<ul class="inheritance">
+<li>com.akkaserverless.javasdk.valueentity.ValueEntity&lt;S&gt;</li>
+</ul>
+</li>
+</ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>S</code> - The type of the state for this entity.</dd>
+</dl>
 <hr>
-<pre>@Target(TYPE)
-@Retention(RUNTIME)
-public @interface <span class="memberNameLabel">ValueEntity</span></pre>
-<div class="block">A value based entity.</div>
+<pre>public abstract class <span class="typeNameLabel">ValueEntity&lt;S&gt;</span>
+extends Object</pre>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== ANNOTATION TYPE REQUIRED MEMBER SUMMARY =========== -->
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="annotation.type.required.element.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
-<h3>Required Element Summary</h3>
+<h3>Nested Class Summary</h3>
 <table class="memberSummary">
-<caption><span>Required Elements</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Required Element</th>
+<th class="colSecond" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entityType()">entityType</a></span></code></th>
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;<a href="ValueEntity.Effect.html" title="type parameter in ValueEntity.Effect">T</a>&gt;</span></code></th>
 <td class="colLast">
-<div class="block">The entity type name</div>
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </td>
 </tr>
 </table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ValueEntity</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#_internalSetCommandContext(java.util.Optional)">_internalSetCommandContext</a></span>&#8203;(java.util.Optional&lt;<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a>&gt;&nbsp;context)</code></th>
+<td class="colLast">
+<div class="block">INTERNAL API</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#commandContext()">commandContext</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Additional context and metadata for a command handler.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected <a href="ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;<a href="ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#effects()">effects</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>abstract <a href="ValueEntity.html" title="type parameter in ValueEntity">S</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#emptyState()">emptyState</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Implement by returning the initial empty state object.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -156,25 +246,76 @@ public @interface <span class="memberNameLabel">ValueEntity</span></pre>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ ANNOTATION TYPE MEMBER DETAIL =========== -->
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="annotation.type.element.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
-<h3>Element Detail</h3>
-<a id="entityType()">
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>entityType</h4>
-<pre>String&nbsp;entityType</pre>
-<div class="block">The entity type name
+<h4>ValueEntity</h4>
+<pre>public&nbsp;ValueEntity()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="emptyState()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>emptyState</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="ValueEntity.html" title="type parameter in ValueEntity">S</a>&nbsp;emptyState()</pre>
+<div class="block">Implement by returning the initial empty state object. This object will be passed into the
+ command handlers, until a new state replaces it.
 
- <p>The entity's unqualified classname can be a good default. However, be aware that the chosen
- name must be stable through the entity lifecycle. Never change it after deploying a service
- that stored data of this type.</div>
+ <p>Also known as "zero state" or "neutral state".
+
+ <p><code>null</code> is an allowed value.</div>
+</li>
+</ul>
+<a id="commandContext()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>commandContext</h4>
+<pre class="methodSignature">protected&nbsp;<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a>&nbsp;commandContext()</pre>
+<div class="block">Additional context and metadata for a command handler.
+
+ <p>It will throw an exception if accessed from constructor.</div>
+</li>
+</ul>
+<a id="_internalSetCommandContext(java.util.Optional)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_internalSetCommandContext</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;_internalSetCommandContext&#8203;(java.util.Optional&lt;<a href="CommandContext.html" title="interface in com.akkaserverless.javasdk.valueentity">CommandContext</a>&gt;&nbsp;context)</pre>
+<div class="block">INTERNAL API</div>
+</li>
+</ul>
+<a id="effects()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>effects</h4>
+<pre class="methodSignature">protected&nbsp;<a href="ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;<a href="ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt;&nbsp;effects()</pre>
 </li>
 </ul>
 </li>
@@ -228,14 +369,16 @@ public @interface <span class="memberNameLabel">ValueEntity</span></pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#annotation.type.required.element.summary">Required</a>&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#annotation.type.element.detail">Element</a></li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

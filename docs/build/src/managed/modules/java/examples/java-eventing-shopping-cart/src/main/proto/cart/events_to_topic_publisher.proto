@@ -16,6 +16,8 @@ syntax = "proto3";
 
 package shopping.cart.actions;
 
+option java_outer_classname = "ShoppingCartEventPublisher";
+
 import "akkaserverless/annotations.proto";
 import "cart/shopping_cart_domain.proto";
 
@@ -24,6 +26,10 @@ import "cart/shopping_cart_domain.proto";
 // Typically this would transform the event from the private API to a public API
 // Right now this does nothing
 service EventsToTopicPublisherService {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_ACTION
+  };
+
   rpc PublishAdded(shopping.cart.domain.ItemAdded) returns (shopping.cart.domain.ItemAdded) {
     option (akkaserverless.method).eventing = {
       in: {

@@ -1,11 +1,9 @@
 = Implementing Value Entities in Java
 include::ROOT:partial$include.adoc[]
 
-https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store. The most straightforward way to persist the state is with Protocol Buffers using `protobuf` types. Akka Serverless automatically detects if an updated state is `protobuf`, and serializes it using `protobuf`. For other serialization options, including JSON, see xref:java:serialization.adoc[Serialization options for Java services].
+https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
-While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's `protobuf` messages. While this may introduce some overhead to convert from one type to the other, it allows the service public interface logic to evolve independently of the data storage format, which should be private.
-
-NOTE: For value entities, modify the state and then trigger a save of that state. Both the JavaScript and the Java SDK have a `context.updateState(newState)` method for this purpose. If you change the state but do not call `updateState`, that state change is lost.
+While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
 The steps necessary to implement a Value Entity include:
 
@@ -18,7 +16,7 @@ The sections on this page walk through these steps using a counter service as an
 
 == Defining the `proto` files
 
-NOTE: Our Value entity example starts with the "Counter" service as included in xref:kickstart.adoc[].
+NOTE: Our Value Entity example starts with the "Counter" service as included in xref:kickstart.adoc[].
 
 The following `counter_domain.proto` file defines our "Counter" Value Entity. The entity stores an integer value as represented in the message `CounterState`. Real world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
@@ -32,20 +30,20 @@ include::example$valueentity-counter/src/main/proto/value-entities/counter_domai
 <2> Import the Akka Serverless protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
 <4> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<5> `name` denotes the base name for the Value entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<6> `enity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't. This value shows in the `@ValueEnity` annotation of your entity implementation.
-<7> `state` points to the protobuf message representing the Value entity's state which is kept by Akka Serverless
+<5> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<6> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<7> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless.
 <8> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
 
-The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter`s state. They make up the service API:
+The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state. They make up the service API:
 
 [source,proto]
 .src/main/proto/value-entities/counter_api.proto
 ----
 include::example$valueentity-counter/src/main/proto/value-entities/counter_api.proto[]
 ----
-<1> Import the Akka Serverless protobuf annotations, or options.
-<2> Any classes generated from this protobuf file will be in the Java package `com.example`.
+<1> Any classes generated from this protobuf file will be in the Java package `com.example`.
+<2> Import the Akka Serverless protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `CounterApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
 <5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
@@ -55,38 +53,40 @@ include::example$valueentity-counter/src/main/proto/value-entities/counter_api.p
 
 == Implementing behavior
 
-A Value Entity implementation is a Java class annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`@ValueEntity` {tab-icon}, window="new"]. The class must have a constructor accepting the entity ID in a parameter annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityId.html[`@EntityId` {tab-icon}, window="new"].
-
-As we rely on the code-generation, the class `Counter` gets generated for us, it extends the generated class `CounterInterface` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors.
+A Value Entity implementation is a Java class where you define how each command is handled. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the `Counter.java` file exist, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
 
 [source,java]
 .src/main/java/com/example/domain/Counter.java
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
-<1> The `@ValueEntity` annotation sets the `entityType` as a unique identifier of the "state storage". The class name may be changed even after data has been created, the `entityType` can't.
-<2> The constructor accepts a parameter marked as the `@EntityId` and we keep the value in a field.
+<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
 
 We need to implement all methods our Value Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
 
-In our case, the code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers show in the implementation class as methods annotated with link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandHandler.html[`@CommandHandler` {tab-icon}, window="new"]. By default, the name of the command that the method handles is the name of the method with the first letter capitalized. So, a method called `getCurrentCounter` will handle a gRPC service call command named `GetCurrentCounter`. This can be overridden by setting the `name` parameter on the `@CommandHandler` annotation.
+Command handlers are implemented in the `Counter` class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCounter`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
 
 === Updating state
 
-In the example below, the `Increase` service call uses the value from the request message `IncreaseValue`. It uses the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] method to manage the entity state.
+In the example below, the `Increase` service call uses the value from the request message `IncreaseValue`. It returns an `Effect` to update the entity state and send a reply.
+
+NOTE: For value entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
+
 
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
-<1> The validation ensures acceptance of positive values and it fails calls with illegal values by throwing an exception provided by the `ctx.fail(...)` method.
-<2> We retrieve the existing state via `ctx.state()` which returns a `java.util.Optional<CounterDomain.CounterState>`.
-<3> In case the `Optional` is empty, we create our initial state.
-<4> From the initial state we create a new state with the increased value.
-<5> We store the new state with `ctx.updateState`.
+<1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current state we create a new state with the increased value.
+<3> We store the new state by returning an `Effect` with `effects().updateState`.
+<4> The acknowledgment that the command was successfully processed is only sent if the state update was successful, otherwise there will be an error reply.
 
 === Retrieving state
 
@@ -97,56 +97,55 @@ The following example shows the implementation of the `GetCurrentCounter` comman
 ----
 include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
-<1> We access the optional state as above.
-<2> In case we have state for this entity, we use its value to create the `CurrentCounter` return value.
-<3> If there isn't any state available, we create `CurrentCounter` for the non-existing entity.
+<1> The current state is passed to the method
+<2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
 
 == Registering the Entity
 
 To make Akka Serverless aware of the Value Entity, we need to register it with the service.
 
-As our example relies on the code generation, the registration gets automatically inserted via the generated `MainComponentRegistrations.withGeneratedComponentsAdded` method.
-
-To register a Value Entity it calls the `registerValueEntity` method. In addition to passing the Value Entity's class and protobuf service descriptor, it also requires any descriptors that define the state.
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
 
 [source,java]
+./src/main/java/com/example/Main.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/Main.java[]
+include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
 ----
+
+By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
+
+When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
 
 == Testing the Entity
 
-To test this Value Entity first we need to create an instance of a `Counter` to which we need to pass an `entityId` of type `String`. 
+There are two ways to test a Value Entity: 
+* unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit 
+* integration tests, with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
 
-[source,java,indent=0]
-.src/test/java/com/example/domain/CounterTest.java
+Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests on the other hand are more realistic and allow many entities, interaction with other components inside and outside of the service, for example actual publishing to a pub/sub topic.
+
+=== Unit tests
+
+To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the testkit to execute commands in the entity, get a `ValueEntityResult` back and assert the effects that the command led to, both the reply itself and the update to the state of the Entity.
+
+[source,java]
+./src/test/java/com/example/domain/CounterTest.java
 ----
-include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=class]
+include::example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
 ----
 
-We also need to emulate the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`context` {tab-icon}, window="new"] of this Value Entity in order to verify whether the state has been updated as expected. We do this because we don't have access to the final state of the entity so listen to how it's been updated. For this we need to mock it as follows.
+The unit tests can be run from maven using `mvn test` or if you prefer from inside your IDE the same way you usually run tests.
 
-[source,java,indent=0]
-.src/test/java/com/example/domain/CounterTest.java
+=== Integration tests
+
+An example integration test class to start from is also generated for you. It uses an `AkkaServerlessTestkitResource` to start docker containers and interacts with the entity with an actual gRPC client.
+
+[source,java]
+./src/test/java/com/example/domain/CounterTest.java
 ----
-include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=contextWithoutState]
+include::example$valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
 ----
 
-What we are mocking here is the method `getState()` of the public interface link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext` {tab-icon}, window="new"] that, by definition, gets the current state of the Value Entity or empty if none have been created. Therfore, as we can see in the snippet above we are simulating that the entity hasn't been created yet.
+The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
 
-With the `Counter`, the `entityId` and the mocked `CommandContext` we can now create our test. 
-
-[source,java,indent=0]
-.src/test/java/com/example/domain/CounterTest.java
-----
-include::java:example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=increase]
-----
-<1> creating the instance of `Counter` Value Entity.
-<2> creating the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/CommandContext.html[`CommandContext<T>` {tab-icon}, window="new"]. Where `T` is the type of the **domain** `message` our entity receives.
-<3> creating the API message to send to the instance.
-<4> calling to the method under test.
-<5> verifying the `void updateState(T state)` method has been called with the expected value. Where `T` is the type of the **domain** `message` our entity receives.
-
-In this test we call to the `increase` method of that `Counter` by sending an API `message` with a mocked `CommandContext`. We then verify that `void updateState(T state)` has been called with the expected value. 
-
-
+Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also mean they take a bit more time to execute compared to the unit tests which are completely local and does not involve networking.

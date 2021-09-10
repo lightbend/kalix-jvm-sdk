@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":1,"i1":6};
+var data = {"i0":1,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,10 +158,23 @@ extends <a href="../EntityOptions.html" title="interface in com.akkaserverless.j
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#snapshotEvery()">snapshotEvery</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withPassivationStrategy(com.akkaserverless.javasdk.PassivationStrategy)">withPassivationStrategy</a></span>&#8203;(<a href="../PassivationStrategy.html" title="interface in com.akkaserverless.javasdk">PassivationStrategy</a>&nbsp;strategy)</code></th>
 <td class="colLast">
 <div class="block">Create an entity option with the given passivation strategy.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSnapshotEvery(int)">withSnapshotEvery</a></span>&#8203;(int&nbsp;numberOfEvents)</code></th>
+<td class="colLast">
+<div class="block">Specifies how snapshots of the entity state should be made: Zero means use default from
+ configuration file.</div>
 </td>
 </tr>
 </table>
@@ -195,6 +208,31 @@ extends <a href="../EntityOptions.html" title="interface in com.akkaserverless.j
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="snapshotEvery()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>snapshotEvery</h4>
+<pre class="methodSignature">int&nbsp;snapshotEvery()</pre>
+</li>
+</ul>
+<a id="withSnapshotEvery(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withSnapshotEvery</h4>
+<pre class="methodSignature"><a href="EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a>&nbsp;withSnapshotEvery&#8203;(int&nbsp;numberOfEvents)</pre>
+<div class="block">Specifies how snapshots of the entity state should be made: Zero means use default from
+ configuration file. Any negative value means never snapshot. Any positive value means snapshot
+ at-or-after that number of events.
+
+ <p>It is strongly recommended to not disable snapshotting unless it is known that event sourced
+ entity will never have more than 100 events (in which case the default will anyway not trigger
+ any snapshots)</div>
+</li>
+</ul>
 <a id="withPassivationStrategy(com.akkaserverless.javasdk.PassivationStrategy)">
 <!--   -->
 </a>

@@ -1,4 +1,4 @@
-= Implementing Views
+= Implementing Views in Java
 
 include::ROOT:partial$include.adoc[]
 
@@ -30,8 +30,9 @@ Consider an example of a Customer Registry service with a `customer` Value Entit
 This example assumes the following `customer` state is defined in a `customer_domain.proto` file:
 
 [source,proto,indent=0]
+.src/main/proto/customer/customer_domain.proto
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
 ----
 
 <1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
@@ -41,22 +42,25 @@ include::java:example$java-customer-registry/src/main/proto/customer/customer_do
 To get a View of multiple customers by their name, define the View as a `service` in Protobuf:
 
 [source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
 ----
 
 <1> The `UpdateCustomer` method defines how Akka Serverless will update the view.
-<2> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `@ValueEntity(entityType = "customers")` annotation of the Value Entity.
+<2> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(akkaserverless.file).value_entity` option in the `customer_domain.proto` file.
 <3> The `(akkaserverless.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
 <4> The `GetCustomers` method defines the query to retrieve a stream of customers.
 <5> The `(akkaserverless.method).view.query` annotation defines that this method is used as a query of the View.
+
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
 
 
 If the query should only return one result, remove the `stream` from the return type:
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
 ----
 
 <1> Without `stream` when expecting single result.
@@ -66,11 +70,12 @@ When no result is found, the request fails with gRPC status code `NOT_FOUND`. A 
 [#register-view]
 === Registering a View
 
-Once you've defined a View, register it with  link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless`] by invoking the `registerView` method. In addition to passing the service descriptor of the View, and a unique identifier of the View, you also need to pass any descriptors that you use for state. In this example, that is the `customer_domain.proto` descriptor.
+Once you've defined a View, register it with  link:{attachmentsdir}/api/com/akkaserverless/javasdk/AkkaServerless.html[`AkkaServerless`] by invoking the `AkkaServerlessFactory.withComponents` method in the `Main` class.
 
 [source,java,indent=0]
+.src/main/java/customer/Main.java
 ----
-include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register]
+include::example$java-valueentity-customer-registry/src/main/java/customer/Main.java[tag=register]
 ----
 
 [#event-sourced-entity]
@@ -86,22 +91,33 @@ Create a View from an Event Sourced Entity by using events that the Entity emits
 The example assumes a `customer_domain.proto` file that defines the events that will update the View on name changes:
 
 [source,proto,indent=0]
+.src/main/proto/customer/customer_domain.proto
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;events]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain;events]
 ----
+
+It also assumes a `customer_api.proto` that defines the state stored in the view and returned by queries:
+
+[source,proto,indent=0]
+.src/main/proto/customer/customer_api.proto
+----
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_api.proto[tags=declarations;view]
+----
+
 
 === Define a View descriptor to consume events
 
 The following lines in the `.proto` file define a View to consume the `CustomerCreated` and `CustomerNameChanged` events:
 
 [source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
 <1> The `akkaserverless.service` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
 <2> Define an update method for each event.
-<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the `@EventSourcedEntity(entityType = "customers")` annotation of the Event Sourced Entity.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(akkaserverless.file).event_sourced_entity` option in the `customer_domain.proto` file.
 <4> Enable `transform_updates` to build the View state from the events.
 <5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 <6> Enable `transform_updates` for all update methods.
@@ -110,23 +126,24 @@ See <<#query>> for more examples of valid query syntax.
 
 === Create a transformation class
 
-Next, you need to define a Java class that transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
-all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` `UpdateHandler`:
+Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
+all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update handler:
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+View update handlers are implemented in the `CustomerByNameView` class as methods that override abstract methods from `AbstractCustomerByNameView`. The methods take the current view state as the first parameter and the event as the second parameter. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCustomerByNameView`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
 
 [source,java,indent=0]
+.src/main/java/customer/view/CustomerByNameView.java
 ----
-include::java:example$java-customer-registry/src/main/java/customer/view/CustomerByNameViewImpl.java[tag=process-events]
+include::example$java-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
 ----
 
-<1> The class must have the link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`@View`] annotation.
-<2> It extends the generated `AbstractCustomerByNameViewImpl` which requires all link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandler.html[`@UpdateHandler`] methods.
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`View` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
 <3> One method for each event.
-
-The first method parameter is the parameter in the Protobuf service call, the event.
-
-A second parameter corresponds to the state of a customer entity. It is wrapped in an `Optional` as there is no state before the first event, thus the `Optional` will be empty.
-
-The method may also take an link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/UpdateHandlerContext.html[`UpdateHandlerContext`] parameter.
 
 NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
 
@@ -136,8 +153,9 @@ NOTE: This type of update transformation is a natural fit for Events emitted by 
 Register the View class with `AkkaServerless`:
 
 [source,java,indent=0]
+.src/main/java/customer/Main.java
 ----
-include::java:example$java-customer-registry/src/main/java/customer/Main.java[tag=register-with-class]
+include::example$java-eventsourced-customer-registry/src/main/java/customer/Main.java[tag=register]
 ----
 
 [#topic-view]
@@ -146,8 +164,9 @@ include::java:example$java-customer-registry/src/main/java/customer/Main.java[ta
 The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
 
 [source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
 ----
 
 <1> This is the only difference from <<event-sourced-entity>>.
@@ -164,7 +183,7 @@ Instead of using `SELECT *` you can define what columns that will be used in the
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
 ----
 
 In a similar way, you can include values from the request message in the response, for example `:request_id`:
@@ -180,7 +199,7 @@ Instead of streamed results you can include the results in a repeated field in t
 
 [source,proto,indent=0]
 ----
-include::java:example$java-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
 ----
 
 <1> The response message contains a `repeated` field.
@@ -212,10 +231,18 @@ WARNING: Views from topics cannot be rebuilt from the source messages, because i
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
 
-. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf and different `viewId` when <<register-view>>. Keep the old `registerView`.
+. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. Keep the old `register` of the old `service` in `Main`.
 . Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
-. Remove the old View definition and rename the `service` to the old name if the public API is compatible.
+. Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
 . Deploy the second change.
+
+This is how to define a custom `viewId`:
+
+[source,java,indent=0]
+.src/main/java/customer/Main.java
+----
+include::example$java-eventsourced-customer-registry/src/main/java/customer/MainWithCustomViewId.java[tag=register]
+----
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 

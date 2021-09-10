@@ -1,61 +1,87 @@
-= Actions
+= Implementing Actions in Java
 
 include::ROOT:partial$include.adoc[]
 include::partial$actions.adoc[]
 
-== Implementing Actions
 
-An Action may implement any service method defined in a Protobuf definition, these examples illustrate the definition of a `ShoppingCartAnalyticsService`:
+== Defining the `proto` file
+
+An Action may implement any service method defined in a Protobuf definition. In this first example, we will show how to
+implement an Action as a pure stateless function. We will define a `FibonacciAction` that takes a number and return the
+next number in the Fibonacci series.
 
 [source,protobuf,indent=0]
+.src/main/proto/actions/fibonacci.proto
 ----
-include::example$java-eventing-shopping-cart/src/main/proto/product/to_product_popularity.proto[tag=actions]
+include::example$fibonacci-action/src/main/proto/actions/fibonacci.proto[tag=actions]
 ----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.fibonacci`.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
+<4> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
-The class implementing an Action needs to be annotated with the `@Action` annotation.
+
+== Implementing the Action
+
+An Action implementation is a Java class where you define how each message is handled. The class
+`FibonacciAction` gets generated for us based on the proto file defined above. Once the
+`FibonacciAction.java` file exist, it is not overwritten, so you can freely add logic to it.
+`FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
+not supposed to change as it gets regenerated in case we update the protobuf descriptors.
+
+`AbstractFibonacciAction` contains all method signatures corresponding to the API of the service.
+If you change the API you will see compilation errors in the `FibonacciAction` class, and you have to
+implement the methods required by `AbstractFibonacciAction`.
+
 
 [source,java,indent=0]
+.src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=annotation]
-----
-
-Action methods implementing services require the `@Handler` annotation and may have `ActionContext` as their second parameter.
-
-[source,java,indent=2]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=methods]
+include::example$fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
 ----
 
-To connect the Protobuf service definition with the implementation as an Action, register the implementing class with Akka Serverless:
+<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
+<2> A `nextNumber` method is generated. We will implement it next.
+
+Next we can implement `nextNumber` method to complete our Action.
 
 [source,java,indent=0]
+.src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=ToProductPopularityAction]
+include::example$fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
 ----
+
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
+`nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
+next number and builds a reply using `effects().reply()`.
+<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
 === Multiple replies / reply streaming
 
-An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing that service must return a https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/org/reactivestreams/Publisher.html[`org.reactivestreams.Publisher`] implementation, or an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source] to fulfill that contract.
+An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing
+that service must return an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source]
+to fulfill that contract.
 
-The publisher (or source) may publish an arbitrary number of replies.
+The Source may publish an arbitrary number of replies.
 
-=== Forwarding a call from an Action
+ifdef::todo[TODO: add a streamed Fib series calculation]
 
-Action methods that want to forward calls to other service methods use `Reply<T>` as return type. With `Reply<T>` the method can choose to
 
-- reply with a value (`Reply.message`)
-- send no reply (`Reply.noReply`)
-- forward the call (`Reply.forward`)
+== Registering the Action
 
-To forward to a different method, look up the target method via the `ActionContext` by specifying the full Protobuf service name, method name and passing the parameter type's class.
+To make Akka Serverless aware of the Action, we need to register it with the service.
 
-[source,java,indent=2]
+From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+
+[source,java]
+./src/main/java/com/example/Main.java
 ----
-include::java:example$java-eventing-shopping-cart/src/main/java/shopping/product/ToProductPopularityAction.java[tag=forwardRemoved]
+include::java:example$fibonacci-action/src/main/java/com/example/Main.java[]
 ----
-<1> Use `ActionReply<Empty>` as return type and accept an `ActionContext` as second parameter
-<2> Create the parameter the target method accepts
-<3> Use the fully-qualified gRPC service name of the target method
-<4> Specify the Protobuf rpc method name
-<5> Pass the target methods expected parameter type
-<6> Return a forward to the call with the required parameter
+
+By default, the generated constructor has a `ActionCreationContext` parameter, but you can change this to accept other parameters. 
+If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the 
+factory function that is passed to `AkkaServerlessFactory.withComponents`.
+
+When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.

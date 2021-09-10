@@ -96,14 +96,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h1 title="Package" class="title">Package&nbsp;com.akkaserverless.javasdk.action</h1>
 </div>
 <div class="contentContainer">
-<section role="region"><a id="package.description">
-<!--   -->
-</a>
-<div class="block">Action support.
-
- <p>Actions can be annotated with the <a href="Action.html" title="annotation in com.akkaserverless.javasdk.action"><code>@Action</code></a>
- annotation, and supply handlers using the <a href="Handler.html" title="annotation in com.akkaserverless.javasdk.action"><code>@Handler</code></a> annotation.</div>
-</section>
 <ul class="blockList">
 <li class="blockList">
 <table class="typeSummary">
@@ -114,6 +106,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="Action.Effect.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a></th>
+<td class="colLast">
+<div class="block">Construct the effect that is returned by the command handler.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a></th>
 <td class="colLast">
 <div class="block">Context for action calls.</div>
@@ -122,22 +126,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ActionCreationContext.html" title="interface in com.akkaserverless.javasdk.action">ActionCreationContext</a></th>
 <td class="colLast">
-<div class="block">Creation context for <a href="Action.html" title="annotation in com.akkaserverless.javasdk.action"><code>Action</code></a> annotated components.</div>
+<div class="block">Creation context for <a href="Action.html" title="class in com.akkaserverless.javasdk.action"><code>Action</code></a> components.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ActionFactory.html" title="interface in com.akkaserverless.javasdk.action">ActionFactory</a></th>
+<th class="colFirst" scope="row"><a href="ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a>&lt;A extends <a href="Action.html" title="class in com.akkaserverless.javasdk.action">Action</a>&gt;</th>
 <td class="colLast">
-<div class="block">Low level interface to implement <a href="Action.html" title="annotation in com.akkaserverless.javasdk.action"><code>Action</code></a> components.</div>
+<div class="block">Register an Action in {<a href="../AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a>} using an <code>
+ ActionProvider</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ActionHandler.html" title="interface in com.akkaserverless.javasdk.action">ActionHandler</a></th>
-<td class="colLast">
-<div class="block">Low level interface for handling for action calls.</div>
-</td>
-</tr>
-<tr class="altColor">
 <th class="colFirst" scope="row"><a href="MessageEnvelope.html" title="interface in com.akkaserverless.javasdk.action">MessageEnvelope</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">A message envelope.</div>
@@ -148,23 +147,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="Action.html" title="annotation in com.akkaserverless.javasdk.action">Action</a></th>
-<td class="colLast">
-<div class="block">An action.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="Handler.html" title="annotation in com.akkaserverless.javasdk.action">Handler</a></th>
-<td class="colLast">
-<div class="block">An action service call handler.</div>
-</td>
+<th class="colFirst" scope="row"><a href="Action.html" title="class in com.akkaserverless.javasdk.action">Action</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>

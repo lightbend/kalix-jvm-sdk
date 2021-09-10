@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,7 +134,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public interface <span class="typeNameLabel">ReplicatedMap&lt;K,&#8203;V extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;</span>
 extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a></pre>
-<div class="block">A Replicated Map that allows both the addition and removal of objects in a map.
+<div class="block">A Replicated Map that allows both the addition and removal of <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> objects.
 
  <p>Use the more specialized maps if possible, such as <a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a>, <a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a>, and <a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a>.
 
@@ -145,9 +145,10 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
  yet been observed by node 3. However, if both additions had been replicated to node 3, then the
  key will be removed.
 
- <p>The values of the map are themselves replicated data types, and hence allow concurrent updates
- that will eventually converge. Values may only be inserted using the <a href="#getOrCreate(K,java.util.function.Function)"><code>getOrCreate(Object, Function)</code></a> function, using the <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a>
- passed in to the creation callback.
+ <p>The values of the map are themselves <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> types, and hence allow concurrent
+ updates that will eventually converge. New <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> objects may only be created
+ when using the <a href="#getOrElse(K,java.util.function.Function)"><code>getOrElse(Object, Function)</code></a> method, using the provided
+ <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a> for the create function.
 
  <p>While removing entries from the map is supported, if the entries are added back again, it is
  possible that the value of the deleted entry may be merged into the value of the current entry,
@@ -186,49 +187,69 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Remove all entries from this map.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsKey(K)">containsKey</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Check whether this map contains a mapping for the given key.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(K)">get</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
 <td class="colLast">
-<div class="block">Get the ReplicatedData value with the given key.</div>
+<div class="block">Get the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value for the given key.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOrCreate(K,java.util.function.Function)">getOrCreate</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
-           java.util.function.Function&lt;<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;create)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOrElse(K,java.util.function.Function)">getOrElse</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+         java.util.function.Function&lt;<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;create)</code></th>
 <td class="colLast">
-<div class="block">Get or create an entry in the map with the given key.</div>
+<div class="block">Get the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value for the given key.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEmpty()">isEmpty</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Check whether this map is empty.</div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>java.util.Set&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keySet()">keySet</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Get a <code>Set</code> view of the keys contained in this map.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(K)">remove</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Remove the mapping for a key if it is present.</div>
+</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Get the number of key-value mappings in this map.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#update(K,V)">update</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+      <a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;value)</code></th>
+<td class="colLast">
+<div class="block">Update the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value associated with the given key.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -256,37 +277,88 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature"><a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;get&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
-<div class="block">Get the ReplicatedData value with the given key.</div>
-</li>
-</ul>
-<a id="getOrCreate(java.lang.Object,java.util.function.Function)">
-<!--   -->
-</a><a id="getOrCreate(K,java.util.function.Function)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getOrCreate</h4>
-<pre class="methodSignature"><a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;getOrCreate&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
-              java.util.function.Function&lt;<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;create)</pre>
-<div class="block">Get or create an entry in the map with the given key.</div>
+<div class="block">Get the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value for the given key.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The key of the entry.</dd>
-<dd><code>create</code> - A callback used to create the value using the given <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a>
-     if an entry for the key is not currently in the map.</dd>
+<dd><code>key</code> - the key of the mapping</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The existing or newly created value for the given key.</dd>
+<dd>the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> for the key</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.util.NoSuchElementException</code> - if the key is not preset in the map</dd>
 </dl>
 </li>
 </ul>
-<a id="keySet()">
+<a id="getOrElse(java.lang.Object,java.util.function.Function)">
+<!--   -->
+</a><a id="getOrElse(K,java.util.function.Function)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>keySet</h4>
-<pre class="methodSignature">java.util.Set&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&gt;&nbsp;keySet()</pre>
+<h4>getOrElse</h4>
+<pre class="methodSignature"><a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;getOrElse&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+            java.util.function.Function&lt;<a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;create)</pre>
+<div class="block">Get the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value for the given key. If the key is not present in the map,
+ then a new value is created with a creation function.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key of the mapping</dd>
+<dd><code>create</code> - function used to create an empty value using the given <a href="ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedDataFactory</code></a> if the key is not present in the map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> for the key</dd>
+</dl>
+</li>
+</ul>
+<a id="update(java.lang.Object,com.akkaserverless.javasdk.replicatedentity.ReplicatedData)">
+<!--   -->
+</a><a id="update(K,V)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>update</h4>
+<pre class="methodSignature"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;update&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+                                <a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;value)</pre>
+<div class="block">Update the <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value associated with the given key.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key of the mapping</dd>
+<dd><code>value</code> - the updated <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new map with the updated value</dd>
+</dl>
+</li>
+</ul>
+<a id="remove(java.lang.Object)">
+<!--   -->
+</a><a id="remove(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre class="methodSignature"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;remove&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Remove the mapping for a key if it is present.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - key whose mapping is to be removed from the map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new map with the removed mapping</dd>
+</dl>
+</li>
+</ul>
+<a id="clear()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clear</h4>
+<pre class="methodSignature"><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;&nbsp;clear()</pre>
+<div class="block">Remove all entries from this map.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a new empty map</dd>
+</dl>
 </li>
 </ul>
 <a id="size()">
@@ -296,6 +368,11 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <li class="blockList">
 <h4>size</h4>
 <pre class="methodSignature">int&nbsp;size()</pre>
+<div class="block">Get the number of key-value mappings in this map.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the number of key-value mappings in this map</dd>
+</dl>
 </li>
 </ul>
 <a id="isEmpty()">
@@ -305,6 +382,11 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <li class="blockList">
 <h4>isEmpty</h4>
 <pre class="methodSignature">boolean&nbsp;isEmpty()</pre>
+<div class="block">Check whether this map is empty.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> if this map contains no key-value mappings</dd>
+</dl>
 </li>
 </ul>
 <a id="containsKey(java.lang.Object)">
@@ -316,26 +398,27 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <li class="blockList">
 <h4>containsKey</h4>
 <pre class="methodSignature">boolean&nbsp;containsKey&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Check whether this map contains a mapping for the given key.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - key whose presence in this map is to be tested</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> if this map contains a mapping for the given key</dd>
+</dl>
 </li>
 </ul>
-<a id="remove(java.lang.Object)">
-<!--   -->
-</a><a id="remove(K)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>remove</h4>
-<pre class="methodSignature">void&nbsp;remove&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
-</li>
-</ul>
-<a id="clear()">
+<a id="keySet()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>clear</h4>
-<pre class="methodSignature">void&nbsp;clear()</pre>
+<h4>keySet</h4>
+<pre class="methodSignature">java.util.Set&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&gt;&nbsp;keySet()</pre>
+<div class="block">Get a <code>Set</code> view of the keys contained in this map.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the keys contained in this map</dd>
+</dl>
 </li>
 </ul>
 </li>
