@@ -4,11 +4,10 @@ This example project implements an API for a shopping cart using an Akka Serverl
 
 ## See also
 
-* designing - while designing your service it is useful to read [designing
-  services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
-* developing - it may be useful to read up on [developing
-  services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html) and in particular the [Java
-  section](https://developer.lightbend.com/docs/akka-serverless/java/index.html)
+* process - for effective development it is useful to
+  read [development process](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
+* developing - it may be useful to read up
+  on [developing with Java](https://developer.lightbend.com/docs/akka-serverless/java/index.html)
 
 ## Building
 
@@ -85,11 +84,11 @@ mvn verify -Pit
 ## Deploying
 
 To deploy your service, install the `akkasls` CLI as documented in [Setting up a local development
-environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html) and
+environment](https://developer.lightbend.com/docs/akka-serverless/setting-up/) and
 configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to [Configuring
-registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html) for more information on how
+registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html) for more information on how
 to make your docker image available to Akka Serverless.
 
 Finally, you can or use the [Akka Serverless Console](https://console.akkaserverless.com) to create a project and then

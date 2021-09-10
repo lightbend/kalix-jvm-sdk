@@ -66,9 +66,9 @@ It is good practice to write unit tests as you implement your services. The kick
 
 Use Docker to package your service and any of its dependencies. See the following pages for more information:
 
-* https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html#_docker[Installing Docker]
+* https://developer.lightbend.com/docs/akka-serverless/setting-up/#_docker[Installing Docker]
 * https://developer.lightbend.com/docs/akka-serverless/deploying/docker.html[Packaging with Docker]
-* https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries]
+* https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries]
 * https://developer.lightbend.com/docs/akka-serverless/tutorial/node-cart-package-deploy.html[Example of how to package a service]
 
 [#_run_locally]

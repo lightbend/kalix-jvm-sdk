@@ -3,7 +3,7 @@
 
 ## Designing
 
-While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/designing/index.html)
+While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
 
 
 ## Developing
@@ -48,33 +48,34 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/javascript/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```
 > curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
 The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter
+> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter 
 ERROR:
   Code: Unknown
   Message: The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in your entity.
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
+> your entity.
 
 
 ## Deploying
 
 To deploy your service, install the `akkasls` CLI as documented in
-[Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html)
-and configure a Docker Registry for your container image.
+[Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/setting-up/)
+and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html)
+[Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
 Finally you can or use the [Akka Serverless Console](https://console.akkaserverless.com)

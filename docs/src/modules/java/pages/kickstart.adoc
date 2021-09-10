@@ -24,8 +24,8 @@ To deploy the generated service, you will need:
 
 * An https://developer.lightbend.com/docs/akka-serverless/getting-started/lightbend-account.html[Akka Serverless account]
 * An https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html#_create_a_project[Akka Serverless project]
-* The https://developer.lightbend.com/docs/akka-serverless/getting-started/set-up-development-env.html#_akka_serverless_cli[akkasls] CLI
-* A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/deploying/registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
+* The https://developer.lightbend.com/docs/akka-serverless/setting-up/#_akka_serverless_cli[akkasls] CLI
+* A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
 
 :sectnums:
 
@@ -90,7 +90,7 @@ Default API protobuf file::
 --
 [source,protobuf]
 ----
-include::example$archetype/first-service/src/main/proto/value-entities/counter_api.proto[]
+include::example$first-service/src/main/proto/value-entities/counter_api.proto[]
 ----
 --
 Default domain protobuf file::
@@ -99,7 +99,7 @@ Default domain protobuf file::
 --
 [source,protobuf]
 ----
-include::example$archetype/first-service/src/main/proto/value-entities/counter_domain.proto[]
+include::example$first-service/src/main/proto/value-entities/counter_domain.proto[]
 ----
 --
 
@@ -116,7 +116,7 @@ On the first build, the plugin creates a Value Entity implementation class where
 .src/main/java/com/example/domain/Counter.java
 [source,java]
 ----
-include::example$archetype/first-service/src/main/java/com/example/domain/Counter.java[]
+include::example$first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
 The Maven plugin provides the `Main` class implementation that registers service components with Akka Serverless.
@@ -124,7 +124,7 @@ The Maven plugin provides the `Main` class implementation that registers service
 .src/main/java/com/example/Main.java
 [source,java]
 ----
-include::example$archetype/first-service/src/main/java/com/example/Main.java[]
+include::example$first-service/src/main/java/com/example/Main.java[]
 ----
 
 This class is the entry point for running Akka Serverless within the container.
@@ -138,7 +138,7 @@ The Akka Serverless Maven plugin creates a unit test stub for the Entity. Use th
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]
 ----
-//FIXME include::example$archetype/first-service/src/test/java/com/example/domain/CounterTest.java[]
+include::example$first-service/src/test/java/com/example/domain/CounterTest.java[]
 ----
 
 Use the `verify` command to run all unit tests.
@@ -155,7 +155,7 @@ The Maven plugin also provides you with an initial setup for integration tests b
 .src/it/java/com/example/domain/CounterIntegrationTest.java
 [source,java]
 ----
-include::example$archetype/first-service/src/it/java/com/example/domain/CounterIntegrationTest.java[]
+include::example$first-service/src/it/java/com/example/domain/CounterIntegrationTest.java[]
 ----
 
 The Maven failsafe plugin runs the integration tests when the `it` profile is enabled via `-Pit`.
