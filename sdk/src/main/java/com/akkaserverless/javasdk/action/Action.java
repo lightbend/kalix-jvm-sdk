@@ -27,7 +27,7 @@ import java.util.concurrent.CompletionStage;
 
 public abstract class Action {
 
-  private Optional<ActionContext> actionContext = Optional.empty();
+  private volatile Optional<ActionContext> actionContext = Optional.empty();
 
   /**
    * Additional context and metadata for a message handler.

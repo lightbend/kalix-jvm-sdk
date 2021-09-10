@@ -142,9 +142,9 @@ lazy val codegenJavaCompilationTest = project
 lazy val samples = project
   .in(file("samples"))
   .aggregate( // samples relying on codegen must use Maven
-    // FIXME consider including this sample again?
-    // `java-eventing-shopping-cart`,
-    `valueentity-counter`
+             // FIXME consider including this sample again?
+             // `java-eventing-shopping-cart`,
+             // `valueentity-counter`
   )
 
 /**
@@ -163,7 +163,7 @@ lazy val samples = project
 lazy val `valueentity-counter` = project
   .in(file("samples/valueentity-counter"))
   .disablePlugins(JavaFormatterPlugin, HeaderPlugin)
-  .dependsOn(sdk)
+  .dependsOn(sdk, testkit % Test)
   .settings(
     name := "valueentity-counter",
     Compile / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "main" / "java",

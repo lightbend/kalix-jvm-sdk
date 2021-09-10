@@ -20,6 +20,7 @@ package customer.view;
 option java_outer_classname = "CustomerViewModel";
 
 import "customer/customer_domain.proto";
+import "customer/customer_api.proto";
 import "akkaserverless/annotations.proto";
 import "google/protobuf/any.proto";
 
@@ -35,7 +36,7 @@ service CustomerByName {
     type: SERVICE_TYPE_VIEW
   };
 
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) { // <2>
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) { // <2>
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers" // <3>
     };
@@ -45,7 +46,7 @@ service CustomerByName {
     };
   }
 
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) { // <2>
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) { // <2>
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
     };
@@ -55,7 +56,7 @@ service CustomerByName {
     };
   }
 
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (domain.CustomerState) {
+  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers"
     };
@@ -65,7 +66,7 @@ service CustomerByName {
     };
   }
 
-  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
      };
@@ -75,7 +76,7 @@ service CustomerByName {
      };
   };
 
-  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
+  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
     option (akkaserverless.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };
@@ -85,7 +86,7 @@ service CustomerByName {
 
 // tag::service-topic[]
 service CustomerByNameFromTopic {
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (domain.CustomerState) {
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       topic: "customers" // <1>
     };
@@ -95,7 +96,7 @@ service CustomerByNameFromTopic {
     };
   }
 
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (domain.CustomerState) {
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       topic: "customers"
     };
@@ -105,7 +106,7 @@ service CustomerByNameFromTopic {
     };
   }
 
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (domain.CustomerState) {
+  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       topic: "customers"
     };
@@ -115,7 +116,7 @@ service CustomerByNameFromTopic {
     };
   }
 
-  rpc IgnoreOtherEvents(google.protobuf.Any) returns (domain.CustomerState) {
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
       topic: "customers"
      };
@@ -125,7 +126,7 @@ service CustomerByNameFromTopic {
      };
   };
 
-  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
+  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
     option (akkaserverless.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };

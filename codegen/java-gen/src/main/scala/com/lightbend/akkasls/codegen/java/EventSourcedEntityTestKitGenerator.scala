@@ -70,8 +70,8 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
         "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
+        "com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl",
         "java.util.function.Function"
       )
     )
@@ -95,7 +95,6 @@ object EventSourcedEntityTestKitGenerator {
           |  private $stateClassName state;
           |  private $entityClassName entity;
           |  private List<Object> events = new ArrayList<Object>();
-          |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
           |
           |  /**
           |   * Create a testkit instance of $entityClassName
@@ -140,26 +139,17 @@ object EventSourcedEntityTestKitGenerator {
           |    return this.events;
           |  }
           |
-          |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
-          |    return CollectionConverters.asJava(helper.getEvents(effect));
-          |  }
-          |
-          |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, $stateClassName state) {
-          |    return (Reply) helper.getReply(effect, state);
-          |  }
-          |
           |  private $stateClassName handleEvent($stateClassName state, Object event) {
           |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
           |  }
           |
           |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-          |    List<Object> events = getEvents(effect);
-          |    this.events.add(events);
+          |    List<Object> events = EventSourcedResultImpl.eventsOf(effect);
+          |    this.events.addAll(events);
           |    for(Object e: events) {
           |      this.state = handleEvent(state,e);
           |    }
-          |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-          |    return new EventSourcedResult(reply, events);
+          |    return new EventSourcedResultImpl(effect, state);
           |  }
           |
           |  ${Syntax.indent(generateServices(service), 2)}
