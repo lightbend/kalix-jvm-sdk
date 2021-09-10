@@ -49,8 +49,8 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
         |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-        |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
         |import com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext;
+        |import com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl;
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
@@ -68,7 +68,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |
         |  private ShoppingCartDomain.Cart state;
         |  private ShoppingCart entity;
-        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
         |
         |  /**
         |   * Create a testkit instance of ShoppingCart
@@ -104,16 +103,13 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    return state;
         |  }
         |
-        |  private <Reply> Reply getReplyOfType(ValueEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
-        |    return (Reply) helper.getReply(effect);
-        |  }
-        |
         |  private <Reply> ValueEntityResult<Reply> interpretEffects(ValueEntity.Effect<Reply> effect) {
-        |    helper.updatedStateFrom(effect).ifPresent(state ->
-        |      this.state = (ShoppingCartDomain.Cart) state
-        |    );
-        |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-        |    return new ValueEntityResult(reply);
+        |    @SuppressWarnings("unchecked")
+        |    ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
+        |    if (result.stateWasUpdated()) {
+        |      this.state = (ShoppingCartDomain.Cart) result.getUpdatedState();
+        |    }
+        |    return result;
         |  }
         |
         |  public ValueEntityResult<Empty> addItem(ShoppingCartApi.AddLineItem addLineItem) {
@@ -158,7 +154,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
-        |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
         |import java.util.ArrayList;

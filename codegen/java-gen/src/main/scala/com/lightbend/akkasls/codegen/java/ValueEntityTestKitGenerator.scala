@@ -74,8 +74,8 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
         "com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
+        "com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl",
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
         "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"
       )
@@ -100,7 +100,6 @@ object ValueEntityTestKitGenerator {
        |
        |  private $stateClassName state;
        |  private $entityClassName entity;
-       |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<$stateClassName>();
        |
        |  /**
        |   * Create a testkit instance of $entityClassName
@@ -136,16 +135,13 @@ object ValueEntityTestKitGenerator {
        |    return state;
        |  }
        |
-       |  private <Reply> Reply getReplyOfType(ValueEntity.Effect<Reply> effect, $stateClassName state) {
-       |    return (Reply) helper.getReply(effect);
-       |  }
-       |
        |  private <Reply> ValueEntityResult<Reply> interpretEffects(ValueEntity.Effect<Reply> effect) {
-       |    helper.updatedStateFrom(effect).ifPresent(state ->
-       |      this.state = ($stateClassName) state
-       |    );
-       |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-       |    return new ValueEntityResult(reply);
+       |    @SuppressWarnings("unchecked")
+       |    ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
+       |    if (result.stateWasUpdated()) {
+       |      this.state = ($stateClassName) result.getUpdatedState();
+       |    }
+       |    return result;
        |  }
        |
        |  ${Syntax.indent(generateServices(service), 2)}
@@ -191,7 +187,6 @@ object ValueEntityTestKitGenerator {
         "java.util.NoSuchElementException",
         "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "org.junit.Test"
       )

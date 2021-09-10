@@ -5,14 +5,13 @@
 
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ShoppingCartTest {
 
@@ -24,6 +23,7 @@ public class ShoppingCartTest {
                 .setName("nameA").setQuantity(1).build();
         ValueEntityResult<Empty> resultA = testKit.addItem(commandA);
         assertEquals(Empty.getDefaultInstance(), resultA.getReply());
+        assertTrue(resultA.stateWasUpdated());
 
         ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
