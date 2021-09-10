@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// tag::receiving-json-messages[]
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
@@ -22,7 +23,7 @@ import "akkaserverless/annotations.proto";
 package shopping.cart.api;
 
 option java_outer_classname = "ShoppingCartTopic";
-
+// end::receiving-json-messages[]
 // Read from a Pub/Sub message with CloudEvent metadata
 message TopicOperation {
     string operation = 1;
@@ -31,21 +32,22 @@ message TopicOperation {
     string name = 4;
     int32 quantity = 5;
 }
-
+// tag::receiving-json-messages[]
 service ShoppingCartTopicService {
     option (akkaserverless.service) = {
         type : SERVICE_TYPE_ACTION
     };
-
+    // end::receiving-json-messages[]
     rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) {
         option (akkaserverless.method).eventing.in = {
             topic:  "shopping-cart-protobuf-cloudevents"
         };
     }
-
+    // tag::receiving-json-messages[]
     rpc JsonFromTopic(google.protobuf.Any) returns (google.protobuf.Empty) {
         option (akkaserverless.method).eventing.in = {
             topic:  "shopping-cart-json"
         };
     }
 }
+// end::receiving-json-messages[]

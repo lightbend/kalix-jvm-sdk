@@ -27,19 +27,32 @@ The Protobuf rpc method receiving these JSON messages must be set up to receive 
 
 [source,protobuf,indent=0]
 ----
-syntax = "proto3";
+include::java:example$java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_topic.proto[tag=receiving-json-messages]
+----
 
-import "google/protobuf/empty.proto";
-import "google/protobuf/any.proto";
-import "akkaserverless/annotations.proto";
 
-package shopping.cart.actions;
+The Java implementation of the method will follow the protobuf definintion and will receive `Any`. In the method implementation. You can then decode the message to the expected typed (eg: `TopicMessage`) using `JsonSupport.decodeJson`.
 
-service ShoppingCartTopicService {
-    rpc JsonFromTopic(google.protobuf.Any) returns (google.protobuf.Empty) {
-        option (akkaserverless.method).eventing.in = {
-            topic:  "shopping-cart-json"
-        };
-    }
+[source,java,indent=0]
+----
+include::java:example$java-eventing-shopping-cart/src/main/java/shopping/cart/api/ShoppingCartTopicServiceAction.java[tag=receiving-json-messages]
+----
+
+The parameter class needs to be annotated with Jackson Json annotations as usual. 
+
+[source,java,indent=0]
+----
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class TopicMessage {
+  public final String operation;
+
+  @JsonCreator
+  public JsonKeyValueMessage(@JsonProperty("operation") String operation) {
+    this.operation = operation;
+  }
 }
 ----
+
+For more detailed information on Json Serialization support in Akka Serverless, see xref:java:serialization.adoc[Handling Serialization].
