@@ -78,7 +78,7 @@ JSON formatted logging is enabled by default in the projects created by the xref
 .src/main/resources/logback.xml
 [source,java]
 ----
-include::example$archetype/first-service/src/main/resources/logback.xml[]
+include::example$first-service/src/main/resources/logback.xml[]
 ----
 
 In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
