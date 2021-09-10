@@ -29,9 +29,8 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
         SomeRegisterMapDomain.SomeValue.newBuilder()
             .setValue(command.getValue().getValue())
             .build();
-    registerMap.setValue(key, value); // <3>
     return effects()
-        .update(registerMap) // <4>
+        .update(registerMap.setValue(key, value)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -42,9 +41,8 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
       SomeRegisterMapApi.RemoveValue command) {
     SomeRegisterMapDomain.SomeKey key = // <1>
         SomeRegisterMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
-    registerMap.remove(key); // <3>
     return effects()
-        .update(registerMap) // <4>
+        .update(registerMap.remove(key)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]

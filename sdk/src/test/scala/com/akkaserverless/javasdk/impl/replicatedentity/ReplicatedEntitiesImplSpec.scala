@@ -66,7 +66,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
 
       protocol.replicatedEntity
         .connect()
-        .send( // reactivate with initial delt
+        .send( // reactivate with initial delta
           init(ShoppingCart.Name,
                "cart",
                update(domainLineItem("a", "apple", 3),

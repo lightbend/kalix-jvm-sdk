@@ -19,9 +19,9 @@ public class Counter extends AbstractCounter {
       return effects().error("Increase requires a positive value. It was [" + command.getValue() + "].");
     }
 
-    counter.increment(command.getValue());
-
-    return effects().update(counter).thenReply(Empty.getDefaultInstance());
+    return effects()
+        .update(counter.increment(command.getValue()))
+        .thenReply(Empty.getDefaultInstance());
   }
 
   @Override
@@ -30,9 +30,9 @@ public class Counter extends AbstractCounter {
       return effects().error("Decrease requires a positive value. It was [" + command.getValue() + "].");
     }
 
-    counter.decrement(command.getValue());
-
-    return effects().update(counter).thenReply(Empty.getDefaultInstance());
+    return effects()
+        .update(counter.decrement(command.getValue()))
+        .thenReply(Empty.getDefaultInstance());
   }
 
   @Override

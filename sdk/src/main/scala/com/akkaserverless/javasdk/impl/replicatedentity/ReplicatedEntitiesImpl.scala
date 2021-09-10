@@ -160,15 +160,7 @@ object ReplicatedEntitiesImpl {
     handler._internalInitialData(initialData, service.anySupport)
 
     def handleDelta(delta: ReplicatedEntityDelta): Unit = {
-      val data = handler._internalData()
-      data.applyDelta.applyOrElse(
-        delta.delta, { noMatch: ReplicatedEntityDelta.Delta =>
-          throw ProtocolException(
-            entityId,
-            s"Received delta ${noMatch.value.getClass} which doesn't match the expected replicated data type: ${data.name}"
-          )
-        }
-      )
+      handler._internalApplyDelta(entityId, delta)
     }
 
     def handleCommand(command: Command): ReplicatedEntityStreamOut = {
@@ -188,8 +180,6 @@ object ReplicatedEntitiesImpl {
         context.deactivate()
       }
 
-      val data = handler._internalData()
-
       val serializedSecondaryEffect = effect.secondaryEffect match {
         case MessageReplyImpl(message, metadata, sideEffects) =>
           MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
@@ -202,7 +192,7 @@ object ReplicatedEntitiesImpl {
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>
           log.error("Fail invoked for command [{}] for entity [{}]: {}", command.name, entityId, error.description)
-          if (data.hasDelta)
+          if (handler._internalHasDelta)
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(
             ReplicatedEntityStreamOut.Message.Reply(
@@ -218,9 +208,8 @@ object ReplicatedEntitiesImpl {
             case DeleteEntity =>
               Some(ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Delete(ReplicatedEntityDelete())))
             case _ =>
-              if (data.hasDelta) {
-                val delta = data.delta
-                data.resetDelta()
+              if (handler._internalHasDelta) {
+                val delta = handler._internalGetAndResetDelta
                 Some(
                   ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta)))
                 )

@@ -27,9 +27,8 @@ public class SomeMultiMap extends AbstractSomeMultiMap {
         SomeMultiMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
     SomeMultiMapDomain.SomeValue value = // <2>
         SomeMultiMapDomain.SomeValue.newBuilder().setValue(command.getValue().getValue()).build();
-    multiMap.put(key, value); // <3>
     return effects()
-        .update(multiMap) // <4>
+        .update(multiMap.put(key, value)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -45,9 +44,8 @@ public class SomeMultiMap extends AbstractSomeMultiMap {
                 value ->
                     SomeMultiMapDomain.SomeValue.newBuilder().setValue(value.getValue()).build())
             .collect(Collectors.toList());
-    multiMap.putAll(key, values); // <3>
     return effects()
-        .update(multiMap) // <4>
+        .update(multiMap.putAll(key, values)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -59,9 +57,8 @@ public class SomeMultiMap extends AbstractSomeMultiMap {
         SomeMultiMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
     SomeMultiMapDomain.SomeValue value = // <2>
         SomeMultiMapDomain.SomeValue.newBuilder().setValue(command.getValue().getValue()).build();
-    multiMap.remove(key, value); // <3>
     return effects()
-        .update(multiMap) // <4>
+        .update(multiMap.remove(key, value)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -71,9 +68,8 @@ public class SomeMultiMap extends AbstractSomeMultiMap {
       SomeMultiMapApi.RemoveAllValues command) {
     SomeMultiMapDomain.SomeKey key = // <1>
         SomeMultiMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
-    multiMap.removeAll(key); // <3>
     return effects()
-        .update(multiMap) // <4>
+        .update(multiMap.removeAll(key)) // <3>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]

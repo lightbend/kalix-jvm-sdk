@@ -26,9 +26,8 @@ public class SomeRegister extends AbstractSomeRegister {
       ReplicatedRegister<SomeRegisterDomain.SomeValue> register, SomeRegisterApi.SetValue command) {
     SomeRegisterDomain.SomeValue newValue = // <1>
         SomeRegisterDomain.SomeValue.newBuilder().setValue(command.getValue()).build();
-    register.set(newValue); // <2>
     return effects()
-        .update(register) // <3>
+        .update(register.set(newValue)) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]

@@ -25,54 +25,50 @@ import com.akkaserverless.protocol.replicated_entity.{
 }
 
 import java.util.{Collection => JCollection, Collections => JCollections, Set => JSet}
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
     anySupport: AnySupport,
-    _entries: mutable.Map[K, ReplicatedSetImpl[V]] = mutable.Map.empty[K, ReplicatedSetImpl[V]]
+    entries: Map[K, ReplicatedSetImpl[V]] = Map.empty[K, ReplicatedSetImpl[V]],
+    removed: Set[K] = Set.empty[K],
+    cleared: Boolean = false
 ) extends ReplicatedMultiMap[K, V]
     with InternalReplicatedData {
 
+  override type Self = ReplicatedMultiMapImpl[K, V]
   override val name = "ReplicatedMultiMap"
-
-  private val entries = _entries
-  private val removed = mutable.Set.empty[K]
-  private var cleared = false
-
-  private def getOrCreate(key: K): ReplicatedSetImpl[V] =
-    entries.getOrElseUpdate(key, new ReplicatedSetImpl[V](anySupport))
 
   override def get(key: K): JSet[V] = entries.get(key).fold(JCollections.emptySet[V])(_.elements)
 
-  override def put(key: K, value: V): Boolean =
-    getOrCreate(key).add(value)
+  override def put(key: K, value: V): ReplicatedMultiMapImpl[K, V] = {
+    val values = entries.getOrElse(key, new ReplicatedSetImpl[V](anySupport))
+    val updated = values.add(value)
+    new ReplicatedMultiMapImpl(anySupport, entries.updated(key, updated), removed, cleared)
+  }
 
-  override def putAll(key: K, values: JCollection[V]): Boolean =
-    if (values.isEmpty) false else getOrCreate(key).addAll(values)
+  override def putAll(key: K, values: JCollection[V]): ReplicatedMultiMapImpl[K, V] =
+    values.asScala.foldLeft(this) { case (map, value) => map.put(key, value) }
 
-  override def remove(key: K, value: V): Boolean = {
-    entries.get(key).fold(false) { values =>
-      val isRemoved = values.remove(value)
-      if (values.isEmpty) removeAll(key) else isRemoved
+  override def remove(key: K, value: V): ReplicatedMultiMapImpl[K, V] = {
+    entries.get(key).fold(this) { values =>
+      val updated = values.remove(value)
+      if (updated.isEmpty) removeAll(key)
+      else new ReplicatedMultiMapImpl(anySupport, entries.updated(key, updated), removed, cleared)
     }
   }
 
-  override def removeAll(key: K): Boolean = {
-    val isRemoved = entries.remove(key).isDefined
-    if (isRemoved) removed.add(key)
-    isRemoved
+  override def removeAll(key: K): ReplicatedMultiMapImpl[K, V] = {
+    if (!entries.contains(key)) {
+      this
+    } else {
+      new ReplicatedMultiMapImpl(anySupport, entries.removed(key), removed + key, cleared)
+    }
   }
 
-  override def clear(): Unit = {
-    cleared = true
-    entries.clear()
-    removed.clear()
-  }
+  override def clear(): ReplicatedMultiMapImpl[K, V] =
+    new ReplicatedMultiMapImpl[K, V](anySupport, cleared = true)
 
-  override def keySet(): JSet[K] = entries.keySet.asJava
-
-  override def size(): Int = entries.values.map(_.size()).sum
+  override def size: Int = entries.values.map(_.size).sum
 
   override def isEmpty: Boolean = entries.isEmpty
 
@@ -80,40 +76,39 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
 
   override def containsValue(key: K, value: V): Boolean = entries.get(key).fold(false)(_.contains(value))
 
-  override def copy(): ReplicatedMultiMapImpl[K, V] =
-    new ReplicatedMultiMapImpl(anySupport, entries.map {
-      case (key, set) => key -> set.copy()
-    })
+  override def keySet: JSet[K] = entries.keySet.asJava
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || entries.values.exists(_.hasDelta)
 
-  override def delta: ReplicatedEntityDelta.Delta =
+  override def getDelta: ReplicatedEntityDelta.Delta =
     ReplicatedEntityDelta.Delta.ReplicatedMultiMap(
       ReplicatedMultiMapDelta(
         cleared = cleared,
         removed = removed.map(anySupport.encodeScala).toSeq,
         updated = entries.collect {
           case (key, values) if values.hasDelta =>
-            ReplicatedMultiMapEntryDelta(Some(anySupport.encodeScala(key)), values.delta.replicatedSet)
+            ReplicatedMultiMapEntryDelta(Some(anySupport.encodeScala(key)), values.getDelta.replicatedSet)
         }.toSeq
       )
     )
 
-  override def resetDelta(): Unit = {
-    entries.values.foreach(_.resetDelta())
-    removed.clear()
-    cleared = false
+  override def resetDelta(): ReplicatedMultiMapImpl[K, V] =
+    if (hasDelta) new ReplicatedMultiMapImpl(anySupport, entries.view.mapValues(_.resetDelta()).toMap) else this
+
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMultiMapImpl[K, V]] = {
+    case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(ReplicatedMultiMapDelta(cleared, removed, updated, _)) =>
+      val reducedEntries =
+        if (cleared) Map.empty[K, ReplicatedSetImpl[V]]
+        else entries -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+      val updatedEntries = updated.foldLeft(reducedEntries) {
+        case (map, ReplicatedMultiMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
+          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val values = map.getOrElse(key, new ReplicatedSetImpl[V](anySupport))
+          map.updated(key, values.applyDelta(ReplicatedEntityDelta.Delta.ReplicatedSet(delta)))
+        case (map, _) => map
+      }
+      new ReplicatedMultiMapImpl(anySupport, updatedEntries)
   }
 
-  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
-    case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(ReplicatedMultiMapDelta(cleared, removed, updated, _)) =>
-      if (cleared) entries.clear()
-      removed.foreach(key => entries.remove(anySupport.decode(key).asInstanceOf[K]))
-      updated.foreach {
-        case ReplicatedMultiMapEntryDelta(Some(key), Some(delta), _) =>
-          getOrCreate(anySupport.decode(key).asInstanceOf[K])
-            .applyDelta(ReplicatedEntityDelta.Delta.ReplicatedSet(delta))
-        case _ =>
-      }
-  }
+  override def toString = s"ReplicatedMultiMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 }

@@ -31,20 +31,17 @@ final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends Replicated
     data
   }
 
-  override def newCounter(): ReplicatedCounter = newData(new ReplicatedCounterImpl)
+  override def newCounter(): ReplicatedCounter =
+    newData(new ReplicatedCounterImpl)
 
   override def newReplicatedCounterMap[K](): ReplicatedCounterMap[K] =
     newData(new ReplicatedCounterMapImpl[K](anySupport))
 
-  override def newReplicatedSet[T](): ReplicatedSet[T] = newData(new ReplicatedSetImpl[T](anySupport))
+  override def newReplicatedSet[T](): ReplicatedSet[T] =
+    newData(new ReplicatedSetImpl[T](anySupport))
 
-  override def newRegister[T](value: T): ReplicatedRegister[T] = {
-    val register = newData(new ReplicatedRegisterImpl[T](anySupport))
-    if (value != null) {
-      register.set(value)
-    }
-    register
-  }
+  override def newRegister[T](value: T): ReplicatedRegister[T] =
+    newData(new ReplicatedRegisterImpl[T](anySupport, value, Option(value).map(anySupport.encodeScala)))
 
   override def newReplicatedRegisterMap[K, V](): ReplicatedRegisterMap[K, V] =
     newData(new ReplicatedRegisterMapImpl[K, V](anySupport))
@@ -55,5 +52,6 @@ final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends Replicated
   override def newReplicatedMap[K, V <: ReplicatedData](): ReplicatedMap[K, V] =
     newData(new ReplicatedMapImpl[K, InternalReplicatedData](anySupport)).asInstanceOf[ReplicatedMap[K, V]]
 
-  override def newVote(): ReplicatedVote = newData(new ReplicatedVoteImpl)
+  override def newVote(): ReplicatedVote =
+    newData(new ReplicatedVoteImpl)
 }

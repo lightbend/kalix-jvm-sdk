@@ -23,9 +23,8 @@ public class SomeSet extends AbstractSomeSet {
       ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.AddElement command) {
     SomeSetDomain.SomeElement element = // <1>
         SomeSetDomain.SomeElement.newBuilder().setValue(command.getElement().getValue()).build();
-    set.add(element); // <2>
     return effects()
-        .update(set) // <3>
+        .update(set.add(element)) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -34,9 +33,8 @@ public class SomeSet extends AbstractSomeSet {
       ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.RemoveElement command) {
     SomeSetDomain.SomeElement element = // <1>
         SomeSetDomain.SomeElement.newBuilder().setValue(command.getElement().getValue()).build();
-    set.remove(element); // <2>
     return effects()
-        .update(set) // <3>
+        .update(set.remove(element)) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]
@@ -46,7 +44,7 @@ public class SomeSet extends AbstractSomeSet {
   public Effect<SomeSetApi.CurrentElements> get(
       ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.GetElements command) {
     List<SomeSetApi.Element> elements =
-        set.stream() // <1>
+        set.elements().stream() // <1>
             .map(element -> SomeSetApi.Element.newBuilder().setValue(element.getValue()).build())
             .sorted(Comparator.comparing(SomeSetApi.Element::getValue))
             .collect(Collectors.toList());

@@ -16,17 +16,15 @@ public class SomeCounter extends AbstractSomeCounter {
   // tag::update[]
   @Override
   public Effect<Empty> increase(ReplicatedCounter counter, SomeCounterApi.IncreaseValue command) {
-    counter.increment(command.getValue()); // <1>
     return effects()
-        .update(counter) // <2>
+        .update(counter.increment(command.getValue())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
 
   @Override
   public Effect<Empty> decrease(ReplicatedCounter counter, SomeCounterApi.DecreaseValue command) {
-    counter.decrement(command.getValue()); // <1>
     return effects()
-        .update(counter) // <2>
+        .update(counter.decrement(command.getValue())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]

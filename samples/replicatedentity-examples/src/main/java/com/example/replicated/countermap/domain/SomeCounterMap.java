@@ -24,9 +24,8 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
       SomeCounterMapApi.IncreaseValue command) {
     SomeCounterMapDomain.SomeKey key = // <1>
         SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
-    counterMap.increment(key, command.getValue()); // <2>
     return effects()
-        .update(counterMap) // <3>
+        .update(counterMap.increment(key, command.getValue())) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -36,9 +35,8 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
       SomeCounterMapApi.DecreaseValue command) {
     SomeCounterMapDomain.SomeKey key = // <1>
         SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
-    counterMap.decrement(key, command.getValue()); // <2>
     return effects()
-        .update(counterMap) // <3>
+        .update(counterMap.decrement(key, command.getValue())) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
 
@@ -48,9 +46,8 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
       SomeCounterMapApi.RemoveValue command) {
     SomeCounterMapDomain.SomeKey key = // <1>
         SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
-    counterMap.remove(key); // <2>
     return effects()
-        .update(counterMap) // <3>
+        .update(counterMap.remove(key)) // <2>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]
