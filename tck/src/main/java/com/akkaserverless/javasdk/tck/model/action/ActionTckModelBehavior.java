@@ -42,13 +42,12 @@ public class ActionTckModelBehavior extends Action {
   public Effect<Response> processUnary(Request request) {
     // Multiple request steps should be combined to give just one response, with subsequent steps
     // taking precedence.
-    return response(request.getGroupsList(), actionContext());
+    return response(request.getGroupsList());
   }
 
   public Effect<Response> processStreamedIn(Source<Request, NotUsed> requests) {
     // All request steps should be combined to produce a single response after the request stream
     // completes.
-    ActionContext actionContext = actionContext();
     CompletionStage<ArrayList<ProcessGroup>> processGroups =
         requests
             .fold(
@@ -58,29 +57,26 @@ public class ActionTckModelBehavior extends Action {
                   return acc;
                 })
             .runWith(Sink.head(), system);
-    CompletionStage<Effect<Response>> effect =
-        processGroups.thenApply(groups -> response(groups, actionContext));
+    CompletionStage<Effect<Response>> effect = processGroups.thenApply(groups -> response(groups));
     return effects().asyncEffect(effect);
   }
 
   public Source<Effect<Response>, NotUsed> processStreamedOut(Request request) {
-    ActionContext actionContext = actionContext();
     // The single request may contain multiple grouped steps, each group corresponding to an
     // expected response.
     return Source.from(request.getGroupsList())
-        .map(groupList -> response(Collections.singletonList(groupList), actionContext));
+        .map(groupList -> response(Collections.singletonList(groupList)));
   }
 
   public Source<Effect<Response>, NotUsed> processStreamed(Source<Request, NotUsed> requests) {
     // Each request may contain multiple grouped steps, each group corresponding to an expected
     // response.
-    ActionContext actionContext = actionContext();
     return requests
         .mapConcat(request -> request.getGroupsList())
-        .map(groupList -> response(Collections.singletonList(groupList), actionContext));
+        .map(groupList -> response(Collections.singletonList(groupList)));
   }
 
-  private Effect<Response> response(List<ProcessGroup> groups, ActionContext context) {
+  private Effect<Response> response(List<ProcessGroup> groups) {
     Effect<Response> effect = null;
     List<SideEffect> sideEffects = new ArrayList<>();
     // TCK tests expect the logic to be imperative, building something up and then discarding on
@@ -100,14 +96,14 @@ public class ActionTckModelBehavior extends Action {
             break;
           case FORWARD:
             if (!didFail) {
-              effect = effects().forward(serviceTwoRequest(step.getForward().getId(), context));
+              effect = effects().forward(serviceTwoRequest(step.getForward().getId()));
             }
             break;
           case EFFECT:
             com.akkaserverless.tck.model.Action.SideEffect sideEffect = step.getEffect();
             sideEffects.add(
                 com.akkaserverless.javasdk.SideEffect.of(
-                    serviceTwoRequest(sideEffect.getId(), context), sideEffect.getSynchronous()));
+                    serviceTwoRequest(sideEffect.getId()), sideEffect.getSynchronous()));
             break;
           case FAIL:
             effect = effects().error(step.getFail().getMessage());
@@ -121,8 +117,8 @@ public class ActionTckModelBehavior extends Action {
     return effect.addSideEffects(sideEffects);
   }
 
-  private ServiceCall serviceTwoRequest(String id, ActionContext context) {
-    return context
+  private ServiceCall serviceTwoRequest(String id) {
+    return actionContext()
         .serviceCallFactory()
         .lookup(ActionTwo.name, "Call", OtherRequest.class)
         .createCall(OtherRequest.newBuilder().setId(id).build());
