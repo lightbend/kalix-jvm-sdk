@@ -24,7 +24,8 @@ import com.google.protobuf.Descriptors;
 import java.util.function.Function;
 
 // FIXME handwritten version for now (awaiting codegen)
-public class ViewTckModelBehaviorProvider implements ViewProvider {
+public class ViewTckModelBehaviorProvider
+    implements ViewProvider<com.akkaserverless.tck.model.View.ViewState, ViewTckModelBehavior> {
 
   private final Function<ViewCreationContext, ViewTckModelBehavior> viewFactory;
 
