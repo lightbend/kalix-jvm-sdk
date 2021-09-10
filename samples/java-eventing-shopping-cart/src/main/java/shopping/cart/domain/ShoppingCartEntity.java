@@ -97,7 +97,7 @@ public class ShoppingCartEntity extends AbstractShoppingCartEntity {
     if (currentState.getCheckedOutTimestamp() > 0) {
       return effects().error("Cannot add item to checked out cart.");
     } else if (addLineItem.getQuantity() <= 0) {
-      return effects().error("Cannot add negative quantity of to item" + addLineItem.getProductId());
+      return effects().error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
     }
     ShoppingCartDomain.ItemAdded itemAddedEvent =
         ShoppingCartDomain.ItemAdded.newBuilder()

@@ -14,13 +14,4 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
     public CustomerByNameView(ViewCreationContext context) {
     }
 
-    @Override
-    public CustomerDomain.CustomerState emptyState() {
-        return null;
-    }
-
-    @Override
-    public UpdateEffect<CustomerDomain.CustomerState> updateCustomer(CustomerDomain.CustomerState state, CustomerDomain.CustomerState customerState) {
-        return effects().updateState(customerState);
-    }
 }

@@ -42,7 +42,7 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
       ShoppingCartApi.AddLineItem addLineItem) {
 
     if (addLineItem.getQuantity() <= 0) { // <1>
-      return effects().error("Cannot add negative quantity to item: " + addLineItem.getProductId());
+      return effects().error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
     }
 
     ShoppingCartDomain.Product product = // <2>

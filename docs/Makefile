@@ -22,7 +22,7 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples
+managed: attributes apidocs examples bundles
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -33,6 +33,8 @@ attributes:
 	echo ":minimum-java-version: 8" \
 		>> "${managed_partials}/attributes.adoc"
 	echo ":recommended-java-version: 11" \
+		>> "${managed_partials}/attributes.adoc"
+	echo ":java_minimum_sdk_version: 0.7.0-beta.19" \
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
@@ -53,6 +55,9 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
 	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
+
+bundles:
+	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 
