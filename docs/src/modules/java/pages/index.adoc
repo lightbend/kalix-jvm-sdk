@@ -68,79 +68,24 @@ libraryDependencies ++= Seq(
 ----
 
 == Configure JSON formatted logging
-Akka Serverless supports JSON formatted logging to provide multi-line messages formatted in readable JSON syntax. Always use JSON formatted logging for your Akka Serverless projects to efficiently analyze and easily leverage journal data.
+Akka Serverless supports JSON formatted logging to provide multi-line messages formatted in JSON syntax. Always use JSON formatted logging for your Akka Serverless projects to efficiently analyze and easily leverage logging information.
 
 [TIP]
- https://developer.lightbend.com/docs/akka-serverless/tutorial/iotexample-learn.html[Build and deploy the IoT example] to see JSON formatted logging in action.
+https://developer.lightbend.com/docs/akka-serverless/quickstart/cr-value-entity-java.html[Build and deploy the Quickstart example] to see JSON formatted logging in action.
 
-[NOTE]
-JSON formatted logging is available for Java only. Support for JavaScript and other languages is planned for future releases.
+JSON formatted logging is enabled by default in the projects created by the xref:kickstart.adoc[Akka Serverless Maven archetype]. It includes a dependency in `pom.xml` to `logback-json-classic` and a `logback.xml` file as shown here:
 
-To enable JSON formatted logging:
-
-. Update the akkaserverless sdk to a recent version, in the project `pom.xml`.
-+
-[source, xml, subs="attributes+"]
-
+.src/main/resources/logback.xml
+[source,java]
 ----
-<akkaserverless-sdk.version>{akkaserverless-java-sdk-version}</akkaserverless-sdk.version>
+include::example$archetype/first-service/src/main/resources/logback.xml[]
 ----
 
-. Add the following dependency:
-+
-[source, xml]
+In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
 
-----
-<dependency>
-  <!-- for JSON formatted logging -->
-  <groupId>ch.qos.logback.contrib</groupId>
-  <artifactId>logback-json-classic</artifactId>
-  <version>0.1.5</version>
-</dependency>
-----
+For local development you can switch to the `STDOUT` appender to make the logs more readable, or use `<prettyPrint>true</prettyPrint>` in the `jsonFormatter`. Don't use `prettyPrint` in production since the logging infrastructure will not handle multi-line log messages.
 
-. Create the `src/main/logback.xml` file as shown here:
-+
-[source, xml]
-
-----
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-    <appender name="JSON-STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
-      <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-        <layout class="com.akkaserverless.javasdk.logging.LogbackJsonLayout">
-            <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
-            <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
-            <appendLineSeparator>true</appendLineSeparator>
-            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                <prettyPrint>false</prettyPrint>
-            </jsonFormatter>
-        </layout>
-      </encoder>
-    </appender>
-
-    <appender name="ASYNC-JSON-STDOUT" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>8192</queueSize>
-        <neverBlock>true</neverBlock>
-        <appender-ref ref="JSON-STDOUT"/>
-    </appender>
-    <appender name="STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%date{ISO8601}] [%-5level] [%logger] - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="com.akkaserverless" level="INFO"/>
-    <logger name="akka" level="INFO"/>
-    <logger name="akka.http" level="INFO"/>
-    <logger name="io.grpc" level="INFO"/>
-
-    <root level="DEBUG">
-        <!--appender-ref ref="STDOUT"/-->
-        <appender-ref ref="ASYNC-JSON-STDOUT"/>
-    </root>
-</configuration>
-----
+NOTE: There is a separate `src/test/resources/logback-test.xml` that is used when running tests.
 
 == Create a main class
 
