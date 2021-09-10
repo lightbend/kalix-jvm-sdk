@@ -49,7 +49,7 @@ public class TopicMessage {
   public final String operation;
 
   @JsonCreator
-  public JsonKeyValueMessage(@JsonProperty("operation") String operation) {
+  public TopicMessage(@JsonProperty("operation") String operation) {
     this.operation = operation;
   }
 }
