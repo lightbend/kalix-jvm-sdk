@@ -220,12 +220,18 @@ WARNING: Views from topics cannot be rebuilt from the source messages, because i
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
 
-. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf and different `viewId` when <<register-view>>. Keep the old `register` of the old `service`.
+. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. Keep the old `register` of the old `service` in `Main`.
 . Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
-. Remove the old View definition and rename the new `service` to the old name if the public API is compatible.
+. Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
 . Deploy the second change.
 
-FIXME: renaming the service is not work, see issue https://github.com/lightbend/akkaserverless-java-sdk/issues/311
+This is how to define a custom `viewId`:
+
+[source,java,indent=0]
+.src/main/java/customer/Main.java
+----
+include::example$java-eventsourced-customer-registry/src/main/java/customer/MainWithCustomViewId.java[tag=register]
+----
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 
