@@ -143,7 +143,7 @@ The following is a simplification of its contents but in essence, what we show i
 .target/generated-test-sources/com/example/shoppingcart/domain/ShoppingCartTestKit.java
 [source,java]
 ----
-include::example$testkit/java-eventsourced-shopping-cart/target/generated-test-sources/akkaserverless/com/example/shoppingcart/domain/ShoppingCartTestKit.java[] 
+include::example$testkit/java-eventsourced-shopping-cart/intarget/generated-test-sources/akkaserverless/com/example/shoppingcart/domain/ShoppingCartTestKit.java[] 
 ----
 <1> This constructor requires a `ShoppingCart` Entity so we can interact with this Entity through the `ShoppingCartTestKit`.
 <2> This constructor allows us to set a state on the Entity, so we can start the test directly from the desired state instead of having to send all the commands that would produce such a state.
@@ -156,7 +156,7 @@ Once we call an RPC method on the entity this gives us back a `Result`. This cla
 
 [source,java]
 ----
-include::example$testkit/com/akkaserverless/javasdk/testkit/Result.java[tag=available-methods] 
+include::example$testkit/com/akkaserverless/javasdk/testkit/EventSourcedResult.java[tag=available-methods] 
 ----
 <1> This `Reply` is the response of the RPC method called in the test 
 <2> This `List<Object>` are the events generated upon the RPC method called in the test. This list can be inspected multiple times. This method is idempotent.
