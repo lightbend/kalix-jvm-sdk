@@ -4,20 +4,14 @@
  */
 package com.example.domain;
 
+// tag::sample-unit-test[]
 import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 import org.junit.Test;
-import scala.jdk.javaapi.CollectionConverters;
 
 import static org.junit.Assert.*;
 
-// tag::sample-unit-test[]
 public class CounterTest {
 
   @Test
