@@ -55,6 +55,7 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
 	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
+	rsync -a --exclude-from=.examplesignore ../samples/first-service/ "${managed_examples}/first-service/"
 
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart

@@ -220,6 +220,12 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
+          name: first-service by archetype
+          command: |
+            cd samples/first-service
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+      - run:
           name: Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry
