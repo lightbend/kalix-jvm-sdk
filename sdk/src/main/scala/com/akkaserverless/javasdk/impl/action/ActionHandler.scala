@@ -128,6 +128,8 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
                      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
+    // only set, never cleared, to allow access from other threads in async callbacks in the action
+    // the same handler and action instance is expected to only ever be invoked for a single command
     action._internalSetActionContext(Optional.of(context))
     try {
       func()
