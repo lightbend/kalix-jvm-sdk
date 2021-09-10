@@ -20,14 +20,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-/** @param <R> The type of reply that is expected from invoking a handler */
-public final class Result<R> {
+/**
+ * Represents the result of an EventSourcedEntity handling a command when run in through the
+ * testkit.
+ *
+ * @param <R> The type of reply that is expected from invoking command handler
+ */
+// FIXME a way to inspect other effects than reply?
+public final class EventSourcedResult<R> {
 
   private final R reply;
   private final List<Object> events;
   private final Iterator<Object> eventsIterator;
 
-  public Result(R reply, List<Object> events) {
+  /**
+   * INTERNAL API
+   *
+   * <p>Constructed by the generated code, not intended for calls from user code.
+   */
+  public EventSourcedResult(R reply, List<Object> events) {
     this.reply = reply;
     this.events = events;
     this.eventsIterator = events.iterator();
