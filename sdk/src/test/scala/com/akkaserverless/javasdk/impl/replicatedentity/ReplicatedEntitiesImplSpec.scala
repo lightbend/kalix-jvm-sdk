@@ -66,7 +66,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
 
       protocol.replicatedEntity
         .connect()
-        .send( // reactivate with initial delt
+        .send( // reactivate with initial delta
           init(ShoppingCart.Name,
                "cart",
                update(domainLineItem("a", "apple", 3),
@@ -188,13 +188,13 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
 
     "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Cannot add negative quantity to item foo"
+        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero."
       ) {
         protocol.replicatedEntity
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-          .expect(failure(1, "Cannot add negative quantity to item foo"))
+          .expect(failure(1, "Quantity for item foo must be greater than zero."))
           .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
           .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
           .passivate()

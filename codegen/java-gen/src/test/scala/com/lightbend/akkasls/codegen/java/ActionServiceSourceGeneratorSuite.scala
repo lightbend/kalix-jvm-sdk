@@ -382,7 +382,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class MyServiceActionProvider implements ActionProvider {
+        |public class MyServiceActionProvider implements ActionProvider<MyServiceAction> {
         |
         |  private final Function<ActionCreationContext, MyServiceAction> actionFactory;
         |
@@ -401,7 +401,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public final ActionHandler newHandler(ActionCreationContext context) {
+        |  public final MyServiceActionHandler newHandler(ActionCreationContext context) {
         |    return new MyServiceActionHandler(actionFactory.apply(context));
         |  }
         |
@@ -448,7 +448,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class MyServiceActionProvider implements ActionProvider {
+        |public class MyServiceActionProvider implements ActionProvider<MyServiceActionImpl> {
         |
         |  private final Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
         |
@@ -467,7 +467,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public final ActionHandler newHandler(ActionCreationContext context) {
+        |  public final MyServiceActionHandler newHandler(ActionCreationContext context) {
         |    return new MyServiceActionHandler(actionFactory.apply(context));
         |  }
         |

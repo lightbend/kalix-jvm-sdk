@@ -28,9 +28,8 @@ public interface ReplicatedCounterMap<K> extends ReplicatedData {
   /**
    * Get the counter value for the given key.
    *
-   * @param key The key to get the value for.
-   * @return The current value of the counter at that key, or zero if no counter exists for that
-   *     key.
+   * @param key the key to get the value for
+   * @return the current value of the counter at that key, or zero if no counter exists
    */
   long get(K key);
 
@@ -39,32 +38,64 @@ public interface ReplicatedCounterMap<K> extends ReplicatedData {
    *
    * <p>The counter will be created if it is not already in the map.
    *
-   * @param key The key of the counter.
-   * @param by The amount to increment by.
-   * @return The new value of the counter.
+   * @param key the key of the counter
+   * @param amount the amount to increment by
+   * @return a new counter map with the incremented value
    */
-  long increment(K key, long by);
+  ReplicatedCounterMap<K> increment(K key, long amount);
 
   /**
    * Decrement the counter at the given key by the given amount.
    *
    * <p>The counter will be created if it is not already in the map.
    *
-   * @param key The key of the counter.
-   * @param by The amount to decrement by.
-   * @return The new value of the counter.
+   * @param key the key of the counter
+   * @param amount the amount to decrement by
+   * @return a new counter map with the decremented value
    */
-  long decrement(K key, long by);
+  ReplicatedCounterMap<K> decrement(K key, long amount);
 
-  Set<K> keySet();
+  /**
+   * Remove the mapping for a key if it is present.
+   *
+   * @param key key whose mapping is to be removed from the map
+   * @return a new counter map with the removed mapping
+   */
+  ReplicatedCounterMap<K> remove(K key);
 
+  /**
+   * Remove all mappings from this counter map.
+   *
+   * @return a new empty counter map
+   */
+  ReplicatedCounterMap<K> clear();
+
+  /**
+   * Get the number of key-counter mappings in this counter map.
+   *
+   * @return the number of key-counter mappings in this counter map
+   */
   int size();
 
+  /**
+   * Check whether this counter map is empty.
+   *
+   * @return {@code true} if this counter map contains no key-counter mappings
+   */
   boolean isEmpty();
 
+  /**
+   * Check whether this counter map contains a mapping for the given key.
+   *
+   * @param key key whose presence in this map is to be tested
+   * @return {@code true} if this counter map contains a mapping for the given key
+   */
   boolean containsKey(K key);
 
-  void remove(K key);
-
-  void clear();
+  /**
+   * Get a {@link Set} view of the keys contained in this counter map.
+   *
+   * @return the keys contained in this counter map
+   */
+  Set<K> keySet();
 }

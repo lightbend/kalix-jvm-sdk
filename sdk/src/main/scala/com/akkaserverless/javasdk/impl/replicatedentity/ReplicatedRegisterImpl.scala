@@ -29,47 +29,38 @@ import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
 
 private[replicatedentity] final class ReplicatedRegisterImpl[T](
     anySupport: AnySupport,
-    _value: T = null.asInstanceOf[T]
+    value: T = null.asInstanceOf[T],
+    deltaValue: Option[ScalaPbAny] = None,
+    deltaClock: ReplicatedRegister.Clock = ReplicatedRegister.Clock.DEFAULT,
+    deltaCustomClockValue: Long = 0
 ) extends ReplicatedRegister[T]
     with InternalReplicatedData {
 
-  override final val name = "ReplicatedRegister"
-  private var value: T = _value
-  private var deltaValue: Option[ScalaPbAny] = None
-  private var clock: ReplicatedRegister.Clock = ReplicatedRegister.Clock.DEFAULT
-  private var customClockValue: Long = 0
-
-  override def set(value: T, clock: ReplicatedRegister.Clock, customClockValue: Long): T = {
-    Objects.requireNonNull(value)
-    val old = this.value
-    if (this.value != value || this.clock != clock || this.customClockValue != customClockValue) {
-      deltaValue = Some(anySupport.encodeScala(value))
-      this.value = value
-      this.clock = clock
-      this.customClockValue = customClockValue
-    }
-    old
-  }
+  override type Self = ReplicatedRegisterImpl[T]
+  override val name = "ReplicatedRegister"
 
   override def get(): T = value
 
-  override def copy(): ReplicatedRegisterImpl[T] = new ReplicatedRegisterImpl(anySupport, value)
+  override def set(newValue: T, clock: ReplicatedRegister.Clock, customClockValue: Long): ReplicatedRegisterImpl[T] = {
+    Objects.requireNonNull(newValue)
+    if (value != newValue || deltaClock != clock || deltaCustomClockValue != customClockValue) {
+      new ReplicatedRegisterImpl(anySupport, newValue, Some(anySupport.encodeScala(newValue)), clock, customClockValue)
+    } else this
+  }
 
   override def hasDelta: Boolean = deltaValue.isDefined
 
-  override def delta: ReplicatedEntityDelta.Delta =
-    ReplicatedEntityDelta.Delta.Register(ReplicatedRegisterDelta(deltaValue, convertClock(clock), customClockValue))
+  override def getDelta: ReplicatedEntityDelta.Delta =
+    ReplicatedEntityDelta.Delta.Register(
+      ReplicatedRegisterDelta(deltaValue, convertClock(deltaClock), deltaCustomClockValue)
+    )
 
-  override def resetDelta(): Unit = {
-    deltaValue = None
-    clock = ReplicatedRegister.Clock.DEFAULT
-    customClockValue = 0
-  }
+  override def resetDelta(): ReplicatedRegisterImpl[T] =
+    if (hasDelta) new ReplicatedRegisterImpl(anySupport, value) else this
 
-  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegisterImpl[T]] = {
     case ReplicatedEntityDelta.Delta.Register(ReplicatedRegisterDelta(Some(any), _, _, _)) =>
-      resetDelta()
-      this.value = anySupport.decode(any).asInstanceOf[T]
+      new ReplicatedRegisterImpl(anySupport, anySupport.decode(any).asInstanceOf[T])
   }
 
   private def convertClock(clock: ReplicatedRegister.Clock): ReplicatedEntityClock =

@@ -33,17 +33,17 @@ public class ViewTckModelBehavior extends View<ViewState> {
 
   public View.UpdateEffect<ViewState> processUpdateUnary(ViewState state, Event event) {
     if (event.hasReturnAsIs()) {
-      return updateEffects()
+      return effects()
           .updateState(ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
     } else if (event.hasUppercaseThis()) {
-      return updateEffects()
+      return effects()
           .updateState(
               ViewState.newBuilder()
                   .setData(event.getUppercaseThis().getData().toUpperCase())
                   .build());
     } else if (event.hasAppendToExistingState()) {;
       if (state == null) throw new IllegalArgumentException("State was null for " + event);
-      return updateEffects()
+      return effects()
           .updateState(
               state
                   .toBuilder()
@@ -52,7 +52,7 @@ public class ViewTckModelBehavior extends View<ViewState> {
     } else if (event.hasFail()) {
       throw new RuntimeException("Fail");
     } else if (event.hasIgnore()) {
-      return updateEffects().ignore();
+      return effects().ignore();
     } else {
       throw new RuntimeException("Unexpected event type " + event.getEventCase().name());
     }

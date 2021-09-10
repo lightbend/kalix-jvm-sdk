@@ -20,17 +20,15 @@ import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote
 import com.akkaserverless.protocol.replicated_entity.{ReplicatedEntityDelta, VoteDelta}
 
 private[replicatedentity] final class ReplicatedVoteImpl(
-    _selfVote: Boolean = false,
-    _voters: Int = 1,
-    _votesFor: Int = 0
+    selfVote: Boolean = false,
+    votesFor: Int = 0,
+    voters: Int = 1,
+    selfVoteChanged: Boolean = false
 ) extends ReplicatedVote
     with InternalReplicatedData {
 
-  override final val name = "Vote"
-  private var selfVote = _selfVote
-  private var voters = _voters
-  private var votesFor = _votesFor
-  private var selfVoteChanged = false
+  override type Self = ReplicatedVoteImpl
+  override val name = "ReplicatedVote"
 
   override def getSelfVote: Boolean = selfVote
 
@@ -38,35 +36,24 @@ private[replicatedentity] final class ReplicatedVoteImpl(
 
   override def getVotesFor: Int = votesFor
 
-  override def vote(vote: Boolean): Unit =
-    if (selfVote != vote) {
-      if (selfVoteChanged) {
-        selfVoteChanged = false
-      } else {
-        selfVoteChanged = true
-      }
-      selfVote = vote
-      if (selfVote) {
-        votesFor += 1
-      } else {
-        votesFor -= 1
-      }
+  override def vote(vote: Boolean): ReplicatedVoteImpl =
+    if (selfVote == vote) {
+      this
+    } else {
+      new ReplicatedVoteImpl(vote, votesFor + (if (vote) +1 else -1), voters, !selfVoteChanged)
     }
-
-  override def copy(): ReplicatedVoteImpl = new ReplicatedVoteImpl(selfVote, voters, votesFor)
 
   override def hasDelta: Boolean = selfVoteChanged
 
-  override def delta: ReplicatedEntityDelta.Delta =
+  override def getDelta: ReplicatedEntityDelta.Delta =
     ReplicatedEntityDelta.Delta.Vote(VoteDelta(selfVote))
 
-  override def resetDelta(): Unit = selfVoteChanged = false
+  override def resetDelta(): ReplicatedVoteImpl =
+    new ReplicatedVoteImpl(selfVote, votesFor, voters)
 
-  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
-    case ReplicatedEntityDelta.Delta.Vote(VoteDelta(selfVote, votesFor, totalVoters, _)) =>
-      this.selfVote = selfVote
-      this.voters = totalVoters
-      this.votesFor = votesFor
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedVoteImpl] = {
+    case ReplicatedEntityDelta.Delta.Vote(VoteDelta(selfVote, votesFor, voters, _)) =>
+      new ReplicatedVoteImpl(selfVote, votesFor, voters)
   }
 
   override def toString = s"Vote($selfVote)"

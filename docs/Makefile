@@ -23,7 +23,7 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples testkits
+managed: attributes apidocs examples bundles testkits
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -34,6 +34,8 @@ attributes:
 	echo ":minimum-java-version: 8" \
 		>> "${managed_partials}/attributes.adoc"
 	echo ":recommended-java-version: 11" \
+		>> "${managed_partials}/attributes.adoc"
+	echo ":java_minimum_sdk_version: 0.7.0-beta.19" \
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
@@ -58,6 +60,9 @@ examples:
 testkits:
 	mkdir -p "${managed_examples}"
 	rsync -a --exclude-from=.examplesignore ../testkit/src/main/java/ "${managed_examples}/testkit/"
+
+bundles:
+	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 

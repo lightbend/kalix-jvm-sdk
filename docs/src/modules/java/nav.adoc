@@ -1,4 +1,5 @@
 ** xref:java:index.adoc[]
+*** xref:java:developer-tools.adoc[]
 *** xref:developing:development-process-java.adoc[]
 *** xref:java:kickstart.adoc[]
 *** xref:java:proto.adoc[]
@@ -8,6 +9,7 @@
 *** xref:java:actions.adoc[Implementing Actions]
 *** xref:java:actions-as-controller.adoc[Actions as Controllers]
 *** xref:java:views.adoc[Creating Views]
+*** xref:java:side-effects.adoc[Running Side Effects]
 *** xref:java:serialization.adoc[Handling Serialization]
 *** xref:java:run-locally.adoc[Running a service locally]
 *** xref:java:api.adoc[Java API docs]

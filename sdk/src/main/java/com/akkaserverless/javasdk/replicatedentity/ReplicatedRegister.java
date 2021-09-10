@@ -34,17 +34,17 @@ public interface ReplicatedRegister<T> extends ReplicatedData {
   /**
    * Get the current value of the register.
    *
-   * @return The current value of the register.
+   * @return the current value of the register
    */
   T get();
 
   /**
-   * Set the current value of the register, using the default clock.
+   * Set the value of the register, using the default clock.
    *
-   * @param value The value of the register to set.
-   * @return The old value of the register.
+   * @param value the new value of the register
+   * @return a new register with updated value
    */
-  default T set(T value) {
+  default ReplicatedRegister<T> set(T value) {
     return set(value, Clock.DEFAULT, 0);
   }
 
@@ -52,15 +52,14 @@ public interface ReplicatedRegister<T> extends ReplicatedData {
    * Set the current value of the register, using the given custom clock and clock value if
    * required.
    *
-   * @param value The value of the register to set.
-   * @param clock The clock to use.
-   * @param customClockValue The custom clock value to use if the clock selected is a custom clock.
-   *     This is ignored if the clock is not a custom clock.
-   * @return The old value of the register.
+   * @param value the new value of the register
+   * @param clock the clock to use for replication
+   * @param customClockValue the custom clock value to use, only if it's a custom clock
+   * @return a new register with updated value
    */
-  T set(T value, Clock clock, long customClockValue);
+  ReplicatedRegister<T> set(T value, Clock clock, long customClockValue);
 
-  /** A clock. */
+  /** Clock for register replication */
   enum Clock {
 
     /** The default clock, uses the current system time as the clock value. */

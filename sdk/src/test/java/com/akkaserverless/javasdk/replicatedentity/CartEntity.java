@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 import com.example.replicatedentity.shoppingcart.ShoppingCartApi;
 import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;
+import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain.LineItem;
 import com.google.protobuf.Empty;
 
 import java.util.Comparator;
@@ -38,11 +39,13 @@ public class CartEntity extends AbstractCartEntity {
       ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem> cart,
       ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
-      return effects().error("Cannot add negative quantity to item " + addLineItem.getProductId());
+      return effects()
+          .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
     }
 
-    cart.setValue(addLineItem.getProductId(), updateItem(addLineItem, cart));
-    return effects().update(cart).thenReply(Empty.getDefaultInstance());
+    return effects()
+        .update(cart.setValue(addLineItem.getProductId(), updateItem(addLineItem, cart)))
+        .thenReply(Empty.getDefaultInstance());
   }
 
   @Override

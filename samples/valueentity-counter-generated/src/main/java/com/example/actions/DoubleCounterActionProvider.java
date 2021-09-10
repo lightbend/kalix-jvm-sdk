@@ -20,7 +20,7 @@ import java.util.function.Function;
  *
  * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
  */
-public class DoubleCounterActionProvider implements ActionProvider {
+public class DoubleCounterActionProvider implements ActionProvider<DoubleCounterAction> {
 
   private final Function<ActionCreationContext, DoubleCounterAction> actionFactory;
 
@@ -39,7 +39,7 @@ public class DoubleCounterActionProvider implements ActionProvider {
   }
 
   @Override
-  public final ActionHandler newHandler(ActionCreationContext context) {
+  public final DoubleCounterActionHandler newHandler(ActionCreationContext context) {
     return new DoubleCounterActionHandler(actionFactory.apply(context));
   }
 

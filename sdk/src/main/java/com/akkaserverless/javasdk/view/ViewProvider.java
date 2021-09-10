@@ -17,15 +17,16 @@
 package com.akkaserverless.javasdk.view;
 
 import com.akkaserverless.javasdk.impl.view.ViewHandler;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Descriptors;
 
-public interface ViewProvider {
+public interface ViewProvider<S, V extends View<S>> {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
   String viewId();
 
-  ViewHandler newHandler(ViewCreationContext context);
+  ViewHandler<S, V> newHandler(ViewCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

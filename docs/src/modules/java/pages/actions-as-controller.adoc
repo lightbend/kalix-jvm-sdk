@@ -27,12 +27,12 @@ The class `DoubleCounterAction` gets generated for us based on the proto file de
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=double-counter-action]
+include::example$valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-forward]
 ----
 
-<1> In the constructor, we use the `ActionCreationContext` to create a `ServiceCallRef` pointing to the `Increase` method in the `Counter` entity.
+<1> In the constructor, we use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
 <2> On incoming requests, we double the value of `IncreaseValue`
-<3> Once we have the `ServiceCallRef` we can create a call passing the new `increaseValueDoubled` to it and using is in the `forward`.
+<3> We use the `increaseCallRef` to build a `ServiceCall` that is then passed to `effects().forward()` method.
 
 == Registering the Action
 

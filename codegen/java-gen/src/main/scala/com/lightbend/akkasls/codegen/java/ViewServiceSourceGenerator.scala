@@ -143,8 +143,9 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
     val imports = generateImports(
       Nil,
+      view.state,
       packageName,
-      Seq(
+      otherImports = Seq(
         "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
         "com.akkaserverless.javasdk.impl.view.ViewHandler",
         "com.akkaserverless.javasdk.view.ViewProvider",
@@ -162,24 +163,35 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
-        |public class ${view.providerName} implements ViewProvider {
+        |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.viewClassName}> {
         |
         |  private final Function<ViewCreationContext, ${view.viewClassName}> viewFactory;
+        |  private final String viewId;
         |
         |  /** Factory method of ${view.viewClassName} */
         |  public static ${view.providerName} of(
         |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory) {
-        |    return new ${view.providerName}(viewFactory);
+        |    return new ${view.providerName}(viewFactory, "${view.viewId}");
         |  }
         |
         |  private ${view.providerName}(
-        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory) {
+        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory,
+        |      String viewId) {
         |    this.viewFactory = viewFactory;
+        |    this.viewId = viewId;
         |  }
         |
         |  @Override
         |  public String viewId() {
-        |    return "${view.viewId}";
+        |    return viewId;
+        |  }
+        |
+        |  /**
+        |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
+        |   * A different identifier can be needed when making rolling updates with changes to the view definition.
+        |   */
+        |  public ${view.providerName} withViewId(String viewId) {
+        |    return new ${view.providerName}(viewFactory, viewId);
         |  }
         |
         |  @Override

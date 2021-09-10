@@ -225,24 +225,35 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.google.protobuf.EmptyProto;
        |import java.util.function.Function;
        |
-       |public class MyServiceViewProvider implements ViewProvider {
+       |public class MyServiceViewProvider implements ViewProvider<ServiceOuterClass.ViewState, MyServiceView> {
        |
        |  private final Function<ViewCreationContext, MyServiceView> viewFactory;
+       |  private final String viewId;
        |
        |  /** Factory method of MyServiceView */
        |  public static MyServiceViewProvider of(
        |      Function<ViewCreationContext, MyServiceView> viewFactory) {
-       |    return new MyServiceViewProvider(viewFactory);
+       |    return new MyServiceViewProvider(viewFactory, "MyService");
        |  }
        |
        |  private MyServiceViewProvider(
-       |      Function<ViewCreationContext, MyServiceView> viewFactory) {
+       |      Function<ViewCreationContext, MyServiceView> viewFactory,
+       |      String viewId) {
        |    this.viewFactory = viewFactory;
+       |    this.viewId = viewId;
        |  }
        |
        |  @Override
        |  public String viewId() {
-       |    return "my-view-id";
+       |    return viewId;
+       |  }
+       |
+       |  /**
+       |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
+       |   * A different identifier can be needed when making rolling updates with changes to the view definition.
+       |   */
+       |  public MyServiceViewProvider withViewId(String viewId) {
+       |    return new MyServiceViewProvider(viewFactory, viewId);
        |  }
        |
        |  @Override

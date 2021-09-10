@@ -172,7 +172,7 @@ object TestData {
           FullyQualifiedName("ViewState", proto)
         )
       ),
-      s"my-view-id$suffix",
+      s"MyService$suffix",
       updates,
       updates
     )

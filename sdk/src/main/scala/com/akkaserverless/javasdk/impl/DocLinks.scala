@@ -34,7 +34,9 @@ object DocLinks {
     "AS-001" -> s"$baseUrl/java/views.html",
     "AS-002" -> s"$baseUrl/java/value-entity.html",
     "AS-003" -> s"$baseUrl/java/eventsourced.html",
-    "AS-004" -> s"$baseUrl/java/" // no single page for eventing
+    "AS-004" -> s"$baseUrl/java/", // no single page for eventing
+    "AS-005" -> s"$baseUrl/java/", // no docs yet for replicated entities
+    "AS-006" -> s"$baseUrl/java/proto.html#_transcoding_http" // all HTTP API errors
   )
 
   def forErrorCode(code: String): Option[String] =

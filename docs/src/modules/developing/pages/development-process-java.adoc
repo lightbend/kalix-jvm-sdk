@@ -42,9 +42,9 @@ Stateful services encapsulate business logic in Value Entities or Event Sourced 
 
 TIP: To learn more about Akka Serverless entities see xref:java:value-entity.adoc[Implementing Value Entities], xref:java:eventsourced.adoc[Implementing Event Sourced Entities], and xref:java:replicated-entity.adoc[Implementing Replicated Entities].
 
-If you would like to update multiple Entities from a single command, you can use forwarding and effects. 
+If you would like to update multiple Entities from a single command, you can use forwarding and side effects. 
 
-TIP: For more information see xref:java:forwarding.adoc[Forwarding and effects].
+TIP: For more information see xref:java:actions-as-controller.adoc[Actions as Controllers] and xref:java:side-effects.adoc[Running Side Effects].
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
