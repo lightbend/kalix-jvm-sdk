@@ -26,55 +26,52 @@ import java.util.NoSuchElementException;
  *
  * @param <R> The type of reply that is expected from invoking command handler
  */
-// FIXME a way to inspect other effects than reply?
-public final class EventSourcedResult<R> {
+public interface EventSourcedResult<R> {
 
-  private final R reply;
-  private final List<Object> events;
-  private final Iterator<Object> eventsIterator;
+  /** @return true if the call had an effect with a reply, false if not */
+  boolean isReply();
 
   /**
-   * INTERNAL API
-   *
-   * <p>Constructed by the generated code, not intended for calls from user code.
+   * The reply object from the handler if there was one. If the call had an effect without any reply
+   * an exception is thrown
    */
-  public EventSourcedResult(R reply, List<Object> events) {
-    this.reply = reply;
-    this.events = events;
-    this.eventsIterator = events.iterator();
-  }
+  R getReply();
 
-  /** The reply object from the handler if there was one. */
-  public R getReply() {
-    return reply;
-  }
+  /** @return true if the call was forwarded, false if not */
+  boolean isForward();
 
-  /** All emitted events. */
-  public List<Object> getAllEvents() {
-    return events;
-  }
+  /**
+   * An object with details about the forward. If the result was not a forward an exception is
+   * thrown
+   */
+  ServiceCallDetails<R> getForward();
+
+  /** @return true if the call was an error, false if not */
+  boolean isError();
+
+  /** The error description. If the result was not an error an exception is thrown */
+  String getError();
+
+  /** @return true if the call had a noReply effect, false if not */
+  boolean isNoReply();
+
+  /**
+   * @return The updated state. If the state was not updated (no events emitted) an exeption is
+   *     thrown
+   */
+  Object getUpdatedState();
+
+  boolean didEmitEvents();
+
+  /** @return All the events that were emitted by handling this command. */
+  List<Object> getAllEvents();
 
   /**
    * Look at the next event and verify that it is of type E or fail if not or if there is no next
-   * event.
+   * event. If successful this consumes the event, so that the next call to this method looks at the
+   * next event from here.
    *
    * @return The next event if it is of type E, for additional assertions.
    */
-  public <E> E getNextEventOfType(Class<E> expectedClass) {
-    if (!eventsIterator.hasNext()) throw new NoSuchElementException("No more events found");
-    else {
-      @SuppressWarnings("unchecked")
-      Object next = eventsIterator.next();
-      if (expectedClass.isInstance(next)) {
-        return (E) next;
-      } else {
-        throw new NoSuchElementException(
-            "expected event type ["
-                + expectedClass.getName()
-                + "] but found ["
-                + next.getClass().getName()
-                + "]");
-      }
-    }
-  }
+  <E> E getNextEventOfType(Class<E> expectedClass);
 }

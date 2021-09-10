@@ -76,7 +76,6 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl",
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper",
         "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"
       )

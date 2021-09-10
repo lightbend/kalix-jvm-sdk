@@ -29,10 +29,11 @@ import com.akkaserverless.javasdk.valueentity.ValueEntity
 /**
  * INTERNAL API
  */
-final class ValueEntityResultImpl[T](effect: ValueEntityEffectImpl[T]) extends ValueEntityResult[T] {
+private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R])
+    extends ValueEntityResult[R] {
 
-  def this(effect: ValueEntity.Effect[T]) =
-    this(effect.asInstanceOf[ValueEntityEffectImpl[T]])
+  def this(effect: ValueEntity.Effect[R]) =
+    this(effect.asInstanceOf[ValueEntityEffectImpl[R]])
 
   override def isReply(): Boolean = effect.secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
@@ -44,17 +45,17 @@ final class ValueEntityResultImpl[T](effect: ValueEntityEffectImpl[T]) extends V
     case NoSecondaryEffectImpl => "no effect" // this should never happen
   }
 
-  override def getReply(): T = effect.secondaryEffect match {
-    case reply: MessageReplyImpl[T @unchecked] => reply.message
+  override def getReply(): R = effect.secondaryEffect match {
+    case reply: MessageReplyImpl[R @unchecked] => reply.message
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
   }
 
   override def isForward(): Boolean = effect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def getForward(): ServiceCallDetails[T] = effect.secondaryEffect match {
-    case reply: ForwardReplyImpl[T @unchecked] =>
+  override def getForward(): ServiceCallDetails[R] = effect.secondaryEffect match {
+    case reply: ForwardReplyImpl[R @unchecked] =>
       reply.serviceCall match {
-        case t: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked] =>
+        case t: TestKitServiceCallFactory.TestKitServiceCall[R @unchecked] =>
           t
         case surprise =>
           throw new IllegalStateException(s"Unexpected type of service call in testkit: ${surprise.getClass.getName}")

@@ -49,7 +49,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
         |import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-        |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
         |import com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext;
         |import com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl;
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;

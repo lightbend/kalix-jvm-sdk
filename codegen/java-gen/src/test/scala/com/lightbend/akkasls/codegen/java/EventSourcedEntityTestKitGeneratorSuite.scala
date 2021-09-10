@@ -52,7 +52,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
         |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
         |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-        |import com.akkaserverless.javasdk.testkit.impl.AkkaServerlessTestKitHelper;
+        |import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl;
         |import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
@@ -70,7 +70,6 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |  private ShoppingCartDomain.Cart state;
         |  private ShoppingCart entity;
         |  private List<Object> events = new ArrayList<Object>();
-        |  private AkkaServerlessTestKitHelper helper = new AkkaServerlessTestKitHelper<ShoppingCartDomain.Cart>();
         |
         |  /**
         |   * Create a testkit instance of ShoppingCart
@@ -115,14 +114,6 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    return this.events;
         |  }
         |
-        |  private <Reply> List<Object> getEvents(EventSourcedEntity.Effect<Reply> effect) {
-        |    return CollectionConverters.asJava(helper.getEvents(effect));
-        |  }
-        |
-        |  private <Reply> Reply getReplyOfType(EventSourcedEntity.Effect<Reply> effect, ShoppingCartDomain.Cart state) {
-        |    return (Reply) helper.getReply(effect, state);
-        |  }
-        |
         |  private ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
         |    if (event instanceof ShoppingCartDomain.ItemAdded) {
         |      return entity.itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
@@ -134,13 +125,12 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-        |    List<Object> events = getEvents(effect);
-        |    this.events.add(events);
+        |    List<Object> events = EventSourcedResultImpl.eventsOf(effect);
+        |    this.events.addAll(events);
         |    for(Object e: events) {
         |      this.state = handleEvent(state,e);
         |    }
-        |    Reply reply = this.<Reply>getReplyOfType(effect, this.state);
-        |    return new EventSourcedResult(reply, events);
+        |    return new EventSourcedResultImpl(effect, state);
         |  }
         |
         |  public EventSourcedResult<Empty> addItem(ShoppingCartApi.AddLineItem command) {
