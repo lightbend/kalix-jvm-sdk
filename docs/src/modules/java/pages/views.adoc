@@ -1,4 +1,4 @@
-= Implementing Views
+= Implementing Views in Java
 
 include::ROOT:partial$include.adoc[]
 
