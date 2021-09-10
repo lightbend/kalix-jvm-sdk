@@ -11,10 +11,11 @@ import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
 import shopping.cart.actions.TopicMessage;
-
 /** This action illustrates the consumption from a topic (shopping-cart-operations). */
-public class ShoppingCartTopicServiceAction extends AbstractShoppingCartTopicServiceAction {
-
+// tag::receiving-json-messages[]
+public class ShoppingCartTopicServiceAction 
+  extends AbstractShoppingCartTopicServiceAction {
+// end::receiving-json-messages[]
   private final String forwardTo = "shopping.cart.api.ShoppingCartService";
 
   public ShoppingCartTopicServiceAction(ActionCreationContext creationContext) {}
@@ -39,12 +40,21 @@ public class ShoppingCartTopicServiceAction extends AbstractShoppingCartTopicSer
     }
   }
 
+  // tag::receiving-json-messages[]
   /**
-   * Note that the protobuf rpc is declared with `Any` and parsing JSON in the event is done explicitly
+   * Note that the protobuf rpc is declared with `Any` 
+   * and parsing JSON in the event is done explicitly
    */
   @Override
   public Effect<Empty> jsonFromTopic(Any any) {
     TopicMessage message = JsonSupport.decodeJson(TopicMessage.class, any);
+    // end::receiving-json-messages[]
+    /* we don't show the full impl in the docs, only 3 dots and a default reply
+    // tag::receiving-json-messages[]
+    ...
+    effects().reply(Empty.getDefaultInstance());
+    // end::receiving-json-messages[]
+    */
     if ("add".equals(message.getOperation())) {
       ShoppingCartApi.AddLineItem add =
           ShoppingCartApi.AddLineItem.newBuilder()
@@ -69,6 +79,8 @@ public class ShoppingCartTopicServiceAction extends AbstractShoppingCartTopicSer
       return effects().forward(removeItemCall.createCall(remove));
     } else {
       return effects().error("The operation [" + message.getOperation() + "] is not implemented.");
-    }
+    }  
+  // tag::receiving-json-messages[]  
   }
 }
+// end::receiving-json-messages[]
