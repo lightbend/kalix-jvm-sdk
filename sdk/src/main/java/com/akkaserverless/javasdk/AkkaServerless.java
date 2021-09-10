@@ -18,33 +18,33 @@ package com.akkaserverless.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
-import akka.annotation.ApiMayChange;
-import akka.stream.Materializer;
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.action.ActionHandler;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityHandlerFactory;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.impl.view.AnnotationBasedViewSupport;
-import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityFactory;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.action.ActionProvider;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import com.akkaserverless.javasdk.impl.ActionFactory;
 import com.akkaserverless.javasdk.impl.AnySupport;
+import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory;
+import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory;
+import com.akkaserverless.javasdk.impl.ValueEntityFactory;
+import com.akkaserverless.javasdk.impl.ViewFactory;
 import com.akkaserverless.javasdk.impl.action.ActionService;
-import com.akkaserverless.javasdk.impl.action.AnnotationBasedActionSupport;
-import com.akkaserverless.javasdk.impl.replicatedentity.AnnotationBasedReplicatedEntitySupport;
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityStatefulService;
-import com.akkaserverless.javasdk.impl.valueentity.AnnotationBasedEntitySupport;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.AnnotationBasedEventSourcedSupport;
+import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
-import com.akkaserverless.javasdk.view.View;
-import com.akkaserverless.javasdk.view.ViewFactory;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityService;
+import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
+import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
+import com.akkaserverless.javasdk.impl.view.ViewService;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
+import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
+import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
+import com.akkaserverless.javasdk.view.ViewProvider;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
@@ -64,6 +64,164 @@ public final class AkkaServerless {
   private ClassLoader classLoader = getClass().getClassLoader();
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
+  private final LowLevelRegistration lowLevel = new LowLevelRegistration();
+
+  private class LowLevelRegistration {
+    /**
+     * Register an event sourced entity factory.
+     *
+     * <p>This is a low level API intended for custom mechanisms for implementing the entity.
+     *
+     * @param factory The event sourced factory.
+     * @param descriptor The descriptor for the service that this entity implements.
+     * @param entityType The persistence id for this entity.
+     * @param entityOptions the options for this entity.
+     * @param additionalDescriptors Any additional descriptors that should be used to look up
+     *     protobuf types when needed.
+     * @return This stateful service builder.
+     */
+    public AkkaServerless registerEventSourcedEntity(
+        EventSourcedEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        EventSourcedEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      EventSourcedEntityFactory resolvedFactory =
+          new ResolvedEventSourcedEntityFactory(
+              factory, anySupport.resolveServiceDescriptor(descriptor));
+
+      services.put(
+          descriptor.getFullName(),
+          system ->
+              new EventSourcedEntityService(
+                  resolvedFactory,
+                  descriptor,
+                  anySupport,
+                  entityType,
+                  entityOptions.snapshotEvery(),
+                  entityOptions));
+
+      return AkkaServerless.this;
+    }
+
+    /**
+     * Register an Action handler.
+     *
+     * <p>This is a low level API intended for custom mechanisms for implementing the action.
+     *
+     * @param descriptor The descriptor for the service that this action implements.
+     * @param additionalDescriptors Any additional descriptors that should be used to look up
+     *     protobuf types when needed.
+     * @return This Akka Serverless builder.
+     */
+    public AkkaServerless registerAction(
+        ActionFactory actionFactory,
+        Descriptors.ServiceDescriptor descriptor,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      final AnySupport anySupport = newAnySupport(additionalDescriptors);
+
+      ActionFactory resolvedActionFactory =
+          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
+
+      ActionService service = new ActionService(resolvedActionFactory, descriptor, anySupport);
+
+      services.put(descriptor.getFullName(), system -> service);
+
+      return AkkaServerless.this;
+    }
+
+    /**
+     * Register a value based entity factory.
+     *
+     * <p>This is a low level API intended for custom mechanisms for implementing the entity.
+     *
+     * @param factory The value based entity factory.
+     * @param descriptor The descriptor for the service that this entity implements.
+     * @param entityType The entity type name
+     * @param entityOptions The options for this entity.
+     * @return This stateful service builder.
+     */
+    public AkkaServerless registerValueEntity(
+        ValueEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        ValueEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      ValueEntityFactory resolvedFactory =
+          new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+
+      services.put(
+          descriptor.getFullName(),
+          system ->
+              new ValueEntityService(
+                  resolvedFactory, descriptor, anySupport, entityType, entityOptions));
+
+      return AkkaServerless.this;
+    }
+
+    /**
+     * Register a replicated entity factory.
+     *
+     * <p>This is a low level API intended for custom mechanisms for implementing the entity.
+     *
+     * @param factory The replicated entity factory.
+     * @param descriptor The descriptor for the service that this entity implements.
+     * @param entityType The entity type name.
+     * @param entityOptions The options for this entity.
+     * @return This stateful service builder.
+     */
+    public AkkaServerless registerReplicatedEntity(
+        ReplicatedEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        ReplicatedEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      ReplicatedEntityFactory resolvedFactory =
+          new ResolvedReplicatedEntityFactory(
+              factory, anySupport.resolveServiceDescriptor(descriptor));
+
+      services.put(
+          descriptor.getFullName(),
+          system ->
+              new ReplicatedEntityService(
+                  resolvedFactory, descriptor, anySupport, entityType, entityOptions));
+
+      return AkkaServerless.this;
+    }
+
+    /**
+     * Register a view factory.
+     *
+     * <p>This is a low level API intended for custom mechanisms for implementing the view.
+     *
+     * @param factory The view factory.
+     * @param descriptor The descriptor for the service that this entity implements.
+     * @param viewId The id of this view, used for persistence.
+     * @param additionalDescriptors Any additional descriptors that should be used to look up
+     *     protobuf types when needed.
+     * @return This stateful service builder.
+     */
+    private AkkaServerless registerView(
+        ViewFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String viewId,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      ViewService service =
+          new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
+      services.put(descriptor.getFullName(), system -> service);
+
+      return AkkaServerless.this;
+    }
+  }
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of
@@ -112,454 +270,89 @@ public final class AkkaServerless {
   }
 
   /**
-   * Register an annotated event sourced entity.
+   * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
+   * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
+   * example <code>CustomerEntityProvider</code>.
    *
-   * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
+   * <p>{@link ReplicatedEntityOptions} can be defined by in the <code>ReplicatedEntityProvider
+   * </code>.
    *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEventSourcedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerEventSourcedEntity(
-        entityClass, descriptor, EventSourcedEntityOptions.defaults(), additionalDescriptors);
+  public <D extends ReplicatedData, E extends ReplicatedEntity<D>> AkkaServerless register(
+      ReplicatedEntityProvider<D, E> provider) {
+    return lowLevel.registerReplicatedEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
-   * Register an annotated event sourced entity.
+   * Register a value based entity using a {{@link ValueEntityProvider}}. The concrete <code>
+   * ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for
+   * example <code>CustomerEntityProvider</code>.
    *
-   * <p>The entity class must be annotated with {@link
-   * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity}.
+   * <p>{{@link ValueEntityOptions}} can be defined by in the <code>ValueEntityProvider</code>.
    *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The entity options.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEventSourcedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      EventSourcedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    EventSourcedEntity entity = entityClass.getAnnotation(EventSourcedEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass
-              + " does not declare an "
-              + EventSourcedEntity.class.getName()
-              + " annotation!");
-    }
-    if (descriptor == null) {
-      throw new NullPointerException(
-          "The ServiceDescriptor may not be null, verify the service lookup name.");
-    }
-
-    final String entityType;
-    final int snapshotEvery;
-    if (entity.entityType().isEmpty()) {
-      entityType = entityClass.getSimpleName();
-      snapshotEvery = 0; // Default
-    } else {
-      entityType = entity.entityType();
-      snapshotEvery = entity.snapshotEvery();
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
-    EventSourcedEntityService service =
-        new EventSourcedEntityService(
-            new AnnotationBasedEventSourcedSupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityType,
-            snapshotEvery,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
+  public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
+    return lowLevel.registerValueEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
-   * Register an event sourced entity factory.
+   * Register a event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
+   * <code>
+   * EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
+   * for example <code>CustomerEntityProvider</code>.
    *
-   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the entity.
+   * <p>{{@link EventSourcedEntityOptions}} can be defined by in the <code>
+   * EventSourcedEntityProvider</code>.
    *
-   * @param factory The event sourced factory.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityType The persistence id for this entity.
-   * @param snapshotEvery Specifies how snapshots of the entity state should be made: Zero means use
-   *     default from configuration file. (Default) Any negative value means never snapshot. Any
-   *     positive value means snapshot at-or-after that number of events.
-   * @param entityOptions the options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerEventSourcedEntity(
-      EventSourcedEntityFactory factory,
-      Descriptors.ServiceDescriptor descriptor,
-      String entityType,
-      int snapshotEvery,
-      EventSourcedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    services.put(
-        descriptor.getFullName(),
-        system ->
-            new EventSourcedEntityService(
-                factory,
-                descriptor,
-                newAnySupport(additionalDescriptors),
-                entityType,
-                snapshotEvery,
-                entityOptions));
-
-    return this;
+  public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
+      EventSourcedEntityProvider<S, E> provider) {
+    return lowLevel.registerEventSourcedEntity(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.entityType(),
+        provider.options(),
+        provider.additionalDescriptors());
   }
 
   /**
-   * Register an annotated replicated entity.
+   * Register a view using a {@link ViewProvider}. The concrete <code>
+   * ViewProvider</code> is generated for the specific views defined in Protobuf, for example <code>
+   * CustomerViewProvider</code>.
    *
-   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerReplicatedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerReplicatedEntity(
-        entityClass, descriptor, ReplicatedEntityOptions.defaults(), additionalDescriptors);
+  public AkkaServerless register(ViewProvider provider) {
+    return lowLevel.registerView(
+        provider::newHandler,
+        provider.serviceDescriptor(),
+        provider.viewId(),
+        provider.additionalDescriptors());
   }
 
   /**
-   * Register an annotated replicated entity.
+   * Register an action using an {{@link ActionProvider}}. The concrete <code>
+   * ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
+   * <code>CustomerActionProvider</code>.
    *
-   * <p>The entity class must be annotated with {@link ReplicatedEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
    * @return This stateful service builder.
    */
-  public AkkaServerless registerReplicatedEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      ReplicatedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    ReplicatedEntity entity = entityClass.getAnnotation(ReplicatedEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass
-              + " does not declare an "
-              + ReplicatedEntity.class.getName()
-              + " annotation!");
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
-    ReplicatedEntityStatefulService service =
-        new ReplicatedEntityStatefulService(
-            new AnnotationBasedReplicatedEntitySupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
-   * Register a replicated entity factory.
-   *
-   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the entity.
-   *
-   * @param factory The replicated entity factory.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerReplicatedEntity(
-      ReplicatedEntityHandlerFactory factory,
-      Descriptors.ServiceDescriptor descriptor,
-      ReplicatedEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    services.put(
-        descriptor.getFullName(),
-        system ->
-            new ReplicatedEntityStatefulService(
-                factory, descriptor, newAnySupport(additionalDescriptors), entityOptions));
-
-    return this;
-  }
-
-  /**
-   * Register an annotated Action service.
-   *
-   * <p>The action class must be annotated with {@link Action}.
-   *
-   * @param actionClass The action class, its constructor may accept an {@link
-   *     ActionCreationContext}.
-   * @param descriptor The descriptor for the service that this action implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This Akka Serverless builder.
-   */
-  public AkkaServerless registerAction(
-      Class<?> actionClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    if (!actionClass.isAnnotationPresent(Action.class)) {
-      throw new IllegalArgumentException(
-          actionClass + " does not declare an " + Action.class.getName() + " annotation!");
-    }
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-    services.put(
-        descriptor.getFullName(),
-        system ->
-            new ActionService(
-                AnnotationBasedActionSupport.forClass(
-                    actionClass, anySupport, descriptor, Materializer.matFromSystem(system)),
-                descriptor,
-                anySupport));
-    return this;
-  }
-
-  /**
-   * Register an Action handler.
-   *
-   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the action.
-   *
-   * @param actionHandler The action handler.
-   * @param descriptor The descriptor for the service that this action implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This Akka Serverless builder.
-   */
-  public AkkaServerless registerAction(
-      ActionHandler actionHandler,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
-    ActionService service = new ActionService(context -> actionHandler, descriptor, anySupport);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
-   * Register an annotated value based entity.
-   *
-   * <p>The entity class must be annotated with {@link ValueEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerValueEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    return registerValueEntity(
-        entityClass, descriptor, ValueEntityOptions.defaults(), additionalDescriptors);
-  }
-
-  /**
-   * Register an annotated value based entity.
-   *
-   * <p>The entity class must be annotated with {@link ValueEntity}.
-   *
-   * @param entityClass The entity class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerValueEntity(
-      Class<?> entityClass,
-      Descriptors.ServiceDescriptor descriptor,
-      ValueEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    ValueEntity entity = entityClass.getAnnotation(ValueEntity.class);
-    if (entity == null) {
-      throw new IllegalArgumentException(
-          entityClass + " does not declare an " + ValueEntity.class.getName() + " annotation!");
-    }
-
-    final String entityType;
-    if (entity.entityType().isEmpty()) {
-      entityType = entityClass.getSimpleName();
-    } else {
-      entityType = entity.entityType();
-    }
-
-    final AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ValueEntityService service =
-        new ValueEntityService(
-            new AnnotationBasedEntitySupport(entityClass, anySupport, descriptor),
-            descriptor,
-            anySupport,
-            entityType,
-            entityOptions);
-
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
-   * Register a value based entity factory.
-   *
-   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the entity.
-   *
-   * @param factory The value based entity factory.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param entityType The entity type name
-   * @param entityOptions The options for this entity.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerValueEntity(
-      ValueEntityFactory factory,
-      Descriptors.ServiceDescriptor descriptor,
-      String entityType,
-      ValueEntityOptions entityOptions,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    services.put(
-        descriptor.getFullName(),
-        system ->
-            new ValueEntityService(
-                factory,
-                descriptor,
-                newAnySupport(additionalDescriptors),
-                entityType,
-                entityOptions));
-
-    return this;
-  }
-
-  /**
-   * Experimental API: Register a view that has `transform_updates=false` set, so it can be handled
-   * by the proxy.
-   *
-   * @param descriptor The descriptor of the view.
-   * @param viewId The id of this view, used for persistence.
-   * @param additionalDescriptors Any additional descriptors that may need to be loaded to support
-   *     it.
-   * @return This stateful service builder.
-   */
-  @ApiMayChange
-  public AkkaServerless registerView(
-      Descriptors.ServiceDescriptor descriptor,
-      String viewId,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ViewService service = new ViewService(Optional.empty(), descriptor, anySupport, viewId);
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
-   * Register an annotated view.
-   *
-   * <p>The view class must be annotated with {@link com.akkaserverless.javasdk.view.View}.
-   *
-   * @param viewClass The view class.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param viewId The id of this view, used for persistence.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerView(
-      Class<?> viewClass,
-      Descriptors.ServiceDescriptor descriptor,
-      String viewId,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    View view = viewClass.getAnnotation(View.class);
-    if (view == null) {
-      throw new IllegalArgumentException(
-          viewClass + " does not declare an " + View.class.getName() + " annotation!");
-    }
-
-    AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ViewService service =
-        new ViewService(
-            Optional.of(new AnnotationBasedViewSupport(viewClass, anySupport, descriptor)),
-            descriptor,
-            anySupport,
-            viewId);
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
-  }
-
-  /**
-   * Register a view factory.
-   *
-   * <p>This is a low level API intended for custom (eg, non reflection based) mechanisms for
-   * implementing the view.
-   *
-   * @param factory The view factory.
-   * @param descriptor The descriptor for the service that this entity implements.
-   * @param viewId The id of this view, used for persistence.
-   * @param additionalDescriptors Any additional descriptors that should be used to look up protobuf
-   *     types when needed.
-   * @return This stateful service builder.
-   */
-  public AkkaServerless registerView(
-      ViewFactory factory,
-      Descriptors.ServiceDescriptor descriptor,
-      String viewId,
-      Descriptors.FileDescriptor... additionalDescriptors) {
-
-    AnySupport anySupport = newAnySupport(additionalDescriptors);
-    ViewService service =
-        new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
-    services.put(descriptor.getFullName(), system -> service);
-
-    return this;
+  public AkkaServerless register(ActionProvider provider) {
+    return lowLevel.registerAction(
+        provider::newHandler, provider.serviceDescriptor(), provider.additionalDescriptors());
   }
 
   /**

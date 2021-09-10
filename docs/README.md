@@ -11,6 +11,11 @@ make
 
 Dynamically-generated and managed sources will be created in `build/src/managed`.
 
+For quick iteration of changes you can use a partial build:
+
+```
+make examples dev-html
+```
 
 ## Deploying docs
 

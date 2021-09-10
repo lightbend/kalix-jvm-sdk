@@ -17,16 +17,16 @@
 package com.akkaserverless.javasdk.tck.model.action;
 
 import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.Handler;
+import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.tck.model.Action.OtherRequest;
 import com.akkaserverless.tck.model.Action.Response;
 
-@Action
-public class ActionTwoBehavior {
-  public ActionTwoBehavior() {}
+import java.util.concurrent.CompletableFuture;
 
-  @Handler
-  public Response call(OtherRequest request) {
-    return Response.getDefaultInstance();
+public class ActionTwoBehavior extends Action {
+  public ActionTwoBehavior(ActionCreationContext creationContext) {}
+
+  public Effect<Response> call(OtherRequest request) {
+    return effects().asyncReply(CompletableFuture.completedFuture(Response.getDefaultInstance()));
   }
 }

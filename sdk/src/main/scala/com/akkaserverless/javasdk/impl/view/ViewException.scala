@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.view
 
-import com.akkaserverless.javasdk.view.UpdateHandlerContext
+import com.akkaserverless.javasdk.view.UpdateContext
 
 /**
  * INTERNAL API
@@ -34,7 +34,12 @@ private[impl] object ViewException {
   def apply(message: String): ViewException =
     ViewException(viewId = "", commandName = "", message, None)
 
-  def apply(context: UpdateHandlerContext, message: String, cause: Option[Throwable]): ViewException =
-    ViewException(context.viewId, context.commandName, message, cause)
+  def apply(context: UpdateContext, message: String, cause: Option[Throwable]): ViewException =
+    ViewException(context.viewId, context.eventName, message, cause)
 
 }
+
+/**
+ * INTERNAL API
+ */
+final case class UpdateHandlerNotFound(eventName: String) extends RuntimeException

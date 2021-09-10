@@ -27,14 +27,15 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class ShoppingCartIntegrationTest {
 
   /**
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(Main.SERVICE);
+  public static final AkkaServerlessTestkitResource testkit =
+      new AkkaServerlessTestkitResource(Main.createAkkaServerless());
 
   private final ShoppingCartServiceClient client;
 

@@ -24,75 +24,83 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedRegisterMapEntryDelta
 }
 
-import java.util.{Optional, Set => JSet}
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
-private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](anySupport: AnySupport)
-    extends ReplicatedRegisterMap[K, V]
+private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
+    anySupport: AnySupport,
+    registers: Map[K, ReplicatedRegisterImpl[V]] = Map.empty[K, ReplicatedRegisterImpl[V]],
+    removed: Set[K] = Set.empty[K],
+    cleared: Boolean = false
+) extends ReplicatedRegisterMap[K, V]
     with InternalReplicatedData {
 
+  override type Self = ReplicatedRegisterMapImpl[K, V]
   override val name = "ReplicatedRegisterMap"
 
-  private val registers = mutable.Map.empty[K, ReplicatedRegisterImpl[V]]
-  private val removed = mutable.Set.empty[K]
-  private var cleared = false
+  override def getValue(key: K): java.util.Optional[V] = registers.get(key).map(_.get()).toJava
 
-  private def getOrCreate(key: K): ReplicatedRegisterImpl[V] =
-    registers.getOrElseUpdate(key, new ReplicatedRegisterImpl[V](anySupport))
+  override def setValue(
+      key: K,
+      value: V,
+      clock: ReplicatedRegister.Clock,
+      customClockValue: Long
+  ): ReplicatedRegisterMapImpl[K, V] = {
+    val register = registers.getOrElse(key, new ReplicatedRegisterImpl[V](anySupport))
+    val updated = register.set(value, clock, customClockValue)
+    new ReplicatedRegisterMapImpl(anySupport, registers.updated(key, updated), removed, cleared)
+  }
 
-  override def getValue(key: K): Optional[V] = registers.get(key).map(_.get()).toJava
+  override def remove(key: K): ReplicatedRegisterMapImpl[K, V] = {
+    if (!registers.contains(key)) {
+      this
+    } else {
+      new ReplicatedRegisterMapImpl(anySupport, registers.removed(key), removed + key, cleared)
+    }
+  }
 
-  override def setValue(key: K, value: V, clock: ReplicatedRegister.Clock, customClockValue: Long): Unit =
-    getOrCreate(key).set(value, clock, customClockValue)
+  override def clear(): ReplicatedRegisterMapImpl[K, V] =
+    new ReplicatedRegisterMapImpl[K, V](anySupport, cleared = true)
 
-  override def keySet(): JSet[K] = registers.keySet.asJava
-
-  override def size(): Int = registers.size
+  override def size: Int = registers.size
 
   override def isEmpty: Boolean = registers.isEmpty
 
   override def containsKey(key: K): Boolean = registers.contains(key)
 
-  override def remove(key: K): Unit = if (registers.contains(key)) {
-    registers.remove(key)
-    removed.add(key)
-  }
-
-  override def clear(): Unit = {
-    cleared = true
-    registers.clear()
-    removed.clear()
-  }
+  override def keySet: java.util.Set[K] = registers.keySet.asJava
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || registers.values.exists(_.hasDelta)
 
-  override def delta: ReplicatedEntityDelta.Delta = ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(
-    ReplicatedRegisterMapDelta(
-      cleared = cleared,
-      removed = removed.map(anySupport.encodeScala).toSeq,
-      updated = registers.collect {
-        case (key, register) if register.hasDelta =>
-          ReplicatedRegisterMapEntryDelta(Some(anySupport.encodeScala(key)), register.delta.register)
-      }.toSeq
+  override def getDelta: ReplicatedEntityDelta.Delta =
+    ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(
+      ReplicatedRegisterMapDelta(
+        cleared = cleared,
+        removed = removed.map(anySupport.encodeScala).toSeq,
+        updated = registers.collect {
+          case (key, register) if register.hasDelta =>
+            ReplicatedRegisterMapEntryDelta(Some(anySupport.encodeScala(key)), register.getDelta.register)
+        }.toSeq
+      )
     )
-  )
 
-  override def resetDelta(): Unit = {
-    registers.values.foreach(_.resetDelta())
-    removed.clear()
-    cleared = false
-  }
+  override def resetDelta(): ReplicatedRegisterMapImpl[K, V] =
+    if (hasDelta) new ReplicatedRegisterMapImpl(anySupport, registers.view.mapValues(_.resetDelta()).toMap) else this
 
-  override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegisterMapImpl[K, V]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(ReplicatedRegisterMapDelta(cleared, removed, updated, _)) =>
-      if (cleared) registers.clear()
-      removed.foreach(key => registers.remove(anySupport.decode(key).asInstanceOf[K]))
-      updated.foreach {
-        case ReplicatedRegisterMapEntryDelta(Some(key), Some(delta), _) =>
-          getOrCreate(anySupport.decode(key).asInstanceOf[K]).applyDelta(ReplicatedEntityDelta.Delta.Register(delta))
-        case _ =>
+      val reducedRegisters =
+        if (cleared) Map.empty[K, ReplicatedRegisterImpl[V]]
+        else registers -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+      val updatedRegisters = updated.foldLeft(reducedRegisters) {
+        case (map, ReplicatedRegisterMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
+          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val register = map.getOrElse(key, new ReplicatedRegisterImpl[V](anySupport))
+          map.updated(key, register.applyDelta(ReplicatedEntityDelta.Delta.Register(delta)))
+        case (map, _) => map
       }
+      new ReplicatedRegisterMapImpl(anySupport, updatedRegisters)
   }
+
+  override def toString = s"ReplicatedRegisterMap(${registers.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 }

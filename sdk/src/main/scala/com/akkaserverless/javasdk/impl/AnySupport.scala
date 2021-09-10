@@ -16,9 +16,8 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.Jsonable
+import com.akkaserverless.javasdk.JsonSupport
 import com.akkaserverless.javasdk.impl.AnySupport.Prefer.{Java, Scala}
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.CaseFormat
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.{
@@ -46,7 +45,6 @@ object AnySupport {
 
   private final val AkkaServerlessPrimitiveFieldNumber = 1
   final val AkkaServerlessPrimitive = "p.akkaserverless.com/"
-  final val AkkaServerlessJson = "json.akkaserverless.com/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
@@ -125,7 +123,17 @@ object AnySupport {
     .asInstanceOf[Seq[(String, Primitive[Any])]]
     .toMap
 
-  final val objectMapper = new ObjectMapper()
+  /**
+   * INTERNAL API
+   */
+  private[akkaserverless] def encodePrimitiveBytes(bytes: ByteString): ByteString =
+    primitiveToBytes(BytesPrimitive, bytes)
+
+  /**
+   * INTERNAL API
+   */
+  private[akkaserverless] def decodePrimitiveBytes(bytes: ByteString): ByteString =
+    bytesToPrimitive(BytesPrimitive, bytes)
 
   private def primitiveToBytes[T](primitive: Primitive[T], value: T): ByteString =
     if (value != primitive.defaultValue) {
@@ -338,33 +346,6 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
   private def resolveTypeUrl(typeName: String): Option[ResolvedType[_]] =
     allTypes.get(typeName).map(resolveTypeDescriptor)
 
-  private def decodeJson(typeUrl: String, bytes: ByteString) = {
-    val jsonType = typeUrl.substring(AkkaServerlessJson.length)
-    reflectionCache
-      .getOrElseUpdate(
-        "$json$" + jsonType,
-        Try {
-          try {
-            val jsonClass = classLoader.loadClass(jsonType)
-            if (!jsonClass.isAnnotationPresent(classOf[Jsonable])) {
-              throw SerializationException(
-                s"Illegal CloudEvents json class, no @Jsonable annotation is present: $jsonType"
-              )
-            }
-            new JacksonResolvedType(jsonClass.asInstanceOf[Class[Any]],
-                                    typeUrl,
-                                    objectMapper.readerFor(jsonClass),
-                                    objectMapper.writerFor(jsonClass))
-          } catch {
-            case cnfe: ClassNotFoundException =>
-              throw SerializationException("Could not load JSON class: " + jsonType, cnfe)
-          }
-        }
-      )
-      .get
-      .parseFrom(bytesToPrimitive(BytesPrimitive, bytes))
-  }
-
   def encodeJava(value: Any): JavaPbAny =
     value match {
       case javaPbAny: JavaPbAny => javaPbAny
@@ -389,6 +370,11 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           scalaPbMessage.toByteString
         )
 
+      case null =>
+        throw SerializationException(
+          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable."
+        )
+
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
         ScalaPbAny(primitive.fullName, primitiveToBytes(primitive, value))
@@ -396,21 +382,17 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       case byteString: ByteString =>
         ScalaPbAny(BytesPrimitive.fullName, primitiveToBytes(BytesPrimitive, byteString))
 
-      case _: AnyRef if value.getClass.isAnnotationPresent(classOf[Jsonable]) =>
-        val json = UnsafeByteOperations.unsafeWrap(objectMapper.writeValueAsBytes(value))
-        ScalaPbAny(AkkaServerlessJson + value.getClass.getName, primitiveToBytes(BytesPrimitive, json))
-
       case other =>
         throw SerializationException(
           s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable."
         )
     }
 
-  def decode(any: ScalaPbAny): Any = decode(any.typeUrl, any.value)
+  def decode(any: JavaPbAny): Any = decode(ScalaPbAny.fromJavaProto(any))
 
-  def decode(any: JavaPbAny): Any = decode(any.getTypeUrl, any.getValue)
-
-  private def decode(typeUrl: String, bytes: ByteString): Any =
+  def decode(any: ScalaPbAny): Any = {
+    val typeUrl = any.typeUrl
+    val bytes = any.value
     if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
       NameToPrimitives.get(typeUrl) match {
         case Some(primitive) =>
@@ -418,8 +400,10 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
         case None =>
           throw SerializationException("Unknown primitive type url: " + typeUrl)
       }
-    } else if (typeUrl.startsWith(AkkaServerlessJson)) {
-      decodeJson(typeUrl, bytes)
+    } else if (typeUrl.startsWith(JsonSupport.AKKA_SERVERLESS_JSON)) {
+      // the general decode does not actually handle json but returns it as is (but as Scala PB any) and let the user
+      // decide which json type to try decode it into
+      ScalaPbAny.toJavaProto(any)
     } else {
       val typeName = typeUrl.split("/", 2) match {
         case Array(host, typeName) =>
@@ -445,6 +429,21 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
           throw SerializationException("Unable to find descriptor for type: " + typeUrl)
       }
     }
+  }
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)
+
+/**
+ * INTERNAL API
+ */
+// only here to avoid MODULE$ forwarder mess from Java
+private[akkaserverless] object ByteStringEncoding {
+
+  def encodePrimitiveBytes(bytes: ByteString): ByteString =
+    AnySupport.encodePrimitiveBytes(bytes)
+
+  def decodePrimitiveBytes(bytes: ByteString): ByteString =
+    AnySupport.decodePrimitiveBytes(bytes)
+
+}

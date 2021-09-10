@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.example.counter.domain;
+
+import "akkaserverless/annotations.proto";
+
+option java_outer_classname = "CounterDomain";
+
+option (akkaserverless.file).replicated_entity = {
+  name: "Counter"
+  entity_type: "counter"
+  replicated_counter: {}
+};

@@ -17,6 +17,8 @@ syntax = "proto3";
 
 package shopping.cart.actions;
 
+option java_outer_classname = "ShoppingCartAnalytics";
+
 import "akkaserverless/annotations.proto";
 import "cart/shopping_cart_domain.proto";
 import "google/protobuf/empty.proto";
@@ -26,6 +28,10 @@ import "google/protobuf/empty.proto";
 // only logs what it receives.
 // tag::subscribing[]
 service ShoppingCartAnalyticsService {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_ACTION
+  };
+
   // get ItemAdded from the topic
   rpc ProcessAdded(shopping.cart.domain.ItemAdded) returns (google.protobuf.Empty) {
     option (akkaserverless.method).eventing.in = { // <1>

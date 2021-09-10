@@ -25,7 +25,7 @@ import scala.util.Either;
  * commands, events and states. Entities are produced in the source file
  * directory for Java, unless they already exist, in which case they will be
  * modified appropriately. Only type declarations associated with commands,
- * events and state are affected i.e. not tbe body of existing methods.
+ * events and state are affected i.e. not the body of existing methods.
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMojo extends AbstractMojo {
@@ -47,6 +47,10 @@ public class GenerateMojo extends AbstractMojo {
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java", required = true)
     private File generatedSourceDirectory;
+
+  @SuppressWarnings("unused")
+  @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/akkaserverless/java", required = true)
+  private File generatedTestSourceDirectory;
 
     // src/main/java
     @SuppressWarnings("unused")
@@ -105,6 +109,7 @@ public class GenerateMojo extends AbstractMojo {
                           testSourceDirectory.toPath(),
                           integrationTestSourceDirectory.toPath(),
                           generatedSourceDirectory.toPath(),
+                          generatedTestSourceDirectory.toPath(),
                           mainClass,
                           log);
                   Path absBaseDir = baseDir.toPath().toAbsolutePath();
@@ -114,6 +119,7 @@ public class GenerateMojo extends AbstractMojo {
                   });
   
                   project.addCompileSourceRoot(generatedSourceDirectory.toString());
+                  project.addTestCompileSourceRoot(generatedTestSourceDirectory.toString());
                   
                 } else {
                         throw new RuntimeException(new MojoExecutionException(

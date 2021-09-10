@@ -16,79 +16,29 @@
 
 package customer.domain;
 
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-@ValueEntity(entityType = "customers")
 public class Customer extends AbstractCustomer {
   @SuppressWarnings("unused")
   private final String entityId;
 
-  public Customer(@EntityId String entityId) {
-    this.entityId = entityId;
+  public Customer(ValueEntityContext context) {
+    this.entityId = context.entityId();
   }
 
   @Override
-  public Reply<Empty> create(
-      CustomerApi.Customer command, CommandContext<CustomerDomain.CustomerState> context) {
+  public CustomerDomain.CustomerState emptyState() {
+    return CustomerDomain.CustomerState.getDefaultInstance();
+  }
+
+  // tag::create[]
+  @Override
+  public Effect<Empty> create(
+      CustomerDomain.CustomerState currentState, CustomerApi.Customer command) {
     CustomerDomain.CustomerState state = convertToDomain(command);
-    context.updateState(state);
-    return Reply.message(Empty.getDefaultInstance());
-  }
-
-  @Override
-  public Reply<Empty> changeName(
-      CustomerApi.ChangeNameRequest command, CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer must be created before name can be changed.");
-    CustomerDomain.CustomerState updatedState =
-        context.getState().get().toBuilder().setName(command.getNewName()).build();
-    context.updateState(updatedState);
-    return Reply.message(Empty.getDefaultInstance());
-  }
-
-  @Override
-  public Reply<Empty> changeAddress(
-      CustomerApi.ChangeAddressRequest command,
-      CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer must be created before address can be changed.");
-    CustomerDomain.CustomerState state = context.getState().get();
-    CustomerDomain.CustomerState updatedState =
-        state.toBuilder().setAddress(convertAddressToDomain(command.getNewAddress())).build();
-    context.updateState(updatedState);
-    return Reply.message(Empty.getDefaultInstance());
-  }
-
-  @Override
-  public Reply<CustomerApi.Customer> getCustomer(
-      CustomerApi.GetCustomerRequest command,
-      CommandContext<CustomerDomain.CustomerState> context) {
-    if (context.getState().isEmpty())
-      throw context.fail("Customer does not exist.");
-    else
-      return Reply.message(convertToApi(context.getState().get()));
-  }
-
-  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
-    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
-    if (state.hasAddress()) {
-      address =
-          CustomerApi.Address.newBuilder()
-              .setStreet(state.getAddress().getStreet())
-              .setCity(state.getAddress().getCity())
-              .build();
-    }
-    return CustomerApi.Customer.newBuilder()
-        .setCustomerId(state.getCustomerId())
-        .setEmail(state.getEmail())
-        .setName(state.getName())
-        .setAddress(address)
-        .build();
+    return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
   private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
@@ -97,17 +47,68 @@ public class Customer extends AbstractCustomer {
       address = convertAddressToDomain(customer.getAddress());
     }
     return CustomerDomain.CustomerState.newBuilder()
-        .setCustomerId(customer.getCustomerId())
-        .setEmail(customer.getEmail())
-        .setName(customer.getName())
-        .setAddress(address)
-        .build();
+            .setCustomerId(customer.getCustomerId())
+            .setEmail(customer.getEmail())
+            .setName(customer.getName())
+            .setAddress(address)
+            .build();
   }
 
   private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
     return CustomerDomain.Address.newBuilder()
-        .setStreet(address.getStreet())
-        .setCity(address.getCity())
-        .build();
+            .setStreet(address.getStreet())
+            .setCity(address.getCity())
+            .build();
   }
+  // end::create[]
+
+  // tag::getCustomer[]
+  @Override
+  public Effect<CustomerApi.Customer> getCustomer(
+          CustomerDomain.CustomerState currentState,
+          CustomerApi.GetCustomerRequest command) {
+    if (currentState.getCustomerId().equals("")) {
+      return effects().error("Customer " + command.getCustomerId() + " has not been created.");
+    } else {
+      return effects().reply(convertToApi(currentState));
+    }
+  }
+
+  private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
+    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
+    if (state.hasAddress()) {
+      address =
+              CustomerApi.Address.newBuilder()
+                      .setStreet(state.getAddress().getStreet())
+                      .setCity(state.getAddress().getCity())
+                      .build();
+    }
+    return CustomerApi.Customer.newBuilder()
+            .setCustomerId(state.getCustomerId())
+            .setEmail(state.getEmail())
+            .setName(state.getName())
+            .setAddress(address)
+            .build();
+  }
+  // end::getCustomer[]
+
+  @Override
+  public Effect<Empty> changeName(
+      CustomerDomain.CustomerState currentState, CustomerApi.ChangeNameRequest command) {
+    CustomerDomain.CustomerState updatedState =
+        currentState.toBuilder().setName(command.getNewName()).build();
+    return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
+  }
+
+  @Override
+  public Effect<Empty> changeAddress(
+      CustomerDomain.CustomerState currentState,
+      CustomerApi.ChangeAddressRequest command) {
+    CustomerDomain.CustomerState updatedState =
+        currentState.toBuilder().setAddress(convertAddressToDomain(command.getNewAddress())).build();
+    return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
+  }
+
+
+
 }

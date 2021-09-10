@@ -16,21 +16,10 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.ClientActionContext;
-import com.akkaserverless.javasdk.EffectContext;
 import com.akkaserverless.javasdk.MetadataContext;
 
-import java.util.Optional;
-
-/**
- * A value based entity command context.
- *
- * <p>Methods annotated with {@link CommandHandler} may take this is a parameter. It allows updating
- * or deleting the entity state in response to a command, along with forwarding the result to other
- * entities, and performing side effects on other entities.
- */
-public interface CommandContext<T>
-    extends ValueEntityContext, ClientActionContext, EffectContext, MetadataContext {
+/** A value based entity command context. */
+public interface CommandContext extends ValueEntityContext, MetadataContext {
 
   /**
    * The name of the command being executed.
@@ -45,23 +34,4 @@ public interface CommandContext<T>
    * @return The id of the command.
    */
   long commandId();
-
-  /**
-   * Retrieve the state.
-   *
-   * @return the current state or empty if none have been created.
-   * @throws IllegalStateException If the current entity state have been deleted in the command
-   *     invocation.
-   */
-  Optional<T> getState();
-
-  /**
-   * Update the entity with the new state. The state will be persisted.
-   *
-   * @param state The state to persist.
-   */
-  void updateState(T state);
-
-  /** Delete the entity state. */
-  void deleteState();
 }

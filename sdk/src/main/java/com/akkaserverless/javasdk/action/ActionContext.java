@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.action;
 import com.akkaserverless.javasdk.CloudEvent;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.MetadataContext;
+import com.google.protobuf.Any;
 
 import java.util.Optional;
 

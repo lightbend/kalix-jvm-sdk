@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen
-package java
-
-import com.google.common.base.Charsets
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import org.bitbucket.inkytonik.kiama.output.PrettyPrinterTypes.Document
+package com.lightbend.akkasls.codegen.java
 
 import _root_.java.nio.file.{Files, Path, Paths}
+import _root_.java.io.File
+import com.google.common.base.Charsets
+
+import scala.collection.immutable
+import com.lightbend.akkasls.codegen._
+import com.lightbend.akkasls.codegen.DescriptorSet
+import com.lightbend.akkasls.codegen.Log
+import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.ModelBuilder.{Command, Entity, Service, State}
 
 /**
  * Responsible for generating Java source from an entity model
  */
-object SourceGenerator extends PrettyPrinter {
+object SourceGenerator {
+  import EntityServiceSourceGenerator.generateImports
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -50,6 +55,7 @@ object SourceGenerator extends PrettyPrinter {
       testSourceDirectory: Path,
       integrationTestSourceDirectory: Path,
       generatedSourceDirectory: Path,
+      generatedTestSourceDirectory: Path,
       mainClass: String
   )(implicit log: Log): Iterable[Path] = {
 
@@ -61,7 +67,7 @@ object SourceGenerator extends PrettyPrinter {
           case None =>
             // TODO perhaps we even want to make this an error, to really go all-in on codegen?
             log.warning(
-              "Service [" + service.fqn.fullName + "] refers to entity [" + service.componentFullName +
+              "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
               "], but no entity configuration is found for that component name"
             )
             Seq.empty
@@ -75,45 +81,47 @@ object SourceGenerator extends PrettyPrinter {
               generatedSourceDirectory,
               mainClassPackageName,
               mainClassName
-            )
+            ) ++
+            (entity match {
+              case ese: ModelBuilder.EventSourcedEntity =>
+                EventSourcedEntityTestKitGenerator.generate(ese,
+                                                            service,
+                                                            testSourceDirectory,
+                                                            generatedTestSourceDirectory)
+              case ve: ModelBuilder.ValueEntity =>
+                ValueEntityTestKitGenerator.generate(ve, service, testSourceDirectory, generatedTestSourceDirectory)
+              case re: ModelBuilder.ReplicatedEntity =>
+                // FIXME implement for replicated entity
+                Nil
+            })
         }
-      case service: ModelBuilder.ViewService if service.transformedUpdates.nonEmpty =>
+      case service: ModelBuilder.ViewService =>
         ViewServiceSourceGenerator.generate(
           service,
           sourceDirectory,
           testSourceDirectory,
           integrationTestSourceDirectory,
-          generatedSourceDirectory,
-          mainClassPackageName,
-          mainClassName
+          generatedSourceDirectory
         )
       case service: ModelBuilder.ActionService =>
         ActionServiceSourceGenerator.generate(
           service,
           sourceDirectory,
-          testSourceDirectory,
-          integrationTestSourceDirectory,
-          generatedSourceDirectory,
-          mainClassPackageName,
-          mainClassName
+          generatedSourceDirectory
         )
       case _ => Seq.empty
     } ++ {
       val mainClassPackagePath = packageAsPath(mainClassPackageName)
 
-      val mainComponentRegistrationsClassName = mainClassName + "ComponentRegistrations"
-      val mainComponentRegistrationsSourcePath =
+      val akkaServerlessFactorySourcePath =
         generatedSourceDirectory.resolve(
-          mainClassPackagePath.resolve(mainComponentRegistrationsClassName + ".java")
+          mainClassPackagePath.resolve("AkkaServerlessFactory.java")
         )
 
-      val _ = mainComponentRegistrationsSourcePath.getParent.toFile.mkdirs()
-      val _ = Files.write(
-        mainComponentRegistrationsSourcePath,
-        mainComponentRegistrationsSource(mainClassPackageName, mainClassName, model).layout
-          .getBytes(
-            Charsets.UTF_8
-          )
+      akkaServerlessFactorySourcePath.getParent.toFile.mkdirs()
+      Files.write(
+        akkaServerlessFactorySourcePath,
+        akkaServerlessFactorySource(mainClassPackageName, model).getBytes(Charsets.UTF_8)
       )
 
       // Generate a main source file if it is not there already
@@ -121,221 +129,268 @@ object SourceGenerator extends PrettyPrinter {
       val mainClassPath =
         sourceDirectory.resolve(mainClassPackagePath.resolve(mainClassName + ".java"))
       if (!mainClassPath.toFile.exists()) {
-        val _ = mainClassPath.getParent.toFile.mkdirs()
-        val _ = Files.write(
+        mainClassPath.getParent.toFile.mkdirs()
+        Files.write(
           mainClassPath,
-          mainSource(mainClassPackageName, mainClassName).layout
-            .getBytes(
-              Charsets.UTF_8
-            )
+          mainSource(mainClassPackageName, mainClassName, model.entities, model.services).getBytes(Charsets.UTF_8)
         )
-        List(mainComponentRegistrationsSourcePath, mainClassPath)
+        List(akkaServerlessFactorySourcePath, mainClassPath)
       } else {
-        List.empty
+        List(akkaServerlessFactorySourcePath)
       }
     }
   }
 
-  private[codegen] def mainComponentRegistrationsSource(
-      mainClassPackageName: String,
-      mainClassName: String,
-      model: ModelBuilder.Model
-  ): Document = {
-    case class ServiceRegistration(
-        implType: FullyQualifiedName,
-        registrationMethod: String,
-        args: Seq[Doc],
-        serviceDescriptor: PackageNaming,
-        relevantTypes: Iterable[FullyQualifiedName],
-        imports: Option[Iterable[FullyQualifiedName]] = None
+  def generate(protobufDescriptor: File,
+               sourceDirectory: Path,
+               testSourceDirectory: Path,
+               integrationTestSourceDirectory: Path,
+               generatedSourceDirectory: Path,
+               generatedTestSourceDirectory: Path,
+               mainClass: String)(implicit log: Log): Iterable[Path] = {
+    val descriptors =
+      DescriptorSet.fileDescriptors(protobufDescriptor) match {
+        case Right(fileDescriptors) =>
+          fileDescriptors match {
+            case Right(files) => files
+            case Left(failure) =>
+              throw new RuntimeException(
+                s"There was a problem building the file descriptor from its protobuf: $failure"
+              )
+          }
+        case Left(failure) =>
+          throw new RuntimeException(s"There was a problem opening the protobuf descriptor file ${failure}", failure.e)
+      }
+
+    SourceGenerator.generate(
+      ModelBuilder.introspectProtobufClasses(descriptors),
+      sourceDirectory,
+      testSourceDirectory,
+      integrationTestSourceDirectory,
+      generatedSourceDirectory,
+      generatedTestSourceDirectory,
+      mainClass
     )
 
-    val serviceRegistrations = model.services.values.flatMap {
-      case service: ModelBuilder.EntityService =>
-        model.entities.get(service.componentFullName).toSeq.map { entity: ModelBuilder.Entity =>
-          ServiceRegistration(
-            FullyQualifiedName(s"${entity.fqn.name}", entity.fqn.parent),
-            entity match {
-              case _: ModelBuilder.EventSourcedEntity =>
-                "registerEventSourcedEntity"
-              case _: ModelBuilder.ValueEntity =>
-                "registerValueEntity"
-            },
-            Seq(
-              s"${entity.fqn.name}" <> ".class",
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
-              )
-            ),
-            service.fqn.parent,
-            (entity match {
-              case ModelBuilder.EventSourcedEntity(fqn, _, state, events) =>
-                events.map(_.fqn) ++ state.map(_.fqn)
-              case ModelBuilder.ValueEntity(fqn, _, state) =>
-                Seq(state.fqn)
-            }) ++ service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-          )
+  }
+
+  def collectRelevantTypes(fullQualifiedNames: Iterable[FullyQualifiedName],
+                           service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
+    fullQualifiedNames.filterNot { desc =>
+      desc.parent == service.parent
+    }.toList
+  }
+
+  def collectRelevantTypeDescriptors(fullQualifiedNames: Iterable[FullyQualifiedName],
+                                     service: FullyQualifiedName): String = {
+    collectRelevantTypes(fullQualifiedNames, service)
+      .map(desc => s"${desc.parent.javaOuterClassname}.getDescriptor()")
+      .distinct
+      .sorted
+      .mkString(",\n")
+  }
+
+  private[codegen] def akkaServerlessFactorySource(
+      mainClassPackageName: String,
+      model: ModelBuilder.Model
+  ): String = {
+    val registrations = model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName).toSeq.map {
+            case entity: ModelBuilder.EventSourcedEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
+            case entity: ModelBuilder.ValueEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
+            case entity: ModelBuilder.ReplicatedEntity =>
+              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
+          }
+
+        case service: ModelBuilder.ViewService =>
+          List(s".register(${service.providerName}.of(create${service.viewClassName}))")
+
+        case service: ModelBuilder.ActionService =>
+          List(s".register(${service.providerName}.of(create${service.className}))")
+
+      }
+      .toList
+      .sorted
+
+    val entityImports = model.entities.values.flatMap { ety =>
+      if (ety.fqn.parent.javaPackage != mainClassPackageName) {
+        val imports =
+          ety.fqn.fullQualifiedName ::
+          s"${ety.fqn.parent.javaPackage}.${ety.fqn.parent.javaOuterClassname}" ::
+          Nil
+        ety match {
+          case _: ModelBuilder.EventSourcedEntity =>
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
+          case _: ModelBuilder.ValueEntity =>
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
+          case _: ModelBuilder.ReplicatedEntity =>
+            s"${ety.fqn.fullQualifiedName}Provider" :: imports
+          case _ => imports
         }
-      case service: ModelBuilder.ViewService =>
-        val implType = FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent)
-        val relevantTypes = service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-        Some(
-          ServiceRegistration(
-            implType,
-            "registerView",
-            (if (service.transformedUpdates.nonEmpty) {
-               Seq(s"${service.fqn.name}" <> ".class")
-             } else Seq.empty) ++ Seq(
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.protoName)
-              ),
-              dquotes(service.viewId)
-            ),
-            service.fqn.parent,
-            relevantTypes,
-            Some(
-              Option.when(service.transformedUpdates.nonEmpty)(implType) ++ relevantTypes
-                .map(t => FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
-            )
-          )
-        )
-      case service: ModelBuilder.ActionService =>
-        Some(
-          ServiceRegistration(
-            FullyQualifiedName(s"${service.fqn.name}", service.fqn.parent),
-            "registerAction",
-            Seq(
-              s"${service.fqn.name}" <> ".class",
-              service.fqn.parent.javaOuterClassname <> ".getDescriptor().findServiceByName" <> parens(
-                dquotes(service.fqn.name)
-              )
-            ),
-            service.fqn.parent,
-            service.commands.flatMap(command => Seq(command.inputType, command.outputType))
-          )
-        )
-      case _ => None
+      } else List.empty
     }
 
-    val imports = (List(
-      "com.akkaserverless.javasdk.AkkaServerless"
-    ) ++
-    serviceRegistrations
-      .flatMap { r =>
-        r.imports
-          .getOrElse(
-            r.implType +: r.relevantTypes.toList.map(t => FullyQualifiedName(t.parent.javaOuterClassname, t.parent))
-          )
-          .collect { case t if t.parent.javaPackage != mainClassPackageName => s"${t.parent.javaPackage}.${t.name}" }
-      }).distinct.sorted
-
-    pretty(
-      managedCodeComment <> line <> line <>
-      "package" <+> mainClassPackageName <> semi <> line <>
-      line <>
-      ssep(
-        imports.map(pkg => "import" <+> pkg <> semi),
-        line
-      ) <> line <>
-      line <>
-      `class`("public" <+> "final", mainClassName + "ComponentRegistrations") {
-        line <>
-        method(
-          "public" <+> "static",
-          "AkkaServerless",
-          "withGeneratedComponentsAdded",
-          List("AkkaServerless" <+> "akkaServerless"),
-          emptyDoc
-        ) {
-          "return" <+> "akkaServerless" <> line <>
-          indent(
-            ssep(
-              serviceRegistrations.map {
-                case ServiceRegistration(_, registrationMethod, args, serviceDescriptor, relevantTypes, _) =>
-                  dot <>
-                  registrationMethod <> parens(
-                    nest(
-                      line <> ssep(
-                        args ++ relevantTypes
-                          .map(_.parent)
-                          .toSeq
-                          .distinct
-                          .filterNot(_ == serviceDescriptor)
-                          .map { descriptor =>
-                            descriptor.javaOuterClassname <> ".getDescriptor()"
-                          },
-                        comma <> line
-                      )
-                    ) <> line
-                  )
-              }.toSeq,
-              line
-            ) <> semi,
-            8
-          )
+    val serviceImports = model.services.values.flatMap { serv =>
+      if (serv.fqn.parent.javaPackage != mainClassPackageName) {
+        val outerClass = s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}"
+        serv match {
+          case actionServ: ModelBuilder.ActionService =>
+            List(actionServ.classNameQualified, actionServ.providerNameQualified, outerClass)
+          case view: ModelBuilder.ViewService =>
+            List(view.classNameQualified, view.providerNameQualified, outerClass)
+          case _ => List(outerClass)
         }
+      } else List.empty
+    }
+
+    val otherImports = model.services.values.flatMap { serv =>
+      val types = serv.commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
       }
-    )
+      collectRelevantTypes(types, serv.fqn).map { typ =>
+        s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
+      }
+    }
+
+    val entityContextImports = model.entities.values.collect {
+      case _: ModelBuilder.EventSourcedEntity =>
+        List(
+          "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
+          "java.util.function.Function"
+        )
+      case _: ModelBuilder.ValueEntity =>
+        List(
+          "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+          "java.util.function.Function"
+        )
+      case _: ModelBuilder.ReplicatedEntity =>
+        List(
+          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
+          "java.util.function.Function"
+        )
+    }.flatten
+
+    val serviceContextImports = model.services.values.collect {
+      case _: ModelBuilder.ActionService =>
+        List(
+          "com.akkaserverless.javasdk.action.ActionCreationContext",
+          "java.util.function.Function"
+        )
+      case _: ModelBuilder.ViewService =>
+        List(
+          "com.akkaserverless.javasdk.view.ViewCreationContext",
+          "java.util.function.Function"
+        )
+    }.flatten
+    val contextImports = (entityContextImports ++ serviceContextImports).toSet
+
+    val entityCreators =
+      model.entities.values.collect {
+        case entity: ModelBuilder.EventSourcedEntity =>
+          s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        case entity: ModelBuilder.ValueEntity =>
+          s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        case entity: ModelBuilder.ReplicatedEntity =>
+          s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+      }.toList
+
+    val serviceCreators = model.services.values.collect {
+      case service: ModelBuilder.ActionService =>
+        s"Function<ActionCreationContext, ${service.className}> create${service.className}"
+      case view: ModelBuilder.ViewService =>
+        s"Function<ViewCreationContext, ${view.viewClassName}> create${view.viewClassName}"
+    }.toList
+
+    val creatorParameters = entityCreators ::: serviceCreators
+    val imports =
+      (List("com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports ++ contextImports).distinct.sorted
+        .map(pkg => s"import $pkg;")
+        .mkString("\n")
+
+    s"""|$managedCodeCommentString
+        |
+        |package $mainClassPackageName;
+        |
+        |$imports
+        |
+        |public final class AkkaServerlessFactory {
+        |
+        |  public static AkkaServerless withComponents(
+        |      ${creatorParameters.mkString(",\n      ")}) {
+        |    AkkaServerless akkaServerless = new AkkaServerless();
+        |    return akkaServerless
+        |      ${Syntax.indent(registrations, 6)};
+        |  }
+        |}""".stripMargin
   }
 
   private[codegen] def mainSource(
       mainClassPackageName: String,
-      mainClassName: String
-  ): Document = {
+      mainClassName: String,
+      entities: Map[String, Entity],
+      services: Map[String, Service]
+  ): String = {
 
-    val imports = List(
-      "import" <+> "com.akkaserverless.javasdk.AkkaServerless" <> semi <> line <>
-      "import" <+> "org.slf4j.Logger" <> semi <> line <>
-      "import" <+> "org.slf4j.LoggerFactory" <> semi
-    )
+    val entityImports = entities.values.collect {
+      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.ValueEntity => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.ReplicatedEntity => entity.fqn.fullQualifiedName
+    }.toSeq
 
-    pretty(
-      initialisedCodeComment <> line <> line <>
-      "package" <+> mainClassPackageName <> semi <> line <>
-      line <>
-      ssep(
-        imports,
-        line
-      ) <> line <>
-      line <>
-      "import" <+> "static" <+> mainClassPackageName <> dot <> (mainClassName + "ComponentRegistrations") <> dot <> "withGeneratedComponentsAdded" <> semi <> line <>
-      line <>
-      `class`("public" <+> "final", mainClassName) {
-        line <>
-        field(
-          "private" <+> "static" <+> "final",
-          "Logger",
-          "LOG",
-          assignmentSeparator = Some(" ")
-        )("LoggerFactory.getLogger" <> parens("Main.class") <> semi) <> line <>
-        line <>
-        field(
-          "public" <+> "static" <+> "final",
-          "AkkaServerless",
-          "SERVICE",
-          assignmentSeparator = Some(linebreak)
-        )(
-          indent(
-            "// This withGeneratedComponentsAdded wrapper automatically registers any generated Actions, Views or Entities," <> line <>
-            "// and is kept up-to-date with any changes in your protobuf definitions." <> line <>
-            "// If you prefer, you may remove this wrapper and manually register these components." <> line <>
-            "withGeneratedComponentsAdded" <> parens("new AkkaServerless()") <> semi,
-            4
-          )
-        ) <> line <>
-        line <>
-        method(
-          "public" <+> "static",
-          "void",
-          "main",
-          List("String[]" <+> "args"),
-          "throws" <+> "Exception" <> space
-        ) {
-          "LOG.info" <> parens("\"starting the Akka Serverless service\"") <> semi <> line <>
-          "SERVICE.start()" <> semi
-        }
-      }
+    val serviceImports = services.values.collect {
+      case service: ModelBuilder.ActionService => service.classNameQualified
+      case view: ModelBuilder.ViewService => view.classNameQualified
+    }.toSeq
+
+    val componentImports = generateImports(
+      Iterable.empty,
+      mainClassPackageName,
+      entityImports ++ serviceImports
     )
+    val entityRegistrationParameters = entities.values.collect {
+      case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
+      case entity: ModelBuilder.ValueEntity => s"${entity.fqn.name}::new"
+      case entity: ModelBuilder.ReplicatedEntity => s"${entity.fqn.name}::new"
+    }.toList
+
+    val serviceRegistrationParameters = services.values.collect {
+      case service: ModelBuilder.ActionService => s"${service.className}::new"
+      case view: ModelBuilder.ViewService => s"${view.viewClassName}::new"
+    }.toList
+
+    val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
+    s"""|$generatedCodeCommentString
+        |
+        |package $mainClassPackageName;
+        |
+        |import com.akkaserverless.javasdk.AkkaServerless;
+        |import org.slf4j.Logger;
+        |import org.slf4j.LoggerFactory;
+        |${componentImports}
+        |
+        |public final class ${mainClassName} {
+        |
+        |  private static final Logger LOG = LoggerFactory.getLogger(${mainClassName}.class);
+        |
+        |  public static AkkaServerless createAkkaServerless() {
+        |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+        |    // and is kept up-to-date with any changes in your protobuf definitions.
+        |    // If you prefer, you may remove this and manually register these components in a
+        |    // `new AkkaServerless()` instance.
+        |    return AkkaServerlessFactory.withComponents(
+        |      ${registrationParameters.mkString(",\n      ")});
+        |  }
+        |
+        |  public static void main(String[] args) throws Exception {
+        |    LOG.info("starting the Akka Serverless service");
+        |    createAkkaServerless().start();
+        |  }
+        |}""".stripMargin
+
   }
 
   private def disassembleClassName(fullClassName: String): (String, String) = {
@@ -343,58 +398,6 @@ object SourceGenerator extends PrettyPrinter {
     val packageName = fullClassName.dropRight(className.length + 1)
     packageName -> className
   }
-
-  private[java] def `interface`(modifier: Doc, name: String)(body: Doc): Doc =
-    modifier <+> "interface" <+> name <+>
-    braces(nest(line <> body) <> line)
-
-  private[java] def `class`(modifier: Doc, name: String)(body: Doc): Doc =
-    `class`(modifier, name, None)(body)
-
-  private[java] def `class`(modifier: Doc, name: String, extension: Option[String])(
-      body: Doc
-  ): Doc =
-    modifier <+> "class" <+> name <+>
-    extension.fold(emptyDoc)(ext => "extends" <+> ext <> space) <>
-    braces(nest(line <> body) <> line)
-
-  private[java] def constructor(
-      modifier: Doc,
-      name: String,
-      parameters: Seq[Doc]
-  )(body: Doc): Doc =
-    modifier <+> name <> parens(ssep(parameters, comma <> space)) <+>
-    braces(nest(line <> body) <> line)
-
-  private[java] def method(
-      modifier: Doc,
-      returnType: Doc,
-      name: String,
-      parameters: Seq[Doc],
-      postModifier: Doc
-  )(body: Doc): Doc =
-    modifier <+> returnType <+> name <> parens(ssep(parameters, comma <> space)) <+> postModifier <>
-    braces(nest(line <> body) <> line)
-
-  private[java] def field(
-      modifier: Doc,
-      fieldType: Doc,
-      name: String,
-      assignmentSeparator: Option[Doc]
-  )(assignment: Doc): Doc =
-    modifier <+> fieldType <+> name <> (assignmentSeparator match {
-      case Some(separator) =>
-        space <> equal <> separator <> nest(assignment)
-      case None => emptyDoc
-    })
-
-  private[java] def abstractMethod(
-      modifier: Doc,
-      returnType: Doc,
-      name: String,
-      parameters: Seq[Doc]
-  ): Doc =
-    modifier <+> "abstract" <+> returnType <+> name <> parens(ssep(parameters, comma <> space))
 
   private[java] def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
     if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
@@ -413,22 +416,19 @@ object SourceGenerator extends PrettyPrinter {
       case None => ""
     }
 
-  private[java] def notImplementedError(handlerType: String, fqn: FullyQualifiedName) = dquotes(
-    "The" <+> handlerType <+> "handler for `" <> fqn.name <> "` is not implemented, yet"
-  )
-
   private[java] def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  private[java] val initialisedCodeComment: Doc =
-    "/*" <+> "This code was initialised by Akka Serverless tooling." <> line <>
-    " *" <+> "As long as this file exists it will not be re-generated." <> line <>
-    " *" <+> "You are free to make changes to this file." <> line <>
-    " */"
+  private[java] val generatedCodeCommentString: String =
+    """|/* This code was generated by Akka Serverless tooling.
+        | * As long as this file exists it will not be re-generated.
+        | * You are free to make changes to this file.
+        | */""".stripMargin
 
-  private[java] val managedCodeComment: Doc =
-    "/*" <+> "This code is managed by Akka Serverless tooling." <> line <>
-    " *" <+> "It will be re-generated to reflect any changes to your protobuf definitions." <> line <>
-    " *" <+> "DO NOT EDIT" <> line <>
-    " */"
+  private[java] val managedCodeCommentString: String =
+    """|/* This code is managed by Akka Serverless tooling.
+        | * It will be re-generated to reflect any changes to your protobuf definitions.
+        | * DO NOT EDIT
+        | */""".stripMargin
+
 }

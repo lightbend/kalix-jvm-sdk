@@ -16,18 +16,24 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
+import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-@ValueEntity(entityType = "valuechangeseventing-two")
-public class ValueEntityTwo {
-  @CommandHandler
-  public Empty updateJsonValue(
-      LocalPersistenceEventing.JsonValue value, CommandContext<Object> ctx) {
-    ctx.updateState(new JsonMessage(value.getMessage()));
-    return Empty.getDefaultInstance();
+public class ValueEntityTwo extends ValueEntity<Object> {
+  public ValueEntityTwo(ValueEntityContext context) {}
+
+  public Effect<Empty> updateJsonValue(Object state, LocalPersistenceEventing.JsonValue value) {
+    return effects()
+        // FIXME requirement to use JSON state should be removed from TCK
+        .updateState(JsonSupport.encodeJson(new JsonMessage(value.getMessage())))
+        .thenReply(Empty.getDefaultInstance());
+  }
+
+  @Override
+  public Object emptyState() {
+    return null;
   }
 }

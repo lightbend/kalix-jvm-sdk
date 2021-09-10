@@ -16,32 +16,40 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
+import scala.concurrent.ExecutionContext
+import scala.util.control.NonFatal
+
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
+import akka.event.Logging
 import akka.stream.scaladsl.Flow
-import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
-import com.akkaserverless.javasdk.valueentity._
-import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.reply.ReplySupport
-import com.akkaserverless.javasdk.reply.FailureReply
-import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
-import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.{Delete, Update}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{
-  Command => InCommand,
-  Empty => InEmpty,
-  Init => InInit
-}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Failure => OutFailure, Reply => OutReply}
-import com.akkaserverless.protocol.value_entity._
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Descriptors, Any => JavaPbAny}
-
-import java.util.Optional
-import scala.compat.java8.OptionConverters._
-import scala.util.control.NonFatal
 import akka.stream.scaladsl.Source
+import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.javasdk.ComponentOptions
+import com.akkaserverless.javasdk.Context
+import com.akkaserverless.javasdk.Metadata
+import com.akkaserverless.javasdk.Service
+import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.impl.ValueEntityFactory
+import com.akkaserverless.javasdk.impl._
+import com.akkaserverless.javasdk.impl.effect.EffectSupport
+import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
+import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandResult
+import com.akkaserverless.javasdk.valueentity._
+import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
+import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Command => InCommand}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Empty => InEmpty}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Init => InInit}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Failure => OutFailure}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Reply => OutReply}
+import com.akkaserverless.protocol.value_entity._
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.{Any => JavaPbAny}
 
 final class ValueEntityService(val factory: ValueEntityFactory,
                                override val descriptor: Descriptors.ServiceDescriptor,
@@ -68,17 +76,15 @@ final class ValueEntityService(val factory: ValueEntityFactory,
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ValueEntitiesImpl(_system: ActorSystem,
-                              _services: Map[String, ValueEntityService],
+final class ValueEntitiesImpl(system: ActorSystem,
+                              val services: Map[String, ValueEntityService],
                               rootContext: Context,
                               configuration: Configuration)
     extends ValueEntities {
 
   import EntityExceptions._
 
-  private final val system = _system
-  private final implicit val ec = system.dispatcher
-  private final val services = _services.iterator.toMap
+  private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = Logging(system.eventStream, this.getClass)
 
   /**
@@ -113,140 +119,119 @@ final class ValueEntitiesImpl(_system: ActorSystem,
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler = service.factory.create(new EntityContextImpl(init.entityId))
+    val handler = service.factory.create(new ValueEntityContextImpl(init.entityId))
     val thisEntityId = init.entityId
 
-    val initState = init.state match {
-      case Some(ValueEntityInitState(state, _)) => state
-      case _ => None // should not happen!!!
+    init.state match {
+      case Some(ValueEntityInitState(stateOpt, _)) =>
+        stateOpt.map(service.anySupport.decode).foreach(handler._internalSetInitState)
+      case None =>
+        throw new IllegalStateException("ValueEntityInitState is mandatory")
     }
 
     Flow[ValueEntityStreamIn]
       .map(_.message)
-      .scan[(Option[ScalaPbAny], Option[ValueEntityStreamOut.Message])]((initState, None)) {
-        case (_, InCommand(command)) if thisEntityId != command.entityId =>
+      .map {
+        case InCommand(command) if thisEntityId != command.entityId =>
           throw ProtocolException(command, "Receiving Value entity is not the intended recipient of command")
 
-        case (_, InCommand(command)) if command.payload.isEmpty =>
+        case InCommand(command) if command.payload.isEmpty =>
           throw ProtocolException(command, "No command payload for Value entity")
 
-        case ((state, _), InCommand(command)) =>
-          val cmd = ScalaPbAny.toJavaProto(command.payload.get)
+        case InCommand(command) =>
+          if (thisEntityId != command.entityId)
+            throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
+
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+          val cmd =
+            service.anySupport.decode(
+              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+            )
           val context = new CommandContextImpl(
             thisEntityId,
             command.name,
             command.id,
-            metadata,
-            state,
-            service.anySupport,
-            log
+            metadata
           )
-          val reply: Reply[JavaPbAny] = try {
-            handler.handleCommand(cmd, context)
+
+          val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
+            handler._internalHandleCommand(command.name, cmd, context)
           } catch {
-            case FailInvoked => Reply.noReply() //Option.empty[JavaPbAny].asJava
             case e: EntityException => throw e
-            case NonFatal(error) => {
-              throw EntityException(
-                command,
-                s"Value entity unexpected failure: ${error}",
-                Some(error)
-              )
-            }
+            case NonFatal(error) =>
+              throw EntityException(command, s"Unexpected failure: $error", Some(error))
           } finally {
             context.deactivate() // Very important!
           }
 
-          val clientAction = context.replyToClientAction(reply, allowNoReply = false, restartOnFailure = false)
-          if (!context.hasError && !reply.isInstanceOf[FailureReply[_]]) {
-            val nextState = context.currentState()
-            (nextState,
-             Some(
-               OutReply(
-                 ValueEntityReply(
-                   command.id,
-                   clientAction,
-                   context.sideEffects ++ ReplySupport.effectsFrom(reply),
-                   context.action
-                 )
-               )
-             ))
-          } else {
-            // rollback the state if something went wrong by using the old state
-            (state,
-             Some(
-               OutReply(
-                 ValueEntityReply(
-                   commandId = command.id,
-                   clientAction = clientAction
-                 )
-               )
-             ))
+          val serializedSecondaryEffect = effect.secondaryEffect match {
+            case MessageReplyImpl(message, metadata, sideEffects) =>
+              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+            case other => other
           }
 
-        case (_, InInit(_)) =>
+          val clientAction =
+            serializedSecondaryEffect.replyToClientAction(command.id, allowNoReply = false, restartOnFailure = false)
+
+          serializedSecondaryEffect match {
+            case error: ErrorReplyImpl[_] =>
+              log.error("Fail invoked for command [{}] for entity [{}]: {}",
+                        command.name,
+                        thisEntityId,
+                        error.description)
+              ValueEntityStreamOut(
+                OutReply(
+                  ValueEntityReply(
+                    commandId = command.id,
+                    clientAction = clientAction
+                  )
+                )
+              )
+
+            case _ => // non-error
+              val action: Option[ValueEntityAction] = effect.primaryEffect match {
+                case DeleteState =>
+                  Some(ValueEntityAction(Delete(ValueEntityDelete())))
+                case UpdateState(newState) =>
+                  val newStateScalaPbAny = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
+                  Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
+                case _ =>
+                  None
+              }
+
+              ValueEntityStreamOut(
+                OutReply(
+                  ValueEntityReply(
+                    command.id,
+                    clientAction,
+                    EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                    action
+                  )
+                )
+              )
+          }
+
+        case InInit(_) =>
           throw ProtocolException(init, "Value entity already inited")
 
-        case (_, InEmpty) =>
+        case InEmpty =>
           throw ProtocolException(init, "Value entity received empty/unknown message")
-      }
-      .collect {
-        case (_, Some(message)) => ValueEntityStreamOut(message)
       }
   }
 
-  trait AbstractContext extends ValueEntityContext {
+  private trait AbstractContext extends ValueEntityContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
   private final class CommandContextImpl(override val entityId: String,
                                          override val commandName: String,
                                          override val commandId: Long,
-                                         override val metadata: Metadata,
-                                         val state: Option[ScalaPbAny],
-                                         val anySupport: AnySupport,
-                                         val log: LoggingAdapter)
-      extends CommandContext[JavaPbAny]
+                                         override val metadata: Metadata)
+      extends CommandContext
       with AbstractContext
-      with AbstractClientActionContext
-      with AbstractEffectContext
-      with ActivatableContext {
+      with ActivatableContext
 
-    final var action: Option[ValueEntityAction] = None
-    private var _state: Option[ScalaPbAny] = state
-
-    override def getState(): Optional[JavaPbAny] = {
-      checkActive()
-      _state.map(ScalaPbAny.toJavaProto(_)).asJava
-    }
-
-    override def updateState(state: JavaPbAny): Unit = {
-      checkActive()
-      if (state == null)
-        throw EntityException("Value entity cannot update a 'null' state")
-
-      val encoded = anySupport.encodeScala(state)
-      _state = Some(encoded)
-      action = Some(ValueEntityAction(Update(ValueEntityUpdate(_state))))
-    }
-
-    override def deleteState(): Unit = {
-      checkActive()
-
-      _state = None
-      action = Some(ValueEntityAction(Delete(ValueEntityDelete())))
-    }
-
-    override protected def logError(message: String): Unit =
-      log.error("Fail invoked for command [{}] for Value entity [{}]: {}", commandName, entityId, message)
-
-    def currentState(): Option[ScalaPbAny] =
-      _state
-
-  }
-
-  private final class EntityContextImpl(override final val entityId: String)
+  private final class ValueEntityContextImpl(override val entityId: String)
       extends ValueEntityContext
       with AbstractContext
 

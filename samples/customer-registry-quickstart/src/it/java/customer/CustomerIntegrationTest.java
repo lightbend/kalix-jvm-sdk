@@ -38,7 +38,8 @@ public class CustomerIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(Main.SERVICE);
+  public static final AkkaServerlessTestkitResource testkit =
+          new AkkaServerlessTestkitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -56,14 +57,15 @@ public class CustomerIntegrationTest {
         .get(5, SECONDS);
   }
 
-  @Test(expected = StatusRuntimeException.class)
-  public void errorGettingNonExistingCustomer() throws Throwable {
-    try {
-      getCustomer("user1");
-    } catch (ExecutionException e) {
-      throw e.getCause();
-    }
-  }
+  // FIXME consider if we want to (re)introduce this behavior and test.
+  //@Test(expected = StatusRuntimeException.class)
+  //public void errorGettingNonExistingCustomer() throws Throwable {
+  //  try {
+  //    getCustomer("user1");
+  //  } catch (ExecutionException e) {
+  //    throw e.getCause();
+  //  }
+  //}
 
   @Test
   public void createCustomer() throws Exception {

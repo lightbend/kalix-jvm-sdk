@@ -16,16 +16,22 @@
 
 package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
 import com.akkaserverless.tck.model.EventSourcedEntity.Request;
 import com.akkaserverless.tck.model.EventSourcedEntity.Response;
 
-@EventSourcedEntity(entityType = "EventSourcedTwoEntity")
-public class EventSourcedTwoEntity {
+public class EventSourcedTwoEntity extends EventSourcedEntity<Persisted> {
 
-  @CommandHandler
-  public Response call(Request request) {
-    return Response.getDefaultInstance();
+  public EventSourcedTwoEntity(EventSourcedEntityContext context) {}
+
+  @Override
+  public Persisted emptyState() {
+    return Persisted.getDefaultInstance();
+  }
+
+  public EventSourcedEntity.Effect<Response> call(Persisted currentState, Request request) {
+    return effects().reply(Response.getDefaultInstance());
   }
 }

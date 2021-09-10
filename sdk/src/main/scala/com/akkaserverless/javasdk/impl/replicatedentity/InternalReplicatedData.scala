@@ -20,9 +20,10 @@ import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 private[replicatedentity] trait InternalReplicatedData extends ReplicatedData {
+  type Self <: InternalReplicatedData
   def name: String
   def hasDelta: Boolean
-  def delta: ReplicatedEntityDelta.Delta
-  def resetDelta(): Unit
-  def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit]
+  def getDelta: ReplicatedEntityDelta.Delta
+  def resetDelta(): Self
+  def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Self]
 }

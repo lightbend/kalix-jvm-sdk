@@ -48,13 +48,12 @@ object ModelBuilder {
   case class EventSourcedEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
-      state: Option[State],
+      state: State,
       events: Iterable[Event]
   ) extends Entity(fqn, entityType)
 
   /**
-   * A type of Entity that stores its state using a journal of events, and restores its state
-   * by replaying that journal.
+   * A type of Entity that stores its current state directly.
    */
   case class ValueEntity(
       override val fqn: FullyQualifiedName,
@@ -63,12 +62,60 @@ object ModelBuilder {
   ) extends Entity(fqn, entityType)
 
   /**
+   * A type of Entity that replicates its current state using CRDTs.
+   */
+  case class ReplicatedEntity(
+      override val fqn: FullyQualifiedName,
+      override val entityType: String,
+      data: ReplicatedData
+  ) extends Entity(fqn, entityType)
+
+  /**
+   * The underlying replicated data type for a Replicated Entity.
+   */
+  sealed abstract class ReplicatedData(
+      val shortName: String,
+      val typeArguments: Iterable[TypeArgument]
+  ) {
+    def this(shortName: String, typeArguments: TypeArgument*) = this(shortName, typeArguments)
+
+    val name: String = "Replicated" + shortName
+  }
+
+  case object ReplicatedCounter extends ReplicatedData("Counter")
+
+  case class ReplicatedRegister(value: TypeArgument) extends ReplicatedData("Register", value)
+
+  case class ReplicatedSet(element: TypeArgument) extends ReplicatedData("Set", element)
+
+  case class ReplicatedMap(key: TypeArgument) extends ReplicatedData("Map", key)
+
+  case class ReplicatedCounterMap(key: TypeArgument) extends ReplicatedData("CounterMap", key)
+
+  case class ReplicatedRegisterMap(key: TypeArgument, value: TypeArgument)
+      extends ReplicatedData("RegisterMap", key, value)
+
+  case class ReplicatedMultiMap(key: TypeArgument, value: TypeArgument) extends ReplicatedData("MultiMap", key, value)
+
+  case object ReplicatedVote extends ReplicatedData("Vote")
+
+  /**
+   * Type argument for generic replicated data types with type parameters.
+   */
+  case class TypeArgument(fqn: FullyQualifiedName)
+
+  /**
    * A Service backed by Akka Serverless; either an Action, View or Entity
    */
   sealed abstract class Service(
       val fqn: FullyQualifiedName,
       val commands: Iterable[Command]
-  )
+  ) {
+    lazy val commandTypes =
+      commands.flatMap { cmd =>
+        cmd.inputType :: cmd.outputType :: Nil
+      }
+  }
 
   /**
    * A Service backed by an Action - a serverless function that is executed based on a trigger.
@@ -77,7 +124,22 @@ object ModelBuilder {
   case class ActionService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command]
-  ) extends Service(fqn, commands)
+  ) extends Service(fqn, commands) {
+
+    private val baseClassName =
+      if (fqn.name.endsWith("Action")) fqn.name
+      else fqn.name + "Action"
+
+    val className =
+      if (fqn.name.endsWith("Action")) fqn.name + "Impl"
+      else fqn.name + "Action"
+    val interfaceName = "Abstract" + baseClassName
+    val handlerName = baseClassName + "Handler"
+    val providerName = baseClassName + "Provider"
+
+    val classNameQualified = s"${fqn.parent.javaPackage}.$className"
+    val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
+  }
 
   /**
    * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
@@ -85,11 +147,26 @@ object ModelBuilder {
    */
   case class ViewService(
       override val fqn: FullyQualifiedName,
+      /** all commands - queries and updates */
       override val commands: Iterable[Command],
       viewId: String,
+      /** all updates, also non-transformed */
+      updates: Iterable[Command],
       transformedUpdates: Iterable[Command]
   ) extends Service(fqn, commands) {
-    require(fqn.name.endsWith("View") || fqn.name.endsWith("Impl"))
+
+    val viewClassName =
+      if (fqn.name.endsWith("View")) fqn.name
+      else fqn.name + "View"
+
+    val abstractViewName = "Abstract" + viewClassName
+    val handlerName = viewClassName + "Handler"
+    val providerName = viewClassName + "Provider"
+
+    val classNameQualified = s"${fqn.parent.javaPackage}.$viewClassName"
+    val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
+
+    val state = State(updates.head.outputType)
   }
 
   /**
@@ -109,17 +186,24 @@ object ModelBuilder {
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName,
       streamedInput: Boolean,
-      streamedOutput: Boolean
+      streamedOutput: Boolean,
+      inFromTopic: Boolean,
+      outToTopic: Boolean
   )
 
   object Command {
-    def from(method: Descriptors.MethodDescriptor): Command = Command(
-      FullyQualifiedName.from(method),
-      FullyQualifiedName.from(method.getInputType),
-      FullyQualifiedName.from(method.getOutputType),
-      streamedInput = method.isClientStreaming,
-      streamedOutput = method.isServerStreaming
-    )
+    def from(method: Descriptors.MethodDescriptor): Command = {
+      val eventing = method.getOptions.getExtension(com.akkaserverless.Annotations.method).getEventing
+      Command(
+        FullyQualifiedName.from(method),
+        FullyQualifiedName.from(method.getInputType),
+        FullyQualifiedName.from(method.getOutputType),
+        streamedInput = method.isClientStreaming,
+        streamedOutput = method.isServerStreaming,
+        inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
+        outToTopic = eventing.hasOut && eventing.getOut.hasTopic
+      )
+    }
   }
 
   /**
@@ -187,19 +271,16 @@ object ModelBuilder {
                   method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
                 ).map(viewOptions => (method, viewOptions))
               }
-              val relevantTypes = methods.flatMap(
-                method =>
-                  Seq(
-                    method.getInputType(),
-                    method.getOutputType()
-                  )
-              )
-
+              val updates = methodDetails.collect {
+                case (method, viewOptions) if viewOptions.hasUpdate =>
+                  Command.from(method)
+              }
               Some(
                 ViewService(
                   serviceName,
                   commands,
                   viewId = serviceDescriptor.getName(),
+                  updates = updates,
                   transformedUpdates = methodDetails
                     .collect {
                       case (method, viewOptions)
@@ -212,13 +293,14 @@ object ModelBuilder {
               )
             case _ => None
           }
-        } yield serviceName.fullName -> service
+        } yield serviceName.fullQualifiedName -> service
 
         Model(
           existingServices ++ services,
           existingEntities ++
-          extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullName -> entity) ++
-          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullName -> entity)
+          extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+          extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity)
         )
     }
 
@@ -258,9 +340,7 @@ object ModelBuilder {
       EventSourcedEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
-        Option(rawEntity.getState)
-          .filter(_.nonEmpty)
-          .map(name => State(FullyQualifiedName(name, protoReference))),
+        State(FullyQualifiedName(rawEntity.getState, protoReference)),
         rawEntity.getEventsList.asScala
           .map(event => Event(FullyQualifiedName(event, protoReference)))
       )
@@ -289,6 +369,64 @@ object ModelBuilder {
         rawEntity.getEntityType,
         State(FullyQualifiedName(rawEntity.getState, protoReference))
       )
+    }
+  }
+
+  /**
+   * Extracts any defined replicated entity from the provided protobuf file descriptor
+   *
+   * @param descriptor the file descriptor to extract from
+   */
+  private def extractReplicatedEntityDefinition(
+      descriptor: Descriptors.FileDescriptor
+  )(implicit log: Log): Option[ReplicatedEntity] = {
+    import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
+
+    val rawEntity =
+      descriptor.getOptions
+        .getExtension(com.akkaserverless.Annotations.file)
+        .getReplicatedEntity
+    log.debug("Raw replicated entity name: " + rawEntity.getName)
+
+    val protoReference = PackageNaming.from(descriptor)
+
+    Option(rawEntity.getName).filter(_.nonEmpty).flatMap { name =>
+      val dataType = rawEntity.getReplicatedDataCase match {
+        case ReplicatedDataCase.REPLICATED_COUNTER =>
+          Some(ReplicatedCounter)
+        case ReplicatedDataCase.REPLICATED_REGISTER =>
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegister.getValue, protoReference))
+          Some(ReplicatedRegister(value))
+        case ReplicatedDataCase.REPLICATED_SET =>
+          val element = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedSet.getElement, protoReference))
+          Some(ReplicatedSet(element))
+        case ReplicatedDataCase.REPLICATED_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMap.getKey, protoReference))
+          Some(ReplicatedMap(key))
+        case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedCounterMap.getKey, protoReference))
+          Some(ReplicatedCounterMap(key))
+        case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getKey, protoReference))
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getValue, protoReference))
+          Some(ReplicatedRegisterMap(key, value))
+        case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
+          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getKey, protoReference))
+          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getValue, protoReference))
+          Some(ReplicatedMultiMap(key, value))
+        case ReplicatedDataCase.REPLICATED_VOTE =>
+          Some(ReplicatedVote)
+        case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
+          None
+      }
+
+      dataType.map { data =>
+        ReplicatedEntity(
+          FullyQualifiedName(name, protoReference),
+          rawEntity.getEntityType,
+          data
+        )
+      }
     }
   }
 

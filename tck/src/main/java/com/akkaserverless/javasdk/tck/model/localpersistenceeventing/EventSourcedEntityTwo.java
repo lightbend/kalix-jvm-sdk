@@ -16,21 +16,29 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventHandler;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import com.akkaserverless.javasdk.JsonSupport;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-@EventSourcedEntity(entityType = "eventlogeventing-two")
-public class EventSourcedEntityTwo {
-  @CommandHandler
-  public Empty emitJsonEvent(LocalPersistenceEventing.JsonEvent event, CommandContext ctx) {
-    ctx.emit(new JsonMessage(event.getMessage()));
-    return Empty.getDefaultInstance();
+public class EventSourcedEntityTwo extends EventSourcedEntity<String> {
+
+  public EventSourcedEntityTwo(EventSourcedEntityContext context) {}
+
+  @Override
+  public String emptyState() {
+    return "";
   }
 
-  @EventHandler
-  public void handle(JsonMessage message) {}
+  public EventSourcedEntity.Effect<Empty> emitJsonEvent(
+      String currentState, LocalPersistenceEventing.JsonEvent event) {
+    return effects()
+        // FIXME requirement to use JSON events should be removed from TCK
+        .emitEvent(JsonSupport.encodeJson(new JsonMessage(event.getMessage())))
+        .thenReply(__ -> Empty.getDefaultInstance());
+  }
+
+  public String handle(String currentState, JsonMessage message) {
+    return currentState;
+  }
 }

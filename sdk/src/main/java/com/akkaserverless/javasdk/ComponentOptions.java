@@ -39,6 +39,6 @@ public interface ComponentOptions {
   /** Create a default components option */
   static ComponentOptions defaults() {
     return new EventSourcedEntityOptionsImpl(
-        PassivationStrategy.defaultTimeout(), Collections.emptySet());
+        0, PassivationStrategy.defaultTimeout(), Collections.emptySet());
   }
 }

@@ -29,7 +29,18 @@ case class FullyQualifiedName(
     name: String,
     parent: PackageNaming
 ) {
-  lazy val fullName = s"${parent.pkg}.$name"
+  lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
+  lazy val fullName = {
+    if (parent.javaMultipleFiles) name
+    else
+      parent.javaOuterClassnameOption
+        .map(outer => s"$outer.$name")
+        .getOrElse(name)
+  }
+
+  lazy val typeImport = s"${parent.javaPackage}.$fullName"
+  lazy val descriptorImport = s"${parent.javaPackage}.${parent.javaOuterClassname}"
+
 }
 
 object FullyQualifiedName {
@@ -58,6 +69,9 @@ object FullyQualifiedName {
     FullyQualifiedName(
       descriptor.getName,
       serviceType match {
+        // View and Actions services clashes with akka-grpc service generation
+        // therefore we need to append [View,Action] to it (or Impl).
+        // FIXME: should we find a better solution for that?
         case ServiceType.SERVICE_TYPE_VIEW =>
           if (descriptor.getName.endsWith("View")) descriptor.getName + "Impl"
           else descriptor.getName + "View"

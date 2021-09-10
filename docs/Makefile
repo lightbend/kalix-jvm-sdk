@@ -8,6 +8,7 @@ sources  := src build/src/managed
 src_managed := build/src/managed
 managed_attachments := ${src_managed}/modules/${module}/attachments
 managed_examples := ${src_managed}/modules/${module}/examples
+managed_testkits := ${src_managed}/modules/${module}/testkits
 managed_partials := ${src_managed}/modules/${module}/partials
 
 antora_docker_image := gcr.io/akkaserverless-public/akkaserverless-docbuilder
@@ -22,7 +23,7 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples bundles
+managed: attributes apidocs examples bundles testkits
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -45,10 +46,21 @@ apidocs:
 examples:
 	mkdir -p "${managed_examples}"
 	rsync -a --exclude-from=.examplesignore ../samples/customer-registry-quickstart/ "${managed_examples}/customer-registry-quickstart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-customer-registry/ "${managed_examples}/java-customer-registry/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-shopping-cart/ "${managed_examples}/java-eventsourced-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-replicatedentity-shopping-cart/ "${managed_examples}/java-replicatedentity-shopping-cart/"
 	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
+	rsync -a --exclude-from=.examplesignore ../samples/replicatedentity-examples/ "${managed_examples}/replicatedentity-examples/"
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
+	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
+	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
+	rsync -a --exclude-from=.examplesignore ../samples/first-service/ "${managed_examples}/first-service/"
+
+testkits:
+	mkdir -p "${managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../testkit/src/main/java/ "${managed_examples}/testkit/"
 
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart

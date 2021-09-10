@@ -16,24 +16,171 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.impl.AkkaServerlessAnnotation;
+import com.akkaserverless.javasdk.Metadata;
+import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Collection;
+import java.util.Optional;
 
-/** A value based entity. */
-@AkkaServerlessAnnotation
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ValueEntity {
+/** @param <S> The type of the state for this entity. */
+public abstract class ValueEntity<S> {
+
+  private Optional<CommandContext> commandContext = Optional.empty();
+
   /**
-   * The entity type name
+   * Implement by returning the initial empty state object. This object will be passed into the
+   * command handlers, until a new state replaces it.
    *
-   * <p>The entity's unqualified classname can be a good default. However, be aware that the chosen
-   * name must be stable through the entity lifecycle. Never change it after deploying a service
-   * that stored data of this type.
+   * <p>Also known as "zero state" or "neutral state".
+   *
+   * <p><code>null</code> is an allowed value.
    */
-  String entityType();
+  public abstract S emptyState();
+
+  /**
+   * Additional context and metadata for a command handler.
+   *
+   * <p>It will throw an exception if accessed from constructor.
+   */
+  protected CommandContext commandContext() {
+    return commandContext.orElseThrow(
+        () ->
+            new IllegalStateException("CommandContext is only available when handling a command."));
+  }
+
+  /** INTERNAL API */
+  public final void _internalSetCommandContext(Optional<CommandContext> context) {
+    commandContext = context;
+  }
+
+  protected Effect.Builder<S> effects() {
+    return new ValueEntityEffectImpl<S>();
+  }
+
+  /**
+   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   *
+   * @param <T> The type of the message that must be returned by this call.
+   */
+  public interface Effect<T> {
+
+    /**
+     * Construct the effect that is returned by the command handler. The effect describes next
+     * processing actions, such as updating state and sending a reply.
+     *
+     * @param <S> The type of the state for this entity.
+     */
+    interface Builder<S> {
+
+      OnSuccessBuilder<S> updateState(S newState);
+
+      OnSuccessBuilder<S> deleteState();
+
+      /**
+       * Create a message reply.
+       *
+       * @param message The payload of the reply.
+       * @return A message reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> reply(T message);
+
+      /**
+       * Create a message reply.
+       *
+       * @param message The payload of the reply.
+       * @param metadata The metadata for the message.
+       * @return A message reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> reply(T message, Metadata metadata);
+
+      /**
+       * Create a forward reply.
+       *
+       * @param serviceCall The service call representing the forward.
+       * @return A forward reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> forward(ServiceCall serviceCall);
+
+      /**
+       * Create an error reply.
+       *
+       * @param description The description of the error.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description);
+
+      /**
+       * Create a reply that contains neither a message nor a forward nor an error.
+       *
+       * <p>This may be useful for emitting effects without sending a message.
+       *
+       * @return The reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> noReply();
+    }
+
+    interface OnSuccessBuilder<S> {
+
+      /**
+       * Reply after for example <code>updateState</code>.
+       *
+       * @param message The payload of the reply.
+       * @return A message reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> thenReply(T message);
+
+      /**
+       * Reply after for example <code>updateState</code>.
+       *
+       * @param message The payload of the reply.
+       * @param metadata The metadata for the message.
+       * @return A message reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> thenReply(T message, Metadata metadata);
+
+      /**
+       * Create a forward reply after for example <code>updateState</code>.
+       *
+       * @param serviceCall The service call representing the forward.
+       * @return A forward reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> thenForward(ServiceCall serviceCall);
+
+      /**
+       * Create a reply that contains neither a message nor a forward nor an error.
+       *
+       * <p>This may be useful for emitting effects without sending a message.
+       *
+       * @return The reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> thenNoReply();
+    }
+
+    /**
+     * Attach the given side effects to this reply.
+     *
+     * @param sideEffects The effects to attach.
+     * @return A new reply with the attached effects.
+     */
+    Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
+
+    /**
+     * Attach the given effects to this reply.
+     *
+     * @param effects The effects to attach.
+     * @return A new reply with the attached effects.
+     */
+    Effect<T> addSideEffects(SideEffect... effects);
+  }
 }

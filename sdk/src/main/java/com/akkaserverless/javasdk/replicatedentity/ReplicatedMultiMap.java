@@ -31,90 +31,94 @@ public interface ReplicatedMultiMap<K, V> extends ReplicatedData {
   /**
    * Get the values for the given key.
    *
-   * @param key The key of the entry.
-   * @return The current values at the given key, or an empty Set.
+   * @param key the key of the mapping
+   * @return the current values at the given key, or an empty Set
    */
   Set<V> get(K key);
 
   /**
-   * Store a key-value pair.
+   * Store a key-value pair, if not already present.
    *
-   * @param key The key of the entry.
-   * @param value The value to add to the entry.
-   * @return {@code true} if the multimap changed (this key-value pair was added).
+   * @param key the key of the mapping to add to
+   * @param value the value to add to the mapping
+   * @return a new multi-map with the additional value, or this unchanged multi-map
    */
-  boolean put(K key, V value);
+  ReplicatedMultiMap<K, V> put(K key, V value);
 
   /**
    * Store multiple values for a key.
    *
-   * @param key The key of the entry.
-   * @param values The values to add to the entry.
-   * @return {@code true} if the multimap changed (values were added).
+   * @param key the key of the mapping to add to
+   * @param values the values to add to the mapping
+   * @return a new multi-map with the additional values, or this unchanged multi-map
    */
-  boolean putAll(K key, Collection<V> values);
+  ReplicatedMultiMap<K, V> putAll(K key, Collection<V> values);
 
   /**
-   * Remove a single key-value pair for the given key and value.
+   * Remove a single key-value pair for the given key and value, if present.
    *
-   * @param key The key of the entry.
-   * @param value The value to remove from the entry.
-   * @return {@code true} if the multimap changed (this key-value pair was removed).
+   * @param key the key of the mapping to remove from
+   * @param value the value to remove from the mapping
+   * @return a new multi-map with the removed value, or this unchanged multi-map
    */
-  boolean remove(K key, V value);
+  ReplicatedMultiMap<K, V> remove(K key, V value);
 
   /**
    * Remove all values associated with the given key.
    *
-   * @param key The key of the entry.
-   * @return {@code true} if the multimap changed (values were removed).
+   * @param key the key of the mapping to remove
+   * @return a new multi-map with the removed mapping
    */
-  boolean removeAll(K key);
+  ReplicatedMultiMap<K, V> removeAll(K key);
 
   /**
-   * Return the keys contained in this multimap.
+   * Remove all key-value pairs from the multi-map, leaving it empty.
    *
-   * <p>Note that the key set contains a key if and only if this multimap maps that key to at least
-   * one value.
-   *
-   * @return the set of keys in this multimap.
+   * @return a new empty multi-map
    */
-  Set<K> keySet();
+  ReplicatedMultiMap<K, V> clear();
 
   /**
-   * Return the number of key-value pairs in this multimap.
+   * Return the number of key-value pairs in this multi-map.
    *
    * <p>Note that this does not return the number of distinct keys, which is given by {@code
-   * keySet().size()}, but the total number of values stored in the multimap.
+   * keySet().size()}, but the total number of values stored in the multi-map.
    *
-   * @return the number of key-value pairs stored in this multimap.
+   * @return the number of key-value pairs stored in this multi-map
    */
   int size();
 
   /**
-   * Check whether this multimap is empty.
+   * Check whether this multi-map is empty.
    *
-   * @return {@code true} if this multimap contains no key-value pairs.
+   * @return {@code true} if this multi-map contains no key-value pairs
    */
   boolean isEmpty();
 
   /**
-   * Check whether this multimap contains at least one value for the given key.
+   * Check whether this multi-map contains at least one value for the given key.
    *
-   * @param key The key of the entry.
-   * @return {@code true} if there is at least one key-value pair with the key.
+   * @param key the key of the mapping to check
+   * @return {@code true} if there is at least one key-value pair for the key
    */
   boolean containsKey(K key);
 
   /**
-   * Check whether this multimap contains the given value associated with the given key.
+   * Check whether this multi-map contains the given value associated with the given key.
    *
-   * @param key The key of the entry.
-   * @param value The value of the entry.
-   * @return {@code true} if the key-value pair is in this multimap.
+   * @param key the key of the mapping to check
+   * @param value the value of the mapping to check
+   * @return {@code true} if the key-value pair is in this multi-map
    */
   boolean containsValue(K key, V value);
 
-  /** Remove all key-value pairs from the multimap, leaving it empty. */
-  void clear();
+  /**
+   * Return the keys contained in this multi-map.
+   *
+   * <p>Note that the key set contains a key if and only if this multi-map maps that key to at least
+   * one value.
+   *
+   * @return the set of keys in this multi-map
+   */
+  Set<K> keySet();
 }

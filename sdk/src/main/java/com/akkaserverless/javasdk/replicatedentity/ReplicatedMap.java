@@ -16,11 +16,12 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 
 /**
- * A Replicated Map that allows both the addition and removal of objects in a map.
+ * A Replicated Map that allows both the addition and removal of {@link ReplicatedData} objects.
  *
  * <p>Use the more specialized maps if possible, such as {@link ReplicatedCounterMap}, {@link
  * ReplicatedRegisterMap}, and {@link ReplicatedMultiMap}.
@@ -32,10 +33,10 @@ import java.util.function.Function;
  * yet been observed by node 3. However, if both additions had been replicated to node 3, then the
  * key will be removed.
  *
- * <p>The values of the map are themselves replicated data types, and hence allow concurrent updates
- * that will eventually converge. Values may only be inserted using the {@link
- * ReplicatedMap#getOrCreate(Object, Function)} function, using the {@link ReplicatedDataFactory}
- * passed in to the creation callback.
+ * <p>The values of the map are themselves {@link ReplicatedData} types, and hence allow concurrent
+ * updates that will eventually converge. New {@link ReplicatedData} objects may only be created
+ * when using the {@link ReplicatedMap#getOrElse(Object, Function)} method, using the provided
+ * {@link ReplicatedDataFactory} for the create function.
  *
  * <p>While removing entries from the map is supported, if the entries are added back again, it is
  * possible that the value of the deleted entry may be merged into the value of the current entry,
@@ -59,28 +60,76 @@ import java.util.function.Function;
  */
 public interface ReplicatedMap<K, V extends ReplicatedData> extends ReplicatedData {
 
-  /** Get the ReplicatedData value with the given key. */
+  /**
+   * Get the {@link ReplicatedData} value for the given key.
+   *
+   * @param key the key of the mapping
+   * @return the {@link ReplicatedData} for the key
+   * @throws NoSuchElementException if the key is not preset in the map
+   */
   V get(K key);
 
   /**
-   * Get or create an entry in the map with the given key.
+   * Get the {@link ReplicatedData} value for the given key. If the key is not present in the map,
+   * then a new value is created with a creation function.
    *
-   * @param key The key of the entry.
-   * @param create A callback used to create the value using the given {@link ReplicatedDataFactory}
-   *     if an entry for the key is not currently in the map.
-   * @return The existing or newly created value for the given key.
+   * @param key the key of the mapping
+   * @param create function used to create an empty value using the given {@link
+   *     ReplicatedDataFactory} if the key is not present in the map
+   * @return the {@link ReplicatedData} for the key
    */
-  V getOrCreate(K key, Function<ReplicatedDataFactory, V> create);
+  V getOrElse(K key, Function<ReplicatedDataFactory, V> create);
 
-  Set<K> keySet();
+  /**
+   * Update the {@link ReplicatedData} value associated with the given key.
+   *
+   * @param key the key of the mapping
+   * @param value the updated {@link ReplicatedData} value
+   * @return a new map with the updated value
+   */
+  ReplicatedMap<K, V> update(K key, V value);
 
+  /**
+   * Remove the mapping for a key if it is present.
+   *
+   * @param key key whose mapping is to be removed from the map
+   * @return a new map with the removed mapping
+   */
+  ReplicatedMap<K, V> remove(K key);
+
+  /**
+   * Remove all entries from this map.
+   *
+   * @return a new empty map
+   */
+  ReplicatedMap<K, V> clear();
+
+  /**
+   * Get the number of key-value mappings in this map.
+   *
+   * @return the number of key-value mappings in this map
+   */
   int size();
 
+  /**
+   * Check whether this map is empty.
+   *
+   * @return {@code true} if this map contains no key-value mappings
+   */
   boolean isEmpty();
 
+  /**
+   * Check whether this map contains a mapping for the given key.
+   *
+   * @param key key whose presence in this map is to be tested
+   * @return {@code true} if this map contains a mapping for the given key
+   */
   boolean containsKey(K key);
 
-  void remove(K key);
-
-  void clear();
+  /**
+   * Get a {@link Set} view of the keys contained in this map.
+   *
+   * @return the keys contained in this map
+   */
+  Set<K> keySet();
 }

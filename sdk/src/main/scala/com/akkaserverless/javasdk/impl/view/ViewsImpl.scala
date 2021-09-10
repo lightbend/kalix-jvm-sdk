@@ -17,20 +17,20 @@
 package com.akkaserverless.javasdk.impl.view
 
 import java.util.Optional
+
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
+
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.{Context, Metadata, Reply, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.impl.ViewFactory
+import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.reply.MessageReplyImpl
-import com.akkaserverless.javasdk.view.UpdateHandlerContext
-import com.akkaserverless.javasdk.view.ViewContext
-import com.akkaserverless.javasdk.view.ViewFactory
+import com.akkaserverless.javasdk.view.ViewCreationContext
+import com.akkaserverless.javasdk.view.{UpdateContext, View, ViewContext}
 import com.akkaserverless.protocol.{view => pv}
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Any => JavaPbAny}
 import org.slf4j.LoggerFactory
 
 /** INTERNAL API */
@@ -88,28 +88,47 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                   "and not reach the user function"
                 )
 
-              val handler = service.factory.get.create(new ViewContextImpl(service.viewId))
+              // FIXME should we really create a new handler instance per incoming command ???
+              val handler = service.factory.get
+                .create(new ViewContextImpl(service.viewId))
+                .asInstanceOf[ViewHandler[Any, View[Any]]]
 
-              val state: Optional[JavaPbAny] =
-                receiveEvent.bySubjectLookupResult match {
-                  case Some(row) => row.value.map(ScalaPbAny.toJavaProto).asJava
-                  case None => Optional.empty
-                }
+              val state: Option[Any] =
+                receiveEvent.bySubjectLookupResult.flatMap(
+                  row => row.value.map(scalaPb => service.anySupport.decode(ScalaPbAny.toJavaProto(scalaPb)))
+                )
 
               val commandName = receiveEvent.commandName
-              val msg = ScalaPbAny.toJavaProto(receiveEvent.payload.get)
+              val msg = service.anySupport.decode(ScalaPbAny.toJavaProto(receiveEvent.payload.get))
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val context = new HandlerContextImpl(service.viewId, commandName, metadata, state)
+              val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
-              val reply = try {
-                handler.handle(msg, context)
+              val effect = try {
+                handler._internalHandleUpdate(state, msg, context)
               } catch {
                 case e: ViewException => throw e
                 case NonFatal(error) =>
                   throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
               }
 
-              Source.single(replyToOut(reply, receiveEvent))
+              effect match {
+                case ViewUpdateEffectImpl.Update(newState) =>
+                  if (newState == null)
+                    throw ViewException(context, "updateState with null state is not allowed.", None)
+                  val table = receiveEvent.initialTable
+                  val key = receiveEvent.key
+                  val serializedState = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
+                  val upsert = pv.Upsert(Some(pv.Row(table, key, Some(serializedState))))
+                  val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
+                  Source.single(out)
+                case i if i == ViewUpdateEffectImpl.Ignore =>
+                  // ignore incoming event
+                  val upsert = pv.Upsert(None)
+                  val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
+                  Source.single(out)
+                case ViewUpdateEffectImpl.Error(e) =>
+                  Source.failed(new RuntimeException(e))
+              }
 
             case None =>
               val errMsg = s"Unknown service: ${receiveEvent.serviceName}"
@@ -127,32 +146,15 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
           Source.failed(new RuntimeException(errMsg))
       }
 
-  private def replyToOut(reply: Reply[JavaPbAny], receiveEvent: pv.ReceiveEvent): pv.ViewStreamOut = {
-    val table = receiveEvent.initialTable
-    val key = receiveEvent.key
-    val upsert = {
-      reply match {
-        case r: MessageReplyImpl[JavaPbAny] =>
-          pv.Upsert(Some(pv.Row(table, key, Some(ScalaPbAny.fromJavaProto(r.payload)))))
-        case _ =>
-          // ignore incoming event
-          pv.Upsert(None)
-      }
-    }
-    pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
-  }
-
   trait AbstractContext extends ViewContext {
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  private final class HandlerContextImpl(override val viewId: String,
-                                         override val commandName: String,
-                                         override val metadata: Metadata,
-                                         override val state: Optional[JavaPbAny])
-      extends UpdateHandlerContext
-      with AbstractContext
-      with StateContext {
+  private final class UpdateContextImpl(override val viewId: String,
+                                        override val eventName: String,
+                                        override val metadata: Metadata)
+      extends UpdateContext
+      with AbstractContext {
 
     override def eventSubject(): Optional[String] =
       if (metadata.isCloudEvent)
@@ -161,11 +163,9 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
         Optional.empty()
   }
 
-  private final class ViewContextImpl(override val viewId: String) extends ViewContext with AbstractContext
+  private final class ViewContextImpl(override val viewId: String)
+      extends ViewContext
+      with ViewCreationContext
+      with AbstractContext
 
-}
-
-/** INTERNAL API */
-trait StateContext {
-  def state: Optional[JavaPbAny]
 }

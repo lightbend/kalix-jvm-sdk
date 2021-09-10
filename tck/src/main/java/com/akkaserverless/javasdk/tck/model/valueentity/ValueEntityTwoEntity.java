@@ -16,16 +16,21 @@
 
 package com.akkaserverless.javasdk.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.tck.model.ValueEntity.Request;
 import com.akkaserverless.tck.model.ValueEntity.Response;
 
-@ValueEntity(entityType = "value-entity-tck-model-two")
-public class ValueEntityTwoEntity {
+public class ValueEntityTwoEntity extends ValueEntity<String> {
 
-  @CommandHandler
-  public Response call(Request request) {
-    return Response.getDefaultInstance();
+  public ValueEntityTwoEntity(ValueEntityContext context) {}
+
+  public Effect<Response> call(String state, Request request) {
+    return effects().reply(Response.getDefaultInstance());
+  }
+
+  @Override
+  public String emptyState() {
+    return null;
   }
 }

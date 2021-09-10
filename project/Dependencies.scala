@@ -5,18 +5,19 @@ object Dependencies {
   object AkkaServerless {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 7
-    val FrameworkVersion = "0.7.0-beta.17"
+    val FrameworkVersion = "0.7.0-beta.18"
   }
 
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.6"
+  val ScalaVersionForCodegen = Seq("2.12.14")
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.6.15"
+  val AkkaVersion = "2.6.16"
   val AkkaHttpVersion = "10.2.6" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
-  val JacksonDatabindVersion = "2.11.4" // Akka 2.6.14: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
+  val JacksonDatabindVersion = "2.11.4" // Akka 2.6.16: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.3"
   val LogbackContribVersion = "0.1.5"
@@ -26,7 +27,6 @@ object Dependencies {
   val JUnitJupiterVersion = "5.7.1"
 
   val CommonsIoVerison = "2.8.0"
-  val KiamaVersion = "2.4.0"
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
@@ -35,7 +35,6 @@ object Dependencies {
   val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % KiamaVersion
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
   val logbackContrib = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
 
@@ -90,13 +89,13 @@ object Dependencies {
 
   val codegenCore = deps ++= Seq(
         protobufJava,
+        akkaslsSdkProtocol % "compile;protobuf-src",
         logback % Test,
         munit % Test,
         munitScalaCheck % Test
       )
 
   val codegenJava = deps ++= Seq(
-        kiama,
         commonsIo,
         logback % Test,
         munit % Test,
