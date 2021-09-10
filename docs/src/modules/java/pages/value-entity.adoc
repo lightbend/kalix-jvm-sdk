@@ -118,7 +118,9 @@ When more components are added the `AkkaServerlessFactory` is regenerated, and y
 
 == Testing the Entity
 
-There are two ways to test a Value Entity, unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit and integration tests with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
+There are two ways to test a Value Entity: 
+* unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit 
+* integration tests, with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
 
 Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests on the other hand are more realistic and allow many entities, interaction with other components inside and outside of the service, for example actual publishing to a pub/sub topic.
 
