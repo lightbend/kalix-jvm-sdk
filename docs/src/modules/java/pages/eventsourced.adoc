@@ -55,7 +55,7 @@ include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/sho
 
 == Implementing behavior
 
-An Event Sourced Entity implementation is a Java class where you define how each command is implemented. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the `ShoppingCart.java` file exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
+An Event Sourced Entity implementation is a Java class where you define how each command is handled. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the `ShoppingCart.java` file exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
 
 [source,java]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java

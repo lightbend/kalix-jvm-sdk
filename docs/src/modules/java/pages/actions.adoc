@@ -23,7 +23,7 @@ include::example$fibonacci-action/src/main/proto/actions/fibonacci.proto[tag=act
 
 == Implementing the Action
 
-An Action implementation is a Java class where you define how each method is implemented. The class
+An Action implementation is a Java class where you define how each message is handled. The class
 `FibonacciAction` gets generated for us based on the proto file defined above. Once the
 `FibonacciAction.java` file exist, it is not overwritten, so you can freely add logic to it.
 `FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
