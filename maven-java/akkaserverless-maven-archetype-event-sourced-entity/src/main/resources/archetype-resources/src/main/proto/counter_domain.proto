@@ -19,10 +19,12 @@ message CounterState {
 
 message ValueIncreased {
     string counter_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
 }
 
 message ValueDecreased {
     string counter_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
 }
 
 message ValueReset {
