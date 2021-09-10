@@ -16,11 +16,15 @@ syntax = "proto3";
 
 package customer.api;
 
+// tag::declarations[]
 option java_outer_classname = "CustomerApi";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
+// end::declarations[]
+
+// tag::view[]
 message Customer {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
   string email = 2;
@@ -32,6 +36,7 @@ message Address {
   string street = 1;
   string city = 2;
 }
+// end::view[]
 
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
