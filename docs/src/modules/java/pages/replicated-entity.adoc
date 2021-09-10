@@ -80,7 +80,7 @@ When adding or changing the `rpc` definitions, including name, parameter and ret
 
 In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to update the underlying data and then send a reply.
 
-IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect. Any modifications made directly to data objects are not replicated.
+IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect with an updated Replicated Data object. Note that Replicated Data objects are immutable, with each modifying method returning a new instance of the Replicated Data type.
 
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
@@ -142,6 +142,8 @@ When more components are added, the `AkkaServerlessFactory` is regenerated and y
 
 Each Replicated Entity is associated with one underlying Replicated Data type. Counter, Register, Set, and Map data structures are available. This section describes how to configure and implement a Replicated Entity with each of the Replicated Data types.
 
+IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect with an updated Replicated Data object. Note that Replicated Data objects are immutable, with each modifying method returning a new instance of the Replicated Data type.
+
 
 === Replicated Counter
 
@@ -165,8 +167,7 @@ When implementing a Replicated Counter entity, the state can be updated by calli
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
 ----
 
-<1> Modify the Replicated Counter with `increment` or `decrement`.
-<2> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 The current value of a Replicated Counter can be retrieved using `getValue`:
 
@@ -215,8 +216,7 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 ----
 
 <1> Create a domain object for the new value.
-<2> Update the Replicated Register value with `set`.
-<3> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<2> Update the Replicated Register value with `set` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 The current value of a Replicated Register can be retrieved using `get`:
 
@@ -258,10 +258,9 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 ----
 
 <1> Create a domain object for the element.
-<2> Modify the elements of the Replicated Set with `add` or `remove`.
-<3> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<2> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
-Replicated Set implements the `java.util.Set` interface and can be used directly as a collection to access the current elements:
+The `elements` method for Replicated Set returns a regular `java.util.Set` that can be used to iterate over the current elements:
 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/set/domain/SomeSet.java
@@ -298,8 +297,7 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 ----
 
 <1> Create a domain object for the key.
-<2> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove`.
-<3> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<2> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual counters in a Replicated Counter Map can be accessed, or the set of keys can be used to iterate over all counters.
 
@@ -346,8 +344,7 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 
 <1> Create a domain object for the key.
 <2> Create a domain object for the value.
-<3> Modify the values of the Replicated Register Map with `setValue`, or `remove`.
-<4> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<3> Modify the values of the Replicated Register Map with `setValue`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual registers in a Replicated Register Map can be accessed, or the set of keys can be used to iterate over all registers.
 
@@ -392,8 +389,7 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 
 <1> Create a domain object for the key.
 <2> Create a domain object for the value.
-<3> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll`.
-<4> Trigger a replicated update by returning an `Effect` with `effects().update`.
+<3> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual entries in a Replicated Multi-Map can be accessed, or the set of keys can be used to iterate over all value sets.
 
@@ -429,7 +425,7 @@ include::example$replicatedentity-examples/src/main/proto/replicated/map_domain.
 
 NOTE: The value type for a Replicated Map is not specified for code-generation, and will be set to `ReplicatedData` for a heterogeneous map.
 
-When implementing a Replicated Map entity, the replicated data for an entry can be retrieved using the `get` or `getOrCreate` methods on the current data object, and then triggering an update with the modified data object. Entries can be removed from the map using the `remove` method.
+When implementing a Replicated Map entity, the replicated data for an entry can be updated by retrieving the data value using the `get` or `getOrElse` methods, updating values using the `update` method, and then triggering an update effect with the modified Replicated Map. Entries can be removed from the map using the `remove` method.
 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
@@ -438,7 +434,7 @@ include::example$replicatedentity-examples/src/main/java/com/example/replicated/
 ----
 
 <1> Get the Replicated Data object for a key using `getOrCreate`, which also takes a function to create an empty value using a `ReplicatedDataFactory`.
-<2> Modify the Replicated Data value using its updating methods.
+<2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
 <3> Trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual Replicated Data objects in the Replicated Map can also be accessed for reading the current values.

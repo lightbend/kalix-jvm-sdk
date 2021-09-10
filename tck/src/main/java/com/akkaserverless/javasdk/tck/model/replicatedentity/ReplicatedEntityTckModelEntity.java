@@ -83,7 +83,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     for (RequestAction action : request.getActionsList()) {
       switch (action.getActionCase()) {
         case UPDATE:
-          builder = effects().update(applyUpdate(data, action.getUpdate()));
+          builder = effects().update(data = applyUpdate(data, action.getUpdate()));
           break;
         case DELETE:
           builder = effects().delete();
@@ -117,23 +117,18 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
   private ReplicatedData applyUpdate(ReplicatedData replicatedData, Update update) {
     switch (update.getUpdateCase()) {
       case COUNTER:
-        ((ReplicatedCounter) replicatedData).increment(update.getCounter().getChange());
-        break;
+        return ((ReplicatedCounter) replicatedData).increment(update.getCounter().getChange());
       case REPLICATED_SET:
         @SuppressWarnings("unchecked")
         ReplicatedSet<String> replicatedSet = (ReplicatedSet<String>) replicatedData;
         switch (update.getReplicatedSet().getActionCase()) {
           case ADD:
-            replicatedSet.add(update.getReplicatedSet().getAdd());
-            break;
+            return replicatedSet.add(update.getReplicatedSet().getAdd());
           case REMOVE:
-            replicatedSet.remove(update.getReplicatedSet().getRemove());
-            break;
+            return replicatedSet.remove(update.getReplicatedSet().getRemove());
           case CLEAR:
-            if (update.getReplicatedSet().getClear()) replicatedSet.clear();
-            break;
+            return update.getReplicatedSet().getClear() ? replicatedSet.clear() : replicatedSet;
         }
-        break;
       case REGISTER:
         @SuppressWarnings("unchecked")
         ReplicatedRegister<String> register = (ReplicatedRegister<String>) replicatedData;
@@ -142,25 +137,21 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
           ReplicatedRegisterClock clock = update.getRegister().getClock();
           switch (clock.getClockType()) {
             case REPLICATED_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
-              register.set(newValue);
-              break;
+              return register.set(newValue);
             case REPLICATED_REGISTER_CLOCK_TYPE_REVERSE:
-              register.set(newValue, ReplicatedRegister.Clock.REVERSE, 0);
-              break;
+              return register.set(newValue, ReplicatedRegister.Clock.REVERSE, 0);
             case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM:
-              register.set(newValue, ReplicatedRegister.Clock.CUSTOM, clock.getCustomClockValue());
-              break;
+              return register.set(
+                  newValue, ReplicatedRegister.Clock.CUSTOM, clock.getCustomClockValue());
             case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
-              register.set(
+              return register.set(
                   newValue,
                   ReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT,
                   clock.getCustomClockValue());
-              break;
           }
         } else {
-          register.set(newValue);
+          return register.set(newValue);
         }
-        break;
       case REPLICATED_MAP:
         @SuppressWarnings("unchecked")
         ReplicatedMap<String, ReplicatedData> replicatedMap =
@@ -168,47 +159,39 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
         switch (update.getReplicatedMap().getActionCase()) {
           case ADD:
             String addKey = update.getReplicatedMap().getAdd();
-            replicatedMap.getOrCreate(addKey, factory -> createReplicatedData(addKey, factory));
-            break;
+            return replicatedMap.update(
+                addKey,
+                replicatedMap.getOrElse(addKey, factory -> createReplicatedData(addKey, factory)));
           case UPDATE:
             String updateKey = update.getReplicatedMap().getUpdate().getKey();
             Update entryUpdate = update.getReplicatedMap().getUpdate().getUpdate();
             ReplicatedData dataValue =
-                replicatedMap.getOrCreate(
+                replicatedMap.getOrElse(
                     updateKey, factory -> createReplicatedData(updateKey, factory));
-            applyUpdate(dataValue, entryUpdate);
-            break;
+            return replicatedMap.update(updateKey, applyUpdate(dataValue, entryUpdate));
           case REMOVE:
             String removeKey = update.getReplicatedMap().getRemove();
-            replicatedMap.remove(removeKey);
-            break;
+            return replicatedMap.remove(removeKey);
           case CLEAR:
-            replicatedMap.clear();
-            break;
+            return replicatedMap.clear();
         }
-        break;
       case REPLICATED_COUNTER_MAP:
         @SuppressWarnings("unchecked")
         ReplicatedCounterMap<String> counterMap = (ReplicatedCounterMap<String>) replicatedData;
         switch (update.getReplicatedCounterMap().getActionCase()) {
           case ADD:
             String addKey = update.getReplicatedCounterMap().getAdd();
-            counterMap.increment(addKey, 0);
-            break;
+            return counterMap.increment(addKey, 0);
           case UPDATE:
             String updateKey = update.getReplicatedCounterMap().getUpdate().getKey();
             long change = update.getReplicatedCounterMap().getUpdate().getChange();
-            counterMap.increment(updateKey, change);
-            break;
+            return counterMap.increment(updateKey, change);
           case REMOVE:
             String removeKey = update.getReplicatedCounterMap().getRemove();
-            counterMap.remove(removeKey);
-            break;
+            return counterMap.remove(removeKey);
           case CLEAR:
-            counterMap.clear();
-            break;
+            return counterMap.clear();
         }
-        break;
       case REPLICATED_REGISTER_MAP:
         @SuppressWarnings("unchecked")
         ReplicatedRegisterMap<String, String> registerMap =
@@ -216,8 +199,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
         switch (update.getReplicatedRegisterMap().getActionCase()) {
           case ADD:
             String addKey = update.getReplicatedRegisterMap().getAdd();
-            registerMap.setValue(addKey, "");
-            break;
+            return registerMap.setValue(addKey, "");
           case UPDATE:
             ReplicatedRegisterMapEntryUpdate entryUpdate =
                 update.getReplicatedRegisterMap().getUpdate();
@@ -227,39 +209,32 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
               ReplicatedRegisterClock clock = entryUpdate.getClock();
               switch (clock.getClockType()) {
                 case REPLICATED_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED:
-                  registerMap.setValue(updateKey, updateValue);
-                  break;
+                  return registerMap.setValue(updateKey, updateValue);
                 case REPLICATED_REGISTER_CLOCK_TYPE_REVERSE:
-                  registerMap.setValue(updateKey, updateValue, ReplicatedRegister.Clock.REVERSE, 0);
-                  break;
+                  return registerMap.setValue(
+                      updateKey, updateValue, ReplicatedRegister.Clock.REVERSE, 0);
                 case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM:
-                  registerMap.setValue(
+                  return registerMap.setValue(
                       updateKey,
                       updateValue,
                       ReplicatedRegister.Clock.CUSTOM,
                       clock.getCustomClockValue());
-                  break;
                 case REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT:
-                  registerMap.setValue(
+                  return registerMap.setValue(
                       updateKey,
                       updateValue,
                       ReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT,
                       clock.getCustomClockValue());
-                  break;
               }
             } else {
-              registerMap.setValue(updateKey, updateValue);
+              return registerMap.setValue(updateKey, updateValue);
             }
-            break;
           case REMOVE:
             String removeKey = update.getReplicatedRegisterMap().getRemove();
-            registerMap.remove(removeKey);
-            break;
+            return registerMap.remove(removeKey);
           case CLEAR:
-            registerMap.clear();
-            break;
+            return registerMap.clear();
         }
-        break;
       case REPLICATED_MULTI_MAP:
         @SuppressWarnings("unchecked")
         ReplicatedMultiMap<String, String> multiMap =
@@ -271,30 +246,23 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
                 update.getReplicatedMultiMap().getUpdate().getUpdate();
             switch (updateValue.getActionCase()) {
               case ADD:
-                multiMap.put(updateKey, updateValue.getAdd());
-                break;
+                return multiMap.put(updateKey, updateValue.getAdd());
               case REMOVE:
-                multiMap.remove(updateKey, updateValue.getRemove());
-                break;
+                return multiMap.remove(updateKey, updateValue.getRemove());
               case CLEAR:
-                if (updateValue.getClear()) multiMap.removeAll(updateKey);
-                break;
+                return updateValue.getClear() ? multiMap.removeAll(updateKey) : multiMap;
             }
-            break;
           case REMOVE:
             String removeKey = update.getReplicatedMultiMap().getRemove();
-            multiMap.removeAll(removeKey);
-            break;
+            return multiMap.removeAll(removeKey);
           case CLEAR:
-            multiMap.clear();
-            break;
+            return multiMap.clear();
         }
-        break;
       case VOTE:
-        ((ReplicatedVote) replicatedData).vote(update.getVote().getSelfVote());
-        break;
+        return ((ReplicatedVote) replicatedData).vote(update.getVote().getSelfVote());
+      default:
+        return replicatedData;
     }
-    return replicatedData;
   }
 
   private Response responseValue(ReplicatedData data) {
@@ -309,7 +277,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     } else if (replicatedData instanceof ReplicatedSet) {
       @SuppressWarnings("unchecked")
       ReplicatedSet<String> set = (ReplicatedSet<String>) replicatedData;
-      List<String> elements = new ArrayList<>(set);
+      List<String> elements = new ArrayList<>(set.elements());
       Collections.sort(elements);
       builder.setReplicatedSet(ReplicatedSetValue.newBuilder().addAllElements(elements));
     } else if (replicatedData instanceof ReplicatedRegister) {

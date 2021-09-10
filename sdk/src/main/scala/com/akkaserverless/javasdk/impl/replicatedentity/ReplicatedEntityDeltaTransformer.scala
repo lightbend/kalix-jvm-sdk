@@ -22,7 +22,7 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 private[replicatedentity] object ReplicatedEntityDeltaTransformer {
 
   def create(delta: ReplicatedEntityDelta, anySupport: AnySupport): InternalReplicatedData = {
-    val entity = delta.delta match {
+    val data = delta.delta match {
       case ReplicatedEntityDelta.Delta.Counter(_) =>
         new ReplicatedCounterImpl
       case ReplicatedEntityDelta.Delta.ReplicatedSet(_) =>
@@ -42,8 +42,7 @@ private[replicatedentity] object ReplicatedEntityDeltaTransformer {
       case _ =>
         throw new RuntimeException(s"Received unexpected replicated entity delta: ${delta.delta}")
     }
-    entity.applyDelta(delta.delta)
-    entity
+    data.applyDelta(delta.delta)
   }
 
 }

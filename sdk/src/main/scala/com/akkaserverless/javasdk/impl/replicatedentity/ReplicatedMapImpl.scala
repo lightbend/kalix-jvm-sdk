@@ -23,153 +23,138 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedMapDelta,
   ReplicatedMapEntryDelta
 }
-import com.google.protobuf.any.{Any => ScalaPbAny}
 import org.slf4j.LoggerFactory
-import java.util
-import java.util.function
 
+import java.util.function
 import scala.jdk.CollectionConverters._
 
 private object ReplicatedMapImpl {
   private val log = LoggerFactory.getLogger(classOf[ReplicatedMapImpl[_, _]])
 }
 
-/**
- * A few notes on implementation:
- *
- * - put, and any similar operations (such as Map.Entry.setValue) are not supported, because the only way to create a
- *   Replicated Data object is using a ReplicatedDataFactory, and we only make ReplicatedDataFactory available in very
- *   specific contexts, such as in the getOrCreate method. The getOrCreate method is the only way to insert something
- *   new into the map.
- * - All mechanisms for removal are supported - eg, calling remove directly, calling remove on any of the derived sets
- *   (entrySet, keySet, values), and calling remove on the entrySet iterator.
- * - ju.AbstractMap is very useful, though bases most of its implementation on entrySet, so we need to take care to
- *   efficiently implement operations that it implements in O(n) time that we can do in O(1) time, such as
- *   get/remove/containsKey.
- */
 private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicatedData](
     anySupport: AnySupport,
-    _value: util.HashMap[K, V] = new util.HashMap[K, V]()
+    entries: Map[K, V] = Map.empty[K, V],
+    added: Set[K] = Set.empty[K],
+    removed: Set[K] = Set.empty[K],
+    cleared: Boolean = false
 ) extends ReplicatedMap[K, V]
     with InternalReplicatedData {
 
   import ReplicatedMapImpl.log
 
-  override final val name = "ReplicatedMap"
-  private val value = _value
-  private val added = new util.HashMap[K, (ScalaPbAny, V)]()
-  private val removed = new util.HashSet[ScalaPbAny]()
-  private var cleared = false
+  override type Self = ReplicatedMapImpl[K, V]
+  override val name = "ReplicatedMap"
 
-  override def getOrCreate(key: K, create: function.Function[ReplicatedDataFactory, V]): V =
-    if (value.containsKey(key)) {
-      value.get(key)
+  override def get(key: K): V = entries(key)
+
+  override def getOrElse(key: K, create: function.Function[ReplicatedDataFactory, V]): V =
+    entries.getOrElse(
+      key, {
+        val dataFactory = new ReplicatedDataFactoryImpl(anySupport)
+        val data = create(dataFactory)
+        if (data eq null) {
+          throw new IllegalArgumentException(
+            "Replicated Map getOrElse creation function must return a Replicated Data object"
+          )
+        } else if (data ne dataFactory.internalData) {
+          throw new IllegalArgumentException(
+            "Replicated Data returned by getOrElse creation callback must have been created by the ReplicatedDataFactory passed to it"
+          )
+        }
+        data
+      }
+    )
+
+  override def update(key: K, value: V): ReplicatedMap[K, V] =
+    new ReplicatedMapImpl(
+      anySupport,
+      entries.updated(key, value),
+      if (entries.contains(key)) added else added + key,
+      removed,
+      cleared
+    )
+
+  override def remove(key: K): ReplicatedMapImpl[K, V] = {
+    if (!entries.contains(key)) {
+      this
     } else {
-      val encodedKey = anySupport.encodeScala(key)
-      val dataFactory = new ReplicatedDataFactoryImpl(anySupport)
-      val data = create(dataFactory)
-      if (data eq null) {
-        throw new IllegalArgumentException("getOrCreate creation callback must return a Replicated Data object")
-      } else if (data ne dataFactory.internalData) {
-        throw new IllegalArgumentException(
-          "Replicated Data returned by getOrCreate creation callback must have been created by the ReplicatedDataFactory passed to it"
-        )
-      }
-      value.put(key, data)
-      added.put(key, (encodedKey, data))
-      data
-    }
-
-  override def containsKey(key: K): Boolean = value.containsKey(key)
-
-  override def get(key: K): V = value.get(key)
-
-  override def remove(key: K): Unit = {
-    if (value.containsKey(key)) {
-      val encodedKey = anySupport.encodeScala(key)
-      if (added.containsKey(key)) {
-        added.remove(key)
+      if (entries.size == 1) { // just the to-be-removed mapping
+        clear()
       } else {
-        removed.add(encodedKey)
+        if (added.contains(key)) {
+          new ReplicatedMapImpl(anySupport, entries - key, added - key, removed, cleared)
+        } else {
+          new ReplicatedMapImpl(anySupport, entries - key, added, removed + key, cleared)
+        }
       }
     }
-    value.remove(key)
   }
 
-  override def keySet(): util.Set[K] = value.keySet()
+  override def clear(): ReplicatedMapImpl[K, V] =
+    new ReplicatedMapImpl[K, V](anySupport, cleared = true)
 
-  override def size(): Int = value.size()
+  override def size: Int = entries.size
 
-  override def isEmpty: Boolean = value.isEmpty
+  override def isEmpty: Boolean = entries.isEmpty
 
-  override def clear(): Unit = {
-    value.clear()
-    cleared = true
-    removed.clear()
-    added.clear()
-  }
+  override def containsKey(key: K): Boolean = entries.contains(key)
 
-  override def copy(): ReplicatedMapImpl[K, V] =
-    new ReplicatedMapImpl(anySupport, new util.HashMap(value.asScala.map {
-      case (key, data) => key -> data.copy().asInstanceOf[V]
-    }.asJava))
+  override def keySet: java.util.Set[K] = entries.keySet.asJava
 
   override def hasDelta: Boolean =
-    if (cleared || !added.isEmpty || !removed.isEmpty) {
+    if (cleared || added.nonEmpty || removed.nonEmpty) {
       true
     } else {
-      value.values().asScala.exists(_.hasDelta)
+      entries.values.exists(_.hasDelta)
     }
 
-  override def delta: ReplicatedEntityDelta.Delta = {
-    val updated = (value.asScala -- this.added.keySet().asScala).collect {
+  override def getDelta: ReplicatedEntityDelta.Delta = {
+    val updatedEntries = (entries -- added).collect {
       case (key, changed) if changed.hasDelta =>
-        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(changed.delta)))
+        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(changed.getDelta)))
     }
-    val added = this.added.asScala.values.map {
-      case (key, value) => ReplicatedMapEntryDelta(Some(key), Some(ReplicatedEntityDelta(value.delta)))
+    val addedEntries = added.flatMap { key =>
+      entries.get(key).map { value =>
+        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(value.getDelta)))
+      }
     }
-
     ReplicatedEntityDelta.Delta.ReplicatedMap(
       ReplicatedMapDelta(
         cleared = cleared,
-        removed = removed.asScala.toVector,
-        updated = updated.toVector,
-        added = added.toVector
+        removed = removed.map(anySupport.encodeScala).toSeq,
+        updated = updatedEntries.toSeq,
+        added = addedEntries.toSeq
       )
     )
   }
 
-  override def resetDelta(): Unit = {
-    cleared = false
-    added.clear()
-    removed.clear()
-    value.values().asScala.foreach(_.resetDelta())
-  }
+  override def resetDelta(): ReplicatedMapImpl[K, V] =
+    if (!hasDelta) this
+    else new ReplicatedMapImpl(anySupport, entries.view.mapValues(_.resetDelta().asInstanceOf[V]).toMap)
 
-  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMapImpl[K, V]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedMap(ReplicatedMapDelta(cleared, removed, updated, added, _)) =>
-      if (cleared) {
-        value.clear()
-      }
-      removed.foreach(key => value.remove(anySupport.decode(key)))
-      updated.foreach {
-        case ReplicatedMapEntryDelta(Some(key), Some(delta), _) =>
-          val data = value.get(anySupport.decode(key))
-          if (data == null) {
-            log.warn("ReplicatedMap entry to update with key [{}] not found in map", key)
-          } else {
-            data.applyDelta(delta.delta)
+      val reducedEntries =
+        if (cleared) Map.empty[K, V]
+        else entries -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+      val updatedEntries = updated.foldLeft(reducedEntries) {
+        case (map, ReplicatedMapEntryDelta(Some(encodedKey), Some(ReplicatedEntityDelta(delta, _)), _)) =>
+          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          map.get(key) match {
+            case Some(value) => map.updated(key, value.applyDelta(delta).asInstanceOf[V])
+            case _ => log.warn("ReplicatedMap entry to update with key [{}] not found in map", key); map
           }
-        case _ =>
+        case (map, _) => map
       }
-      added.foreach {
-        case ReplicatedMapEntryDelta(Some(key), Some(delta), _) =>
-          value.put(anySupport.decode(key).asInstanceOf[K],
-                    ReplicatedEntityDeltaTransformer.create(delta, anySupport).asInstanceOf[V])
-        case _ =>
+      val newEntries = added.foldLeft(updatedEntries) {
+        case (map, ReplicatedMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
+          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          map.updated(key, ReplicatedEntityDeltaTransformer.create(delta, anySupport).asInstanceOf[V])
+        case (map, _) => map
       }
+      new ReplicatedMapImpl(anySupport, newEntries)
   }
 
-  override def toString = s"ReplicatedMap(${value.asScala.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 }

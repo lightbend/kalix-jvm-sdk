@@ -23,37 +23,38 @@ package com.akkaserverless.javasdk.replicatedentity;
  */
 public interface ReplicatedVote extends ReplicatedData {
   /**
-   * Get the current value for this nodes vote.
+   * Get the current value for this node's vote.
    *
-   * @return This nodes vote.
+   * @return this node's vote
    */
   boolean getSelfVote();
 
   /**
    * Get the number of voters participating in the vote (ie, the number of nodes in the cluster).
    *
-   * @return The number of voters.
+   * @return the number of voters
    */
   int getVoters();
 
   /**
    * Get the number of votes for.
    *
-   * @return The number of votes for.
+   * @return the number of votes for
    */
   int getVotesFor();
 
   /**
-   * Update this nodes vote to the given value.
+   * Update this node's vote to the given value.
    *
-   * @param vote The vote this node is contributing.
+   * @param vote the vote this node is contributing
+   * @return a new vote, or this unchanged vote
    */
-  void vote(boolean vote);
+  ReplicatedVote vote(boolean vote);
 
   /**
    * Has at least one node voted true?
    *
-   * @return True if at least one node has voted true.
+   * @return {@code true} if at least one node has voted true
    */
   default boolean isAtLeastOne() {
     return getVotesFor() > 0;
@@ -62,7 +63,7 @@ public interface ReplicatedVote extends ReplicatedData {
   /**
    * Have a majority of nodes voted true?
    *
-   * @return True if more than half of the nodes have voted true.
+   * @return {@code true} if more than half of the nodes have voted true
    */
   default boolean isMajority() {
     return getVotesFor() > getVoters() / 2;
@@ -71,7 +72,7 @@ public interface ReplicatedVote extends ReplicatedData {
   /**
    * Is the vote unanimous?
    *
-   * @return True if all nodes have voted true.
+   * @return {@code true} if all nodes have voted true
    */
   default boolean isUnanimous() {
     return getVotesFor() == getVoters();

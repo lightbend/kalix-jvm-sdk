@@ -51,10 +51,11 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
             .setName(addLineItem.getName())
             .build();
 
-    cart.increment(product, addLineItem.getQuantity()); // <3>
+    ReplicatedCounterMap<ShoppingCartDomain.Product> updatedCart = // <3>
+        cart.increment(product, addLineItem.getQuantity());
 
     return effects()
-        .update(cart) // <4>
+        .update(updatedCart) // <4>
         .thenReply(Empty.getDefaultInstance()); // <5>
   }
   // end::addItem[]
@@ -74,8 +75,9 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
       return effects().error("Item to remove is not in the cart: " + removeLineItem.getProductId());
     }
 
-    cart.remove(product);
-    return effects().update(cart).thenReply(Empty.getDefaultInstance());
+    return effects()
+        .update(cart.remove(product))
+        .thenReply(Empty.getDefaultInstance());
   }
 
   // tag::getCart[]

@@ -17,119 +17,95 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.protocol.replicated_entity.{ReplicatedEntityDelta, ReplicatedSetDelta}
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import java.util
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
-
-private[replicatedentity] class ReplicatedSetImpl[T](
+private[replicatedentity] class ReplicatedSetImpl[E](
     anySupport: AnySupport,
-    _value: util.HashSet[T] = new util.HashSet[T]()
-) extends util.AbstractSet[T]
-    with ReplicatedSet[T]
+    value: Set[E] = Set.empty[E],
+    added: Set[E] = Set.empty[E],
+    removed: Set[E] = Set.empty[E],
+    cleared: Boolean = false
+) extends ReplicatedSet[E]
     with InternalReplicatedData {
 
-  override final val name = "ReplicatedSet"
-  private val value = _value
-  private val added = new util.HashSet[ScalaPbAny]()
-  private val removed = new util.HashSet[ScalaPbAny]()
-  private var cleared = false
+  override type Self = ReplicatedSetImpl[E]
+  override val name = "ReplicatedSet"
 
-  // copy of the current elements
-  def elements: util.Set[T] = new util.HashSet[T](value)
+  override def size: Int = value.size
 
-  override def size(): Int = value.size()
+  override def isEmpty: Boolean = value.isEmpty
 
-  override def isEmpty: Boolean = super.isEmpty
+  override def elements: java.util.Set[E] = value.asJava
 
-  override def contains(o: Any): Boolean = value.contains(o)
+  override def iterator(): java.util.Iterator[E] = value.iterator.asJava
 
-  override def add(e: T): Boolean =
-    if (value.contains(e)) {
-      false
+  override def contains(element: E): Boolean = value.contains(element)
+
+  override def add(element: E): ReplicatedSetImpl[E] =
+    if (value.contains(element)) {
+      this
     } else {
-      val encoded = anySupport.encodeScala(e)
-      if (removed.contains(encoded)) {
-        removed.remove(encoded)
+      if (removed.contains(element)) {
+        new ReplicatedSetImpl(anySupport, value + element, added, removed - element, cleared)
       } else {
-        added.add(anySupport.encodeScala(e))
+        new ReplicatedSetImpl(anySupport, value + element, added + element, removed, cleared)
       }
-      value.add(e)
     }
 
-  override def remove(o: Any): Boolean =
-    if (!value.contains(o)) {
-      false
+  override def remove(element: E): ReplicatedSetImpl[E] =
+    if (!value.contains(element)) {
+      this
     } else {
-      value.remove(o)
-      if (value.isEmpty) {
+      if (value.size == 1) { // just the to-be-removed element
         clear()
       } else {
-        val encoded = anySupport.encodeScala(o)
-        if (added.contains(encoded)) {
-          added.remove(encoded)
+        if (added.contains(element)) {
+          new ReplicatedSetImpl(anySupport, value - element, added - element, removed, cleared)
         } else {
-          removed.add(encoded)
+          new ReplicatedSetImpl(anySupport, value - element, added, removed + element, cleared)
         }
       }
-      true
     }
 
-  override def iterator(): util.Iterator[T] = new util.Iterator[T] {
-    private val iter = value.iterator()
-    private var lastNext: T = _
+  override def containsAll(elements: java.util.Collection[E]): Boolean = elements.asScala.forall(value.contains)
 
-    override def hasNext: Boolean = iter.hasNext
+  override def addAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
+    elements.asScala.foldLeft(this) { case (set, element) => set.add(element) }
 
-    override def next(): T = {
-      lastNext = iter.next()
-      lastNext
-    }
+  override def retainAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
+    value.foldLeft(this) { case (set, element) => if (!elements.contains(element)) set.remove(element) else set }
 
-    override def remove(): Unit = {
-      iter.remove()
-      val encoded = anySupport.encodeScala(lastNext)
-      if (added.contains(encoded)) {
-        added.remove(encoded)
-      } else {
-        removed.add(encoded)
-      }
-    }
-  }
+  override def removeAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
+    elements.asScala.foldLeft(this) { case (set, element) => set.remove(element) }
 
-  override def clear(): Unit = {
-    value.clear()
-    cleared = true
-    removed.clear()
-    added.clear()
-  }
+  override def clear(): ReplicatedSetImpl[E] =
+    new ReplicatedSetImpl[E](anySupport, cleared = true)
 
-  override def copy(): ReplicatedSetImpl[T] = new ReplicatedSetImpl(anySupport, new util.HashSet(value))
+  override def hasDelta: Boolean = cleared || added.nonEmpty || removed.nonEmpty
 
-  override def hasDelta: Boolean = cleared || !added.isEmpty || !removed.isEmpty
-
-  override def delta: ReplicatedEntityDelta.Delta =
+  override def getDelta: ReplicatedEntityDelta.Delta =
     ReplicatedEntityDelta.Delta.ReplicatedSet(
-      ReplicatedSetDelta(cleared, removed = removed.asScala.toVector, added = added.asScala.toVector)
+      ReplicatedSetDelta(
+        cleared,
+        removed = removed.map(anySupport.encodeScala).toSeq,
+        added = added.map(anySupport.encodeScala).toSeq
+      )
     )
 
-  override def resetDelta(): Unit = {
-    cleared = false
-    added.clear()
-    removed.clear()
-  }
+  override def resetDelta(): ReplicatedSetImpl[E] =
+    if (hasDelta) new ReplicatedSetImpl(anySupport, value) else this
 
-  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, Unit] = {
+  override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSetImpl[E]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedSet(ReplicatedSetDelta(cleared, removed, added, _)) =>
-      if (cleared) {
-        value.clear()
+      val updatedValue = {
+        (if (cleared) Set.empty[E] else value -- removed.map(element => anySupport.decode(element).asInstanceOf[E])) ++
+        added.map(element => anySupport.decode(element).asInstanceOf[E])
       }
-      value.removeAll(removed.map(e => anySupport.decode(e).asInstanceOf[T]).asJava)
-      value.addAll(added.map(e => anySupport.decode(e).asInstanceOf[T]).asJava)
+      new ReplicatedSetImpl(anySupport, updatedValue)
   }
 
-  override def toString = s"ReplicatedSet(${value.asScala.mkString(",")})"
+  override def toString = s"ReplicatedSet(${value.mkString(",")})"
 }
