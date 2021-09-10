@@ -136,8 +136,6 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
         throw new RuntimeException(
           s"No call handler found for call $name on ${action.getClass.getName}"
         )
-    } finally {
-      action._internalSetActionContext(Optional.empty())
     }
   }
 }
