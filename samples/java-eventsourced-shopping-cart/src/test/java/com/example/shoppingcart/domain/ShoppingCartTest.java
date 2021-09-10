@@ -2,51 +2,50 @@
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
-
 package com.example.shoppingcart.domain;
 
+import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;
 import org.junit.Test;
-import java.util.NoSuchElementException;
-import com.example.shoppingcart.domain.ShoppingCartTestKit;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 
-import static org.junit.Assert.assertThrows;
+import java.util.NoSuchElementException;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
 
-        ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
-                .setName("nameA").setQuantity(1).build();
-        EventSourcedResult<Empty> resultA = testKit.addItem(commandA);
+        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new); // <1>
 
-        ShoppingCartApi.AddLineItem commandB = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
-                .setName("nameB").setQuantity(2).build();
-        testKit.addItem(commandB);
+        ShoppingCartApi.AddLineItem apples = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
+                .setName("apples").setQuantity(1).build();
+        EventSourcedResult<Empty> addingApplesResult = testKit.addItem(apples); // <2>
 
-        assertEquals(1, resultA.getAllEvents().size());
-        assertEquals(2, testKit.getAllEvents().size());
+        ShoppingCartApi.AddLineItem bananas = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idB")
+                .setName("bananas").setQuantity(2).build();
+        testKit.addItem(bananas); // <3>
 
-        ShoppingCartDomain.ItemAdded itemAddedA = resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class);
-        assertEquals("nameA", itemAddedA.getItem().getName());
-        assertThrows(NoSuchElementException.class, () ->  resultA.getNextEventOfType(ShoppingCartDomain.ItemAdded.class));
-        assertEquals(Empty.getDefaultInstance(), resultA.getReply());
+        assertEquals(1, addingApplesResult.getAllEvents().size()); // <4>
+        assertEquals(2, testKit.getAllEvents().size()); // <5>
 
-        ShoppingCartDomain.LineItem expectedLineItemA = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")
-                .setName("nameA").setQuantity(1).build();        
-        ShoppingCartDomain.LineItem expectedLineItemB = ShoppingCartDomain.LineItem.newBuilder().setProductId("idB")
-                .setName("nameB").setQuantity(2).build();
+        ShoppingCartDomain.ItemAdded addedApples = addingApplesResult.getNextEventOfType(ShoppingCartDomain.ItemAdded.class); // <6>
+        assertEquals("apples", addedApples.getItem().getName());
+        assertThrows(NoSuchElementException.class, () ->  addingApplesResult.getNextEventOfType(ShoppingCartDomain.ItemAdded.class)); // <7>
+        assertEquals(Empty.getDefaultInstance(), addingApplesResult.getReply()); // <8>
+
+        ShoppingCartDomain.LineItem expectedApples = ShoppingCartDomain.LineItem.newBuilder().setProductId("idA")
+                .setName("apples").setQuantity(1).build();        
+        ShoppingCartDomain.LineItem expectedBananas = ShoppingCartDomain.LineItem.newBuilder().setProductId("idB")
+                .setName("bananas").setQuantity(2).build();
         ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder()
-                .addItems(expectedLineItemA)
-                .addItems(expectedLineItemB)
+                .addItems(expectedApples)
+                .addItems(expectedBananas)
                 .build();
-        assertEquals(expectedState, testKit.getState());
+        assertEquals(expectedState, testKit.getState()); // <9>
     }
 }
+
