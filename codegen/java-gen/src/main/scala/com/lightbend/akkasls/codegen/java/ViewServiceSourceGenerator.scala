@@ -143,8 +143,9 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
     val imports = generateImports(
       Nil,
+      view.state,
       packageName,
-      Seq(
+      otherImports = Seq(
         "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
         "com.akkaserverless.javasdk.impl.view.ViewHandler",
         "com.akkaserverless.javasdk.view.ViewProvider",
@@ -162,7 +163,7 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
-        |public class ${view.providerName} implements ViewProvider {
+        |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.viewClassName}> {
         |
         |  private final Function<ViewCreationContext, ${view.viewClassName}> viewFactory;
         |

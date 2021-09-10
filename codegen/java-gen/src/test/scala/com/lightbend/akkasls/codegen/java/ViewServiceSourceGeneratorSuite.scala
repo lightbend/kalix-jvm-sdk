@@ -225,7 +225,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.google.protobuf.EmptyProto;
        |import java.util.function.Function;
        |
-       |public class MyServiceViewProvider implements ViewProvider {
+       |public class MyServiceViewProvider implements ViewProvider<ServiceOuterClass.ViewState, MyServiceView> {
        |
        |  private final Function<ViewCreationContext, MyServiceView> viewFactory;
        |

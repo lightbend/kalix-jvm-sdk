@@ -364,7 +364,7 @@ object ActionServiceSourceGenerator {
       | *
       | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
       | */
-      |public class ${service.providerName} implements ActionProvider {
+      |public class ${service.providerName} implements ActionProvider<$classNameAction> {
       |
       |  private final Function<ActionCreationContext, $classNameAction> actionFactory;
       |
@@ -383,7 +383,7 @@ object ActionServiceSourceGenerator {
       |  }
       |
       |  @Override
-      |  public final ActionHandler newHandler(ActionCreationContext context) {
+      |  public final ${service.handlerName} newHandler(ActionCreationContext context) {
       |    return new ${service.handlerName}(actionFactory.apply(context));
       |  }
       |

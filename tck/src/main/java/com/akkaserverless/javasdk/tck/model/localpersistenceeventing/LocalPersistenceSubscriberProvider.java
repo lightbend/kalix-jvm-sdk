@@ -24,7 +24,8 @@ import com.google.protobuf.Descriptors;
 
 import java.util.function.Function;
 
-public class LocalPersistenceSubscriberProvider implements ActionProvider {
+public class LocalPersistenceSubscriberProvider
+    implements ActionProvider<LocalPersistenceSubscriber> {
 
   private final Function<ActionCreationContext, LocalPersistenceSubscriber> actionFactory;
 
@@ -45,7 +46,7 @@ public class LocalPersistenceSubscriberProvider implements ActionProvider {
   }
 
   @Override
-  public ActionHandler newHandler(ActionCreationContext context) {
+  public LocalPersistenceSubscriberHandler newHandler(ActionCreationContext context) {
     return new LocalPersistenceSubscriberHandler(actionFactory.apply(context));
   }
 
