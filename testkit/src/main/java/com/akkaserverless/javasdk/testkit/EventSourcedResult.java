@@ -20,37 +20,31 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-/**
- * Represents the result of an EventSourcedEntity handling a command when run in through the
- * testkit.
- *
- * @param <R> The type of reply that is expected from invoking command handler
- */
-// FIXME a way to inspect other effects than reply?
-public final class EventSourcedResult<R> {
+/** @param <R> The type of reply that is expected from invoking a handler */
+public final class Result<R> {
 
   private final R reply;
   private final List<Object> events;
   private final Iterator<Object> eventsIterator;
 
-  /**
-   * INTERNAL API
-   *
-   * <p>Constructed by the generated code, not intended for calls from user code.
-   */
-  public EventSourcedResult(R reply, List<Object> events) {
+  public Result(R reply, List<Object> events) {
     this.reply = reply;
     this.events = events;
     this.eventsIterator = events.iterator();
   }
 
-  /** The reply object from the handler if there was one. */
-  public R getReply() {
+  // FIXME what about effect().noReply()?
+  // tag::available-methods[]
+  /**
+   * The reply object from the handler. Reply is meant to represent a
+   * com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl type
+   */
+  public R getReply() { // <1>
     return reply;
   }
 
   /** All emitted events. */
-  public List<Object> getAllEvents() {
+  public List<Object> getAllEvents() { // <2>
     return events;
   }
 
@@ -60,7 +54,7 @@ public final class EventSourcedResult<R> {
    *
    * @return The next event if it is of type E, for additional assertions.
    */
-  public <E> E getNextEventOfType(Class<E> expectedClass) {
+  public <E> E getNextEventOfType(Class<E> expectedClass) { // <3>
     if (!eventsIterator.hasNext()) throw new NoSuchElementException("No more events found");
     else {
       @SuppressWarnings("unchecked")
@@ -77,4 +71,5 @@ public final class EventSourcedResult<R> {
       }
     }
   }
+  // end::available-methods[]
 }

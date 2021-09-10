@@ -8,6 +8,7 @@ sources  := src build/src/managed
 src_managed := build/src/managed
 managed_attachments := ${src_managed}/modules/${module}/attachments
 managed_examples := ${src_managed}/modules/${module}/examples
+managed_testkits := ${src_managed}/modules/${module}/testkits
 managed_partials := ${src_managed}/modules/${module}/partials
 
 antora_docker_image := gcr.io/akkaserverless-public/akkaserverless-docbuilder
@@ -22,7 +23,7 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples
+managed: attributes apidocs examples testkits
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -53,6 +54,10 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
 	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
 	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
+
+testkits:
+	mkdir -p "${managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../testkit/src/main/java/ "${managed_examples}/testkit/"
 
 dev: clean managed validate-xrefs dev-html
 
