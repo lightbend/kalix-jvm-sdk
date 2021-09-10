@@ -96,6 +96,15 @@ The example assumes a `customer_domain.proto` file that defines the events that 
 include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain;events]
 ----
 
+It also assumes a `customer_api.proto` that defines the state stored in the view and returned by queries:
+
+[source,proto,indent=0]
+.src/main/proto/customer/customer_api.proto
+----
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_api.proto[tags=declarations;view]
+----
+
+
 === Define a View descriptor to consume events
 
 The following lines in the `.proto` file define a View to consume the `CustomerCreated` and `CustomerNameChanged` events:
