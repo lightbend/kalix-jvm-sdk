@@ -24,7 +24,7 @@ import com.google.protobuf.Descriptors;
 
 import java.util.function.Function;
 
-public class ActionTwoBehaviorProvider implements ActionProvider {
+public class ActionTwoBehaviorProvider implements ActionProvider<ActionTwoBehavior> {
 
   private final Function<ActionCreationContext, ActionTwoBehavior> actionFactory;
 
@@ -44,7 +44,7 @@ public class ActionTwoBehaviorProvider implements ActionProvider {
   }
 
   @Override
-  public ActionHandler newHandler(ActionCreationContext context) {
+  public ActionTwoBehaviorHandler newHandler(ActionCreationContext context) {
     return new ActionTwoBehaviorHandler(actionFactory.apply(context));
   }
 

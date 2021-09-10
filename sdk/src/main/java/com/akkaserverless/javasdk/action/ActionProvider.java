@@ -24,11 +24,11 @@ import com.google.protobuf.Descriptors;
  * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
  * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */
-public interface ActionProvider {
+public interface ActionProvider<A extends Action> {
   // TODO: do we need/have ActionOptions?
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  ActionHandler newHandler(ActionCreationContext context);
+  ActionHandler<A> newHandler(ActionCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

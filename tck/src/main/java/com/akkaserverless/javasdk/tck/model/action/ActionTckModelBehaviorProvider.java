@@ -24,7 +24,7 @@ import com.google.protobuf.Descriptors;
 
 import java.util.function.Function;
 
-public class ActionTckModelBehaviorProvider implements ActionProvider {
+public class ActionTckModelBehaviorProvider implements ActionProvider<ActionTckModelBehavior> {
 
   private final Function<ActionCreationContext, ActionTckModelBehavior> actionFactory;
 
@@ -44,7 +44,7 @@ public class ActionTckModelBehaviorProvider implements ActionProvider {
   }
 
   @Override
-  public ActionHandler newHandler(ActionCreationContext context) {
+  public ActionTckModelBehaviorHandler newHandler(ActionCreationContext context) {
     return new ActionTckModelBehaviorHandler(actionFactory.apply(context));
   }
 
