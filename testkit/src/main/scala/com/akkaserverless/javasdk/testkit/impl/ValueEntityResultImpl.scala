@@ -47,7 +47,7 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   override def getReply(): R = effect.secondaryEffect match {
     case reply: MessageReplyImpl[R @unchecked] => reply.message
-    case _                                     => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
+    case _ => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
   }
 
   override def isForward(): Boolean = effect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
@@ -67,7 +67,7 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   override def getError(): String = effect.secondaryEffect match {
     case error: ErrorReplyImpl[_] => error.description
-    case _                        => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
 
   override def isNoReply(): Boolean = effect.secondaryEffect.isInstanceOf[NoReply[_]]

@@ -218,8 +218,8 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   }
 
   /**
-   * This ModelBuilder.EventSourcedEntity is equivalent to the
-   * entity in test/resources/testkit/shoppingcart_domain.proto
+   * This ModelBuilder.EventSourcedEntity is equivalent to the entity in
+   * test/resources/testkit/shoppingcart_domain.proto
    */
   def generateShoppingCartEntity(): ModelBuilder.EventSourcedEntity = {
 
@@ -242,8 +242,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   }
 
   /**
-   * This ModelBuilder.EntityService is equivalent to
-   * service in test/resources/testkit/shoppingcart_api.proto
+   * This ModelBuilder.EntityService is equivalent to service in test/resources/testkit/shoppingcart_api.proto
    */
   def generateShoppingCartService(entity: ModelBuilder.Entity): ModelBuilder.EntityService = {
     val shoppingCartProto =

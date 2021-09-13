@@ -33,10 +33,14 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a unary call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param message     The message envelope of the message.
-   * @param context     The action context.
-   * @return A future of the message to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param message
+   *   The message envelope of the message.
+   * @param context
+   *   The action context.
+   * @return
+   *   A future of the message to return.
    */
   @throws[Throwable]
   final def handleUnary(commandName: String, message: MessageEnvelope[Any], context: ActionContext): Action.Effect[_] =
@@ -47,9 +51,12 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a unary call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param message     The message envelope of the message.
-   * @return A future of the message to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param message
+   *   The message envelope of the message.
+   * @return
+   *   A future of the message to return.
    */
   @throws[Throwable]
   def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_]
@@ -57,10 +64,14 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a streamed out call call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param message     The message envelope of the message.
-   * @param context     The action context.
-   * @return The stream of messages to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param message
+   *   The message envelope of the message.
+   * @param context
+   *   The action context.
+   * @return
+   *   The stream of messages to return.
    */
   final def handleStreamedOut(
       commandName: String,
@@ -73,19 +84,26 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a streamed out call call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param message     The message envelope of the message.
-   * @return The stream of messages to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param message
+   *   The message envelope of the message.
+   * @return
+   *   The stream of messages to return.
    */
   def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed]
 
   /**
    * Handle a streamed in call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param stream      The stream of messages to handle.
-   * @param context     The action context.
-   * @return A future of the message to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param stream
+   *   The stream of messages to handle.
+   * @param context
+   *   The action context.
+   * @return
+   *   A future of the message to return.
    */
   final def handleStreamedIn(
       commandName: String,
@@ -98,19 +116,26 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a streamed in call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param stream      The stream of messages to handle.
-   * @return A future of the message to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param stream
+   *   The stream of messages to handle.
+   * @return
+   *   A future of the message to return.
    */
   def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_]
 
   /**
    * Handle a full duplex streamed in call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param stream      The stream of messages to handle.
-   * @param context     The action context.
-   * @return The stream of messages to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param stream
+   *   The stream of messages to handle.
+   * @param context
+   *   The action context.
+   * @return
+   *   The stream of messages to return.
    */
   final def handleStreamed(
       commandName: String,
@@ -123,9 +148,12 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   /**
    * Handle a full duplex streamed in call.
    *
-   * @param commandName The name of the command this call is for.
-   * @param stream      The stream of messages to handle.
-   * @return The stream of messages to return.
+   * @param commandName
+   *   The name of the command this call is for.
+   * @param stream
+   *   The stream of messages to handle.
+   * @return
+   *   The stream of messages to return.
    */
   def handleStreamed(
       commandName: String,

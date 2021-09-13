@@ -74,11 +74,11 @@ final class ReplicatedEntitiesImpl(
   private val log = Logging(system.eventStream, this.getClass)
 
   /**
-   * After invoking handle, the first message sent will always be a ReplicatedEntityInit message, containing the entity ID, and,
-   * if it exists or is available, the current state of the entity. After that, one or more commands may be sent,
-   * as well as deltas as they arrive.
-   * The user function must respond with one reply per command in. They do not necessarily have to be sent in the same
-   * order that the commands were sent, the command ID is used to correlate commands to replies.
+   * After invoking handle, the first message sent will always be a ReplicatedEntityInit message, containing the entity
+   * ID, and, if it exists or is available, the current state of the entity. After that, one or more commands may be
+   * sent, as well as deltas as they arrive. The user function must respond with one reply per command in. They do not
+   * necessarily have to be sent in the same order that the commands were sent, the command ID is used to correlate
+   * commands to replies.
    */
   def handle(in: Source[ReplicatedEntityStreamIn, NotUsed]): Source[ReplicatedEntityStreamOut, NotUsed] =
     in.prefixAndTail(1)

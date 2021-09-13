@@ -30,8 +30,8 @@ object ViewServiceSourceGenerator {
   import SourceGenerator._
 
   /**
-   * Generate Java sources for provider, handler, abstract baseclass for a view,
-   * and also the user view source file if it does not already exist.
+   * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
+   * it does not already exist.
    *
    * Impure.
    */

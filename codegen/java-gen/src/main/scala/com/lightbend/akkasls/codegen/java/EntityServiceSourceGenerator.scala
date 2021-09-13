@@ -36,8 +36,8 @@ object EntityServiceSourceGenerator {
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
-   * Note that we only generate tests for entities where we are successful in generating an entity. The user may
-   * not want a test otherwise.
+   * Note that we only generate tests for entities where we are successful in generating an entity. The user may not
+   * want a test otherwise.
    *
    * Also generates a main source file if it does not already exist.
    *

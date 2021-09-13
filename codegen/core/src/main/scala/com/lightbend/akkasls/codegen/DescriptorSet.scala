@@ -43,8 +43,10 @@ object DescriptorSet {
 
   /**
    * Read Protobuf FileDescriptor objects from given a file hosting a DescriptorSet
-   * @param file the file to read
-   * @return a collection of FileDescriptor objects or an error condition
+   * @param file
+   *   the file to read
+   * @return
+   *   a collection of FileDescriptor objects or an error condition
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def fileDescriptors(file: File): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] =
@@ -76,12 +78,12 @@ object DescriptorSet {
   descriptorslogger.setLevel(Level.OFF); // Silence protobuf
 
   /**
-   * This method accumulates `FileDescriptor`s to provide
-   * all the necessary dependencies for each call to FileDescriptor.buildFrom.
-   * Otherwise placeholders (mocked references) get created instead and
-   * these can't function as proper dependencies. Chiefly as imports.
+   * This method accumulates `FileDescriptor`s to provide all the necessary dependencies for each call to
+   * FileDescriptor.buildFrom. Otherwise placeholders (mocked references) get created instead and these can't function
+   * as proper dependencies. Chiefly as imports.
    *
-   * see allowUnknownDependencies  per https://github.com/protocolbuffers/protobuf/blob/ae26a81918fa9e16f64ac27b5a2fb2b110b7aa1b/java/core/src/main/java/com/google/protobuf/Descriptors.java#L286
+   * see allowUnknownDependencies per
+   * https://github.com/protocolbuffers/protobuf/blob/ae26a81918fa9e16f64ac27b5a2fb2b110b7aa1b/java/core/src/main/java/com/google/protobuf/Descriptors.java#L286
    */
   private def accumulatedBuildFrom(
       reads: Either[ReadFailure, Iterable[Descriptors.FileDescriptor]],

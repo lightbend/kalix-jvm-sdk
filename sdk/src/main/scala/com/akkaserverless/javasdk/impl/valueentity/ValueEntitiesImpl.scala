@@ -91,13 +91,12 @@ final class ValueEntitiesImpl(
   private final val log = Logging(system.eventStream, this.getClass)
 
   /**
-   * One stream will be established per active entity.
-   * Once established, the first message sent will be Init, which contains the entity ID, and,
-   * a state if the entity has previously persisted one. Once the Init message is sent, one to
-   * many commands are sent to the entity. Each request coming in leads to a new command being sent
-   * to the entity. The entity is expected to reply to each command with exactly one reply message.
-   * The entity should process commands and reply to commands in the order they came
-   * in. When processing a command the entity can read and persist (update or delete) the state.
+   * One stream will be established per active entity. Once established, the first message sent will be Init, which
+   * contains the entity ID, and, a state if the entity has previously persisted one. Once the Init message is sent, one
+   * to many commands are sent to the entity. Each request coming in leads to a new command being sent to the entity.
+   * The entity is expected to reply to each command with exactly one reply message. The entity should process commands
+   * and reply to commands in the order they came in. When processing a command the entity can read and persist (update
+   * or delete) the state.
    */
   override def handle(in: akka.stream.scaladsl.Source[ValueEntityStreamIn, akka.NotUsed])
       : akka.stream.scaladsl.Source[ValueEntityStreamOut, akka.NotUsed] =

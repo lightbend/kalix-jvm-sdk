@@ -67,11 +67,11 @@ object AkkaServerlessRunner {
 }
 
 /**
- * The AkkaServerlessRunner is responsible for handle the bootstrap of entities,
- * and is used by [[com.akkaserverless.javasdk.AkkaServerless#start()]] to set up the local
- * server with the given configuration.
+ * The AkkaServerlessRunner is responsible for handle the bootstrap of entities, and is used by
+ * [[com.akkaserverless.javasdk.AkkaServerless#start()]] to set up the local server with the given configuration.
  *
- * AkkaServerlessRunner can be seen as a low-level API for cases where [[com.akkaserverless.javasdk.AkkaServerless#start()]] isn't enough.
+ * AkkaServerlessRunner can be seen as a low-level API for cases where
+ * [[com.akkaserverless.javasdk.AkkaServerless#start()]] isn't enough.
  */
 final class AkkaServerlessRunner private[this] (
     _system: ActorSystem,
@@ -100,9 +100,9 @@ final class AkkaServerlessRunner private[this] (
   }
 
   /**
-   * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure
-   * as the reference.conf, with `akkaserverless` as the root section, and the configuration for the
-   * internal ActorSystem is in the `akkaserverless.system` section.
+   * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure as
+   * the reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem
+   * is in the `akkaserverless.system` section.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
     this(
@@ -156,7 +156,8 @@ final class AkkaServerlessRunner private[this] (
   /**
    * Starts a server with the configured entities.
    *
-   * @return a CompletionStage which will be completed when the server has shut down.
+   * @return
+   *   a CompletionStage which will be completed when the server has shut down.
    */
   def run(): CompletionStage[Done] = {
     import scala.concurrent.duration._
@@ -192,7 +193,8 @@ final class AkkaServerlessRunner private[this] (
   /**
    * Terminates the server.
    *
-   * @return a CompletionStage which will be completed when the server has shut down.
+   * @return
+   *   a CompletionStage which will be completed when the server has shut down.
    */
   def terminate(): CompletionStage[Done] =
     FutureConverters.toJava(system.terminate()).thenApply(_ => Done)
@@ -219,29 +221,34 @@ final class AkkaServerlessRunner private[this] (
 trait Service {
 
   /**
-   * @return a Protobuf ServiceDescriptor of its externally accessible gRPC API
+   * @return
+   *   a Protobuf ServiceDescriptor of its externally accessible gRPC API
    */
   def descriptor: Descriptors.ServiceDescriptor
 
   /**
-   * @return the type of component represented by this service
+   * @return
+   *   the type of component represented by this service
    */
   def componentType: String
 
   /**
-   * @return the entity type name used for the entities represented by this service
+   * @return
+   *   the entity type name used for the entities represented by this service
    */
   def entityType: String = descriptor.getName
 
   /**
-   * @return the options [[ComponentOptions]] or [[EntityOptions]] used by this service
+   * @return
+   *   the options [[ComponentOptions]] or [[EntityOptions]] used by this service
    */
   def componentOptions: Option[ComponentOptions] = None
 
   /**
-   * @return a dictionary of service methods (Protobuf Descriptors.MethodDescriptor) classified by method name.
-   *         The dictionary values represent a mapping of Protobuf Descriptors.MethodDescriptor with its input
-   *         and output types (see [[com.akkaserverless.javasdk.impl.ResolvedServiceMethod]])
+   * @return
+   *   a dictionary of service methods (Protobuf Descriptors.MethodDescriptor) classified by method name. The dictionary
+   *   values represent a mapping of Protobuf Descriptors.MethodDescriptor with its input and output types (see
+   *   [[com.akkaserverless.javasdk.impl.ResolvedServiceMethod]])
    */
   def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]]
 }

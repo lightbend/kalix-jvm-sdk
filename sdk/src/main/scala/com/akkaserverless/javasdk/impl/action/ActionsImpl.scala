@@ -117,10 +117,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     }
 
   /**
-   * Handle a unary command.
-   * The input command will contain the service name, command name, request metadata and the command
-   * payload. The reply may contain a direct reply, a forward or a failure, and it may contain many
-   * side effects.
+   * Handle a unary command. The input command will contain the service name, command name, request metadata and the
+   * command payload. The reply may contain a direct reply, a forward or a failure, and it may contain many side
+   * effects.
    */
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
@@ -137,18 +136,14 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     }
 
   /**
-   * Handle a streamed in command.
-   * The first message in will contain the request metadata, including the service name and command
-   * name. It will not have an associated payload set. This will be followed by zero to many messages
-   * in with a payload, but no service name or command name set.
-   * The semantics of stream closure in this protocol map 1:1 with the semantics of gRPC stream closure,
-   * that is, when the client closes the stream, the stream is considered half closed, and the server
-   * should eventually, but not necessarily immediately, send a response message with a status code and
-   * trailers.
-   * If however the server sends a response message before the client closes the stream, the stream is
-   * completely closed, and the client should handle this and stop sending more messages.
-   * Either the client or the server may cancel the stream at any time, cancellation is indicated
-   * through an HTTP2 stream RST message.
+   * Handle a streamed in command. The first message in will contain the request metadata, including the service name
+   * and command name. It will not have an associated payload set. This will be followed by zero to many messages in
+   * with a payload, but no service name or command name set. The semantics of stream closure in this protocol map 1:1
+   * with the semantics of gRPC stream closure, that is, when the client closes the stream, the stream is considered
+   * half closed, and the server should eventually, but not necessarily immediately, send a response message with a
+   * status code and trailers. If however the server sends a response message before the client closes the stream, the
+   * stream is completely closed, and the client should handle this and stop sending more messages. Either the client or
+   * the server may cancel the stream at any time, cancellation is indicated through an HTTP2 stream RST message.
    */
   override def handleStreamedIn(in: Source[ActionCommand, NotUsed]): Future[ActionResponse] =
     in.prefixAndTail(1)
@@ -179,13 +174,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
       }
 
   /**
-   * Handle a streamed out command.
-   * The input command will contain the service name, command name, request metadata and the command
-   * payload. Zero or more replies may be sent, each containing either a direct reply, a forward or a
-   * failure, and each may contain many side effects. The stream to the client will be closed when the
-   * this stream is closed, with the same status as this stream is closed with.
-   * Either the client or the server may cancel the stream at any time, cancellation is indicated
-   * through an HTTP2 stream RST message.
+   * Handle a streamed out command. The input command will contain the service name, command name, request metadata and
+   * the command payload. Zero or more replies may be sent, each containing either a direct reply, a forward or a
+   * failure, and each may contain many side effects. The stream to the client will be closed when the this stream is
+   * closed, with the same status as this stream is closed with. Either the client or the server may cancel the stream
+   * at any time, cancellation is indicated through an HTTP2 stream RST message.
    */
   override def handleStreamedOut(in: ActionCommand): Source[ActionResponse, NotUsed] =
     services.get(in.serviceName) match {
@@ -202,21 +195,16 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     }
 
   /**
-   * Handle a full duplex streamed command.
-   * The first message in will contain the request metadata, including the service name and command
-   * name. It will not have an associated payload set. This will be followed by zero to many messages
-   * in with a payload, but no service name or command name set.
-   * Zero or more replies may be sent, each containing either a direct reply, a forward or a failure,
-   * and each may contain many side effects.
-   * The semantics of stream closure in this protocol map 1:1 with the semantics of gRPC stream closure,
-   * that is, when the client closes the stream, the stream is considered half closed, and the server
-   * should eventually, but not necessarily immediately, close the streamage with a status code and
-   * trailers.
-   * If however the server closes the stream with a status code and trailers, the stream is immediately
-   * considered completely closed, and no further messages sent by the client will be handled by the
-   * server.
-   * Either the client or the server may cancel the stream at any time, cancellation is indicated
-   * through an HTTP2 stream RST message.
+   * Handle a full duplex streamed command. The first message in will contain the request metadata, including the
+   * service name and command name. It will not have an associated payload set. This will be followed by zero to many
+   * messages in with a payload, but no service name or command name set. Zero or more replies may be sent, each
+   * containing either a direct reply, a forward or a failure, and each may contain many side effects. The semantics of
+   * stream closure in this protocol map 1:1 with the semantics of gRPC stream closure, that is, when the client closes
+   * the stream, the stream is considered half closed, and the server should eventually, but not necessarily
+   * immediately, close the streamage with a status code and trailers. If however the server closes the stream with a
+   * status code and trailers, the stream is immediately considered completely closed, and no further messages sent by
+   * the client will be handled by the server. Either the client or the server may cancel the stream at any time,
+   * cancellation is indicated through an HTTP2 stream RST message.
    */
   override def handleStreamed(in: Source[ActionCommand, NotUsed]): Source[ActionResponse, NotUsed] =
     in.prefixAndTail(1)

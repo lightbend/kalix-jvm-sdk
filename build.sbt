@@ -132,16 +132,12 @@ lazy val samples = project
   )
 
 /**
- * This sample can be built either with maven
- * (for the 'most faithful' simulation of what it would work like for a user)
+ * This sample can be built either with maven (for the 'most faithful' simulation of what it would work like for a user)
  * or via sbt (for fast feedback on SDK changes).
  *
- * This is tricky because it relies on generated code.
- * Generating the code 'inside' the sbt build is tricky
- * because the codegen code itself is an sbt project as well.
- * We use something like this in Akka gRPC (ReflectiveCodeGen)
- * but that introduces quite some problems, so perhaps we should
- * keep it simpler: checking in the generated in a separate place
+ * This is tricky because it relies on generated code. Generating the code 'inside' the sbt build is tricky because the
+ * codegen code itself is an sbt project as well. We use something like this in Akka gRPC (ReflectiveCodeGen) but that
+ * introduces quite some problems, so perhaps we should keep it simpler: checking in the generated in a separate place
  * and regenerating it manually.
  */
 lazy val `valueentity-counter` = project

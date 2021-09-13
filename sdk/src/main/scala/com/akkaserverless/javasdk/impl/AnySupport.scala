@@ -21,14 +21,14 @@ import com.akkaserverless.javasdk.impl.AnySupport.Prefer.{ Java, Scala }
 import com.google.common.base.CaseFormat
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{
+  Any => JavaPbAny,
   ByteString,
   CodedInputStream,
   CodedOutputStream,
   Descriptors,
   Parser,
   UnsafeByteOperations,
-  WireFormat,
-  Any => JavaPbAny
+  WireFormat
 }
 import org.slf4j.LoggerFactory
 import scalapb.options.Scalapb

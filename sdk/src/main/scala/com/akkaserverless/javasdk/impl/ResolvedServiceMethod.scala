@@ -19,12 +19,12 @@ package com.akkaserverless.javasdk.impl
 import com.akkaserverless.javasdk.{ Metadata, ServiceCall, ServiceCallRef }
 import com.fasterxml.jackson.databind.{ ObjectReader, ObjectWriter }
 import com.google.protobuf.{
+  Any => JavaPbAny,
   ByteString,
   Descriptors,
+  Message => JavaMessage,
   Parser,
-  UnsafeByteOperations,
-  Any => JavaPbAny,
-  Message => JavaMessage
+  UnsafeByteOperations
 }
 
 /**

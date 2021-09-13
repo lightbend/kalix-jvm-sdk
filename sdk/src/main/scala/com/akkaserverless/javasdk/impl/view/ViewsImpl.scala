@@ -64,8 +64,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   /**
    * Handle a full duplex streamed session. One stream will be established per incoming message to the view service.
    *
-   * The first message is ReceiveEvent and contain the request metadata, including the service name and command
-   * name.
+   * The first message is ReceiveEvent and contain the request metadata, including the service name and command name.
    */
   override def handle(in: akka.stream.scaladsl.Source[pv.ViewStreamIn, akka.NotUsed])
       : akka.stream.scaladsl.Source[pv.ViewStreamOut, akka.NotUsed] =

@@ -148,10 +148,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
   }
 
   /**
-   * Report an error back to the user function. This will only be invoked to tell the user function
-   * that it has done something wrong, eg, violated the protocol, tried to use an entity type that
-   * isn't supported, or attempted to forward to an entity that doesn't exist, etc. These messages
-   * should be logged clearly for debugging purposes.
+   * Report an error back to the user function. This will only be invoked to tell the user function that it has done
+   * something wrong, eg, violated the protocol, tried to use an entity type that isn't supported, or attempted to
+   * forward to an entity that doesn't exist, etc. These messages should be logged clearly for debugging purposes.
    */
   override def reportError(in: UserFunctionError): scala.concurrent.Future[com.google.protobuf.empty.Empty] = {
     val sourceMsgs = in.sourceLocations.map { location =>

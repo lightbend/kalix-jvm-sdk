@@ -36,8 +36,7 @@ object ModelBuilder {
   sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String)
 
   /**
-   * A type of Entity that stores its state using a journal of events, and restores its state
-   * by replaying that journal.
+   * A type of Entity that stores its state using a journal of events, and restores its state by replaying that journal.
    */
   case class EventSourcedEntity(
       override val fqn: FullyQualifiedName,
@@ -103,8 +102,8 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by an Action - a serverless function that is executed based on a trigger.
-   * The trigger could be an HTTP or gRPC request or a stream of messages or events.
+   * A Service backed by an Action - a serverless function that is executed based on a trigger. The trigger could be an
+   * HTTP or gRPC request or a stream of messages or events.
    */
   case class ActionService(override val fqn: FullyQualifiedName, override val commands: Iterable[Command])
       extends Service(fqn, commands) {
@@ -125,8 +124,9 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
-   * You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics.
+   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query. You can
+   * query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by
+   * subscribing to topics.
    */
   case class ViewService(
       override val fqn: FullyQualifiedName,
@@ -188,15 +188,14 @@ object ModelBuilder {
   }
 
   /**
-   * An event indicates that a change has occurred to an entity. Events are stored in a journal,
-   * and are read and replayed each time the entity is reloaded by the Akka Serverless state
-   * management system.
+   * An event indicates that a change has occurred to an entity. Events are stored in a journal, and are read and
+   * replayed each time the entity is reloaded by the Akka Serverless state management system.
    */
   case class Event(fqn: FullyQualifiedName)
 
   /**
-   * The state is simply data—​the current set of values for an entity instance.
-   * Event Sourced entities hold their state in memory.
+   * The state is simply data—​the current set of values for an entity instance. Event Sourced entities hold their state
+   * in memory.
    */
   case class State(fqn: FullyQualifiedName)
 
@@ -205,8 +204,10 @@ object ModelBuilder {
    *
    * Impure.
    *
-   * @param descriptors the protobuf descriptors containing service entities
-   * @return the entities found
+   * @param descriptors
+   *   the protobuf descriptors containing service entities
+   * @return
+   *   the entities found
    */
   def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit log: Log): Model =
     descriptors.foldLeft(Model(Map.empty, Map.empty)) { case (Model(existingServices, existingEntities), descriptor) =>
@@ -272,9 +273,12 @@ object ModelBuilder {
   /**
    * Resolves the provided name relative to the provided package
    *
-   * @param name the name to resolve
-   * @param pkg the package to resolve relative to
-   * @return the resolved full name
+   * @param name
+   *   the name to resolve
+   * @param pkg
+   *   the package to resolve relative to
+   * @return
+   *   the resolved full name
    */
   private[codegen] def resolveFullName(name: String, pkg: String) = name.indexOf('.') match {
     case 0 => // name starts with a dot, treat as relative to package
@@ -288,8 +292,10 @@ object ModelBuilder {
   /**
    * Extracts any defined event sourced entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
-   * @return the event sourced entity
+   * @param descriptor
+   *   the file descriptor to extract from
+   * @return
+   *   the event sourced entity
    */
   private def extractEventSourcedEntityDefinition(
       descriptor: Descriptors.FileDescriptor): Option[EventSourcedEntity] = {
@@ -313,7 +319,8 @@ object ModelBuilder {
   /**
    * Extracts any defined value entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
+   * @param descriptor
+   *   the file descriptor to extract from
    */
   private def extractValueEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
       log: Log): Option[ValueEntity] = {
@@ -336,7 +343,8 @@ object ModelBuilder {
   /**
    * Extracts any defined replicated entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
+   * @param descriptor
+   *   the file descriptor to extract from
    */
   private def extractReplicatedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
       log: Log): Option[ReplicatedEntity] = {

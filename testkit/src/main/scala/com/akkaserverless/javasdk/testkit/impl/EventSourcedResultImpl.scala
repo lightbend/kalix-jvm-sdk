@@ -79,21 +79,21 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSo
 
   def getReply: R = appliedSecondaryEffect match {
     case MessageReplyImpl(reply, _, _) => reply.asInstanceOf[R]
-    case _                             => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
+    case _ => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
   }
 
   override def isForward: Boolean = appliedSecondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
   override def getForward: ServiceCallDetails[R] = appliedSecondaryEffect match {
     case ForwardReplyImpl(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[R @unchecked], _) => serviceCall
-    case _                                                                                            => throw new IllegalStateException(s"The effect was not a forward but [$secondaryEffectName]")
+    case _ => throw new IllegalStateException(s"The effect was not a forward but [$secondaryEffectName]")
   }
 
   override def isError: Boolean = appliedSecondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
   override def getError: String = appliedSecondaryEffect match {
     case ErrorReplyImpl(description, _) => description
-    case _                              => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
 
   override def isNoReply: Boolean = appliedSecondaryEffect.isInstanceOf[NoReply[_]]

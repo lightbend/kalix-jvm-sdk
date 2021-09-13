@@ -5,9 +5,8 @@ import sbtdynver.DynVerPlugin
 import xerial.sbt.Sonatype
 
 /**
- * Default publish settings.
- * Note: disable publishing by default, as Sonatype plugin is automatic.
- * Opt-in to publishing to Sonatype by enabling the PublishSonatype plugin.
+ * Default publish settings. Note: disable publishing by default, as Sonatype plugin is automatic. Opt-in to publishing
+ * to Sonatype by enabling the PublishSonatype plugin.
  */
 object DefaultPublishSettings extends AutoPlugin {
 

@@ -31,7 +31,8 @@ object ReplicatedEntityHandler {
 }
 
 /**
- * @tparam D the replicated data type for the entity
+ * @tparam D
+ *   the replicated data type for the entity
  *
  * <p>Not for manual user extension or interaction.
  *
