@@ -16,8 +16,8 @@ Linux or MacOS::
 ----
 mvn \
   archetype:generate \
-  -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeGroupId=com.akkaserverless \
+  -DarchetypeArtifactId=akkaserverless-maven-archetype \
   -DarchetypeVersion={akkaserverless-java-sdk-version}
 ----
 
@@ -27,8 +27,8 @@ Windows::
 ----
 mvn ^
   archetype:generate ^
-  -DarchetypeGroupId=com.lightbend ^
-  -DarchetypeArtifactId=maven-archetype-akkasls ^
+  -DarchetypeGroupId=com.akkaserverless ^
+  -DarchetypeArtifactId=akkaserverless-maven-archetype ^
   -DarchetypeVersion={akkaserverless-java-sdk-version}
 ----
 

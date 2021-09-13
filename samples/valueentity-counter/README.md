@@ -4,8 +4,8 @@ This project is based on the Akka Serverless Maven archetype.
 
 ```shell
 mvn archetype:generate \
-  -DarchetypeGroupId=com.lightbend \
-  -DarchetypeArtifactId=maven-archetype-akkasls \
+  -DarchetypeGroupId=com.akkaserverless \
+  -DarchetypeArtifactId=akkaserverless-maven-archetype \
   -DarchetypeVersion=LATEST
 ```
 
