@@ -67,3 +67,5 @@ include::java:example$java-doc-snippets/src/main/java/com/example/json/MyService
 <3> Encode the Java class `JsonKeyValueMessage` to JSON.
 
 Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
+
+include::partial$topic-eventing-cloudevent.adoc[]

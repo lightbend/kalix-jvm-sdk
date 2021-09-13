@@ -9,15 +9,16 @@ to other components.
 To illustrate how you can use an Action as a Controller, we will build on top of the xref:value-entity.adoc[Value Entity Counter] example and add
 an Action that will take the incoming `Increase` command, double its value and forward the request to a `Counter` entity.
 
-Note that in this example we are adding an Action to an existing service, the Value Entity Counter service.
+Note that in this example we are adding an Action to an existing service, the xref:value-entity.adoc[Value Entity Counter] service.
 
 [source,protobuf,indent=0]
 .src/main/proto/actions/double-counter.proto
 ----
-include::example$valueentity-counter/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
+include::example$java-valueentity-counter/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
 ----
 <1> Import the Counter API definition
-<2> The Action mimics the Counter API
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The Action mimics the Counter API
 
 
 == Implementing the Action
@@ -27,7 +28,7 @@ The class `DoubleCounterAction` gets generated for us based on the proto file de
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-forward]
+include::example$java-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-forward]
 ----
 
 <1> In the constructor, we use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
@@ -47,5 +48,5 @@ two registrations: the `Counter` and the `DoubleCounterAction`, and we need to a
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=registration]
+include::example$java-valueentity-counter/src/main/java/com/example/Main.java[tag=registration]
 ----

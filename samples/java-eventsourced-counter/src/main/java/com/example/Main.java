@@ -8,6 +8,8 @@ package com.example;
 import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.example.actions.CounterJournalToTopicAction;
+import com.example.actions.CounterTopicSubscriptionAction;
 import com.example.domain.Counter;
 
 public final class Main {
@@ -20,7 +22,9 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
-      Counter::new);
+      Counter::new,
+      CounterJournalToTopicAction::new,
+      CounterTopicSubscriptionAction::new);
   }
 
   public static void main(String[] args) throws Exception {

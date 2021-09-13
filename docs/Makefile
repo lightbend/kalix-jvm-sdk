@@ -22,9 +22,11 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples bundles
+prepare: 
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
+
+managed: prepare attributes apidocs examples bundles
 
 attributes:
 	mkdir -p "${managed_partials}"
@@ -46,23 +48,15 @@ apidocs:
 
 examples:
 	mkdir -p "${managed_examples}"
-	rsync -a --exclude-from=.examplesignore ../samples/java-customer-registry-quickstart/ "${managed_examples}/java-customer-registry-quickstart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-shopping-cart/ "${managed_examples}/java-eventsourced-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-replicatedentity-shopping-cart/ "${managed_examples}/java-replicatedentity-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-replicatedentity-examples/ "${managed_examples}/java-replicatedentity-examples/"
-	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-fibonacci-action/ "${managed_examples}/java-fibonacci-action/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-doc-snippets/ "${managed_examples}/java-doc-snippets/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-first-service/ "${managed_examples}/java-first-service/"
-
+	rsync -a --exclude-from=.examplesignore ../samples/ "${managed_examples}/"
+  
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
+
+# like dev but without apidocs, bundles and testkits. Useful for fast dev cycles
+quick-dev: clean prepare attributes examples dev-html
 
 dev-html:
 	docker run \

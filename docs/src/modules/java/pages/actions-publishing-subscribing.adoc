@@ -1,0 +1,127 @@
+include::ROOT:partial$include.adoc[]
+
+= Publishing and Subscribing with Actions
+
+A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes or a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic for asynchronous messaging between services.
+
+With Actions you can: 
+
+- subscribe to events emitted by an event sourced entity within the same service.
+- subscribe to state changes emitted by a value entity within the same service.
+- subscribe to external events via https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub].
+- publish events to a Google Cloud Pub/Sub topic.
+
+Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
+
+== Publishing Entity events to a Topic
+
+To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic. 
+
+include::partial$pubsub-note.adoc[]
+
+[source,protobuf,indent=0]
+.src/main/proto/actions/counter_topic.proto
+----
+include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic.proto[tag=counter-topic]
+----
+<1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`. 
+<4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
+
+The class `CounterJournalToTopicAction` gets generated for us based on the proto file defined above.
+
+[source,protobuf,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
+----
+<1> We convert the incoming domain event `CounterDomain.ValueIncreased` to the outgoing topic API `CounterTopicApi.Increased`.
+<2> We use the converted object to reply.
+
+== Subscribing to state changes from a Value Entity
+
+Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity. 
+
+
+[source,protobuf,indent=0]
+.src/main/proto/actions/counter_states_sub.proto
+----
+include::example$java-valueentity-counter/src/main/proto/actions/counter_states_sub.proto[tag=state-subscription]
+----
+<1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
+
+== Subscribing to a Topic
+
+It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation. 
+
+include::partial$pubsub-note.adoc[]
+
+For illustration purpose, we can add a second Action that consumes from the Pub Sub topic `counter-events` from the previous example.
+
+[source,protobuf,indent=0]
+----
+include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+----
+<1> Import the Counter Topic types from previous example.
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
+
+
+The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
+
+[source,protobuf,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
+----
+include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tag=counter-topic-sub]
+----
+
+The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it, 
+but it could a forward to some other component or external service.
+
+== Receiving messages from an external Topic
+
+In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless. In such case, the Action definition should receive Protobuf's type `Any` and you must take care of the serialization yourself. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with other serialization formats.
+
+== Subscribing and acting upon
+
+Another possible usage for Actions is to consume events and act upon. 
+
+For example, you may consume events from one entity or from a topic, transform to commands and send to an another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
+
+For that purpose, it's enough to add the `(akkaserverless.method).eventing.in` and omit the `(akkaserverless.method).eventing.out`.
+
+== Accessing the Entity ID
+
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the CloudEvent metadata field `subject`, for example via the `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. 
+
+You can access the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
+
+[source,protobuf,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic-event-subject]
+----
+
+== Ignoring events
+
+When consuming events, each event must be matched by a Protobuf service method. In case your component is interested only in certain events, you may declare a method to receive all events that are not received by the other methods.
+
+[source,protobuf,indent=0]
+.src/main/proto/actions/counter_topic.proto
+----
+include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic.proto[tag=counter-ignore]
+----
+<1> We must annotate it with a `(akkaserverless.method).eventing.in`
+
+The corresponding implementation must exist in the component.
+
+[source,protobuf,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-ignore]
+----
+<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().noReply()`.

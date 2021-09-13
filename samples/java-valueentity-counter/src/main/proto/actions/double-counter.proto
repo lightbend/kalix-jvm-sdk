@@ -12,24 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// tag::actions[]
+// tag::double-action-proto[]
 syntax = "proto3";
-package com.example.fibonacci; // <1>
+package com.example.actions;
 
-import "akkaserverless/annotations.proto"; // <2>
+import "akkaserverless/annotations.proto"; 
+import "value-entities/counter_api.proto"; // <1>
+import "google/protobuf/empty.proto";
 
-option java_outer_classname = "FibonacciApi"; // <3>
+option java_outer_classname = "DoubleCounterApi";
 
-message Number {
-  int64 value = 1;
-}
-
-service Fibonacci {
-  option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION  // <4>
+service DoubleCounter {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_ACTION  // <2>
   };
-
-  rpc NextNumber(Number) returns (Number) {}
   
+  rpc Increase (com.example.IncreaseValue) returns (google.protobuf.Empty); // <3>
+
 }
-// end::actions[]
+// end::double-action-proto[]
