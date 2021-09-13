@@ -423,9 +423,11 @@ include::example$replicatedentity-examples/src/main/proto/replicated/map_domain.
 <1> Specify the Replicated Data type as a Replicated Map.
 <2> Specify the `protobuf` message type for the keys of the map.
 
-NOTE: The value type for a Replicated Map is not specified for code-generation, and will be set to `ReplicatedData` for a heterogeneous map.
+NOTE: The value type for a Replicated Map is not specified for code-generation, and will be set to `ReplicatedData` for a heterogeneous map (a Replicated Map that contains different types of Replicated Data values).
 
 When implementing a Replicated Map entity, the replicated data for an entry can be updated by retrieving the data value using the `get` or `getOrElse` methods, updating values using the `update` method, and then triggering an update effect with the modified Replicated Map. Entries can be removed from the map using the `remove` method.
+
+There are also accessors for each of the Replicated Data types to make a heterogeneous map easier to use, such as `getReplicatedCounter` or `getReplicatedRegister`. If a key is not present in the map, these will return an empty value for the associated Replicated Data type.
 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
@@ -433,7 +435,7 @@ When implementing a Replicated Map entity, the replicated data for an entry can 
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
 ----
 
-<1> Get the Replicated Data object for a key using `getOrCreate`, which also takes a function to create an empty value using a `ReplicatedDataFactory`.
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 <2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
 <3> Trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -445,7 +447,7 @@ Individual Replicated Data objects in the Replicated Map can also be accessed fo
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
 ----
 
-<1> Get the Replicated Data object for a key using `getOrCreate`, which also takes a function to create an empty value using a `ReplicatedDataFactory`.
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 
 NOTE: Entries may not contain the most up-to-date values when there are concurrent modifications.
 
