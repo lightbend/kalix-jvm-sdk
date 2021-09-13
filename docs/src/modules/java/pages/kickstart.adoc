@@ -50,7 +50,7 @@ Linux or macOS::
 mvn archetype:generate \
   -DarchetypeGroupId=com.akkaserverless \
   -DarchetypeArtifactId=akkaserverless-maven-archetype \
-  -DarchetypeVersion=LATEST
+  -DarchetypeVersion={akkaserverless-java-sdk-version}
 ----
 --
 Windows 10+::
@@ -61,7 +61,7 @@ Windows 10+::
 mvn archetype:generate ^
   -DarchetypeGroupId=com.akkaserverless ^
   -DarchetypeArtifactId=akkaserverless-maven-archetype ^
-  -DarchetypeVersion=LATEST
+  -DarchetypeVersion={akkaserverless-java-sdk-version}
 ----
 --
 
