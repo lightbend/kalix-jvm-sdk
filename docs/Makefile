@@ -42,6 +42,7 @@ apidocs:
 	cd .. && sbt sdk/doc
 	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/target/api/ "${managed_attachments}/api/"
+	rsync -a ../testkit/target/api/ "${managed_attachments}/testkit/"
 
 examples:
 	mkdir -p "${managed_examples}"
