@@ -2,7 +2,7 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest, samples)
+  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest)
 
 lazy val sdk = project
   .in(file("sdk"))
@@ -122,36 +122,6 @@ lazy val codegenJavaCompilationTest = project
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
-
-lazy val samples = project
-  .in(file("samples"))
-  .aggregate( // samples relying on codegen must use Maven
-    // FIXME consider including this sample again?
-    // `java-eventing-shopping-cart`,
-    // `valueentity-counter`
-  )
-
-/**
- * This sample can be built either with maven (for the 'most faithful' simulation of what it would work like for a user)
- * or via sbt (for fast feedback on SDK changes).
- *
- * This is tricky because it relies on generated code. Generating the code 'inside' the sbt build is tricky because the
- * codegen code itself is an sbt project as well. We use something like this in Akka gRPC (ReflectiveCodeGen) but that
- * introduces quite some problems, so perhaps we should keep it simpler: checking in the generated in a separate place
- * and regenerating it manually.
- */
-lazy val `valueentity-counter` = project
-  .in(file("samples/valueentity-counter"))
-  .disablePlugins(JavaFormatterPlugin, HeaderPlugin)
-  .dependsOn(sdk, testkit % Test)
-  .settings(
-    name := "valueentity-counter",
-    Compile / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "main" / "java",
-    Test / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "test" / "java",
-    libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % "0.1.5",
-      "junit" % "junit" % "4.13.1" % Test))
 
 lazy val `java-eventing-shopping-cart` = project
   .in(file("samples/java-eventing-shopping-cart"))
