@@ -2,7 +2,7 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest, samples)
+  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest)
 
 lazy val sdk = project
   .in(file("sdk"))
@@ -122,14 +122,6 @@ lazy val codegenJavaCompilationTest = project
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
-
-lazy val samples = project
-  .in(file("samples"))
-  .aggregate( // samples relying on codegen must use Maven
-    // FIXME consider including this sample again?
-    // `java-eventing-shopping-cart`,
-    // `valueentity-counter`
-  )
 
 lazy val `java-eventing-shopping-cart` = project
   .in(file("samples/java-eventing-shopping-cart"))
