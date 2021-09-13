@@ -141,7 +141,8 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    EventSourcedEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, command);
         |    return interpretEffects(effect);
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     assertNoDiff(sourceCode, expected)
   }
@@ -212,7 +213,8 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    // EventSourcedResult<Cart> result = testKit.getCart(GetShoppingCart.newBuilder()...build());
         |  }
         |
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     assertNoDiff(sourceCode, expected)
   }

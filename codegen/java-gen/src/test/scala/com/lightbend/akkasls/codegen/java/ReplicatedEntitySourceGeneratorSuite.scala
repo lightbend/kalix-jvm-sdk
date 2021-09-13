@@ -69,7 +69,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |  public Effect<ServiceOuterClass.MyState> get($expectedDataType currentData, ServiceOuterClass.GetValue command) {
             |    return effects().error("The command handler for `Get` is not implemented, yet");
             |  }
-            |}""".stripMargin)
+            |}
+            |""".stripMargin)
     }
 
   def domainType(name: String): TypeArgument = TypeArgument(FullyQualifiedName(name, TestData.domainProto()))
@@ -173,7 +174,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |  /** Command handler for "Get". */
             |  public abstract Effect<ServiceOuterClass.MyState> get($expectedDataType currentData, ServiceOuterClass.GetValue getValue);
             |
-            |}""".stripMargin)
+            |}
+            |""".stripMargin)
     }
 
   testAbstractEntityService(
@@ -291,7 +293,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
             |    }
             |  }
-            |}""".stripMargin)
+            |}
+            |""".stripMargin)
     }
 
   testEntityHandler(
@@ -435,7 +438,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |      ServiceOuterClass.getDescriptor()
             |    };
             |  }
-            |}""".stripMargin)
+            |}
+            |""".stripMargin)
     }
 
   testEntityProvider(

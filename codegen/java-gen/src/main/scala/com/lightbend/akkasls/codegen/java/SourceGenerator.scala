@@ -304,7 +304,8 @@ object SourceGenerator {
         |    return akkaServerless
         |      ${Syntax.indent(registrations, 6)};
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def mainSource(
@@ -363,7 +364,8 @@ object SourceGenerator {
         |    LOG.info("starting the Akka Serverless service");
         |    createAkkaServerless().start();
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 

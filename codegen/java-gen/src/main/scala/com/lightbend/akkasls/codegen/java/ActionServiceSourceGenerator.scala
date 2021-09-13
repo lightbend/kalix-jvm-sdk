@@ -155,7 +155,8 @@ object ActionServiceSourceGenerator {
         |  public $className(ActionCreationContext creationContext) {}
         |
         |  ${Syntax.indent(methods, 2)}
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def abstractActionSource(service: ModelBuilder.ActionService): String = {
@@ -308,7 +309,8 @@ object ActionServiceSourceGenerator {
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): String = {
@@ -375,6 +377,7 @@ object ActionServiceSourceGenerator {
       |    };
       |  }
       |
-      |}""".stripMargin
+      |}
+      |""".stripMargin
   }
 }

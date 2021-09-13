@@ -122,7 +122,8 @@ object ViewServiceSourceGenerator {
         |    }
         |  }
         |
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
@@ -191,7 +192,8 @@ object ViewServiceSourceGenerator {
         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
         |    return new Descriptors.FileDescriptor[] {${view.fqn.parent.javaOuterClassname}.getDescriptor()};
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: String): String = {
@@ -228,7 +230,8 @@ object ViewServiceSourceGenerator {
        |  public ${view.viewClassName}(ViewContext context) {}
        |$emptyState
        |  ${Syntax.indent(handlers, 2)}
-       |}""".stripMargin
+       |}
+       |""".stripMargin
   }
 
   private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: String): String = {
@@ -260,7 +263,8 @@ object ViewServiceSourceGenerator {
       |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
       |$emptyState
       |  ${Syntax.indent(handlers, 2)}
-      |}""".stripMargin
+      |}
+      |""".stripMargin
   }
 
 }

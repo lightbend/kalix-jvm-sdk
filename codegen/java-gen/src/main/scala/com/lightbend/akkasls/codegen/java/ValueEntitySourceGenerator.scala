@@ -70,7 +70,8 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  ${Syntax.indent(methods, num = 2)}
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def valueEntityHandler(
@@ -126,7 +127,8 @@ object ValueEntitySourceGenerator {
         |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -216,7 +218,8 @@ object ValueEntitySourceGenerator {
         |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -259,6 +262,7 @@ object ValueEntitySourceGenerator {
         |
         |  ${Syntax.indent(methods, 2)}
         |
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 }

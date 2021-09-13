@@ -214,7 +214,8 @@ object EntityServiceSourceGenerator {
         |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -302,7 +303,8 @@ object EntityServiceSourceGenerator {
         |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -372,7 +374,8 @@ object EntityServiceSourceGenerator {
        |
        |  ${Syntax.indent(eventHandlers, num = 2)}
        |
-       |}""".stripMargin
+       |}
+       |""".stripMargin
   }
 
   private[codegen] def interfaceSource(
@@ -529,7 +532,8 @@ object EntityServiceSourceGenerator {
       |  }
       |
       |  ${Syntax.indent(testCases, num = 2)}
-      |}""".stripMargin
+      |}
+      |""".stripMargin
   }
 
   private[codegen] def generateImports(

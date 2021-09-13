@@ -145,7 +145,8 @@ object ValueEntityTestKitGenerator {
        |  }
        |
        |  ${Syntax.indent(generateServices(service), 2)}
-       |}""".stripMargin
+       |}
+       |""".stripMargin
   }
 
   def generateServices(service: ModelBuilder.EntityService): String = {
