@@ -220,7 +220,7 @@ object ModelBuilder {
   case class State(fqn: FullyQualifiedName)
 
   /**
-   * Given a protobuf descriptor, discover the Cloudstate entities and their properties.
+   * Given a protobuf descriptor, discover the Akka Serverless entities and their properties.
    *
    * Impure.
    *
