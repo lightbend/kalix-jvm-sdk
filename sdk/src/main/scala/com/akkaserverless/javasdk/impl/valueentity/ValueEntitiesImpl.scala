@@ -41,34 +41,36 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandRes
 import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Command => InCommand}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Empty => InEmpty}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{Init => InInit}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Failure => OutFailure}
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{Reply => OutReply}
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Empty => InEmpty }
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit }
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
+import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 
-final class ValueEntityService(val factory: ValueEntityFactory,
-                               override val descriptor: Descriptors.ServiceDescriptor,
-                               val anySupport: AnySupport,
-                               override val entityType: String,
-                               val entityOptions: Option[ValueEntityOptions])
+final class ValueEntityService(
+    val factory: ValueEntityFactory,
+    override val descriptor: Descriptors.ServiceDescriptor,
+    val anySupport: AnySupport,
+    override val entityType: String,
+    val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
-  def this(factory: ValueEntityFactory,
-           descriptor: Descriptors.ServiceDescriptor,
-           anySupport: AnySupport,
-           entityType: String,
-           entityOptions: ValueEntityOptions) =
+  def this(
+      factory: ValueEntityFactory,
+      descriptor: Descriptors.ServiceDescriptor,
+      anySupport: AnySupport,
+      entityType: String,
+      entityOptions: ValueEntityOptions) =
     this(factory, descriptor, anySupport, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
-      case _ => None
+      case _                               => None
     }
 
   override final val componentType = ValueEntities.name
@@ -76,10 +78,11 @@ final class ValueEntityService(val factory: ValueEntityFactory,
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ValueEntitiesImpl(system: ActorSystem,
-                              val services: Map[String, ValueEntityService],
-                              rootContext: Context,
-                              configuration: Configuration)
+final class ValueEntitiesImpl(
+    system: ActorSystem,
+    val services: Map[String, ValueEntityService],
+    rootContext: Context,
+    configuration: Configuration)
     extends ValueEntities {
 
   import EntityExceptions._
@@ -96,9 +99,8 @@ final class ValueEntitiesImpl(system: ActorSystem,
    * The entity should process commands and reply to commands in the order they came
    * in. When processing a command the entity can read and persist (update or delete) the state.
    */
-  override def handle(
-      in: akka.stream.scaladsl.Source[ValueEntityStreamIn, akka.NotUsed]
-  ): akka.stream.scaladsl.Source[ValueEntityStreamOut, akka.NotUsed] =
+  override def handle(in: akka.stream.scaladsl.Source[ValueEntityStreamIn, akka.NotUsed])
+      : akka.stream.scaladsl.Source[ValueEntityStreamOut, akka.NotUsed] =
     in.prefixAndTail(1)
       .flatMapConcat {
         case (Seq(ValueEntityStreamIn(InInit(init), _)), source) =>
@@ -110,10 +112,9 @@ final class ValueEntitiesImpl(system: ActorSystem,
         case (Seq(ValueEntityStreamIn(other, _)), _) =>
           throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
       }
-      .recover {
-        case error =>
-          log.error(error, failureMessage(error))
-          ValueEntityStreamOut(OutFailure(failure(error)))
+      .recover { case error =>
+        log.error(error, failureMessage(error))
+        ValueEntityStreamOut(OutFailure(failure(error)))
       }
 
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
@@ -145,24 +146,19 @@ final class ValueEntitiesImpl(system: ActorSystem,
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val cmd =
             service.anySupport.decode(
-              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-            )
-          val context = new CommandContextImpl(
-            thisEntityId,
-            command.name,
-            command.id,
-            metadata
-          )
+              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
+          val context = new CommandContextImpl(thisEntityId, command.name, command.id, metadata)
 
-          val CommandResult(effect: ValueEntityEffectImpl[_]) = try {
-            handler._internalHandleCommand(command.name, cmd, context)
-          } catch {
-            case e: EntityException => throw e
-            case NonFatal(error) =>
-              throw EntityException(command, s"Unexpected failure: $error", Some(error))
-          } finally {
-            context.deactivate() // Very important!
-          }
+          val CommandResult(effect: ValueEntityEffectImpl[_]) =
+            try {
+              handler._internalHandleCommand(command.name, cmd, context)
+            } catch {
+              case e: EntityException => throw e
+              case NonFatal(error) =>
+                throw EntityException(command, s"Unexpected failure: $error", Some(error))
+            } finally {
+              context.deactivate() // Very important!
+            }
 
           val serializedSecondaryEffect = effect.secondaryEffect match {
             case MessageReplyImpl(message, metadata, sideEffects) =>
@@ -175,18 +171,12 @@ final class ValueEntitiesImpl(system: ActorSystem,
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
-              log.error("Fail invoked for command [{}] for entity [{}]: {}",
-                        command.name,
-                        thisEntityId,
-                        error.description)
-              ValueEntityStreamOut(
-                OutReply(
-                  ValueEntityReply(
-                    commandId = command.id,
-                    clientAction = clientAction
-                  )
-                )
-              )
+              log.error(
+                "Fail invoked for command [{}] for entity [{}]: {}",
+                command.name,
+                thisEntityId,
+                error.description)
+              ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
 
             case _ => // non-error
               val action: Option[ValueEntityAction] = effect.primaryEffect match {
@@ -205,10 +195,7 @@ final class ValueEntitiesImpl(system: ActorSystem,
                     command.id,
                     clientAction,
                     EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
-                    action
-                  )
-                )
-              )
+                    action)))
           }
 
         case InInit(_) =>
@@ -223,10 +210,11 @@ final class ValueEntitiesImpl(system: ActorSystem,
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  private final class CommandContextImpl(override val entityId: String,
-                                         override val commandName: String,
-                                         override val commandId: Long,
-                                         override val metadata: Metadata)
+  private final class CommandContextImpl(
+      override val entityId: String,
+      override val commandName: String,
+      override val commandId: Long,
+      override val metadata: Metadata)
       extends CommandContext
       with AbstractContext
       with ActivatableContext

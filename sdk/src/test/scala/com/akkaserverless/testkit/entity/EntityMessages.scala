@@ -17,10 +17,10 @@
 package com.akkaserverless.testkit.entity
 
 import com.akkaserverless.protocol.component._
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.empty.{Empty => ScalaPbEmpty}
-import com.google.protobuf.{StringValue, Any => JavaPbAny, Empty => JavaPbEmpty, Message => JavaPbMessage}
-import scalapb.{GeneratedMessage => ScalaPbMessage}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.empty.{ Empty => ScalaPbEmpty }
+import com.google.protobuf.{ StringValue, Any => JavaPbAny, Empty => JavaPbEmpty, Message => JavaPbMessage }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object EntityMessages extends EntityMessages
 
@@ -72,12 +72,12 @@ trait EntityMessages {
 
   def protobufAny(message: JavaPbMessage): ScalaPbAny = message match {
     case javaPbAny: JavaPbAny => ScalaPbAny.fromJavaProto(javaPbAny)
-    case _ => ScalaPbAny("type.googleapis.com/" + message.getDescriptorForType.getFullName, message.toByteString)
+    case _                    => ScalaPbAny("type.googleapis.com/" + message.getDescriptorForType.getFullName, message.toByteString)
   }
 
   def protobufAny(message: ScalaPbMessage): ScalaPbAny = message match {
     case scalaPbAny: ScalaPbAny => scalaPbAny
-    case _ => ScalaPbAny("type.googleapis.com/" + message.companion.scalaDescriptor.fullName, message.toByteString)
+    case _                      => ScalaPbAny("type.googleapis.com/" + message.companion.scalaDescriptor.fullName, message.toByteString)
   }
 
   def primitiveString(value: String): ScalaPbAny =

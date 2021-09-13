@@ -19,8 +19,7 @@ object SdkVersion extends AutoPlugin {
 
   def versionSettings = Seq(
     version := dynverGitDescribeOutput.value.mkVersion(versionFmt(dynverSonatypeSnapshots.value), "latest"),
-    dynver := version.value
-  )
+    dynver := version.value)
 
   def versionFmt(sonatypeSnapshots: Boolean)(out: sbtdynver.GitDescribeOutput): String = {
     import scala.sys.process.Process

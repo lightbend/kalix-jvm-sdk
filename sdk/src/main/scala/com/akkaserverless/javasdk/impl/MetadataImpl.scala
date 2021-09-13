@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{CloudEvent, Metadata}
+import com.akkaserverless.javasdk.{ CloudEvent, Metadata }
 import com.akkaserverless.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 
@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util
-import java.util.{Objects, Optional}
+import java.util.{ Objects, Optional }
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable
 import scala.compat.java8.OptionConverters._
@@ -115,9 +115,7 @@ private[impl] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) exte
         MetadataEntry(MetadataImpl.CeSpecversion, MetadataEntry.Value.StringValue(MetadataImpl.CeSpecversionValue)),
         MetadataEntry(MetadataImpl.CeId, MetadataEntry.Value.StringValue(id)),
         MetadataEntry(MetadataImpl.CeSource, MetadataEntry.Value.StringValue(source.toString)),
-        MetadataEntry(MetadataImpl.CeType, MetadataEntry.Value.StringValue(`type`))
-      )
-    )
+        MetadataEntry(MetadataImpl.CeType, MetadataEntry.Value.StringValue(`type`))))
 
   private def getRequiredCloudEventField(key: String) =
     entries

@@ -29,12 +29,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyService"
 
     val generatedSrc =
-      ValueEntitySourceGenerator.valueEntitySource(
-        service,
-        entity,
-        packageName,
-        className
-      )
+      ValueEntitySourceGenerator.valueEntitySource(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
@@ -71,8 +66,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  public Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue command) {
          |    return effects().error("The command handler for `Get` is not implemented, yet");
          |  }
-         |}""".stripMargin
-    )
+         |}""".stripMargin)
   }
 
   test("Abstract ValueEntity source") {
@@ -104,8 +98,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  /** Command handler for "Get". */
          |  public abstract Effect<ServiceOuterClass.MyState> get(EntityOuterClass.MyState currentState, ServiceOuterClass.GetValue getValue);
          |
-         |}""".stripMargin
-    )
+         |}""".stripMargin)
   }
 
   test("ValueEntity generated handler") {
@@ -156,8 +149,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
          |    }
          |  }
-         |}""".stripMargin
-    )
+         |}""".stripMargin)
   }
 
   test("ValueEntity Provider") {
@@ -168,12 +160,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyService"
 
     val generatedSrc =
-      ValueEntitySourceGenerator.valueEntityProvider(
-        service,
-        entity,
-        packageName,
-        className
-      )
+      ValueEntitySourceGenerator.valueEntityProvider(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
@@ -248,8 +235,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |      ServiceOuterClass.getDescriptor()
          |    };
          |  }
-         |}""".stripMargin
-    )
+         |}""".stripMargin)
   }
 
 }

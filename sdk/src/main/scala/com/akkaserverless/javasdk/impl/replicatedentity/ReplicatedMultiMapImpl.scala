@@ -24,15 +24,15 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedMultiMapEntryDelta
 }
 
-import java.util.{Collection => JCollection, Collections => JCollections, Set => JSet}
+import java.util.{ Collection => JCollection, Collections => JCollections, Set => JSet }
 import scala.jdk.CollectionConverters._
 
 private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
     anySupport: AnySupport,
     entries: Map[K, ReplicatedSetImpl[V]] = Map.empty[K, ReplicatedSetImpl[V]],
     removed: Set[K] = Set.empty[K],
-    cleared: Boolean = false
-) extends ReplicatedMultiMap[K, V]
+    cleared: Boolean = false)
+    extends ReplicatedMultiMap[K, V]
     with InternalReplicatedData {
 
   override type Self = ReplicatedMultiMapImpl[K, V]
@@ -88,9 +88,7 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
         updated = entries.collect {
           case (key, values) if values.hasDelta =>
             ReplicatedMultiMapEntryDelta(Some(anySupport.encodeScala(key)), values.getDelta.replicatedSet)
-        }.toSeq
-      )
-    )
+        }.toSeq))
 
   override def resetDelta(): ReplicatedMultiMapImpl[K, V] =
     if (hasDelta) new ReplicatedMultiMapImpl(anySupport, entries.view.mapValues(_.resetDelta()).toMap) else this

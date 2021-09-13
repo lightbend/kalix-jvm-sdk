@@ -48,10 +48,10 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       entity.expect(reply(2, EmptyJavaMessage, persist(itemAdded("abc", "apple", 1))))
       entity.send(command(3, "cart", "AddItem", addItem("abc", "apple", 2)))
       entity.expect(
-        reply(3,
-              EmptyJavaMessage,
-              persist(itemAdded("abc", "apple", 2)).withSnapshot(cartSnapshot(Item("abc", "apple", 3))))
-      )
+        reply(
+          3,
+          EmptyJavaMessage,
+          persist(itemAdded("abc", "apple", 2)).withSnapshot(cartSnapshot(Item("abc", "apple", 3)))))
       entity.send(command(4, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(4, cart(Item("abc", "apple", 3))))
       entity.send(command(5, "cart", "AddItem", addItem("123", "banana", 4)))
@@ -69,20 +69,18 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       val entity = protocol.eventSourced.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
       entity.send(
-        command(1,
-                "cart",
-                "AddItems",
-                addItems(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2)))
-      )
+        command(
+          1,
+          "cart",
+          "AddItems",
+          addItems(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2))))
       entity.expect(
         reply(
           1,
           EmptyJavaMessage,
           persist(itemAdded("abc", "apple", 1), itemAdded("123", "banana", 4), itemAdded("456", "pear", 2))
-          // note that snapshot every 2nd, but after all events and therefore including pear
-            .withSnapshot(cartSnapshot(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2)))
-        )
-      )
+            // note that snapshot every 2nd, but after all events and therefore including pear
+            .withSnapshot(cartSnapshot(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2)))))
       entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(2, cart(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2))))
       entity.passivate()
@@ -175,20 +173,14 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo"))
-        entity.expect(
-          failure(
-            1,
-            s"No command handler found for command [foo] on ${classOf[CartEntity]}"
-          )
-        )
+        entity.expect(failure(1, s"No command handler found for command [foo] on ${classOf[CartEntity]}"))
         entity.expectClosed()
       }
     }
 
     "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero."
-      ) {
+        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
@@ -204,12 +196,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(
-          failure(
-            1,
-            "Unexpected failure: java.lang.RuntimeException: Boom: foo"
-          )
-        )
+        entity.expect(failure(1, "Unexpected failure: java.lang.RuntimeException: Boom: foo"))
         entity.expectClosed()
       }
     }
@@ -227,8 +214,7 @@ object EventSourcedEntitiesImplSpec {
       TestEventSourced.service(
         CartEntityProvider
           .of(new CartEntity(_))
-          .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(2))
-      )
+          .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(2)))
 
     case class Item(id: String, name: String, quantity: Int)
 

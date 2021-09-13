@@ -2,15 +2,7 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(
-    sdk,
-    testkit,
-    tck,
-    codegenCore,
-    codegenJava,
-    codegenJavaCompilationTest,
-    samples
-  )
+  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest, samples)
 
 lazy val sdk = project
   .in(file("sdk"))
@@ -19,12 +11,11 @@ lazy val sdk = project
     name := "akkaserverless-java-sdk",
     crossPaths := false,
     buildInfoKeys := Seq[BuildInfoKey](
-        name,
-        version,
-        "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-        "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
-        "scalaVersion" -> scalaVersion.value
-      ),
+      name,
+      version,
+      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
+      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.javasdk",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
@@ -35,16 +26,15 @@ lazy val sdk = project
     // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
     Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
     Compile / doc / javacOptions ++= Seq(
-        "-Xdoclint:none",
-        "-overview",
-        ((Compile / javaSource).value / "overview.html").getAbsolutePath,
-        "--no-module-directories",
-        "-notimestamp",
-        "-doctitle",
-        "Akka Serverless Java SDK",
-        "-noqualifier",
-        "java.lang"
-      ),
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "--no-module-directories",
+      "-notimestamp",
+      "-doctitle",
+      "Akka Serverless Java SDK",
+      "-noqualifier",
+      "java.lang"),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"),
@@ -55,8 +45,7 @@ lazy val sdk = project
     Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test"
-  )
+    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
   .settings(Dependencies.sdk)
 
 lazy val testkit = project
@@ -67,19 +56,17 @@ lazy val testkit = project
     name := "akkaserverless-java-sdk-testkit",
     crossPaths := false,
     buildInfoKeys := Seq[BuildInfoKey](
-        name,
-        version,
-        "proxyImage" -> "gcr.io/akkaserverless-public/akkaserverless-proxy",
-        "proxyVersion" -> AkkaServerless.FrameworkVersion,
-        "scalaVersion" -> scalaVersion.value
-      ),
+      name,
+      version,
+      "proxyImage" -> "gcr.io/akkaserverless-public/akkaserverless-proxy",
+      "proxyVersion" -> AkkaServerless.FrameworkVersion,
+      "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.javasdk.testkit",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
-    Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala"))
-  )
+    Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.testkit)
 
 lazy val tck = project
@@ -92,8 +79,7 @@ lazy val tck = project
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
-    dockerExposedPorts += 8080
-  )
+    dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
 
 lazy val codegenCore =
@@ -103,14 +89,12 @@ lazy val codegenCore =
     .settings(
       name := "akkaserverless-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
-      Test / fork := false
-    )
+      Test / fork := false)
     .settings(Dependencies.codegenCore)
+    .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
-      Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java)
-    )
-    .settings(crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-              scalaVersion := Dependencies.ScalaVersionForCodegen.head)
+      crossScalaVersions := Dependencies.ScalaVersionForCodegen,
+      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
 lazy val codegenJava =
   project
@@ -121,8 +105,9 @@ lazy val codegenJava =
     .settings(Defaults.itSettings)
     .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
-    .settings(crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-              scalaVersion := Dependencies.ScalaVersionForCodegen.head)
+    .settings(
+      crossScalaVersions := Dependencies.ScalaVersionForCodegen,
+      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
@@ -136,15 +121,14 @@ lazy val codegenJavaCompilationTest = project
   .settings(
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11")
-  )
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
 
 lazy val samples = project
   .in(file("samples"))
   .aggregate( // samples relying on codegen must use Maven
-             // FIXME consider including this sample again?
-             // `java-eventing-shopping-cart`,
-             // `valueentity-counter`
+    // FIXME consider including this sample again?
+    // `java-eventing-shopping-cart`,
+    // `valueentity-counter`
   )
 
 /**
@@ -169,11 +153,9 @@ lazy val `valueentity-counter` = project
     Compile / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "main" / "java",
     Test / unmanagedSourceDirectories += baseDirectory.value / ".." / "valueentity-counter-generated" / "src" / "test" / "java",
     libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "ch.qos.logback.contrib" % "logback-json-classic" % "0.1.5",
-        "junit" % "junit" % "4.13.1" % Test
-      )
-  )
+      "ch.qos.logback" % "logback-classic" % LogbackVersion,
+      "ch.qos.logback.contrib" % "logback-json-classic" % "0.1.5",
+      "junit" % "junit" % "4.13.1" % Test))
 
 lazy val `java-eventing-shopping-cart` = project
   .in(file("samples/java-eventing-shopping-cart"))
@@ -186,14 +168,12 @@ lazy val `java-eventing-shopping-cart` = project
     Compile / akkaGrpcGeneratedSources := Seq.empty,
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest
-      ),
+      "ch.qos.logback" % "logback-classic" % LogbackVersion,
+      "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest),
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-a"),
     IntegrationTest / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
-  )
+    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
   .settings(attachProtobufDescriptorSets)
 
 lazy val `java-valueentity-customer-registry` = project
@@ -203,19 +183,17 @@ lazy val `java-valueentity-customer-registry` = project
   .settings(
     name := "java-valueentity-customer-registry",
     libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
-        "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
-        "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
-        "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest
-      ),
+      "ch.qos.logback" % "logback-classic" % LogbackVersion,
+      "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
+      "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
+      "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
     inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
-  )
+    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
 
 lazy val `java-eventsourced-customer-registry` = project
   .in(file("samples/java-eventsourced-customer-registry"))
@@ -224,35 +202,31 @@ lazy val `java-eventsourced-customer-registry` = project
   .settings(
     name := "java-eventsourced-customer-registry",
     libraryDependencies ++= Seq(
-        "ch.qos.logback" % "logback-classic" % LogbackVersion,
-        "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
-        "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
-        "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
-        "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest
-      ),
+      "ch.qos.logback" % "logback-classic" % LogbackVersion,
+      "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
+      "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
+      "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
     inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value
-  )
+    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
 
 lazy val protobufDescriptorSetOut = settingKey[File]("The file to write the protobuf descriptor set to")
 
 lazy val attachProtobufDescriptorSets = Seq(
   protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
   Compile / PB.generate := (Compile / PB.generate)
-      .dependsOn(Def.task {
-        protobufDescriptorSetOut.value.getParentFile.mkdirs()
-      })
-      .value,
+    .dependsOn(Def.task {
+      protobufDescriptorSetOut.value.getParentFile.mkdirs()
+    })
+    .value,
   Compile / PB.targets := Seq(PB.gens.java -> (Compile / sourceManaged).value),
   Compile / PB.protocOptions ++= Seq(
-      "--descriptor_set_out",
-      protobufDescriptorSetOut.value.getAbsolutePath,
-      "--include_source_info"
-    ),
+    "--descriptor_set_out",
+    protobufDescriptorSetOut.value.getAbsolutePath,
+    "--include_source_info"),
   Compile / managedResources += protobufDescriptorSetOut.value,
-  Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value
-)
+  Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value)

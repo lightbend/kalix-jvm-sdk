@@ -18,19 +18,19 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
-import akka.stream.scaladsl.{Flow, Source}
+import akka.event.{ Logging, LoggingAdapter }
+import akka.stream.scaladsl.{ Flow, Source }
 import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
+import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.{ComponentOptions, Context, Metadata, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.{ ComponentOptions, Context, Metadata, Service, ServiceCallFactory }
 import com.akkaserverless.protocol.entity.Command
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{Message => In}
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{Message => Out}
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
 import com.akkaserverless.protocol.replicated_entity._
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 import scala.util.control.NonFatal
 
@@ -41,31 +41,31 @@ final class ReplicatedEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     val anySupport: AnySupport,
     override val entityType: String,
-    val entityOptions: Option[ReplicatedEntityOptions]
-) extends Service {
+    val entityOptions: Option[ReplicatedEntityOptions])
+    extends Service {
 
   def this(
       factory: ReplicatedEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
       anySupport: AnySupport,
       entityType: String,
-      entityOptions: ReplicatedEntityOptions
-  ) = this(factory, descriptor, anySupport, entityType, Some(entityOptions))
+      entityOptions: ReplicatedEntityOptions) = this(factory, descriptor, anySupport, entityType, Some(entityOptions))
 
   override final val componentType = ReplicatedEntities.name
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
-      case _ => None
+      case _                               => None
     }
 
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ReplicatedEntitiesImpl(system: ActorSystem,
-                                   services: Map[String, ReplicatedEntityService],
-                                   rootContext: Context)
+final class ReplicatedEntitiesImpl(
+    system: ActorSystem,
+    services: Map[String, ReplicatedEntityService],
+    rootContext: Context)
     extends ReplicatedEntities {
 
   import ReplicatedEntitiesImpl._
@@ -91,18 +91,15 @@ final class ReplicatedEntitiesImpl(system: ActorSystem,
           Source.empty[ReplicatedEntityStreamOut]
         case (Seq(ReplicatedEntityStreamIn(other, _)), _) =>
           throw ProtocolException(
-            s"Expected init message for Replicated Entity, but received [${other.getClass.getName}]"
-          )
+            s"Expected init message for Replicated Entity, but received [${other.getClass.getName}]")
       }
-      .recover {
-        case error =>
-          log.error(error, failureMessage(error))
-          ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+      .recover { case error =>
+        log.error(error, failureMessage(error))
+        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
       }
 
   private def runEntity(
-      init: ReplicatedEntityInit
-  ): Flow[ReplicatedEntityStreamIn, ReplicatedEntityStreamOut, NotUsed] = {
+      init: ReplicatedEntityInit): Flow[ReplicatedEntityStreamIn, ReplicatedEntityStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
 
@@ -129,10 +126,9 @@ final class ReplicatedEntitiesImpl(system: ActorSystem,
             throw ProtocolException(init, "Replicated Entity received empty or unknown message")
         }
       }
-      .recover {
-        case error =>
-          log.error(error, failureMessage(error))
-          ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+      .recover { case error =>
+        log.error(error, failureMessage(error))
+        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
       }
   }
 }
@@ -145,8 +141,7 @@ object ReplicatedEntitiesImpl {
       entityId: String,
       initialData: Option[InternalReplicatedData],
       rootContext: Context,
-      log: LoggingAdapter
-  ) {
+      log: LoggingAdapter) {
 
     private val handler = {
       val context = new ReplicatedEntityCreationContext(entityId, rootContext)
@@ -171,14 +166,15 @@ object ReplicatedEntitiesImpl {
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
       val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
 
-      val CommandResult(effect: ReplicatedEntityEffectImpl[_, _]) = try {
-        handler._internalHandleCommand(command.name, cmd, context)
-      } catch {
-        case e: EntityException => throw e
-        case NonFatal(error) => throw EntityException(command, s"Unexpected failure: $error", Some(error))
-      } finally {
-        context.deactivate()
-      }
+      val CommandResult(effect: ReplicatedEntityEffectImpl[_, _]) =
+        try {
+          handler._internalHandleCommand(command.name, cmd, context)
+        } catch {
+          case e: EntityException => throw e
+          case NonFatal(error)    => throw EntityException(command, s"Unexpected failure: $error", Some(error))
+        } finally {
+          context.deactivate()
+        }
 
       val serializedSecondaryEffect = effect.secondaryEffect match {
         case MessageReplyImpl(message, metadata, sideEffects) =>
@@ -196,12 +192,7 @@ object ReplicatedEntitiesImpl {
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(
             ReplicatedEntityStreamOut.Message.Reply(
-              ReplicatedEntityReply(
-                commandId = command.id,
-                clientAction = clientAction
-              )
-            )
-          )
+              ReplicatedEntityReply(commandId = command.id, clientAction = clientAction)))
 
         case _ => // non-error
           val stateAction: Option[ReplicatedEntityStateAction] = effect.primaryEffect match {
@@ -211,8 +202,7 @@ object ReplicatedEntitiesImpl {
               if (handler._internalHasDelta) {
                 val delta = handler._internalGetAndResetDelta
                 Some(
-                  ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta)))
-                )
+                  ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta))))
               } else {
                 None
               }
@@ -223,10 +213,7 @@ object ReplicatedEntitiesImpl {
                 command.id,
                 clientAction,
                 EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
-                stateAction
-              )
-            )
-          )
+                stateAction)))
       }
     }
   }
@@ -241,8 +228,8 @@ object ReplicatedEntitiesImpl {
   private final class ReplicatedEntityCommandContext(
       override val entityId: String,
       command: Command,
-      rootContext: Context
-  ) extends CommandContext
+      rootContext: Context)
+      extends CommandContext
       with ActivatableContext {
 
     override val commandId: Long = command.id

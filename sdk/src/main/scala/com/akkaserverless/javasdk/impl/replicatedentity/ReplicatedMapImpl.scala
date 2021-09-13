@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.{ReplicatedDataFactory, ReplicatedMap}
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedDataFactory, ReplicatedMap }
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedEntityDelta,
@@ -37,8 +37,8 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
     entries: Map[K, V] = Map.empty[K, V],
     added: Set[K] = Set.empty[K],
     removed: Set[K] = Set.empty[K],
-    cleared: Boolean = false
-) extends ReplicatedMap[K, V]
+    cleared: Boolean = false)
+    extends ReplicatedMap[K, V]
     with InternalReplicatedData {
 
   import ReplicatedMapImpl.log
@@ -55,16 +55,13 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
         val data = create(dataFactory)
         if (data eq null) {
           throw new IllegalArgumentException(
-            "Replicated Map getOrElse creation function must return a Replicated Data object"
-          )
+            "Replicated Map getOrElse creation function must return a Replicated Data object")
         } else if (data ne dataFactory.internalData) {
           throw new IllegalArgumentException(
-            "Replicated Data returned by getOrElse creation callback must have been created by the ReplicatedDataFactory passed to it"
-          )
+            "Replicated Data returned by getOrElse creation callback must have been created by the ReplicatedDataFactory passed to it")
         }
         data
-      }
-    )
+      })
 
   override def update(key: K, value: V): ReplicatedMap[K, V] =
     new ReplicatedMapImpl(
@@ -72,8 +69,7 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
       entries.updated(key, value),
       if (entries.contains(key)) added else added + key,
       removed,
-      cleared
-    )
+      cleared)
 
   override def remove(key: K): ReplicatedMapImpl[K, V] = {
     if (!entries.contains(key)) {
@@ -124,9 +120,7 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
         cleared = cleared,
         removed = removed.map(anySupport.encodeScala).toSeq,
         updated = updatedEntries.toSeq,
-        added = addedEntries.toSeq
-      )
-    )
+        added = addedEntries.toSeq))
   }
 
   override def resetDelta(): ReplicatedMapImpl[K, V] =
@@ -143,7 +137,7 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
           val key = anySupport.decode(encodedKey).asInstanceOf[K]
           map.get(key) match {
             case Some(value) => map.updated(key, value.applyDelta(delta).asInstanceOf[V])
-            case _ => log.warn("ReplicatedMap entry to update with key [{}] not found in map", key); map
+            case _           => log.warn("ReplicatedMap entry to update with key [{}] not found in map", key); map
           }
         case (map, _) => map
       }

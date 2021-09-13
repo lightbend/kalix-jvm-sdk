@@ -75,15 +75,10 @@ object ActionEffectImpl {
     def forward[S](serviceCall: ServiceCall): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def noReply[S](): Action.Effect[S] = NoReply(Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
-    def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] = AsyncEffect(
-      futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic),
-      Nil
-    )
+    def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
+      AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
-      AsyncEffect(
-        futureEffect.asScala,
-        Nil
-      )
+      AsyncEffect(futureEffect.asScala, Nil)
   }
 
   def builder(): Action.Effect.Builder = Builder

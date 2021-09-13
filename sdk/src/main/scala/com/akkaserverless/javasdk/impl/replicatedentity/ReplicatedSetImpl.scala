@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
-import com.akkaserverless.protocol.replicated_entity.{ReplicatedEntityDelta, ReplicatedSetDelta}
+import com.akkaserverless.protocol.replicated_entity.{ ReplicatedEntityDelta, ReplicatedSetDelta }
 
 import scala.jdk.CollectionConverters._
 
@@ -27,8 +27,8 @@ private[replicatedentity] class ReplicatedSetImpl[E](
     value: Set[E] = Set.empty[E],
     added: Set[E] = Set.empty[E],
     removed: Set[E] = Set.empty[E],
-    cleared: Boolean = false
-) extends ReplicatedSet[E]
+    cleared: Boolean = false)
+    extends ReplicatedSet[E]
     with InternalReplicatedData {
 
   override type Self = ReplicatedSetImpl[E]
@@ -91,9 +91,7 @@ private[replicatedentity] class ReplicatedSetImpl[E](
       ReplicatedSetDelta(
         cleared,
         removed = removed.map(anySupport.encodeScala).toSeq,
-        added = added.map(anySupport.encodeScala).toSeq
-      )
-    )
+        added = added.map(anySupport.encodeScala).toSeq))
 
   override def resetDelta(): ReplicatedSetImpl[E] =
     if (hasDelta) new ReplicatedSetImpl(anySupport, value) else this

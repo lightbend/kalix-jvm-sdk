@@ -20,14 +20,14 @@ import com.akkaserverless.protocol.component._
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.value_entity._
 import com.akkaserverless.testkit.entity.EntityMessages
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Message => JavaPbMessage}
-import scalapb.{GeneratedMessage => ScalaPbMessage}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Message => JavaPbMessage }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object ValueEntityMessages extends EntityMessages {
   import ValueEntityAction.Action._
-  import ValueEntityStreamIn.{Message => InMessage}
-  import ValueEntityStreamOut.{Message => OutMessage}
+  import ValueEntityStreamIn.{ Message => InMessage }
+  import ValueEntityStreamOut.{ Message => OutMessage }
 
   case class Effects(sideEffects: Seq[SideEffect] = Seq.empty, valueEntityAction: Option[ValueEntityAction] = None) {
 
@@ -43,10 +43,11 @@ object ValueEntityMessages extends EntityMessages {
     def withSideEffect(service: String, command: String, message: ScalaPbMessage, synchronous: Boolean): Effects =
       withSideEffect(service, command, messagePayload(message), synchronous)
 
-    private def withSideEffect(service: String,
-                               command: String,
-                               payload: Option[ScalaPbAny],
-                               synchronous: Boolean): Effects =
+    private def withSideEffect(
+        service: String,
+        command: String,
+        payload: Option[ScalaPbAny],
+        synchronous: Boolean): Effects =
       copy(sideEffects = sideEffects :+ SideEffect(service, command, payload, synchronous))
   }
 
@@ -113,11 +114,12 @@ object ValueEntityMessages extends EntityMessages {
   def forward(id: Long, service: String, command: String, payload: ScalaPbMessage, effects: Effects): OutMessage =
     forward(id, service, command, messagePayload(payload), effects)
 
-  private def forward(id: Long,
-                      service: String,
-                      command: String,
-                      payload: Option[ScalaPbAny],
-                      effects: Effects): OutMessage =
+  private def forward(
+      id: Long,
+      service: String,
+      command: String,
+      payload: Option[ScalaPbAny],
+      effects: Effects): OutMessage =
     replyAction(id, clientActionForward(service, command, payload), effects)
 
   private def replyAction(id: Long, action: Option[ClientAction], effects: Effects): OutMessage =

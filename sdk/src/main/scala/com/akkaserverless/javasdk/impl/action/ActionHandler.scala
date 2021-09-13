@@ -62,9 +62,10 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param context     The action context.
    * @return The stream of messages to return.
    */
-  final def handleStreamedOut(commandName: String,
-                              message: MessageEnvelope[Any],
-                              context: ActionContext): Source[Action.Effect[_], NotUsed] =
+  final def handleStreamedOut(
+      commandName: String,
+      message: MessageEnvelope[Any],
+      context: ActionContext): Source[Action.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamedOut(commandName, message)
     }
@@ -86,9 +87,10 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param context     The action context.
    * @return A future of the message to return.
    */
-  final def handleStreamedIn(commandName: String,
-                             stream: Source[MessageEnvelope[Any], NotUsed],
-                             context: ActionContext): Action.Effect[_] =
+  final def handleStreamedIn(
+      commandName: String,
+      stream: Source[MessageEnvelope[Any], NotUsed],
+      context: ActionContext): Action.Effect[_] =
     callWithContext(context) { () =>
       handleStreamedIn(commandName, stream)
     }
@@ -110,9 +112,10 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param context     The action context.
    * @return The stream of messages to return.
    */
-  final def handleStreamed(commandName: String,
-                           stream: Source[MessageEnvelope[Any], NotUsed],
-                           context: ActionContext): Source[Action.Effect[_], NotUsed] =
+  final def handleStreamed(
+      commandName: String,
+      stream: Source[MessageEnvelope[Any], NotUsed],
+      context: ActionContext): Source[Action.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamed(commandName, stream)
     }
@@ -124,8 +127,9 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @param stream      The stream of messages to handle.
    * @return The stream of messages to return.
    */
-  def handleStreamed(commandName: String,
-                     stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
+  def handleStreamed(
+      commandName: String,
+      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
     // only set, never cleared, to allow access from other threads in async callbacks in the action
@@ -135,9 +139,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
       func()
     } catch {
       case HandlerNotFound(name) =>
-        throw new RuntimeException(
-          s"No call handler found for call $name on ${action.getClass.getName}"
-        )
+        throw new RuntimeException(s"No call handler found for call $name on ${action.getClass.getName}")
     }
   }
 }

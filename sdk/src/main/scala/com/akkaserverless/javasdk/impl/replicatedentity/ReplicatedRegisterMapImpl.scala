@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.{ReplicatedRegister, ReplicatedRegisterMap}
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister, ReplicatedRegisterMap }
 import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedEntityDelta,
   ReplicatedRegisterMapDelta,
@@ -31,8 +31,8 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
     anySupport: AnySupport,
     registers: Map[K, ReplicatedRegisterImpl[V]] = Map.empty[K, ReplicatedRegisterImpl[V]],
     removed: Set[K] = Set.empty[K],
-    cleared: Boolean = false
-) extends ReplicatedRegisterMap[K, V]
+    cleared: Boolean = false)
+    extends ReplicatedRegisterMap[K, V]
     with InternalReplicatedData {
 
   override type Self = ReplicatedRegisterMapImpl[K, V]
@@ -44,8 +44,7 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
       key: K,
       value: V,
       clock: ReplicatedRegister.Clock,
-      customClockValue: Long
-  ): ReplicatedRegisterMapImpl[K, V] = {
+      customClockValue: Long): ReplicatedRegisterMapImpl[K, V] = {
     val register = registers.getOrElse(key, new ReplicatedRegisterImpl[V](anySupport))
     val updated = register.set(value, clock, customClockValue)
     new ReplicatedRegisterMapImpl(anySupport, registers.updated(key, updated), removed, cleared)
@@ -80,9 +79,7 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
         updated = registers.collect {
           case (key, register) if register.hasDelta =>
             ReplicatedRegisterMapEntryDelta(Some(anySupport.encodeScala(key)), register.getDelta.register)
-        }.toSeq
-      )
-    )
+        }.toSeq))
 
   override def resetDelta(): ReplicatedRegisterMapImpl[K, V] =
     if (hasDelta) new ReplicatedRegisterMapImpl(anySupport, registers.view.mapValues(_.resetDelta()).toMap) else this

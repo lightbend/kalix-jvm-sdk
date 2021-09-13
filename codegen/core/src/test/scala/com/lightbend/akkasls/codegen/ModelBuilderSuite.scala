@@ -44,8 +44,8 @@ class ModelBuilderSuite extends munit.FunSuite {
       streamedInput: Boolean = false,
       streamedOutput: Boolean = false,
       inFromTopic: Boolean = false,
-      outToTopic: Boolean = false
-  ) = ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
+      outToTopic: Boolean = false) =
+    ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
   test("EventSourcedEntity introspection") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
@@ -63,9 +63,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
         fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val model = ModelBuilder.introspectProtobufClasses(
-        descriptors
-      )
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
 
       val shoppingCartProto =
         PackageNaming(
@@ -74,8 +72,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartApi"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
@@ -84,8 +81,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartDomain"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val googleEmptyProto =
         PackageNaming(
@@ -94,8 +90,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          javaMultipleFiles = true
-        )
+          javaMultipleFiles = true)
 
       val entity =
         ModelBuilder.EventSourcedEntity(
@@ -104,14 +99,9 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.State(FullyQualifiedName("Cart", domainProto)),
           List(
             ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
-            ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))
-          )
-        )
+            ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))))
 
-      assertEquals(
-        model.entities,
-        Map(entity.fqn.fullQualifiedName -> entity)
-      )
+      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
 
       assertEquals(
         model.services,
@@ -123,23 +113,16 @@ class ModelBuilderSuite extends munit.FunSuite {
               command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto)
-              )
-            ),
-            entity.fqn.fullQualifiedName
-          )
-        )
-      )
+                FullyQualifiedName("Cart", shoppingCartProto))),
+            entity.fqn.fullQualifiedName)))
     }.get
   }
 
@@ -158,9 +141,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val model = ModelBuilder.introspectProtobufClasses(
-        descriptors
-      )
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
 
       val shoppingCartProto =
         PackageNaming(
@@ -169,8 +150,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartApi"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
@@ -179,8 +159,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartDomain"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val googleEmptyProto =
         PackageNaming(
@@ -189,18 +168,13 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          javaMultipleFiles = true
-        )
+          javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
-        ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
-      )
+        ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
 
-      assertEquals(
-        model.entities,
-        Map(entity.fqn.fullQualifiedName -> entity)
-      )
+      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
 
       assertEquals(
         model.services,
@@ -212,28 +186,20 @@ class ModelBuilderSuite extends munit.FunSuite {
               command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto)
-              ),
+                FullyQualifiedName("Cart", shoppingCartProto)),
               command(
                 FullyQualifiedName("RemoveCart", shoppingCartProto),
                 FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              )
-            ),
-            entity.fqn.fullQualifiedName
-          )
-        )
-      )
+                FullyQualifiedName("Empty", googleEmptyProto))),
+            entity.fqn.fullQualifiedName)))
     }.get
   }
 
@@ -252,9 +218,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val model = ModelBuilder.introspectProtobufClasses(
-        descriptors
-      )
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
 
       val shoppingCartProto =
         PackageNaming(
@@ -263,8 +227,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartApi"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
@@ -273,8 +236,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartDomain"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val googleEmptyProto =
         PackageNaming(
@@ -283,19 +245,14 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          javaMultipleFiles = true
-        )
+          javaMultipleFiles = true)
 
       val entity = ModelBuilder.ReplicatedEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
-        ModelBuilder.ReplicatedCounterMap(ModelBuilder.TypeArgument(FullyQualifiedName("Product", domainProto)))
-      )
+        ModelBuilder.ReplicatedCounterMap(ModelBuilder.TypeArgument(FullyQualifiedName("Product", domainProto))))
 
-      assertEquals(
-        model.entities,
-        Map(entity.fqn.fullQualifiedName -> entity)
-      )
+      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
 
       assertEquals(
         model.services,
@@ -307,28 +264,20 @@ class ModelBuilderSuite extends munit.FunSuite {
               command(
                 FullyQualifiedName("AddItem", shoppingCartProto),
                 FullyQualifiedName("AddLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("RemoveItem", shoppingCartProto),
                 FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              ),
+                FullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 FullyQualifiedName("GetCart", shoppingCartProto),
                 FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Cart", shoppingCartProto)
-              ),
+                FullyQualifiedName("Cart", shoppingCartProto)),
               command(
                 FullyQualifiedName("RemoveCart", shoppingCartProto),
                 FullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                FullyQualifiedName("Empty", googleEmptyProto)
-              )
-            ),
-            entity.fqn.fullQualifiedName
-          )
-        )
-      )
+                FullyQualifiedName("Empty", googleEmptyProto))),
+            entity.fqn.fullQualifiedName)))
     }.get
   }
 
@@ -346,13 +295,10 @@ class ModelBuilderSuite extends munit.FunSuite {
       val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
       val fileList = fileDescSet.getFileList.asScala
 
-      val descriptors = fileList.foldLeft(List.empty[Descriptors.FileDescriptor])(
-        (acc, file) => acc :+ Descriptors.FileDescriptor.buildFrom(file, acc.toArray, true)
-      )
+      val descriptors = fileList.foldLeft(List.empty[Descriptors.FileDescriptor])((acc, file) =>
+        acc :+ Descriptors.FileDescriptor.buildFrom(file, acc.toArray, true))
 
-      val model = ModelBuilder.introspectProtobufClasses(
-        descriptors
-      )
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
 
       val shoppingCartProto =
         PackageNaming(
@@ -361,8 +307,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartViewModel"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
@@ -371,8 +316,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           None,
           None,
           Some("ShoppingCartDomain"),
-          javaMultipleFiles = false
-        )
+          javaMultipleFiles = false)
 
       val googleEmptyProto =
         PackageNaming(
@@ -381,40 +325,32 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
-          javaMultipleFiles = true
-        )
+          javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
-        ModelBuilder.State(FullyQualifiedName("Cart", domainProto))
-      )
+        ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
 
       val transformedUpdates =
         List(
           command(
             FullyQualifiedName("ProcessAdded", shoppingCartProto),
             FullyQualifiedName("ItemAdded", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
-          ),
+            FullyQualifiedName("CartViewState", shoppingCartProto)),
           command(
             FullyQualifiedName("ProcessRemoved", shoppingCartProto),
             FullyQualifiedName("ItemRemoved", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
-          ),
+            FullyQualifiedName("CartViewState", shoppingCartProto)),
           command(
             FullyQualifiedName("ProcessCheckedOut", shoppingCartProto),
             FullyQualifiedName("CheckedOut", domainProto),
-            FullyQualifiedName("CartViewState", shoppingCartProto)
-          )
-        )
+            FullyQualifiedName("CartViewState", shoppingCartProto)))
       val queries = List(
         command(
           FullyQualifiedName("GetCheckedOutCarts", shoppingCartProto),
           FullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartProto),
           FullyQualifiedName("CartViewState", shoppingCartProto),
-          streamedOutput = true
-        )
-      )
+          streamedOutput = true))
       assertEquals(
         model.services,
         Map(
@@ -424,10 +360,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
             transformedUpdates,
-            transformedUpdates
-          )
-        )
-      )
+            transformedUpdates)))
     }.get
   }
 
@@ -435,21 +368,10 @@ class ModelBuilderSuite extends munit.FunSuite {
     val name = "Name"
     val pkg = "com.example"
 
+    assertEquals(PackageNaming(name, pkg, None, None, None, javaMultipleFiles = false).javaPackage, pkg)
     assertEquals(
-      PackageNaming(name, pkg, None, None, None, javaMultipleFiles = false).javaPackage,
-      pkg
-    )
-    assertEquals(
-      PackageNaming(
-        name,
-        pkg,
-        None,
-        Some("override.package"),
-        None,
-        javaMultipleFiles = false
-      ).javaPackage,
-      "override.package"
-    )
+      PackageNaming(name, pkg, None, Some("override.package"), None, javaMultipleFiles = false).javaPackage,
+      "override.package")
   }
 
   test("resolving full names") {

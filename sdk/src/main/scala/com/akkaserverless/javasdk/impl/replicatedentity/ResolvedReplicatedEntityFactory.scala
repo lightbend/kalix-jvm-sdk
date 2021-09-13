@@ -21,8 +21,9 @@ import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext
 
-class ResolvedReplicatedEntityFactory(delegate: ReplicatedEntityFactory,
-                                      override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
+class ResolvedReplicatedEntityFactory(
+    delegate: ReplicatedEntityFactory,
+    override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
     extends ReplicatedEntityFactory
     with ResolvedEntityFactory {
 

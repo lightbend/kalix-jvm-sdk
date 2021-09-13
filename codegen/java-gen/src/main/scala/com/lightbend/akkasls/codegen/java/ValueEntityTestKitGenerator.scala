@@ -30,10 +30,11 @@ import java.nio.file.Path
 
 object ValueEntityTestKitGenerator {
 
-  def generate(entity: ModelBuilder.ValueEntity,
-               service: ModelBuilder.EntityService,
-               testSourceDirectory: Path,
-               generatedSourceDirectory: Path): Iterable[Path] = {
+  def generate(
+      entity: ModelBuilder.ValueEntity,
+      service: ModelBuilder.EntityService,
+      testSourceDirectory: Path,
+      generatedSourceDirectory: Path): Iterable[Path] = {
     var generatedFiles: Seq[Path] = Vector.empty
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
@@ -56,9 +57,10 @@ object ValueEntityTestKitGenerator {
     generatedFiles
   }
 
-  private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
-                                          entity: ModelBuilder.ValueEntity,
-                                          packageName: String): String = {
+  private[codegen] def generateSourceCode(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String): String = {
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -77,9 +79,7 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl",
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
-        "java.util.function.Function"
-      )
-    )
+        "java.util.function.Function"))
 
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
@@ -161,21 +161,20 @@ object ValueEntityTestKitGenerator {
     service.commands
       .map { command =>
         val output = selectOutput(command)
-        s"""|public ValueEntityResult<$output> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} ${lowerFirst(
-             command.inputType.name
-           )}) {
+        s"""|public ValueEntityResult<$output> ${lowerFirst(
+          command.fqn.name)}(${apiClassName}.${command.inputType.name} ${lowerFirst(command.inputType.name)}) {
        |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.fqn.name)}(state, ${lowerFirst(
-             command.inputType.name
-           )});
+          command.inputType.name)});
        |  return interpretEffects(effect);
        |}""".stripMargin
       }
       .mkString("\n\n")
   }
 
-  def generateTestSources(service: ModelBuilder.EntityService,
-                          entity: ModelBuilder.ValueEntity,
-                          packageName: String): String = {
+  def generateTestSources(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String): String = {
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -188,9 +187,7 @@ object ValueEntityTestKitGenerator {
         "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
-        "org.junit.Test"
-      )
-    )
+        "org.junit.Test"))
 
     val entityClassName = entity.fqn.name
     val testkitClassName = s"${entityClassName}TestKit"

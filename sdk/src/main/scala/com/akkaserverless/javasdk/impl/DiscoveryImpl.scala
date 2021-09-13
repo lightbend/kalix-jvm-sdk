@@ -17,9 +17,9 @@
 package com.akkaserverless.javasdk.impl
 
 import akka.Done
-import akka.actor.{ActorSystem, CoordinatedShutdown}
-import com.akkaserverless.javasdk.replicatedentity.{ReplicatedEntityOptions, WriteConsistency}
-import com.akkaserverless.javasdk.{BuildInfo, EntityOptions, Service}
+import akka.actor.{ ActorSystem, CoordinatedShutdown }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
+import com.akkaserverless.javasdk.{ BuildInfo, EntityOptions, Service }
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory
 
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ Future, Promise }
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -60,8 +60,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     protocolMajorVersion =
       configuredIntOrElse("akkaserverless.library.protocol-major-version", BuildInfo.protocolMajorVersion),
     protocolMinorVersion =
-      configuredIntOrElse("akkaserverless.library.protocol-minor-version", BuildInfo.protocolMinorVersion)
-  )
+      configuredIntOrElse("akkaserverless.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
 
   // detect hybrid proxy version probes when protocol version 0.0
   private def isVersionProbe(info: ProxyInfo): Boolean = {
@@ -85,8 +84,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         in.proxyName,
         in.proxyVersion,
         in.protocolMajorVersion,
-        in.protocolMinorVersion
-      )
+        in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
       val unsupportedServices = services.values.filterNot { service =>
@@ -98,15 +96,13 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
           "Proxy doesn't support the entity types for the following services: {}",
           unsupportedServices
             .map(s => s.descriptor.getFullName + ": " + s.componentType)
-            .mkString(", ")
-        )
+            .mkString(", "))
         // Don't fail though. The proxy may give us more information as to why it doesn't support them if we send back unsupported services.
         // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
       }
 
       val descriptorsWithSource = loadDescriptorsWithSource(
-        system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path")
-      )
+        system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path"))
       val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
       val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
       allDescriptors.values.foreach { fd =>
@@ -120,34 +116,31 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       }
       val fileDescriptorSet = builder.build().toByteString
 
-      val components = services.map {
-        case (name, service) =>
-          val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
-          service.componentType match {
-            case Actions.name =>
-              Component(service.componentType,
-                        name,
-                        Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
-            case _ =>
-              val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
-                case e: EntityOptions => e
-              })
-              val replicatedEntitySpecificSettings = specificSettings(service.componentOptions.collect {
-                case options: ReplicatedEntityOptions => options
-              })
-              Component(
-                service.componentType,
-                name,
-                Component.ComponentSettings.Entity(
-                  EntitySettings(
-                    service.entityType,
-                    passivationStrategy,
-                    service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
-                    replicatedEntitySpecificSettings
-                  )
-                )
-              )
-          }
+      val components = services.map { case (name, service) =>
+        val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
+        service.componentType match {
+          case Actions.name =>
+            Component(
+              service.componentType,
+              name,
+              Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
+          case _ =>
+            val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
+              case e: EntityOptions => e
+            })
+            val replicatedEntitySpecificSettings = specificSettings(service.componentOptions.collect {
+              case options: ReplicatedEntityOptions => options
+            })
+            Component(
+              service.componentType,
+              name,
+              Component.ComponentSettings.Entity(
+                EntitySettings(
+                  service.entityType,
+                  passivationStrategy,
+                  service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
+                  replicatedEntitySpecificSettings)))
+        }
       }.toSeq
 
       Future.successful(Spec(fileDescriptorSet, components, Some(serviceInfo)))
@@ -204,7 +197,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
             .map { line =>
               line + "\n" + line.take(location.startCol).map {
                 case '\t' => '\t'
-                case _ => ' '
+                case _    => ' '
               } + "^"
             }
         }
@@ -212,16 +205,15 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     }
 
   private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[PassivationStrategy] = {
-    import com.akkaserverless.protocol.discovery.{PassivationStrategy => EPStrategy}
+    import com.akkaserverless.protocol.discovery.{ PassivationStrategy => EPStrategy }
     maybeOptions.flatMap { options =>
       options.passivationStrategy() match {
         case Timeout(maybeTimeout) =>
           maybeTimeout match {
             case Some(timeout) => Some(EPStrategy(Strategy.Timeout(TimeoutPassivationStrategy(timeout.toMillis))))
             case _ =>
-              configuredPassivationTimeout("akkaserverless.passivation-timeout").map(
-                timeout => EPStrategy(Strategy.Timeout(TimeoutPassivationStrategy(timeout.toMillis)))
-              )
+              configuredPassivationTimeout("akkaserverless.passivation-timeout").map(timeout =>
+                EPStrategy(Strategy.Timeout(TimeoutPassivationStrategy(timeout.toMillis))))
           }
       }
     }
@@ -232,9 +224,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
 
   def specificSettings(options: Option[ReplicatedEntityOptions]): EntitySettings.SpecificSettings = {
     val writeConsistency = options.map(_.writeConsistency) match {
-      case Some(WriteConsistency.ALL) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_ALL
+      case Some(WriteConsistency.ALL)      => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_ALL
       case Some(WriteConsistency.MAJORITY) => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_MAJORITY
-      case _ => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
+      case _                               => ReplicatedWriteConsistency.REPLICATED_WRITE_CONSISTENCY_LOCAL_UNSPECIFIED
     }
     EntitySettings.SpecificSettings.ReplicatedEntity(ReplicatedEntitySettings(writeConsistency))
   }
@@ -265,8 +257,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
              |      </resource>
              |    </resources>
              |    ...
-             |""".stripMargin
-        )
+             |""".stripMargin)
         Map.empty
       } else {
         try {

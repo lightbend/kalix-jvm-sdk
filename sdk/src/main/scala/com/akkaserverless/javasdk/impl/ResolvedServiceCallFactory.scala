@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{Service, ServiceCallFactory, ServiceCallRef}
+import com.akkaserverless.javasdk.{ Service, ServiceCallFactory, ServiceCallRef }
 
 class ResolvedServiceCallFactory(services: Map[String, Service]) extends ServiceCallFactory {
   override def lookup[T](serviceName: String, methodName: String, methodType: Class[T]): ServiceCallRef[T] =
@@ -29,15 +29,13 @@ class ResolvedServiceCallFactory(services: Map[String, Service]) extends Service
                 method.asInstanceOf[ServiceCallRef[T]]
               case Some(badTypedMethod) =>
                 throw new IllegalArgumentException(
-                  s"The input type ${badTypedMethod.inputType.typeClass.getName} of $serviceName.$methodName does not match the requested message type ${methodType.getName}"
-                )
+                  s"The input type ${badTypedMethod.inputType.typeClass.getName} of $serviceName.$methodName does not match the requested message type ${methodType.getName}")
               case None =>
                 throw new NoSuchElementException(s"No method named $methodName found on service $serviceName")
             }
           case None =>
             throw new IllegalStateException(
-              s"Service $serviceName does not provide resolved methods and so can't be looked up by this factory"
-            )
+              s"Service $serviceName does not provide resolved methods and so can't be looked up by this factory")
         }
       case _ =>
         throw new NoSuchElementException(s"No service named $serviceName is being handled by this stateful service")

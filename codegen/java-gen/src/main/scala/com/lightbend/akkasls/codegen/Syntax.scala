@@ -36,7 +36,7 @@ object Syntax {
       .collect {
         // don't indent first line and empty lines
         case (line, idx) if idx == 0 || line.trim.isEmpty => line
-        case (line, _) => (" " * num) + line
+        case (line, _)                                    => (" " * num) + line
       }
       .mkString(break)
 

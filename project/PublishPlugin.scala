@@ -24,8 +24,7 @@ object DefaultPublishSettings extends AutoPlugin {
     scmInfo := (Global / scmInfo).value,
     pomIncludeRepository := (_ => false),
     // Note: need to use the new s01.oss.sonatype.org host
-    sonatypeCredentialHost := Sonatype.sonatype01
-  )
+    sonatypeCredentialHost := Sonatype.sonatype01)
 }
 
 /**
@@ -41,6 +40,5 @@ object PublishSonatype extends AutoPlugin {
   override def projectSettings = Seq(
     publish / skip := false, // re-enable publishing
     publishTo := sonatypePublishToBundle.value,
-    dynverSonatypeSnapshots := true
-  )
+    dynverSonatypeSnapshots := true)
 }

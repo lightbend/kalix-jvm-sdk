@@ -19,7 +19,7 @@ package com.akkaserverless.testkit.valueentity
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
-import com.akkaserverless.protocol.value_entity.{ValueEntitiesClient, ValueEntityStreamIn, ValueEntityStreamOut}
+import com.akkaserverless.protocol.value_entity.{ ValueEntitiesClient, ValueEntityStreamIn, ValueEntityStreamOut }
 import com.akkaserverless.testkit.TestProtocol.TestProtocolContext
 
 final class TestValueEntityProtocol(context: TestProtocolContext) {

@@ -30,8 +30,8 @@ import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.component
 import com.akkaserverless.protocol.component.Failure
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 import java.util.Optional
 
 import scala.collection.immutable
@@ -40,15 +40,16 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 
 import com.akkaserverless.javasdk.impl.ActionFactory
 
-final class ActionService(val factory: ActionFactory,
-                          override val descriptor: Descriptors.ServiceDescriptor,
-                          val anySupport: AnySupport)
+final class ActionService(
+    val factory: ActionFactory,
+    override val descriptor: Descriptors.ServiceDescriptor,
+    val anySupport: AnySupport)
     extends Service {
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
-      case _ => None
+      case _                               => None
     }
 
   override final val componentType = Actions.name
@@ -71,18 +72,15 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     import ActionEffectImpl._
     effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
-        val response = component.Reply(
-          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))),
-          metadata.flatMap(toProtocol)
-        )
+        val response =
+          component.Reply(Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))), metadata.flatMap(toProtocol))
         Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(sideEffects)))
       case ForwardEffect(forward, sideEffects) =>
         val response = component.Forward(
           forward.ref().method().getService.getFullName,
           forward.ref().method().getName,
           Some(ScalaPbAny.fromJavaProto(forward.message())),
-          toProtocol(forward.metadata())
-        )
+          toProtocol(forward.metadata()))
         Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect.flatMap { effect =>
@@ -91,8 +89,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         }
       case ErrorEffect(description, sideEffects) =>
         Future.successful(
-          ActionResponse(ActionResponse.Response.Failure(Failure(description = description)), toProtocol(sideEffects))
-        )
+          ActionResponse(ActionResponse.Response.Failure(Failure(description = description)), toProtocol(sideEffects)))
       case NoReply(sideEffects) =>
         Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(sideEffects)))
       case unknown =>
@@ -107,8 +104,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         sideEffect.serviceCall().ref().method().getName,
         Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
         sideEffect.synchronous(),
-        toProtocol(sideEffect.serviceCall().metadata())
-      )
+        toProtocol(sideEffect.serviceCall().metadata()))
     }
 
   private def toProtocol(metadata: com.akkaserverless.javasdk.Metadata): Option[component.Metadata] =
@@ -137,8 +133,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         effectToResponse(effect, service.anySupport)
       case None =>
         Future.successful(
-          ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName)))
-        )
+          ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
 
   /**
@@ -160,16 +155,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
       .runWith(Sink.head)
       .flatMap {
         case (Nil, _) =>
-          Future.successful(
-            ActionResponse(
-              ActionResponse.Response.Failure(
-                Failure(
-                  0,
-                  "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"
-                )
-              )
-            )
-          )
+          Future.successful(ActionResponse(ActionResponse.Response.Failure(Failure(
+            0,
+            "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"))))
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
@@ -182,13 +170,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call, service.anySupport)
-                )
+                  createContext(call, service.anySupport))
               effectToResponse(effect, service.anySupport)
             case None =>
               Future.successful(
-                ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
-              )
+                ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName))))
           }
       }
 
@@ -236,16 +222,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
     in.prefixAndTail(1)
       .flatMapConcat {
         case (Nil, _) =>
-          Source.single(
-            ActionResponse(
-              ActionResponse.Response.Failure(
-                Failure(
-                  0,
-                  "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"
-                )
-              )
-            )
-          )
+          Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(
+            0,
+            "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"))))
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
@@ -258,14 +237,12 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call, service.anySupport)
-                )
+                  createContext(call, service.anySupport))
                 .asScala
                 .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
             case None =>
               Source.single(
-                ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName)))
-              )
+                ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName))))
           }
       }
 

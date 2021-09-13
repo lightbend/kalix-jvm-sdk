@@ -19,8 +19,8 @@ package com.akkaserverless.javasdk.impl.effect
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.protocol.component
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 
 object EffectSupport {
   private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
@@ -33,18 +33,14 @@ object EffectSupport {
     }
 
   def asProtocol(messageReply: MessageReplyImpl[JavaPbAny]): component.Reply =
-    component.Reply(
-      Some(ScalaPbAny.fromJavaProto(messageReply.message)),
-      asProtocol(messageReply.metadata)
-    )
+    component.Reply(Some(ScalaPbAny.fromJavaProto(messageReply.message)), asProtocol(messageReply.metadata))
 
   def asProtocol(forward: ForwardReplyImpl[_]): component.Forward =
     component.Forward(
       forward.serviceCall.ref().method().getService.getFullName,
       forward.serviceCall.ref().method().getName,
       Some(ScalaPbAny.fromJavaProto(forward.serviceCall.message())),
-      asProtocol(forward.serviceCall.metadata())
-    )
+      asProtocol(forward.serviceCall.metadata()))
 
   def sideEffectsFrom(secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
     val encodedSideEffects = secondaryEffect.sideEffects.map { sideEffect =>
@@ -53,8 +49,7 @@ object EffectSupport {
         sideEffect.serviceCall().ref().method().getName,
         Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
         sideEffect.synchronous(),
-        asProtocol(sideEffect.serviceCall().metadata())
-      )
+        asProtocol(sideEffect.serviceCall().metadata()))
     }
     encodedSideEffects
   }

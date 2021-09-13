@@ -30,8 +30,8 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
     anySupport: AnySupport,
     counters: Map[K, ReplicatedCounterImpl] = Map.empty[K, ReplicatedCounterImpl],
     removed: Set[K] = Set.empty[K],
-    cleared: Boolean = false
-) extends ReplicatedCounterMap[K]
+    cleared: Boolean = false)
+    extends ReplicatedCounterMap[K]
     with InternalReplicatedData {
 
   override type Self = ReplicatedCounterMapImpl[K]
@@ -76,9 +76,7 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
         updated = counters.collect {
           case (key, counter) if counter.hasDelta =>
             ReplicatedCounterMapEntryDelta(Some(anySupport.encodeScala(key)), counter.getDelta.counter)
-        }.toSeq
-      )
-    )
+        }.toSeq))
 
   override def resetDelta(): ReplicatedCounterMapImpl[K] =
     if (hasDelta) new ReplicatedCounterMapImpl(anySupport, counters.view.mapValues(_.resetDelta()).toMap) else this

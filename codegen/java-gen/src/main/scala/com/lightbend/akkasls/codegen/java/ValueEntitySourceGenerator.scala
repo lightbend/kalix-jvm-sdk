@@ -27,15 +27,13 @@ object ValueEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
-      className: String
-  ): String = {
+      className: String): String = {
 
     val imports = generateImports(
       service.commands,
       entity.state,
       packageName,
-      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext")
-    )
+      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext"))
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
     val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
@@ -75,10 +73,11 @@ object ValueEntitySourceGenerator {
         |}""".stripMargin
   }
 
-  private[codegen] def valueEntityHandler(service: ModelBuilder.EntityService,
-                                          entity: ModelBuilder.ValueEntity,
-                                          packageName: String,
-                                          className: String): String = {
+  private[codegen] def valueEntityHandler(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String,
+      className: String): String = {
 
     val imports = generateImports(
       service.commands,
@@ -87,9 +86,7 @@ object ValueEntitySourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"
-      )
-    )
+        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"))
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
     val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
@@ -133,10 +130,11 @@ object ValueEntitySourceGenerator {
 
   }
 
-  private[codegen] def valueEntityProvider(service: ModelBuilder.EntityService,
-                                           entity: ModelBuilder.ValueEntity,
-                                           packageName: String,
-                                           className: String): String = {
+  private[codegen] def valueEntityProvider(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ValueEntity,
+      packageName: String,
+      className: String): String = {
     val relevantTypes = {
       List(entity.state.fqn) ++
       service.commands.flatMap { cmd =>
@@ -148,17 +146,17 @@ object ValueEntitySourceGenerator {
       relevantTypes,
       packageName,
       otherImports = Seq(
-          "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-          "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
-          "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
-          "com.google.protobuf.Descriptors",
-          "java.util.function.Function"
-        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
-    )
+        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
+        "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
+        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+        "com.google.protobuf.Descriptors",
+        "java.util.function.Function") ++ relevantTypes.map(fqn =>
+        fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname))
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+        .map(d =>
+          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""|$managedCodeCommentString
         |package $packageName;
@@ -226,8 +224,7 @@ object ValueEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
-      className: String
-  ): String = {
+      className: String): String = {
 
     val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
     val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
@@ -236,10 +233,7 @@ object ValueEntitySourceGenerator {
       service.commands,
       entity.state,
       packageName,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.ValueEntity"
-      )
-    )
+      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntity"))
 
     val methods = service.commands
       .map { cmd =>
@@ -249,9 +243,8 @@ object ValueEntitySourceGenerator {
         val outputType = qualifiedType(cmd.outputType)
 
         s"""|/** Command handler for "${cmd.fqn.name}". */
-            |public abstract Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(
-             cmd.inputType.name
-           )});
+            |public abstract Effect<$outputType> ${lowerFirst(
+          methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
       }

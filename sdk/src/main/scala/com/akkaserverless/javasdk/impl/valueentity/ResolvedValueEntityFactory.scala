@@ -21,8 +21,9 @@ import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.ValueEntityFactory
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 
-class ResolvedValueEntityFactory(delegate: ValueEntityFactory,
-                                 override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
+class ResolvedValueEntityFactory(
+    delegate: ValueEntityFactory,
+    override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
     extends ValueEntityFactory
     with ResolvedEntityFactory {
 
