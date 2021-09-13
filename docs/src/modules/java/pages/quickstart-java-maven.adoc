@@ -1,5 +1,5 @@
 = Kickstart a Maven project
-
+:page-aliases: java:kickstart.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
