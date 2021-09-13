@@ -121,7 +121,8 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    ValueEntity.Effect<ShoppingCartApi.Cart> effect = entity.getCart(state, getShoppingCart);
         |    return interpretEffects(effect);
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     assertNoDiff(sourceCode, expected)
   }
@@ -188,7 +189,8 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    // ValueEntityResult<Cart> result = testKit.getCart(GetShoppingCart.newBuilder()...build());
         |  }
         |
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     assertNoDiff(sourceCode, expected)
   }

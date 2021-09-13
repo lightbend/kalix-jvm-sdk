@@ -76,7 +76,8 @@ object ReplicatedEntitySourceGenerator {
         |  }
         |$emptyValue
         |  ${Syntax.indent(methods, num = 2)}
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def replicatedEntityHandler(
@@ -132,7 +133,8 @@ object ReplicatedEntitySourceGenerator {
         |        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -226,7 +228,8 @@ object ReplicatedEntitySourceGenerator {
         |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
   }
 
@@ -271,7 +274,8 @@ object ReplicatedEntitySourceGenerator {
         |
         |  ${Syntax.indent(methods, 2)}
         |
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def extraImports(replicatedData: ModelBuilder.ReplicatedData): Seq[String] = {
