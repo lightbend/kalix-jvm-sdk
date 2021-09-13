@@ -1,5 +1,5 @@
 = Subscribing to a journal
-:page-aliases: entity-eventing.adoc
+:page-aliases: java:entity-eventing.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$entity-eventing.adoc[]

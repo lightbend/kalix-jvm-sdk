@@ -1,5 +1,5 @@
 = Publishing and subscribing to topics on a broker
-:page-aliases: topic-eventing.adoc
+:page-aliases: java:topic-eventing.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$topic-eventing.adoc[]
