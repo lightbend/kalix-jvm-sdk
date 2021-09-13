@@ -41,7 +41,7 @@ Akka Serverless supports serializing the following primitive types:
 
 == JSON
 
-Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
+Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/JsonSupport.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
 
 A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
 
