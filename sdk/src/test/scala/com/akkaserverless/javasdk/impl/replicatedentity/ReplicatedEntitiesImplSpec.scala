@@ -67,12 +67,13 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
       protocol.replicatedEntity
         .connect()
         .send( // reactivate with initial delta
-          init(ShoppingCart.Name,
-               "cart",
-               update(domainLineItem("a", "apple", 3),
-                      domainLineItem("b", "banana", 6),
-                      domainLineItem("c", "cantaloupe", 12)))
-        )
+          init(
+            ShoppingCart.Name,
+            "cart",
+            update(
+              domainLineItem("a", "apple", 3),
+              domainLineItem("b", "banana", 6),
+              domainLineItem("c", "cantaloupe", 12))))
         .send(command(1, "cart", "AddItem", addItem("a", "apple", 39)))
         .expect(reply(1, EmptyJavaMessage, updated(domainLineItem("a", "apple", 42))))
         .send(delta(remove("b", "c")))
@@ -165,12 +166,9 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(delta(deltaCounter(42)))
-          .expect(
-            entityFailure(
-              "Protocol error: Received delta class com.akkaserverless.protocol.replicated_entity.ReplicatedCounterDelta" +
-              " which doesn't match the expected replicated data type: ReplicatedRegisterMap"
-            )
-          )
+          .expect(entityFailure(
+            "Protocol error: Received delta class com.akkaserverless.protocol.replicated_entity.ReplicatedCounterDelta" +
+            " which doesn't match the expected replicated data type: ReplicatedRegisterMap"))
           .expectClosed()
       }
     }
@@ -188,8 +186,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
 
     "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero."
-      ) {
+        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
         protocol.replicatedEntity
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
@@ -232,8 +229,7 @@ object ReplicatedEntitiesImplSpec {
     def testService: TestReplicatedService =
       TestReplicatedEntity.service(
         CartEntityProvider
-          .of(new CartEntity(_))
-      )
+          .of(new CartEntity(_)))
 
     case class Item(id: String, name: String, quantity: Int)
 
@@ -279,8 +275,8 @@ object ReplicatedEntitiesImplSpec {
 
       def update(items: ShoppingCartDomain.LineItem*): ReplicatedEntityDelta.Delta =
         items
-          .foldLeft(DeltaRegisterMap.empty) {
-            case (delta, item) => delta.update(primitiveString(item.getProductId), deltaRegister(item).value)
+          .foldLeft(DeltaRegisterMap.empty) { case (delta, item) =>
+            delta.update(primitiveString(item.getProductId), deltaRegister(item).value)
           }
           .replicatedEntityDelta()
 
@@ -289,8 +285,8 @@ object ReplicatedEntitiesImplSpec {
 
       def remove(keys: String*): ReplicatedEntityDelta.Delta =
         keys
-          .foldLeft(DeltaRegisterMap.empty) {
-            case (delta, key) => delta.remove(primitiveString(key))
+          .foldLeft(DeltaRegisterMap.empty) { case (delta, key) =>
+            delta.remove(primitiveString(key))
           }
           .replicatedEntityDelta()
 

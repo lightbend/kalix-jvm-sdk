@@ -27,18 +27,15 @@ object ReplicatedEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
-      className: String
-  ): String = {
+      className: String): String = {
 
     val imports = generateImports(
       service.commands,
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-          s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext"
-        ) ++ extraImports(entity.data)
-    )
+        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
+        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext") ++ extraImports(entity.data))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -86,20 +83,17 @@ object ReplicatedEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
-      className: String
-  ): String = {
+      className: String): String = {
 
     val imports = generateImports(
       service.commands,
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-          "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler",
-          "com.akkaserverless.javasdk.replicatedentity.CommandContext",
-          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity",
-          s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}"
-        ) ++ extraImports(entity.data)
-    )
+        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler",
+        "com.akkaserverless.javasdk.replicatedentity.CommandContext",
+        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity",
+        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}") ++ extraImports(entity.data))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -142,10 +136,11 @@ object ReplicatedEntitySourceGenerator {
 
   }
 
-  private[codegen] def replicatedEntityProvider(service: ModelBuilder.EntityService,
-                                                entity: ModelBuilder.ReplicatedEntity,
-                                                packageName: String,
-                                                className: String): String = {
+  private[codegen] def replicatedEntityProvider(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.ReplicatedEntity,
+      packageName: String,
+      className: String): String = {
     val relevantTypes = {
       entity.data.typeArguments.map(_.fqn) ++
       service.commands.flatMap { cmd =>
@@ -157,21 +152,21 @@ object ReplicatedEntitySourceGenerator {
       relevantTypes,
       packageName,
       otherImports = Seq(
-          s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
-          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
-          "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
-          "com.google.protobuf.Descriptors",
-          "java.util.function.Function"
-        ) ++ relevantTypes.map(fqn => fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
-        ++ extraImports(entity.data)
-    )
+        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
+        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
+        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
+        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
+        "com.google.protobuf.Descriptors",
+        "java.util.function.Function") ++ relevantTypes.map(fqn =>
+        fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+        ++ extraImports(entity.data))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+        .map(d =>
+          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""|$managedCodeCommentString
         |package $packageName;
@@ -239,8 +234,7 @@ object ReplicatedEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
-      className: String
-  ): String = {
+      className: String): String = {
 
     val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
@@ -251,10 +245,8 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-          s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-          s"com.akkaserverless.javasdk.replicatedentity.$baseClass"
-        ) ++ extraImports(entity.data)
-    )
+        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
+        s"com.akkaserverless.javasdk.replicatedentity.$baseClass") ++ extraImports(entity.data))
 
     val methods = service.commands
       .map { cmd =>
@@ -263,9 +255,8 @@ object ReplicatedEntitySourceGenerator {
         val outputType = cmd.outputType.fullName
 
         s"""|/** Command handler for "${cmd.fqn.name}". */
-            |public abstract Effect<$outputType> ${lowerFirst(methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(
-             cmd.inputType.name
-           )});
+            |public abstract Effect<$outputType> ${lowerFirst(
+          methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
       }
@@ -287,7 +278,7 @@ object ReplicatedEntitySourceGenerator {
     replicatedData match {
       // special case ReplicatedMap as heterogeneous with ReplicatedData values
       case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.javasdk.replicatedentity.ReplicatedData")
-      case _ => Seq.empty
+      case _                             => Seq.empty
     }
   }
 
@@ -295,7 +286,7 @@ object ReplicatedEntitySourceGenerator {
     val typeArguments = replicatedData match {
       // special case ReplicatedMap as heterogeneous with ReplicatedData values
       case ModelBuilder.ReplicatedMap(key) => Seq(key.fqn.fullName, "ReplicatedData")
-      case data => data.typeArguments.map(_.fqn.fullName)
+      case data                            => data.typeArguments.map(_.fqn.fullName)
     }
     parameterizeTypes(typeArguments)
   }

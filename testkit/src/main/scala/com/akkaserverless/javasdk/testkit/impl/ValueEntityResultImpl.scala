@@ -40,9 +40,9 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
   private def secondaryEffectName: String = effect.secondaryEffect match {
     case _: MessageReplyImpl[_] => "reply"
     case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_] => "error"
-    case _: NoReply[_] => "noReply"
-    case NoSecondaryEffectImpl => "no effect" // this should never happen
+    case _: ErrorReplyImpl[_]   => "error"
+    case _: NoReply[_]          => "noReply"
+    case NoSecondaryEffectImpl  => "no effect" // this should never happen
   }
 
   override def getReply(): R = effect.secondaryEffect match {
@@ -76,7 +76,7 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   override def getUpdatedState(): Any = effect.primaryEffect match {
     case ValueEntityEffectImpl.UpdateState(s) => s
-    case _ => throw new IllegalStateException("State was not updated by the effect")
+    case _                                    => throw new IllegalStateException("State was not updated by the effect")
   }
 
   override def stateWasDeleted(): Boolean = effect.primaryEffect eq ValueEntityEffectImpl.DeleteState

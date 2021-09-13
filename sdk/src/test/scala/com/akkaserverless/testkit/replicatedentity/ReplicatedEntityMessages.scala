@@ -17,19 +17,20 @@
 package com.akkaserverless.testkit.replicatedentity
 
 import com.akkaserverless.protocol.replicated_entity._
-import com.akkaserverless.protocol.component.{ClientAction, Failure, SideEffect}
+import com.akkaserverless.protocol.component.{ ClientAction, Failure, SideEffect }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.testkit.entity.EntityMessages
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Message => JavaPbMessage}
-import scalapb.{GeneratedMessage => ScalaPbMessage}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Message => JavaPbMessage }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object ReplicatedEntityMessages extends EntityMessages {
-  import ReplicatedEntityStreamIn.{Message => InMessage}
-  import ReplicatedEntityStreamOut.{Message => OutMessage}
+  import ReplicatedEntityStreamIn.{ Message => InMessage }
+  import ReplicatedEntityStreamOut.{ Message => OutMessage }
 
-  final case class Effects(stateAction: Option[ReplicatedEntityStateAction] = None,
-                           sideEffects: Seq[SideEffect] = Seq.empty) {
+  final case class Effects(
+      stateAction: Option[ReplicatedEntityStateAction] = None,
+      sideEffects: Seq[SideEffect] = Seq.empty) {
     def withSideEffect(service: String, command: String, message: JavaPbMessage): Effects =
       withSideEffect(service, command, messagePayload(message), synchronous = false)
 
@@ -136,9 +137,10 @@ object ReplicatedEntityMessages extends EntityMessages {
   def deltaCounter(value: Long): ReplicatedEntityDelta.Delta.Counter =
     ReplicatedEntityDelta.Delta.Counter(ReplicatedCounterDelta(value))
 
-  final case class DeltaReplicatedSet(cleared: Boolean = false,
-                                      removed: Seq[ScalaPbAny] = Seq.empty,
-                                      added: Seq[ScalaPbAny] = Seq.empty) {
+  final case class DeltaReplicatedSet(
+      cleared: Boolean = false,
+      removed: Seq[ScalaPbAny] = Seq.empty,
+      added: Seq[ScalaPbAny] = Seq.empty) {
 
     def add(element: JavaPbMessage, elements: JavaPbMessage*): DeltaReplicatedSet =
       add(protobufAny(element), elements.map(protobufAny): _*)
@@ -181,9 +183,10 @@ object ReplicatedEntityMessages extends EntityMessages {
   def deltaRegister(value: JavaPbMessage, clock: ReplicatedEntityClock): ReplicatedEntityDelta.Delta.Register =
     deltaRegister(value, clock, customClock = 0L)
 
-  def deltaRegister(value: JavaPbMessage,
-                    clock: ReplicatedEntityClock,
-                    customClock: Long): ReplicatedEntityDelta.Delta.Register =
+  def deltaRegister(
+      value: JavaPbMessage,
+      clock: ReplicatedEntityClock,
+      customClock: Long): ReplicatedEntityDelta.Delta.Register =
     deltaRegister(messagePayload(value), clock, customClock)
 
   def deltaRegister(value: ScalaPbMessage): ReplicatedEntityDelta.Delta.Register =
@@ -192,9 +195,10 @@ object ReplicatedEntityMessages extends EntityMessages {
   def deltaRegister(value: ScalaPbMessage, clock: ReplicatedEntityClock): ReplicatedEntityDelta.Delta.Register =
     deltaRegister(value, clock, customClock = 0L)
 
-  def deltaRegister(value: ScalaPbMessage,
-                    clock: ReplicatedEntityClock,
-                    customClock: Long): ReplicatedEntityDelta.Delta.Register =
+  def deltaRegister(
+      value: ScalaPbMessage,
+      clock: ReplicatedEntityClock,
+      customClock: Long): ReplicatedEntityDelta.Delta.Register =
     deltaRegister(messagePayload(value), clock, customClock)
 
   def deltaRegister(value: Option[ScalaPbAny]): ReplicatedEntityDelta.Delta.Register =
@@ -203,15 +207,17 @@ object ReplicatedEntityMessages extends EntityMessages {
   def deltaRegister(value: Option[ScalaPbAny], clock: ReplicatedEntityClock): ReplicatedEntityDelta.Delta.Register =
     deltaRegister(value, clock, customClock = 0L)
 
-  def deltaRegister(value: Option[ScalaPbAny],
-                    clock: ReplicatedEntityClock,
-                    customClock: Long): ReplicatedEntityDelta.Delta.Register =
+  def deltaRegister(
+      value: Option[ScalaPbAny],
+      clock: ReplicatedEntityClock,
+      customClock: Long): ReplicatedEntityDelta.Delta.Register =
     ReplicatedEntityDelta.Delta.Register(ReplicatedRegisterDelta(value, clock, customClock))
 
-  final case class DeltaMap(cleared: Boolean = false,
-                            removed: Seq[ScalaPbAny] = Seq.empty,
-                            updated: Seq[(ScalaPbAny, ReplicatedEntityDelta)] = Seq.empty,
-                            added: Seq[(ScalaPbAny, ReplicatedEntityDelta)] = Seq.empty) {
+  final case class DeltaMap(
+      cleared: Boolean = false,
+      removed: Seq[ScalaPbAny] = Seq.empty,
+      updated: Seq[(ScalaPbAny, ReplicatedEntityDelta)] = Seq.empty,
+      added: Seq[(ScalaPbAny, ReplicatedEntityDelta)] = Seq.empty) {
 
     def add(key: JavaPbMessage, delta: ReplicatedEntityDelta): DeltaMap =
       add(protobufAny(key), delta)
@@ -263,9 +269,10 @@ object ReplicatedEntityMessages extends EntityMessages {
     val empty: DeltaMap = DeltaMap()
   }
 
-  final case class DeltaCounterMap(cleared: Boolean = false,
-                                   removed: Seq[ScalaPbAny] = Seq.empty,
-                                   updated: Seq[(ScalaPbAny, ReplicatedCounterDelta)] = Seq.empty) {
+  final case class DeltaCounterMap(
+      cleared: Boolean = false,
+      removed: Seq[ScalaPbAny] = Seq.empty,
+      updated: Seq[(ScalaPbAny, ReplicatedCounterDelta)] = Seq.empty) {
 
     def update(key: JavaPbMessage, delta: ReplicatedCounterDelta): DeltaCounterMap =
       update(protobufAny(key), delta)
@@ -295,8 +302,8 @@ object ReplicatedEntityMessages extends EntityMessages {
       copy(cleared = cleared)
 
     def replicatedEntityDelta(): ReplicatedEntityDelta.Delta.ReplicatedCounterMap = {
-      val updatedEntries = updated.map {
-        case (key, delta) => ReplicatedCounterMapEntryDelta(Option(key), Option(delta))
+      val updatedEntries = updated.map { case (key, delta) =>
+        ReplicatedCounterMapEntryDelta(Option(key), Option(delta))
       }
       ReplicatedEntityDelta.Delta.ReplicatedCounterMap(ReplicatedCounterMapDelta(cleared, removed, updatedEntries))
     }
@@ -306,9 +313,10 @@ object ReplicatedEntityMessages extends EntityMessages {
     val empty: DeltaCounterMap = DeltaCounterMap()
   }
 
-  final case class DeltaRegisterMap(cleared: Boolean = false,
-                                    removed: Seq[ScalaPbAny] = Seq.empty,
-                                    updated: Seq[(ScalaPbAny, ReplicatedRegisterDelta)] = Seq.empty) {
+  final case class DeltaRegisterMap(
+      cleared: Boolean = false,
+      removed: Seq[ScalaPbAny] = Seq.empty,
+      updated: Seq[(ScalaPbAny, ReplicatedRegisterDelta)] = Seq.empty) {
 
     def update(key: JavaPbMessage, delta: ReplicatedRegisterDelta): DeltaRegisterMap =
       update(protobufAny(key), delta)
@@ -338,8 +346,8 @@ object ReplicatedEntityMessages extends EntityMessages {
       copy(cleared = cleared)
 
     def replicatedEntityDelta(): ReplicatedEntityDelta.Delta.ReplicatedRegisterMap = {
-      val updatedEntries = updated.map {
-        case (key, delta) => ReplicatedRegisterMapEntryDelta(Option(key), Option(delta))
+      val updatedEntries = updated.map { case (key, delta) =>
+        ReplicatedRegisterMapEntryDelta(Option(key), Option(delta))
       }
       ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(ReplicatedRegisterMapDelta(cleared, removed, updatedEntries))
     }
@@ -349,9 +357,10 @@ object ReplicatedEntityMessages extends EntityMessages {
     val empty: DeltaRegisterMap = DeltaRegisterMap()
   }
 
-  final case class DeltaMultiMap(cleared: Boolean = false,
-                                 removed: Seq[ScalaPbAny] = Seq.empty,
-                                 updated: Seq[(ScalaPbAny, ReplicatedSetDelta)] = Seq.empty) {
+  final case class DeltaMultiMap(
+      cleared: Boolean = false,
+      removed: Seq[ScalaPbAny] = Seq.empty,
+      updated: Seq[(ScalaPbAny, ReplicatedSetDelta)] = Seq.empty) {
 
     def update(key: JavaPbMessage, delta: ReplicatedSetDelta): DeltaMultiMap =
       update(protobufAny(key), delta)

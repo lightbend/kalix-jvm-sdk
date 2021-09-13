@@ -17,10 +17,10 @@
 package com.akkaserverless.testkit.entity
 
 import com.akkaserverless.protocol.component._
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.empty.{Empty => ScalaPbEmpty}
-import com.google.protobuf.{StringValue, Any => JavaPbAny, Empty => JavaPbEmpty, Message => JavaPbMessage}
-import scalapb.{GeneratedMessage => ScalaPbMessage}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.empty.{ Empty => ScalaPbEmpty }
+import com.google.protobuf.{ Any => JavaPbAny, Empty => JavaPbEmpty, Message => JavaPbMessage, StringValue }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object EntityMessages extends EntityMessages
 

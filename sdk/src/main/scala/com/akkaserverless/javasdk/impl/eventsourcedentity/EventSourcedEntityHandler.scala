@@ -27,10 +27,11 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 
 object EventSourcedEntityHandler {
-  final case class CommandResult(events: Vector[Any],
-                                 secondaryEffect: SecondaryEffectImpl,
-                                 snapshot: Option[Any],
-                                 endSequenceNumber: Long)
+  final case class CommandResult(
+      events: Vector[Any],
+      secondaryEffect: SecondaryEffectImpl,
+      snapshot: Option[Any],
+      endSequenceNumber: Long)
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
 
@@ -38,8 +39,8 @@ object EventSourcedEntityHandler {
 }
 
 /**
- * @tparam S the type of the managed state for the entity
- * Not for manual user extension or interaction
+ * @tparam S
+ *   the type of the managed state for the entity Not for manual user extension or interaction
  *
  * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
@@ -60,10 +61,12 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
   private def setState(newState: S): Unit =
     state = Option(newState)
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHandleSnapshot(snapshot: S): Unit = setState(snapshot)
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHandleEvent(event: Object, context: EventContext): Unit = {
     entity._internalSetEventContext(Optional.of(context))
     try {
@@ -77,26 +80,28 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
     }
   }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
-  final def _internalHandleCommand(commandName: String,
-                                   command: Any,
-                                   context: CommandContext,
-                                   snapshotEvery: Int,
-                                   eventContextFactory: Long => EventContext): CommandResult = {
-    val commandEffect = try {
-      entity._internalSetCommandContext(Optional.of(context))
-      handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
-    } catch {
-      case CommandHandlerNotFound(name) =>
-        throw new EntityExceptions.EntityException(
-          context.entityId(),
-          context.commandId(),
-          commandName,
-          s"No command handler found for command [$name] on ${entity.getClass}"
-        )
-    } finally {
-      entity._internalSetCommandContext(Optional.empty())
-    }
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
+  final def _internalHandleCommand(
+      commandName: String,
+      command: Any,
+      context: CommandContext,
+      snapshotEvery: Int,
+      eventContextFactory: Long => EventContext): CommandResult = {
+    val commandEffect =
+      try {
+        entity._internalSetCommandContext(Optional.of(context))
+        handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+      } catch {
+        case CommandHandlerNotFound(name) =>
+          throw new EntityExceptions.EntityException(
+            context.entityId(),
+            context.commandId(),
+            commandName,
+            s"No command handler found for command [$name] on ${entity.getClass}")
+      } finally {
+        entity._internalSetCommandContext(Optional.empty())
+      }
     var currentSequence = context.sequenceNumber()
     commandEffect.primaryEffect match {
       case EmitEvents(events) =>
@@ -132,9 +137,10 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
 
   protected def handleEvent(state: S, event: Any): S
 
-  protected def handleCommand(commandName: String,
-                              state: S,
-                              command: Any,
-                              context: CommandContext): EventSourcedEntity.Effect[_]
+  protected def handleCommand(
+      commandName: String,
+      state: S,
+      command: Any,
+      context: CommandContext): EventSourcedEntity.Effect[_]
 
 }

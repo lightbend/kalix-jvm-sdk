@@ -17,11 +17,11 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.JsonSupport
-import com.akkaserverless.protocol.discovery.{DiscoveryProto, UserFunctionError}
+import com.akkaserverless.protocol.discovery.{ DiscoveryProto, UserFunctionError }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
-import com.google.protobuf.{ByteString, Empty}
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.{ ByteString, Empty }
+import com.google.protobuf.{ Any => JavaPbAny }
 import org.scalatest.OptionValues
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -33,8 +33,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
   private val anySupport = new AnySupport(
     Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
-    "com.example"
-  )
+    "com.example")
   private val addLineItem = ShoppingCartApi.AddLineItem
     .newBuilder()
     .setName("item")

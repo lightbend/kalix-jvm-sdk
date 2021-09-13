@@ -24,25 +24,26 @@ import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.impl.ViewFactory
-import com.akkaserverless.javasdk.{Context, Metadata, Service, ServiceCallFactory}
+import com.akkaserverless.javasdk.{ Context, Metadata, Service, ServiceCallFactory }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.view.ViewCreationContext
-import com.akkaserverless.javasdk.view.{UpdateContext, View, ViewContext}
-import com.akkaserverless.protocol.{view => pv}
+import com.akkaserverless.javasdk.view.{ UpdateContext, View, ViewContext }
+import com.akkaserverless.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import org.slf4j.LoggerFactory
 
 /** INTERNAL API */
-final class ViewService(val factory: Optional[ViewFactory],
-                        override val descriptor: Descriptors.ServiceDescriptor,
-                        val anySupport: AnySupport,
-                        val viewId: String)
+final class ViewService(
+    val factory: Optional[ViewFactory],
+    override val descriptor: Descriptors.ServiceDescriptor,
+    val anySupport: AnySupport,
+    val viewId: String)
     extends Service {
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
-    factory.asScala.collect {
-      case resolved: ResolvedEntityFactory => resolved.resolvedMethods
+    factory.asScala.collect { case resolved: ResolvedEntityFactory =>
+      resolved.resolvedMethods
     }
 
   override final val componentType = pv.Views.name
@@ -63,13 +64,10 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   /**
    * Handle a full duplex streamed session. One stream will be established per incoming message to the view service.
    *
-   *
-   * The first message is ReceiveEvent and contain the request metadata, including the service name and command
-   * name.
+   * The first message is ReceiveEvent and contain the request metadata, including the service name and command name.
    */
-  override def handle(
-      in: akka.stream.scaladsl.Source[pv.ViewStreamIn, akka.NotUsed]
-  ): akka.stream.scaladsl.Source[pv.ViewStreamOut, akka.NotUsed] =
+  override def handle(in: akka.stream.scaladsl.Source[pv.ViewStreamIn, akka.NotUsed])
+      : akka.stream.scaladsl.Source[pv.ViewStreamOut, akka.NotUsed] =
     // FIXME: see akkaserverless-framework/issues/209 and akkaserverless-framework/issues/207
     // It is currently only implemented to support one request (ReceiveEvent) with one response (Upsert).
     // The intention, and reason for full-duplex streaming, is that there should be able to have an interaction
@@ -85,8 +83,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                 throw new IllegalArgumentException(
                   s"Unexpected call to service [${receiveEvent.serviceName}] with viewId [${service.viewId}]: " +
                   "this view has `transform_updates=false` set, so updates should be handled entirely by the proxy " +
-                  "and not reach the user function"
-                )
+                  "and not reach the user function")
 
               // FIXME should we really create a new handler instance per incoming command ???
               val handler = service.factory.get
@@ -94,22 +91,22 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                 .asInstanceOf[ViewHandler[Any, View[Any]]]
 
               val state: Option[Any] =
-                receiveEvent.bySubjectLookupResult.flatMap(
-                  row => row.value.map(scalaPb => service.anySupport.decode(ScalaPbAny.toJavaProto(scalaPb)))
-                )
+                receiveEvent.bySubjectLookupResult.flatMap(row =>
+                  row.value.map(scalaPb => service.anySupport.decode(ScalaPbAny.toJavaProto(scalaPb))))
 
               val commandName = receiveEvent.commandName
               val msg = service.anySupport.decode(ScalaPbAny.toJavaProto(receiveEvent.payload.get))
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
-              val effect = try {
-                handler._internalHandleUpdate(state, msg, context)
-              } catch {
-                case e: ViewException => throw e
-                case NonFatal(error) =>
-                  throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
-              }
+              val effect =
+                try {
+                  handler._internalHandleUpdate(state, msg, context)
+                } catch {
+                  case e: ViewException => throw e
+                  case NonFatal(error) =>
+                    throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
+                }
 
               effect match {
                 case ViewUpdateEffectImpl.Update(newState) =>
@@ -150,9 +147,10 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
     override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 
-  private final class UpdateContextImpl(override val viewId: String,
-                                        override val eventName: String,
-                                        override val metadata: Metadata)
+  private final class UpdateContextImpl(
+      override val viewId: String,
+      override val eventName: String,
+      override val metadata: Metadata)
       extends UpdateContext
       with AbstractContext {
 

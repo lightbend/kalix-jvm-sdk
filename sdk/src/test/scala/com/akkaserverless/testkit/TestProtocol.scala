@@ -22,7 +22,7 @@ import akka.testkit.TestKit
 import com.akkaserverless.testkit.eventsourcedentity.TestEventSourcedProtocol
 import com.akkaserverless.testkit.replicatedentity.TestReplicatedEntityProtocol
 import com.akkaserverless.testkit.valueentity.TestValueEntityProtocol
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 
 // FIXME: should we be doing protocol-level testing in the SDK?
 // Copied over from Akka Serverless framework (parts that are used here).

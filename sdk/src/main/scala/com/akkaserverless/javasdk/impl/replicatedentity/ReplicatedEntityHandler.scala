@@ -20,8 +20,8 @@ import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.UpdateData
 
 import java.util.Optional
-import com.akkaserverless.javasdk.replicatedentity.{CommandContext, ReplicatedData, ReplicatedEntity}
-import com.akkaserverless.javasdk.impl.{AnySupport, EntityExceptions}
+import com.akkaserverless.javasdk.replicatedentity.{ CommandContext, ReplicatedData, ReplicatedEntity }
+import com.akkaserverless.javasdk.impl.{ AnySupport, EntityExceptions }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 object ReplicatedEntityHandler {
@@ -31,7 +31,8 @@ object ReplicatedEntityHandler {
 }
 
 /**
- * @tparam D the replicated data type for the entity
+ * @tparam D
+ *   the replicated data type for the entity
  *
  * <p>Not for manual user extension or interaction.
  *
@@ -44,7 +45,8 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
 
   private def internalData: InternalReplicatedData = data.asInstanceOf[InternalReplicatedData]
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalInitialData(initialData: Option[InternalReplicatedData], anySupport: AnySupport): Unit =
     initialData match {
       case Some(d) => data = d.asInstanceOf[D]
@@ -56,49 +58,52 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
         data = emptyData
     }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalApplyDelta(entityId: String, delta: ReplicatedEntityDelta): Unit = {
     data = internalData.applyDelta
       .applyOrElse(
-        delta.delta, { noMatch: ReplicatedEntityDelta.Delta =>
+        delta.delta,
+        { noMatch: ReplicatedEntityDelta.Delta =>
           throw ProtocolException(
             entityId,
-            s"Received delta ${noMatch.value.getClass} which doesn't match the expected replicated data type: ${internalData.name}"
-          )
-        }
-      )
+            s"Received delta ${noMatch.value.getClass} which doesn't match the expected replicated data type: ${internalData.name}")
+        })
       .asInstanceOf[D]
   }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHasDelta: Boolean = internalData.hasDelta
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalGetAndResetDelta: ReplicatedEntityDelta.Delta = {
     val delta = internalData.getDelta
     data = internalData.resetDelta().asInstanceOf[D]
     delta
   }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
-    val commandEffect = try {
-      entity._internalSetCommandContext(Optional.of(context))
-      // Note: replicated data objects are currently mutable, so we pass a copy to the command.
-      // If the update effect is not used then we still have the old replicated data (without delta).
-      handleCommand(commandName, data, command, context)
-        .asInstanceOf[ReplicatedEntityEffectImpl[D, Any]]
-    } catch {
-      case CommandHandlerNotFound(name) =>
-        throw new EntityExceptions.EntityException(
-          context.entityId(),
-          context.commandId(),
-          commandName,
-          s"No command handler found for command [$name] on ${entity.getClass}"
-        )
-    } finally {
-      entity._internalSetCommandContext(Optional.empty())
-    }
+    val commandEffect =
+      try {
+        entity._internalSetCommandContext(Optional.of(context))
+        // Note: replicated data objects are currently mutable, so we pass a copy to the command.
+        // If the update effect is not used then we still have the old replicated data (without delta).
+        handleCommand(commandName, data, command, context)
+          .asInstanceOf[ReplicatedEntityEffectImpl[D, Any]]
+      } catch {
+        case CommandHandlerNotFound(name) =>
+          throw new EntityExceptions.EntityException(
+            context.entityId(),
+            context.commandId(),
+            commandName,
+            s"No command handler found for command [$name] on ${entity.getClass}")
+      } finally {
+        entity._internalSetCommandContext(Optional.empty())
+      }
 
     if (!commandEffect.hasError) {
       commandEffect.primaryEffect match {
@@ -112,9 +117,10 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
     CommandResult(commandEffect)
   }
 
-  protected def handleCommand(commandName: String,
-                              data: D,
-                              command: Any,
-                              context: CommandContext): ReplicatedEntity.Effect[_]
+  protected def handleCommand(
+      commandName: String,
+      data: D,
+      command: Any,
+      context: CommandContext): ReplicatedEntity.Effect[_]
 
 }

@@ -28,38 +28,28 @@ object ModelBuilder {
   /**
    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
    */
-  case class Model(
-      services: Map[String, Service],
-      entities: Map[String, Entity]
-  )
+  case class Model(services: Map[String, Service], entities: Map[String, Entity])
 
   /**
    * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
    */
-  sealed abstract class Entity(
-      val fqn: FullyQualifiedName,
-      val entityType: String
-  )
+  sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String)
 
   /**
-   * A type of Entity that stores its state using a journal of events, and restores its state
-   * by replaying that journal.
+   * A type of Entity that stores its state using a journal of events, and restores its state by replaying that journal.
    */
   case class EventSourcedEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
       state: State,
-      events: Iterable[Event]
-  ) extends Entity(fqn, entityType)
+      events: Iterable[Event])
+      extends Entity(fqn, entityType)
 
   /**
    * A type of Entity that stores its current state directly.
    */
-  case class ValueEntity(
-      override val fqn: FullyQualifiedName,
-      override val entityType: String,
-      state: State
-  ) extends Entity(fqn, entityType)
+  case class ValueEntity(override val fqn: FullyQualifiedName, override val entityType: String, state: State)
+      extends Entity(fqn, entityType)
 
   /**
    * A type of Entity that replicates its current state using CRDTs.
@@ -67,16 +57,13 @@ object ModelBuilder {
   case class ReplicatedEntity(
       override val fqn: FullyQualifiedName,
       override val entityType: String,
-      data: ReplicatedData
-  ) extends Entity(fqn, entityType)
+      data: ReplicatedData)
+      extends Entity(fqn, entityType)
 
   /**
    * The underlying replicated data type for a Replicated Entity.
    */
-  sealed abstract class ReplicatedData(
-      val shortName: String,
-      val typeArguments: Iterable[TypeArgument]
-  ) {
+  sealed abstract class ReplicatedData(val shortName: String, val typeArguments: Iterable[TypeArgument]) {
     def this(shortName: String, typeArguments: TypeArgument*) = this(shortName, typeArguments)
 
     val name: String = "Replicated" + shortName
@@ -107,10 +94,7 @@ object ModelBuilder {
   /**
    * A Service backed by Akka Serverless; either an Action, View or Entity
    */
-  sealed abstract class Service(
-      val fqn: FullyQualifiedName,
-      val commands: Iterable[Command]
-  ) {
+  sealed abstract class Service(val fqn: FullyQualifiedName, val commands: Iterable[Command]) {
     lazy val commandTypes =
       commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
@@ -118,13 +102,11 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by an Action - a serverless function that is executed based on a trigger.
-   * The trigger could be an HTTP or gRPC request or a stream of messages or events.
+   * A Service backed by an Action - a serverless function that is executed based on a trigger. The trigger could be an
+   * HTTP or gRPC request or a stream of messages or events.
    */
-  case class ActionService(
-      override val fqn: FullyQualifiedName,
-      override val commands: Iterable[Command]
-  ) extends Service(fqn, commands) {
+  case class ActionService(override val fqn: FullyQualifiedName, override val commands: Iterable[Command])
+      extends Service(fqn, commands) {
 
     private val baseClassName =
       if (fqn.name.endsWith("Action")) fqn.name
@@ -142,8 +124,9 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
-   * You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics.
+   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query. You can
+   * query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by
+   * subscribing to topics.
    */
   case class ViewService(
       override val fqn: FullyQualifiedName,
@@ -152,8 +135,8 @@ object ModelBuilder {
       viewId: String,
       /** all updates, also non-transformed */
       updates: Iterable[Command],
-      transformedUpdates: Iterable[Command]
-  ) extends Service(fqn, commands) {
+      transformedUpdates: Iterable[Command])
+      extends Service(fqn, commands) {
 
     val viewClassName =
       if (fqn.name.endsWith("View")) fqn.name
@@ -175,8 +158,8 @@ object ModelBuilder {
   case class EntityService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command],
-      componentFullName: String
-  ) extends Service(fqn, commands)
+      componentFullName: String)
+      extends Service(fqn, commands)
 
   /**
    * A command is used to express the intention to alter the state of an Entity.
@@ -188,8 +171,7 @@ object ModelBuilder {
       streamedInput: Boolean,
       streamedOutput: Boolean,
       inFromTopic: Boolean,
-      outToTopic: Boolean
-  )
+      outToTopic: Boolean)
 
   object Command {
     def from(method: Descriptors.MethodDescriptor): Command = {
@@ -201,21 +183,19 @@ object ModelBuilder {
         streamedInput = method.isClientStreaming,
         streamedOutput = method.isServerStreaming,
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
-        outToTopic = eventing.hasOut && eventing.getOut.hasTopic
-      )
+        outToTopic = eventing.hasOut && eventing.getOut.hasTopic)
     }
   }
 
   /**
-   * An event indicates that a change has occurred to an entity. Events are stored in a journal,
-   * and are read and replayed each time the entity is reloaded by the Akka Serverless state
-   * management system.
+   * An event indicates that a change has occurred to an entity. Events are stored in a journal, and are read and
+   * replayed each time the entity is reloaded by the Akka Serverless state management system.
    */
   case class Event(fqn: FullyQualifiedName)
 
   /**
-   * The state is simply data—​the current set of values for an entity instance.
-   * Event Sourced entities hold their state in memory.
+   * The state is simply data—​the current set of values for an entity instance. Event Sourced entities hold their state
+   * in memory.
    */
   case class State(fqn: FullyQualifiedName)
 
@@ -224,92 +204,81 @@ object ModelBuilder {
    *
    * Impure.
    *
-   * @param descriptors the protobuf descriptors containing service entities
-   * @return the entities found
+   * @param descriptors
+   *   the protobuf descriptors containing service entities
+   * @return
+   *   the entities found
    */
-  def introspectProtobufClasses(
-      descriptors: Iterable[Descriptors.FileDescriptor]
-  )(implicit log: Log): Model =
-    descriptors.foldLeft(Model(Map.empty, Map.empty)) {
-      case (Model(existingServices, existingEntities), descriptor) =>
-        log.debug("Looking at descriptor " + descriptor.getName)
-        val services = for {
-          serviceDescriptor <- descriptor.getServices.asScala
-          options = serviceDescriptor
-            .getOptions()
-            .getExtension(com.akkaserverless.Annotations.service)
-          serviceType <- Option(options.getType())
-          serviceName = FullyQualifiedName.from(serviceDescriptor, serviceType)
+  def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit log: Log): Model =
+    descriptors.foldLeft(Model(Map.empty, Map.empty)) { case (Model(existingServices, existingEntities), descriptor) =>
+      log.debug("Looking at descriptor " + descriptor.getName)
+      val services = for {
+        serviceDescriptor <- descriptor.getServices.asScala
+        options = serviceDescriptor
+          .getOptions()
+          .getExtension(com.akkaserverless.Annotations.service)
+        serviceType <- Option(options.getType())
+        serviceName = FullyQualifiedName.from(serviceDescriptor, serviceType)
 
-          methods = serviceDescriptor.getMethods.asScala
-          commands = methods.map(Command.from)
+        methods = serviceDescriptor.getMethods.asScala
+        commands = methods.map(Command.from)
 
-          service <- serviceType match {
-            case ServiceType.SERVICE_TYPE_ENTITY =>
-              Option(options.getComponent())
-                .filter(_.nonEmpty)
-                .map[Service] { componentName =>
-                  val componentFullName =
-                    resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+        service <- serviceType match {
+          case ServiceType.SERVICE_TYPE_ENTITY =>
+            Option(options.getComponent())
+              .filter(_.nonEmpty)
+              .map[Service] { componentName =>
+                val componentFullName =
+                  resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
 
-                  EntityService(
-                    serviceName,
-                    commands,
-                    componentFullName
-                  )
-                }
-            case ServiceType.SERVICE_TYPE_ACTION =>
-              Some(
-                ActionService(
-                  serviceName,
-                  commands
-                )
-              )
-            case ServiceType.SERVICE_TYPE_VIEW =>
-              val methodDetails = methods.flatMap { method =>
-                Option(
-                  method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()
-                ).map(viewOptions => (method, viewOptions))
+                EntityService(serviceName, commands, componentFullName)
               }
-              val updates = methodDetails.collect {
-                case (method, viewOptions) if viewOptions.hasUpdate =>
-                  Command.from(method)
-              }
-              Some(
-                ViewService(
-                  serviceName,
-                  commands,
-                  viewId = serviceDescriptor.getName(),
-                  updates = updates,
-                  transformedUpdates = methodDetails
-                    .collect {
-                      case (method, viewOptions)
-                          if viewOptions.hasUpdate && viewOptions
-                            .getUpdate()
-                            .getTransformUpdates() =>
-                        Command.from(method)
-                    }
-                )
-              )
-            case _ => None
-          }
-        } yield serviceName.fullQualifiedName -> service
+          case ServiceType.SERVICE_TYPE_ACTION =>
+            Some(ActionService(serviceName, commands))
+          case ServiceType.SERVICE_TYPE_VIEW =>
+            val methodDetails = methods.flatMap { method =>
+              Option(method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()).map(
+                viewOptions => (method, viewOptions))
+            }
+            val updates = methodDetails.collect {
+              case (method, viewOptions) if viewOptions.hasUpdate =>
+                Command.from(method)
+            }
+            Some(
+              ViewService(
+                serviceName,
+                commands,
+                viewId = serviceDescriptor.getName(),
+                updates = updates,
+                transformedUpdates = methodDetails
+                  .collect {
+                    case (method, viewOptions)
+                        if viewOptions.hasUpdate && viewOptions
+                          .getUpdate()
+                          .getTransformUpdates() =>
+                      Command.from(method)
+                  }))
+          case _ => None
+        }
+      } yield serviceName.fullQualifiedName -> service
 
-        Model(
-          existingServices ++ services,
-          existingEntities ++
-          extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
-          extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
-          extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity)
-        )
+      Model(
+        existingServices ++ services,
+        existingEntities ++
+        extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+        extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+        extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
     }
 
   /**
    * Resolves the provided name relative to the provided package
    *
-   * @param name the name to resolve
-   * @param pkg the package to resolve relative to
-   * @return the resolved full name
+   * @param name
+   *   the name to resolve
+   * @param pkg
+   *   the package to resolve relative to
+   * @return
+   *   the resolved full name
    */
   private[codegen] def resolveFullName(name: String, pkg: String) = name.indexOf('.') match {
     case 0 => // name starts with a dot, treat as relative to package
@@ -323,12 +292,13 @@ object ModelBuilder {
   /**
    * Extracts any defined event sourced entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
-   * @return the event sourced entity
+   * @param descriptor
+   *   the file descriptor to extract from
+   * @return
+   *   the event sourced entity
    */
   private def extractEventSourcedEntityDefinition(
-      descriptor: Descriptors.FileDescriptor
-  ): Option[EventSourcedEntity] = {
+      descriptor: Descriptors.FileDescriptor): Option[EventSourcedEntity] = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
@@ -342,19 +312,18 @@ object ModelBuilder {
         rawEntity.getEntityType,
         State(FullyQualifiedName(rawEntity.getState, protoReference)),
         rawEntity.getEventsList.asScala
-          .map(event => Event(FullyQualifiedName(event, protoReference)))
-      )
+          .map(event => Event(FullyQualifiedName(event, protoReference))))
     }
   }
 
   /**
    * Extracts any defined value entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
+   * @param descriptor
+   *   the file descriptor to extract from
    */
-  private def extractValueEntityDefinition(
-      descriptor: Descriptors.FileDescriptor
-  )(implicit log: Log): Option[ValueEntity] = {
+  private def extractValueEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
+      log: Log): Option[ValueEntity] = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
@@ -367,19 +336,18 @@ object ModelBuilder {
       ValueEntity(
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
-        State(FullyQualifiedName(rawEntity.getState, protoReference))
-      )
+        State(FullyQualifiedName(rawEntity.getState, protoReference)))
     }
   }
 
   /**
    * Extracts any defined replicated entity from the provided protobuf file descriptor
    *
-   * @param descriptor the file descriptor to extract from
+   * @param descriptor
+   *   the file descriptor to extract from
    */
-  private def extractReplicatedEntityDefinition(
-      descriptor: Descriptors.FileDescriptor
-  )(implicit log: Log): Option[ReplicatedEntity] = {
+  private def extractReplicatedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
+      log: Log): Option[ReplicatedEntity] = {
     import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
 
     val rawEntity =
@@ -421,11 +389,7 @@ object ModelBuilder {
       }
 
       dataType.map { data =>
-        ReplicatedEntity(
-          FullyQualifiedName(name, protoReference),
-          rawEntity.getEntityType,
-          data
-        )
+        ReplicatedEntity(FullyQualifiedName(name, protoReference), rawEntity.getEntityType, data)
       }
     }
   }

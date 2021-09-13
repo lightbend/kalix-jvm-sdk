@@ -111,8 +111,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
     "fail action when command handler returns error effect" in {
       service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero."
-      ) {
+        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
@@ -134,12 +133,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(
-          failure(
-            1,
-            "Unexpected failure: java.lang.RuntimeException: Boom: foo"
-          )
-        )
+        entity.expect(failure(1, "Unexpected failure: java.lang.RuntimeException: Boom: foo"))
         entity.expectClosed()
       }
     }
@@ -161,12 +155,10 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       entity.passivate()
       val reactivated = protocol.valueEntity.connect()
       reactivated.send(
-        init(ShoppingCart.Name, "cart", state(domainCart(Item("abc", "apple", 3), Item("123", "banana", 4))))
-      )
+        init(ShoppingCart.Name, "cart", state(domainCart(Item("abc", "apple", 3), Item("123", "banana", 4)))))
       reactivated.send(command(1, "cart", "AddItem", addItem("abc", "apple", 1)))
       reactivated.expect(
-        reply(1, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 4), Item("123", "banana", 4))))
-      )
+        reply(1, EmptyJavaMessage, update(domainCart(Item("abc", "apple", 4), Item("123", "banana", 4)))))
       reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
       reactivated.expect(reply(1, cart(Item("abc", "apple", 4), Item("123", "banana", 4))))
       reactivated.passivate()
@@ -201,8 +193,7 @@ object ValueEntitiesImplSpec {
     def testService: TestValueService =
       TestValueEntity.service(
         CartEntityProvider
-          .of(new CartEntity(_))
-      )
+          .of(new CartEntity(_)))
 
     case class Item(id: String, name: String, quantity: Int)
 

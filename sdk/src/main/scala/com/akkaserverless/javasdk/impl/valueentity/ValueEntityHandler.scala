@@ -32,8 +32,8 @@ object ValueEntityHandler {
 }
 
 /**
- * @tparam S the type of the managed state for the entity
- * Not for manual user extension or interaction
+ * @tparam S
+ *   the type of the managed state for the entity Not for manual user extension or interaction
  *
  * The concrete <code>ValueEntityHandler</code> is generated for the specific entities defined in Protobuf.
  */
@@ -51,28 +51,30 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
     case Some(state) => state
   }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalSetInitState(s: Any): Unit = {
     state = Some(s.asInstanceOf[S])
   }
 
-  /** INTERNAL API */ // "public" api against the impl/testkit
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
-    val commandEffect = try {
-      entity._internalSetCommandContext(Optional.of(context))
-      handleCommand(commandName, stateOrEmpty(), command, context)
-        .asInstanceOf[ValueEntityEffectImpl[Any]]
-    } catch {
-      case CommandHandlerNotFound(name) =>
-        throw new EntityExceptions.EntityException(
-          context.entityId(),
-          context.commandId(),
-          commandName,
-          s"No command handler found for command [$name] on ${entity.getClass}"
-        )
-    } finally {
-      entity._internalSetCommandContext(Optional.empty())
-    }
+    val commandEffect =
+      try {
+        entity._internalSetCommandContext(Optional.of(context))
+        handleCommand(commandName, stateOrEmpty(), command, context)
+          .asInstanceOf[ValueEntityEffectImpl[Any]]
+      } catch {
+        case CommandHandlerNotFound(name) =>
+          throw new EntityExceptions.EntityException(
+            context.entityId(),
+            context.commandId(),
+            commandName,
+            s"No command handler found for command [$name] on ${entity.getClass}")
+      } finally {
+        entity._internalSetCommandContext(Optional.empty())
+      }
 
     if (!commandEffect.hasError()) {
       commandEffect.primaryEffect match {
@@ -81,16 +83,17 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
             throw new IllegalArgumentException("updateState with null state is not allowed.")
           state = Some(newState.asInstanceOf[S])
         case DeleteState => state = None
-        case _ =>
+        case _           =>
       }
     }
 
     CommandResult(commandEffect)
   }
 
-  protected def handleCommand(commandName: String,
-                              state: S,
-                              command: Any,
-                              context: CommandContext): ValueEntity.Effect[_]
+  protected def handleCommand(
+      commandName: String,
+      state: S,
+      command: Any,
+      context: CommandContext): ValueEntity.Effect[_]
 
 }

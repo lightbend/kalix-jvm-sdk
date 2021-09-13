@@ -21,14 +21,15 @@ import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import com.lightbend.akkasls.codegen.java.SourceGenerator._
 import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
-import _root_.java.nio.file.{Files, Path}
+import _root_.java.nio.file.{ Files, Path }
 
 object EventSourcedEntityTestKitGenerator {
 
-  def generate(entity: ModelBuilder.EventSourcedEntity,
-               service: ModelBuilder.EntityService,
-               testSourceDirectory: Path,
-               generatedSourceDirectory: Path): Iterable[Path] = {
+  def generate(
+      entity: ModelBuilder.EventSourcedEntity,
+      service: ModelBuilder.EntityService,
+      testSourceDirectory: Path,
+      generatedSourceDirectory: Path): Iterable[Path] = {
     var generatedFiles: Seq[Path] = Vector.empty
     val packageName = entity.fqn.parent.javaPackage
     val className = entity.fqn.name
@@ -50,10 +51,11 @@ object EventSourcedEntityTestKitGenerator {
     generatedFiles
   }
 
-  private[codegen] def generateSourceCode(service: ModelBuilder.EntityService,
-                                          entity: ModelBuilder.EventSourcedEntity,
-                                          packageName: String,
-                                          className: String): String = {
+  private[codegen] def generateSourceCode(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.EventSourcedEntity,
+      packageName: String,
+      className: String): String = {
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -72,9 +74,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
         "com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl",
-        "java.util.function.Function"
-      )
-    )
+        "java.util.function.Function"))
 
     val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
@@ -190,7 +190,8 @@ object EventSourcedEntityTestKitGenerator {
 
     val middle = events.tail.map { event =>
       s"""|} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
-          |  return entity.${lowerFirst(event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+          |  return entity.${lowerFirst(
+        event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
     }
 
     val bottom =
@@ -202,9 +203,10 @@ object EventSourcedEntityTestKitGenerator {
     top + middle.mkString("\n") + bottom
   }
 
-  def generateTestSources(service: ModelBuilder.EntityService,
-                          entity: ModelBuilder.EventSourcedEntity,
-                          packageName: String): String = {
+  def generateTestSources(
+      service: ModelBuilder.EntityService,
+      entity: ModelBuilder.EventSourcedEntity,
+      packageName: String): String = {
     val imports = generateImports(
       service.commands,
       entity.state,
@@ -218,9 +220,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
-        "org.junit.Test"
-      )
-    )
+        "org.junit.Test"))
 
     val entityClassName = entity.fqn.name
     val testkitClassName = s"${entityClassName}TestKit"

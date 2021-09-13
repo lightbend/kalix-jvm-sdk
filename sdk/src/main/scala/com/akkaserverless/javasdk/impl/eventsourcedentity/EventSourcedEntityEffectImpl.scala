@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
 import java.util
-import java.util.function.{Function => JFunction}
+import java.util.function.{ Function => JFunction }
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.ServiceCall
@@ -55,7 +55,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     var secondary =
       _functionSecondaryEffect(state) match {
         case NoSecondaryEffectImpl => _secondaryEffect
-        case newSecondary => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
+        case newSecondary          => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
       }
     if (_functionSideEffects.nonEmpty) {
       secondary = secondary.addSideEffects(_functionSideEffects.map(_.apply(state)))

@@ -25,8 +25,7 @@ object TestData {
       None,
       None,
       Some(s"ServiceOuterClass$suffix"),
-      javaMultipleFiles = false
-    )
+      javaMultipleFiles = false)
 
   def domainProto(suffix: String = ""): PackageNaming =
     PackageNaming(
@@ -35,28 +34,13 @@ object TestData {
       None,
       None,
       Some(s"EntityOuterClass$suffix"),
-      javaMultipleFiles = false
-    )
+      javaMultipleFiles = false)
 
   val externalProto: PackageNaming =
-    PackageNaming(
-      "ExternalDomain",
-      "com.external",
-      None,
-      None,
-      None,
-      javaMultipleFiles = true
-    )
+    PackageNaming("ExternalDomain", "com.external", None, None, None, javaMultipleFiles = true)
 
   val googleProto: PackageNaming =
-    PackageNaming(
-      "GoogleProto",
-      "com.google.protobuf",
-      None,
-      None,
-      None,
-      javaMultipleFiles = true
-    )
+    PackageNaming("GoogleProto", "com.google.protobuf", None, None, None, javaMultipleFiles = true)
 
   def command(
       fqn: FullyQualifiedName,
@@ -65,29 +49,22 @@ object TestData {
       streamedInput: Boolean = false,
       streamedOutput: Boolean = false,
       inFromTopic: Boolean = false,
-      outToTopic: Boolean = false
-  ) = ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
+      outToTopic: Boolean = false) =
+    ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
-  def simpleEntityService(
-      proto: PackageNaming = serviceProto(),
-      suffix: String = ""
-  ): ModelBuilder.EntityService =
+  def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
     ModelBuilder.EntityService(
       FullyQualifiedName(s"MyService$suffix", proto),
       List(
         command(
           FullyQualifiedName("Set", proto),
           FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
+          FullyQualifiedName("Empty", externalProto)),
         command(
           FullyQualifiedName("Get", proto),
           FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto)
-        )
-      ),
-      s"com.example.Entity$suffix"
-    )
+          FullyQualifiedName("MyState", proto))),
+      s"com.example.Entity$suffix")
 
   def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
 
@@ -97,29 +74,23 @@ object TestData {
         command(
           FullyQualifiedName("SimpleMethod", proto),
           FullyQualifiedName("MyRequest", proto),
-          FullyQualifiedName("Empty", externalProto)
-        ),
+          FullyQualifiedName("Empty", externalProto)),
         command(
           FullyQualifiedName("StreamedOutputMethod", proto),
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
-          streamedOutput = true
-        ),
+          streamedOutput = true),
         command(
           FullyQualifiedName("StreamedInputMethod", proto),
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
-          streamedInput = true
-        ),
+          streamedInput = true),
         command(
           FullyQualifiedName("FullStreamedMethod", proto),
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
           streamedInput = true,
-          streamedOutput = true
-        )
-      )
-    )
+          streamedOutput = true)))
   }
 
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
@@ -130,77 +101,56 @@ object TestData {
           FullyQualifiedName("InFromTopic", proto),
           FullyQualifiedName("Any", googleProto),
           FullyQualifiedName("Empty", googleProto),
-          inFromTopic = true
-        ),
+          inFromTopic = true),
         command(
           FullyQualifiedName("OutToTopic", proto),
           FullyQualifiedName("EntityUpdated", domainProto()),
           FullyQualifiedName("Any", googleProto),
-          outToTopic = true
-        )
-      )
-    )
+          outToTopic = true)))
   }
 
-  def simpleViewService(
-      proto: PackageNaming = serviceProto(),
-      suffix: String = ""
-  ): ModelBuilder.ViewService = {
+  def simpleViewService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.ViewService = {
     val updates = List(
       command(
         FullyQualifiedName("Created", proto),
         FullyQualifiedName("EntityCreated", domainProto(suffix)),
-        FullyQualifiedName("ViewState", proto)
-      ),
+        FullyQualifiedName("ViewState", proto)),
       command(
         FullyQualifiedName("Updated", proto),
         FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-        FullyQualifiedName("ViewState", proto)
-      )
-    )
+        FullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
       FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
       List(
         command(
           FullyQualifiedName("Created", proto),
           FullyQualifiedName("EntityCreated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
-        ),
+          FullyQualifiedName("ViewState", proto)),
         command(
           FullyQualifiedName("Updated", proto),
           FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)
-        )
-      ),
+          FullyQualifiedName("ViewState", proto))),
       s"MyService$suffix",
       updates,
-      updates
-    )
+      updates)
   }
 
-  def eventSourcedEntity(
-      suffix: String = ""
-  ): ModelBuilder.EventSourcedEntity =
+  def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
       FullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
       s"MyEntity$suffix",
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))),
-      List(
-        ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))
-      )
-    )
+      List(ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))))
 
   def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
       s"MyValueEntity$suffix",
-      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix)))
-    )
+      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))))
 
   def replicatedEntity(data: ModelBuilder.ReplicatedData, suffix: String = ""): ModelBuilder.ReplicatedEntity =
     ModelBuilder.ReplicatedEntity(
       FullyQualifiedName(s"MyReplicatedEntity$suffix", domainProto(suffix)),
       s"MyReplicatedEntity$suffix",
-      data
-    )
+      data)
 }

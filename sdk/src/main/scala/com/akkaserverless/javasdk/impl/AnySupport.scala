@@ -17,22 +17,22 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.JsonSupport
-import com.akkaserverless.javasdk.impl.AnySupport.Prefer.{Java, Scala}
+import com.akkaserverless.javasdk.impl.AnySupport.Prefer.{ Java, Scala }
 import com.google.common.base.CaseFormat
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{
+  Any => JavaPbAny,
   ByteString,
   CodedInputStream,
   CodedOutputStream,
   Descriptors,
   Parser,
   UnsafeByteOperations,
-  WireFormat,
-  Any => JavaPbAny
+  WireFormat
 }
 import org.slf4j.LoggerFactory
 import scalapb.options.Scalapb
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+import scalapb.{ GeneratedMessage, GeneratedMessageCompanion }
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
@@ -111,8 +111,7 @@ object AnySupport {
       override def write(stream: CodedOutputStream, t: java.lang.Boolean) =
         stream.writeBool(AkkaServerlessPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readBool()
-    }
-  )
+    })
 
   private final val ClassToPrimitives = Primitives
     .map(p => p.clazz -> p)
@@ -147,14 +146,14 @@ object AnySupport {
   private def bytesToPrimitive[T](primitive: Primitive[T], bytes: ByteString) = {
     val stream = bytes.newCodedInput()
     if (Stream
-          .continually(stream.readTag())
-          .takeWhile(_ != 0)
-          .exists { tag =>
-            if (primitive.tag != tag) {
-              stream.skipField(tag)
-              false
-            } else true
-          }) {
+        .continually(stream.readTag())
+        .takeWhile(_ != 0)
+        .exists { tag =>
+          if (primitive.tag != tag) {
+            stream.skipField(tag)
+            false
+          } else true
+        }) {
       primitive.read(stream)
     } else primitive.defaultValue
   }
@@ -177,26 +176,26 @@ object AnySupport {
 
   private def flattenDescriptors(
       seenSoFar: Map[String, Descriptors.FileDescriptor],
-      descriptors: Seq[Descriptors.FileDescriptor]
-  ): Map[String, Descriptors.FileDescriptor] =
-    descriptors.foldLeft(seenSoFar) {
-      case (results, descriptor) =>
-        val descriptorName = descriptor.getName
-        if (results.contains(descriptorName)) results
-        else {
-          val withDesc = results.updated(descriptorName, descriptor)
-          flattenDescriptors(withDesc,
-                             descriptor.getDependencies.asScala.toSeq ++ descriptor.getPublicDependencies.asScala)
-        }
+      descriptors: Seq[Descriptors.FileDescriptor]): Map[String, Descriptors.FileDescriptor] =
+    descriptors.foldLeft(seenSoFar) { case (results, descriptor) =>
+      val descriptorName = descriptor.getName
+      if (results.contains(descriptorName)) results
+      else {
+        val withDesc = results.updated(descriptorName, descriptor)
+        flattenDescriptors(
+          withDesc,
+          descriptor.getDependencies.asScala.toSeq ++ descriptor.getPublicDependencies.asScala)
+      }
     }
 
   def extractBytes(bytes: ByteString): ByteString = bytesToPrimitive(BytesPrimitive, bytes)
 }
 
-class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
-                 classLoader: ClassLoader,
-                 typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
-                 prefer: AnySupport.Prefer = AnySupport.Prefer.Java) {
+class AnySupport(
+    descriptors: Array[Descriptors.FileDescriptor],
+    classLoader: ClassLoader,
+    typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
+    prefer: AnySupport.Prefer = AnySupport.Prefer.Java) {
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
 
@@ -240,10 +239,10 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       if (classOf[com.google.protobuf.Message].isAssignableFrom(clazz)) {
         val parser = clazz.getMethod("parser").invoke(null).asInstanceOf[Parser[com.google.protobuf.Message]]
         Some(
-          new JavaPbResolvedType(clazz.asInstanceOf[Class[com.google.protobuf.Message]],
-                                 typeUrlPrefix + "/" + typeDescriptor.getFullName,
-                                 parser)
-        )
+          new JavaPbResolvedType(
+            clazz.asInstanceOf[Class[com.google.protobuf.Message]],
+            typeUrlPrefix + "/" + typeDescriptor.getFullName,
+            parser))
       } else {
         None
       }
@@ -254,8 +253,7 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       case nsme: NoSuchElementException =>
         throw SerializationException(
           s"Found com.google.protobuf.Message class $className to deserialize protobuf ${typeDescriptor.getFullName} but it didn't have a static parser() method on it.",
-          nsme
-        )
+          nsme)
       case iae @ (_: IllegalAccessException | _: IllegalArgumentException) =>
         throw SerializationException(s"Could not invoke $className.parser()", iae)
       case cce: ClassCastException =>
@@ -295,13 +293,13 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
         val clazz = classLoader.loadClass(className)
         val companion = classLoader.loadClass(companionName)
         if (classOf[GeneratedMessageCompanion[_]].isAssignableFrom(companion) &&
-            classOf[scalapb.GeneratedMessage].isAssignableFrom(clazz)) {
+          classOf[scalapb.GeneratedMessage].isAssignableFrom(clazz)) {
           val companionObject = companion.getField("MODULE$").get(null).asInstanceOf[GeneratedMessageCompanion[_]]
           Some(
-            new ScalaPbResolvedType(clazz.asInstanceOf[Class[scalapb.GeneratedMessage]],
-                                    typeUrlPrefix + "/" + typeDescriptor.getFullName,
-                                    companionObject)
-          )
+            new ScalaPbResolvedType(
+              clazz.asInstanceOf[Class[scalapb.GeneratedMessage]],
+              typeUrlPrefix + "/" + typeDescriptor.getFullName,
+              companionObject))
         } else {
           None
         }
@@ -330,17 +328,16 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
             case None =>
               throw SerializationException("Could not determine serializer for type " + typeDescriptor.getFullName)
           }
-        }
-      )
+        })
       .get
 
   def resolveServiceDescriptor(
-      serviceDescriptor: Descriptors.ServiceDescriptor
-  ): Map[String, ResolvedServiceMethod[_, _]] =
+      serviceDescriptor: Descriptors.ServiceDescriptor): Map[String, ResolvedServiceMethod[_, _]] =
     serviceDescriptor.getMethods.asScala.map { method =>
-      method.getName -> ResolvedServiceMethod(method,
-                                              resolveTypeDescriptor(method.getInputType),
-                                              resolveTypeDescriptor(method.getOutputType))
+      method.getName -> ResolvedServiceMethod(
+        method,
+        resolveTypeDescriptor(method.getInputType),
+        resolveTypeDescriptor(method.getOutputType))
     }.toMap
 
   private def resolveTypeUrl(typeName: String): Option[ResolvedType[_]] =
@@ -348,32 +345,27 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
 
   def encodeJava(value: Any): JavaPbAny =
     value match {
-      case javaPbAny: JavaPbAny => javaPbAny
+      case javaPbAny: JavaPbAny   => javaPbAny
       case scalaPbAny: ScalaPbAny => ScalaPbAny.toJavaProto(scalaPbAny)
-      case _ => ScalaPbAny.toJavaProto(encodeScala(value))
+      case _                      => ScalaPbAny.toJavaProto(encodeScala(value))
     }
 
   def encodeScala(value: Any): ScalaPbAny =
     value match {
-      case javaPbAny: JavaPbAny => ScalaPbAny.fromJavaProto(javaPbAny)
+      case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
 
       case javaProtoMessage: com.google.protobuf.Message =>
         ScalaPbAny(
           typeUrlPrefix + "/" + javaProtoMessage.getDescriptorForType.getFullName,
-          javaProtoMessage.toByteString
-        )
+          javaProtoMessage.toByteString)
 
       case scalaPbMessage: GeneratedMessage =>
-        ScalaPbAny(
-          typeUrlPrefix + "/" + scalaPbMessage.companion.scalaDescriptor.fullName,
-          scalaPbMessage.toByteString
-        )
+        ScalaPbAny(typeUrlPrefix + "/" + scalaPbMessage.companion.scalaDescriptor.fullName, scalaPbMessage.toByteString)
 
       case null =>
         throw SerializationException(
-          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable."
-        )
+          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
 
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
@@ -384,8 +376,7 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
 
       case other =>
         throw SerializationException(
-          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable."
-        )
+          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
     }
 
   def decode(any: JavaPbAny): Any = decode(ScalaPbAny.fromJavaProto(any))
@@ -408,17 +399,17 @@ class AnySupport(descriptors: Array[Descriptors.FileDescriptor],
       val typeName = typeUrl.split("/", 2) match {
         case Array(host, typeName) =>
           if (host != typeUrlPrefix) {
-            log.warn("Message type [{}] does not match configured type url prefix [{}]",
-                     typeUrl: Any,
-                     typeUrlPrefix: Any)
+            log.warn(
+              "Message type [{}] does not match configured type url prefix [{}]",
+              typeUrl: Any,
+              typeUrlPrefix: Any)
           }
           typeName
         case _ =>
           log.warn(
             "Message type [{}] does not have a url prefix, it should have one that matchers the configured type url prefix [{}]",
             typeUrl: Any,
-            typeUrlPrefix: Any
-          )
+            typeUrlPrefix: Any)
           typeUrl
       }
 

@@ -21,8 +21,9 @@ import com.akkaserverless.javasdk.impl.ActionFactory
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 
-class ResolvedActionFactory(delegate: ActionFactory,
-                            override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
+class ResolvedActionFactory(
+    delegate: ActionFactory,
+    override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
     extends ActionFactory
     with ResolvedEntityFactory {
   override def create(context: ActionCreationContext): ActionHandler[_] =

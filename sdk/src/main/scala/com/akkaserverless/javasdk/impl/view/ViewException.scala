@@ -21,10 +21,11 @@ import com.akkaserverless.javasdk.view.UpdateContext
 /**
  * INTERNAL API
  */
-private[impl] final case class ViewException(viewId: String,
-                                             commandName: String,
-                                             message: String,
-                                             cause: Option[Throwable])
+private[impl] final case class ViewException(
+    viewId: String,
+    commandName: String,
+    message: String,
+    cause: Option[Throwable])
     extends RuntimeException(message, cause.orNull)
 
 /**

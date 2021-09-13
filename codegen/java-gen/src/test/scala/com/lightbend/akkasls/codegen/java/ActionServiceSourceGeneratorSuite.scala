@@ -69,8 +69,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `FullStreamedMethod` is not implemented, yet");
         |  }
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action source generation with 'Action' in the name") {
@@ -122,8 +121,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc) {
         |    throw new RuntimeException("The command handler for `FullStreamedMethod` is not implemented, yet");
         |  }
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action abstract class source generation") {
@@ -159,11 +157,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  /** Handler for "FullStreamedMethod". */
         |  public abstract Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
-  /** confirms that the generated abstract class doesn't get a 'Impl' in the name  */
+  /** confirms that the generated abstract class doesn't get a 'Impl' in the name */
   test("Action abstract class source generation with 'Action' in the name") {
 
     val packageNaming = serviceProto().copy(name = "MyServiceAction")
@@ -199,8 +196,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  /** Handler for "FullStreamedMethod". */
         |  public abstract Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action Handler source generation") {
@@ -273,8 +269,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action Handler source generation 'Action' in the name") {
@@ -349,8 +344,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action Provider source generation") {
@@ -413,8 +407,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |    };
         |  }
         |
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action Provider source generation 'Action' in the name") {
@@ -479,8 +472,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |    };
         |  }
         |
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 
   test("Action with pub/sub source generation") {
@@ -520,7 +512,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |    // JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
         |    throw new RuntimeException("The command handler for `OutToTopic` is not implemented, yet");
         |  }
-        |}""".stripMargin
-    )
+        |}""".stripMargin)
   }
 }

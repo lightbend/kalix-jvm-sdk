@@ -24,11 +24,7 @@ import com.google.protobuf.Descriptors
 /**
  * A fully qualified name that can be resolved in any target language
  */
-case class FullyQualifiedName(
-    protoName: String,
-    name: String,
-    parent: PackageNaming
-) {
+case class FullyQualifiedName(protoName: String, name: String, parent: PackageNaming) {
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
@@ -63,8 +59,7 @@ object FullyQualifiedName {
           Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
           Some(s"com.${fileDescriptor.getPackage}"),
           Some(s"${descriptor.getName}Proto"),
-          javaMultipleFiles = true
-        )
+          javaMultipleFiles = true)
       } else PackageNaming.from(fileDescriptor)
     FullyQualifiedName(
       descriptor.getName,
@@ -77,8 +72,7 @@ object FullyQualifiedName {
           else descriptor.getName + "View"
         case _ => descriptor.getName
       },
-      packageNaming
-    )
+      packageNaming)
   }
 }
 
@@ -91,8 +85,7 @@ case class PackageNaming(
     goPackage: Option[String],
     javaPackageOption: Option[String],
     javaOuterClassnameOption: Option[String],
-    javaMultipleFiles: Boolean
-) {
+    javaMultipleFiles: Boolean) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
   lazy val javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }
@@ -111,8 +104,8 @@ object PackageNaming {
         .map(s => s.headOption.fold("")(first => s"${first.toUpper.toString}${s.tail}"))
         .mkString
 
-    val generalOptions = descriptor.getOptions.getAllFields.asScala.map {
-      case (fieldDescriptor, field) => (fieldDescriptor.getFullName, field)
+    val generalOptions = descriptor.getOptions.getAllFields.asScala.map { case (fieldDescriptor, field) =>
+      (fieldDescriptor.getFullName, field)
     }
 
     val goPackage = generalOptions.get("google.protobuf.FileOptions.go_package").map(_.toString())
@@ -127,13 +120,6 @@ object PackageNaming {
     val javaMultipleFiles =
       generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)
 
-    PackageNaming(
-      name,
-      descriptor.getPackage,
-      goPackage,
-      javaPackage,
-      javaOuterClassname,
-      javaMultipleFiles
-    )
+    PackageNaming(name, descriptor.getPackage, goPackage, javaPackage, javaOuterClassname, javaMultipleFiles)
   }
 }
