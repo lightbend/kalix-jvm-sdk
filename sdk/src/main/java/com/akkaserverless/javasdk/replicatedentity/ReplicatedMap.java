@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A Replicated Map that allows both the addition and removal of {@link ReplicatedData} objects.
@@ -132,4 +133,118 @@ public interface ReplicatedMap<K, V extends ReplicatedData> extends ReplicatedDa
    * @return the keys contained in this map
    */
   Set<K> keySet();
+
+  /**
+   * Get a {@link ReplicatedCounter} from a heterogeneous Replicated Map (a map with different types
+   * of Replicated Data values).
+   *
+   * @param key the key for a Replicated Counter in this map
+   * @return the {@link ReplicatedCounter} associated with the given key, or an empty counter
+   */
+  @SuppressWarnings("unchecked")
+  default ReplicatedCounter getReplicatedCounter(K key) {
+    return (ReplicatedCounter) getOrElse(key, factory -> (V) factory.newCounter());
+  }
+
+  /**
+   * Get a {@link ReplicatedRegister} from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
+   *
+   * @param key the key for a Replicated Register in this map
+   * @return the {@link ReplicatedRegister} associated with the given key, or an empty register
+   * @param <ValueT> the value type for the Replicated Register
+   */
+  default <ValueT> ReplicatedRegister<ValueT> getReplicatedRegister(K key) {
+    return getReplicatedRegister(key, () -> null);
+  }
+
+  /**
+   * Get a {@link ReplicatedRegister} from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
+   *
+   * @param key the key for a Replicated Register in this map
+   * @param defaultValue the supplier for a default value when the register is not present
+   * @return the {@link ReplicatedRegister} associated with the given key, or a default register
+   * @param <ValueT> the value type for the Replicated Register
+   */
+  @SuppressWarnings("unchecked")
+  default <ValueT> ReplicatedRegister<ValueT> getReplicatedRegister(
+      K key, Supplier<ValueT> defaultValue) {
+    return (ReplicatedRegister<ValueT>)
+        getOrElse(key, factory -> (V) factory.newRegister(defaultValue.get()));
+  }
+
+  /**
+   * Get a {@link ReplicatedSet} from a heterogeneous Replicated Map (a map with different types of
+   * Replicated Data values).
+   *
+   * @param key the key for a Replicated Set in this map
+   * @return the {@link ReplicatedSet} associated with the given key, or an empty set
+   * @param <ElementT> the element type for the Replicated Set
+   */
+  @SuppressWarnings("unchecked")
+  default <ElementT> ReplicatedSet<ElementT> getReplicatedSet(K key) {
+    return (ReplicatedSet<ElementT>)
+        getOrElse(key, factory -> (V) factory.<ElementT>newReplicatedSet());
+  }
+
+  /**
+   * Get a {@link ReplicatedCounterMap} from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
+   *
+   * @param key the key for a Replicated Counter Map in this map
+   * @return the {@link ReplicatedCounterMap} associated with the given key, or an empty map
+   * @param <KeyT> the key type for the Replicated Counter Map
+   */
+  @SuppressWarnings("unchecked")
+  default <KeyT> ReplicatedCounterMap<KeyT> getReplicatedCounterMap(K key) {
+    return (ReplicatedCounterMap<KeyT>)
+        getOrElse(key, factory -> (V) factory.<KeyT>newReplicatedCounterMap());
+  }
+
+  /**
+   * Get a {@link ReplicatedRegisterMap} from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
+   *
+   * @param key the key for a Replicated Register Map in this map
+   * @return the {@link ReplicatedRegisterMap} associated with the given key, or an empty map
+   * @param <KeyT> the key type for the Replicated Register Map
+   * @param <ValueT> the value type for the Replicated Register Map
+   */
+  @SuppressWarnings("unchecked")
+  default <KeyT, ValueT> ReplicatedRegisterMap<KeyT, ValueT> getReplicatedRegisterMap(K key) {
+    return (ReplicatedRegisterMap<KeyT, ValueT>)
+        getOrElse(key, factory -> (V) factory.<KeyT, ValueT>newReplicatedRegisterMap());
+  }
+
+  /**
+   * Get a {@link ReplicatedMultiMap} from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
+   *
+   * @param key the key for a Replicated Multi-Map in this map
+   * @return the {@link ReplicatedMultiMap} associated with the given key, or an empty multi-map
+   * @param <KeyT> the key type for the Replicated Multi-Map
+   * @param <ValueT> the value type for the Replicated Multi-Map
+   */
+  @SuppressWarnings("unchecked")
+  default <KeyT, ValueT> ReplicatedMultiMap<KeyT, ValueT> getReplicatedMultiMap(K key) {
+    return (ReplicatedMultiMap<KeyT, ValueT>)
+        getOrElse(key, factory -> (V) factory.<KeyT, ValueT>newReplicatedMultiMap());
+  }
+
+  /**
+   * Get a {@link ReplicatedMap} from a heterogeneous Replicated Map (a map with different types of
+   * Replicated Data values).
+   *
+   * @param key the key for a Replicated Map in this map
+   * @return the {@link ReplicatedMap} associated with the given key, or an empty map
+   * @param <KeyT> the key type for the Replicated Map
+   * @param <ValueT> the value type for the Replicated Map
+   */
+  @SuppressWarnings("unchecked")
+  default <KeyT, ValueT extends ReplicatedData> ReplicatedMap<KeyT, ValueT> getReplicatedMap(
+      K key) {
+    return (ReplicatedMap<KeyT, ValueT>)
+        getOrElse(key, factory -> (V) factory.<KeyT, ValueT>newReplicatedMap());
+  }
 }
