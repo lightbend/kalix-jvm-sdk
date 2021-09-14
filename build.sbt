@@ -9,7 +9,7 @@ lazy val sdkCore = project
   .in(file("sdk/core"))
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(
-    name := "akkaserverless-java-sdk-core",
+    name := "akkaserverless-jvm-sdk",
     crossPaths := false,
     buildInfoKeys := Seq[BuildInfoKey](
       name,
