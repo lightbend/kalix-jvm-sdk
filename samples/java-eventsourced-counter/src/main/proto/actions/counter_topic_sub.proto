@@ -38,6 +38,5 @@ service CounterTopicSubscription {
       topic:  "counter-events"
     };
   }
-
 }
 // end::counter-topic-sub[]
