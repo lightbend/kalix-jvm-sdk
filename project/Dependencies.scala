@@ -10,7 +10,8 @@ object Dependencies {
 
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.6"
-  val ScalaVersionForCodegen = Seq("2.12.14")
+  val ScalaVersionForSbtPlugin = "2.12.14"
+  val ScalaVersionForCodegen = Seq(ScalaVersionForSbtPlugin)
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
@@ -51,6 +52,9 @@ object Dependencies {
   val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
+
+  val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
+  val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   private val deps = libraryDependencies
 
@@ -95,6 +99,12 @@ object Dependencies {
     munitScalaCheck % Test)
 
   val codegenJava = deps ++= Seq(commonsIo, logback % Test, munit % Test, munitScalaCheck % Test)
+
+  val codegenScala = deps ++= Seq(scalapbCompilerPlugin)
+
+  val sbtPlugin = Seq(
+    // we depend on it in the settings of the plugin since we set keys of the sbt-protoc plugin
+    addSbtPlugin(sbtProtoc))
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here

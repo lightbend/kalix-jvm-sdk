@@ -2,7 +2,7 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(sdkCore, sdkJava, sdkScala, testkitJava, tck, codegenCore, codegenJava, codegenJavaCompilationTest)
+  .aggregate(sdkCore, sdkJava, sdkScala, testkitJava, tck, codegenCore, codegenJava, codegenJavaCompilationTest, codegenScala, sbtPlugin)
 
 //FIXME duplicating most settings in sdkCore, sdkJava, sdkScala for now, cleanup later.
 lazy val sdkCore = project
@@ -237,3 +237,22 @@ lazy val attachProtobufDescriptorSets = Seq(
     "--include_source_info"),
   Compile / managedResources += protobufDescriptorSetOut.value,
   Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value)
+
+lazy val codegenScala = Project(id = "akkaserverless-codegen-scala", base = file("codegen/scala-gen"))
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(PublishSonatype)
+  .settings(Dependencies.codegenScala)
+  .settings(
+    scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+    buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.akkaserverless.codegen.scala",
+  )
+
+lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
+  .enablePlugins(SbtPlugin)
+  .enablePlugins(PublishSonatype)
+  .settings(Dependencies.sbtPlugin)
+  .settings(
+    scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+  )
+  .dependsOn(codegenScala)
