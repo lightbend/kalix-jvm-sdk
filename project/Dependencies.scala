@@ -54,7 +54,7 @@ object Dependencies {
 
   private val deps = libraryDependencies
 
-  val sdk = deps ++= Seq(
+  val sdkCore = deps ++= Seq(
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
@@ -74,12 +74,18 @@ object Dependencies {
     logbackContrib % Provided,
     jacksonDatabind)
 
+  // FIXME
+  val sdkJava = sdkCore
+
+  // FIXME
+  val sdkScala = sdkCore
+
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
     "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
-  val testkit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
+  val testkitJava = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
 
   val codegenCore = deps ++= Seq(
     protobufJava,

@@ -13,7 +13,7 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
   * from sbt: `sbt java-eventing-shopping-cart/run`
   * or mvn
     ```
-    sbt sdk/publishM2 testkit/publishM2
+    sbt sdkJava/publishM2 testkit/publishM2
     export AKKASERVERLESS_JAVA_SDK_VERSION="0.7.0-beta....-SNAPSHOT"
     cd samples/java-eventing-shopping-cart
     mvn compile exec:java

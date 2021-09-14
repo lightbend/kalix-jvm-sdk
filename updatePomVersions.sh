@@ -5,7 +5,7 @@
 
 
 if [ -z ${SDK_VERSION+x} ]; then 
-  SDK_VERSION=$(sbt "print sdk/version" | tail -1)
+  SDK_VERSION=$(sbt "print sdkJava/version" | tail -1)
 fi
 
 if [ $1 ]; then 

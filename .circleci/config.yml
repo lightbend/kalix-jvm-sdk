@@ -71,7 +71,7 @@ commands:
           command: |
             # tail 2 + head 1 because CircleCI adds an extra line
             # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
 
   build-maven-java:
     description: Build maven-java
