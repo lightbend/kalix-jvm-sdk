@@ -33,8 +33,6 @@ class ModelBuilderSuite extends munit.FunSuite {
   implicit val codegenLog = new Log {
     override def debug(message: String): Unit = log.debug(message)
     override def info(message: String): Unit = log.info(message)
-    override def warning(message: String): Unit = log.warn(message)
-    override def error(message: String): Unit = log.error(message)
   }
 
   def command(
