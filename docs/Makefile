@@ -8,7 +8,6 @@ sources  := src build/src/managed
 src_managed := build/src/managed
 managed_attachments := ${src_managed}/modules/${module}/attachments
 managed_examples := ${src_managed}/modules/${module}/examples
-managed_testkits := ${src_managed}/modules/${module}/testkits
 managed_partials := ${src_managed}/modules/${module}/partials
 
 antora_docker_image := gcr.io/akkaserverless-public/akkaserverless-docbuilder
@@ -23,7 +22,7 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples bundles testkits
+managed: attributes apidocs examples bundles
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -40,8 +39,10 @@ attributes:
 
 apidocs:
 	cd .. && sbt sdk/doc
+	cd .. && sbt testkit/doc
 	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/target/api/ "${managed_attachments}/api/"
+	rsync -a ../testkit/target/api/ "${managed_attachments}/testkit/"
 
 examples:
 	mkdir -p "${managed_examples}"
@@ -57,10 +58,6 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
 	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
 	rsync -a --exclude-from=.examplesignore ../samples/first-service/ "${managed_examples}/first-service/"
-
-testkits:
-	mkdir -p "${managed_examples}"
-	rsync -a --exclude-from=.examplesignore ../testkit/src/main/java/ "${managed_examples}/testkit/"
 
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart
