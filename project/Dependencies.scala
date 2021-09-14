@@ -73,6 +73,12 @@ object Dependencies {
     logback % "test;provided",
     logbackContrib % Provided,
     jacksonDatabind)
+  
+  // FIXME
+  val sdkJava = sdk
+
+  // FIXME
+  val sdkScala = sdk
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",

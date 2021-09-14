@@ -2,10 +2,46 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(sdk, testkit, tck, codegenCore, codegenJava, codegenJavaCompilationTest)
+  .aggregate(sdkCore, sdkJava, sdkScala, testkitJava, tck, codegenCore, codegenJava, codegenJavaCompilationTest)
 
-lazy val sdk = project
-  .in(file("sdk"))
+//FIXME duplicating most settings in sdkCore, sdkJava, sdkScala for now, cleanup later.
+lazy val sdkCore = project
+  .in(file("sdk/core"))
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .settings(
+    name := "akkaserverless-java-sdk-core",
+    crossPaths := false,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
+      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
+    //FIXME maybe a different package name open to suggestions.
+    buildInfoPackage := "com.akkaserverless.javasdk.impl",
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / compile / javacOptions ++= Seq("--release", "8"),
+    Compile / scalacOptions ++= Seq("-release", "8"),
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
+    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala), // FIXME should be Java, but here be dragons
+    // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
+    // without needing to generate them themselves
+    Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
+    Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
+    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
+  .settings(Dependencies.sdk)
+
+lazy val sdkJava = project
+  .in(file("sdk/java-sdk"))
+  .dependsOn(sdkCore)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-java-sdk",
@@ -46,11 +82,35 @@ lazy val sdk = project
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
-  .settings(Dependencies.sdk)
+  .settings(Dependencies.sdkJava)
 
-lazy val testkit = project
-  .in(file("testkit"))
-  .dependsOn(sdk)
+lazy val sdkScala = project
+  .in(file("sdk/scala-sdk"))
+  .dependsOn(sdkCore)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .settings(
+    name := "akkaserverless-scala-sdk",
+    crossPaths := false,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
+      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "com.akkaserverless.scalasdk",
+    Compile / scalacOptions ++= Seq("-release", "8"),
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
+    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+    // FIXME fix protobuf target and source settings in separate PR
+    Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
+    Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
+    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
+  .settings(Dependencies.sdkScala)
+
+lazy val testkitJava = project
+  .in(file("testkit-java"))
+  .dependsOn(sdkJava)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-java-sdk-testkit",
@@ -69,9 +129,10 @@ lazy val testkit = project
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.testkit)
 
+//FIXME add scalasdk as package to tck, tck will test both java and scala sdk
 lazy val tck = project
   .in(file("tck"))
-  .dependsOn(sdk, testkit % Test)
+  .dependsOn(sdkJava, testkitJava % Test)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage)
   .settings(
     name := "akkaserverless-tck-java-sdk",
@@ -112,11 +173,11 @@ lazy val codegenJava =
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
   .enablePlugins(ReflectiveCodeGen)
-  .dependsOn(sdk)
+  .dependsOn(sdkJava)
   // code generated by the codegen requires the testkit, junit4
   // Note: we don't use test scope since all code is generated in src_managed
   // and the goal is to verify if it compiles
-  .dependsOn(testkit)
+  .dependsOn(testkitJava)
   .settings(libraryDependencies ++= Seq(Dependencies.junit4))
   .settings(
     (publish / skip) := true,
@@ -125,7 +186,7 @@ lazy val codegenJavaCompilationTest = project
 
 lazy val `java-eventing-shopping-cart` = project
   .in(file("samples/java-eventing-shopping-cart"))
-  .dependsOn(sdk, testkit % IntegrationTest)
+  .dependsOn(sdkJava, testkitJava % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
     name := "java-eventing-shopping-cart",
@@ -144,7 +205,7 @@ lazy val `java-eventing-shopping-cart` = project
 
 lazy val `java-valueentity-customer-registry` = project
   .in(file("samples/java-valueentity-customer-registry"))
-  .dependsOn(sdk)
+  .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
     name := "java-valueentity-customer-registry",
@@ -163,7 +224,7 @@ lazy val `java-valueentity-customer-registry` = project
 
 lazy val `java-eventsourced-customer-registry` = project
   .in(file("samples/java-eventsourced-customer-registry"))
-  .dependsOn(sdk)
+  .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(
     name := "java-eventsourced-customer-registry",
