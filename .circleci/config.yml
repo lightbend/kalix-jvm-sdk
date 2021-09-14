@@ -134,7 +134,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test
+          command: sbt test akkaserverless-codegen-scala/publishLocal scripted
       - save_deps_cache
 
   integration-tests:
