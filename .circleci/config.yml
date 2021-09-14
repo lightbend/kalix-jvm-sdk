@@ -121,7 +121,9 @@ jobs:
       - restore_deps_cache
       - run:
           name: Validate docs
-          command: make -C docs
+          command: |
+            make -C docs
+            make -C docs validate-links
       - save_deps_cache
 
   tests:
