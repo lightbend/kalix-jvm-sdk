@@ -20,7 +20,7 @@ import protocbridge.{ Artifact, SandboxedJvmGenerator }
 import scalapb.GeneratorOption
 
 object gen {
-  def apply(options: GeneratorOption*): (SandboxedJvmGenerator, Seq[String]) =
+  def apply(options: Seq[String] = Seq.empty): (SandboxedJvmGenerator, Seq[String]) =
     (
       SandboxedJvmGenerator.forModule(
         "scala",
@@ -30,8 +30,6 @@ object gen {
           com.akkaserverless.codegen.scalasdk.BuildInfo.version),
         "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$",
         AkkaserverlessGenerator.suggestedDependencies),
-      options.map(_.toString))
-
-  def apply(options: Set[GeneratorOption] = Set.empty): (SandboxedJvmGenerator, Seq[String]) = apply(options.toSeq: _*)
+      options)
 
 }
