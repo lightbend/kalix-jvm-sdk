@@ -76,7 +76,7 @@ object AkkaServerlessRunner {
 final class AkkaServerlessRunner private[this] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]) {
-  private[javasdk] implicit val system: ActorSystem = _system
+  private[akkaserverless] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
   private[this] final val configuration =
