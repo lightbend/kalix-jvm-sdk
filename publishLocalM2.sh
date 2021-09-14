@@ -16,7 +16,7 @@ if [ $ONLY_MAVEN == "0" ]; then
   sbt publishM2
 fi
 
-SDK_VERSION=$(sbt "print sdk/version" | tail -1)
+SDK_VERSION=$(sbt "print sdkJava/version" | tail -1)
 cd maven-java
 mvn versions:set -DnewVersion=$SDK_VERSION
 mvn install
