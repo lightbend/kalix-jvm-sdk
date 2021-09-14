@@ -37,7 +37,7 @@ lazy val sdkCore = project
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
-  .settings(Dependencies.sdk)
+  .settings(Dependencies.sdkCore)
 
 lazy val sdkJava = project
   .in(file("sdk/java-sdk"))

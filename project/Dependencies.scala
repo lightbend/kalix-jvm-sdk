@@ -54,7 +54,7 @@ object Dependencies {
 
   private val deps = libraryDependencies
 
-  val sdk = deps ++= Seq(
+  val sdkCore = deps ++= Seq(
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
@@ -75,10 +75,10 @@ object Dependencies {
     jacksonDatabind)
   
   // FIXME
-  val sdkJava = sdk
+  val sdkJava = sdkCore
 
   // FIXME
-  val sdkScala = sdk
+  val sdkScala = sdkCore
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
