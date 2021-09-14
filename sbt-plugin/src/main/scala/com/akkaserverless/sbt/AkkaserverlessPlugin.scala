@@ -16,8 +16,8 @@
 
 package com.akkaserverless.sbt
 
-import com.akkaserverless.codegen.scalasdk.{ gen, AkkaserverlessGenerator }
-import sbt._
+import com.akkaserverless.codegen.scalasdk.{ gen, genTests, AkkaserverlessGenerator }
+import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
@@ -32,7 +32,9 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.18" % "protobuf",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf"),
     Compile / PB.targets +=
-      gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless"
-    )
+      gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless",
+    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
+    Test / PB.targets +=
+      genTests(Seq(AkkaserverlessGenerator.enableDebug)) -> (Test / sourceManaged).value / "akkaserverless")
 
 }

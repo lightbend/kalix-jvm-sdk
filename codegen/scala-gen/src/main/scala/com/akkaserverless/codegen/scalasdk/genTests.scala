@@ -17,22 +17,8 @@
 package com.akkaserverless.codegen.scalasdk
 
 import protocbridge.{ Artifact, SandboxedJvmGenerator }
-import scalapb.GeneratorOption
 
-object gen {
-  def apply(
-      options: Seq[String] = Seq.empty,
-      generatorClass: String = "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$")
-      : (SandboxedJvmGenerator, Seq[String]) =
-    (
-      SandboxedJvmGenerator.forModule(
-        "scala",
-        Artifact(
-          com.akkaserverless.codegen.scalasdk.BuildInfo.organization,
-          "akkaserverless-codegen-scala_2.12",
-          com.akkaserverless.codegen.scalasdk.BuildInfo.version),
-        generatorClass,
-        AkkaserverlessGenerator.suggestedDependencies),
-      options)
-
+object genTests {
+  def apply(options: Seq[String] = Seq.empty): (SandboxedJvmGenerator, Seq[String]) =
+    gen(options, "com.akkaserverless.codegen.scalasdk.AkkaserverlessTestGenerator$")
 }
