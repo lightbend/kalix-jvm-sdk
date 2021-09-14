@@ -73,7 +73,7 @@ object Dependencies {
     logback % "test;provided",
     logbackContrib % Provided,
     jacksonDatabind)
-  
+
   // FIXME
   val sdkJava = sdkCore
 
