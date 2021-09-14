@@ -7,36 +7,16 @@ lazy val `akkaserverless-java-sdk` = project
 //FIXME duplicating most settings in sdkCore, sdkJava, sdkScala for now, cleanup later.
 lazy val sdkCore = project
   .in(file("sdk/core"))
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(PublishSonatype)
   .settings(
     name := "akkaserverless-jvm-sdk",
     crossPaths := false,
-    buildInfoKeys := Seq[BuildInfoKey](
-      name,
-      version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
-      "scalaVersion" -> scalaVersion.value),
-    //FIXME maybe a different package name open to suggestions.
-    buildInfoPackage := "com.akkaserverless.javasdk.impl",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
       (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
     },
-    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
-    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
-    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
-    Compile / compile / javacOptions ++= Seq("--release", "8"),
-    Compile / scalacOptions ++= Seq("-release", "8"),
-    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
-    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala), // FIXME should be Java, but here be dragons
-    // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
-    // without needing to generate them themselves
-    Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
-    Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
+    Compile / scalacOptions ++= Seq("-release", "8"))
   .settings(Dependencies.sdkCore)
 
 lazy val sdkJava = project
