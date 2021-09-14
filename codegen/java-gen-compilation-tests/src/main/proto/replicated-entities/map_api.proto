@@ -69,3 +69,17 @@ service MapService {
   rpc RemoveBaz(RemoveBazValue) returns (google.protobuf.Empty);
   rpc Get(GetValues) returns (CurrentValues);
 }
+
+service ScalarMapService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.map.domain.SomeScalarMap"
+  };
+
+  rpc IncreaseFoo(IncreaseFooValue) returns (google.protobuf.Empty);
+  rpc DecreaseFoo(DecreaseFooValue) returns (google.protobuf.Empty);
+  rpc SetBar(SetBarValue) returns (google.protobuf.Empty);
+  rpc AddBaz(AddBazValue) returns (google.protobuf.Empty);
+  rpc RemoveBaz(RemoveBazValue) returns (google.protobuf.Empty);
+  rpc Get(GetValues) returns (CurrentValues);
+}

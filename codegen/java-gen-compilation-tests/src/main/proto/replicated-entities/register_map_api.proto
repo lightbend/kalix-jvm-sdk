@@ -63,3 +63,14 @@ service RegisterMapService {
   rpc Get(GetValue) returns (CurrentValue);
   rpc GetAll(GetAllValues) returns (CurrentValues);
 }
+
+service ScalarRegisterMapService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.registermap.domain.SomeScalarRegisterMap"
+  };
+
+  rpc Set(SetValue) returns (google.protobuf.Empty);
+  rpc Get(GetValue) returns (CurrentValue);
+  rpc GetAll(GetAllValues) returns (CurrentValues);
+}

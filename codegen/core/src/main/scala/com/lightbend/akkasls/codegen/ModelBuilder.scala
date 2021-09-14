@@ -89,7 +89,64 @@ object ModelBuilder {
   /**
    * Type argument for generic replicated data types with type parameters.
    */
-  case class TypeArgument(fqn: FullyQualifiedName)
+  sealed trait TypeArgument
+
+  object TypeArgument {
+    def apply(name: String, proto: PackageNaming): TypeArgument = {
+      if (name.nonEmpty && name.charAt(0).isLower) ScalarTypeArgument(ScalarType(name))
+      else MessageTypeArgument(FullyQualifiedName(name, proto))
+    }
+  }
+
+  /**
+   * Type argument for Protobuf message types.
+   */
+  case class MessageTypeArgument(fqn: FullyQualifiedName) extends TypeArgument
+
+  /**
+   * Type argument for Protobuf scalar types.
+   */
+  case class ScalarTypeArgument(scalar: ScalarType) extends TypeArgument
+
+  sealed trait ScalarType
+
+  object ScalarType {
+    case object Double extends ScalarType
+    case object Float extends ScalarType
+    case object Int32 extends ScalarType
+    case object Int64 extends ScalarType
+    case object UInt32 extends ScalarType
+    case object UInt64 extends ScalarType
+    case object SInt32 extends ScalarType
+    case object SInt64 extends ScalarType
+    case object Fixed32 extends ScalarType
+    case object Fixed64 extends ScalarType
+    case object SFixed32 extends ScalarType
+    case object SFixed64 extends ScalarType
+    case object Bool extends ScalarType
+    case object String extends ScalarType
+    case object Bytes extends ScalarType
+    case object Unknown extends ScalarType
+
+    def apply(protoType: String): ScalarType = protoType match {
+      case "double"   => Double
+      case "float"    => Float
+      case "int32"    => Int32
+      case "int64"    => Int64
+      case "uint32"   => UInt32
+      case "uint64"   => UInt64
+      case "sint32"   => SInt32
+      case "sint64"   => SInt64
+      case "fixed32"  => Fixed32
+      case "fixed64"  => Fixed64
+      case "sfixed32" => SFixed32
+      case "sfixed64" => SFixed64
+      case "bool"     => Bool
+      case "string"   => String
+      case "bytes"    => Bytes
+      case _          => Unknown
+    }
+  }
 
   /**
    * A Service backed by Akka Serverless; either an Action, View or Entity
@@ -363,24 +420,24 @@ object ModelBuilder {
         case ReplicatedDataCase.REPLICATED_COUNTER =>
           Some(ReplicatedCounter)
         case ReplicatedDataCase.REPLICATED_REGISTER =>
-          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegister.getValue, protoReference))
+          val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference)
           Some(ReplicatedRegister(value))
         case ReplicatedDataCase.REPLICATED_SET =>
-          val element = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedSet.getElement, protoReference))
+          val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference)
           Some(ReplicatedSet(element))
         case ReplicatedDataCase.REPLICATED_MAP =>
-          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMap.getKey, protoReference))
+          val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference)
           Some(ReplicatedMap(key))
         case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
-          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedCounterMap.getKey, protoReference))
+          val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference)
           Some(ReplicatedCounterMap(key))
         case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
-          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getKey, protoReference))
-          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedRegisterMap.getValue, protoReference))
+          val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference)
+          val value = TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference)
           Some(ReplicatedRegisterMap(key, value))
         case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
-          val key = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getKey, protoReference))
-          val value = TypeArgument(FullyQualifiedName(rawEntity.getReplicatedMultiMap.getValue, protoReference))
+          val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference)
+          val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference)
           Some(ReplicatedMultiMap(key, value))
         case ReplicatedDataCase.REPLICATED_VOTE =>
           Some(ReplicatedVote)

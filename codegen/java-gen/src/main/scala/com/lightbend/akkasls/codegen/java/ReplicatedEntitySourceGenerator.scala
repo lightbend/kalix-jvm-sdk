@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.Syntax
 
 object ReplicatedEntitySourceGenerator {
   import SourceGenerator._
-  import EntityServiceSourceGenerator.generateImports
+  import EntityServiceSourceGenerator.{ extraTypeImports, generateImports }
 
   private[codegen] def replicatedEntitySource(
       service: ModelBuilder.EntityService,
@@ -43,7 +43,7 @@ object ReplicatedEntitySourceGenerator {
       case ModelBuilder.ReplicatedRegister(valueType) =>
         s"""|
             |  @Override
-            |  public ${valueType.fqn.fullName} emptyValue() {
+            |  public ${dataType(valueType)} emptyValue() {
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value");
             |  }
             |""".stripMargin
@@ -144,8 +144,9 @@ object ReplicatedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
     val relevantTypes = {
-      entity.data.typeArguments.map(_.fqn) ++
-      service.commands.flatMap { cmd =>
+      entity.data.typeArguments.collect { case ModelBuilder.MessageTypeArgument(fqn) =>
+        fqn
+      } ++ service.commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
       }
     }
@@ -161,7 +162,7 @@ object ReplicatedEntitySourceGenerator {
         "com.google.protobuf.Descriptors",
         "java.util.function.Function") ++ relevantTypes.map(fqn =>
         fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
-        ++ extraImports(entity.data))
+        ++ extraImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -286,11 +287,30 @@ object ReplicatedEntitySourceGenerator {
     }
   }
 
+  private def dataType(typeArgument: ModelBuilder.TypeArgument): String = typeArgument match {
+    case ModelBuilder.MessageTypeArgument(fqn) => fqn.fullName
+    case ModelBuilder.ScalarTypeArgument(scalar) =>
+      scalar match {
+        case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
+            ModelBuilder.ScalarType.Fixed32 | ModelBuilder.ScalarType.SFixed32 =>
+          "Integer"
+        case ModelBuilder.ScalarType.Int64 | ModelBuilder.ScalarType.UInt64 | ModelBuilder.ScalarType.SInt64 |
+            ModelBuilder.ScalarType.Fixed64 | ModelBuilder.ScalarType.SFixed64 =>
+          "Long"
+        case ModelBuilder.ScalarType.Double => "Double"
+        case ModelBuilder.ScalarType.Float  => "Float"
+        case ModelBuilder.ScalarType.Bool   => "Boolean"
+        case ModelBuilder.ScalarType.String => "String"
+        case ModelBuilder.ScalarType.Bytes  => "ByteString"
+        case _                              => "?"
+      }
+  }
+
   private def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData): String = {
     val typeArguments = replicatedData match {
       // special case ReplicatedMap as heterogeneous with ReplicatedData values
-      case ModelBuilder.ReplicatedMap(key) => Seq(key.fqn.fullName, "ReplicatedData")
-      case data                            => data.typeArguments.map(_.fqn.fullName)
+      case ModelBuilder.ReplicatedMap(key) => Seq(dataType(key), "ReplicatedData")
+      case data                            => data.typeArguments.map(dataType)
     }
     parameterizeTypes(typeArguments)
   }

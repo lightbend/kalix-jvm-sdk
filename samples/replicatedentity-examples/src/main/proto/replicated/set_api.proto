@@ -21,18 +21,15 @@ package com.example.replicated.set;
 
 option java_outer_classname = "SomeSetApi";
 
-message Element {
-  string value = 1;
-}
 
 message AddElement {
   string set_id = 1 [(akkaserverless.field).entity_key = true];
-  Element element = 2;
+  string element = 2;
 }
 
 message RemoveElement {
   string set_id = 1 [(akkaserverless.field).entity_key = true];
-  Element element = 2;
+  string element = 2;
 }
 
 message GetElements {
@@ -40,7 +37,7 @@ message GetElements {
 }
 
 message CurrentElements {
-  repeated Element elements = 1;
+  repeated string elements = 1;
 }
 
 service SetService {

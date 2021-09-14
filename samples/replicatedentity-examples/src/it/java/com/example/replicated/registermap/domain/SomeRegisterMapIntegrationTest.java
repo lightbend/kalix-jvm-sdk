@@ -37,8 +37,8 @@ public class SomeRegisterMapIntegrationTest {
         .set(
             SomeRegisterMapApi.SetValue.newBuilder()
                 .setRegisterMapId(registerMapId)
-                .setKey(SomeRegisterMapApi.Key.newBuilder().setKey(key))
-                .setValue(SomeRegisterMapApi.Value.newBuilder().setValue(value))
+                .setKey(SomeRegisterMapApi.Key.newBuilder().setField(key))
+                .setValue(SomeRegisterMapApi.Value.newBuilder().setField(value))
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
@@ -49,7 +49,7 @@ public class SomeRegisterMapIntegrationTest {
         .remove(
             SomeRegisterMapApi.RemoveValue.newBuilder()
                 .setRegisterMapId(registerMapId)
-                .setKey(SomeRegisterMapApi.Key.newBuilder().setKey(key))
+                .setKey(SomeRegisterMapApi.Key.newBuilder().setField(key))
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
@@ -60,12 +60,12 @@ public class SomeRegisterMapIntegrationTest {
         .get(
             SomeRegisterMapApi.GetValue.newBuilder()
                 .setRegisterMapId(registerMapId)
-                .setKey(SomeRegisterMapApi.Key.newBuilder().setKey(key))
+                .setKey(SomeRegisterMapApi.Key.newBuilder().setField(key))
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS)
         .getValue()
-        .getValue();
+        .getField();
   }
 
   public Map<String, String> getAll(String registerMapId) throws Exception {
@@ -77,7 +77,7 @@ public class SomeRegisterMapIntegrationTest {
         .getValuesList()
         .stream()
         .collect(
-            Collectors.toMap(key -> key.getKey().getKey(), value -> value.getValue().getValue()));
+            Collectors.toMap(key -> key.getKey().getField(), value -> value.getValue().getField()));
   }
 
   @Test

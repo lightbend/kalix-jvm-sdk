@@ -7,10 +7,10 @@ import com.example.replicated.multimap.SomeMultiMapApi;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,40 +35,37 @@ public class SomeMultiMapIntegrationTest {
         MultiMapServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
   }
 
-  public void put(String multiMapId, String key, String value) throws Exception {
+  public void put(String multiMapId, String key, double value) throws Exception {
     client
         .put(
             SomeMultiMapApi.PutValue.newBuilder()
                 .setMultiMapId(multiMapId)
-                .setKey(SomeMultiMapApi.Key.newBuilder().setKey(key))
-                .setValue(SomeMultiMapApi.Value.newBuilder().setValue(value))
+                .setKey(key)
+                .setValue(value)
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
   }
 
-  public void putAll(String multiMapId, String key, String... values) throws Exception {
+  public void putAll(String multiMapId, String key, Double... values) throws Exception {
     client
         .putAll(
             SomeMultiMapApi.PutAllValues.newBuilder()
                 .setMultiMapId(multiMapId)
-                .setKey(SomeMultiMapApi.Key.newBuilder().setKey(key))
-                .addAllValues(
-                    Stream.of(values)
-                        .map(value -> SomeMultiMapApi.Value.newBuilder().setValue(value).build())
-                        .collect(Collectors.toList()))
+                .setKey(key)
+                .addAllValues(Arrays.asList(values))
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
   }
 
-  public void remove(String multiMapId, String key, String value) throws Exception {
+  public void remove(String multiMapId, String key, double value) throws Exception {
     client
         .remove(
             SomeMultiMapApi.RemoveValue.newBuilder()
                 .setMultiMapId(multiMapId)
-                .setKey(SomeMultiMapApi.Key.newBuilder().setKey(key))
-                .setValue(SomeMultiMapApi.Value.newBuilder().setValue(value))
+                .setKey(key)
+                .setValue(value)
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
@@ -79,28 +76,21 @@ public class SomeMultiMapIntegrationTest {
         .removeAll(
             SomeMultiMapApi.RemoveAllValues.newBuilder()
                 .setMultiMapId(multiMapId)
-                .setKey(SomeMultiMapApi.Key.newBuilder().setKey(key))
+                .setKey(key)
                 .build())
         .toCompletableFuture()
         .get(5, SECONDS);
   }
 
-  public List<String> get(String multiMapId, String key) throws Exception {
+  public List<Double> get(String multiMapId, String key) throws Exception {
     return client
-        .get(
-            SomeMultiMapApi.GetValues.newBuilder()
-                .setMultiMapId(multiMapId)
-                .setKey(SomeMultiMapApi.Key.newBuilder().setKey(key))
-                .build())
+        .get(SomeMultiMapApi.GetValues.newBuilder().setMultiMapId(multiMapId).setKey(key).build())
         .toCompletableFuture()
         .get(5, SECONDS)
-        .getValuesList()
-        .stream()
-        .map(SomeMultiMapApi.Value::getValue)
-        .collect(Collectors.toList());
+        .getValuesList();
   }
 
-  public Map<String, List<String>> getAll(String multiMapId) throws Exception {
+  public Map<String, List<Double>> getAll(String multiMapId) throws Exception {
     return client
         .getAll(SomeMultiMapApi.GetAllValues.newBuilder().setMultiMapId(multiMapId).build())
         .toCompletableFuture()
@@ -109,38 +99,35 @@ public class SomeMultiMapIntegrationTest {
         .stream()
         .collect(
             Collectors.toMap(
-                key -> key.getKey().getKey(),
-                value ->
-                    value.getValuesList().stream()
-                        .map(SomeMultiMapApi.Value::getValue)
-                        .collect(Collectors.toList())));
+                SomeMultiMapApi.CurrentValues::getKey,
+                SomeMultiMapApi.CurrentValues::getValuesList));
   }
 
   @Test
   public void interactWithSomeMultiMap() throws Exception {
     assertThat(getAll("multimap1").isEmpty(), is(true));
-    put("multimap1", "1", "A");
-    put("multimap1", "1", "B");
-    put("multimap1", "1", "C");
-    put("multimap1", "1", "D");
-    putAll("multimap1", "1", "D", "E", "F");
-    put("multimap1", "2", "X");
-    put("multimap1", "2", "Y");
-    putAll("multimap1", "2", "X", "Z");
-    putAll("multimap1", "3", "P", "Q", "R", "S");
-    remove("multimap1", "1", "B");
-    remove("multimap1", "1", "D");
-    remove("multimap1", "1", "F");
-    removeAll("multimap1", "3");
-    assertThat(get("multimap1", "1"), contains("A", "C", "E"));
-    assertThat(get("multimap1", "2"), contains("X", "Y", "Z"));
-    assertThat(get("multimap1", "3").isEmpty(), is(true));
-    Map<String, List<String>> allValues = getAll("multimap1");
+    put("multimap1", "A", 0.1);
+    put("multimap1", "A", 0.2);
+    put("multimap1", "A", 0.3);
+    put("multimap1", "A", 0.4);
+    putAll("multimap1", "A", 0.1, 0.4, 0.5, 0.6);
+    put("multimap1", "B", 3.14159);
+    put("multimap1", "B", 2.71828);
+    putAll("multimap1", "B", 3.14159, 1.61803);
+    putAll("multimap1", "C", 1.2, 3.4, 5.6, 7.8);
+    remove("multimap1", "A", 0.2);
+    remove("multimap1", "A", 0.4);
+    remove("multimap1", "A", 0.6);
+    removeAll("multimap1", "C");
+    assertThat(get("multimap1", "A"), contains(0.1, 0.3, 0.5));
+    assertThat(get("multimap1", "B"), contains(1.61803, 2.71828, 3.14159));
+    assertThat(get("multimap1", "C").isEmpty(), is(true));
+    Map<String, List<Double>> allValues = getAll("multimap1");
     assertThat(allValues.size(), is(2));
     assertThat(
         allValues,
         allOf(
-            hasEntry(is("1"), contains("A", "C", "E")),
-            hasEntry(is("2"), contains("X", "Y", "Z"))));
+            hasEntry(is("A"), contains(0.1, 0.3, 0.5)),
+            hasEntry(is("B"), contains(1.61803, 2.71828, 3.14159))));
   }
 }
