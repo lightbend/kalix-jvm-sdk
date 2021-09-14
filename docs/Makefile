@@ -38,8 +38,8 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd .. && sbt sdk/doc
-	cd .. && sbt testkit/doc
+	cd .. && sbt sdkJava/doc
+	cd .. && sbt testkitJava/doc
 	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/target/api/ "${managed_attachments}/api/"
 	rsync -a ../testkit/target/api/ "${managed_attachments}/testkit/"
