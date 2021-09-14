@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scala
+package com.akkaserverless.codegen.scalasdk
 
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact

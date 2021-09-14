@@ -16,11 +16,11 @@
 
 package com.akkaserverless.sbt
 
+import com.akkaserverless.codegen.scalasdk.gen
 import sbt._
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
-import com.akkaserverless.codegen.scala.gen
 
 object AkkaserverlessPlugin extends AutoPlugin {
   override def trigger = allRequirements

@@ -245,7 +245,7 @@ lazy val codegenScala = Project(id = "akkaserverless-codegen-scala", base = file
   .settings(
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.akkaserverless.codegen.scala")
+    buildInfoPackage := "com.akkaserverless.codegen.scalasdk")
 
 lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)

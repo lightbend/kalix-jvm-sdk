@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scala
+package com.akkaserverless.codegen.scalasdk
 
 import protocbridge.{ Artifact, SandboxedJvmGenerator }
 import scalapb.GeneratorOption
@@ -25,10 +25,10 @@ object gen {
       SandboxedJvmGenerator.forModule(
         "scala",
         Artifact(
-          com.akkaserverless.codegen.scala.BuildInfo.organization,
+          com.akkaserverless.codegen.scalasdk.BuildInfo.organization,
           "akkaserverless-codegen-scala_2.12",
-          com.akkaserverless.codegen.scala.BuildInfo.version),
-        "com.akkaserverless.codegen.scala.AkkaserverlessGenerator$",
+          com.akkaserverless.codegen.scalasdk.BuildInfo.version),
+        "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$",
         AkkaserverlessGenerator.suggestedDependencies),
       options.map(_.toString))
 
