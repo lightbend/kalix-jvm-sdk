@@ -17,6 +17,6 @@ public class CounterStateSubscriptionAction extends AbstractCounterStateSubscrip
   /** Handler for "OnUpdateState". */
   @Override
   public Effect<Empty> onUpdateState(CounterDomain.CounterState counterState) {
-    throw new RuntimeException("The command handler for `OnUpdateState` is not implemented, yet");
+    return effects().noReply();
   }
 }
