@@ -42,7 +42,7 @@ apidocs:
 	cd .. && sbt testkitJava/doc
 	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
-	rsync -a ../testkit/target/api/ "${managed_attachments}/testkit/"
+	rsync -a ../testkit-java/target/api/ "${managed_attachments}/testkit/"
 
 examples:
 	mkdir -p "${managed_examples}"
