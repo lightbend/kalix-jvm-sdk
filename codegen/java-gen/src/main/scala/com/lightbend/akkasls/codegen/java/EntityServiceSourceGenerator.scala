@@ -23,7 +23,10 @@ import _root_.java.nio.file.{ Files, Path }
 
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
+import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedEntity
+import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
+import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
@@ -475,12 +478,14 @@ object EntityServiceSourceGenerator {
       (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.fqn)
         case ModelBuilder.ValueEntity(_, _, state)           => Seq(state.fqn)
-        case ModelBuilder.ReplicatedEntity(_, _, data)       => data.typeArguments.map(_.fqn)
+        case ModelBuilder.ReplicatedEntity(_, _, data) =>
+          data.typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
       })
 
     val extraImports = entity match {
-      case ModelBuilder.ReplicatedEntity(_, _, data) => ReplicatedEntitySourceGenerator.extraImports(data)
-      case _                                         => Seq.empty
+      case ModelBuilder.ReplicatedEntity(_, _, data) =>
+        ReplicatedEntitySourceGenerator.extraImports(data) ++ extraTypeImports(data.typeArguments)
+      case _ => Seq.empty
     }
 
     val imports = generateImports(
@@ -565,9 +570,16 @@ object EntityServiceSourceGenerator {
       typeArguments: Iterable[TypeArgument],
       packageName: String,
       otherImports: Seq[String]): String = {
-    val types = commandTypes(commands) ++ typeArguments.map(_.fqn)
-    generateImports(types, packageName, otherImports)
+    val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
+      fqn
+    }
+    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments))
   }
+
+  private[codegen] def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
+    typeArguments.collect { case ScalarTypeArgument(ScalarType.Bytes) =>
+      "com.google.protobuf.ByteString"
+    }.toSeq
 
   private[codegen] def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq

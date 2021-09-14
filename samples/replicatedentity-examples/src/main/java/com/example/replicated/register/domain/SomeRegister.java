@@ -25,7 +25,7 @@ public class SomeRegister extends AbstractSomeRegister {
   public Effect<Empty> set(
       ReplicatedRegister<SomeRegisterDomain.SomeValue> register, SomeRegisterApi.SetValue command) {
     SomeRegisterDomain.SomeValue newValue = // <1>
-        SomeRegisterDomain.SomeValue.newBuilder().setValue(command.getValue()).build();
+        SomeRegisterDomain.SomeValue.newBuilder().setSomeField(command.getValue()).build();
     return effects()
         .update(register.set(newValue)) // <2>
         .thenReply(Empty.getDefaultInstance());
@@ -38,7 +38,7 @@ public class SomeRegister extends AbstractSomeRegister {
       ReplicatedRegister<SomeRegisterDomain.SomeValue> register, SomeRegisterApi.GetValue command) {
     SomeRegisterDomain.SomeValue value = register.get(); // <1>
     SomeRegisterApi.CurrentValue currentValue = // <2>
-        SomeRegisterApi.CurrentValue.newBuilder().setValue(value.getValue()).build();
+        SomeRegisterApi.CurrentValue.newBuilder().setValue(value.getSomeField()).build();
     return effects().reply(currentValue);
   }
   // end::get[]

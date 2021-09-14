@@ -14,27 +14,17 @@
 
 syntax = "proto3";
 
-package com.example.replicated.registermap.domain;
+package com.example.replicated.multimap.domain;
 
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "SomeRegisterMapDomain";
+option java_outer_classname = "SomeScalarMultiMapDomain";
 
-// tag::replicated_entity[]
 option (akkaserverless.file).replicated_entity = {
-  name: "SomeRegisterMap"
-  entity_type: "some-register-map"
-  replicated_register_map: { // <1>
-    key: "SomeKey" // <2>
-    value: "SomeValue" // <3>
+  name: "SomeScalarMultiMap"
+  entity_type: "some-scalar-multi-map"
+  replicated_multi_map: {
+    key: "string"
+    value: "double"
   }
 };
-
-message SomeKey {
-  string some_field = 1;
-}
-
-message SomeValue {
-  string some_field = 1;
-}
-// end::replicated_entity[]

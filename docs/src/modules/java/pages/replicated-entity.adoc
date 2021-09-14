@@ -197,7 +197,9 @@ include::example$replicatedentity-examples/src/main/proto/replicated/register_do
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register.
-<2> Specify the `protobuf` message type for the register's value.
+<2> Specify the `protobuf` type for the value of the Replicated Register.
+
+NOTE: The type for the value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the value type in this example.
 
 When implementing a Replicated Register entity, an initial or empty value needs to be defined by overriding the `emptyValue` method:
 
@@ -245,7 +247,9 @@ include::example$replicatedentity-examples/src/main/proto/replicated/set_domain.
 ----
 
 <1> Specify the Replicated Data type as a Replicated Set.
-<2> Specify the `protobuf` message type for the elements of the set.
+<2> Specify the `protobuf` type for the elements of the Replicated Set.
+
+NOTE: The type for the elements can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the element type in this example, which corresponds to the Java `String` class.
 
 IMPORTANT: Care needs to be taken to ensure that the serialized values for elements in the set are stable.
 
@@ -257,8 +261,7 @@ When implementing a Replicated Set entity, the state can be updated by calling t
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
 ----
 
-<1> Create a domain object for the element.
-<2> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+<1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 The `elements` method for Replicated Set returns a regular `java.util.Set` that can be used to iterate over the current elements:
 
@@ -286,7 +289,9 @@ include::example$replicatedentity-examples/src/main/proto/replicated/counter_map
 ----
 
 <1> Specify the Replicated Data type as a Replicated Counter Map.
-<2> Specify the `protobuf` message type for the keys of the map.
+<2> Specify the `protobuf` type for the keys of the Replicated Counter Map.
+
+NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type in this example, which corresponds to the Java `String` class.
 
 When implementing a Replicated Counter Map entity, the value of an entry can be updated by calling the `increment` or `decrement` methods on the current data object, and then triggering an update with the modified data object. Entries can be removed from the map using the `remove` method.
 
@@ -296,8 +301,7 @@ When implementing a Replicated Counter Map entity, the value of an entry can be 
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
 ----
 
-<1> Create a domain object for the key.
-<2> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+<1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual counters in a Replicated Counter Map can be accessed, or the set of keys can be used to iterate over all counters.
 
@@ -307,9 +311,8 @@ Individual counters in a Replicated Counter Map can be accessed, or the set of k
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
 ----
 
-<1> Create a domain object for the key.
-<2> Get the current counter value for a key using `get`.
-<3> Iterate over the current entries of a Replicated Counter Map using `keySet`. Note that this may not be the most up-to-date view of the entries when there are concurrent modifications.
+<1> Get the current counter value for a key using `get`.
+<2> Iterate over the current entries of a Replicated Counter Map using `keySet`.
 
 NOTE: The `get` method returns a default value of `0L` if the map does not contain the key.
 
@@ -331,8 +334,10 @@ include::example$replicatedentity-examples/src/main/proto/replicated/register_ma
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register Map.
-<2> Specify the `protobuf` message type for the keys of the map.
-<3> Specify the `protobuf` message type for the values of the map.
+<2> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<3> Specify the `protobuf` type for the values of the Replicated Register Map.
+
+NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. Message types are being used for both the key and value types in this example.
 
 When implementing a Replicated Register Map entity, the value of an entry can be updated by calling the `setValue` method on the current data object, and then triggering an update with the modified data object. Entries can be removed from the map using the `remove` method.
 
@@ -376,8 +381,10 @@ include::example$replicatedentity-examples/src/main/proto/replicated/multi_map_d
 ----
 
 <1> Specify the Replicated Data type as a Replicated Multi-Map.
-<2> Specify the `protobuf` message type for the keys of the multi-map.
-<3> Specify the `protobuf` message type for the values of the multi-map.
+<2> Specify the `protobuf` type for the keys of the Replicated Multi-Map.
+<3> Specify the `protobuf` type for the values of the Replicated Multi-Map.
+
+NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type and the `double` scalar type for the value type in this example, which correspond to the Java types for `String` and `Double`.
 
 When implementing a Replicated Multi-Map entity, the values of an entry can be updated by calling the `put`, `putAll`, or `remove` methods on the current data object, and then triggering an update with the modified data object. Entries can be removed entirely from the map using the `removeAll` method.
 
@@ -387,9 +394,7 @@ When implementing a Replicated Multi-Map entity, the values of an entry can be u
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
 ----
 
-<1> Create a domain object for the key.
-<2> Create a domain object for the value.
-<3> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
+<1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Individual entries in a Replicated Multi-Map can be accessed, or the set of keys can be used to iterate over all value sets.
 
@@ -399,9 +404,8 @@ Individual entries in a Replicated Multi-Map can be accessed, or the set of keys
 include::example$replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
 ----
 
-<1> Create a domain object for the key.
-<2> Get the current set of values for a key using `get`.
-<3> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
+<1> Get the current set of values for a key using `get`.
+<2> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
 
 NOTE: Entries may not contain the most up-to-date values when there are concurrent modifications.
 
@@ -421,7 +425,9 @@ include::example$replicatedentity-examples/src/main/proto/replicated/map_domain.
 ----
 
 <1> Specify the Replicated Data type as a Replicated Map.
-<2> Specify the `protobuf` message type for the keys of the map.
+<2> Specify the `protobuf` type for the keys of the map.
+
+NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the key type in this example.
 
 NOTE: The value type for a Replicated Map is not specified for code-generation, and will be set to `ReplicatedData` for a heterogeneous map (a Replicated Map that contains different types of Replicated Data values).
 

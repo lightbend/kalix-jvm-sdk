@@ -16,7 +16,6 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounter
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounterMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedData
@@ -31,11 +30,12 @@ import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   def testEntityServiceImplementation(
+      testName: String,
       replicatedData: ReplicatedData,
       expectedImports: String,
       expectedDataType: String,
       expectedEmptyValue: String = ""): Unit =
-    test(s"Generated replicated entity service implementation - ${replicatedData.name}") {
+    test(s"Generated replicated entity service implementation - $testName") {
       assertNoDiff(
         ReplicatedEntitySourceGenerator.replicatedEntitySource(
           service = TestData.simpleEntityService(),
@@ -49,7 +49,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |package com.example.service;
             |
             |$expectedImports
-            |import com.external.Empty;
             |
             |/** A replicated entity. */
             |public class MyService extends AbstractMyService {
@@ -73,20 +72,24 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |""".stripMargin)
     }
 
-  def domainType(name: String): TypeArgument = TypeArgument(FullyQualifiedName(name, TestData.domainProto()))
+  def domainType(name: String): TypeArgument = TypeArgument(name, TestData.domainProto())
 
   testEntityServiceImplementation(
+    "ReplicatedCounter",
     ReplicatedCounter,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedCounter")
 
   testEntityServiceImplementation(
+    "ReplicatedRegister (with protobuf message type)",
     ReplicatedRegister(domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedRegister<EntityOuterClass.SomeValue>",
     """|
@@ -97,50 +100,124 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin)
 
   testEntityServiceImplementation(
+    "ReplicatedRegister (with protobuf scalar type)",
+    ReplicatedRegister(domainType("bytes")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
+       |import com.external.Empty;
+       |import com.google.protobuf.ByteString;
+       |""".stripMargin.trim,
+    "ReplicatedRegister<ByteString>",
+    """|
+       |  @Override
+       |  public ByteString emptyValue() {
+       |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value");
+       |  }
+       |""".stripMargin)
+
+  testEntityServiceImplementation(
+    "ReplicatedSet (with protobuf message type)",
     ReplicatedSet(domainType("SomeElement")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedSet<EntityOuterClass.SomeElement>")
 
   testEntityServiceImplementation(
+    "ReplicatedSet (with protobuf scalar type)",
+    ReplicatedSet(domainType("string")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
+       |import com.external.Empty;
+       |""".stripMargin.trim,
+    "ReplicatedSet<String>")
+
+  testEntityServiceImplementation(
+    "ReplicatedMap (with protobuf message type)",
     ReplicatedMap(domainType("SomeKey")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedMap<EntityOuterClass.SomeKey, ReplicatedData>")
 
   testEntityServiceImplementation(
+    "ReplicatedMap (with protobuf scalar type)",
+    ReplicatedMap(domainType("int32")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
+       |import com.external.Empty;
+       |""".stripMargin.trim,
+    "ReplicatedMap<Integer, ReplicatedData>")
+
+  testEntityServiceImplementation(
+    "ReplicatedCounterMap (with protobuf message type)",
     ReplicatedCounterMap(domainType("SomeKey")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedCounterMap<EntityOuterClass.SomeKey>")
 
   testEntityServiceImplementation(
+    "ReplicatedCounterMap (with protobuf scalar type)",
+    ReplicatedCounterMap(domainType("string")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.external.Empty;
+       |""".stripMargin.trim,
+    "ReplicatedCounterMap<String>")
+
+  testEntityServiceImplementation(
+    "ReplicatedRegisterMap (with protobuf message type)",
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedRegisterMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>")
 
   testEntityServiceImplementation(
+    "ReplicatedRegisterMap (with protobuf scalar types)",
+    ReplicatedRegisterMap(domainType("double"), domainType("string")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
+       |import com.external.Empty;
+       |""".stripMargin.trim,
+    "ReplicatedRegisterMap<Double, String>")
+
+  testEntityServiceImplementation(
+    "ReplicatedMultiMap (with protobuf message type)",
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
        |import com.example.service.domain.EntityOuterClass;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedMultiMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>")
 
   testEntityServiceImplementation(
+    "ReplicatedMultiMap (with protobuf scalar types)",
+    ReplicatedMultiMap(domainType("sint32"), domainType("double")),
+    """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+       |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
+       |import com.external.Empty;
+       |""".stripMargin.trim,
+    "ReplicatedMultiMap<Integer, Double>")
+
+  testEntityServiceImplementation(
+    "ReplicatedVote",
     ReplicatedVote,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote;
+       |import com.external.Empty;
        |""".stripMargin.trim,
     "ReplicatedVote")
 

@@ -16,13 +16,13 @@ public class SomeMap extends AbstractSomeMap {
   private final String entityId;
 
   private static final SomeMapDomain.SomeKey FOO_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("foo").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("foo").build();
 
   private static final SomeMapDomain.SomeKey BAR_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("bar").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("bar").build();
 
   private static final SomeMapDomain.SomeKey BAZ_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("baz").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("baz").build();
 
   public SomeMap(ReplicatedEntityContext context) {
     this.entityId = context.entityId();

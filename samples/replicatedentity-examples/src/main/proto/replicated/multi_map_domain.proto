@@ -25,16 +25,8 @@ option (akkaserverless.file).replicated_entity = {
   name: "SomeMultiMap"
   entity_type: "some-multi-map"
   replicated_multi_map: { // <1>
-    key: "SomeKey" // <2>
-    value: "SomeValue" // <3>
+    key: "string" // <2>
+    value: "double" // <3>
   }
 };
-
-message SomeKey {
-  string key = 1;
-}
-
-message SomeValue {
-  string value = 1;
-}
 // end::replicated_entity[]

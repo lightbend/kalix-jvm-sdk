@@ -250,7 +250,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val entity = ModelBuilder.ReplicatedEntity(
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
-        ModelBuilder.ReplicatedCounterMap(ModelBuilder.TypeArgument(FullyQualifiedName("Product", domainProto))))
+        ModelBuilder.ReplicatedCounterMap(ModelBuilder.TypeArgument("Product", domainProto)))
 
       assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
 

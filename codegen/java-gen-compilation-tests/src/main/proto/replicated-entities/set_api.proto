@@ -53,3 +53,14 @@ service SetService {
   rpc Remove(RemoveElement) returns (google.protobuf.Empty);
   rpc Get(GetElements) returns (CurrentElements);
 }
+
+service ScalarSetService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.set.domain.SomeScalarSet"
+  };
+
+  rpc Add(AddElement) returns (google.protobuf.Empty);
+  rpc Remove(RemoveElement) returns (google.protobuf.Empty);
+  rpc Get(GetElements) returns (CurrentElements);
+}

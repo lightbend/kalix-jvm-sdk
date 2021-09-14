@@ -5,7 +5,6 @@ import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
 import com.example.replicated.set.SomeSetApi;
 import com.google.protobuf.Empty;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,22 +18,16 @@ public class SomeSet extends AbstractSomeSet {
 
   // tag::update[]
   @Override
-  public Effect<Empty> add(
-      ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.AddElement command) {
-    SomeSetDomain.SomeElement element = // <1>
-        SomeSetDomain.SomeElement.newBuilder().setValue(command.getElement().getValue()).build();
+  public Effect<Empty> add(ReplicatedSet<String> set, SomeSetApi.AddElement command) {
     return effects()
-        .update(set.add(element)) // <2>
+        .update(set.add(command.getElement())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
 
   @Override
-  public Effect<Empty> remove(
-      ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.RemoveElement command) {
-    SomeSetDomain.SomeElement element = // <1>
-        SomeSetDomain.SomeElement.newBuilder().setValue(command.getElement().getValue()).build();
+  public Effect<Empty> remove(ReplicatedSet<String> set, SomeSetApi.RemoveElement command) {
     return effects()
-        .update(set.remove(element)) // <2>
+        .update(set.remove(command.getElement())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]
@@ -42,11 +35,10 @@ public class SomeSet extends AbstractSomeSet {
   // tag::get[]
   @Override
   public Effect<SomeSetApi.CurrentElements> get(
-      ReplicatedSet<SomeSetDomain.SomeElement> set, SomeSetApi.GetElements command) {
-    List<SomeSetApi.Element> elements =
+      ReplicatedSet<String> set, SomeSetApi.GetElements command) {
+    List<String> elements =
         set.elements().stream() // <1>
-            .map(element -> SomeSetApi.Element.newBuilder().setValue(element.getValue()).build())
-            .sorted(Comparator.comparing(SomeSetApi.Element::getValue))
+            .sorted()
             .collect(Collectors.toList());
 
     SomeSetApi.CurrentElements currentElements =
