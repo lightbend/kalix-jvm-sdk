@@ -2,7 +2,17 @@ import Dependencies._
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
-  .aggregate(sdkCore, sdkJava, sdkScala, testkitJava, tck, codegenCore, codegenJava, codegenJavaCompilationTest, codegenScala, sbtPlugin)
+  .aggregate(
+    sdkCore,
+    sdkJava,
+    sdkScala,
+    testkitJava,
+    tck,
+    codegenCore,
+    codegenJava,
+    codegenJavaCompilationTest,
+    codegenScala,
+    sbtPlugin)
 
 //FIXME duplicating most settings in sdkCore, sdkJava, sdkScala for now, cleanup later.
 lazy val sdkCore = project
