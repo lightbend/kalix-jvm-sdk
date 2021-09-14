@@ -17,8 +17,9 @@
 package com.lightbend.akkasls.codegen
 
 trait Log {
+  // On sbt we don't have a neat way to hook into logging,
+  // so there debug/info messages are either silent or println'ed, and
+  // all other problems should be fatal.
   def debug(message: String): Unit
   def info(message: String): Unit
-  def warning(message: String): Unit
-  def error(message: String): Unit
 }

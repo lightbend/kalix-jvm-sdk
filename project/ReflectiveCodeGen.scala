@@ -51,8 +51,6 @@ object ReflectiveCodeGen extends AutoPlugin {
       |  implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
       |      override def debug(message: String): Unit = logger.debug(message)
       |      override def info(message: String): Unit = logger.info(message)
-      |      override def warning(message: String): Unit = logger.warn(message)
-      |      override def error(message: String): Unit = logger.error(message)
       |    }
       |  
       |  SourceGenerator

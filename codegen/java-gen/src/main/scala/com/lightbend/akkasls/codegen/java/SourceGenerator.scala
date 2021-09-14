@@ -70,11 +70,9 @@ object SourceGenerator {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName) match {
           case None =>
-            // TODO perhaps we even want to make this an error, to really go all-in on codegen?
-            log.warning(
+            throw new IllegalStateException(
               "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
               "], but no entity configuration is found for that component name")
-            Seq.empty
           case Some(entity) =>
             EntityServiceSourceGenerator.generate(
               entity,
