@@ -127,7 +127,7 @@ lazy val testkitJava = project
     Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
-  .settings(Dependencies.testkit)
+  .settings(Dependencies.testkitJava)
 
 //FIXME add scalasdk as package to tck, tck will test both java and scala sdk
 lazy val tck = project

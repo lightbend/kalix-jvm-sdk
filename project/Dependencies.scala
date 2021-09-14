@@ -85,7 +85,7 @@ object Dependencies {
     "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
-  val testkit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
+  val testkitJava = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
 
   val codegenCore = deps ++= Seq(
     protobufJava,
