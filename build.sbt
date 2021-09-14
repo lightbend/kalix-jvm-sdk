@@ -254,5 +254,9 @@ lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"
   .settings(Dependencies.sbtPlugin)
   .settings(
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false,
   )
   .dependsOn(codegenScala)

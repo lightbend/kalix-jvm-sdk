@@ -26,8 +26,8 @@ object AkkaserverlessGenerator extends CodeGenApp {
       Seq(
         CodeGeneratorResponse.File
           .newBuilder()
-          .setName("foo.bar.Baz")
-          .setContent("package foo.bar\n\npublic trait Baz")
+          .setName("foo/bar/Baz.scala")
+          .setContent("package foo.bar\n\ntrait Baz")
           .build()))
 
   // FIXME #382 add reference to the runtime lib here

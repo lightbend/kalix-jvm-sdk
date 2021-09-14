@@ -23,9 +23,13 @@ import sbtprotoc.ProtocPlugin.autoImport.PB
 import com.akkaserverless.codegen.scala.gen
 
 object AkkaserverlessPlugin extends AutoPlugin {
-  override def trigger = noTrigger
+  override def trigger = allRequirements
   override def requires = ProtocPlugin
 
   override def projectSettings: Seq[sbt.Setting[_]] = Seq(
-    PB.targets += gen() -> (Compile / sourceManaged).value / "akkaserverless")
+    libraryDependencies ++= Seq(
+      "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.18" % "protobuf",
+      "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf"),
+    Compile / PB.targets += gen() -> (Compile / sourceManaged).value / "akkaserverless")
+
 }
