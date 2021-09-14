@@ -16,14 +16,16 @@
 
 package com.akkaserverless.javasdk;
 
-import com.akkaserverless.javasdk.impl.AnySupport;
-import com.akkaserverless.javasdk.impl.AnySupport$;
 import com.akkaserverless.javasdk.impl.ByteStringEncoding;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.protobuf.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -32,6 +34,37 @@ public final class JsonSupport {
   public static final String AKKA_SERVERLESS_JSON = "json.akkaserverless.com/";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  static {
+    // Date/time in ISO-8601 (rfc3339) yyyy-MM-dd'T'HH:mm:ss.SSSZ format
+    // as defined by com.fasterxml.jackson.databind.util.StdDateFormat
+    // For interoperability it's better to use the ISO format, i.e. WRITE_DATES_AS_TIMESTAMPS=off,
+    // but WRITE_DATES_AS_TIMESTAMPS=on has better performance.
+    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    objectMapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
+
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+    // ParameterNamesModule needs the parameter to ensure that single-parameter
+    // constructors are handled the same way as constructors with multiple parameters.
+    // See https://github.com/FasterXML/jackson-module-parameter-names#delegating-creator
+    objectMapper.registerModule(
+        new com.fasterxml.jackson.module.paramnames.ParameterNamesModule(
+            JsonCreator.Mode.PROPERTIES));
+    objectMapper.registerModule(new com.fasterxml.jackson.datatype.jdk8.Jdk8Module());
+    objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+  }
+
+  /**
+   * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
+   * configuration, but that must only be performed before starting {@link
+   * com.akkaserverless.javasdk.AkkaServerless}
+   */
+  public static ObjectMapper getObjectMapper() {
+    return objectMapper;
+  }
 
   private JsonSupport() {};
 
