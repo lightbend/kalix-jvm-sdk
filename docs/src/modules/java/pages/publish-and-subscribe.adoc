@@ -1,0 +1,7 @@
+= Publishing and subscribing to topics on a broker
+:page-aliases: java:topic-eventing.adoc
+
+include::ROOT:partial$include.adoc[]
+include::partial$topic-eventing.adoc[]
+
+include::partial$topic-eventing-cloudevent.adoc[]

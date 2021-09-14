@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{eventsourcedentity, valueentity}
+import com.akkaserverless.javasdk.{ eventsourcedentity, valueentity }
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
@@ -25,11 +25,12 @@ import com.akkaserverless.protocol.value_entity.ValueEntityInit
 
 object EntityExceptions {
 
-  final case class EntityException(entityId: String,
-                                   commandId: Long,
-                                   commandName: String,
-                                   message: String,
-                                   cause: Option[Throwable])
+  final case class EntityException(
+      entityId: String,
+      commandId: Long,
+      commandName: String,
+      message: String,
+      cause: Option[Throwable])
       extends RuntimeException(message, cause.orNull) {
     def this(entityId: String, commandId: Long, commandName: String, message: String) =
       this(entityId, commandId, commandName, message, None)
@@ -80,7 +81,7 @@ object EntityExceptions {
 
   def failure(cause: Throwable): Failure = cause match {
     case e: EntityException => Failure(e.commandId, e.message)
-    case e => Failure(description = "Unexpected failure: " + e.getMessage)
+    case e                  => Failure(description = "Unexpected failure: " + e.getMessage)
   }
 
   def failureMessage(cause: Throwable): String = cause match {

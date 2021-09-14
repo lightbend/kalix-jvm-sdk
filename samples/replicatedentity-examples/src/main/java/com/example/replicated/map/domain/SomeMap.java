@@ -2,7 +2,6 @@ package com.example.replicated.map.domain;
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
@@ -17,13 +16,13 @@ public class SomeMap extends AbstractSomeMap {
   private final String entityId;
 
   private static final SomeMapDomain.SomeKey FOO_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("foo").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("foo").build();
 
   private static final SomeMapDomain.SomeKey BAR_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("bar").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("bar").build();
 
   private static final SomeMapDomain.SomeKey BAZ_KEY =
-      SomeMapDomain.SomeKey.newBuilder().setKey("baz").build();
+      SomeMapDomain.SomeKey.newBuilder().setSomeField("baz").build();
 
   public SomeMap(ReplicatedEntityContext context) {
     this.entityId = context.entityId();
@@ -34,8 +33,7 @@ public class SomeMap extends AbstractSomeMap {
   public Effect<Empty> increaseFoo(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map,
       SomeMapApi.IncreaseFooValue command) {
-    ReplicatedCounter foo = // <1>
-        (ReplicatedCounter) map.getOrElse(FOO_KEY, ReplicatedDataFactory::newCounter);
+    ReplicatedCounter foo = map.getReplicatedCounter(FOO_KEY); // <1>
     return effects()
         .update(map.update(FOO_KEY, foo.increment(command.getValue()))) // <2> <3>
         .thenReply(Empty.getDefaultInstance());
@@ -45,8 +43,7 @@ public class SomeMap extends AbstractSomeMap {
   public Effect<Empty> decreaseFoo(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map,
       SomeMapApi.DecreaseFooValue command) {
-    ReplicatedCounter foo = // <1>
-        (ReplicatedCounter) map.getOrElse(FOO_KEY, ReplicatedDataFactory::newCounter);
+    ReplicatedCounter foo = map.getReplicatedCounter(FOO_KEY); // <1>
     return effects()
         .update(map.update(FOO_KEY, foo.decrement(command.getValue()))) // <2> <3>
         .thenReply(Empty.getDefaultInstance());
@@ -55,9 +52,7 @@ public class SomeMap extends AbstractSomeMap {
   @Override
   public Effect<Empty> setBar(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map, SomeMapApi.SetBarValue command) {
-    @SuppressWarnings("unchecked")
-    ReplicatedRegister<String> bar = // <1>
-        (ReplicatedRegister<String>) map.getOrElse(BAR_KEY, factory -> factory.newRegister(""));
+    ReplicatedRegister<String> bar = map.getReplicatedRegister(BAR_KEY); // <1>
     return effects()
         .update(map.update(BAR_KEY, bar.set(command.getValue()))) // <2> <3>
         .thenReply(Empty.getDefaultInstance());
@@ -66,9 +61,7 @@ public class SomeMap extends AbstractSomeMap {
   @Override
   public Effect<Empty> addBaz(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map, SomeMapApi.AddBazValue command) {
-    @SuppressWarnings("unchecked")
-    ReplicatedSet<String> baz = // <1>
-        (ReplicatedSet<String>) map.getOrElse(BAZ_KEY, ReplicatedDataFactory::newReplicatedSet);
+    ReplicatedSet<String> baz = map.getReplicatedSet(BAZ_KEY); // <1>
     return effects()
         .update(map.update(BAZ_KEY, baz.add(command.getValue()))) // <2> <3>
         .thenReply(Empty.getDefaultInstance());
@@ -77,9 +70,7 @@ public class SomeMap extends AbstractSomeMap {
   @Override
   public Effect<Empty> removeBaz(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map, SomeMapApi.RemoveBazValue command) {
-    @SuppressWarnings("unchecked")
-    ReplicatedSet<String> baz = // <1>
-        (ReplicatedSet<String>) map.getOrElse(BAZ_KEY, ReplicatedDataFactory::newReplicatedSet);
+    ReplicatedSet<String> baz = map.getReplicatedSet(BAZ_KEY); // <1>
     return effects()
         .update(map.update(BAZ_KEY, baz.remove(command.getValue()))) // <2> <3>
         .thenReply(Empty.getDefaultInstance());
@@ -90,14 +81,9 @@ public class SomeMap extends AbstractSomeMap {
   @Override
   public Effect<SomeMapApi.CurrentValues> get(
       ReplicatedMap<SomeMapDomain.SomeKey, ReplicatedData> map, SomeMapApi.GetValues command) {
-    ReplicatedCounter foo = // <1>
-        (ReplicatedCounter) map.getOrElse(FOO_KEY, ReplicatedDataFactory::newCounter);
-    @SuppressWarnings("unchecked")
-    ReplicatedRegister<String> bar = // <1>
-        (ReplicatedRegister<String>) map.getOrElse(BAR_KEY, factory -> factory.newRegister(""));
-    @SuppressWarnings("unchecked")
-    ReplicatedSet<String> baz = // <1>
-        (ReplicatedSet<String>) map.getOrElse(BAZ_KEY, ReplicatedDataFactory::newReplicatedSet);
+    ReplicatedCounter foo = map.getReplicatedCounter(FOO_KEY); // <1>
+    ReplicatedRegister<String> bar = map.getReplicatedRegister(BAR_KEY, () -> ""); // <1>
+    ReplicatedSet<String> baz = map.getReplicatedSet(BAZ_KEY); // <1>
     SomeMapApi.CurrentValues currentValues =
         SomeMapApi.CurrentValues.newBuilder()
             .setFoo(foo.getValue())

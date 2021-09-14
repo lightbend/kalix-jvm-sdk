@@ -17,14 +17,14 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote
-import com.akkaserverless.protocol.replicated_entity.{ReplicatedEntityDelta, VoteDelta}
+import com.akkaserverless.protocol.replicated_entity.{ ReplicatedEntityDelta, VoteDelta }
 
 private[replicatedentity] final class ReplicatedVoteImpl(
     selfVote: Boolean = false,
     votesFor: Int = 0,
     voters: Int = 1,
-    selfVoteChanged: Boolean = false
-) extends ReplicatedVote
+    selfVoteChanged: Boolean = false)
+    extends ReplicatedVote
     with InternalReplicatedData {
 
   override type Self = ReplicatedVoteImpl

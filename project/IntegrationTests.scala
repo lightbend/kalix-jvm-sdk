@@ -22,8 +22,7 @@ object IntegrationTests extends AutoPlugin {
     inConfig(IntegrationTest)(JavaFormatterPlugin.toBeScopedSettings) ++
     HeaderPlugin.autoImport.headerSettings(IntegrationTest) ++
     AutomateHeaderPlugin.autoImport.automateHeaderSettings(IntegrationTest) ++ Seq(
-      IntegrationTest / fork := (Test / fork).value
-    )
+      IntegrationTest / fork := (Test / fork).value)
 }
 
 /**
@@ -39,6 +38,5 @@ object AkkaGrpcIntegrationTests extends AutoPlugin {
   override def projectSettings = AkkaGrpcPlugin.configSettings(IntegrationTest) ++ Seq(
     // protobuf external sources are filtered out by sbt-protoc and then added again by sbt-akka-grpc
     IntegrationTest / unmanagedResourceDirectories := (IntegrationTest / unmanagedResourceDirectories).value
-        .filterNot(_ == PB.externalSourcePath.value)
-  )
+      .filterNot(_ == PB.externalSourcePath.value))
 }

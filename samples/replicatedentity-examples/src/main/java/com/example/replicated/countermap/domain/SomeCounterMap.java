@@ -20,34 +20,25 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
   // tag::update[]
   @Override
   public Effect<Empty> increase(
-      ReplicatedCounterMap<SomeCounterMapDomain.SomeKey> counterMap,
-      SomeCounterMapApi.IncreaseValue command) {
-    SomeCounterMapDomain.SomeKey key = // <1>
-        SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
+      ReplicatedCounterMap<String> counterMap, SomeCounterMapApi.IncreaseValue command) {
     return effects()
-        .update(counterMap.increment(key, command.getValue())) // <2>
+        .update(counterMap.increment(command.getKey(), command.getValue())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
 
   @Override
   public Effect<Empty> decrease(
-      ReplicatedCounterMap<SomeCounterMapDomain.SomeKey> counterMap,
-      SomeCounterMapApi.DecreaseValue command) {
-    SomeCounterMapDomain.SomeKey key = // <1>
-        SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
+      ReplicatedCounterMap<String> counterMap, SomeCounterMapApi.DecreaseValue command) {
     return effects()
-        .update(counterMap.decrement(key, command.getValue())) // <2>
+        .update(counterMap.decrement(command.getKey(), command.getValue())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
 
   @Override
   public Effect<Empty> remove(
-      ReplicatedCounterMap<SomeCounterMapDomain.SomeKey> counterMap,
-      SomeCounterMapApi.RemoveValue command) {
-    SomeCounterMapDomain.SomeKey key = // <1>
-        SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
+      ReplicatedCounterMap<String> counterMap, SomeCounterMapApi.RemoveValue command) {
     return effects()
-        .update(counterMap.remove(key)) // <2>
+        .update(counterMap.remove(command.getKey())) // <1>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::update[]
@@ -55,11 +46,8 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
   // tag::get[]
   @Override
   public Effect<SomeCounterMapApi.CurrentValue> get(
-      ReplicatedCounterMap<SomeCounterMapDomain.SomeKey> counterMap,
-      SomeCounterMapApi.GetValue command) {
-    SomeCounterMapDomain.SomeKey key = // <1>
-        SomeCounterMapDomain.SomeKey.newBuilder().setKey(command.getKey()).build();
-    long value = counterMap.get(key); // <2>
+      ReplicatedCounterMap<String> counterMap, SomeCounterMapApi.GetValue command) {
+    long value = counterMap.get(command.getKey()); // <1>
     SomeCounterMapApi.CurrentValue currentValue =
         SomeCounterMapApi.CurrentValue.newBuilder().setValue(value).build();
     return effects().reply(currentValue);
@@ -67,11 +55,10 @@ public class SomeCounterMap extends AbstractSomeCounterMap {
 
   @Override
   public Effect<SomeCounterMapApi.CurrentValues> getAll(
-      ReplicatedCounterMap<SomeCounterMapDomain.SomeKey> counterMap,
-      SomeCounterMapApi.GetAllValues command) {
+      ReplicatedCounterMap<String> counterMap, SomeCounterMapApi.GetAllValues command) {
     Map<String, Long> values =
-        counterMap.keySet().stream() // <3>
-            .map(key -> new SimpleEntry<>(key.getKey(), counterMap.get(key)))
+        counterMap.keySet().stream() // <2>
+            .map(key -> new SimpleEntry<>(key, counterMap.get(key)))
             .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     SomeCounterMapApi.CurrentValues currentValues =
         SomeCounterMapApi.CurrentValues.newBuilder().putAllValues(values).build();

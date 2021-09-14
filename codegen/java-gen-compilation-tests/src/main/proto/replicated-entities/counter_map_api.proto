@@ -61,3 +61,15 @@ service CounterMapService {
   rpc Get(GetValue) returns (CurrentValue);
   rpc GetAll(GetAllValues) returns (CurrentValues);
 }
+
+service ScalarCounterMapService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.countermap.domain.SomeScalarCounterMap"
+  };
+
+  rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
+  rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);
+  rpc Get(GetValue) returns (CurrentValue);
+  rpc GetAll(GetAllValues) returns (CurrentValues);
+}

@@ -34,7 +34,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   def domainType(name: String): ModelBuilder.TypeArgument =
-    ModelBuilder.TypeArgument(FullyQualifiedName(name, TestData.domainProto()))
+    ModelBuilder.TypeArgument(name, TestData.domainProto())
 
   test("generate") {
     val sourceDirectory = Files.createTempDirectory("source-generator-test")
@@ -63,22 +63,16 @@ class SourceGeneratorSuite extends munit.FunSuite {
             FileUtils.touch(testSourceFile2)
 
             val integrationTestSource2 =
-              integrationTestSourceDirectory.resolve(
-                "com/example/service/domain/MyValueEntity2IntegrationTest.java"
-              )
+              integrationTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2IntegrationTest.java")
             val integrationTestSourceFile2 = integrationTestSource2.toFile
             FileUtils.forceMkdir(integrationTestSourceFile2.getParentFile)
             FileUtils.touch(integrationTestSourceFile2)
 
             val implSource1 =
-              generatedSourceDirectory.resolve(
-                "com/example/service/domain/AbstractMyEntity1.java"
-              )
+              generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity1.java")
             val implSourceFile1 = implSource1.toFile
             val implSource2 =
-              generatedSourceDirectory.resolve(
-                "com/example/service/domain/AbstractMyEntity2.java"
-              )
+              generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity2.java")
             val implSourceFile2 = implSource2.toFile
             FileUtils.forceMkdir(implSourceFile1.getParentFile)
             FileUtils.touch(implSourceFile1)
@@ -98,8 +92,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
               "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
               "com.example.Service5" -> TestData.simpleActionService(service5Proto),
-              "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6")
-            )
+              "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6"))
 
             val entities = Map(
               "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
@@ -107,9 +100,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
               "com.example.Entity6" -> TestData.replicatedEntity(
                 ModelBuilder.ReplicatedSet(domainType("SomeElement")),
-                suffix = "6"
-              )
-            )
+                suffix = "6"))
 
             val sources = SourceGenerator.generate(
               ModelBuilder.Model(services, entities),
@@ -118,8 +109,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
               integrationTestSourceDirectory,
               generatedSourceDirectory,
               generatedTestSourceDirectory,
-              "com.example.service.Main"
-            )
+              "com.example.service.Main")
 
             assertEquals(Files.size(source1), 0L)
             assertEquals(Files.size(testSource2), 0L)
@@ -127,98 +117,43 @@ class SourceGeneratorSuite extends munit.FunSuite {
             assertEquals(
               sources.toSet,
               Set(
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/AbstractMyEntity1.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity1Handler.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity1Provider.java"
-                ),
-                generatedTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity1TestKit.java"
-                ),
-                testSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity1Test.java"
-                ),
-                integrationTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity1IntegrationTest.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity1.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyEntity1Handler.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyEntity1Provider.java"),
+                generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity1TestKit.java"),
+                testSourceDirectory.resolve("com/example/service/domain/MyEntity1Test.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/domain/MyEntity1IntegrationTest.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyValueEntity2.java"),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/AbstractMyValueEntity2.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyValueEntity2Provider.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyValueEntity2Handler.java"
-                ),
-                generatedTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyValueEntity2TestKit.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyValueEntity2.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Provider.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Handler.java"),
+                generatedTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2TestKit.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyEntity3.java"),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/AbstractMyEntity3.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity3Handler.java"
-                ),
-                integrationTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity3IntegrationTest.java"
-                ),
-                testSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity3Test.java"
-                ),
-                generatedTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity3TestKit.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyEntity3Provider.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity3.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Handler.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/domain/MyEntity3IntegrationTest.java"),
+                testSourceDirectory.resolve("com/example/service/domain/MyEntity3Test.java"),
+                generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity3TestKit.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Provider.java"),
                 sourceDirectory.resolve("com/example/service/MyService4View.java"),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/AbstractMyService4View.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/MyService4ViewHandler.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/MyService4ViewProvider.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/AbstractMyService4View.java"),
+                generatedSourceDirectory.resolve("com/example/service/MyService4ViewHandler.java"),
+                generatedSourceDirectory.resolve("com/example/service/MyService4ViewProvider.java"),
                 sourceDirectory.resolve("com/example/service/MyService5Action.java"),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/AbstractMyService5Action.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/MyService5ActionProvider.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/MyService5ActionHandler.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/AbstractMyService5Action.java"),
+                generatedSourceDirectory.resolve("com/example/service/MyService5ActionProvider.java"),
+                generatedSourceDirectory.resolve("com/example/service/MyService5ActionHandler.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyReplicatedEntity6.java"),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/AbstractMyReplicatedEntity6.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyReplicatedEntity6Handler.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/domain/MyReplicatedEntity6Provider.java"
-                ),
+                generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyReplicatedEntity6.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyReplicatedEntity6Handler.java"),
+                generatedSourceDirectory.resolve("com/example/service/domain/MyReplicatedEntity6Provider.java"),
                 /* generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6TestKit.java"
                 ), */
                 integrationTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"
-                ),
-                generatedSourceDirectory.resolve(
-                  "com/example/service/AkkaServerlessFactory.java"
-                ),
-                sourceDirectory.resolve("com/example/service/Main.java")
-              )
-            )
+                  "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"),
+                generatedSourceDirectory.resolve("com/example/service/AkkaServerlessFactory.java"),
+                sourceDirectory.resolve("com/example/service/Main.java")))
 
             // Test that the files were written to
             sources.foreach { (source: Path) =>
@@ -249,8 +184,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
       "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
       "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
       "com.example.Service5" -> TestData.simpleActionService(service5Proto),
-      "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6")
-    )
+      "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6"))
 
     val entities = Map(
       "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
@@ -258,18 +192,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
       "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
       "com.example.Entity6" -> TestData.replicatedEntity(
         ModelBuilder.ReplicatedSet(domainType("SomeElement")),
-        suffix = "6"
-      )
-    )
+        suffix = "6"))
 
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
-    val generatedSrc = SourceGenerator.akkaServerlessFactorySource(
-      mainPackageName,
-      ModelBuilder.Model(services, entities)
-    )
-    assertEquals(
+    val generatedSrc =
+      SourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
+    assertNoDiff(
       generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
         | * It will be re-generated to reflect any changes to your protobuf definitions.
@@ -322,27 +252,23 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |      .register(MyService5ActionProvider.of(createMyService5Action))
         |      .register(MyValueEntity2Provider.of(createMyValueEntity2));
         |  }
-        |}""".stripMargin
-    )
+        |}
+        |""".stripMargin)
   }
 
   test("generated component registration source for a view without update handlers") {
     val serviceProto = TestData.serviceProto().copy(pkg = "com.example.service.view")
 
-    val services = Map(
-      "com.example.Service" -> TestData.simpleViewService(serviceProto).copy(transformedUpdates = Nil)
-    )
+    val services = Map("com.example.Service" -> TestData.simpleViewService(serviceProto).copy(transformedUpdates = Nil))
 
     val entities = Map.empty[String, ModelBuilder.Entity]
 
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
-    val generatedSrc = SourceGenerator.akkaServerlessFactorySource(
-      mainPackageName,
-      ModelBuilder.Model(services, entities)
-    )
-    assertEquals(
+    val generatedSrc =
+      SourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
+    assertNoDiff(
       generatedSrc,
       """/* This code is managed by Akka Serverless tooling.
         | * It will be re-generated to reflect any changes to your protobuf definitions.
@@ -367,8 +293,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |    return akkaServerless
         |      .register(MyServiceViewProvider.of(createMyServiceView));
         |  }
-        |}""".stripMargin
-    )
+        |}
+        |""".stripMargin)
   }
 
   test("main source") {
@@ -381,21 +307,12 @@ class SourceGeneratorSuite extends munit.FunSuite {
       "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
       "com.example.Entity6" -> TestData.replicatedEntity(
         ModelBuilder.ReplicatedSet(domainType("SomeElement")),
-        suffix = "6"
-      )
-    )
+        suffix = "6"))
 
-    val services = Map(
-      "com.example.Service1" -> TestData.simpleActionService()
-    )
+    val services = Map("com.example.Service1" -> TestData.simpleActionService())
 
-    val generatedSrc = SourceGenerator.mainSource(
-      mainPackageName,
-      mainClassName,
-      entities,
-      services
-    )
-    assertEquals(
+    val generatedSrc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities, services)
+    assertNoDiff(
       generatedSrc,
       """|/* This code was generated by Akka Serverless tooling.
          | * As long as this file exists it will not be re-generated.
@@ -434,8 +351,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    LOG.info("starting the Akka Serverless service");
          |    createAkkaServerless().start();
          |  }
-         |}""".stripMargin
-    )
+         |}
+         |""".stripMargin)
   }
 
 }

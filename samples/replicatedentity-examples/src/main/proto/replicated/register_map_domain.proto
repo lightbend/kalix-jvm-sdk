@@ -31,10 +31,10 @@ option (akkaserverless.file).replicated_entity = {
 };
 
 message SomeKey {
-  string key = 1;
+  string some_field = 1;
 }
 
 message SomeValue {
-  string value = 1;
+  string some_field = 1;
 }
 // end::replicated_entity[]

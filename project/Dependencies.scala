@@ -55,61 +55,49 @@ object Dependencies {
   private val deps = libraryDependencies
 
   val sdk = deps ++= Seq(
-        akkaDependency("akka-stream"),
-        akkaDependency("akka-slf4j"),
-        akkaDependency("akka-discovery"),
-        akkaHttpDependency("akka-http"),
-        akkaHttpDependency("akka-http-core"),
-        akkaHttpDependency("akka-http-spray-json"),
-        akkaHttpDependency("akka-http2-support"),
-        akkaHttpDependency("akka-parsing"),
-        protobufJavaUtil,
-        akkaslsProxyProtocol % "protobuf-src",
-        akkaslsSdkProtocol % "compile;protobuf-src",
-        akkaDependency("akka-testkit") % Test,
-        akkaDependency("akka-stream-testkit") % Test,
-        akkaHttpDependency("akka-http-testkit") % Test,
-        scalaTest % Test,
-        logback % "test;provided",
-        logbackContrib % Provided,
-        jacksonDatabind
-      )
+    akkaDependency("akka-stream"),
+    akkaDependency("akka-slf4j"),
+    akkaDependency("akka-discovery"),
+    akkaHttpDependency("akka-http"),
+    akkaHttpDependency("akka-http-core"),
+    akkaHttpDependency("akka-http-spray-json"),
+    akkaHttpDependency("akka-http2-support"),
+    akkaHttpDependency("akka-parsing"),
+    protobufJavaUtil,
+    akkaslsProxyProtocol % "protobuf-src",
+    akkaslsSdkProtocol % "compile;protobuf-src",
+    akkaDependency("akka-testkit") % Test,
+    akkaDependency("akka-stream-testkit") % Test,
+    akkaHttpDependency("akka-http-testkit") % Test,
+    scalaTest % Test,
+    logback % "test;provided",
+    logbackContrib % Provided,
+    jacksonDatabind)
 
   val tck = deps ++= Seq(
-        akkaslsTckProtocol % "protobuf-src",
-        "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
-        "ch.qos.logback" % "logback-classic" % LogbackVersion
-      )
+    akkaslsTckProtocol % "protobuf-src",
+    "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+    "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
-  val testkit = deps ++= Seq(
-        testContainers,
-        junit4 % Provided,
-        junit5 % Provided
-      )
+  val testkit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
 
   val codegenCore = deps ++= Seq(
-        protobufJava,
-        akkaslsSdkProtocol % "compile;protobuf-src",
-        logback % Test,
-        munit % Test,
-        munitScalaCheck % Test
-      )
+    protobufJava,
+    akkaslsSdkProtocol % "compile;protobuf-src",
+    logback % Test,
+    munit % Test,
+    munitScalaCheck % Test)
 
-  val codegenJava = deps ++= Seq(
-        commonsIo,
-        logback % Test,
-        munit % Test,
-        munitScalaCheck % Test
-      )
+  val codegenJava = deps ++= Seq(commonsIo, logback % Test, munit % Test, munitScalaCheck % Test)
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here
   )
 
   def akkaDependency(name: String, excludeThese: ExclusionRule*) =
-    "com.typesafe.akka" %% name % AkkaVersion excludeAll ((excludeTheseDependencies ++ excludeThese): _*)
+    ("com.typesafe.akka" %% name % AkkaVersion).excludeAll((excludeTheseDependencies ++ excludeThese): _*)
 
   def akkaHttpDependency(name: String, excludeThese: ExclusionRule*) =
-    "com.typesafe.akka" %% name % AkkaHttpVersion excludeAll ((excludeTheseDependencies ++ excludeThese): _*)
+    ("com.typesafe.akka" %% name % AkkaHttpVersion).excludeAll((excludeTheseDependencies ++ excludeThese): _*)
 
 }

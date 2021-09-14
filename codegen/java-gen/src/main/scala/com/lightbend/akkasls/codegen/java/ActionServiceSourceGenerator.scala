@@ -39,8 +39,7 @@ object ActionServiceSourceGenerator {
   def generate(
       service: ModelBuilder.ActionService,
       sourceDirectory: Path,
-      generatedSourceDirectory: Path
-  ): Iterable[Path] = {
+      generatedSourceDirectory: Path): Iterable[Path] = {
 
     val packageName = service.fqn.parent.javaPackage
     val packagePath = packageAsPath(packageName)
@@ -52,32 +51,20 @@ object ActionServiceSourceGenerator {
       generatedSourceDirectory.resolve(packagePath.resolve(service.interfaceName + ".java"))
 
     interfaceSourcePath.getParent.toFile.mkdirs()
-    Files.write(
-      interfaceSourcePath,
-      abstractActionSource(service).getBytes(Charsets.UTF_8)
-    )
+    Files.write(interfaceSourcePath, abstractActionSource(service).getBytes(Charsets.UTF_8))
 
     val handlerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.handlerName + ".java"))
     handlerSourcePath.getParent.toFile.mkdirs()
-    Files.write(
-      handlerSourcePath,
-      actionHandler(service).getBytes(Charsets.UTF_8)
-    )
+    Files.write(handlerSourcePath, actionHandler(service).getBytes(Charsets.UTF_8))
 
     val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
     providerSourcePath.getParent.toFile.mkdirs()
-    Files.write(
-      providerSourcePath,
-      actionProvider(service).getBytes(Charsets.UTF_8)
-    )
+    Files.write(providerSourcePath, actionProvider(service).getBytes(Charsets.UTF_8))
 
     if (!implSourcePath.toFile.exists()) {
       // Now we generate the entity
       implSourcePath.getParent.toFile.mkdirs()
-      Files.write(
-        implSourcePath,
-        actionSource(service).getBytes(Charsets.UTF_8)
-      )
+      Files.write(implSourcePath, actionSource(service).getBytes(Charsets.UTF_8))
     }
     // We return implSourcePath here even when we didn't just generate it, because
     // otherwise the incremental compiler can't seem to find it. I'm not entirely confident
@@ -107,10 +94,7 @@ object ActionServiceSourceGenerator {
     val imports = generateImports(
       service.commandTypes,
       packageName,
-      otherImports = Seq(
-          "com.akkaserverless.javasdk.action.ActionCreationContext"
-        ) ++ streamImports(service.commands)
-    )
+      otherImports = Seq("com.akkaserverless.javasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.fqn.name
@@ -171,7 +155,8 @@ object ActionServiceSourceGenerator {
         |  public $className(ActionCreationContext creationContext) {}
         |
         |  ${Syntax.indent(methods, 2)}
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def abstractActionSource(service: ModelBuilder.ActionService): String = {
@@ -180,10 +165,7 @@ object ActionServiceSourceGenerator {
     val imports = generateImports(
       service.commandTypes,
       packageName,
-      otherImports = Seq(
-          "com.akkaserverless.javasdk.action.Action"
-        ) ++ streamImports(service.commands)
-    )
+      otherImports = Seq("com.akkaserverless.javasdk.action.Action") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.fqn.name
@@ -197,15 +179,18 @@ object ActionServiceSourceGenerator {
       } else if (isStreamOut(cmd)) {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
+           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(
+          methodName)}($inputTypeFullName $input);""".stripMargin
       } else if (isStreamIn(cmd)) {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract Effect<$outputType> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
+           |public abstract Effect<$outputType> ${lowerFirst(
+          methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       } else {
         s"""
            |/** Handler for "$methodName". */
-           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
+           |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(
+          methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       }
     }
 
@@ -275,9 +260,7 @@ object ActionServiceSourceGenerator {
         "akka.stream.javadsl.Source",
         "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.MessageEnvelope",
-        "com.akkaserverless.javasdk.impl.action.ActionHandler"
-      )
-    )
+        "com.akkaserverless.javasdk.impl.action.ActionHandler"))
 
     s"""|$managedCodeCommentString
         |
@@ -326,7 +309,8 @@ object ActionServiceSourceGenerator {
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): String = {
@@ -338,19 +322,18 @@ object ActionServiceSourceGenerator {
     val grpcServiceClass = service.fqn.parent.javaOuterClassname
     val descriptors =
       (collectRelevantTypes(service.commandTypes, service.fqn)
-        .map(d => s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+        .map(d =>
+          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     val imports = generateImports(
       service.commandTypes,
       packageName,
       otherImports = Seq(
-          "com.akkaserverless.javasdk.action.ActionCreationContext",
-          "com.akkaserverless.javasdk.action.ActionProvider",
-          "com.akkaserverless.javasdk.impl.action.ActionHandler",
-          "com.google.protobuf.Descriptors",
-          "java.util.function.Function"
-        ) ++ service.commandTypes.map(_.descriptorImport)
-    )
+        "com.akkaserverless.javasdk.action.ActionCreationContext",
+        "com.akkaserverless.javasdk.action.ActionProvider",
+        "com.akkaserverless.javasdk.impl.action.ActionHandler",
+        "com.google.protobuf.Descriptors",
+        "java.util.function.Function") ++ service.commandTypes.map(_.descriptorImport))
 
     s"""$managedCodeCommentString
       |
@@ -394,6 +377,7 @@ object ActionServiceSourceGenerator {
       |    };
       |  }
       |
-      |}""".stripMargin
+      |}
+      |""".stripMargin
   }
 }

@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter
-import com.akkaserverless.protocol.replicated_entity.{ReplicatedCounterDelta, ReplicatedEntityDelta}
+import com.akkaserverless.protocol.replicated_entity.{ ReplicatedCounterDelta, ReplicatedEntityDelta }
 
 private[replicatedentity] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 0)
     extends ReplicatedCounter

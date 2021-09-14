@@ -21,8 +21,9 @@ import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 
-class ResolvedEventSourcedEntityFactory(delegate: EventSourcedEntityFactory,
-                                        override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
+class ResolvedEventSourcedEntityFactory(
+    delegate: EventSourcedEntityFactory,
+    override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
     extends EventSourcedEntityFactory
     with ResolvedEntityFactory {
 

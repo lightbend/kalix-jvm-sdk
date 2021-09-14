@@ -20,19 +20,18 @@ import com.akkaserverless.protocol.component._
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.akkaserverless.testkit.entity.EntityMessages
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Message => JavaPbMessage}
-import scalapb.{GeneratedMessage => ScalaPbMessage}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Message => JavaPbMessage }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object EventSourcedMessages extends EntityMessages {
-  import EventSourcedStreamIn.{Message => InMessage}
-  import EventSourcedStreamOut.{Message => OutMessage}
+  import EventSourcedStreamIn.{ Message => InMessage }
+  import EventSourcedStreamOut.{ Message => OutMessage }
 
   case class Effects(
       events: Seq[ScalaPbAny] = Seq.empty,
       snapshot: Option[ScalaPbAny] = None,
-      sideEffects: Seq[SideEffect] = Seq.empty
-  ) {
+      sideEffects: Seq[SideEffect] = Seq.empty) {
     def withEvents(message: JavaPbMessage, messages: JavaPbMessage*): Effects =
       copy(events = events ++ (message +: messages).map(protobufAny))
 

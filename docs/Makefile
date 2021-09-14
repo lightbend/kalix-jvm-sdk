@@ -34,7 +34,7 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 	echo ":recommended-java-version: 11" \
 		>> "${managed_partials}/attributes.adoc"
-	echo ":java_minimum_sdk_version: 0.7.0-beta.19" \
+	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:

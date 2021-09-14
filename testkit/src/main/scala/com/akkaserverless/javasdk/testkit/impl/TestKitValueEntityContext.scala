@@ -20,8 +20,7 @@ import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 
 /**
- * INTERNAL API
- * Used by the generated testkit
+ * INTERNAL API Used by the generated testkit
  */
 final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
   override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory

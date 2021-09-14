@@ -70,3 +70,15 @@ service MultiMapService {
   rpc Get(GetValues) returns (CurrentValues);
   rpc GetAll(GetAllValues) returns (AllCurrentValues);
 }
+
+service ScalarMultiMapService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.multimap.domain.SomeScalarMultiMap"
+  };
+
+  rpc Put(PutValue) returns (google.protobuf.Empty);
+  rpc Remove(RemoveValue) returns (google.protobuf.Empty);
+  rpc Get(GetValues) returns (CurrentValues);
+  rpc GetAll(GetAllValues) returns (AllCurrentValues);
+}

@@ -22,14 +22,14 @@ object ReflectiveCodeGen extends AutoPlugin {
       Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
       Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
       Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-      Compile / sourceGenerators += runCodeGenTask.taskValue
-    ) ++ attachProtobufDescriptorSets
+      Compile / sourceGenerators += runCodeGenTask.taskValue) ++ attachProtobufDescriptorSets
 
-  def runAkkaServerlessCodegen(classpath: Classpath,
-                               protobufDescriptor: File,
-                               genSrcDir: File,
-                               testSrcManaged: File,
-                               logger: Logger): Seq[File] = {
+  def runAkkaServerlessCodegen(
+      classpath: Classpath,
+      protobufDescriptor: File,
+      genSrcDir: File,
+      testSrcManaged: File,
+      logger: Logger): Seq[File] = {
 
     val cp = classpath.map(_.data)
     val loader = ClasspathUtilities.toLoader(cp, AkkaGrpcPlugin.getClass.getClassLoader)
@@ -81,16 +81,14 @@ object ReflectiveCodeGen extends AutoPlugin {
   lazy val attachProtobufDescriptorSets = Seq(
     protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
     Compile / PB.generate := (Compile / PB.generate)
-        .dependsOn(Def.task {
-          protobufDescriptorSetOut.value.getParentFile.mkdirs()
-        })
-        .value,
+      .dependsOn(Def.task {
+        protobufDescriptorSetOut.value.getParentFile.mkdirs()
+      })
+      .value,
     Compile / PB.protocOptions ++= Seq(
-        "--descriptor_set_out",
-        protobufDescriptorSetOut.value.getAbsolutePath,
-        "--include_source_info"
-      ),
+      "--descriptor_set_out",
+      protobufDescriptorSetOut.value.getAbsolutePath,
+      "--include_source_info"),
     Compile / managedResources += protobufDescriptorSetOut.value,
-    Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value
-  )
+    Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value)
 }

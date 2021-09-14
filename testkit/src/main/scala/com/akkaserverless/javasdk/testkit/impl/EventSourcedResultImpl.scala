@@ -31,7 +31,7 @@ import com.akkaserverless.javasdk.testkit.ServiceCallDetails
 import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
 
 import java.util.Collections
-import java.util.{List => JList}
+import java.util.{ List => JList }
 import scala.jdk.CollectionConverters._
 
 /**
@@ -42,7 +42,7 @@ private[akkaserverless] object EventSourcedResultImpl {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_] =>
         ei.primaryEffect match {
-          case ee: EmitEvents => ee.event.toList.asJava
+          case ee: EmitEvents          => ee.event.toList.asJava
           case _: NoPrimaryEffect.type => Collections.emptyList()
         }
     }
@@ -67,9 +67,9 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSo
   private def secondaryEffectName: String = appliedSecondaryEffect match {
     case _: MessageReplyImpl[_] => "reply"
     case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_] => "error"
-    case _: NoReply[_] => "noReply"
-    case NoSecondaryEffectImpl => "no effect" // this should never happen
+    case _: ErrorReplyImpl[_]   => "error"
+    case _: NoReply[_]          => "noReply"
+    case NoSecondaryEffectImpl  => "no effect" // this should never happen
   }
 
   /** All emitted events. */
@@ -109,8 +109,7 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSo
       if (expectedClass.isInstance(next)) next.asInstanceOf[E]
       else
         throw new NoSuchElementException(
-          "expected event type [" + expectedClass.getName + "] but found [" + next.getClass.getName + "]"
-        )
+          "expected event type [" + expectedClass.getName + "] but found [" + next.getClass.getName + "]")
     }
 
 }

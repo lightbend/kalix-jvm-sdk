@@ -13,8 +13,7 @@ object DockerImage extends AutoPlugin {
     dockerUsername := Some("akkaserverless"),
     dockerUpdateLatest := true,
     // disable javadoc/scaladoc for projects published as docker images
-    Compile / packageDoc / publishArtifact := false
-  )
+    Compile / packageDoc / publishArtifact := false)
 }
 
 object LocalDockerImage extends AutoPlugin {
@@ -24,8 +23,6 @@ object LocalDockerImage extends AutoPlugin {
 object PublicDockerImage extends AutoPlugin {
   override def requires = DockerImage
 
-  override def projectSettings = Seq(
-    dockerRepository := Some("gcr.io"),
-    dockerUsername := Some("akkaserverless-public")
-  )
+  override def projectSettings =
+    Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("akkaserverless-public"))
 }

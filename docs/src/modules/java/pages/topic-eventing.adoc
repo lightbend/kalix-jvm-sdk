@@ -1,6 +1,0 @@
-= Publishing and subscribing to topics on a broker
-
-include::ROOT:partial$include.adoc[]
-include::partial$topic-eventing.adoc[]
-
-include::partial$topic-eventing-cloudevent.adoc[]

@@ -43,3 +43,13 @@ service RegisterService {
   rpc Set(SetValue) returns (google.protobuf.Empty);
   rpc Get(GetValue) returns (CurrentValue);
 }
+
+service ScalarRegisterService {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.replicated.register.domain.SomeScalarRegister"
+  };
+
+  rpc Set(SetValue) returns (google.protobuf.Empty);
+  rpc Get(GetValue) returns (CurrentValue);
+}

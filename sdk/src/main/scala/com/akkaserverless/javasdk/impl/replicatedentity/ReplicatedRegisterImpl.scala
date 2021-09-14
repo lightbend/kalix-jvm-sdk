@@ -22,7 +22,7 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedEntityDelta,
   ReplicatedRegisterDelta
 }
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import java.util.Objects
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
@@ -32,8 +32,8 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](
     value: T = null.asInstanceOf[T],
     deltaValue: Option[ScalaPbAny] = None,
     deltaClock: ReplicatedRegister.Clock = ReplicatedRegister.Clock.DEFAULT,
-    deltaCustomClockValue: Long = 0
-) extends ReplicatedRegister[T]
+    deltaCustomClockValue: Long = 0)
+    extends ReplicatedRegister[T]
     with InternalReplicatedData {
 
   override type Self = ReplicatedRegisterImpl[T]
@@ -52,8 +52,7 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](
 
   override def getDelta: ReplicatedEntityDelta.Delta =
     ReplicatedEntityDelta.Delta.Register(
-      ReplicatedRegisterDelta(deltaValue, convertClock(deltaClock), deltaCustomClockValue)
-    )
+      ReplicatedRegisterDelta(deltaValue, convertClock(deltaClock), deltaCustomClockValue))
 
   override def resetDelta(): ReplicatedRegisterImpl[T] =
     if (hasDelta) new ReplicatedRegisterImpl(anySupport, value) else this
@@ -67,7 +66,7 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](
     clock match {
       case ReplicatedRegister.Clock.DEFAULT => ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_DEFAULT_UNSPECIFIED
       case ReplicatedRegister.Clock.REVERSE => ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_REVERSE
-      case ReplicatedRegister.Clock.CUSTOM => ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_CUSTOM
+      case ReplicatedRegister.Clock.CUSTOM  => ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_CUSTOM
       case ReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT =>
         ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_CUSTOM_AUTO_INCREMENT
     }

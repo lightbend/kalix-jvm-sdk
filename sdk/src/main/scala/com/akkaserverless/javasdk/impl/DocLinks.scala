@@ -42,7 +42,7 @@ object DocLinks {
   def forErrorCode(code: String): Option[String] =
     errorCodes.get(code) match {
       case s @ Some(_) => s
-      case None => errorCodeCategories.get(code.take(6))
+      case None        => errorCodeCategories.get(code.take(6))
     }
 
 }

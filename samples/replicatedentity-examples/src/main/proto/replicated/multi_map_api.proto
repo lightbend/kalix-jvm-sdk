@@ -21,45 +21,37 @@ package com.example.replicated.multimap;
 
 option java_outer_classname = "SomeMultiMapApi";
 
-message Key {
-  string key = 1;
-}
-
-message Value {
-  string value = 1;
-}
-
 message PutValue {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
-  Key key = 2;
-  Value value = 3;
+  string key = 2;
+  double value = 3;
 }
 
 message PutAllValues {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
-  Key key = 2;
-  repeated Value values = 3;
+  string key = 2;
+  repeated double values = 3;
 }
 
 message RemoveValue {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
-  Key key = 2;
-  Value value = 3;
+  string key = 2;
+  double value = 3;
 }
 
 message RemoveAllValues {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
-  Key key = 2;
+  string key = 2;
 }
 
 message GetValues {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
-  Key key = 2;
+  string key = 2;
 }
 
 message CurrentValues {
-  Key key = 1;
-  repeated Value values = 2;
+  string key = 1;
+  repeated double values = 2;
 }
 
 message GetAllValues {

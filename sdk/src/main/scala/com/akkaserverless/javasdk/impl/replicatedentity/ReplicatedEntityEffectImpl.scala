@@ -28,7 +28,7 @@ import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity.Effect
 
-import java.util.{Collection => JCollection}
+import java.util.{ Collection => JCollection }
 import scala.jdk.CollectionConverters._
 
 object ReplicatedEntityEffectImpl {

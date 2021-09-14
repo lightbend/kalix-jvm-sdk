@@ -30,7 +30,7 @@ TIP: Kickstart a project using the xref:java:kickstart.adoc[Java code generation
 [#_implement_components]
 == Implement components
 
-Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and View components. Stateless services implement Actions. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
+Stateful services can implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity] or https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[View] components. Stateless services implement https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Actions]. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
 
 === Actions
 

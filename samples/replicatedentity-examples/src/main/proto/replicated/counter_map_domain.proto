@@ -25,11 +25,7 @@ option (akkaserverless.file).replicated_entity = {
   name: "SomeCounterMap"
   entity_type: "some-counter-map"
   replicated_counter_map: { // <1>
-    key: "SomeKey" // <2>
+    key: "string" // <2>
   }
 };
-
-message SomeKey {
-  string key = 1;
-}
 // end::replicated_entity[]

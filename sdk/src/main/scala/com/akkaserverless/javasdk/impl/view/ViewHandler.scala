@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.view
 
-import com.akkaserverless.javasdk.view.{UpdateContext, View}
+import com.akkaserverless.javasdk.view.{ UpdateContext, View }
 
 import java.util.Optional
 
@@ -26,7 +26,7 @@ abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
   final def _internalHandleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_] = {
     val stateOrEmpty: S = state match {
       case Some(preExisting) => preExisting.asInstanceOf[S]
-      case None => view.emptyState()
+      case None              => view.emptyState()
     }
     try {
       view._internalSetUpdateContext(Optional.of(context))
@@ -37,8 +37,7 @@ abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
           context.viewId,
           missing.eventName,
           "No update handler found for event [" + missing.eventName + "] on " + view.getClass.toString,
-          Option.empty
-        )
+          Option.empty)
     } finally {
       view._internalSetUpdateContext(Optional.empty())
     }

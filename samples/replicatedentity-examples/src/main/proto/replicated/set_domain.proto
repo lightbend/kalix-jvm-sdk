@@ -25,11 +25,7 @@ option (akkaserverless.file).replicated_entity = {
   name: "SomeSet"
   entity_type: "some-set"
   replicated_set: { // <1>
-    element: "SomeElement" // <2>
+    element: "string" // <2>
   }
 };
-
-message SomeElement {
-  string value = 1;
-}
 // end::replicated_entity[]

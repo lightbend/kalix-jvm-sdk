@@ -8,7 +8,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,22 +31,14 @@ public class SomeSetIntegrationTest {
 
   public void add(String setId, String value) throws Exception {
     client
-        .add(
-            SomeSetApi.AddElement.newBuilder()
-                .setSetId(setId)
-                .setElement(SomeSetApi.Element.newBuilder().setValue(value))
-                .build())
+        .add(SomeSetApi.AddElement.newBuilder().setSetId(setId).setElement(value).build())
         .toCompletableFuture()
         .get(5, SECONDS);
   }
 
   public void remove(String setId, String value) throws Exception {
     client
-        .remove(
-            SomeSetApi.RemoveElement.newBuilder()
-                .setSetId(setId)
-                .setElement(SomeSetApi.Element.newBuilder().setValue(value))
-                .build())
+        .remove(SomeSetApi.RemoveElement.newBuilder().setSetId(setId).setElement(value).build())
         .toCompletableFuture()
         .get(5, SECONDS);
   }
@@ -57,10 +48,7 @@ public class SomeSetIntegrationTest {
         .get(SomeSetApi.GetElements.newBuilder().setSetId(setId).build())
         .toCompletableFuture()
         .get(5, SECONDS)
-        .getElementsList()
-        .stream()
-        .map(SomeSetApi.Element::getValue)
-        .collect(Collectors.toList());
+        .getElementsList();
   }
 
   @Test

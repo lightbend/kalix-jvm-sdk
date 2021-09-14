@@ -22,11 +22,11 @@ package com.example.replicated.registermap;
 option java_outer_classname = "SomeRegisterMapApi";
 
 message Key {
-  string key = 1;
+  string field = 1;
 }
 
 message Value {
-  string value = 1;
+  string field = 1;
 }
 
 message SetValue {

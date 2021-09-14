@@ -24,10 +24,12 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
           registerMap,
       SomeRegisterMapApi.SetValue command) {
     SomeRegisterMapDomain.SomeKey key = // <1>
-        SomeRegisterMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
+        SomeRegisterMapDomain.SomeKey.newBuilder()
+            .setSomeField(command.getKey().getField())
+            .build();
     SomeRegisterMapDomain.SomeValue value = // <2>
         SomeRegisterMapDomain.SomeValue.newBuilder()
-            .setValue(command.getValue().getValue())
+            .setSomeField(command.getValue().getField())
             .build();
     return effects()
         .update(registerMap.setValue(key, value)) // <3>
@@ -40,7 +42,9 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
           registerMap,
       SomeRegisterMapApi.RemoveValue command) {
     SomeRegisterMapDomain.SomeKey key = // <1>
-        SomeRegisterMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
+        SomeRegisterMapDomain.SomeKey.newBuilder()
+            .setSomeField(command.getKey().getField())
+            .build();
     return effects()
         .update(registerMap.remove(key)) // <3>
         .thenReply(Empty.getDefaultInstance());
@@ -54,20 +58,24 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
           registerMap,
       SomeRegisterMapApi.GetValue command) {
     SomeRegisterMapDomain.SomeKey key = // <1>
-        SomeRegisterMapDomain.SomeKey.newBuilder().setKey(command.getKey().getKey()).build();
+        SomeRegisterMapDomain.SomeKey.newBuilder()
+            .setSomeField(command.getKey().getField())
+            .build();
     Optional<SomeRegisterMapDomain.SomeValue> maybeValue = registerMap.getValue(key); // <2>
     SomeRegisterMapApi.CurrentValue currentValue =
         SomeRegisterMapApi.CurrentValue.newBuilder()
             .setValue(
                 SomeRegisterMapApi.Value.newBuilder()
-                    .setValue(maybeValue.map(SomeRegisterMapDomain.SomeValue::getValue).orElse("")))
+                    .setField(
+                        maybeValue.map(SomeRegisterMapDomain.SomeValue::getSomeField).orElse("")))
             .build();
     return effects().reply(currentValue);
   }
 
   @Override
   public Effect<SomeRegisterMapApi.CurrentValues> getAll(
-      ReplicatedRegisterMap<SomeRegisterMapDomain.SomeKey, SomeRegisterMapDomain.SomeValue> registerMap,
+      ReplicatedRegisterMap<SomeRegisterMapDomain.SomeKey, SomeRegisterMapDomain.SomeValue>
+          registerMap,
       SomeRegisterMapApi.GetAllValues command) {
     List<SomeRegisterMapApi.CurrentValue> allValues =
         registerMap.keySet().stream() // <3>
@@ -76,11 +84,11 @@ public class SomeRegisterMap extends AbstractSomeRegisterMap {
                   String value =
                       registerMap
                           .getValue(key)
-                          .map(SomeRegisterMapDomain.SomeValue::getValue)
+                          .map(SomeRegisterMapDomain.SomeValue::getSomeField)
                           .orElse("");
                   return SomeRegisterMapApi.CurrentValue.newBuilder()
-                      .setKey(SomeRegisterMapApi.Key.newBuilder().setKey(key.getKey()))
-                      .setValue(SomeRegisterMapApi.Value.newBuilder().setValue(value))
+                      .setKey(SomeRegisterMapApi.Key.newBuilder().setField(key.getSomeField()))
+                      .setValue(SomeRegisterMapApi.Value.newBuilder().setField(value))
                       .build();
                 })
             .collect(Collectors.toList());
