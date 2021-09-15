@@ -17,7 +17,7 @@
 package com.akkaserverless.javasdk.impl
 
 import akka.actor.ActorSystem
-import akka.grpc.scaladsl.AkkaGrpcClient
+import akka.grpc.javadsl.AkkaGrpcClient
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.ServiceCallFactory
 

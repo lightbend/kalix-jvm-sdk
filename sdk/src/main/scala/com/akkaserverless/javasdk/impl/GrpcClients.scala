@@ -24,12 +24,13 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
-import akka.grpc.scaladsl.AkkaGrpcClient
+import akka.grpc.javadsl.AkkaGrpcClient
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
 
 /**
  * INTERNAL API
@@ -52,7 +53,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private val clients = new ConcurrentHashMap[Key, AkkaGrpcClient]()
 
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceStop, "stop-grpc-clients")(() =>
-    Future.traverse(clients.values().asScala)(_.close()).map(_ => Done))
+    Future.traverse(clients.values().asScala)(_.close().asScala).map(_ => Done))
 
   def getGrpcClient[T <: AkkaGrpcClient](clientClass: Class[T], service: String): T =
     clients.computeIfAbsent(Key(clientClass, service), createClient(_)).asInstanceOf[T]
