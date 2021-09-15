@@ -1,6 +1,6 @@
 [NOTE]
 ====
-To use Google Cloud Pub/Sub in for your Akka Serverless project, please follow the instructing at https://developer.lightbend.com/docs/akka-serverless/how-to/message-broker.html[How to configure a broker].
+To use Google Cloud Pub/Sub in for your Akka Serverless project, please follow the instructing at https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[how to configure message brokers].
 
 It is your responsibility to create the topics in Google Cloud Pub/Sub before configuring publishers or subscribers.
 ====
