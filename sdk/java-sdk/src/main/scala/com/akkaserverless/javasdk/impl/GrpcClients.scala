@@ -17,7 +17,6 @@
 package com.akkaserverless.javasdk.impl
 
 import akka.Done
-import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
@@ -25,6 +24,7 @@ import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
 import akka.grpc.javadsl.AkkaGrpcClient
+import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.ExecutionContext
@@ -48,6 +48,7 @@ object GrpcClients extends ExtensionId[GrpcClients] with ExtensionIdProvider {
  */
 final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   import GrpcClients._
+  private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AkkaGrpcClient]()
@@ -61,17 +62,25 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private def createClient(key: Key): AkkaGrpcClient = {
     val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
       // "service" is not present in the config, treat it as an Akka gRPC inter-service call
+      log.debug("Creating gRPC client for Akka Serverless service [{}]", key.service)
       GrpcClientSettings
         .connectToServiceAt(key.service, 80)(system)
         // (TLS is handled for us by Akka Serverless infra)
         .withTls(false)
     } else {
+      log.debug("Creating gRPC client for external service [{}]", key.service)
       // external service, defined in config
       GrpcClientSettings.fromConfig(key.service)(system)
     }
 
     val create = key.clientClass.getMethod("create", classOf[GrpcClientSettings])
-    create.invoke(null, settings).asInstanceOf[AkkaGrpcClient]
+    val client: AkkaGrpcClient = create.invoke(null, settings).asInstanceOf[AkkaGrpcClient]
+    client.closed().asScala.foreach { _ =>
+      // if the client is closed, remove it from the pool
+      log.debug("gRPC client for service [{}] was closed", key.service)
+      clients.remove(key)
+    }
+    client
   }
 
 }
