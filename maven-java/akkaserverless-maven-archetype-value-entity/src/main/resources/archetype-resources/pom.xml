@@ -73,21 +73,6 @@
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
               <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- generate a gRPC client (with Akka gRPC) for integration testing -->
-            <id>grpc-client</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
-              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${D}{os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
