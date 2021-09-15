@@ -22,8 +22,8 @@ Before running the code generation tools, make sure you have the following:
 
 To deploy the generated service, you will need:
 
-* An https://developer.lightbend.com/docs/akka-serverless/getting-started/lightbend-account.html[Akka Serverless account]
-* An https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html#_create_a_project[Akka Serverless project]
+* An https://developer.lightbend.com/docs/akka-serverless/setting-up/index.html#_akka_serverless_account[Akka Serverless account]
+* An https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[Akka Serverless project]
 * The https://developer.lightbend.com/docs/akka-serverless/setting-up/#_akka_serverless_cli[akkasls] CLI
 * A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
 

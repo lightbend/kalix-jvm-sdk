@@ -5,12 +5,12 @@ include::partial$attributes.adoc[]
 
 The Akka Serverless Java SDK offers an idiomatic, annotation-based Java language SDK for writing components. This page describes prerequisites for Java development and basic requirements for a development project.
 
-NOTE: Lightbend provides Tier 1 support for the Java SDK. See https://developer.lightbend.com/docs/akka-serverless/developing/sdk-support.html[an explanation of support tiers] for more information.
+NOTE: Lightbend provides Tier 1 support for the Java SDK. See https://developer.lightbend.com/docs/akka-serverless/faq/index.html#_what_languages_are_supported[an explanation of support tiers] for more information.
 
 
 Your development project needs to include the Akka Serverless Java SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
-To save the work of starting from scratch, the Java xref:java:kickstart.adoc[code generation tool] creates a project, complete with descriptors and implementations. Or, you can start from one of our https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[example applications].
+To save the work of starting from scratch, the Java xref:java:kickstart.adoc[code generation tool] creates a project, complete with descriptors and implementations. Or, you can start from one of our https://developer.lightbend.com/docs/akka-serverless/quickstart/index.html[quickstart example applications].
 
 == Prerequisites
 
