@@ -23,15 +23,13 @@ import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
 object AkkaserverlessTestGenerator extends CodeGenApp {
-  val enableDebug = "enableDebug"
-
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
     registry.add(com.akkaserverless.Annotations.service)
     registry.add(com.akkaserverless.Annotations.file)
   }
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
-    val debugEnabled = request.parameter.contains(enableDebug)
+    val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)
     val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(DebugPrintlnLog(debugEnabled))
     try {
       CodeGenResponse.succeed(
