@@ -202,7 +202,7 @@ jobs:
       - run:
           name: Customer Registry quickstart
           command: |
-            cd samples/customer-registry-quickstart
+            cd samples/java-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
@@ -210,20 +210,20 @@ jobs:
       - run:
           name: Fibonacci Action
           command: |
-            cd samples/fibonacci-action
+            cd samples/java-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
       - run:
           name: Doc snippets
           command: |
-            cd samples/doc-snippets
+            cd samples/java-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: first-service by archetype
           command: |
-            cd samples/first-service
+            cd samples/java-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
@@ -278,7 +278,7 @@ jobs:
       - run:
           name: Replicated Entity "Counter" sample
           command: |
-            cd samples/replicatedentity-counter
+            cd samples/java-replicatedentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
@@ -293,7 +293,7 @@ jobs:
       - run:
           name: Replicated Entity examples
           command: |
-            cd samples/replicatedentity-examples
+            cd samples/java-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
