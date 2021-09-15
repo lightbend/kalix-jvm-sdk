@@ -143,16 +143,12 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
           Source.failed(new RuntimeException(errMsg))
       }
 
-  trait AbstractContext extends ViewContext {
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-  }
-
   private final class UpdateContextImpl(
       override val viewId: String,
       override val eventName: String,
       override val metadata: Metadata)
-      extends UpdateContext
-      with AbstractContext {
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with UpdateContext {
 
     override def eventSubject(): Optional[String] =
       if (metadata.isCloudEvent)
@@ -162,8 +158,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   }
 
   private final class ViewContextImpl(override val viewId: String)
-      extends ViewContext
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with ViewContext
       with ViewCreationContext
-      with AbstractContext
 
 }

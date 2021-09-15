@@ -243,23 +243,19 @@ final class EventSourcedEntitiesImpl(
       }
   }
 
-  private trait AbstractContext extends EventSourcedEntityContext {
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-  }
-
   private class CommandContextImpl(
       override val entityId: String,
       override val sequenceNumber: Long,
       override val commandName: String,
       override val commandId: Long,
       override val metadata: Metadata)
-      extends CommandContext
-      with AbstractContext
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with CommandContext
       with ActivatableContext
 
   private class EventSourcedEntityContextImpl(override final val entityId: String)
-      extends EventSourcedEntityContext
-      with AbstractContext
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with EventSourcedEntityContext
   private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
       extends EventSourcedEntityContextImpl(entityId)
       with EventContext

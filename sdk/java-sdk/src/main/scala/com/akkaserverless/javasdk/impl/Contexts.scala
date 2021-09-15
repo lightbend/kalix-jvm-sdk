@@ -16,10 +16,27 @@
 
 package com.akkaserverless.javasdk.impl
 
+import akka.actor.ActorSystem
+import akka.grpc.scaladsl.AkkaGrpcClient
 import com.akkaserverless.javasdk.Context
+import com.akkaserverless.javasdk.ServiceCallFactory
 
+/**
+ * INTERNAL API
+ */
 private[impl] trait ActivatableContext extends Context {
   private final var active = true
   final def deactivate(): Unit = active = false
   final def checkActive(): Unit = if (!active) throw new IllegalStateException("Context no longer active!")
+}
+
+/**
+ * INTERNAL API
+ */
+private[javasdk] abstract class AbstractContext(
+    override val serviceCallFactory: ServiceCallFactory,
+    system: ActorSystem)
+    extends Context {
+  override def getGrpcClient[T <: AkkaGrpcClient](clientClass: Class[T], service: String): T =
+    GrpcClients(system).getGrpcClient(clientClass, service)
 }

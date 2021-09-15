@@ -37,6 +37,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 
 import java.util.concurrent.CompletionStage
 import com.akkaserverless.javasdk.impl.view.ViewService
+import com.akkaserverless.javasdk.impl.AbstractContext
 
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
@@ -110,9 +111,7 @@ final class AkkaServerlessRunner private[this] (
       services.asScala.toMap)
   }
 
-  private val rootContext = new Context {
-    override val serviceCallFactory: ServiceCallFactory = new ResolvedServiceCallFactory(services)
-  }
+  private val rootContext: Context = new AbstractContext(new ResolvedServiceCallFactory(services), system) {}
 
   private[this] def createRoutes(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
 

@@ -107,7 +107,7 @@ final class ReplicatedEntitiesImpl(
       ReplicatedEntityDeltaTransformer.create(delta, service.anySupport)
     }
 
-    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, log)
+    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system, log)
 
     Flow[ReplicatedEntityStreamIn]
       .mapConcat { in =>
@@ -141,10 +141,11 @@ object ReplicatedEntitiesImpl {
       entityId: String,
       initialData: Option[InternalReplicatedData],
       rootContext: Context,
+      system: ActorSystem,
       log: LoggingAdapter) {
 
     private val handler = {
-      val context = new ReplicatedEntityCreationContext(entityId, rootContext)
+      val context = new ReplicatedEntityCreationContext(entityId, rootContext, system)
       try {
         service.factory.create(context)
       } finally {
@@ -162,7 +163,7 @@ object ReplicatedEntitiesImpl {
       if (entityId != command.entityId)
         throw ProtocolException(command, "Entity is not the intended recipient of command")
 
-      val context = new ReplicatedEntityCommandContext(entityId, command, rootContext)
+      val context = new ReplicatedEntityCommandContext(entityId, command, rootContext, system)
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
       val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
 
@@ -218,18 +219,21 @@ object ReplicatedEntitiesImpl {
     }
   }
 
-  private final class ReplicatedEntityCreationContext(override val entityId: String, rootContext: Context)
-      extends ReplicatedEntityContext
-      with ActivatableContext {
-
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-  }
+  private final class ReplicatedEntityCreationContext(
+      override val entityId: String,
+      rootContext: Context,
+      system: ActorSystem)
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with ReplicatedEntityContext
+      with ActivatableContext
 
   private final class ReplicatedEntityCommandContext(
       override val entityId: String,
       command: Command,
-      rootContext: Context)
-      extends CommandContext
+      rootContext: Context,
+      system: ActorSystem)
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with CommandContext
       with ActivatableContext {
 
     override val commandId: Long = command.id
@@ -238,6 +242,5 @@ object ReplicatedEntitiesImpl {
 
     override val metadata: Metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
   }
 }
