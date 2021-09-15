@@ -38,7 +38,7 @@ The class `CounterJournalToTopicAction` gets generated for us based on the proto
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
 ----
 <1> We convert the incoming domain event `CounterDomain.ValueIncreased` to the outgoing topic API `CounterTopicApi.Increased`.
-<2> We use the converted object to reply.
+<2> We use the converted object to build a reply. The `CounterTopicApi.Increased` message will be published to the topic.
 
 == Subscribing to state changes from a Value Entity
 
