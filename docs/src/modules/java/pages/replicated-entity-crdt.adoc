@@ -1,4 +1,5 @@
 = Implementing Replicated Entities in Java
+:page-aliases: replicated-entity.adoc
 
 include::ROOT:partial$include.adoc[]
 
