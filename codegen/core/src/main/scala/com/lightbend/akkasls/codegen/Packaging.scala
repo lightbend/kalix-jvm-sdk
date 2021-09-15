@@ -55,6 +55,7 @@ object FullyQualifiedName {
         // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
         PackageNaming(
           descriptor.getName,
+          descriptor.getName,
           fileDescriptor.getPackage,
           Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
           Some(s"com.${fileDescriptor.getPackage}"),
@@ -80,6 +81,7 @@ object FullyQualifiedName {
  * The details of a package's naming, sufficient to construct fully qualified names in any target language
  */
 case class PackageNaming(
+    protoFileName: String,
     name: String,
     pkg: String,
     goPackage: Option[String],
@@ -120,6 +122,13 @@ object PackageNaming {
     val javaMultipleFiles =
       generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)
 
-    PackageNaming(name, descriptor.getPackage, goPackage, javaPackage, javaOuterClassname, javaMultipleFiles)
+    PackageNaming(
+      descriptor.getName,
+      name,
+      descriptor.getPackage,
+      goPackage,
+      javaPackage,
+      javaOuterClassname,
+      javaMultipleFiles)
   }
 }
