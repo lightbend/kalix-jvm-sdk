@@ -18,11 +18,11 @@ package com.akkaserverless.codegen.scalasdk
 
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
+import com.lightbend.akkasls.codegen.ModelBuilder
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
-import com.lightbend.akkasls.codegen.{ Log, ModelBuilder }
 
-object AkkaserverlessGenerator extends CodeGenApp {
+object AkkaserverlessTestGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
 
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
@@ -36,7 +36,7 @@ object AkkaserverlessGenerator extends CodeGenApp {
     try {
       CodeGenResponse.succeed(
         SourceGenerator
-          .generateManaged(model)
+          .generateManagedTest(model)
           .map(file =>
             CodeGeneratorResponse.File
               .newBuilder()
