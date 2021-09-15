@@ -154,7 +154,7 @@ To configure a Replicated Entity with a Replicated Counter, use the `replicated_
 [source,proto]
 .src/main/proto/replicated/counter_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/counter_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/counter_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Counter.
@@ -164,7 +164,7 @@ When implementing a Replicated Counter entity, the state can be updated by calli
 [source,java,indent=0]
 .src/main/java/com/example/replicated/counter/domain/SomeCounter.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
 ----
 
 <1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -174,7 +174,7 @@ The current value of a Replicated Counter can be retrieved using `getValue`:
 [source,java,indent=0]
 .src/main/java/com/example/replicated/counter/domain/SomeCounter.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=get]
 ----
 
 <1> Get the current value of a Replicated Counter using `getValue`.
@@ -193,7 +193,7 @@ To configure a Replicated Entity with a Replicated Register, use the `replicated
 [source,proto]
 .src/main/proto/replicated/register_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/register_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/register_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register.
@@ -206,7 +206,7 @@ When implementing a Replicated Register entity, an initial or empty value needs 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=emptyValue]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=emptyValue]
 ----
 
 The value can be updated by calling the `set` method on the current data object, and then triggering an update with the modified data object:
@@ -214,7 +214,7 @@ The value can be updated by calling the `set` method on the current data object,
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=update]
 ----
 
 <1> Create a domain object for the new value.
@@ -225,7 +225,7 @@ The current value of a Replicated Register can be retrieved using `get`:
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=get]
 ----
 
 <1> Get the current value of a Replicated Register using `get`.
@@ -243,7 +243,7 @@ To configure a Replicated Entity with a Replicated Set, use the `replicated_set`
 [source,proto]
 .src/main/proto/replicated/set_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/set_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/set_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Set.
@@ -258,7 +258,7 @@ When implementing a Replicated Set entity, the state can be updated by calling t
 [source,java,indent=0]
 .src/main/java/com/example/replicated/set/domain/SomeSet.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
 ----
 
 <1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -268,7 +268,7 @@ The `elements` method for Replicated Set returns a regular `java.util.Set` that 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/set/domain/SomeSet.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=get]
 ----
 
 <1> Iterate over the current elements of a Replicated Set.
@@ -285,7 +285,7 @@ To configure a Replicated Entity with a Replicated Counter Map, use the `replica
 [source,proto]
 .src/main/proto/replicated/counter_map_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/counter_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/counter_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Counter Map.
@@ -298,7 +298,7 @@ When implementing a Replicated Counter Map entity, the value of an entry can be 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
 ----
 
 <1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -308,7 +308,7 @@ Individual counters in a Replicated Counter Map can be accessed, or the set of k
 [source,java,indent=0]
 .src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
 ----
 
 <1> Get the current counter value for a key using `get`.
@@ -330,7 +330,7 @@ To configure a Replicated Entity with a Replicated Register Map, use the `replic
 [source,proto]
 .src/main/proto/replicated/register_map_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/register_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/register_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register Map.
@@ -344,7 +344,7 @@ When implementing a Replicated Register Map entity, the value of an entry can be
 [source,java,indent=0]
 .src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=update]
 ----
 
 <1> Create a domain object for the key.
@@ -356,7 +356,7 @@ Individual registers in a Replicated Register Map can be accessed, or the set of
 [source,java,indent=0]
 .src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=get]
 ----
 
 <1> Create a domain object for the key.
@@ -377,7 +377,7 @@ To configure a Replicated Entity with a Replicated Multi-Map, use the `replicate
 [source,proto]
 .src/main/proto/replicated/multi_map_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/multi_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/multi_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Multi-Map.
@@ -391,7 +391,7 @@ When implementing a Replicated Multi-Map entity, the values of an entry can be u
 [source,java,indent=0]
 .src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
 ----
 
 <1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -401,7 +401,7 @@ Individual entries in a Replicated Multi-Map can be accessed, or the set of keys
 [source,java,indent=0]
 .src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
 ----
 
 <1> Get the current set of values for a key using `get`.
@@ -421,7 +421,7 @@ To configure a Replicated Entity with a (heterogeneous) Replicated Map, use the 
 [source,proto]
 .src/main/proto/replicated/map_domain.proto
 ----
-include::example$replicatedentity-examples/src/main/proto/replicated/map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/replicated/map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Map.
@@ -438,7 +438,7 @@ There are also accessors for each of the Replicated Data types to make a heterog
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
 ----
 
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
@@ -450,7 +450,7 @@ Individual Replicated Data objects in the Replicated Map can also be accessed fo
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
 ----
-include::example$replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
+include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
 ----
 
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
