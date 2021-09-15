@@ -16,8 +16,7 @@ syntax = "proto3";
 
 package shopping.cart.actions;
 
-//option java_outer_classname = "ShoppingCartEventPublisher";
-option java_multiple_files = true;
+option java_outer_classname = "ShoppingCartEventPublisher";
 
 import "akkaserverless/annotations.proto";
 import "cart/shopping_cart_domain.proto";

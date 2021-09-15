@@ -16,8 +16,7 @@ syntax = "proto3";
 
 package shopping.cart.view;
 
-//option java_outer_classname = "ShoppingCartViewModel";
-option java_multiple_files = true;
+option java_outer_classname = "ShoppingCartViewModel";
 
 import "akkaserverless/annotations.proto";
 import "cart/shopping_cart_domain.proto";

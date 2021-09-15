@@ -20,8 +20,7 @@ syntax = "proto3";
 
 package shopping.cart.domain;
 
-//option java_outer_classname = "ShoppingCartDomain";
-option java_multiple_files = true;
+option java_outer_classname = "ShoppingCartDomain";
 
 import "akkaserverless/annotations.proto";
 
