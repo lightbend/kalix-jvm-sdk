@@ -41,14 +41,14 @@ Akka Serverless supports serializing the following primitive types:
 
 == JSON
 
-Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
+Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/JsonSupport.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
 
 A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
 
 [source,proto,indent=0]
 .src/main/proto/actions/json_api.proto
 ----
-include::java:example$doc-snippets/src/main/proto/actions/json_api.proto[tag=service]
+include::java:example$java-doc-snippets/src/main/proto/actions/json_api.proto[tag=service]
 ----
 <1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
 <2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
@@ -60,10 +60,12 @@ The corresponding implementation class:
 [source,java,indent=0]
 .src/main/java/com/example/json/MyServiceAction.java
 ----
-include::java:example$doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+include::java:example$java-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
 ----
 <1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
 <2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
 <3> Encode the Java class `JsonKeyValueMessage` to JSON.
 
 Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
+
+include::partial$topic-eventing-cloudevent.adoc[]

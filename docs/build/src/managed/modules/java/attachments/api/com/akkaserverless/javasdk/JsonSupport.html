@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -210,6 +211,13 @@ extends Object</pre>
  Any with the type URL <code>"json.akkaserverless.com/[jsonType]"</code>.</div>
 </td>
 </tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static com.fasterxml.jackson.databind.ObjectMapper</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getObjectMapper()">getObjectMapper</a></span>()</code></th>
+<td class="colLast">
+<div class="block">The Jackson ObjectMapper that is used for encoding and decoding JSON.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.Object">
@@ -257,6 +265,17 @@ extends Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getObjectMapper()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getObjectMapper</h4>
+<pre class="methodSignature">public static&nbsp;com.fasterxml.jackson.databind.ObjectMapper&nbsp;getObjectMapper()</pre>
+<div class="block">The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
+ configuration, but that must only be performed before starting <a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a></div>
+</li>
+</ul>
 <a id="encodeJson(java.lang.Object)">
 <!--   -->
 </a><a id="encodeJson(T)">

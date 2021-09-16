@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -725,9 +726,53 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The key for the metadata entry.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JsonSupport.html#getObjectMapper()">getObjectMapper()</a></span> - Static method in class com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JsonSupport.html" title="class in com.akkaserverless.javasdk">JsonSupport</a></dt>
+<dd>
+<div class="block">The Jackson ObjectMapper that is used for encoding and decoding JSON.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getOrElse(K,java.util.function.Function)">getOrElse(K, Function&lt;ReplicatedDataFactory, V&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
 <dd>
 <div class="block">Get the <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedData</code></a> value for the given key.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedCounter(K)">getReplicatedCounter(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounter</code></a> from a heterogeneous Replicated Map (a map with different types
+ of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedCounterMap(K)">getReplicatedCounterMap(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedMap(K)">getReplicatedMap(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMap</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedMultiMap(K)">getReplicatedMultiMap(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedRegister(K)">getReplicatedRegister(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedRegister(K,java.util.function.Supplier)">getReplicatedRegister(K, Supplier&lt;ValueT&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedRegisterMap(K)">getReplicatedRegisterMap(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html#getReplicatedSet(K)">getReplicatedSet(K)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a></dt>
+<dd>
+<div class="block">Get a <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedSet</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVote.html#getSelfVote()">getSelfVote()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedVote</a></dt>
 <dd>

@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.akkaserverless.javasdk.testkit"},{"l":"com.akkaserverless.javasdk.testkit.junit"},{"l":"com.akkaserverless.javasdk.testkit.junit.jupiter"}]

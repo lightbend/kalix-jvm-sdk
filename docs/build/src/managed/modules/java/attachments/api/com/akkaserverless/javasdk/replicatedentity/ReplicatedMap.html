@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":18,"i5":18,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -179,7 +180,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -215,34 +216,99 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>default <a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedCounter(K)">getReplicatedCounter</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounter</code></a> from a heterogeneous Replicated Map (a map with different types
+ of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default &lt;KeyT&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;KeyT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedCounterMap(K)">getReplicatedCounterMap</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default &lt;KeyT,&#8203;ValueT extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;<br><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;KeyT,&#8203;ValueT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedMap(K)">getReplicatedMap</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMap</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default &lt;KeyT,&#8203;ValueT&gt;<br><a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;KeyT,&#8203;ValueT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedMultiMap(K)">getReplicatedMultiMap</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>default &lt;ValueT&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;ValueT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedRegister(K)">getReplicatedRegister</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>default &lt;ValueT&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;ValueT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedRegister(K,java.util.function.Supplier)">getReplicatedRegister</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+                     java.util.function.Supplier&lt;ValueT&gt;&nbsp;defaultValue)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>default &lt;KeyT,&#8203;ValueT&gt;<br><a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;KeyT,&#8203;ValueT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedRegisterMap(K)">getReplicatedRegisterMap</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>default &lt;ElementT&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;ElementT&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReplicatedSet(K)">getReplicatedSet</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
+<td class="colLast">
+<div class="block">Get a <a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedSet</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEmpty()">isEmpty</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Check whether this map is empty.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>java.util.Set&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keySet()">keySet</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Get a <code>Set</code> view of the keys contained in this map.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(K)">remove</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</code></th>
 <td class="colLast">
 <div class="block">Remove the mapping for a key if it is present.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Get the number of key-value mappings in this map.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#update(K,V)">update</a></span>&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
       <a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a>&nbsp;value)</code></th>
@@ -409,7 +475,7 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <a id="keySet()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>keySet</h4>
 <pre class="methodSignature">java.util.Set&lt;<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&gt;&nbsp;keySet()</pre>
@@ -417,6 +483,177 @@ extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.jav
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the keys contained in this map</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedCounter(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedCounter(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedCounter</h4>
+<pre class="methodSignature">default&nbsp;<a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a>&nbsp;getReplicatedCounter&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounter</code></a> from a heterogeneous Replicated Map (a map with different types
+ of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Counter in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounter</code></a> associated with the given key, or an empty counter</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedRegister(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedRegister(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedRegister</h4>
+<pre class="methodSignature">default&nbsp;&lt;ValueT&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;ValueT&gt;&nbsp;getReplicatedRegister&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>ValueT</code> - the value type for the Replicated Register</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Register in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> associated with the given key, or an empty register</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedRegister(java.lang.Object,java.util.function.Supplier)">
+<!--   -->
+</a><a id="getReplicatedRegister(K,java.util.function.Supplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedRegister</h4>
+<pre class="methodSignature">default&nbsp;&lt;ValueT&gt;&nbsp;<a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;ValueT&gt;&nbsp;getReplicatedRegister&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key,
+                                                                  java.util.function.Supplier&lt;ValueT&gt;&nbsp;defaultValue)</pre>
+<div class="block">Get a <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>ValueT</code> - the value type for the Replicated Register</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Register in this map</dd>
+<dd><code>defaultValue</code> - the supplier for a default value when the register is not present</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegister</code></a> associated with the given key, or a default register</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedSet(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedSet(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedSet</h4>
+<pre class="methodSignature">default&nbsp;&lt;ElementT&gt;&nbsp;<a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;ElementT&gt;&nbsp;getReplicatedSet&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedSet</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>ElementT</code> - the element type for the Replicated Set</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Set in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedSet</code></a> associated with the given key, or an empty set</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedCounterMap(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedCounterMap(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedCounterMap</h4>
+<pre class="methodSignature">default&nbsp;&lt;KeyT&gt;&nbsp;<a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;KeyT&gt;&nbsp;getReplicatedCounterMap&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>KeyT</code> - the key type for the Replicated Counter Map</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Counter Map in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedCounterMap</code></a> associated with the given key, or an empty map</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedRegisterMap(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedRegisterMap(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedRegisterMap</h4>
+<pre class="methodSignature">default&nbsp;&lt;KeyT,&#8203;ValueT&gt;&nbsp;<a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;KeyT,&#8203;ValueT&gt;&nbsp;getReplicatedRegisterMap&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>KeyT</code> - the key type for the Replicated Register Map</dd>
+<dd><code>ValueT</code> - the value type for the Replicated Register Map</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Register Map in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedRegisterMap</code></a> associated with the given key, or an empty map</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedMultiMap(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedMultiMap(K)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReplicatedMultiMap</h4>
+<pre class="methodSignature">default&nbsp;&lt;KeyT,&#8203;ValueT&gt;&nbsp;<a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;KeyT,&#8203;ValueT&gt;&nbsp;getReplicatedMultiMap&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a> from a heterogeneous Replicated Map (a map with different
+ types of Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>KeyT</code> - the key type for the Replicated Multi-Map</dd>
+<dd><code>ValueT</code> - the value type for the Replicated Multi-Map</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Multi-Map in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMultiMap</code></a> associated with the given key, or an empty multi-map</dd>
+</dl>
+</li>
+</ul>
+<a id="getReplicatedMap(java.lang.Object)">
+<!--   -->
+</a><a id="getReplicatedMap(K)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getReplicatedMap</h4>
+<pre class="methodSignature">default&nbsp;&lt;KeyT,&#8203;ValueT extends <a href="ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>&gt;&nbsp;<a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;KeyT,&#8203;ValueT&gt;&nbsp;getReplicatedMap&#8203;(<a href="ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>&nbsp;key)</pre>
+<div class="block">Get a <a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMap</code></a> from a heterogeneous Replicated Map (a map with different types of
+ Replicated Data values).</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>KeyT</code> - the key type for the Replicated Map</dd>
+<dd><code>ValueT</code> - the value type for the Replicated Map</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - the key for a Replicated Map in this map</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the <a href="ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedMap</code></a> associated with the given key, or an empty map</dd>
 </dl>
 </li>
 </ul>
