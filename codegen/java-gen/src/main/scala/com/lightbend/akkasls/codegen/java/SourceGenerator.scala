@@ -267,21 +267,25 @@ object SourceGenerator {
     val contextImports = (entityContextImports ++ serviceContextImports).toSet
 
     val entityCreators =
-      model.entities.values.collect {
-        case entity: ModelBuilder.EventSourcedEntity =>
-          s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-        case entity: ModelBuilder.ValueEntity =>
-          s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-        case entity: ModelBuilder.ReplicatedEntity =>
-          s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-      }.toList
+      model.entities.values.toList
+        .sortBy(_.fqn.name)
+        .collect {
+          case entity: ModelBuilder.EventSourcedEntity =>
+            s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+          case entity: ModelBuilder.ValueEntity =>
+            s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+          case entity: ModelBuilder.ReplicatedEntity =>
+            s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        }
 
-    val serviceCreators = model.services.values.collect {
-      case service: ModelBuilder.ActionService =>
-        s"Function<ActionCreationContext, ${service.className}> create${service.className}"
-      case view: ModelBuilder.ViewService =>
-        s"Function<ViewCreationContext, ${view.className}> create${view.className}"
-    }.toList
+    val serviceCreators = model.services.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case service: ModelBuilder.ActionService =>
+          s"Function<ActionCreationContext, ${service.className}> create${service.className}"
+        case view: ModelBuilder.ViewService =>
+          s"Function<ViewCreationContext, ${view.className}> create${view.className}"
+      }
 
     val creatorParameters = entityCreators ::: serviceCreators
     val imports =
@@ -326,16 +330,20 @@ object SourceGenerator {
     }.toSeq
 
     val componentImports = generateImports(Iterable.empty, mainClassPackageName, entityImports ++ serviceImports)
-    val entityRegistrationParameters = entities.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
-      case entity: ModelBuilder.ValueEntity        => s"${entity.fqn.name}::new"
-      case entity: ModelBuilder.ReplicatedEntity   => s"${entity.fqn.name}::new"
-    }.toList
+    val entityRegistrationParameters = entities.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.ValueEntity        => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.ReplicatedEntity   => s"${entity.fqn.name}::new"
+      }
 
-    val serviceRegistrationParameters = services.values.collect {
-      case service: ModelBuilder.ActionService => s"${service.className}::new"
-      case view: ModelBuilder.ViewService      => s"${view.className}::new"
-    }.toList
+    val serviceRegistrationParameters = services.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case service: ModelBuilder.ActionService => s"${service.className}::new"
+        case view: ModelBuilder.ViewService      => s"${view.className}::new"
+      }
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
     s"""|$generatedCodeCommentString

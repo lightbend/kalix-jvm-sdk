@@ -236,9 +236,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |  public static AkkaServerless withComponents(
         |      Function<EventSourcedEntityContext, MyEntity1> createMyEntity1,
-        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
         |      Function<EventSourcedEntityContext, MyEntity3> createMyEntity3,
         |      Function<ReplicatedEntityContext, MyReplicatedEntity6> createMyReplicatedEntity6,
+        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
         |      Function<ViewCreationContext, MyService4ViewImpl> createMyService4ViewImpl,
         |      Function<ActionCreationContext, MyService5Action> createMyService5Action) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
@@ -339,9 +339,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    // `new AkkaServerless()` instance.
          |    return AkkaServerlessFactory.withComponents(
          |      MyEntity1::new,
-         |      MyValueEntity2::new,
          |      MyEntity3::new,
          |      MyReplicatedEntity6::new,
+         |      MyValueEntity2::new,
          |      MyServiceAction::new);
          |  }
          |

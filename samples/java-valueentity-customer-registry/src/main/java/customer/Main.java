@@ -22,14 +22,22 @@ public final class Main {
   // tag::register[]
   public static AkkaServerless createAkkaServerless() {
     return AkkaServerlessFactory.withComponents(
-      CustomerValueEntity::new,
       // end::register[]
-      CustomerSummaryByNameView::new,
-      CustomersResponseByNameView::new,
-      CustomerByEmailView::new,
+      CustomerValueEntity::new,
       CustomerActionImpl::new,
+      CustomerByEmailView::new,
+      CustomerByNameView::new,
+      CustomerSummaryByNameView::new,
+      CustomersResponseByNameView::new);
+      /*
       // tag::register[]
-      CustomerByNameView::new);
+      return AkkaServerlessFactory.withComponents(
+        CustomerValueEntity::new,
+        CustomerByNameView::new);
+      // end::register[]
+      */
+      // tag::register[]
+      
   }
   // end::register[]
 

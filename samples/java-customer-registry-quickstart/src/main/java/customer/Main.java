@@ -23,8 +23,8 @@ public final class Main {
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
       Customer::new,
-      CustomerByNameView::new,
-      CustomerByEmailView::new);
+      CustomerByEmailView::new,
+      CustomerByNameView::new);
   }
 
   public static void main(String[] args) throws Exception {
