@@ -46,7 +46,7 @@ For additional documentation about Akka gRPC see the https://doc.akka.io/docs/ak
 
 == External gRPC services
 
-Calling an external service is done the same way as described above, with the difference that the name passed to `getGrpcClient` is present in the `application.conf` file of the project with details on how to connect to the external service. The for a service named `external-example-service` config is expected to be found under `akka.grpc.client.external-example-service`.
+Calling an external service is done the same way as described above, with the difference that the name passed to `getGrpcClient` is present in the `application.conf` file of the project with details on how to connect to the external service. For a service named `external-example-service` config is expected to be found under `akka.grpc.client.external-example-service`.
 
 See the https://doc.akka.io/docs/akka-grpc/current/client/configuration.html#by-configuration[Akka gRPC docs on consuming a service] for details on configuring the client for a service name.
 
