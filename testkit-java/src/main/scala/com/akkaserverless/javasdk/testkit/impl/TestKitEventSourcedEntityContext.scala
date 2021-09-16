@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
-import akka.grpc.javadsl.AkkaGrpcClient
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext
 

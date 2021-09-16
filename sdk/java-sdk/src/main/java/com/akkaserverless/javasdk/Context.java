@@ -16,8 +16,6 @@
 
 package com.akkaserverless.javasdk;
 
-import akka.grpc.javadsl.AkkaGrpcClient;
-
 /** Root class of all contexts. */
 public interface Context {
   /** Get the service call factory for this stateful service. */
