@@ -25,6 +25,6 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext
  */
 final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
   override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
-  override def getGrpcClient[T <: AkkaGrpcClient](clientClass: Class[T], service: String): T =
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
 }

@@ -18,17 +18,17 @@ public class DelegatingServiceAction extends AbstractDelegatingServiceAction {
   // tag::delegating-action[]
   @Override
   public Effect<DelegatingServiceApi.Result> addAndReturn(DelegatingServiceApi.Request request) {
-    CounterServiceClient counterClient = actionContext().getGrpcClient(CounterServiceClient.class, "counter"); // <1>
+    CounterService counterService = actionContext().getGrpcClient(CounterService.class, "counter"); // <1>
 
     CounterApi.IncreaseValue increaseValue = CounterApi.IncreaseValue.newBuilder()
         .setCounterId(request.getCounterId())
         .setValue(1)
         .build();
-    CompletionStage<Empty> increaseCompleted = counterClient.increase(increaseValue);  // <2>
+    CompletionStage<Empty> increaseCompleted = counterService.increase(increaseValue);  // <2>
 
     CompletionStage<CounterApi.CurrentCounter> currentCounterValueAfter = increaseCompleted.thenCompose((empty) -> // <3>
         // once increase completed successfully, ask for the current state after
-        counterClient.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("the-counter").build())
+        counterService.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("the-counter").build())
     );
 
     // turn the reply from the other service into our reply type

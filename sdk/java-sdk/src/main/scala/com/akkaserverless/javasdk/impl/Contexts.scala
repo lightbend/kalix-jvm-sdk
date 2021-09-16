@@ -37,6 +37,6 @@ private[javasdk] abstract class AbstractContext(
     override val serviceCallFactory: ServiceCallFactory,
     system: ActorSystem)
     extends Context {
-  override def getGrpcClient[T <: AkkaGrpcClient](clientClass: Class[T], service: String): T =
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     GrpcClients(system).getGrpcClient(clientClass, service)
 }

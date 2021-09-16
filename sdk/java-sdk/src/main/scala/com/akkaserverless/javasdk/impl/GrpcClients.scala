@@ -40,7 +40,7 @@ object GrpcClients extends ExtensionId[GrpcClients] with ExtensionIdProvider {
     new GrpcClients(system)
   override def lookup: ExtensionId[_ <: Extension] = this
 
-  final private case class Key(clientClass: Class[_ <: AkkaGrpcClient], service: String)
+  final private case class Key(serviceClass: Class[_], service: String)
 }
 
 /**
@@ -56,8 +56,8 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceStop, "stop-grpc-clients")(() =>
     Future.traverse(clients.values().asScala)(_.close().asScala).map(_ => Done))
 
-  def getGrpcClient[T <: AkkaGrpcClient](clientClass: Class[T], service: String): T =
-    clients.computeIfAbsent(Key(clientClass, service), createClient(_)).asInstanceOf[T]
+  def getGrpcClient[T](serviceClass: Class[T], service: String): T =
+    clients.computeIfAbsent(Key(serviceClass, service), createClient(_)).asInstanceOf[T]
 
   private def createClient(key: Key): AkkaGrpcClient = {
     val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
@@ -73,7 +73,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       GrpcClientSettings.fromConfig(key.service)(system)
     }
 
-    val create = key.clientClass.getMethod("create", classOf[GrpcClientSettings])
+    // expected to have a ServiceNameClient generated in the same package, so look that up through reflection
+    val clientClass = system.dynamicAccess.getClassFor[AkkaGrpcClient](key.serviceClass.getName + "Client").get
+    val create = clientClass.getMethod("create", classOf[GrpcClientSettings])
     val client: AkkaGrpcClient = create.invoke(null, settings).asInstanceOf[AkkaGrpcClient]
     client.closed().asScala.foreach { _ =>
       // if the client is closed, remove it from the pool
