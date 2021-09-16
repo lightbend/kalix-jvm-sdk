@@ -29,7 +29,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[sbt.Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.18" % "protobuf",
+      "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.19" % "protobuf",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf"),
     Compile / PB.targets +=
       gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless",
