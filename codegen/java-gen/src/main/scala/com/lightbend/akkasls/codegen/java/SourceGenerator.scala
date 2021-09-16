@@ -66,8 +66,6 @@ object SourceGenerator {
       generatedTestSourceDirectory: Path,
       mainClass: String)(implicit log: Log): Iterable[Path] = {
 
-    validate(model)
-
     val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
 
     model.services.values.flatMap {
@@ -136,26 +134,6 @@ object SourceGenerator {
         List(akkaServerlessFactorySourcePath)
       }
     }
-  }
-
-  private def validate(model: ModelBuilder.Model): Unit = {
-    // at least for now we don't support java_multiple_files=true and java_outer_classname is required
-    def validate(pkgNaming: PackageNaming): List[String] = {
-      var errors = List.empty[String]
-      if (pkgNaming.javaOuterClassnameOption.isEmpty)
-        errors = s"${pkgNaming.protoFileName} must define java_outer_classname" :: errors
-      if (pkgNaming.javaMultipleFiles)
-        errors = s"${pkgNaming.protoFileName} must not enable java_multiple_files" :: errors
-      errors
-    }
-
-    val invalid =
-      model.services.values.flatMap(service => validate(service.fqn.parent)) ++
-      model.entities.values.flatMap(service => validate(service.fqn.parent))
-
-    if (invalid.nonEmpty)
-      throw new IllegalArgumentException(s"Validation errors of Protobuf model: ${invalid.mkString(", ")}")
-
   }
 
   def generate(

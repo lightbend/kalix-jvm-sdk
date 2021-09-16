@@ -14,31 +14,20 @@
 
 syntax = "proto3";
 
-package com.example;
+package com.example.action3;
 
-option java_outer_classname = "EchoActionModel";
+option java_multiple_files = true;
+// no java_outer_classname option, will default to "SomeActionOuterClass"
 
-import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "value-entities/user_api.proto";
 
-message Person {
-    string name = 1;
-}
+message Request {}
+message Response {}
 
-message Hello {
-  string message = 1;
-}
+service SomeAction {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ACTION
+  };
 
-service EchoAction {
-    option (akkaserverless.service) = {
-      type : SERVICE_TYPE_ACTION
-    };
-    rpc SayHello(Person) returns (Hello) {
-    }
-
-    // example importing a type coming from another file
-    rpc Create(CreateUser) returns (google.protobuf.Empty){
-
-    }
+  rpc Method(Request) returns (Response);
 }

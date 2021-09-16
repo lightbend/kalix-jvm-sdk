@@ -28,10 +28,7 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
-    else
-      parent.javaOuterClassnameOption
-        .map(outer => s"$outer.$name")
-        .getOrElse(name)
+    else s"${parent.javaOuterClassname}.$name"
   }
 
   lazy val typeImport = s"${parent.javaPackage}.$fullName"
@@ -86,13 +83,29 @@ case class PackageNaming(
     pkg: String,
     goPackage: Option[String],
     javaPackageOption: Option[String],
-    javaOuterClassnameOption: Option[String],
+    javaOuterClassname: String,
     javaMultipleFiles: Boolean) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
-  lazy val javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }
 
 object PackageNaming {
+  def apply(
+      protoFileName: String,
+      name: String,
+      pkg: String,
+      goPackage: Option[String],
+      javaPackageOption: Option[String],
+      javaOuterClassnameOption: Option[String],
+      javaMultipleFiles: Boolean): PackageNaming =
+    PackageNaming(
+      protoFileName,
+      name,
+      pkg,
+      goPackage,
+      javaPackageOption,
+      javaOuterClassnameOption.getOrElse(name),
+      javaMultipleFiles)
+
   def from(descriptor: Descriptors.FileDescriptor): PackageNaming = {
     val name =
       descriptor.getName
@@ -114,10 +127,19 @@ object PackageNaming {
     val javaPackage =
       generalOptions.get("google.protobuf.FileOptions.java_package").map(_.toString())
 
-    val javaOuterClassname =
+    val javaOuterClassnameOption =
       generalOptions
         .get("google.protobuf.FileOptions.java_outer_classname")
         .map(_.toString())
+
+    val javaOuterClassname =
+      javaOuterClassnameOption.getOrElse {
+        val existingNames =
+          descriptor.getMessageTypes.asScala.map(_.getName) ++
+          descriptor.getEnumTypes.asScala.map(_.getName) ++
+          descriptor.getServices.asScala.map(_.getName)
+        if (existingNames.contains(name)) name + "OuterClass" else name
+      }
 
     val javaMultipleFiles =
       generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)

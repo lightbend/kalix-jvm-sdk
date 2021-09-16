@@ -160,8 +160,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(fqn =>
-        fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname)
+        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport)
         ++ extraImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
