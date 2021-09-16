@@ -12,23 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// this defines the state model for the Product Popularity Value Entity
-
 syntax = "proto3";
 
-package shopping.product.domain;
+package com.example.action4;
 
-option java_outer_classname = "ProductPopularityDomain";
+option java_multiple_files = true;
+// no java_outer_classname option, will default to "SomeOtherActionApi"
 
 import "akkaserverless/annotations.proto";
 
-option (akkaserverless.file).value_entity = {
-  name: "ProductPopularityValueEntity"
-  entity_type: "product-popularity"
-  state: "Popularity"
-};
+message Request {}
+message Response {}
 
-message Popularity {
-  string productId = 1;
-  int32 score = 2;
+service SomeOtherAction {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ACTION
+  };
+
+  rpc Method(Request) returns (Response);
 }

@@ -22,7 +22,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
-object AkkaserverlessTestGenerator extends CodeGenApp {
+object AkkaserverlessUnmanagedGenerator extends CodeGenApp {
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
     registry.add(com.akkaserverless.Annotations.service)
     registry.add(com.akkaserverless.Annotations.file)
@@ -34,7 +34,7 @@ object AkkaserverlessTestGenerator extends CodeGenApp {
     try {
       CodeGenResponse.succeed(
         SourceGenerator
-          .generateManagedTest(model)
+          .generateUnmanaged(model)
           .map(file =>
             CodeGeneratorResponse.File
               .newBuilder()
@@ -48,6 +48,5 @@ object AkkaserverlessTestGenerator extends CodeGenApp {
     }
   }
 
-  // FIXME #382 add reference to the runtime lib here
   override def suggestedDependencies: Seq[Artifact] = Nil
 }

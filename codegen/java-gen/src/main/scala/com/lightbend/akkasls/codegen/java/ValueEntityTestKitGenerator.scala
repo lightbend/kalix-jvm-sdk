@@ -81,10 +81,8 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"))
 
-    val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
-    val entityStateName = entity.state.fqn.name
-    val stateClassName = s"${domainClassName}.${entityStateName}"
+    val stateClassName = entity.state.fqn.fullName
 
     val testkitClassName = s"${entityClassName}TestKit"
 
@@ -150,20 +148,19 @@ object ValueEntityTestKitGenerator {
   }
 
   def generateServices(service: ModelBuilder.EntityService): String = {
-    val apiClassName = service.fqn.parent.javaOuterClassname
 
     def selectOutput(command: ModelBuilder.Command): String =
       if (command.outputType.name == "Empty") {
         "Empty"
       } else {
-        apiClassName + "." + command.outputType.name
+        command.outputType.fullName
       }
 
     service.commands
       .map { command =>
         val output = selectOutput(command)
         s"""|public ValueEntityResult<$output> ${lowerFirst(
-          command.fqn.name)}(${apiClassName}.${command.inputType.name} ${lowerFirst(command.inputType.name)}) {
+          command.fqn.name)}(${command.inputType.fullName} ${lowerFirst(command.inputType.name)}) {
        |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.fqn.name)}(state, ${lowerFirst(
           command.inputType.name)});
        |  return interpretEffects(effect);

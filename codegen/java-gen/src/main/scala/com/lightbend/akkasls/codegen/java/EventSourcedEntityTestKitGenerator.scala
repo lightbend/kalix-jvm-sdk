@@ -76,10 +76,8 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl",
         "java.util.function.Function"))
 
-    val domainClassName = entity.fqn.parent.javaOuterClassname
     val entityClassName = entity.fqn.name
-    val entityStateName = entity.state.fqn.name
-    val stateClassName = s"${domainClassName}.${entityStateName}"
+    val stateClassName = entity.state.fqn.fullName
     val testkitClassName = s"${entityClassName}TestKit"
 
     s"""$managedCodeCommentString
@@ -140,7 +138,7 @@ object EventSourcedEntityTestKitGenerator {
           |  }
           |
           |  private $stateClassName handleEvent($stateClassName state, Object event) {
-          |    ${Syntax.indent(generateHandleEvents(entity.events, domainClassName), 4)}
+          |    ${Syntax.indent(generateHandleEvents(entity.events), 4)}
           |  }
           |
           |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
@@ -160,18 +158,16 @@ object EventSourcedEntityTestKitGenerator {
   def generateServices(service: ModelBuilder.EntityService): String = {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
 
-    val apiClassName = service.fqn.parent.javaOuterClassname
-
     def selectOutput(command: ModelBuilder.Command): String =
       if (command.outputType.name == "Empty") {
         "Empty"
       } else {
-        apiClassName + "." + command.outputType.name
+        command.outputType.fullName
       }
 
     service.commands
       .map { command =>
-        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${apiClassName}.${command.inputType.name} command) {
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${command.inputType.fullName} command) {
             |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
             |  return interpretEffects(effect);
             |}
@@ -181,18 +177,17 @@ object EventSourcedEntityTestKitGenerator {
   }
 
   //TODO This method should be deleted when the codegen CartHandler.handleEvents gets available
-  def generateHandleEvents(events: Iterable[ModelBuilder.Event], domainClassName: String): String = {
+  def generateHandleEvents(events: Iterable[ModelBuilder.Event]): String = {
     require(events.nonEmpty, "empty `events` not allowed")
 
     val top =
-      s"""|if (event instanceof ${domainClassName}.${events.head.fqn.name}) {
-          |  return entity.${lowerFirst(events.head.fqn.name)}(state, (${domainClassName}.${events.head.fqn.name}) event);
+      s"""|if (event instanceof ${events.head.fqn.fullName}) {
+          |  return entity.${lowerFirst(events.head.fqn.name)}(state, (${events.head.fqn.fullName}) event);
           |""".stripMargin
 
     val middle = events.tail.map { event =>
-      s"""|} else if (event instanceof ${domainClassName}.${event.fqn.name}) {
-          |  return entity.${lowerFirst(
-        event.fqn.name)}(state, (${domainClassName}.${event.fqn.name}) event);""".stripMargin
+      s"""|} else if (event instanceof ${event.fqn.fullName}) {
+          |  return entity.${lowerFirst(event.fqn.name)}(state, (${event.fqn.fullName}) event);""".stripMargin
     }
 
     val bottom =

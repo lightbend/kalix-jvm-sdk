@@ -25,18 +25,18 @@ object SourceGenerator {
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManaged(model: ModelBuilder.Model): Seq[File] =
-    Seq(File("foo/bar/Baz.scala", "package foo.bar\n\ntrait Baz"))
+    Seq(File("foo/bar/AbstractBaz.scala", "package foo.bar\n\nabstract class AbstractBaz"))
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManagedTest(model: ModelBuilder.Model): Seq[File] =
-    Seq(File("foo/bar/BazSpec.scala", "package foo.bar\n\ntrait BazSpec"))
+    Seq(File("foo/bar/BazSpec.scala", "package foo.bar\n\nclass BazSpec { new Baz() }"))
 
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
    * user.
    */
   def generateUnmanaged(model: ModelBuilder.Model): Seq[File] =
-    Seq.empty
+    Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"))
 }
