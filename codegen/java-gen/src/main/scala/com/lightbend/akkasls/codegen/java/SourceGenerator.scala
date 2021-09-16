@@ -145,7 +145,7 @@ object SourceGenerator {
       if (pkgNaming.javaOuterClassnameOption.isEmpty)
         errors = s"${pkgNaming.protoFileName} must define java_outer_classname" :: errors
       if (pkgNaming.javaMultipleFiles)
-        errors = s"${pkgNaming.protoFileName} must not define java_multiple_files" :: errors
+        errors = s"${pkgNaming.protoFileName} must not enable java_multiple_files" :: errors
       errors
     }
 

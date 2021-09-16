@@ -93,8 +93,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           javaMultipleFiles = true)
 
-      println(s"# googleEmptyProto $googleEmptyProto") // FIXME
-
       val entity =
         ModelBuilder.EventSourcedEntity(
           FullyQualifiedName("ShoppingCart", domainProto),
