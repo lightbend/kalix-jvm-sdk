@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.lightbend.akkasls.codegen.java.TestData.serviceProto
+import com.lightbend.akkasls.codegen.TestData.serviceProto
 
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 

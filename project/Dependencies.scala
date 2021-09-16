@@ -110,7 +110,7 @@ object Dependencies {
 
   val codegenJava = deps ++= Seq(commonsIo, logback % Test, munit % Test, munitScalaCheck % Test)
 
-  val codegenScala = deps ++= Seq(scalapbCompilerPlugin)
+  val codegenScala = deps ++= Seq(scalapbCompilerPlugin, munit % Test)
 
   val sbtPlugin = Seq(
     // we depend on it in the settings of the plugin since we set keys of the sbt-protoc plugin

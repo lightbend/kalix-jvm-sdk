@@ -15,9 +15,19 @@
  */
 
 package com.lightbend.akkasls.codegen
-package java
 
+/**
+ * Used by java and scala codegen projects for their tests
+ */
 object TestData {
+  def simple(): ModelBuilder.Model = {
+    val service = simpleEntityService()
+    val entity = valueEntity()
+    ModelBuilder.Model(
+      services = Map(service.componentFullName -> service),
+      entities = Map(entity.fqn.fullQualifiedName -> entity))
+  }
+
   def serviceProto(suffix: String = ""): PackageNaming =
     PackageNaming(
       "my_service.proto",
