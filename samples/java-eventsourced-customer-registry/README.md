@@ -21,6 +21,9 @@ To run the example locally:
     mvn -Dakkaserverless-sdk.verion="0.7.0-beta....-SNAPSHOT" compile exec:java
     ```
 
+> On Linux, the application will bind to localhost which will not be accessible from the docker containers depending on the
+> docker networking model. Use `HOST=0.0.0.0 mvn [..] compile exec:java`, instead to make the user application bind to all interfaces.
+
 * Start the proxy
   * with in-memory store: `sbt proxy-core/run`
   * or with local Spanner emulator:

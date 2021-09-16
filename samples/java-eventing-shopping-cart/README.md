@@ -18,6 +18,9 @@ To run the example locally with the GooglePubSub emulator: (See below for instru
     cd samples/java-eventing-shopping-cart
     mvn compile exec:java
     ```
+> On Linux, the application will bind to localhost which will not be accessible from the docker containers depending on the
+> docker networking model. Use `HOST=0.0.0.0 mvn compile exec:java`, instead to make the user application bind to all interfaces.
+
 * Start the proxy
   * with in-memory store: `sbt -Dakkaserverless.proxy.eventing.support=google-pubsub proxy-core/run`
     * note that this overrides the akkaserverless.proxy.eventing.support defined in `dev-mode.conf`

@@ -57,6 +57,9 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:java
 ```
 
+> On Linux, the application will bind to localhost which will not be accessible from the docker containers depending on the
+> docker networking model. Use `HOST=0.0.0.0 mvn compile exec:java`, instead to make the user application bind to all interfaces.
+
 For further details see [Running a service locally](https://developer.lightbend.com/docs/akka-serverless/developing/running-service-locally.html) in the documentation.
 
 ## Exercise the service
