@@ -12,7 +12,7 @@ We start by adding the public API of the counter to the `src/main/proto` directo
 
 Since the proto file of an Akka Serverless service contains annotations that cause the Java SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
 
-Copy the API definition proto file from the other service into the `proto` directory but strip all `akkaserverless.service` option blocks as well as all other Akka Serverless annotations and the `import "akkaserverless/annotations.proto"` from it.
+Copy the API definition proto file from the other service into the `proto` directory but remove all `akkaserverless.service` option blocks as well as all other Akka Serverless annotations and the `import "akkaserverless/annotations.proto"` from it.
 
 This is how the counter descriptor looks with all annotations removed:
 
