@@ -20,6 +20,7 @@ package java
 object TestData {
   def serviceProto(suffix: String = ""): PackageNaming =
     PackageNaming(
+      "my_service.proto",
       s"MyService$suffix",
       "com.example.service",
       None,
@@ -29,6 +30,7 @@ object TestData {
 
   def domainProto(suffix: String = ""): PackageNaming =
     PackageNaming(
+      "domain.proto",
       s"Domain$suffix",
       "com.example.service.domain",
       None,
@@ -37,10 +39,17 @@ object TestData {
       javaMultipleFiles = false)
 
   val externalProto: PackageNaming =
-    PackageNaming("ExternalDomain", "com.external", None, None, None, javaMultipleFiles = true)
+    PackageNaming("external_domain.proto", "ExternalDomain", "com.external", None, None, None, javaMultipleFiles = true)
 
   val googleProto: PackageNaming =
-    PackageNaming("GoogleProto", "com.google.protobuf", None, None, None, javaMultipleFiles = true)
+    PackageNaming(
+      "google_proto.proto",
+      "GoogleProto",
+      "com.google.protobuf",
+      None,
+      None,
+      None,
+      javaMultipleFiles = true)
 
   def command(
       fqn: FullyQualifiedName,

@@ -65,6 +65,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
+          "shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -74,6 +75,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
+          "shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -83,6 +85,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val googleEmptyProto =
         PackageNaming(
+          "Empty",
           "Empty",
           "google.protobuf",
           Some("google.golang.org/protobuf/types/known/emptypb"),
@@ -143,6 +146,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
+          "shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -152,6 +156,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
+          "shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -161,6 +166,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val googleEmptyProto =
         PackageNaming(
+          "Empty",
           "Empty",
           "google.protobuf",
           Some("google.golang.org/protobuf/types/known/emptypb"),
@@ -220,6 +226,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
+          "shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -229,6 +236,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
+          "shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -238,6 +246,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val googleEmptyProto =
         PackageNaming(
+          "Empty",
           "Empty",
           "google.protobuf",
           Some("google.golang.org/protobuf/types/known/emptypb"),
@@ -300,6 +309,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
+          "cart/shopping_cart_view_model.proto",
           "ShoppingCartViewModel",
           "shopping.cart.view",
           None,
@@ -309,6 +319,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
+          "cart/shopping_cart_domain.proto",
           "ShoppingCartDomain",
           "shopping.cart.domain",
           None,
@@ -318,6 +329,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val googleEmptyProto =
         PackageNaming(
+          "Empty",
           "Empty",
           "google.protobuf",
           Some("google.golang.org/protobuf/types/known/emptypb"),
@@ -363,12 +375,20 @@ class ModelBuilderSuite extends munit.FunSuite {
   }
 
   test("deriving java package from proto options") {
+    val protoFileName = "name.proto"
     val name = "Name"
     val pkg = "com.example"
 
-    assertEquals(PackageNaming(name, pkg, None, None, None, javaMultipleFiles = false).javaPackage, pkg)
+    assertEquals(PackageNaming(protoFileName, name, pkg, None, None, None, javaMultipleFiles = false).javaPackage, pkg)
     assertEquals(
-      PackageNaming(name, pkg, None, Some("override.package"), None, javaMultipleFiles = false).javaPackage,
+      PackageNaming(
+        protoFileName,
+        name,
+        pkg,
+        None,
+        Some("override.package"),
+        None,
+        javaMultipleFiles = false).javaPackage,
       "override.package")
   }
 

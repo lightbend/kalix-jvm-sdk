@@ -227,6 +227,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     val domainProto =
       PackageNaming(
+        "cart/shoppingcart_domain.proto",
         "ShoppingcartDomain", // Cart here is lowerCase as per protobuf generation
         "com.example.shoppingcart.domain",
         None,
@@ -249,6 +250,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   def generateShoppingCartService(entity: ModelBuilder.Entity): ModelBuilder.EntityService = {
     val shoppingCartProto =
       PackageNaming(
+        "cart/shoppingcart_api.proto",
         "ShoppingcartApi", // Cart here is lowerCase as per protobuf generation
         "com.example.shoppingcart",
         None,
@@ -257,6 +259,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         javaMultipleFiles = false)
     val googleEmptyProto =
       PackageNaming(
+        "Empty",
         "Empty",
         "google.protobuf",
         Some("google.golang.org/protobuf/types/known/emptypb"),
