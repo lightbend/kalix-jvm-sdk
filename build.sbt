@@ -174,25 +174,6 @@ lazy val codegenJavaCompilationTest = project
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
 
-lazy val javaEventingShoppingCart = project
-  .in(file("samples/java-eventing-shopping-cart"))
-  .dependsOn(sdkJava, testkitJava % IntegrationTest)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .settings(
-    name := "java-eventing-shopping-cart",
-    Compile / mainClass := Some("shopping.Main"),
-    // Akka gRPC only for IntegrationTest
-    Compile / akkaGrpcGeneratedSources := Seq.empty,
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
-    libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "com.novocode" % "junit-interface" % JUnitInterfaceVersion % IntegrationTest),
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-a"),
-    IntegrationTest / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
-  .settings(attachProtobufDescriptorSets)
-
 lazy val javaValueentityCustomerRegistry = project
   .in(file("samples/java-valueentity-customer-registry"))
   .dependsOn(sdkJava)
