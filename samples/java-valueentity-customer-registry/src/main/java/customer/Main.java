@@ -25,12 +25,11 @@ public final class Main {
       CustomerValueEntity::new,
       // end::register[]
       CustomerSummaryByNameView::new,
-      CustomerByEmailView::new,
       CustomersResponseByNameView::new,
+      CustomerByEmailView::new,
       CustomerActionImpl::new,
       // tag::register[]
-      CustomerByNameView::new
-    );
+      CustomerByNameView::new);
   }
   // end::register[]
 

@@ -49,7 +49,7 @@ object ViewServiceSourceGenerator {
     val packagePath = packageAsPath(packageName)
 
     val implSourcePath =
-      sourceDirectory.resolve(packagePath.resolve(service.viewClassName + ".java"))
+      sourceDirectory.resolve(packagePath.resolve(service.className + ".java"))
 
     val abstractViewPath =
       generatedSourceDirectory.resolve(packagePath.resolve(service.abstractViewName + ".java"))
@@ -102,9 +102,9 @@ object ViewServiceSourceGenerator {
         |$imports
         |
         |/** A view handler */
-        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.viewClassName}> {
+        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.className}> {
         |
-        |  public ${view.handlerName}(${view.viewClassName} view) {
+        |  public ${view.handlerName}(${view.className} view) {
         |    super(view);
         |  }
         |
@@ -147,19 +147,19 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
-        |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.viewClassName}> {
+        |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.className}> {
         |
-        |  private final Function<ViewCreationContext, ${view.viewClassName}> viewFactory;
+        |  private final Function<ViewCreationContext, ${view.className}> viewFactory;
         |  private final String viewId;
         |
-        |  /** Factory method of ${view.viewClassName} */
+        |  /** Factory method of ${view.className} */
         |  public static ${view.providerName} of(
-        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory) {
+        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
         |    return new ${view.providerName}(viewFactory, "${view.viewId}");
         |  }
         |
         |  private ${view.providerName}(
-        |      Function<ViewCreationContext, ${view.viewClassName}> viewFactory,
+        |      Function<ViewCreationContext, ${view.className}> viewFactory,
         |      String viewId) {
         |    this.viewFactory = viewFactory;
         |    this.viewId = viewId;
@@ -225,9 +225,9 @@ object ViewServiceSourceGenerator {
        |
        |$imports
        |
-       |public class ${view.viewClassName} extends ${view.abstractViewName} {
+       |public class ${view.className} extends ${view.abstractViewName} {
        |
-       |  public ${view.viewClassName}(ViewContext context) {}
+       |  public ${view.className}(ViewContext context) {}
        |$emptyState
        |  ${Syntax.indent(handlers, 2)}
        |}
