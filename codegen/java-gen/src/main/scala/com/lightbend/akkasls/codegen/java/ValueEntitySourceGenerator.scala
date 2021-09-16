@@ -35,16 +35,15 @@ object ValueEntitySourceGenerator {
       packageName,
       otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext"))
 
-    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+    val stateType = entity.state.fqn.fullName
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.fqn.name
-      val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+      val inputType = cmd.inputType.fullName
       val outputType = qualifiedType(cmd.outputType)
 
       s"""|@Override
-          |public Effect<$outputType> ${lowerFirst(methodName)}($outerClassAndState currentState, $inputType command) {
+          |public Effect<$outputType> ${lowerFirst(methodName)}($stateType currentState, $inputType command) {
           |  return effects().error("The command handler for `$methodName` is not implemented, yet");
           |}
           |""".stripMargin
@@ -65,7 +64,7 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public $outerClassAndState emptyState() {
+        |  public $stateType emptyState() {
         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
         |  }
         |
@@ -89,13 +88,12 @@ object ValueEntitySourceGenerator {
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"))
 
-    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+    val stateType = entity.state.fqn.fullName
 
     val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.fqn.name
-        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        val inputType = cmd.inputType.fullName
         s"""|case "$methodName":
             |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
             |""".stripMargin
@@ -110,7 +108,7 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends ValueEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |public class ${className}Handler extends ValueEntityHandler<$stateType, ${entity.fqn.name}> {
         |
         |  public ${className}Handler(${entity.fqn.name} entity) {
         |    super(entity);
@@ -118,7 +116,7 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public ValueEntity.Effect<?> handleCommand(
-        |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
+        |      String commandName, $stateType state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
         |      ${Syntax.indent(commandCases, 6)}
@@ -152,8 +150,7 @@ object ValueEntitySourceGenerator {
         "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(fqn =>
-        fqn.parent.javaPackage + "." + fqn.parent.javaOuterClassname))
+        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport))
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
@@ -171,7 +168,7 @@ object ValueEntitySourceGenerator {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements ValueEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, $className> {
+        |public class ${className}Provider implements ValueEntityProvider<${entity.state.fqn.fullName}, $className> {
         |
         |  private final Function<ValueEntityContext, $className> entityFactory;
         |  private final ValueEntityOptions options;
@@ -229,8 +226,7 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+    val stateType = entity.state.fqn.fullName
 
     val imports = generateImports(
       service.commands,
@@ -242,12 +238,12 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.fqn.name
 
-        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        val inputType = cmd.inputType.fullName
         val outputType = qualifiedType(cmd.outputType)
 
         s"""|/** Command handler for "${cmd.fqn.name}". */
             |public abstract Effect<$outputType> ${lowerFirst(
-          methodName)}($outerClassAndState currentState, $inputType ${lowerFirst(cmd.inputType.name)});
+          methodName)}($stateType currentState, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
       }
@@ -258,7 +254,7 @@ object ValueEntitySourceGenerator {
         |$imports
         |
         |/** A value entity. */
-        |public abstract class Abstract$className extends ValueEntity<$outerClassAndState> {
+        |public abstract class Abstract$className extends ValueEntity<$stateType> {
         |
         |  ${Syntax.indent(methods, 2)}
         |

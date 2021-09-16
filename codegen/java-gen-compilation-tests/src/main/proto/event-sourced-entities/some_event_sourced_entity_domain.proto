@@ -14,31 +14,24 @@
 
 syntax = "proto3";
 
-package com.example;
+package com.example.eventsourcedentity.domain;
 
-option java_outer_classname = "EchoActionModel";
-
-import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "value-entities/user_api.proto";
 
-message Person {
-    string name = 1;
+option java_multiple_files = true;
+// no java_outer_classname option, will default to "SomeEventSourcedEntityDomain"
+
+option (akkaserverless.file).event_sourced_entity = {
+    name: "SomeEventSourcedEntity"
+    entity_type: "some-event-sourced-entity"
+    state: "SomeEventSourcedEntityState"
+    events: ["SomeEvent"]
+};
+
+message SomeEventSourcedEntityState {
+  string some_field = 1;
 }
 
-message Hello {
-  string message = 1;
-}
-
-service EchoAction {
-    option (akkaserverless.service) = {
-      type : SERVICE_TYPE_ACTION
-    };
-    rpc SayHello(Person) returns (Hello) {
-    }
-
-    // example importing a type coming from another file
-    rpc Create(CreateUser) returns (google.protobuf.Empty){
-
-    }
+message SomeEvent {
+  string some_field = 1;
 }

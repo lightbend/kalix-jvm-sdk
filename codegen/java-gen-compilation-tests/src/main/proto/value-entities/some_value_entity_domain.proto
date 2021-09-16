@@ -14,31 +14,19 @@
 
 syntax = "proto3";
 
-package com.example;
+package com.example.valueentity.domain;
 
-option java_outer_classname = "EchoActionModel";
-
-import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "value-entities/user_api.proto";
 
-message Person {
-    string name = 1;
-}
+option java_multiple_files = true;
+// no java_outer_classname option, will default to "SomeValueEntityDomain"
 
-message Hello {
-  string message = 1;
-}
+option (akkaserverless.file).value_entity = {
+    name: "SomeValueEntity"
+    entity_type: "some-value-entity"
+    state: "SomeValueEntityState"
+};
 
-service EchoAction {
-    option (akkaserverless.service) = {
-      type : SERVICE_TYPE_ACTION
-    };
-    rpc SayHello(Person) returns (Hello) {
-    }
-
-    // example importing a type coming from another file
-    rpc Create(CreateUser) returns (google.protobuf.Empty){
-
-    }
+message SomeValueEntityState {
+  string some_field = 1;
 }
