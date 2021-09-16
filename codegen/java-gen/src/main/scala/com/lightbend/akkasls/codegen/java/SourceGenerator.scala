@@ -200,7 +200,7 @@ object SourceGenerator {
           }
 
         case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}.of(create${service.viewClassName}))")
+          List(s".register(${service.providerName}.of(create${service.className}))")
 
         case service: ModelBuilder.ActionService =>
           List(s".register(${service.providerName}.of(create${service.className}))")
@@ -280,7 +280,7 @@ object SourceGenerator {
       case service: ModelBuilder.ActionService =>
         s"Function<ActionCreationContext, ${service.className}> create${service.className}"
       case view: ModelBuilder.ViewService =>
-        s"Function<ViewCreationContext, ${view.viewClassName}> create${view.viewClassName}"
+        s"Function<ViewCreationContext, ${view.className}> create${view.className}"
     }.toList
 
     val creatorParameters = entityCreators ::: serviceCreators
@@ -334,7 +334,7 @@ object SourceGenerator {
 
     val serviceRegistrationParameters = services.values.collect {
       case service: ModelBuilder.ActionService => s"${service.className}::new"
-      case view: ModelBuilder.ViewService      => s"${view.viewClassName}::new"
+      case view: ModelBuilder.ViewService      => s"${view.className}::new"
     }.toList
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
