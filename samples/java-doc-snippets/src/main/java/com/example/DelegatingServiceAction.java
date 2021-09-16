@@ -26,7 +26,7 @@ public class DelegatingServiceAction extends AbstractDelegatingServiceAction {
         .build();
     CompletionStage<Empty> increaseCompleted = counterClient.increase(increaseValue);  // <2>
 
-    CompletionStage<CounterApi.CurrentCounter> currentCounterValueAfter = increaseCompleted.thenCompose((__) -> // <3>
+    CompletionStage<CounterApi.CurrentCounter> currentCounterValueAfter = increaseCompleted.thenCompose((empty) -> // <3>
         // once increase completed successfully, ask for the current state after
         counterClient.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("the-counter").build())
     );
