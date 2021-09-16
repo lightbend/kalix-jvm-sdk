@@ -5,7 +5,7 @@ Running a service locally is helpful to test and debug. The following sections p
 
 The Akka Serverless proxy is required to run a service locally. The proxy is packaged in a Docker image available on the https://console.cloud.google.com/gcr/images/akkaserverless-public/GLOBAL/akkaserverless-proxy?project=akkaserverless-public&organizationId=401496590510&gcrImageListsize=30[Akka Serverless-Public container registry]. The example `docker-compose.yml` files are configured to leverage the proxy and run the application locally.
 
-They also contain the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy connects to when you make use of xref:java:topic-eventing.adoc[] in your service.
+They also contain the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy connects to when you make use of xref:java:actions-publishing-subscribing.adoc[] in your service.
 
 == Pre-requisites
 

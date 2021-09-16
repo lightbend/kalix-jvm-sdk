@@ -12,22 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// tag::double-action-proto[]
+// tag::state-subscription[]
 syntax = "proto3";
 package com.example.actions;
 
 import "akkaserverless/annotations.proto"; 
-import "value-entities/counter_api.proto"; // <1>
+import "value-entities/counter_domain.proto"; // <1>
 import "google/protobuf/empty.proto";
 
-option java_outer_classname = "DoubleCounterApi";
+option java_outer_classname = "StateSubscriptionApi";
 
-service DoubleCounter {
+service CounterStateSubscription {
   option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION
+    type : SERVICE_TYPE_ACTION // <2>
   };
   
-  rpc Increase (com.example.IncreaseValue) returns (google.protobuf.Empty); // <2>
+  rpc OnUpdateState (com.example.domain.CounterState) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {  
+      value_entity: "counter" // <3>
+    };
+  } 
 
 }
-// end::double-action-proto[]
+// end::state-subscription[]

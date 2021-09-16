@@ -23,7 +23,7 @@ The following `counter_domain.proto` file defines our "Counter" Value Entity. Th
 [source,proto]
 .src/main/proto/value-entities/counter_domain.proto
 ----
-include::example$valueentity-counter/src/main/proto/value-entities/counter_domain.proto[]
+include::example$java-valueentity-counter/src/main/proto/value-entities/counter_domain.proto[]
 ----
 
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
@@ -40,7 +40,7 @@ The `counter_api.proto` file defines the commands we can send to the Counter ser
 [source,proto]
 .src/main/proto/value-entities/counter_api.proto
 ----
-include::example$valueentity-counter/src/main/proto/value-entities/counter_api.proto[]
+include::example$java-valueentity-counter/src/main/proto/value-entities/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example`.
 <2> Import the Akka Serverless protobuf annotations, or options.
@@ -58,7 +58,7 @@ A Value Entity implementation is a Java class where you define how each command 
 [source,java]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
+include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -81,7 +81,7 @@ NOTE: For value entities, modify the state and then trigger a save of that state
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
+include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current state we create a new state with the increased value.
@@ -95,7 +95,7 @@ The following example shows the implementation of the `GetCurrentCounter` comman
 [source,java,indent=0]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
+include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
@@ -109,7 +109,7 @@ From the code-generation, the registration gets automatically inserted in the ge
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::example$valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
+include::example$java-valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
 ----
 
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
@@ -131,7 +131,7 @@ To unit test the Entity a test kit class to use is generated as well as an examp
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java
 ----
-include::example$valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
+include::example$java-valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
 ----
 
 The unit tests can be run from maven using `mvn test` or if you prefer from inside your IDE the same way you usually run tests.
@@ -143,7 +143,7 @@ An example integration test class to start from is also generated for you. It us
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java
 ----
-include::example$valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
+include::example$java-valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
 ----
 
 The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.

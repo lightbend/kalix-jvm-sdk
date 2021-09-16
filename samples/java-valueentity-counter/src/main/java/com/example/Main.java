@@ -7,6 +7,7 @@ package com.example;
 
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.example.actions.DoubleCounterAction;
+import com.example.actions.CounterStateSubscriptionAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.domain.Counter;
@@ -23,12 +24,21 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     // end::registration-value-entity[]
+    // end::registration[]
     return AkkaServerlessFactory.withComponents(
             Counter::new,
+            CounterStateSubscriptionAction::new,
             DoubleCounterAction::new);
 
+    /* the comment hack bellow is needed to only show the Counter::new and DoubleCounterAction
+    // tag::registration[]
+    return AkkaServerlessFactory.withComponents(
+            Counter::new, 
+            DoubleCounterAction::new);
     // end::registration[]
-    /* the comment hack bellow is needed to only show the Counter::new in the value entity docs
+     */
+
+    /* the comment hack bellow is needed to only show the Counter::new
     // tag::registration-value-entity[]
     return AkkaServerlessFactory.withComponents(
             Counter::new);

@@ -267,11 +267,13 @@ jobs:
             cd samples/java-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test 
+            # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit 
       - run:
           name: Value Entity "Counter" sample
           command: |
-            cd samples/valueentity-counter
+            cd samples/java-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
