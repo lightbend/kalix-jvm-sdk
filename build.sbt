@@ -174,7 +174,7 @@ lazy val codegenJavaCompilationTest = project
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
 
-lazy val `java-eventing-shopping-cart` = project
+lazy val javaEventingShoppingCart = project
   .in(file("samples/java-eventing-shopping-cart"))
   .dependsOn(sdkJava, testkitJava % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
@@ -193,7 +193,7 @@ lazy val `java-eventing-shopping-cart` = project
     IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
   .settings(attachProtobufDescriptorSets)
 
-lazy val `java-valueentity-customer-registry` = project
+lazy val javaValueentityCustomerRegistry = project
   .in(file("samples/java-valueentity-customer-registry"))
   .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
@@ -212,7 +212,7 @@ lazy val `java-valueentity-customer-registry` = project
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
 
-lazy val `java-eventsourced-customer-registry` = project
+lazy val javaEventsourcedCustomerRegistry = project
   .in(file("samples/java-eventsourced-customer-registry"))
   .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
