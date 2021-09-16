@@ -12,5 +12,4 @@
 *** xref:java:views.adoc[Implementing Views]
 *** xref:java:side-effects.adoc[Running Side Effects]
 *** xref:java:serialization.adoc[Handling Serialization]
-*** xref:java:run-locally.adoc[Running a service locally]
 *** xref:java:api.adoc[Java API docs]
