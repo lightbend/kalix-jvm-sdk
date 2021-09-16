@@ -2,7 +2,7 @@
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
-
+//tag::RegisterEventSourcedEntity[]
 package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.AkkaServerless;
@@ -29,3 +29,4 @@ public final class Main {
     createAkkaServerless().start();
   }
 }
+//end::RegisterEventSourcedEntity[]

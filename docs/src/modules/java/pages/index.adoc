@@ -92,8 +92,8 @@ NOTE: There is a separate `src/test/resources/logback-test.xml` that is used whe
 Your main class will be responsible for creating the gRPC server, registering the services and components for it to serve, and starting it. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
 
 [source,java,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=RegisterEventSourcedEntity]
+----  
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
 ----
 
 
