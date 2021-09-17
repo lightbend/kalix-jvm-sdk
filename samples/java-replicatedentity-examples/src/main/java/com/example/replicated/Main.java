@@ -26,13 +26,13 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
-      SomeMap::new,
-      SomeRegisterMap::new,
-      SomeRegister::new,
-      SomeCounterMap::new,
       SomeCounter::new,
-      SomeSet::new,
-      SomeMultiMap::new);
+      SomeCounterMap::new,
+      SomeMap::new,
+      SomeMultiMap::new,
+      SomeRegister::new,
+      SomeRegisterMap::new,
+      SomeSet::new);
   }
 
   public static void main(String[] args) throws Exception {
