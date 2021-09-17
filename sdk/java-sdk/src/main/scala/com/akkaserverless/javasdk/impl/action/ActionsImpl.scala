@@ -61,9 +61,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   import _system.dispatcher
   implicit val system: ActorSystem = _system
 
-  private object creationContext extends ActionCreationContext {
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-  }
+  private object creationContext
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with ActionCreationContext
 
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
@@ -124,7 +124,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in, service.anySupport)
+        val context = createContext(in)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
         val effect = service.factory
           .create(creationContext)
@@ -165,7 +165,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call, service.anySupport))
+                  createContext(call))
               effectToResponse(effect, service.anySupport)
             case None =>
               Future.successful(
@@ -183,7 +183,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleStreamedOut(in: ActionCommand): Source[ActionResponse, NotUsed] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in, service.anySupport)
+        val context = createContext(in)
         val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
         service.factory
           .create(creationContext)
@@ -225,7 +225,7 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
                     MessageEnvelope.of(decodedPayload, metadata)
                   }.asJava,
-                  createContext(call, service.anySupport))
+                  createContext(call))
                 .asScala
                 .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
             case None =>
@@ -234,13 +234,14 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           }
       }
 
-  private def createContext(in: ActionCommand, anySupport: AnySupport): ActionContext = {
+  private def createContext(in: ActionCommand): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata, anySupport)
+    new ActionContextImpl(metadata)
   }
 
-  class ActionContextImpl(override val metadata: Metadata, anySupport: AnySupport) extends ActionContext {
-    override val serviceCallFactory: ServiceCallFactory = rootContext.serviceCallFactory()
+  class ActionContextImpl(override val metadata: Metadata)
+      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      with ActionContext {
 
     override def eventSubject(): Optional[String] =
       if (metadata.isCloudEvent)

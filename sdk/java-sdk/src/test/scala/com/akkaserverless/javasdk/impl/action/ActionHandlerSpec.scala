@@ -25,6 +25,7 @@ import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
+import com.akkaserverless.javasdk.impl.AbstractContext
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.javasdk.impl.ResolvedServiceCall
@@ -68,12 +69,7 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
 
-    new ActionsImpl(
-      system,
-      services,
-      new Context() {
-        override def serviceCallFactory(): ServiceCallFactory = scf
-      })
+    new ActionsImpl(system, services, new AbstractContext(scf, system) {})
   }
 
   "The action service" should {
