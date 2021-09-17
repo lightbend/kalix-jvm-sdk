@@ -28,10 +28,8 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
 
 // FIXME these don't seem to be 'public API', more internals?
-import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.Service
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.valueentity._
 

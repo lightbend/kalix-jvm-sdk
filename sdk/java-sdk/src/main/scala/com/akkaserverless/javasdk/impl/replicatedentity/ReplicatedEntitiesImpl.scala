@@ -25,7 +25,7 @@ import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, M
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.{ ComponentOptions, Context, Metadata, Service, ServiceCallFactory }
+import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import com.akkaserverless.javasdk.ComponentOptions
+import com.akkaserverless.javasdk.impl.ComponentOptions
 import com.akkaserverless.javasdk.action.ActionOptions
 
 import java.util

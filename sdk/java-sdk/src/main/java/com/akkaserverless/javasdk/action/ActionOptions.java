@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.action;
 
-import com.akkaserverless.javasdk.ComponentOptions;
+import com.akkaserverless.javasdk.impl.ComponentOptions;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl;
@@ -31,4 +31,16 @@ public interface ActionOptions extends ComponentOptions {
   static ActionOptions defaults() {
     return new ActionOptionsImpl(Collections.emptySet());
   }
+
+  /**
+   * @return the headers requested to be forwarded as metadata (cannot be mutated, use
+   *     withForwardHeaders)
+   */
+  java.util.Set<String> forwardHeaders();
+
+  /**
+   * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for
+   * the incoming commands. By default no headers except "X-Server-Timing" are forwarded.
+   */
+  ComponentOptions withForwardHeaders(java.util.Set<String> headers);
 }
