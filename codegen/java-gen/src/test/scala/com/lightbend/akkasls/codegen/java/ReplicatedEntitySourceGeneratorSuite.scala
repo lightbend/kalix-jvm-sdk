@@ -16,6 +16,7 @@
 
 package com.lightbend.akkasls.codegen.java
 
+import com.lightbend.akkasls.codegen.TestData
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounter
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounterMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedData

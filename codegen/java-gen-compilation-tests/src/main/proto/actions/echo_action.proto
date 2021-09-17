@@ -16,8 +16,6 @@ syntax = "proto3";
 
 package com.example;
 
-// FIXME: action generation requires a java_outer_classname
-// this should not be mandatory, it isn't for the other components
 option java_outer_classname = "EchoActionModel";
 
 import "google/protobuf/empty.proto";

@@ -160,15 +160,14 @@ object EntityServiceSourceGenerator {
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler"))
 
-    val serviceApiOuterClass = service.fqn.parent.javaOuterClassname
-    val outerClassAndState = s"${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}"
+    val stateType = entity.state.fqn.fullName
 
     val eventCases = {
       if (entity.events.isEmpty)
         List(s"throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());")
       else
         entity.events.zipWithIndex.map { case (evt, i) =>
-          val eventType = s"${entity.fqn.parent.javaOuterClassname}.${evt.fqn.name}"
+          val eventType = evt.fqn.fullName
           s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
               |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
         }.toSeq :+
@@ -180,7 +179,7 @@ object EntityServiceSourceGenerator {
     val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.fqn.name
-        val inputType = s"$serviceApiOuterClass.${cmd.inputType.name}"
+        val inputType = cmd.inputType.fullName
         s"""|case "$methodName":
             |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
             |""".stripMargin
@@ -195,20 +194,20 @@ object EntityServiceSourceGenerator {
         | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command and event handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends EventSourcedEntityHandler<$outerClassAndState, ${entity.fqn.name}> {
+        |public class ${className}Handler extends EventSourcedEntityHandler<$stateType, ${entity.fqn.name}> {
         |
         |  public ${className}Handler(${entity.fqn.name} entity) {
         |    super(entity);
         |  }
         |
         |  @Override
-        |  public $outerClassAndState handleEvent($outerClassAndState state, Object event) {
+        |  public $stateType handleEvent($stateType state, Object event) {
         |    ${Syntax.indent(eventCases, 4)}
         |  }
         |
         |  @Override
         |  public EventSourcedEntity.Effect<?> handleCommand(
-        |      String commandName, $outerClassAndState state, Object command, CommandContext context) {
+        |      String commandName, $stateType state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
         |      ${Syntax.indent(commandCases, 6)}
@@ -259,7 +258,7 @@ object EntityServiceSourceGenerator {
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.fqn.parent.javaOuterClassname}.${entity.state.fqn.name}, $className> {
+        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.fqn.fullName}, $className> {
         |
         |  private final Function<EventSourcedEntityContext, $className> entityFactory;
         |  private final EventSourcedEntityOptions options;

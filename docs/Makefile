@@ -22,9 +22,11 @@ build: dev
 clean:
 	rm -rf build
 
-managed: attributes apidocs examples bundles
+prepare: 
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
+
+managed: prepare attributes apidocs examples bundles
 
 attributes:
 	mkdir -p "${managed_partials}"
@@ -38,31 +40,23 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd .. && sbt sdk/doc
-	cd .. && sbt testkit/doc
+	cd .. && sbt sdkJava/doc
+	cd .. && sbt testkitJava/doc
 	mkdir -p "${managed_attachments}"
-	rsync -a ../sdk/target/api/ "${managed_attachments}/api/"
-	rsync -a ../testkit/target/api/ "${managed_attachments}/testkit/"
+	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
+	rsync -a ../testkit-java/target/api/ "${managed_attachments}/testkit/"
 
 examples:
 	mkdir -p "${managed_examples}"
-	rsync -a --exclude-from=.examplesignore ../samples/customer-registry-quickstart/ "${managed_examples}/customer-registry-quickstart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-customer-registry/ "${managed_examples}/java-valueentity-customer-registry/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-customer-registry/ "${managed_examples}/java-eventsourced-customer-registry/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventing-shopping-cart/ "${managed_examples}/java-eventing-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-eventsourced-shopping-cart/ "${managed_examples}/java-eventsourced-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-replicatedentity-shopping-cart/ "${managed_examples}/java-replicatedentity-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/java-valueentity-shopping-cart/ "${managed_examples}/java-valueentity-shopping-cart/"
-	rsync -a --exclude-from=.examplesignore ../samples/replicatedentity-examples/ "${managed_examples}/replicatedentity-examples/"
-	rsync -a --exclude-from=.examplesignore ../samples/valueentity-counter/ "${managed_examples}/valueentity-counter/"
-	rsync -a --exclude-from=.examplesignore ../samples/fibonacci-action/ "${managed_examples}/fibonacci-action/"
-	rsync -a --exclude-from=.examplesignore ../samples/doc-snippets/ "${managed_examples}/doc-snippets/"
-	rsync -a --exclude-from=.examplesignore ../samples/first-service/ "${managed_examples}/first-service/"
-
+	rsync -a --exclude-from=.examplesignore ../samples/ "${managed_examples}/"
+  
 bundles:
-	bin/bundle.sh --zip "${managed_attachments}/customer-registry-quickstart.zip" ../samples/customer-registry-quickstart
+	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
+
+# like dev but without apidocs, bundles and testkits. Useful for fast dev cycles
+quick-dev: clean prepare attributes examples dev-html
 
 dev-html:
 	docker run \
@@ -87,7 +81,7 @@ validate-links:
 		--rm \
 		--entrypoint /bin/sh \
 		-t ${antora_docker_image}:${antora_docker_image_tag} \
-		-c "cd /antora/${base_path} && find src -name '*.adoc' -print0 | xargs -0 -n1 asciidoc-link-check --progress"
+		-c "cd /antora/${base_path} && find src -name '*.adoc' -print0 | xargs -0 -n1 asciidoc-link-check --progress --config config/validate-links.json"
 
 deploy: clean managed
 	bin/deploy.sh --module ${module} --upstream ${upstream} --branch ${branch} ${sources}

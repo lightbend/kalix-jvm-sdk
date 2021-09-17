@@ -1,2 +1,6 @@
 target
 *.md
+.classpath
+.project
+.settings
+.idea

@@ -29,8 +29,6 @@ class SourceGeneratorSuite extends munit.FunSuite {
   implicit val codegenLog = new Log {
     override def debug(message: String): Unit = log.debug(message)
     override def info(message: String): Unit = log.info(message)
-    override def warning(message: String): Unit = log.warn(message)
-    override def error(message: String): Unit = log.error(message)
   }
 
   def domainType(name: String): ModelBuilder.TypeArgument =
@@ -135,7 +133,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 testSourceDirectory.resolve("com/example/service/domain/MyEntity3Test.java"),
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity3TestKit.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Provider.java"),
-                sourceDirectory.resolve("com/example/service/MyService4View.java"),
+                sourceDirectory.resolve("com/example/service/MyService4ViewImpl.java"),
                 generatedSourceDirectory.resolve("com/example/service/AbstractMyService4View.java"),
                 generatedSourceDirectory.resolve("com/example/service/MyService4ViewHandler.java"),
                 generatedSourceDirectory.resolve("com/example/service/MyService4ViewProvider.java"),
@@ -228,7 +226,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.domain.MyValueEntity2;
         |import com.example.service.domain.MyValueEntity2Provider;
         |import com.example.service.something.ServiceOuterClass3;
-        |import com.example.service.view.MyService4View;
+        |import com.example.service.view.MyService4ViewImpl;
         |import com.example.service.view.MyService4ViewProvider;
         |import com.example.service.view.ServiceOuterClass4;
         |import com.external.ExternalDomain;
@@ -238,17 +236,17 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |
         |  public static AkkaServerless withComponents(
         |      Function<EventSourcedEntityContext, MyEntity1> createMyEntity1,
-        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
         |      Function<EventSourcedEntityContext, MyEntity3> createMyEntity3,
         |      Function<ReplicatedEntityContext, MyReplicatedEntity6> createMyReplicatedEntity6,
-        |      Function<ViewCreationContext, MyService4View> createMyService4View,
+        |      Function<ValueEntityContext, MyValueEntity2> createMyValueEntity2,
+        |      Function<ViewCreationContext, MyService4ViewImpl> createMyService4ViewImpl,
         |      Function<ActionCreationContext, MyService5Action> createMyService5Action) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
         |      .register(MyEntity1Provider.of(createMyEntity1))
         |      .register(MyEntity3Provider.of(createMyEntity3))
         |      .register(MyReplicatedEntity6Provider.of(createMyReplicatedEntity6))
-        |      .register(MyService4ViewProvider.of(createMyService4View))
+        |      .register(MyService4ViewProvider.of(createMyService4ViewImpl))
         |      .register(MyService5ActionProvider.of(createMyService5Action))
         |      .register(MyValueEntity2Provider.of(createMyValueEntity2));
         |  }
@@ -280,7 +278,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.akkaserverless.javasdk.view.ViewCreationContext;
         |import com.example.service.domain.EntityOuterClass;
-        |import com.example.service.view.MyServiceView;
+        |import com.example.service.view.MyServiceViewImpl;
         |import com.example.service.view.MyServiceViewProvider;
         |import com.example.service.view.ServiceOuterClass;
         |import java.util.function.Function;
@@ -288,10 +286,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
         |public final class AkkaServerlessFactory {
         |
         |  public static AkkaServerless withComponents(
-        |      Function<ViewCreationContext, MyServiceView> createMyServiceView) {
+        |      Function<ViewCreationContext, MyServiceViewImpl> createMyServiceViewImpl) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
-        |      .register(MyServiceViewProvider.of(createMyServiceView));
+        |      .register(MyServiceViewProvider.of(createMyServiceViewImpl));
         |  }
         |}
         |""".stripMargin)
@@ -341,9 +339,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
          |    // `new AkkaServerless()` instance.
          |    return AkkaServerlessFactory.withComponents(
          |      MyEntity1::new,
-         |      MyValueEntity2::new,
          |      MyEntity3::new,
          |      MyReplicatedEntity6::new,
+         |      MyValueEntity2::new,
          |      MyServiceAction::new);
          |  }
          |

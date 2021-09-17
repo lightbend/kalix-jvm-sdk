@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.lightbend.akkasls.codegen.java.TestData.serviceProto
+import com.lightbend.akkasls.codegen.TestData.serviceProto
 
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
@@ -368,6 +368,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
+        |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.example.service.ServiceOuterClass;
@@ -385,14 +386,25 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |public class MyServiceActionProvider implements ActionProvider<MyServiceAction> {
         |
         |  private final Function<ActionCreationContext, MyServiceAction> actionFactory;
+        |  private final ActionOptions options;
         |
         |  /** Factory method of MyServiceActionProvider */
         |  public static MyServiceActionProvider of(Function<ActionCreationContext, MyServiceAction> actionFactory) {
-        |    return new MyServiceActionProvider(actionFactory);
+        |    return new MyServiceActionProvider(actionFactory, ActionOptions.defaults());
         |  }
         |
-        |  private MyServiceActionProvider(Function<ActionCreationContext, MyServiceAction> actionFactory) {
+        |  private MyServiceActionProvider(Function<ActionCreationContext, MyServiceAction> actionFactory, ActionOptions options) {
         |    this.actionFactory = actionFactory;
+        |    this.options = options;
+        |  }
+        |
+        |  @Override
+        |  public final ActionOptions options() {
+        |    return options;
+        |  }
+        |
+        |  public final MyServiceActionProvider withOptions(ActionOptions options) {
+        |    return new MyServiceActionProvider(actionFactory, options);
         |  }
         |
         |  @Override
@@ -434,6 +446,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
+        |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.example.service.ServiceOuterClass;
@@ -451,14 +464,25 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |public class MyServiceActionProvider implements ActionProvider<MyServiceActionImpl> {
         |
         |  private final Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
+        |  private final ActionOptions options;
         |
         |  /** Factory method of MyServiceActionProvider */
         |  public static MyServiceActionProvider of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-        |    return new MyServiceActionProvider(actionFactory);
+        |    return new MyServiceActionProvider(actionFactory, ActionOptions.defaults());
         |  }
         |
-        |  private MyServiceActionProvider(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
+        |  private MyServiceActionProvider(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, ActionOptions options) {
         |    this.actionFactory = actionFactory;
+        |    this.options = options;
+        |  }
+        |
+        |  @Override
+        |  public final ActionOptions options() {
+        |    return options;
+        |  }
+        |
+        |  public final MyServiceActionProvider withOptions(ActionOptions options) {
+        |    return new MyServiceActionProvider(actionFactory, options);
         |  }
         |
         |  @Override

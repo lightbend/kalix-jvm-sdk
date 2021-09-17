@@ -17,6 +17,7 @@
 package com.akkaserverless.javasdk.tck.model.action;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.akkaserverless.javasdk.action.ActionOptions;
 import com.akkaserverless.javasdk.action.ActionProvider;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
 import com.akkaserverless.tck.model.Action;
@@ -27,15 +28,26 @@ import java.util.function.Function;
 public class ActionTwoBehaviorProvider implements ActionProvider<ActionTwoBehavior> {
 
   private final Function<ActionCreationContext, ActionTwoBehavior> actionFactory;
+  private final ActionOptions options;
 
   private ActionTwoBehaviorProvider(
-      Function<ActionCreationContext, ActionTwoBehavior> actionFactory) {
+      Function<ActionCreationContext, ActionTwoBehavior> actionFactory, ActionOptions options) {
     this.actionFactory = actionFactory;
+    this.options = options;
   }
 
   public static ActionTwoBehaviorProvider of(
       Function<ActionCreationContext, ActionTwoBehavior> actionFactory) {
-    return new ActionTwoBehaviorProvider(actionFactory);
+    return new ActionTwoBehaviorProvider(actionFactory, ActionOptions.defaults());
+  }
+
+  @Override
+  public final ActionOptions options() {
+    return options;
+  }
+
+  public final ActionTwoBehaviorProvider withOptions(ActionOptions options) {
+    return new ActionTwoBehaviorProvider(actionFactory, options);
   }
 
   @Override

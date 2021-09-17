@@ -13,7 +13,7 @@ next number in the Fibonacci series.
 [source,protobuf,indent=0]
 .src/main/proto/actions/fibonacci.proto
 ----
-include::example$fibonacci-action/src/main/proto/actions/fibonacci.proto[tag=actions]
+include::example$java-fibonacci-action/src/main/proto/actions/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.fibonacci`.
 <2> Import the Akka Serverless protobuf annotations, or options.
@@ -37,7 +37,7 @@ implement the methods required by `AbstractFibonacciAction`.
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
+include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
 ----
 
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
@@ -48,7 +48,7 @@ Next we can implement `nextNumber` method to complete our Action.
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
+include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
 ----
 
 <1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
@@ -77,7 +77,7 @@ From the code-generation, the registration gets automatically inserted in the ge
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::java:example$fibonacci-action/src/main/java/com/example/Main.java[]
+include::java:example$java-fibonacci-action/src/main/java/com/example/Main.java[]
 ----
 
 By default, the generated constructor has a `ActionCreationContext` parameter, but you can change this to accept other parameters. 

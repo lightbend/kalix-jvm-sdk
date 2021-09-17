@@ -18,14 +18,16 @@ package com.lightbend.akkasls.codegen.java
 
 import _root_.java.nio.file.{ Files, Path, Paths }
 import _root_.java.io.File
-import com.google.common.base.Charsets
 
+import com.google.common.base.Charsets
 import scala.collection.immutable
+
 import com.lightbend.akkasls.codegen._
 import com.lightbend.akkasls.codegen.DescriptorSet
 import com.lightbend.akkasls.codegen.Log
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.{ Command, Entity, Service, State }
+import com.lightbend.akkasls.codegen.PackageNaming
 
 /**
  * Responsible for generating Java source from an entity model
@@ -70,11 +72,9 @@ object SourceGenerator {
       case service: ModelBuilder.EntityService =>
         model.entities.get(service.componentFullName) match {
           case None =>
-            // TODO perhaps we even want to make this an error, to really go all-in on codegen?
-            log.warning(
+            throw new IllegalStateException(
               "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
               "], but no entity configuration is found for that component name")
-            Seq.empty
           case Some(entity) =>
             EntityServiceSourceGenerator.generate(
               entity,
@@ -200,7 +200,7 @@ object SourceGenerator {
           }
 
         case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}.of(create${service.viewClassName}))")
+          List(s".register(${service.providerName}.of(create${service.className}))")
 
         case service: ModelBuilder.ActionService =>
           List(s".register(${service.providerName}.of(create${service.className}))")
@@ -267,21 +267,25 @@ object SourceGenerator {
     val contextImports = (entityContextImports ++ serviceContextImports).toSet
 
     val entityCreators =
-      model.entities.values.collect {
-        case entity: ModelBuilder.EventSourcedEntity =>
-          s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-        case entity: ModelBuilder.ValueEntity =>
-          s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-        case entity: ModelBuilder.ReplicatedEntity =>
-          s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
-      }.toList
+      model.entities.values.toList
+        .sortBy(_.fqn.name)
+        .collect {
+          case entity: ModelBuilder.EventSourcedEntity =>
+            s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+          case entity: ModelBuilder.ValueEntity =>
+            s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+          case entity: ModelBuilder.ReplicatedEntity =>
+            s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+        }
 
-    val serviceCreators = model.services.values.collect {
-      case service: ModelBuilder.ActionService =>
-        s"Function<ActionCreationContext, ${service.className}> create${service.className}"
-      case view: ModelBuilder.ViewService =>
-        s"Function<ViewCreationContext, ${view.viewClassName}> create${view.viewClassName}"
-    }.toList
+    val serviceCreators = model.services.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case service: ModelBuilder.ActionService =>
+          s"Function<ActionCreationContext, ${service.className}> create${service.className}"
+        case view: ModelBuilder.ViewService =>
+          s"Function<ViewCreationContext, ${view.className}> create${view.className}"
+      }
 
     val creatorParameters = entityCreators ::: serviceCreators
     val imports =
@@ -326,16 +330,20 @@ object SourceGenerator {
     }.toSeq
 
     val componentImports = generateImports(Iterable.empty, mainClassPackageName, entityImports ++ serviceImports)
-    val entityRegistrationParameters = entities.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
-      case entity: ModelBuilder.ValueEntity        => s"${entity.fqn.name}::new"
-      case entity: ModelBuilder.ReplicatedEntity   => s"${entity.fqn.name}::new"
-    }.toList
+    val entityRegistrationParameters = entities.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.ValueEntity        => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.ReplicatedEntity   => s"${entity.fqn.name}::new"
+      }
 
-    val serviceRegistrationParameters = services.values.collect {
-      case service: ModelBuilder.ActionService => s"${service.className}::new"
-      case view: ModelBuilder.ViewService      => s"${view.viewClassName}::new"
-    }.toList
+    val serviceRegistrationParameters = services.values.toList
+      .sortBy(_.fqn.name)
+      .collect {
+        case service: ModelBuilder.ActionService => s"${service.className}::new"
+        case view: ModelBuilder.ViewService      => s"${view.className}::new"
+      }
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
     s"""|$generatedCodeCommentString

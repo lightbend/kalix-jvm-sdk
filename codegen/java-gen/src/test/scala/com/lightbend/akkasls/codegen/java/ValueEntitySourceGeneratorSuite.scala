@@ -16,6 +16,8 @@
 
 package com.lightbend.akkasls.codegen.java
 
+import com.lightbend.akkasls.codegen.TestData
+
 import munit.Location
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {

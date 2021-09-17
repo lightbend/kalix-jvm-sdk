@@ -28,10 +28,7 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
-    else
-      parent.javaOuterClassnameOption
-        .map(outer => s"$outer.$name")
-        .getOrElse(name)
+    else s"${parent.javaOuterClassname}.$name"
   }
 
   lazy val typeImport = s"${parent.javaPackage}.$fullName"
@@ -55,24 +52,14 @@ object FullyQualifiedName {
         // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
         PackageNaming(
           descriptor.getName,
+          descriptor.getName,
           fileDescriptor.getPackage,
           Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
           Some(s"com.${fileDescriptor.getPackage}"),
           Some(s"${descriptor.getName}Proto"),
           javaMultipleFiles = true)
       } else PackageNaming.from(fileDescriptor)
-    FullyQualifiedName(
-      descriptor.getName,
-      serviceType match {
-        // View and Actions services clashes with akka-grpc service generation
-        // therefore we need to append [View,Action] to it (or Impl).
-        // FIXME: should we find a better solution for that?
-        case ServiceType.SERVICE_TYPE_VIEW =>
-          if (descriptor.getName.endsWith("View")) descriptor.getName + "Impl"
-          else descriptor.getName + "View"
-        case _ => descriptor.getName
-      },
-      packageNaming)
+    FullyQualifiedName(descriptor.getName, descriptor.getName, packageNaming)
   }
 }
 
@@ -80,17 +67,34 @@ object FullyQualifiedName {
  * The details of a package's naming, sufficient to construct fully qualified names in any target language
  */
 case class PackageNaming(
+    protoFileName: String,
     name: String,
     pkg: String,
     goPackage: Option[String],
     javaPackageOption: Option[String],
-    javaOuterClassnameOption: Option[String],
+    javaOuterClassname: String,
     javaMultipleFiles: Boolean) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
-  lazy val javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }
 
 object PackageNaming {
+  def apply(
+      protoFileName: String,
+      name: String,
+      pkg: String,
+      goPackage: Option[String],
+      javaPackageOption: Option[String],
+      javaOuterClassnameOption: Option[String],
+      javaMultipleFiles: Boolean): PackageNaming =
+    PackageNaming(
+      protoFileName,
+      name,
+      pkg,
+      goPackage,
+      javaPackageOption,
+      javaOuterClassnameOption.getOrElse(name),
+      javaMultipleFiles)
+
   def from(descriptor: Descriptors.FileDescriptor): PackageNaming = {
     val name =
       descriptor.getName
@@ -112,14 +116,30 @@ object PackageNaming {
     val javaPackage =
       generalOptions.get("google.protobuf.FileOptions.java_package").map(_.toString())
 
-    val javaOuterClassname =
+    val javaOuterClassnameOption =
       generalOptions
         .get("google.protobuf.FileOptions.java_outer_classname")
         .map(_.toString())
 
+    val javaOuterClassname =
+      javaOuterClassnameOption.getOrElse {
+        val existingNames =
+          descriptor.getMessageTypes.asScala.map(_.getName) ++
+          descriptor.getEnumTypes.asScala.map(_.getName) ++
+          descriptor.getServices.asScala.map(_.getName)
+        if (existingNames.contains(name)) name + "OuterClass" else name
+      }
+
     val javaMultipleFiles =
       generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)
 
-    PackageNaming(name, descriptor.getPackage, goPackage, javaPackage, javaOuterClassname, javaMultipleFiles)
+    PackageNaming(
+      descriptor.getName,
+      name,
+      descriptor.getPackage,
+      goPackage,
+      javaPackage,
+      javaOuterClassname,
+      javaMultipleFiles)
   }
 }

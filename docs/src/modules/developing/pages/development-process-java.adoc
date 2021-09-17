@@ -66,22 +66,19 @@ It is good practice to write unit tests as you implement your services. The kick
 
 Use Docker to package your service and any of its dependencies. See the following pages for more information:
 
-* https://developer.lightbend.com/docs/akka-serverless/setting-up/#_docker[Installing Docker]
-* https://developer.lightbend.com/docs/akka-serverless/deploying/docker.html[Packaging with Docker]
+* https://developer.lightbend.com/docs/akka-serverless/setting-up/#_containers[Setting up containers]
 * https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries]
-* https://developer.lightbend.com/docs/akka-serverless/tutorial/node-cart-package-deploy.html[Example of how to package a service]
 
 [#_run_locally]
 == Run locally
 
 You can test and debug your services by
-xref:java:run-locally.adoc[running them locally] before deploying to Akka Serverless.
+https://developer.lightbend.com/docs/akka-serverless/services/running-locally.html[running them locally] before deploying to Akka Serverless.
 
 [#_deploy_to_akka_serverless]
 == Deploy to Akka Serverless
 
 After testing locally, deploy your service to Akka Serverless using the CLI or the Console. The following pages provide information about deployment:
 
-* https://developer.lightbend.com/docs/akka-serverless/getting-started/projects.html[Working with Akka Serverless deployment projects]
-* https://developer.lightbend.com/docs/akka-serverless/deploying/deploying.html[Deploying a packaged service]
-* https://developer.lightbend.com/docs/akka-serverless/tutorial/index.html[Examples of how to deploy]
+* https://developer.lightbend.com/docs/akka-serverless/projects/index.html[Working with Akka Serverless deployment projects]
+* https://developer.lightbend.com/docs/akka-serverless/quickstart/index.html[Quickstart examples]

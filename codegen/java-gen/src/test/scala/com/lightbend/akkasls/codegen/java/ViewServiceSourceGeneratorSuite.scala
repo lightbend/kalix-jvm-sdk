@@ -36,9 +36,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.view.ViewContext;
         |import com.example.service.domain.EntityOuterClass;
         |
-        |public class MyServiceView extends AbstractMyServiceView {
+        |public class MyServiceViewImpl extends AbstractMyServiceView {
         |
-        |  public MyServiceView(ViewContext context) {}
+        |  public MyServiceViewImpl(ViewContext context) {}
         |
         |  @Override
         |  public ServiceOuterClass.ViewState emptyState() {
@@ -76,9 +76,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.view.ViewContext;
          |import com.example.service.domain.EntityOuterClass;
          |
-         |public class MyServiceView extends AbstractMyServiceView {
+         |public class MyServiceViewImpl extends AbstractMyServiceView {
          |
-         |  public MyServiceView(ViewContext context) {}
+         |  public MyServiceViewImpl(ViewContext context) {}
          |
          |  
          |}
@@ -162,9 +162,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.domain.EntityOuterClass;
         |
         |/** A view handler */
-        |public class MyServiceViewHandler extends ViewHandler<ServiceOuterClass.ViewState, MyServiceView> {
+        |public class MyServiceViewHandler extends ViewHandler<ServiceOuterClass.ViewState, MyServiceViewImpl> {
         |
-        |  public MyServiceViewHandler(MyServiceView view) {
+        |  public MyServiceViewHandler(MyServiceViewImpl view) {
         |    super(view);
         |  }
         |
@@ -214,24 +214,24 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.view.View;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewProvider;
-       |import com.example.service.MyServiceView;
+       |import com.example.service.MyServiceViewImpl;
        |import com.google.protobuf.Descriptors;
        |import com.google.protobuf.EmptyProto;
        |import java.util.function.Function;
        |
-       |public class MyServiceViewProvider implements ViewProvider<ServiceOuterClass.ViewState, MyServiceView> {
+       |public class MyServiceViewProvider implements ViewProvider<ServiceOuterClass.ViewState, MyServiceViewImpl> {
        |
-       |  private final Function<ViewCreationContext, MyServiceView> viewFactory;
+       |  private final Function<ViewCreationContext, MyServiceViewImpl> viewFactory;
        |  private final String viewId;
        |
-       |  /** Factory method of MyServiceView */
+       |  /** Factory method of MyServiceViewImpl */
        |  public static MyServiceViewProvider of(
-       |      Function<ViewCreationContext, MyServiceView> viewFactory) {
+       |      Function<ViewCreationContext, MyServiceViewImpl> viewFactory) {
        |    return new MyServiceViewProvider(viewFactory, "MyService");
        |  }
        |
        |  private MyServiceViewProvider(
-       |      Function<ViewCreationContext, MyServiceView> viewFactory,
+       |      Function<ViewCreationContext, MyServiceViewImpl> viewFactory,
        |      String viewId) {
        |    this.viewFactory = viewFactory;
        |    this.viewId = viewId;

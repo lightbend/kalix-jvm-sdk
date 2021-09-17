@@ -5,7 +5,7 @@ include::partial$attributes.adoc[]
 
 The Akka Serverless Java SDK guides you to implementing components matching the protobuf APIs you design. This page describes prerequisites for Java development and basic requirements for a development project.
 
-NOTE: Lightbend provides Tier 1 support for the Java SDK. See https://developer.lightbend.com/docs/akka-serverless/developing/sdk-support.html[an explanation of support tiers] for more information.
+NOTE: Lightbend provides Tier 1 support for the Java SDK. See https://developer.lightbend.com/docs/akka-serverless/faq/index.html#_what_languages_are_supported[an explanation of support tiers] for more information.
 
 Your development project needs to include the Akka Serverless Java SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
@@ -56,7 +56,7 @@ JSON formatted logging is enabled by default in the projects created by the xref
 .src/main/resources/logback.xml
 [source,java]
 ----
-include::example$first-service/src/main/resources/logback.xml[]
+include::example$java-first-service/src/main/resources/logback.xml[]
 ----
 
 In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
@@ -70,8 +70,8 @@ NOTE: There is a separate `src/test/resources/logback-test.xml` that is used whe
 The Akka Serverless Maven plugin will create a main class for you and make sure all components get registered with the Akka Serverless server. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
 
 [source,java,indent=0]
-----
-include::example$java-eventing-shopping-cart/src/main/java/shopping/Main.java[tag=RegisterEventSourcedEntity]
+----  
+include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
 ----
 
 
@@ -86,8 +86,8 @@ This section provides details on how to accomplish common tasks in Java:
 * xref:replicated-entity.adoc[Implementing Replicated Entities]
 * xref:actions.adoc[Actions (stateless functions)]
 * xref:java:actions-as-controller.adoc[Actions as Controllers]
+* xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
 * xref:java:views.adoc[Implementing Views]
 * xref:java:side-effects.adoc[Running Side Effects]
-* xref:entity-eventing.adoc[]
 * xref:serialization.adoc[Serialization]
 * link:{attachmentsdir}/api/index.html[Java API docs{tab-icon}, window="new"]

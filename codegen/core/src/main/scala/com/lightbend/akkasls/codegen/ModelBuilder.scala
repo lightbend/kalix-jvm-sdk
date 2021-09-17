@@ -170,7 +170,7 @@ object ModelBuilder {
       else fqn.name + "Action"
 
     val className =
-      if (fqn.name.endsWith("Action")) fqn.name + "Impl"
+      if (fqn.name.contains("Action")) fqn.name + "Impl"
       else fqn.name + "Action"
     val interfaceName = "Abstract" + baseClassName
     val handlerName = baseClassName + "Handler"
@@ -195,15 +195,18 @@ object ModelBuilder {
       transformedUpdates: Iterable[Command])
       extends Service(fqn, commands) {
 
-    val viewClassName =
+    private val baseClassName =
       if (fqn.name.endsWith("View")) fqn.name
       else fqn.name + "View"
 
-    val abstractViewName = "Abstract" + viewClassName
-    val handlerName = viewClassName + "Handler"
-    val providerName = viewClassName + "Provider"
+    val className =
+      if (fqn.name.contains("View")) fqn.name + "Impl"
+      else fqn.name + "View"
+    val abstractViewName = "Abstract" + baseClassName
+    val handlerName = baseClassName + "Handler"
+    val providerName = baseClassName + "Provider"
 
-    val classNameQualified = s"${fqn.parent.javaPackage}.$viewClassName"
+    val classNameQualified = s"${fqn.parent.javaPackage}.$className"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
 
     val state = State(updates.head.outputType)

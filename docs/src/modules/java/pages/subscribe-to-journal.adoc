@@ -1,9 +1,0 @@
-= Subscribing to a journal
-:page-aliases: java:entity-eventing.adoc
-
-include::ROOT:partial$include.adoc[]
-include::partial$entity-eventing.adoc[]
-
-include::partial$get-entity-id.adoc[]
-
-include::partial$entity-eventing-ignoring.adoc[]

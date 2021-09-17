@@ -31,7 +31,7 @@ The class `DoubleCounterAction` gets generated for us based on the same proto fi
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-side-effect]
+include::example$java-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-side-effect]
 ----
 
 <1> In the constructor, we use the `ActionCreationContext` to create a `ServiceCallRef` pointing to the `Increase` method in the `Counter` entity.
