@@ -54,8 +54,8 @@ function _bundle {
 
   _remove_doc_tags "$sample_bundle_dir"
 
-  pushd "$bundle_dir" > /dev/null
-  zip -q -r "$zip_file" "$sample_name"
+  pushd "$sample_bundle_dir" > /dev/null
+  zip -q -r "$zip_file" .
   popd > /dev/null
 
   echo "Bundled $sample as $zip"
