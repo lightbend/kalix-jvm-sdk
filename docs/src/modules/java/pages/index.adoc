@@ -3,7 +3,7 @@
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-The Akka Serverless Java SDK guides you to implementing components matching the protobuf APIs you design. This page describes prerequisites for Java development and basic requirements for a development project.
+The Akka Serverless Java SDK guides you through implementing components matching the protobuf APIs you design. This page describes prerequisites for Java development and basic requirements for a development project.
 
 NOTE: Lightbend provides Tier 1 support for the Java SDK. See https://developer.lightbend.com/docs/akka-serverless/faq/index.html#_what_languages_are_supported[an explanation of support tiers] for more information.
 
