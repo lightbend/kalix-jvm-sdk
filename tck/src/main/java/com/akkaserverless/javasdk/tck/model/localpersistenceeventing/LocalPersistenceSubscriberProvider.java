@@ -17,8 +17,10 @@
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.akkaserverless.javasdk.action.ActionOptions;
 import com.akkaserverless.javasdk.action.ActionProvider;
 import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 
@@ -28,15 +30,27 @@ public class LocalPersistenceSubscriberProvider
     implements ActionProvider<LocalPersistenceSubscriber> {
 
   private final Function<ActionCreationContext, LocalPersistenceSubscriber> actionFactory;
+  private final ActionOptions options;
 
   private LocalPersistenceSubscriberProvider(
-      Function<ActionCreationContext, LocalPersistenceSubscriber> actionFactory) {
+      Function<ActionCreationContext, LocalPersistenceSubscriber> actionFactory,
+      ActionOptions options) {
     this.actionFactory = actionFactory;
+    this.options = options;
   }
 
   public static LocalPersistenceSubscriberProvider of(
       Function<ActionCreationContext, LocalPersistenceSubscriber> actionFactory) {
-    return new LocalPersistenceSubscriberProvider(actionFactory);
+    return new LocalPersistenceSubscriberProvider(actionFactory, ActionOptions.defaults());
+  }
+
+  @Override
+  public final ActionOptions options() {
+    return options;
+  }
+
+  public final LocalPersistenceSubscriberProvider withOptions(ActionOptions options) {
+    return new LocalPersistenceSubscriberProvider(actionFactory, options);
   }
 
   @Override

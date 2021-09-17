@@ -16,21 +16,19 @@
 
 package com.akkaserverless.javasdk.action;
 
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
-import com.google.protobuf.Descriptors;
+import com.akkaserverless.javasdk.ComponentOptions;
+import com.akkaserverless.javasdk.PassivationStrategy;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
 
-/**
- * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using an <code>
- * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
- * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
- */
-public interface ActionProvider<A extends Action> {
+import java.util.Collections;
 
-  ActionOptions options();
+/** Options for actions */
+public interface ActionOptions extends ComponentOptions {
 
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  ActionHandler<A> newHandler(ActionCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
+  /** Create default options for an action. */
+  static ActionOptions defaults() {
+    return new ActionOptionsImpl(Collections.emptySet());
+  }
 }
