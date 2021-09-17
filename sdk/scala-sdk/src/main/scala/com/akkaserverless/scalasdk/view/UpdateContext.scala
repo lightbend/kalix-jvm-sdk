@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package com.akkaserverless.scalasdk.view
 
-/**
- * Creation context for {@link View} entities.
- *
- * <p>This may be accepted as an argument to the constructor of a view.
- */
-public interface ViewCreationContext extends ViewContext {}
+import com.akkaserverless.scalasdk.MetadataContext
+
+/** Context for view update calls. */
+trait UpdateContext extends ViewContext with MetadataContext {
+
+  /**
+   * The origin subject of the [[com.akkaserverless.scalasdk.CloudEvent]]. For example, the entity key when the event
+   * was emitted from an entity.
+   */
+  def eventSubject: Option[String]
+
+  /** The name of the event being handled. */
+  def eventName: String
+}

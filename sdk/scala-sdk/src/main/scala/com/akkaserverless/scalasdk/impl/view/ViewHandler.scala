@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package com.akkaserverless.scalasdk.impl.view
 
-/**
- * Creation context for {@link View} entities.
- *
- * <p>This may be accepted as an argument to the constructor of a view.
- */
-public interface ViewCreationContext extends ViewContext {}
+import com.akkaserverless.scalasdk.view.View
+
+// FIXME it's strange to have this public in impl and ViewProvider in public api (same problem in javasdk)
+
+abstract class ViewHandler[S, V <: View[S]](val view: V) {
+  def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
+}

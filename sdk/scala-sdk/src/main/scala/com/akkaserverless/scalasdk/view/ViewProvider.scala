@@ -16,13 +16,17 @@
 
 package com.akkaserverless.scalasdk.view
 
-import com.akkaserverless.javasdk.view.{ ViewProvider => Impl }
-import com.akkaserverless.javasdk.view.{ View => ViewImpl }
-//FIXME just placeholders for now
+import com.google.protobuf.Descriptors
+import scala.collection.immutable
 
-abstract class View[S](impl: ViewImpl[S]) {
-  type Impl = ViewImpl[S]
+import com.akkaserverless.scalasdk.impl.view.ViewHandler
+
+trait ViewProvider[S, V <: View[S]] {
+  def serviceDescriptor: Descriptors.ServiceDescriptor
+
+  def viewId: String
+
+  def newHandler(context: ViewCreationContext): ViewHandler[S, V]
+
+  def additionalDescriptors(): immutable.Seq[Descriptors.FileDescriptor]
 }
-
-//FIXME possibly The Provider will not delegate to javasdk and we'll duplicate some more code
-class ViewProvider[S, V <: View[S]](private[akkaserverless] val impl: Impl[S, V#Impl])

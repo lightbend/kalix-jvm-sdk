@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package com.akkaserverless.scalasdk
 
-/**
- * Creation context for {@link View} entities.
- *
- * <p>This may be accepted as an argument to the constructor of a view.
- */
-public interface ViewCreationContext extends ViewContext {}
+/** Context that provides access to metadata. */
+trait MetadataContext {
+
+  /** Get the metadata associated with this context. */
+  def metadata: Metadata
+
+}
