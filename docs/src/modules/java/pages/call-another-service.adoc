@@ -28,7 +28,7 @@ Creating an instance of the service is done for us, by calling the `getGrpcClien
 
 In our delegating service implementation:
 
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/java/com/example/DelegatingServiceAction.java
 ----
 include::java:example$java-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
