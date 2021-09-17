@@ -20,7 +20,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
 
-import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator, SourceGenerator }
+import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package com.akkaserverless.codegen.scalasdk.impl
 
+import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 import scala.annotation.tailrec
@@ -42,20 +43,30 @@ object SourceGenerator {
    * user.
    */
   def generateUnmanaged(model: ModelBuilder.Model): Seq[File] =
-    Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"), generateMain(model))
+    Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"), generateMain(model)) ++
+    model.services.values
+      .collect { case service: ModelBuilder.EntityService =>
+        model.entities.get(service.componentFullName) match {
+          case None =>
+            throw new IllegalStateException(
+              "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
+              "], but no entity configuration is found for that component name")
+          case Some(entity: ModelBuilder.ValueEntity) =>
+            ValueEntitySourceGenerator.generateImplementationSkeleton(entity, service)
+          case _ => ???
+        }
+      }
       .map(_.prepend(unmanagedComment))
 
   def generateMain(model: ModelBuilder.Model): File = {
     val mainPackage = mainPackageName(model.services.keys ++ model.entities.keys)
     File(
       (mainPackage :+ "Main.scala").mkString("/"),
-      s"""
-         |package ${mainPackage.mkString(".")}
+      s"""|package ${mainPackage.mkString(".")}
          |
          |object Main extends App {
          |  println("Hello, world!")
-         |}
-         |""".stripMargin)
+         |}""".stripMargin)
   }
 
 }

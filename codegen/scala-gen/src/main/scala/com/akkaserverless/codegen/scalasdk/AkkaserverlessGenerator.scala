@@ -16,6 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk
 
+import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact

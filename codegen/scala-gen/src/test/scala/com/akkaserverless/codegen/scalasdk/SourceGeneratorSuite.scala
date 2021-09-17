@@ -19,7 +19,8 @@ package com.akkaserverless.codegen.scalasdk
 import com.lightbend.akkasls.codegen.TestData
 
 class SourceGeneratorSuite extends munit.FunSuite {
-  import SourceGenerator._
+  import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   test("it can generate a simple 'main'") {
     val main = generateMain(TestData.simple())
