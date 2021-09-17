@@ -16,38 +16,46 @@
 
 package com.akkaserverless.scalasdk.valueentity
 
+import akka.actor.ActorSystem
+import com.akkaserverless.javasdk.ServiceCallFactory
+
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.valueentity.{ ValueEntityProvider => Impl }
 import com.akkaserverless.javasdk.valueentity.{ ValueEntity => EntityImpl }
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCall
 import com.akkaserverless.scalasdk.Context
-
 import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
 import com.akkaserverless.javasdk.{ SideEffect => JSideEffect }
 import com.akkaserverless.javasdk.impl.effect.{ SideEffectImpl => JSideEffectImpl }
 
 private final class CommandContextImpl(
-    val rootContext: Context,
     val entityId: String,
     val commandName: String,
     val commandId: Long,
-    val metadata: Metadata)
+    val metadata: Metadata,
+    system: ActorSystem,
+    serviceCallFactory: ServiceCallFactory)
     extends CommandContext
     // FIXME with AbstractContext
     // FIXME with ActivatableContext {
     {
   def toJava =
     new com.akkaserverless.javasdk.impl.valueentity.CommandContextImpl(
-      rootContext,
       entityId,
       commandName,
       commandId,
-      metadata.impl)
+      metadata.impl,
+      serviceCallFactory,
+      system)
 }
 
-private final class ValueEntityContextImpl(val rootContext: Context, val entityId: String) {
-  def toJava = new com.akkaserverless.javasdk.impl.valueentity.ValueEntityContextImpl(rootContext, entityId)
+private final class ValueEntityContextImpl(
+    entityId: String,
+    system: ActorSystem,
+    serviceCallFactory: ServiceCallFactory) {
+  def toJava =
+    new com.akkaserverless.javasdk.impl.valueentity.ValueEntityContextImpl(entityId, serviceCallFactory, system)
 }
 //FIXME
 //extends ValueEntityContext
