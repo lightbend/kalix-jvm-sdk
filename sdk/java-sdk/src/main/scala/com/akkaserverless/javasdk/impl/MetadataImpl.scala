@@ -30,35 +30,48 @@ import scala.jdk.CollectionConverters._
 import scala.collection.immutable
 import scala.compat.java8.OptionConverters._
 
-private[impl] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) extends Metadata with CloudEvent {
+private[akkaserverless] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
   override def has(key: String): Boolean = entries.exists(_.key.equalsIgnoreCase(key))
 
   override def get(key: String): Optional[String] =
+    getScala(key).asJava
+
+  private[akkaserverless] def getScala(key: String): Option[String] =
     entries.collectFirst {
       case MetadataEntry(k, MetadataEntry.Value.StringValue(value), _) if key.equalsIgnoreCase(k) =>
         value
-    }.asJava
+    }
 
   override def getAll(key: String): util.List[String] =
+    getAllScala(key).asJava
+
+  private[akkaserverless] def getAllScala(key: String): Seq[String] =
     entries.collect {
       case MetadataEntry(k, MetadataEntry.Value.StringValue(value), _) if key.equalsIgnoreCase(k) =>
         value
-    }.asJava
+    }
 
   override def getBinary(key: String): Optional[ByteBuffer] =
+    getBinaryScala(key).asJava
+
+  private[akkaserverless] def getBinaryScala(key: String): Option[ByteBuffer] =
     entries.collectFirst {
       case MetadataEntry(k, MetadataEntry.Value.BytesValue(value), _) if key.equalsIgnoreCase(k) =>
         value.asReadOnlyByteBuffer()
-    }.asJava
+    }
 
   override def getBinaryAll(key: String): util.List[ByteBuffer] =
+    getBinaryAllScala(key).asJava
+
+  private[akkaserverless] def getBinaryAllScala(key: String): Seq[ByteBuffer] =
     entries.collect {
       case MetadataEntry(k, MetadataEntry.Value.BytesValue(value), _) if key.equalsIgnoreCase(k) =>
         value.asReadOnlyByteBuffer()
-    }.asJava
+    }
 
-  override def getAllKeys: util.List[String] = entries.map(_.key).asJava
+  override def getAllKeys: util.List[String] = getAllKeysScala.asJava
+  private[akkaserverless] def getAllKeysScala: Seq[String] = entries.map(_.key)
 
   override def set(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
@@ -66,19 +79,19 @@ private[impl] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) exte
     new MetadataImpl(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
-  override def setBinary(key: String, value: ByteBuffer): Metadata = {
+  override def setBinary(key: String, value: ByteBuffer): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
     new MetadataImpl(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
   }
 
-  override def add(key: String, value: String): Metadata = {
+  override def add(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
     new MetadataImpl(entries :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
-  override def addBinary(key: String, value: ByteBuffer): Metadata = {
+  override def addBinary(key: String, value: ByteBuffer): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
     new MetadataImpl(entries :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
@@ -86,29 +99,31 @@ private[impl] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) exte
 
   override def remove(key: String): MetadataImpl = new MetadataImpl(removeKey(key))
 
-  override def clear(): Metadata = MetadataImpl.Empty
+  override def clear(): MetadataImpl = MetadataImpl.Empty
+
+  private[akkaserverless] def iteratorScala[R](f: MetadataEntry => R): Iterator[R] =
+    entries.iterator.map(f)
 
   override def iterator(): util.Iterator[Metadata.MetadataEntry] =
-    entries.iterator.map { entry =>
+    iteratorScala(entry =>
       new Metadata.MetadataEntry {
         override def getKey: String = entry.key
         override def getValue: String = entry.value.stringValue.orNull
         override def getBinaryValue: ByteBuffer = entry.value.bytesValue.map(_.asReadOnlyByteBuffer()).orNull
         override def isText: Boolean = entry.value.isStringValue
         override def isBinary: Boolean = entry.value.isBytesValue
-      }
-    }.asJava
+      }).asJava
 
   private def removeKey(key: String) = entries.filterNot(_.key.equalsIgnoreCase(key))
 
   def isCloudEvent: Boolean = MetadataImpl.CeRequired.forall(h => has(h))
 
-  override def asCloudEvent(): CloudEvent =
+  override def asCloudEvent(): MetadataImpl =
     if (!isCloudEvent) {
       throw new IllegalStateException("Metadata is not a CloudEvent!")
     } else this
 
-  override def asCloudEvent(id: String, source: URI, `type`: String): CloudEvent =
+  override def asCloudEvent(id: String, source: URI, `type`: String): MetadataImpl =
     new MetadataImpl(
       entries.filterNot(e => MetadataImpl.CeRequired(e.key)) ++
       Seq(
@@ -131,41 +146,46 @@ private[impl] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) exte
 
   override def id(): String = getRequiredCloudEventField(MetadataImpl.CeId)
 
-  override def withId(id: String): CloudEvent = set(MetadataImpl.CeId, id)
+  override def withId(id: String): MetadataImpl = set(MetadataImpl.CeId, id)
 
   override def source(): URI = URI.create(getRequiredCloudEventField(MetadataImpl.CeSource))
 
-  override def withSource(source: URI): CloudEvent = set(MetadataImpl.CeSource, source.toString)
+  override def withSource(source: URI): MetadataImpl = set(MetadataImpl.CeSource, source.toString)
 
   override def `type`(): String = getRequiredCloudEventField(MetadataImpl.CeType)
 
-  override def withType(`type`: String): CloudEvent = set(MetadataImpl.CeType, `type`)
+  override def withType(`type`: String): MetadataImpl = set(MetadataImpl.CeType, `type`)
 
-  override def datacontenttype(): Optional[String] = get(MetadataImpl.CeDatacontenttype)
+  override def datacontenttype(): Optional[String] = getScala(MetadataImpl.CeDatacontenttype).asJava
+  private[akkaserverless] def datacontenttypeScala(): Option[String] = getScala(MetadataImpl.CeDatacontenttype)
 
-  override def withDatacontenttype(datacontenttype: String): CloudEvent =
+  override def withDatacontenttype(datacontenttype: String): MetadataImpl =
     set(MetadataImpl.CeDatacontenttype, datacontenttype)
 
-  override def clearDatacontenttype(): CloudEvent = remove(MetadataImpl.CeDatacontenttype)
+  override def clearDatacontenttype(): MetadataImpl = remove(MetadataImpl.CeDatacontenttype)
 
-  override def dataschema(): Optional[URI] = get(MetadataImpl.CeDataschema).map(URI.create(_))
+  override def dataschema(): Optional[URI] = dataschemaScala().asJava
+  private[akkaserverless] def dataschemaScala(): Option[URI] = getScala(MetadataImpl.CeDataschema).map(URI.create(_))
 
-  override def withDataschema(dataschema: URI): CloudEvent = set(MetadataImpl.CeDataschema, dataschema.toString)
+  override def withDataschema(dataschema: URI): MetadataImpl = set(MetadataImpl.CeDataschema, dataschema.toString)
 
-  override def clearDataschema(): CloudEvent = remove(MetadataImpl.CeDataschema)
+  override def clearDataschema(): MetadataImpl = remove(MetadataImpl.CeDataschema)
 
-  override def subject(): Optional[String] = get(MetadataImpl.CeSubject)
+  override def subject(): Optional[String] = subjectScala.asJava
+  private[akkaserverless] def subjectScala: Option[String] = getScala(MetadataImpl.CeSubject)
 
-  override def withSubject(subject: String): CloudEvent = set(MetadataImpl.CeSubject, subject)
+  override def withSubject(subject: String): MetadataImpl = set(MetadataImpl.CeSubject, subject)
 
-  override def clearSubject(): CloudEvent = remove(MetadataImpl.CeSubject)
+  override def clearSubject(): MetadataImpl = remove(MetadataImpl.CeSubject)
 
-  override def time(): Optional[ZonedDateTime] = get(MetadataImpl.CeTime).map(ZonedDateTime.parse(_))
+  override def time(): Optional[ZonedDateTime] = timeScala.asJava
+  private[akkaserverless] def timeScala: Option[ZonedDateTime] =
+    getScala(MetadataImpl.CeTime).map(ZonedDateTime.parse(_))
 
-  override def withTime(time: ZonedDateTime): CloudEvent =
+  override def withTime(time: ZonedDateTime): MetadataImpl =
     set(MetadataImpl.CeTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(time))
 
-  override def clearTime(): CloudEvent = remove(MetadataImpl.CeTime)
+  override def clearTime(): MetadataImpl = remove(MetadataImpl.CeTime)
 
   override def asMetadata(): Metadata = this
 }

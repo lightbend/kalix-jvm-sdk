@@ -76,7 +76,7 @@ lazy val sdkJava = project
 
 lazy val sdkScala = project
   .in(file("sdk/scala-sdk"))
-  .dependsOn(sdkCore)
+  .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-scala-sdk",
@@ -88,6 +88,8 @@ lazy val sdkScala = project
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk",
+    //FIXME skip for now
+    (publish / skip) := true,
     Compile / scalacOptions ++= Seq("-release", "8"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),

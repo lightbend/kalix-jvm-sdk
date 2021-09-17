@@ -20,15 +20,16 @@ import java.util
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCall
-import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
+
+import com.akkaserverless.javasdk.Metadata
+import com.akkaserverless.javasdk.ServiceCall
+import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
@@ -50,66 +51,66 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
 
   def secondaryEffect: SecondaryEffectImpl = _secondaryEffect
 
-  override def updateState(newState: S): OnSuccessBuilder[S] = {
+  override def updateState(newState: S): ValueEntityEffectImpl[S] = {
     _primaryEffect = UpdateState(newState)
     this
   }
 
-  override def deleteState(): OnSuccessBuilder[S] = {
+  override def deleteState(): ValueEntityEffectImpl[S] = {
     _primaryEffect = DeleteState
     this
   }
 
-  override def reply[T](message: T): Effect[T] =
+  override def reply[T](message: T): ValueEntityEffectImpl[T] =
     reply(message, Metadata.EMPTY)
 
-  override def reply[T](message: T, metadata: Metadata): Effect[T] = {
+  override def reply[T](message: T, metadata: Metadata): ValueEntityEffectImpl[T] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): Effect[T] = {
+  override def forward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def error[T](description: String): Effect[T] = {
+  override def error[T](description: String): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ErrorReplyImpl(description, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
   def hasError(): Boolean =
     _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def noReply[T](): Effect[T] = {
+  override def noReply[T](): ValueEntityEffectImpl[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def thenReply[T](message: T): Effect[T] =
+  override def thenReply[T](message: T): ValueEntityEffectImpl[T] =
     thenReply(message, Metadata.EMPTY)
 
-  override def thenReply[T](message: T, metadata: Metadata): Effect[T] = {
+  override def thenReply[T](message: T, metadata: Metadata): ValueEntityEffectImpl[T] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): Effect[T] = {
+  override def thenForward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def thenNoReply[T](): Effect[T] = {
+  override def thenNoReply[T](): ValueEntityEffectImpl[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[S] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): ValueEntityEffectImpl[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): Effect[S] = {
+  override def addSideEffects(sideEffects: SideEffect*): ValueEntityEffectImpl[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }

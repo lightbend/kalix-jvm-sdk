@@ -24,12 +24,17 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
+
+// FIXME these don't seem to be 'public API', more internals?
 import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.Service
 import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.valueentity._
+
 import com.akkaserverless.javasdk.impl.ValueEntityFactory
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.EffectSupport
@@ -38,7 +43,6 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandResult
-import com.akkaserverless.javasdk.valueentity._
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
@@ -119,7 +123,7 @@ final class ValueEntitiesImpl(
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler = service.factory.create(new ValueEntityContextImpl(init.entityId))
+    val handler = service.factory.create(new ValueEntityContextImpl(rootContext, init.entityId))
     val thisEntityId = init.entityId
 
     init.state match {
@@ -146,7 +150,7 @@ final class ValueEntitiesImpl(
           val cmd =
             service.anySupport.decode(
               ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
-          val context = new CommandContextImpl(thisEntityId, command.name, command.id, metadata)
+          val context = new CommandContextImpl(rootContext, thisEntityId, command.name, command.id, metadata)
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) =
             try {
@@ -205,21 +209,23 @@ final class ValueEntitiesImpl(
       }
   }
 
-  private trait AbstractContext extends ValueEntityContext {
-    override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
-  }
-
-  private final class CommandContextImpl(
-      override val entityId: String,
-      override val commandName: String,
-      override val commandId: Long,
-      override val metadata: Metadata)
-      extends CommandContext
-      with AbstractContext
-      with ActivatableContext
-
-  private final class ValueEntityContextImpl(override val entityId: String)
-      extends ValueEntityContext
-      with AbstractContext
-
 }
+
+private[akkaserverless] trait AbstractContext extends ValueEntityContext {
+  private[akkaserverless] def rootContext: Context
+  override def serviceCallFactory(): ServiceCallFactory = rootContext.serviceCallFactory()
+}
+
+private[akkaserverless] final class CommandContextImpl(
+    val rootContext: Context,
+    override val entityId: String,
+    override val commandName: String,
+    override val commandId: Long,
+    override val metadata: Metadata)
+    extends CommandContext
+    with AbstractContext
+    with ActivatableContext
+
+private[akkaserverless] final class ValueEntityContextImpl(val rootContext: Context, override val entityId: String)
+    extends ValueEntityContext
+    with AbstractContext
