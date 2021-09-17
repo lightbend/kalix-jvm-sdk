@@ -123,7 +123,8 @@ final class ValueEntitiesImpl(
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler = service.factory.create(new ValueEntityContextImpl(init.entityId, rootContext.serviceCallFactory(), system))
+    val handler =
+      service.factory.create(new ValueEntityContextImpl(init.entityId, rootContext.serviceCallFactory(), system))
     val thisEntityId = init.entityId
 
     init.state match {
@@ -150,7 +151,13 @@ final class ValueEntitiesImpl(
           val cmd =
             service.anySupport.decode(
               ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
-          val context = new CommandContextImpl(thisEntityId, command.name, command.id, metadata, rootContext.serviceCallFactory(), system)
+          val context = new CommandContextImpl(
+            thisEntityId,
+            command.name,
+            command.id,
+            metadata,
+            rootContext.serviceCallFactory(),
+            system)
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) =
             try {
@@ -222,6 +229,9 @@ private[akkaserverless] final class CommandContextImpl(
     with CommandContext
     with ActivatableContext
 
-  private[akkaserverless] final class ValueEntityContextImpl(override val entityId: String, serviceCallFactory: ServiceCallFactory,  system: ActorSystem)
-      extends AbstractContext(serviceCallFactory, system)
-      with ValueEntityContext
+private[akkaserverless] final class ValueEntityContextImpl(
+    override val entityId: String,
+    serviceCallFactory: ServiceCallFactory,
+    system: ActorSystem)
+    extends AbstractContext(serviceCallFactory, system)
+    with ValueEntityContext
