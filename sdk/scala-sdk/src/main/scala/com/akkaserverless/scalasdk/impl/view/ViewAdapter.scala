@@ -76,6 +76,9 @@ private[scalasdk] class Java2ScalaViewCreationContextAdapter(javasdkContext: jav
 
   override def serviceCallFactory(): ServiceCallFactory =
     javasdkContext.serviceCallFactory() // FIXME javasdk.ServiceCallFactory
+
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javasdkContext.getGrpcClient(clientClass, service)
 }
 
 private[scalasdk] class Scala2JavaUpdateContextAdapter(val javasdkContext: javasdk.view.UpdateContext)
@@ -95,4 +98,7 @@ private[scalasdk] class Scala2JavaUpdateContextAdapter(val javasdkContext: javas
 
   override def viewId: String =
     javasdkContext.viewId()
+
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javasdkContext.getGrpcClient(clientClass, service)
 }
