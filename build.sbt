@@ -239,8 +239,7 @@ lazy val codegenScala = Project(id = "akkaserverless-codegen-scala", base = file
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
-    testFrameworks += new TestFramework("munit.Framework"),
-  )
+    testFrameworks += new TestFramework("munit.Framework"))
   .dependsOn(codegenCore % "compile->compile;test->test")
 
 lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
