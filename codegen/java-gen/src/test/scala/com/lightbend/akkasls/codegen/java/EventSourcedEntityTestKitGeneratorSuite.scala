@@ -17,8 +17,8 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.lightbend.akkasls.codegen.java.TestData.command
-import com.lightbend.akkasls.codegen.java.TestData.externalProto
+import com.lightbend.akkasls.codegen.TestData.command
+import com.lightbend.akkasls.codegen.TestData.externalProto
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 

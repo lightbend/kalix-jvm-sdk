@@ -19,7 +19,7 @@ package com.lightbend.akkasls.codegen.java
 import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.java.TestData.command
+import com.lightbend.akkasls.codegen.TestData.command
 
 class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
 

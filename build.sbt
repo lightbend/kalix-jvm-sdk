@@ -153,7 +153,7 @@ lazy val codegenJava =
   project
     .in(file("codegen/java-gen"))
     .configs(IntegrationTest)
-    .dependsOn(codegenCore)
+    .dependsOn(codegenCore % "compile->compile;test->test")
     .enablePlugins(PublishSonatype)
     .settings(Defaults.itSettings)
     .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
@@ -238,8 +238,9 @@ lazy val codegenScala = Project(id = "akkaserverless-codegen-scala", base = file
   .settings(
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
     buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.akkaserverless.codegen.scalasdk")
-  .dependsOn(codegenCore)
+    buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
+    testFrameworks += new TestFramework("munit.Framework"))
+  .dependsOn(codegenCore % "compile->compile;test->test")
 
 lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
