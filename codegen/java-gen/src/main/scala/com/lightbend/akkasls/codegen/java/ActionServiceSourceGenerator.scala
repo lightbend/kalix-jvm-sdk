@@ -331,6 +331,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.action.ActionProvider",
+        "com.akkaserverless.javasdk.action.ActionOptions",
         "com.akkaserverless.javasdk.impl.action.ActionHandler",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function") ++ service.commandTypes.map(_.descriptorImport))
@@ -350,14 +351,25 @@ object ActionServiceSourceGenerator {
       |public class ${service.providerName} implements ActionProvider<$classNameAction> {
       |
       |  private final Function<ActionCreationContext, $classNameAction> actionFactory;
+      |  private final ActionOptions options;
       |
       |  /** Factory method of ${service.providerName} */
       |  public static ${service.providerName} of(Function<ActionCreationContext, $classNameAction> actionFactory) {
-      |    return new ${service.providerName}(actionFactory);
+      |    return new ${service.providerName}(actionFactory, ActionOptions.defaults());
       |  }
       |
-      |  private ${service.providerName}(Function<ActionCreationContext, $classNameAction> actionFactory) {
+      |  private ${service.providerName}(Function<ActionCreationContext, $classNameAction> actionFactory, ActionOptions options) {
       |    this.actionFactory = actionFactory;
+      |    this.options = options;
+      |  }
+      |
+      |  @Override
+      |  public final ActionOptions options() {
+      |    return options;
+      |  }
+      |
+      |  public final ${service.providerName} withOptions(ActionOptions options) {
+      |    return new ${service.providerName}(actionFactory, options);
       |  }
       |
       |  @Override
