@@ -5,9 +5,9 @@ include::partial$attributes.adoc[]
 
 The Java tooling is published to https://mvnrepository.com/artifact/com.akkaserverless[Maven Central]. 
 
-== Kickstart
+== Maven archetype
 
-A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _akkaserverless-maven-archetype_ provides the tooling to xref:kickstart.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Akka Serverless SDK and associated development support tooling set up.
+A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _akkaserverless-maven-archetype_ provides the tooling to xref:quickstart-java-maven.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Akka Serverless SDK and associated development support tooling set up.
 
 The archetype can be used via the `mvn` CLI.
 [.tabset]

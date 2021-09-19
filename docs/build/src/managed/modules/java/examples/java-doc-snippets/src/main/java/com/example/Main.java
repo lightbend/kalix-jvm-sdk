@@ -8,6 +8,7 @@ package com.example;
 import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.example.DelegatingServiceAction;
 import com.example.json.MyServiceAction;
 
 public final class Main {
@@ -20,6 +21,7 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
+      DelegatingServiceAction::new,
       MyServiceAction::new);
   }
 
