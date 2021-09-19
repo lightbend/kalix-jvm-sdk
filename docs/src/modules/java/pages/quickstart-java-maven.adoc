@@ -1,4 +1,4 @@
-= Kickstart a Maven project
+= Using the Maven archetype
 :page-aliases: java:kickstart.adoc
 
 include::ROOT:partial$include.adoc[]
@@ -6,9 +6,9 @@ include::partial$attributes.adoc[]
 
 The Akka Serverless code generation tools for Java help you to get started quickly. They include:
 
-* A Maven archetype that generates the recommended project structure (including a `pom.xml`), a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
+* A *Maven archetype* that generates the recommended project structure (including a `pom.xml`), a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
 
-* A Maven plugin that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Akka Serverless Maven plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
+* A *Maven plugin* that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Akka Serverless Maven plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
 
 The generated project also contains configuration for packaging and deploying the service.
 
