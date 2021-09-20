@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import com.lightbend.akkasls.codegen.Syntax
+import com.lightbend.akkasls.codegen.Format
 
-class SyntaxSpec extends munit.FunSuite {
+class FormatSpec extends munit.FunSuite {
 
   test("indenting should leave alone the first line") {
 
@@ -28,7 +28,7 @@ class SyntaxSpec extends munit.FunSuite {
       s"""
         |a
         |
-        |  ${Syntax.indent(method, 2)}
+        |  ${Format.indent(method, 2)}
         |b
         """.stripMargin
 

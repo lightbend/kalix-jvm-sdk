@@ -198,7 +198,7 @@ object EntityServiceSourceGenerator {
         |
         |  @Override
         |  public $stateType handleEvent($stateType state, Object event) {
-        |    ${Syntax.indent(eventCases, 4)}
+        |    ${Format.indent(eventCases, 4)}
         |  }
         |
         |  @Override
@@ -206,7 +206,7 @@ object EntityServiceSourceGenerator {
         |      String commandName, $stateType state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
-        |      ${Syntax.indent(commandCases, 6)}
+        |      ${Format.indent(commandCases, 6)}
         |
         |      default:
         |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
@@ -298,7 +298,7 @@ object EntityServiceSourceGenerator {
         |  @Override
         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
         |    return new Descriptors.FileDescriptor[] {
-        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |      ${Format.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
         |}
@@ -368,9 +368,9 @@ object EntityServiceSourceGenerator {
        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
        |  }
        |
-       |  ${Syntax.indent(commandHandlers, num = 2)}
+       |  ${Format.indent(commandHandlers, num = 2)}
        |
-       |  ${Syntax.indent(eventHandlers, num = 2)}
+       |  ${Format.indent(eventHandlers, num = 2)}
        |
        |}
        |""".stripMargin
@@ -453,9 +453,9 @@ object EntityServiceSourceGenerator {
         |/** An event sourced entity. */
         |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
         |
-        |  ${Syntax.indent(commandHandlers, num = 2)}
+        |  ${Format.indent(commandHandlers, num = 2)}
         |
-        |  ${Syntax.indent(eventHandlers, num = 2)}
+        |  ${Format.indent(eventHandlers, num = 2)}
         |
         |}""".stripMargin
   }
@@ -531,7 +531,7 @@ object EntityServiceSourceGenerator {
       |    client = ${serviceName}Client.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
       |  }
       |
-      |  ${Syntax.indent(testCases, num = 2)}
+      |  ${Format.indent(testCases, num = 2)}
       |}
       |""".stripMargin
   }

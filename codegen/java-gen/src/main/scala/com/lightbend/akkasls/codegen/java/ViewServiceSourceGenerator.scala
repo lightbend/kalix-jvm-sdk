@@ -113,7 +113,7 @@ object ViewServiceSourceGenerator {
         |      Object event) {
         |
         |    switch (eventName) {
-        |      ${Syntax.indent(cases, 6)}
+        |      ${Format.indent(cases, 6)}
         |
         |      default:
         |        throw new UpdateHandlerNotFound(eventName);
@@ -227,7 +227,7 @@ object ViewServiceSourceGenerator {
        |
        |  public ${view.className}(ViewContext context) {}
        |$emptyState
-       |  ${Syntax.indent(handlers, 2)}
+       |  ${Format.indent(handlers, 2)}
        |}
        |""".stripMargin
   }
@@ -260,7 +260,7 @@ object ViewServiceSourceGenerator {
       |
       |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
       |$emptyState
-      |  ${Syntax.indent(handlers, 2)}
+      |  ${Format.indent(handlers, 2)}
       |}
       |""".stripMargin
   }

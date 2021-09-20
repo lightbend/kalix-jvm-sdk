@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Syntax
+import com.lightbend.akkasls.codegen.Format
 
 object ValueEntitySourceGenerator {
   import SourceGenerator._
@@ -68,7 +68,7 @@ object ValueEntitySourceGenerator {
         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
         |  }
         |
-        |  ${Syntax.indent(methods, num = 2)}
+        |  ${Format.indent(methods, num = 2)}
         |}
         |""".stripMargin
   }
@@ -119,7 +119,7 @@ object ValueEntitySourceGenerator {
         |      String commandName, $stateType state, Object command, CommandContext context) {
         |    switch (commandName) {
         |
-        |      ${Syntax.indent(commandCases, 6)}
+        |      ${Format.indent(commandCases, 6)}
         |
         |      default:
         |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
@@ -212,7 +212,7 @@ object ValueEntitySourceGenerator {
         |  @Override
         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
         |    return new Descriptors.FileDescriptor[] {
-        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |      ${Format.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
         |}
@@ -256,7 +256,7 @@ object ValueEntitySourceGenerator {
         |/** A value entity. */
         |public abstract class Abstract$className extends ValueEntity<$stateType> {
         |
-        |  ${Syntax.indent(methods, 2)}
+        |  ${Format.indent(methods, 2)}
         |
         |}
         |""".stripMargin

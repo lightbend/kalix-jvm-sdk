@@ -136,7 +136,7 @@ object EventSourcedEntityTestKitGenerator {
           |  }
           |
           |  private $stateClassName handleEvent($stateClassName state, Object event) {
-          |    ${Syntax.indent(generateHandleEvents(entity.events), 4)}
+          |    ${Format.indent(generateHandleEvents(entity.events), 4)}
           |  }
           |
           |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
@@ -148,7 +148,7 @@ object EventSourcedEntityTestKitGenerator {
           |    return new EventSourcedResultImpl(effect, state);
           |  }
           |
-          |  ${Syntax.indent(generateServices(service), 2)}
+          |  ${Format.indent(generateServices(service), 2)}
           |}
           |""".stripMargin
   }
@@ -254,7 +254,7 @@ object EventSourcedEntityTestKitGenerator {
       |    // assertEquals(expectedResponse, actualResponse);
       |  }
       |
-      |  ${Syntax.indent(dummyTestCases, 2)}
+      |  ${Format.indent(dummyTestCases, 2)}
       |
       |}
       |""".stripMargin
