@@ -27,6 +27,13 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       file.content,
       s"""package com.example.service.domain
          |
+         |
+         |
+         |class MyValueEntity /* extends AbstractMyValueEntity */ {
+         |  def set(currentState: Unit, command: Unit): Unit = ???
+         |
+         |  def get(currentState: Unit, command: Unit): Unit = ???
+         |}
          |""".stripMargin)
   }
 }
