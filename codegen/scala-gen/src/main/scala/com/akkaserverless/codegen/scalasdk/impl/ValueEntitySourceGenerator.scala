@@ -23,19 +23,17 @@ import com.lightbend.akkasls.codegen.Syntax
 object ValueEntitySourceGenerator {
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val stateType = entity.state.fqn.fullQualifiedName
-    println(s"commands: ${service.commands.map(_.outputType)}")
     val methods = service.commands.map { cmd =>
       // TODO 'override' and use 'effect'
-      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: $stateType, command: ${cmd.inputType.fullQualifiedName}): ${cmd.outputType.fullQualifiedName} = ???
-         |""".stripMargin
+//      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: $stateType, command: ${cmd.inputType.fullQualifiedName}): ${cmd.outputType.fullQualifiedName} = ???
+//          |""".stripMargin
+      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: Unit, command: Unit): Unit = ???
+          |""".stripMargin
     }
-    val imports =
-      Set(stateType) ++
-      service.commands.map(_.inputType.name) ++
-      service.commands.map(_.outputType.name).map {
-        case "Empty" => "com.external.Empty"
-        case other   => other
-      }
+    val imports = Set.empty
+//      Set(stateType) ++
+//      service.commands.map(_.inputType.fullQualifiedName) ++
+//      service.commands.map(_.outputType.fullQualifiedName)
 
     File(
       entity.fqn.fileBasename + ".scala",

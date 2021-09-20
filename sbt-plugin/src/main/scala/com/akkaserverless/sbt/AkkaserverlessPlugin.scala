@@ -49,7 +49,8 @@ object AkkaserverlessPlugin extends AutoPlugin {
       gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless",
     Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
     Compile / PB.targets ++= Seq(
-      scalapb.gen() -> (Compile / sourceManaged).value / "scalapb",
+      // TODO allow user to customize options
+      scalapb.gen(grpc = false) -> (Compile / sourceManaged).value / "scalapb",
       genUnmanaged(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
