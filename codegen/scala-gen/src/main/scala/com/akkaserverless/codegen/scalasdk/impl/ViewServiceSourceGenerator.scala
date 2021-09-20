@@ -37,8 +37,9 @@ object ViewServiceSourceGenerator {
     val generatedSources = Seq.newBuilder[File]
 
     val packageName = service.fqn.parent.scalaPackage
+    val packagePath = packageAsPath(packageName)
 
-    generatedSources += File(s"${service.className}.scala", viewSource(service, packageName))
+    generatedSources += File(s"$packagePath/${service.className}.scala", viewSource(service, packageName))
 
     generatedSources.result()
   }
@@ -50,10 +51,11 @@ object ViewServiceSourceGenerator {
     val generatedSources = Seq.newBuilder[File]
 
     val packageName = service.fqn.parent.scalaPackage
+    val packagePath = packageAsPath(packageName)
 
-    generatedSources += File(s"${service.abstractViewName}.scala", abstractView(service, packageName))
-    generatedSources += File(s"${service.handlerName}.scala", viewHandler(service, packageName))
-    generatedSources += File(s"${service.providerName}.scala", viewProvider(service, packageName))
+    generatedSources += File(s"$packagePath/${service.abstractViewName}.scala", abstractView(service, packageName))
+    generatedSources += File(s"$packagePath/${service.handlerName}.scala", viewHandler(service, packageName))
+    generatedSources += File(s"$packagePath/${service.providerName}.scala", viewProvider(service, packageName))
 
     generatedSources.result()
   }
@@ -88,9 +90,9 @@ object ViewServiceSourceGenerator {
         |class ${view.handlerName}(view: ${view.className}) extends ViewHandler[${qualifiedType(view.state.fqn)}, ${view.className}](view) {
         |
         |  override def handleUpdate(
-        |      String eventName,
-        |      ${qualifiedType(view.state.fqn)} state,
-        |      Any event): View.UpdateEffect[${qualifiedType(view.state.fqn)}] = {
+        |      eventName: String,
+        |      state: ${qualifiedType(view.state.fqn)},
+        |      event: Any): View.UpdateEffect[${qualifiedType(view.state.fqn)}] = {
         |
         |    eventName match {
         |      ${Format.indent(cases, 6)}
@@ -138,7 +140,7 @@ object ViewServiceSourceGenerator {
         |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
         |   * A different identifier can be needed when making rolling updates with changes to the view definition.
         |   */
-        |  def withViewId(String viewId): ${view.providerName} =
+        |  def withViewId(viewId: String): ${view.providerName} =
         |    new ${view.providerName}(viewFactory, viewId)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
@@ -157,7 +159,11 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: String): String = {
 
     val imports =
-      generateImports(view.commandTypes, packageName, Seq("com.akkaserverless.scalasdk.view.ViewContext"), semi = false)
+      generateImports(
+        view.commandTypes,
+        packageName,
+        Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
+        semi = false)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
@@ -203,7 +209,7 @@ object ViewServiceSourceGenerator {
       val stateType = qualifiedType(update.outputType)
       s"""def ${lowerFirst(update.fqn.name)}(
          |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${qualifiedType(
-        update.inputType)}): UpdateEffect[$stateType]""".stripMargin
+        update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
 
     }
 

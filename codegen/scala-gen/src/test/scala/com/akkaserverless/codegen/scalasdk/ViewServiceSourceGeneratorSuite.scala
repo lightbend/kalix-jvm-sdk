@@ -31,6 +31,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """|package com.example.service
          |
+         |import com.akkaserverless.scalasdk.view.View.UpdateEffect
          |import com.akkaserverless.scalasdk.view.ViewContext
          |import com.example.service.domain.EntityOuterClass
          |
@@ -60,6 +61,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """|package com.example.service
          |
+         |import com.akkaserverless.scalasdk.view.View.UpdateEffect
          |import com.akkaserverless.scalasdk.view.ViewContext
          |import com.example.service.domain.EntityOuterClass
          |
@@ -88,9 +90,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |
          |
          |  def created(
-         |    state: ServiceOuterClass.ViewState, entityCreated: EntityOuterClass.EntityCreated): UpdateEffect[ServiceOuterClass.ViewState]
+         |    state: ServiceOuterClass.ViewState, entityCreated: EntityOuterClass.EntityCreated): View.UpdateEffect[ServiceOuterClass.ViewState]
          |  def updated(
-         |    state: ServiceOuterClass.ViewState, entityUpdated: EntityOuterClass.EntityUpdated): UpdateEffect[ServiceOuterClass.ViewState]
+         |    state: ServiceOuterClass.ViewState, entityUpdated: EntityOuterClass.EntityUpdated): View.UpdateEffect[ServiceOuterClass.ViewState]
          |}
          |""".stripMargin)
   }
@@ -138,9 +140,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |class MyServiceViewHandler(view: MyServiceViewImpl) extends ViewHandler[ServiceOuterClass.ViewState, MyServiceViewImpl](view) {
          |
          |  override def handleUpdate(
-         |      String eventName,
-         |      ServiceOuterClass.ViewState state,
-         |      Any event): View.UpdateEffect[ServiceOuterClass.ViewState] = {
+         |      eventName: String,
+         |      state: ServiceOuterClass.ViewState,
+         |      event: Any): View.UpdateEffect[ServiceOuterClass.ViewState] = {
          |
          |    eventName match {
          |      case "Created" =>
@@ -196,7 +198,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
          |   * A different identifier can be needed when making rolling updates with changes to the view definition.
          |   */
-         |  def withViewId(String viewId): MyServiceViewProvider =
+         |  def withViewId(viewId: String): MyServiceViewProvider =
          |    new MyServiceViewProvider(viewFactory, viewId)
          |
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
