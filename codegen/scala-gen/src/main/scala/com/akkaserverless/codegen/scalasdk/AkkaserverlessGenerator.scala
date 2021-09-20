@@ -16,6 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk
 
+import com.akkaserverless.Annotations
 import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
@@ -27,8 +28,7 @@ object AkkaserverlessGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
 
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
-    registry.add(com.akkaserverless.Annotations.service)
-    registry.add(com.akkaserverless.Annotations.file)
+    Annotations.registerAllExtensions(registry)
   }
 
   override def process(request: CodeGenRequest): CodeGenResponse = {

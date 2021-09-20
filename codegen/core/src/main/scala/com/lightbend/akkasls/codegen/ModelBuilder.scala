@@ -209,6 +209,10 @@ object ModelBuilder {
     val classNameQualified = s"${fqn.parent.javaPackage}.$className"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
 
+    if (updates.isEmpty)
+      throw new IllegalArgumentException(
+        s"At least one view method must have `option (akkaserverless.method).view.update` in ${fqn.protoName} (${fqn.parent.protoFileName}).")
+
     val state = State(updates.head.outputType)
   }
 
