@@ -37,3 +37,9 @@ Compile / compile := {
   (Compile / generateUnmanaged).value
   (Compile / compile).value
 }
+
+val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.1")
+
+libraryDependencies ++= Seq(
+  "com.akkaserverless" %% "akkaserverless-scala-sdk" % AkkaServerlessSdkVersion
+)
