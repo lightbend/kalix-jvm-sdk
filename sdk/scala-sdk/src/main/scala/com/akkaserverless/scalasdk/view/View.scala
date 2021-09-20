@@ -86,7 +86,7 @@ abstract class View[S] {
   private[scalasdk] def _internalSetUpdateContext(context: Option[UpdateContext]): Unit =
     _updateContext = context
 
-  protected final def effects(): View.UpdateEffect.Builder[S] =
+  protected final def effects: View.UpdateEffect.Builder[S] =
     View.UpdateEffect.builder()
 
   /**

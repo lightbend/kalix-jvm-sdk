@@ -28,7 +28,7 @@ class ShoppingCartViewServiceImpl extends View[ShoppingCartViewModel.CartViewSta
   def processAdded(
       state: ShoppingCartViewModel.CartViewState,
       event: ShoppingCart.ItemAdded): View.UpdateEffect[ShoppingCartViewModel.CartViewState] = {
-    effects().ignore() // TODO
+    effects.ignore() // TODO
   }
 
   // TODO update methods...
