@@ -20,6 +20,7 @@ import com.lightbend.akkasls.codegen.TestData
 
 class SourceGeneratorSuite extends munit.FunSuite {
   import SourceGenerator._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   test("it can determine the main package") {
     assertNoDiff(mainPackageName(Set("com.lightbend.Something")).mkString("."), "com.lightbend")

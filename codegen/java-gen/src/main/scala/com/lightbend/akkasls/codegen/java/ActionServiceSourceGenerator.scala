@@ -21,13 +21,13 @@ import _root_.java.nio.file.Files
 import _root_.java.nio.file.Path
 
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 
 /**
  * Responsible for generating Java source from an entity model
  */
 object ActionServiceSourceGenerator {
   import SourceGenerator._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Java source from views where the target source and test source directories have no existing source.
@@ -143,7 +143,7 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$generatedCodeCommentString
+    s"""|$unmanagedComment
         |
         |package $packageName;
         |
@@ -194,7 +194,7 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |
         |package $packageName;
         |
@@ -262,7 +262,7 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.javasdk.action.MessageEnvelope",
         "com.akkaserverless.javasdk.impl.action.ActionHandler"))
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |
         |package $packageName;
         |
@@ -336,7 +336,7 @@ object ActionServiceSourceGenerator {
         "com.google.protobuf.Descriptors",
         "java.util.function.Function") ++ service.commandTypes.map(_.descriptorImport))
 
-    s"""$managedCodeCommentString
+    s"""$managedComment
       |
       |package $packageName;
       |

@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.Syntax
 
 object ValueEntitySourceGenerator {
   import SourceGenerator._
-  import EntityServiceSourceGenerator.generateImports
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
@@ -49,7 +49,7 @@ object ValueEntitySourceGenerator {
           |""".stripMargin
     }
 
-    s"""|$generatedCodeCommentString
+    s"""|$unmanagedComment
         |package $packageName;
         |
         |$imports
@@ -99,7 +99,7 @@ object ValueEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -157,7 +157,7 @@ object ValueEntitySourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -248,7 +248,7 @@ object ValueEntitySourceGenerator {
 
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports

@@ -18,12 +18,10 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
-import com.lightbend.akkasls.codegen.java.SourceGenerator._
-import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 import _root_.java.nio.file.{ Files, Path }
 
 object EventSourcedEntityTestKitGenerator {
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generate(
       entity: ModelBuilder.EventSourcedEntity,
@@ -80,7 +78,7 @@ object EventSourcedEntityTestKitGenerator {
     val stateClassName = entity.state.fqn.fullName
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""$managedCodeCommentString
+    s"""$managedComment
           |package ${entity.fqn.parent.pkg};
           |
           |$imports
@@ -231,7 +229,7 @@ object EventSourcedEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$generatedCodeCommentString
+    s"""$unmanagedComment
       |package ${entity.fqn.parent.pkg};
       |
       |$imports

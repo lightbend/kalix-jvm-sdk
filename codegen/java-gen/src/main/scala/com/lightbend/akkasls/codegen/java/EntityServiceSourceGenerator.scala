@@ -17,18 +17,13 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.google.common.base.Charsets
-import scala.collection.immutable
-import _root_.java.nio.file.{ Files, Path }
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
 
-import com.lightbend.akkasls.codegen.ModelBuilder.Command
+import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.ModelBuilder.EventSourcedEntity
 import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedEntity
-import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
-import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
-import com.lightbend.akkasls.codegen.ModelBuilder.State
-import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
 
 /**
@@ -36,6 +31,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
  */
 object EntityServiceSourceGenerator {
   import SourceGenerator._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -185,7 +181,7 @@ object EntityServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -247,7 +243,7 @@ object EntityServiceSourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -352,7 +348,7 @@ object EntityServiceSourceGenerator {
           }
       }
 
-    s"""$generatedCodeCommentString
+    s"""$unmanagedComment
        |package $packageName;
        |
        |$imports
@@ -449,7 +445,7 @@ object EntityServiceSourceGenerator {
          |""".stripMargin
     }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -508,7 +504,7 @@ object EntityServiceSourceGenerator {
 
     }
 
-    s"""$generatedCodeCommentString
+    s"""$unmanagedComment
       |package $packageName;
       |
       |$imports
@@ -540,46 +536,4 @@ object EntityServiceSourceGenerator {
       |""".stripMargin
   }
 
-  private[codegen] def generateImports(
-      types: Iterable[FullyQualifiedName],
-      packageName: String,
-      otherImports: Seq[String]): String = {
-    val messageTypeImports = types
-      .filterNot { typ =>
-        typ.parent.javaPackage == packageName
-      }
-      .map(typeImport)
-
-    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
-      .map(pkg => s"import $pkg;")
-      .mkString("\n")
-  }
-
-  private[codegen] def generateImports(
-      commands: Iterable[Command],
-      state: State,
-      packageName: String,
-      otherImports: Seq[String]): String = {
-    val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports)
-  }
-
-  private[codegen] def generateImports(
-      commands: Iterable[Command],
-      typeArguments: Iterable[TypeArgument],
-      packageName: String,
-      otherImports: Seq[String]): String = {
-    val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
-      fqn
-    }
-    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments))
-  }
-
-  private[codegen] def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
-    typeArguments.collect { case ScalarTypeArgument(ScalarType.Bytes) =>
-      "com.google.protobuf.ByteString"
-    }.toSeq
-
-  private[codegen] def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
-    commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 }

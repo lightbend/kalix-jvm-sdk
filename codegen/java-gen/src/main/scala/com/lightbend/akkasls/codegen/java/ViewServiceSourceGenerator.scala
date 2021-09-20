@@ -18,16 +18,14 @@ package com.lightbend.akkasls.codegen
 package java
 
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
 
 import _root_.java.nio.file.{ Files, Path }
-import scala.collection.immutable
 
 /**
  * Responsible for generating Java sources for a view
  */
 object ViewServiceSourceGenerator {
-  import SourceGenerator._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
@@ -96,7 +94,7 @@ object ViewServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -142,7 +140,7 @@ object ViewServiceSourceGenerator {
         "com.google.protobuf.EmptyProto",
         "java.util.function.Function"))
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -220,7 +218,7 @@ object ViewServiceSourceGenerator {
          |}""".stripMargin
     }
 
-    s"""$generatedCodeCommentString
+    s"""$unmanagedComment
        |package $packageName;
        |
        |$imports
@@ -255,7 +253,7 @@ object ViewServiceSourceGenerator {
 
     }
 
-    s"""$managedCodeCommentString
+    s"""$managedComment
       |package $packageName;
       |
       |$imports
