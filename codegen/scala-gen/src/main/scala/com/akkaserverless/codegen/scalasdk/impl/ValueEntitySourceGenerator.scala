@@ -18,7 +18,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Syntax
+import com.lightbend.akkasls.codegen.Format
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
@@ -45,7 +45,7 @@ object ValueEntitySourceGenerator {
          |${imports.map(i => s"import $i").mkString("\n")}
          |
          |class ${entity.fqn.name} /* extends Abstract${entity.fqn.name} */ {
-         |  ${Syntax.indent(methods, 2)}
+         |  ${Format.indent(methods, 2)}
          |}
          |""".stripMargin)
   }
