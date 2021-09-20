@@ -23,8 +23,8 @@ import scala.util.control.NonFatal
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.ViewFactory
-import com.akkaserverless.javasdk.{ Context, Metadata, Service, ServiceCallFactory }
+import com.akkaserverless.javasdk.impl.{ Service, ViewFactory }
+import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.view.ViewCreationContext
 import com.akkaserverless.javasdk.view.{ UpdateContext, View, ViewContext }

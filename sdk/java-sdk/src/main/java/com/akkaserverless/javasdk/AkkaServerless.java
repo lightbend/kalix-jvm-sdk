@@ -34,6 +34,7 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityServ
 import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityService;
 import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
+import com.akkaserverless.javasdk.impl.Service;
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.ViewService;

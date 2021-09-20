@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters._
 import akka.Done
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import com.akkaserverless.javasdk.Service
+import com.akkaserverless.javasdk.impl.Service
 import com.akkaserverless.javasdk.{ AkkaServerlessRunner => Impl }
 
 object AkkaServerlessRunner {

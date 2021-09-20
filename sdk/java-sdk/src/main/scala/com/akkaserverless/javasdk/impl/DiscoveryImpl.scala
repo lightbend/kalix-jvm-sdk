@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk.impl
 import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
-import com.akkaserverless.javasdk.{ BuildInfo, EntityOptions, Service }
+import com.akkaserverless.javasdk.{ BuildInfo, EntityOptions }
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._

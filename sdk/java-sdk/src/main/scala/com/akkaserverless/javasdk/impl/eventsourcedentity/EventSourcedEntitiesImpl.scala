@@ -29,10 +29,8 @@ import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
-import com.akkaserverless.javasdk.ComponentOptions
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.Service
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }

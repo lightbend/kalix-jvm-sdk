@@ -16,8 +16,6 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.ComponentOptions
-
 import java.util
 import java.util.Collections
 

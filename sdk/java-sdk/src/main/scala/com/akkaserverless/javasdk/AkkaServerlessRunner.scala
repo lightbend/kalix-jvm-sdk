@@ -26,7 +26,13 @@ import com.akkaserverless.javasdk.impl.action.{ ActionService, ActionsImpl }
 import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
 import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
 import com.akkaserverless.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import com.akkaserverless.javasdk.impl.{ DiscoveryImpl, ResolvedServiceCallFactory, ResolvedServiceMethod }
+import com.akkaserverless.javasdk.impl.{
+  ComponentOptions,
+  DiscoveryImpl,
+  ResolvedServiceCallFactory,
+  ResolvedServiceMethod,
+  Service
+}
 import com.akkaserverless.protocol.action.ActionsHandler
 import com.akkaserverless.protocol.discovery.DiscoveryHandler
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
@@ -212,42 +218,4 @@ final class AkkaServerlessRunner private[this] (
       heap.getMax / 1024 / 1024,
       osMBean.getAvailableProcessors)
   }
-}
-
-/**
- * Service describes a component type in a way which makes it possible to deploy.
- */
-trait Service {
-
-  /**
-   * @return
-   *   a Protobuf ServiceDescriptor of its externally accessible gRPC API
-   */
-  def descriptor: Descriptors.ServiceDescriptor
-
-  /**
-   * @return
-   *   the type of component represented by this service
-   */
-  def componentType: String
-
-  /**
-   * @return
-   *   the entity type name used for the entities represented by this service
-   */
-  def entityType: String = descriptor.getName
-
-  /**
-   * @return
-   *   the options [[ComponentOptions]] or [[EntityOptions]] used by this service
-   */
-  def componentOptions: Option[ComponentOptions] = None
-
-  /**
-   * @return
-   *   a dictionary of service methods (Protobuf Descriptors.MethodDescriptor) classified by method name. The dictionary
-   *   values represent a mapping of Protobuf Descriptors.MethodDescriptor with its input and output types (see
-   *   [[com.akkaserverless.javasdk.impl.ResolvedServiceMethod]])
-   */
-  def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]]
 }

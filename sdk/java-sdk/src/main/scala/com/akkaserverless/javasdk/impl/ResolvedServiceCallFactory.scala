@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{ Service, ServiceCallFactory, ServiceCallRef }
+import com.akkaserverless.javasdk.{ ServiceCallFactory, ServiceCallRef }
 
 class ResolvedServiceCallFactory(services: Map[String, Service]) extends ServiceCallFactory {
   override def lookup[T](serviceName: String, methodName: String, methodType: Class[T]): ServiceCallRef[T] =
