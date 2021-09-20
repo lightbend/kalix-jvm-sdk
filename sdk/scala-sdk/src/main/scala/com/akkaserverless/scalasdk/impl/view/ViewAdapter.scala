@@ -34,7 +34,7 @@ private[scalasdk] class Scala2JavaViewAdapter[S](scalasdkView: View[S]) extends 
   override def emptyState(): S = scalasdkView.emptyState
 
   override def _internalSetUpdateContext(context: Optional[javasdk.view.UpdateContext]): Unit =
-    scalasdkView._internalSetUpdateContext(context.map(new Scala2JavaUpdateContextAdapter(_)).toScala)
+    scalasdkView._internalSetUpdateContext(context.map(new Java2ScalaUpdateContextAdapter(_)).toScala)
 }
 
 private[scalasdk] class Scala2JavaViewProviderAdapter[S, V <: View[S]](scalasdkProvider: ViewProvider[S, V])
@@ -81,7 +81,7 @@ private[scalasdk] class Java2ScalaViewCreationContextAdapter(javasdkContext: jav
     javasdkContext.getGrpcClient(clientClass, service)
 }
 
-private[scalasdk] class Scala2JavaUpdateContextAdapter(val javasdkContext: javasdk.view.UpdateContext)
+private[scalasdk] class Java2ScalaUpdateContextAdapter(val javasdkContext: javasdk.view.UpdateContext)
     extends UpdateContext {
   override def eventSubject: Option[String] =
     javasdkContext.eventSubject().toScala
