@@ -16,10 +16,22 @@
 
 package com.akkaserverless.codegen.scalasdk
 
+import com.google.protobuf.compiler.PluginProtos.CodeGeneratorRequest
 import com.lightbend.akkasls.codegen.TestData
+import protocgen.CodeGenRequest
+import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
+  implicit val descriptorImplicits =
+    DescriptorImplicits.fromCodeGenRequest(
+      GeneratorParams(),
+      CodeGenRequest(
+        parameter = "",
+        filesToGenerate = Seq.empty,
+        allProtos = Seq.empty,
+        compilerVersion = None,
+        CodeGeneratorRequest.newBuilder().build()))
 
   test("it can generate a value entity implementation skeleton") {
     val file = generateImplementationSkeleton(TestData.valueEntity(), TestData.simpleEntityService())

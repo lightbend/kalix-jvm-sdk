@@ -23,6 +23,7 @@ import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 import com.lightbend.akkasls.codegen.{ Log, ModelBuilder }
+import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 object AkkaserverlessGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
@@ -33,6 +34,7 @@ object AkkaserverlessGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(enableDebug)
+    implicit val di: DescriptorImplicits = descriptorImplicits(request)
     val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(DebugPrintlnLog(debugEnabled))
     try {
       CodeGenResponse.succeed(
@@ -49,6 +51,22 @@ object AkkaserverlessGenerator extends CodeGenApp {
         t.printStackTrace()
         CodeGenResponse.fail(t.getMessage)
     }
+  }
+
+  def descriptorImplicits(request: CodeGenRequest): DescriptorImplicits = {
+    val params =
+      request.parameter.split(",").map(_.trim).filter(_.nonEmpty).foldLeft[GeneratorParams](GeneratorParams()) {
+        case (p, "java_conversions")            => p.copy(javaConversions = true)
+        case (p, "flat_package")                => p.copy(flatPackage = true)
+        case (p, "single_line_to_string")       => p.copy(singleLineToProtoString = true) // for backward-compatibility
+        case (p, "single_line_to_proto_string") => p.copy(singleLineToProtoString = true)
+        case (p, "ascii_format_to_string")      => p.copy(asciiFormatToString = true)
+        case (p, "no_lenses")                   => p.copy(lenses = false)
+        case (p, "retain_source_code_info")     => p.copy(retainSourceCodeInfo = true)
+        case (p, "grpc")                        => p.copy(grpc = true)
+        case (x, _)                             => x
+      }
+    DescriptorImplicits.fromCodeGenRequest(params, request)
   }
 
   // FIXME #382 add reference to the runtime lib here

@@ -16,15 +16,20 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
+import com.google.protobuf.Descriptors
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import scalapb.compiler.DescriptorImplicits
+import scalapb.descriptors.ScalaType
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
-    val stateType = entity.state.fqn.fullQualifiedName
+  def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService)(implicit
+      di: DescriptorImplicits): File = {
+    val stateType = fullName(entity.state.fqn)
     val methods = service.commands.map { cmd =>
       // TODO 'override' and use 'effect'
 //      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: $stateType, command: ${cmd.inputType.fullQualifiedName}): ${cmd.outputType.fullQualifiedName} = ???
@@ -33,8 +38,8 @@ object ValueEntitySourceGenerator {
           |""".stripMargin
     }
     val imports = Set.empty
-//      Set(stateType) ++
-//      service.commands.map(_.inputType.fullQualifiedName) ++
+    Set(stateType)
+//      ++ service.commands.map(_.inputType.fullQualifiedName) ++
 //      service.commands.map(_.outputType.fullQualifiedName)
 
     File(
@@ -48,5 +53,16 @@ object ValueEntitySourceGenerator {
          |  ${Format.indent(methods, 2)}
          |}
          |""".stripMargin)
+  }
+
+  private def fullName(fqn: FullyQualifiedName)(implicit di: DescriptorImplicits): String =
+    fullName(fqn.descriptor)
+
+  private def fullName(descriptor: Descriptors.GenericDescriptor)(implicit di: DescriptorImplicits): String = {
+    import di._
+    descriptor match {
+      case d: Descriptors.Descriptor =>
+        d.scalaType.fullName
+    }
   }
 }

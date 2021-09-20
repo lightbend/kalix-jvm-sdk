@@ -18,6 +18,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
+import scalapb.compiler.DescriptorImplicits
 
 import scala.annotation.tailrec
 
@@ -42,7 +43,7 @@ object SourceGenerator {
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
    * user.
    */
-  def generateUnmanaged(model: ModelBuilder.Model): Seq[File] =
+  def generateUnmanaged(model: ModelBuilder.Model)(implicit di: DescriptorImplicits): Seq[File] =
     Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"), generateMain(model)) ++
     model.services.values
       .collect { case service: ModelBuilder.EntityService =>

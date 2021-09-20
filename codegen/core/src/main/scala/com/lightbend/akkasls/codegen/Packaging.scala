@@ -24,7 +24,12 @@ import com.google.protobuf.Descriptors
 /**
  * A fully qualified name that can be resolved in any target language
  */
-case class FullyQualifiedName(protoName: String, name: String, parent: PackageNaming) {
+case class FullyQualifiedName(
+    protoName: String,
+    name: String,
+    parent: PackageNaming,
+    descriptor: Descriptors.GenericDescriptor) {
+
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
@@ -44,7 +49,7 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
 
 object FullyQualifiedName {
   def apply(name: String, parent: PackageNaming): FullyQualifiedName =
-    FullyQualifiedName(name, name, parent)
+    FullyQualifiedName(name, name, parent, null)
 
   def from(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
     from(descriptor, ServiceType.SERVICE_TYPE_UNSPECIFIED)
@@ -65,7 +70,7 @@ object FullyQualifiedName {
           Some(s"${descriptor.getName}Proto"),
           javaMultipleFiles = true)
       } else PackageNaming.from(fileDescriptor)
-    FullyQualifiedName(descriptor.getName, descriptor.getName, packageNaming)
+    FullyQualifiedName(descriptor.getName, descriptor.getName, packageNaming, descriptor)
   }
 }
 

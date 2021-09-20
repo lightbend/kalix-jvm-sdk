@@ -88,7 +88,7 @@ object TestData {
   def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
 
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto),
+      FullyQualifiedName(proto.name, proto.name, proto, null),
       List(
         command(
           FullyQualifiedName("SimpleMethod", proto),
@@ -114,7 +114,7 @@ object TestData {
 
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto),
+      FullyQualifiedName(proto.name, proto.name, proto, null),
       List(
         command(
           FullyQualifiedName("InFromTopic", proto),
@@ -139,7 +139,7 @@ object TestData {
         FullyQualifiedName("EntityUpdated", domainProto(suffix)),
         FullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
-      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
+      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto, null),
       List(
         command(
           FullyQualifiedName("Created", proto),
