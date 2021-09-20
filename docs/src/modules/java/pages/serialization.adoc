@@ -46,9 +46,9 @@ Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasd
 A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
 
 [source,proto,indent=0]
-.src/main/proto/actions/json_api.proto
+.src/main/proto/com/example/json/json_api.proto
 ----
-include::java:example$java-doc-snippets/src/main/proto/actions/json_api.proto[tag=service]
+include::java:example$java-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
 ----
 <1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
 <2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.

@@ -86,20 +86,20 @@ Akka Serverless uses gRPC Protocol Buffers language to describe the service inte
 [.tabset]
 Default API protobuf file::
 +
-.src/main/proto/value-entities/counter_api.proto
+.src/main/proto/com/example/counter_api.proto
 --
 [source,protobuf]
 ----
-include::example$java-first-service/src/main/proto/value-entities/counter_api.proto[]
+include::example$java-first-service/src/main/proto/com/example/counter_api.proto[]
 ----
 --
 Default domain protobuf file::
 +
-.src/main/proto/value-entities/counter_domain.proto
+.src/main/proto/com/example/domain/counter_domain.proto
 --
 [source,protobuf]
 ----
-include::example$java-first-service/src/main/proto/value-entities/counter_domain.proto[]
+include::example$java-first-service/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 --
 

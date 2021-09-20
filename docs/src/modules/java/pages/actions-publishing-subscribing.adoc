@@ -20,9 +20,9 @@ To illustrate how to publish entity events, we will assume the existence of an x
 include::partial$pubsub-note.adoc[]
 
 [source,protobuf,indent=0]
-.src/main/proto/actions/counter_topic.proto
+.src/main/proto/com/example/actions/counter_topic.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic.proto[tag=counter-topic]
+include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
 <2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -46,9 +46,9 @@ Similar to subscribing to events from an Event Sourced Entity, you can also subs
 
 
 [source,protobuf,indent=0]
-.src/main/proto/actions/counter_states_sub.proto
+.src/main/proto/com/example/actions/counter_states_sub.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/actions/counter_states_sub.proto[tag=state-subscription]
+include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
 <2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -63,8 +63,9 @@ include::partial$pubsub-note.adoc[]
 For illustration purpose, we can add a second Action that consumes from the Pub Sub topic `counter-events` from the previous example.
 
 [source,protobuf,indent=0]
+.src/main/proto/com/example/actions/counter_topic_sub.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
 <2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -111,9 +112,9 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 When consuming events, each event must be matched by a Protobuf service method. In case your component is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Actions are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define a such catch-all method in case you want to discard some events.
 
 [source,protobuf,indent=0]
-.src/main/proto/actions/counter_topic.proto
+.src/main/proto/com/example/actions/counter_topic.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/actions/counter_topic.proto[tag=counter-ignore]
+include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
 <1> We must annotate it with a `(akkaserverless.method).eventing.in`
 

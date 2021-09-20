@@ -11,9 +11,9 @@ implement an Action as a pure stateless function. We will define a `FibonacciAct
 next number in the Fibonacci series.
 
 [source,protobuf,indent=0]
-.src/main/proto/actions/fibonacci.proto
+.src/main/proto/com/example/fibbonacci/fibonacci.proto
 ----
-include::example$java-fibonacci-action/src/main/proto/actions/fibonacci.proto[tag=actions]
+include::example$java-fibonacci-action/src/main/proto/com/example/fibbonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.fibonacci`.
 <2> Import the Akka Serverless protobuf annotations, or options.
