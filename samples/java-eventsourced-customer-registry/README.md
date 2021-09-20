@@ -15,10 +15,10 @@ To run the example locally:
     mvn versions:set -DnewVersion="0.7.0-beta....-SNAPSHOT"
     mvn install
     ```
-  * trigger codegen, compile and run form Maven
+  * trigger codegen, compile and run from Maven
     ```
     cd samples/java-eventsourced-customer-registry
-    mvn -Dakkaserverless-sdk.verion="0.7.0-beta....-SNAPSHOT" compile exec:java
+    mvn -Dakkaserverless-sdk.version="0.7.0-beta....-SNAPSHOT" compile exec:java
     ```
 
 * Start the proxy
