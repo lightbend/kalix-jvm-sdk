@@ -16,7 +16,7 @@
 
 package com.lightbend.akkasls.codegen
 
-object Syntax {
+object Format {
 
   val break = "\n"
 
@@ -24,7 +24,7 @@ object Syntax {
     indent(lines.mkString(break), num)
 
   /*
-   * Be mindful that `Syntax.indent` does not indent the first line,
+   * Be mindful that `Format.indent` does not indent the first line,
    * so the invocation itself needs to be indented as required.
    *
    * Empty lines are not indented either.

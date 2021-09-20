@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen.java
 
 import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Syntax
+import com.lightbend.akkasls.codegen.Format
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -138,7 +138,7 @@ object ValueEntityTestKitGenerator {
        |    return result;
        |  }
        |
-       |  ${Syntax.indent(generateServices(service), 2)}
+       |  ${Format.indent(generateServices(service), 2)}
        |}
        |""".stripMargin
   }
@@ -218,7 +218,7 @@ object ValueEntityTestKitGenerator {
        |    // assertEquals(expectedState, testKit.getState());
        |  }
        |
-       |  ${Syntax.indent(dummyTestCases, 2)}
+       |  ${Format.indent(dummyTestCases, 2)}
        |
        |}
        |""".stripMargin

@@ -307,7 +307,7 @@ object SourceGenerator {
         |      ${creatorParameters.mkString(",\n      ")}) {
         |    AkkaServerless akkaServerless = new AkkaServerless();
         |    return akkaServerless
-        |      ${Syntax.indent(registrations, 6)};
+        |      ${Format.indent(registrations, 6)};
         |  }
         |}
         |""".stripMargin

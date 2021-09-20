@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Syntax
+import com.lightbend.akkasls.codegen.Format
 
 object ReplicatedEntitySourceGenerator {
   import SourceGenerator._
@@ -75,7 +75,7 @@ object ReplicatedEntitySourceGenerator {
         |    this.entityId = context.entityId();
         |  }
         |$emptyValue
-        |  ${Syntax.indent(methods, num = 2)}
+        |  ${Format.indent(methods, num = 2)}
         |}
         |""".stripMargin
   }
@@ -127,7 +127,7 @@ object ReplicatedEntitySourceGenerator {
         |      String commandName, $parameterizedDataType data, Object command, CommandContext context) {
         |    switch (commandName) {
         |
-        |      ${Syntax.indent(commandCases, 6)}
+        |      ${Format.indent(commandCases, 6)}
         |
         |      default:
         |        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
@@ -225,7 +225,7 @@ object ReplicatedEntitySourceGenerator {
         |  @Override
         |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
         |    return new Descriptors.FileDescriptor[] {
-        |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+        |      ${Format.indent(descriptors.mkString(",\n"), 6)}
         |    };
         |  }
         |}
@@ -272,7 +272,7 @@ object ReplicatedEntitySourceGenerator {
         |/** A replicated entity. */
         |public abstract class Abstract$className extends $baseClass$typeArguments {
         |
-        |  ${Syntax.indent(methods, 2)}
+        |  ${Format.indent(methods, 2)}
         |
         |}
         |""".stripMargin

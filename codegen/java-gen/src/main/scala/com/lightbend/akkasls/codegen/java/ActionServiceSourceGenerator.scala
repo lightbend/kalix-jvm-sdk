@@ -154,7 +154,7 @@ object ActionServiceSourceGenerator {
         |
         |  public $className(ActionCreationContext creationContext) {}
         |
-        |  ${Syntax.indent(methods, 2)}
+        |  ${Format.indent(methods, 2)}
         |}
         |""".stripMargin
   }
@@ -203,7 +203,7 @@ object ActionServiceSourceGenerator {
         |/** An action. */
         |public abstract class ${service.interfaceName} extends Action {
         |
-        |  ${Syntax.indent(methods, 2)}
+        |  ${Format.indent(methods, 2)}
         |}""".stripMargin
   }
 
@@ -277,7 +277,7 @@ object ActionServiceSourceGenerator {
         |  @Override
         |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
-        |      ${Syntax.indent(unaryCases, 6)}
+        |      ${Format.indent(unaryCases, 6)}
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
@@ -286,7 +286,7 @@ object ActionServiceSourceGenerator {
         |  @Override
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
-        |      ${Syntax.indent(streamOutCases, 6)}
+        |      ${Format.indent(streamOutCases, 6)}
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
@@ -295,7 +295,7 @@ object ActionServiceSourceGenerator {
         |  @Override
         |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
-        |      ${Syntax.indent(streamInCases, 6)}
+        |      ${Format.indent(streamInCases, 6)}
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
@@ -304,7 +304,7 @@ object ActionServiceSourceGenerator {
         |  @Override
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
-        |      ${Syntax.indent(streamInOutCases, 6)}
+        |      ${Format.indent(streamInOutCases, 6)}
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
         |    }
@@ -385,7 +385,7 @@ object ActionServiceSourceGenerator {
       |  @Override
       |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
       |    return new Descriptors.FileDescriptor[] {
-      |      ${Syntax.indent(descriptors.mkString(",\n"), 6)}
+      |      ${Format.indent(descriptors.mkString(",\n"), 6)}
       |    };
       |  }
       |
