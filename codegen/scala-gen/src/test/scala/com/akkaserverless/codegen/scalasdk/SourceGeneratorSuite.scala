@@ -20,18 +20,6 @@ import com.lightbend.akkasls.codegen.TestData
 
 class SourceGeneratorSuite extends munit.FunSuite {
   import SourceGenerator._
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  test("it can determine the main package") {
-    assertNoDiff(mainPackageName(Set("com.lightbend.Something")).mkString("."), "com.lightbend")
-    assertNoDiff(
-      mainPackageName(Set("com.lightbend.Something", "com.lightbend.SomethingElse")).mkString("."),
-      "com.lightbend")
-    assertNoDiff(
-      mainPackageName(Set("com.lightbend.Something", "com.lightbend.other.SomethingElse")).mkString("."),
-      "com.lightbend")
-    assertNoDiff(mainPackageName(Set("com.lightbend.Something", "io.akka.SomethingElse")).mkString("."), "")
-  }
 
   test("it can generate a simple 'main'") {
     val main = generateMain(TestData.simple())
