@@ -19,16 +19,12 @@ package com.lightbend.akkasls.codegen.java
 import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Syntax
-import com.lightbend.akkasls.codegen.java.EntityServiceSourceGenerator.generateImports
-import com.lightbend.akkasls.codegen.java.SourceGenerator.generatedCodeCommentString
-import com.lightbend.akkasls.codegen.java.SourceGenerator.lowerFirst
-import com.lightbend.akkasls.codegen.java.SourceGenerator.managedCodeCommentString
-import com.lightbend.akkasls.codegen.java.SourceGenerator.packageAsPath
 
 import java.nio.file.Files
 import java.nio.file.Path
 
 object ValueEntityTestKitGenerator {
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generate(
       entity: ModelBuilder.ValueEntity,
@@ -86,7 +82,7 @@ object ValueEntityTestKitGenerator {
 
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""$managedCodeCommentString
+    s"""$managedComment
        |package ${entity.fqn.parent.pkg};
        |
        |$imports
@@ -200,7 +196,7 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$generatedCodeCommentString
+    s"""$unmanagedComment
        |package ${entity.fqn.parent.pkg};
        |
        |$imports

@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.Syntax
 
 object ReplicatedEntitySourceGenerator {
   import SourceGenerator._
-  import EntityServiceSourceGenerator.{ extraTypeImports, generateImports }
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   private[codegen] def replicatedEntitySource(
       service: ModelBuilder.EntityService,
@@ -61,7 +61,7 @@ object ReplicatedEntitySourceGenerator {
           |""".stripMargin
     }
 
-    s"""|$generatedCodeCommentString
+    s"""|$unmanagedComment
         |package $packageName;
         |
         |$imports
@@ -107,7 +107,7 @@ object ReplicatedEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -170,7 +170,7 @@ object ReplicatedEntitySourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
@@ -264,7 +264,7 @@ object ReplicatedEntitySourceGenerator {
 
       }
 
-    s"""|$managedCodeCommentString
+    s"""|$managedComment
         |package $packageName;
         |
         |$imports
