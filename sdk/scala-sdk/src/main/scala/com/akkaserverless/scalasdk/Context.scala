@@ -16,5 +16,5 @@
 
 package com.akkaserverless.scalasdk
 
-//FIXME
+//FIXME (not extend from javasdk Context?)
 trait Context extends com.akkaserverless.javasdk.Context

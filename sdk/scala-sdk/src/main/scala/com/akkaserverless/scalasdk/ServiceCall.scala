@@ -16,9 +16,32 @@
 
 package com.akkaserverless.scalasdk
 
-//FIXME, basically implement ResolvedServiceMethod and convert to javasdk.
+import com.google.protobuf.Any
+
+/** Represents a call to a service, performed either as a forward, or as an effect. */
 trait ServiceCall {
 
-  //FIXME
-  def impl: com.akkaserverless.javasdk.ServiceCall
+  /**
+   * The reference to the call.
+   *
+   * @return
+   *   The reference to the call.
+   */
+  def ref: ServiceCallRef[_]
+
+  /**
+   * The message to pass to the call when the call is invoked.
+   *
+   * @return
+   *   The message to pass to the call, serialized as an {@link Any}.
+   */
+  def message: Any
+
+  /**
+   * The metadata to pass with the message when the call is invoked.
+   *
+   * @return
+   *   The metadata.
+   */
+  def metadata: Metadata
 }

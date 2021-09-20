@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package com.akkaserverless.scalasdk
 
-import com.akkaserverless.javasdk.PassivationStrategy
+import com.akkaserverless.javasdk.impl.ComponentOptions
 
-import java.time.Duration
+/** Options used for configuring an entity. */
+trait EntityOptions extends ComponentOptions {
 
-private[akkaserverless] case class Timeout private (duration: Option[Duration]) extends PassivationStrategy {
+  /** @return the passivation strategy for an entity */
+  def passivationStrategy: PassivationStrategy
 
-  def this() {
-    this(None) // use the timeout from the default or customized settings
-  }
-
-  def this(duration: Duration) {
-    this(Some(duration))
-  }
+  /**
+   * Create an entity option with the given passivation strategy.
+   *
+   * @param strategy
+   *   to be used
+   * @return
+   *   the entity option
+   */
+  def withPassivationStrategy(strategy: PassivationStrategy): EntityOptions
 }

@@ -1,0 +1,117 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.akkaserverless.scalasdk.impl.valueentity
+
+import java.util.Optional
+
+import scala.jdk.OptionConverters._
+import scala.compat.java8.DurationConverters._
+import com.akkaserverless.javasdk
+import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.PassivationStrategy
+import com.akkaserverless.scalasdk.impl.MetadataImpl
+import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
+import com.akkaserverless.scalasdk.valueentity.CommandContext
+import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
+import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
+import com.google.protobuf.Descriptors
+
+private[scalasdk] class Scala2JavaValueEntityAdapter[S](scalasdkValueEntity: ValueEntity[S])
+    extends javasdk.valueentity.ValueEntity[S] {
+  override def emptyState(): S = scalasdkValueEntity.emptyState
+  override def _internalSetCommandContext(context: Optional[javasdk.valueentity.CommandContext]): Unit =
+    scalasdkValueEntity._internalSetCommandContext(context.map(new Scala2JavaCommandContextAdapter(_)).toScala)
+}
+
+private[scalasdk] class Scala2JavaValueEntityProviderAdapter[S, E <: ValueEntity[S]](
+    scalasdkProvider: ValueEntityProvider[S, E])
+    extends javasdk.valueentity.ValueEntityProvider[S, javasdk.valueentity.ValueEntity[S]] {
+  override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
+    scalasdkProvider.additionalDescriptors.toArray
+  override def entityType(): String = scalasdkProvider.entityType
+  override def newHandler(context: javasdk.valueentity.ValueEntityContext)
+      : javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]] = {
+    val scaladslHandler = scalasdkProvider
+      .newHandler(new Java2ScalaValueEntityContextAdapter(context))
+      .asInstanceOf[ValueEntityHandler[S, ValueEntity[S]]]
+    new Scala2JavaValueEntityHandlerAdapter[S](
+      new Scala2JavaValueEntityAdapter[S](scaladslHandler.entity),
+      scaladslHandler)
+  }
+  override def options(): javasdk.valueentity.ValueEntityOptions = new Scala2JavaValueEntityOptionsAdapter(
+    scalasdkProvider.options)
+  override def serviceDescriptor(): Descriptors.ServiceDescriptor = scalasdkProvider.serviceDescriptor
+}
+
+private[scalasdk] class Scala2JavaValueEntityHandlerAdapter[S](
+    javasdkValueEntity: javasdk.valueentity.ValueEntity[S],
+    scalasdkHandler: ValueEntityHandler[S, ValueEntity[S]])
+    extends javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]](javasdkValueEntity) {
+
+  override def handleCommand(
+      commandName: String,
+      state: S,
+      command: Any,
+      context: javasdk.valueentity.CommandContext): javasdk.valueentity.ValueEntity.Effect[_] = {
+    scalasdkHandler.handleCommand(commandName, state, command, new Scala2JavaCommandContextAdapter(context)) match {
+      case ValueEntityEffectImpl(javasdkEffectImpl) => javasdkEffectImpl
+    }
+  }
+}
+private[scalasdk] class Scala2JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions: ValueEntityOptions)
+    extends javasdk.valueentity.ValueEntityOptions {
+  def forwardHeaders(): java.util.Set[String] = scalasdkValueEntityOptions.forwardHeaders
+  def passivationStrategy(): javasdk.PassivationStrategy = new JavaPassivationStrategyAdapter(
+    scalasdkValueEntityOptions.passivationStrategy)
+  def withForwardHeaders(headers: java.util.Set[String]): javasdk.impl.ComponentOptions =
+    scalasdkValueEntityOptions.withForwardHeaders(headers)
+  def withPassivationStrategy(
+      passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
+    new Scala2JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy))
+}
+
+private[scalasdk] class Scala2JavaCommandContextAdapter(val javasdkContext: javasdk.valueentity.CommandContext)
+    extends CommandContext {
+  override def commandName: String = javasdkContext.commandName()
+
+  override def commandId: Long = javasdkContext.commandId()
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javasdkContext.getGrpcClient(clientClass, service)
+  override def serviceCallFactory(): com.akkaserverless.javasdk.ServiceCallFactory = javasdkContext.serviceCallFactory()
+
+  override def entityId: String = javasdkContext.entityId()
+
+  override def metadata: com.akkaserverless.scalasdk.Metadata =
+    // FIXME can we get rid of this cast?
+    new MetadataImpl(javasdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+}
+
+private[scalasdk] class Java2ScalaValueEntityContextAdapter(javasdkContext: javasdk.valueentity.ValueEntityContext)
+    extends ValueEntityContext {
+  def entityId: String = javasdkContext.entityId()
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javasdkContext.getGrpcClient(clientClass, service)
+  override def serviceCallFactory(): com.akkaserverless.javasdk.ServiceCallFactory = javasdkContext.serviceCallFactory()
+}
+
+private[scalasdk] class JavaPassivationStrategyAdapter(scalasdkPassivationStrategy: PassivationStrategy)
+    extends javasdk.PassivationStrategy {
+  def defaultTimeout() = scalasdkPassivationStrategy.defaultTimeout
+  def timeout(duration: java.time.Duration) = scalasdkPassivationStrategy.timeout(duration.toScala)
+}

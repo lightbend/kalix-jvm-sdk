@@ -16,7 +16,23 @@
 
 package com.akkaserverless.scalasdk.valueentity
 
-import com.akkaserverless.javasdk.valueentity.{ ValueEntityProvider => Impl }
+import scala.collection.immutable
+import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
+import com.google.protobuf.Descriptors
 
-//FIXME possibly The Provider will not delegate to javasdk and we'll duplicate some more code
-class ValueEntityProvider[S, E <: ValueEntity[S]](val impl: Impl[S, E#Impl])
+/**
+ * Register a value based entity in {@link com.akkaserverless.scalasdk.AkkaServerless} using a <code>
+ * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the specific entities
+ * defined in Protobuf, for example <code>CustomerEntityProvider</code>.
+ */
+trait ValueEntityProvider[S, E <: ValueEntity[S]] {
+  def options: ValueEntityOptions
+
+  def serviceDescriptor: Descriptors.ServiceDescriptor
+
+  def entityType: String
+
+  def newHandler(context: ValueEntityContext): ValueEntityHandler[S, E]
+
+  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
+}
