@@ -34,6 +34,12 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
   lazy val typeImport = s"${parent.javaPackage}.$fullName"
   lazy val descriptorImport = s"${parent.javaPackage}.${parent.javaOuterClassname}"
 
+  /**
+   * 'base' name of the file that will contain this fqn relative to the package root,
+   * i.e. 'com/example/MyService'
+   */
+  def fileBasename =
+    parent.javaPackage.replace('.', '/') + "/" + name
 }
 
 object FullyQualifiedName {
@@ -75,6 +81,7 @@ case class PackageNaming(
     javaOuterClassname: String,
     javaMultipleFiles: Boolean) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
+  lazy val scalaPackage: String = javaPackage
 }
 
 object PackageNaming {

@@ -20,7 +20,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
 
-import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator, SourceGenerator }
+import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
@@ -48,8 +48,10 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Compile / PB.targets +=
       gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless",
     Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
-    Compile / PB.targets +=
-      genUnmanaged(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / temporaryUnmanagedDirectory).value,
+    Compile / PB.targets ++= Seq(
+      // TODO allow user to customize options
+      scalapb.gen(grpc = false) -> (Compile / sourceManaged).value / "scalapb",
+      genUnmanaged(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
       genTests(Seq(AkkaserverlessGenerator.enableDebug)) -> (Test / sourceManaged).value / "akkaserverless",

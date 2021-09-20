@@ -16,6 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk
 
+import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact
@@ -51,5 +52,10 @@ object AkkaserverlessGenerator extends CodeGenApp {
   }
 
   // FIXME #382 add reference to the runtime lib here
-  override def suggestedDependencies: Seq[Artifact] = Nil
+  override def suggestedDependencies: Seq[Artifact] = Seq(
+    Artifact(
+      BuildInfo.organization,
+      // FIXME determine scala version properly
+      "akkaserverless-scala-sdk" + "_2.13",
+      BuildInfo.version))
 }

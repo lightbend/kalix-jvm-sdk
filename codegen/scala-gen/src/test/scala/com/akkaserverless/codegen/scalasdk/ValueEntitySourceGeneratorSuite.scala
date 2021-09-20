@@ -18,19 +18,21 @@ package com.akkaserverless.codegen.scalasdk
 
 import com.lightbend.akkasls.codegen.TestData
 
-class SourceGeneratorSuite extends munit.FunSuite {
-  import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator._
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
+  import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
 
-  test("it can generate a simple 'main'") {
-    val main = generateMain(TestData.simple())
-    assertNoDiff(main.name, "com/example/Main.scala")
+  test("it can generate a value entity implementation skeleton") {
+    val file = generateImplementationSkeleton(TestData.valueEntity(), TestData.simpleEntityService())
     assertNoDiff(
-      main.content,
-      s"""package com.example
+      file.content,
+      s"""package com.example.service.domain
          |
-         |object Main extends App {
-         |  println("Hello, world!")
+         |
+         |
+         |class MyValueEntity /* extends AbstractMyValueEntity */ {
+         |  def set(currentState: Unit, command: Unit): Unit = ???
+         |
+         |  def get(currentState: Unit, command: Unit): Unit = ???
          |}
          |""".stripMargin)
   }

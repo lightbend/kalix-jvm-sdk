@@ -1,7 +1,7 @@
 > compile
 $ exists src/main/scala/foo/bar/Baz.scala
-$ exists target/scala-2.12/src_managed/main/akkaserverless/foo/bar/AbstractBaz.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/foo/bar/AbstractBaz.scala
 $ exists src/main/scala/com/example/shoppingcart/Main.scala
 > Test/compile
-$ exists target/scala-2.12/src_managed/test/akkaserverless/foo/bar/BazSpec.scala
-$ absent target/scala-2.12/src_managed/test/akkaserverless/foo/bar/Baz.scala
+$ exists target/scala-2.13/src_managed/test/akkaserverless/foo/bar/BazSpec.scala
+$ absent target/scala-2.13/src_managed/test/akkaserverless/foo/bar/Baz.scala
