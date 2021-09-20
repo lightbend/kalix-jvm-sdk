@@ -56,11 +56,12 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Test / PB.targets +=
       genTests(Seq(AkkaserverlessGenerator.enableDebug)) -> (Test / sourceManaged).value / "akkaserverless",
     Compile / generateUnmanaged := {
+      Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
       (Compile / PB.generate).value
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
-        java.nio.file.Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
+        Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
         Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
     },
     Compile / managedSources :=
@@ -70,7 +71,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
 
   private def copyIfNotExist(from: Path, to: Path): Unit = {
-    java.nio.file.Files
+    Files
       .walk(from)
       .filter(Files.isRegularFile(_))
       .forEach(file => {
