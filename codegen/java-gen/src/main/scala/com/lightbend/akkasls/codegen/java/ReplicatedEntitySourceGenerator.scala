@@ -29,7 +29,7 @@ object ReplicatedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateImports(
+    val imports = generateCommandAndTypeArgumentImports(
       service.commands,
       entity.data.typeArguments,
       packageName,
@@ -86,7 +86,7 @@ object ReplicatedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateImports(
+    val imports = generateCommandAndTypeArgumentImports(
       service.commands,
       entity.data.typeArguments,
       packageName,
@@ -243,7 +243,7 @@ object ReplicatedEntitySourceGenerator {
     val parameterizedDataType = entity.data.name + typeArguments
     val baseClass = s"Replicated${entity.data.shortName}Entity"
 
-    val imports = generateImports(
+    val imports = generateCommandAndTypeArgumentImports(
       service.commands,
       entity.data.typeArguments,
       packageName,

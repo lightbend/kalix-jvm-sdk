@@ -35,28 +35,47 @@ object SourceGenerator {
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManagedTest(model: ModelBuilder.Model): Seq[File] =
-    Seq(File("foo/bar/BazSpec.scala", "package foo.bar\n\nclass BazSpec { new Baz() }"))
+    Seq(File("foo/bar/BazSpec.scala", "package foo.bar\n\nclass BazSpec { new Baz() }")) ++
+    model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName) match {
+            case None =>
+              throw new IllegalStateException(
+                "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
+                "], but no entity configuration is found for that component name")
+            case _ => Nil // FIXME
+          }
+        case service: ModelBuilder.ViewService =>
+          ViewServiceSourceGenerator.generateManaged(service)
+        case _ => Nil // FIXME
+      }
       .map(_.prepend(managedComment))
 
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
    * user.
    */
-  def generateUnmanaged(model: ModelBuilder.Model): Seq[File] =
+  def generateUnmanaged(model: ModelBuilder.Model): Seq[File] = {
     Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"), generateMain(model)) ++
     model.services.values
-      .collect { case service: ModelBuilder.EntityService =>
-        model.entities.get(service.componentFullName) match {
-          case None =>
-            throw new IllegalStateException(
-              "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
-              "], but no entity configuration is found for that component name")
-          case Some(entity: ModelBuilder.ValueEntity) =>
-            ValueEntitySourceGenerator.generateImplementationSkeleton(entity, service)
-          case _ => ???
-        }
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName) match {
+            case None =>
+              throw new IllegalStateException(
+                "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
+                "], but no entity configuration is found for that component name")
+            case Some(entity: ModelBuilder.ValueEntity) =>
+              ValueEntitySourceGenerator.generateImplementationSkeleton(entity, service) :: Nil
+            case _ => Nil // FIXME
+          }
+        case service: ModelBuilder.ViewService =>
+          ViewServiceSourceGenerator.generateUnmanaged(service)
+        case _ => Nil // FIXME
       }
       .map(_.prepend(unmanagedComment))
+  }
 
   def generateMain(model: ModelBuilder.Model): File = {
     val mainPackage = mainPackageName(model.services.keys ++ model.entities.keys)

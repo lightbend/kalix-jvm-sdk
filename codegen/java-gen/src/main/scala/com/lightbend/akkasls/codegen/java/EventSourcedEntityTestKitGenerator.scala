@@ -54,7 +54,7 @@ object EventSourcedEntityTestKitGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -201,7 +201,7 @@ object EventSourcedEntityTestKitGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,

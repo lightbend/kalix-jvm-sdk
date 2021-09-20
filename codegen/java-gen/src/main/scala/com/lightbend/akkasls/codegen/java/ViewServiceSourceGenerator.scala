@@ -74,7 +74,7 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       view.commands,
       view.state,
       packageName,
@@ -125,7 +125,7 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       Nil,
       view.state,
       packageName,

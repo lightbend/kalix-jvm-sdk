@@ -147,7 +147,7 @@ object EntityServiceSourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -316,7 +316,7 @@ object EntityServiceSourceGenerator {
       .flatMap(command => Seq(command.inputType, command.outputType)) ++
       entity.events.map(_.fqn) :+ entity.state.fqn
 
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -425,7 +425,7 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
