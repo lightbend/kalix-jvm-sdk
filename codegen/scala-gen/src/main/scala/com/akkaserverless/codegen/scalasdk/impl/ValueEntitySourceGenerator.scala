@@ -21,6 +21,8 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Syntax
 
 object ValueEntitySourceGenerator {
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val stateType = entity.state.fqn.fullQualifiedName
     val methods = service.commands.map { cmd =>
@@ -47,10 +49,4 @@ object ValueEntitySourceGenerator {
          |}
          |""".stripMargin)
   }
-
-  private def lowerFirst(text: String): String =
-    text.headOption match {
-      case Some(c) => c.toLower.toString + text.drop(1)
-      case None    => ""
-    }
 }
