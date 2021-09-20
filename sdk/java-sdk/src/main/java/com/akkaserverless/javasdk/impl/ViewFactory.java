@@ -32,5 +32,5 @@ public interface ViewFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ViewHandler create(ViewCreationContext context);
+  ViewHandler<?, ?> create(ViewCreationContext context);
 }

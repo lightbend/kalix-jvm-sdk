@@ -16,17 +16,20 @@
 
 package com.akkaserverless.scalasdk.view
 
-import com.google.protobuf.Descriptors
-import scala.collection.immutable
+import com.akkaserverless.javasdk.shoppingcart.ShoppingCart
+import com.akkaserverless.javasdk.shoppingcart.ShoppingCartViewModel
 
-import com.akkaserverless.scalasdk.impl.view.ViewHandler
+// FIXME this can be removed, unless it evolves into usage in tests
 
-trait ViewProvider[S, V <: View[S]] {
-  def serviceDescriptor: Descriptors.ServiceDescriptor
+class ShoppingCartViewServiceImpl extends View[ShoppingCartViewModel.CartViewState] {
+  override def emptyState: ShoppingCartViewModel.CartViewState =
+    ShoppingCartViewModel.CartViewState.getDefaultInstance
 
-  def viewId: String
+  def processAdded(
+      state: ShoppingCartViewModel.CartViewState,
+      event: ShoppingCart.ItemAdded): View.UpdateEffect[ShoppingCartViewModel.CartViewState] = {
+    effects.ignore() // TODO
+  }
 
-  def newHandler(context: ViewCreationContext): ViewHandler[S, V]
-
-  def additionalDescriptors(): immutable.Seq[Descriptors.FileDescriptor]
+  // TODO update methods...
 }

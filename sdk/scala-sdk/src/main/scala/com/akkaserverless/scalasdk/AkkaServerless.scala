@@ -18,15 +18,15 @@ package com.akkaserverless.scalasdk
 
 import scala.concurrent.Future
 import scala.compat.java8.FutureConverters
+
 import akka.Done
 import com.typesafe.config.Config
-
 import com.akkaserverless.javasdk.{ AkkaServerless => Impl }
-
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import com.akkaserverless.scalasdk.impl.view.Scala2JavaViewProviderAdapter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
@@ -137,7 +137,7 @@ class AkkaServerless(impl: Impl) {
    *   This stateful service builder.
    */
   def register[S, V <: View[S]](provider: ViewProvider[S, V]): AkkaServerless =
-    AkkaServerless(impl.register(provider.impl))
+    AkkaServerless(impl.register(new Scala2JavaViewProviderAdapter(provider)))
 
   /**
    * Register an action using an {{@link ActionProvider}}. The concrete <code> ActionProvider</code> is generated for
