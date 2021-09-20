@@ -30,9 +30,9 @@ Consider an example of a Customer Registry service with a `customer` Value Entit
 This example assumes the following `customer` state is defined in a `customer_domain.proto` file:
 
 [source,proto,indent=0]
-.src/main/proto/customer/customer_domain.proto
+.src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
 ----
 
 <1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
@@ -42,9 +42,9 @@ include::example$java-valueentity-customer-registry/src/main/proto/customer/cust
 To get a View of multiple customers by their name, define the View as a `service` in Protobuf:
 
 [source,proto,indent=0]
-.src/main/proto/customer/customer_view.proto
+.src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
 ----
 
 <1> The `UpdateCustomer` method defines how Akka Serverless will update the view.
@@ -60,7 +60,7 @@ If the query should only return one result, remove the `stream` from the return 
 
 [source,proto,indent=0]
 ----
-include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=unary]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
 ----
 
 <1> Without `stream` when expecting single result.
@@ -91,17 +91,17 @@ Create a View from an Event Sourced Entity by using events that the Entity emits
 The example assumes a `customer_domain.proto` file that defines the events that will update the View on name changes:
 
 [source,proto,indent=0]
-.src/main/proto/customer/customer_domain.proto
+.src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_domain.proto[tags=declarations;domain;events]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain;events]
 ----
 
 It also assumes a `customer_api.proto` that defines the state stored in the view and returned by queries:
 
 [source,proto,indent=0]
-.src/main/proto/customer/customer_api.proto
+.src/main/proto/customer/api/customer_api.proto
 ----
-include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_api.proto[tags=declarations;view]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=declarations;view]
 ----
 
 
@@ -112,7 +112,7 @@ The following lines in the `.proto` file define a View to consume the `CustomerC
 [source,proto,indent=0]
 .src/main/proto/customer/customer_view.proto
 ----
-include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-event-sourced]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
 <1> The `akkaserverless.service` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
@@ -164,9 +164,9 @@ include::example$java-eventsourced-customer-registry/src/main/java/customer/Main
 The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
 
 [source,proto,indent=0]
-.src/main/proto/customer/customer_view.proto
+.src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-eventsourced-customer-registry/src/main/proto/customer/customer_view.proto[tags=declarations;service-topic]
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
 ----
 
 <1> This is the only difference from <<event-sourced-entity>>.
@@ -183,7 +183,7 @@ Instead of using `SELECT *` you can define what columns that will be used in the
 
 [source,proto,indent=0]
 ----
-include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=summary]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
 ----
 
 In a similar way, you can include values from the request message in the response, for example `:request_id`:
@@ -199,7 +199,7 @@ Instead of streamed results you can include the results in a repeated field in t
 
 [source,proto,indent=0]
 ----
-include::example$java-valueentity-customer-registry/src/main/proto/customer/customer_view.proto[tag=wrap-repeated]
+include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
 ----
 
 <1> The response message contains a `repeated` field.

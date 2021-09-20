@@ -12,9 +12,9 @@ an Action that will take the incoming `Increase` command, double its value and f
 Note that in this example we are adding an Action to an existing service, the xref:value-entity.adoc[Value Entity Counter] service.
 
 [source,protobuf,indent=0]
-.src/main/proto/actions/double-counter.proto
+.src/main/proto/com/example/actions/double-counter.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/actions/double-counter.proto[tag=double-action-proto]
+include::example$java-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=double-action-proto]
 ----
 <1> Import the Counter API definition
 <2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.

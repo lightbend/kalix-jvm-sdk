@@ -25,9 +25,9 @@ NOTE: Our Replicated Entity example is a shopping cart service.
 The following `shoppingcart_domain.proto` file defines our "Shopping Cart" Replicated Entity. The entity manages line items of a cart and stores these as a <<_replicated_counter_map>>, mapping from each item's product details to its quantity. The counter for each item can be incremented independently in separate Replicated Entity instances and will converge to a total quantity.
 
 [source,proto]
-.src/main/proto/shoppingcart/shoppingcart_domain.proto
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[]
+include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
 ----
 
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
@@ -44,9 +44,9 @@ NOTE: Each Replicated Entity is associated with one underlying Replicated Data t
 The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
 
 [source,proto]
-.src/main/proto/shoppingcart/shoppingcart_api.proto
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[]
+include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
 <2> Import the Akka Serverless protobuf annotations, or options.
@@ -153,9 +153,9 @@ A link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Replicat
 To configure a Replicated Entity with a Replicated Counter, use the `replicated_counter` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/counter_domain.proto
+.src/main/proto/com/example/replicated/counter/domain/counter_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/counter_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/counter/domain/counter_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Counter.
@@ -192,9 +192,9 @@ ifdef::todo[TODO: configuring clocks for register replication]
 To configure a Replicated Entity with a Replicated Register, use the `replicated_register` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/register_domain.proto
+.src/main/proto/com/example/replicated/register/domain/register_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/register_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/register/domain/register_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register.
@@ -242,9 +242,9 @@ A link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Replicat
 To configure a Replicated Entity with a Replicated Set, use the `replicated_set` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/set_domain.proto
+.src/main/proto/com/example/replicated/set/domain/set_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/set_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/set/domain/set_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Set.
@@ -284,9 +284,9 @@ A link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Replicat
 To configure a Replicated Entity with a Replicated Counter Map, use the `replicated_counter_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/counter_map_domain.proto
+.src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/counter_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Counter Map.
@@ -329,9 +329,9 @@ ifdef::todo[TODO: configuring clocks for register replication]
 To configure a Replicated Entity with a Replicated Register Map, use the `replicated_register_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/register_map_domain.proto
+.src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/register_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Register Map.
@@ -376,9 +376,9 @@ A link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/Replicat
 To configure a Replicated Entity with a Replicated Multi-Map, use the `replicated_multi_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/multi_map_domain.proto
+.src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/multi_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Multi-Map.
@@ -420,9 +420,9 @@ NOTE: Prefer to use the specialized replicated maps (<<_replicated_counter_map>>
 To configure a Replicated Entity with a (heterogeneous) Replicated Map, use the `replicated_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
 
 [source,proto]
-.src/main/proto/replicated/map_domain.proto
+.src/main/proto/com/example/replicated/map/domain/map_domain.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/replicated/map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/map/domain/map_domain.proto[tag=replicated_entity]
 ----
 
 <1> Specify the Replicated Data type as a Replicated Map.
