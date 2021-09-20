@@ -17,11 +17,13 @@
 package com.lightbend.akkasls.codegen
 
 import com.google.protobuf.{ DescriptorProtos, Descriptors }
-
 import java.io.{ File, FileInputStream, FileNotFoundException, IOException }
 import java.util.logging.{ Level, Logger }
+
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Using }
+
+import com.akkaserverless.Annotations
 import com.google.protobuf.ExtensionRegistry
 
 /**
@@ -53,9 +55,7 @@ object DescriptorSet {
     Using[FileInputStream, Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]]](
       new FileInputStream(file)) { fis =>
       val registry = ExtensionRegistry.newInstance()
-      registry.add(com.akkaserverless.Annotations.service)
-      registry.add(com.akkaserverless.Annotations.file)
-      registry.add(com.akkaserverless.Annotations.method)
+      Annotations.registerAllExtensions(registry)
 
       Right(try {
         val descriptorProtos =
