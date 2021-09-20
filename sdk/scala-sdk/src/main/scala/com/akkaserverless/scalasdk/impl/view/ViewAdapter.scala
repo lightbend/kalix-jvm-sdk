@@ -64,7 +64,7 @@ private[scalasdk] class Scala2JavaViewHandlerAdapter[S](
 
   override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
     scalasdkHandler.handleUpdate(commandName, state, event) match {
-      case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavasdk
+      case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
     }
   }
 }
