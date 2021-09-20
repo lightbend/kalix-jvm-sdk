@@ -18,6 +18,8 @@ package com.akkaserverless.codegen.scalasdk
 
 import com.lightbend.akkasls.codegen.ModelBuilder
 
+import scala.annotation.tailrec
+
 object SourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
@@ -26,14 +28,14 @@ object SourceGenerator {
    */
   def generateManaged(model: ModelBuilder.Model): Seq[File] =
     Seq(File("foo/bar/AbstractBaz.scala", "package foo.bar\n\nabstract class AbstractBaz"))
-      .map(_.prependComment(managedComment))
+      .map(_.prepend(managedComment))
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManagedTest(model: ModelBuilder.Model): Seq[File] =
     Seq(File("foo/bar/BazSpec.scala", "package foo.bar\n\nclass BazSpec { new Baz() }"))
-      .map(_.prependComment(managedComment))
+      .map(_.prepend(managedComment))
 
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
@@ -41,7 +43,7 @@ object SourceGenerator {
    */
   def generateUnmanaged(model: ModelBuilder.Model): Seq[File] =
     Seq(File("foo/bar/Baz.scala", "package foo.bar\n\nclass Baz extends AbstractBaz"), generateMain(model))
-      .map(_.prependComment(unmanagedComment))
+      .map(_.prepend(unmanagedComment))
 
   def generateMain(model: ModelBuilder.Model): File = {
     val mainPackage = mainPackageName(model.services.keys ++ model.entities.keys)
