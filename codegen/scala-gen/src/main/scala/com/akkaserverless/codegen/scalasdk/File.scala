@@ -17,6 +17,6 @@
 package com.akkaserverless.codegen.scalasdk
 
 case class File(name: String, content: String) {
-  def prependComment(comment: String): File =
-    copy(content = comment + "\n" + content)
+  def prepend(s: String): File =
+    copy(content = s + "\n" + content)
 }
