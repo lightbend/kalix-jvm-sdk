@@ -18,7 +18,6 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
-import scalapb.compiler.DescriptorImplicits
 
 import scala.annotation.tailrec
 
