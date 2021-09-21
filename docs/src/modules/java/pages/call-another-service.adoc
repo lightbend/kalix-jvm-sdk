@@ -17,9 +17,9 @@ Copy the API definition proto file from the other service into the `proto` direc
 This is how the counter descriptor looks with all annotations removed:
 
 [source,protobuf,indent=0]
-.src/main/proto/counter_api.proto
+.src/main/proto/com/example/counter_api.proto
 ----
-include::java:example$java-doc-snippets/src/main/proto/counter_api.proto[tag=other-service-api]
+include::java:example$java-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
 ----
 
 The Akka gRPC `protocPlugin` will now generate Akka gRPC service interface and client classes when we compile the project. In this case the service interface `com.example.CounterService` client class `com.example.CounterServiceClient` is generated.
@@ -28,7 +28,7 @@ Creating an instance of the service is done for us, by calling the `getGrpcClien
 
 In our delegating service implementation:
 
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/java/com/example/DelegatingServiceAction.java
 ----
 include::java:example$java-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]

@@ -24,9 +24,9 @@ NOTE: Our Event Sourced Entity example is a shopping cart service.
 The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sourced Entity. The entity manages line items of a cart and stores events `ItemAdded` and `ItemRemoved` to represent changes to the cart. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [source,proto]
-.src/main/proto/shoppingcart/shoppingcart_domain.proto
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=domain]
+include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
@@ -41,9 +41,9 @@ include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/sho
 The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
 
 [source,proto]
-.src/main/proto/shoppingcart/shoppingcart_api.proto
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto[]
+include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
 <2> Import the Akka Serverless protobuf annotations or options.
@@ -102,9 +102,9 @@ include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shopp
 Note that you have to define the events in the `(akkaserverless.file).event_sourced_entity`:
 
 [source,proto]
-.src/main/proto/shoppingcart/shoppingcart_domain.proto
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto[tag=event_sourced_entity]
+include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=event_sourced_entity]
 ----
 
 === Retrieving state

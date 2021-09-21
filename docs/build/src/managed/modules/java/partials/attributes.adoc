@@ -1,4 +1,4 @@
-:akkaserverless-java-sdk-version: 0.7.1
+:akkaserverless-java-sdk-version: 0.7.2
 :minimum-java-version: 8
 :recommended-java-version: 11
 :java_minimum_sdk_version: 0.7.0

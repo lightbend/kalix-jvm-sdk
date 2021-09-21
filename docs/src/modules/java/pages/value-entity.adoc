@@ -21,9 +21,9 @@ NOTE: Our Value Entity example starts with the "Counter" service as included in 
 The following `counter_domain.proto` file defines our "Counter" Value Entity. The entity stores an integer value as represented in the message `CounterState`. Real world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [source,proto]
-.src/main/proto/value-entities/counter_domain.proto
+.src/main/proto/com/example/domain/counter_domain.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/value-entities/counter_domain.proto[]
+include::example$java-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
@@ -38,9 +38,9 @@ include::example$java-valueentity-counter/src/main/proto/value-entities/counter_
 The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state. They make up the service API:
 
 [source,proto]
-.src/main/proto/value-entities/counter_api.proto
+.src/main/proto/com/example/counter_api.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/value-entities/counter_api.proto[]
+include::example$java-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example`.
 <2> Import the Akka Serverless protobuf annotations, or options.
