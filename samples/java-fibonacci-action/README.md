@@ -25,22 +25,17 @@ In order to run your application locally, you must run the Akka Serverless proxy
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-
-```shell
-docker compose up
+```
+docker-compose up
 ```
 
 > On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
 > or for a `USER_FUNCTION_HOST` environment variable to be set manually.
 
-```shell
-docker compose -f docker-compose.yml -f docker-compose.linux.yml up
-```
-
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
-```shell
-mvn compile exec:java
+```
+mvn compile exec:exec
 ```
 
 For further details see [Running a service locally](https://developer.lightbend.com/docs/akka-serverless/developing/running-service-locally.html) in the documentation.
