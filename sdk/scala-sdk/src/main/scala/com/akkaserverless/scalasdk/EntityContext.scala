@@ -17,8 +17,7 @@
 package com.akkaserverless.scalasdk
 
 /**
- * FIXME, check if these mini interfaces are needed. Root context for all contexts that pertain to entities, that is,
- * things that are addressable via an entity id.
+ * Root context for all contexts that pertain to entities, that is, things that are addressable via an entity id.
  */
 trait EntityContext extends Context {
 
