@@ -18,7 +18,6 @@ package com.akkaserverless.scalasdk
 
 import scala.compat.java8.DurationConverters._
 import scala.concurrent.duration.FiniteDuration
-import com.akkaserverless.javasdk.impl.Timeout
 
 /** A passivation strategy. */
 object PassivationStrategy extends PassivationStrategy
@@ -32,7 +31,7 @@ trait PassivationStrategy {
    * @return
    *   the passivation strategy
    */
-  def defaultTimeout = new Timeout()
+  def defaultTimeout: PassivationStrategy = Timeout(None)
 
   /**
    * Create a passivation strategy that passivates the entity after a given duration of inactivity.
@@ -42,5 +41,7 @@ trait PassivationStrategy {
    * @return
    *   the passivation strategy
    */
-  def timeout(duration: FiniteDuration) = new Timeout(duration.toJava)
+  def timeout(duration: FiniteDuration): PassivationStrategy = Timeout(Some(duration))
 }
+
+private[akkaserverless] case class Timeout(duration: Option[FiniteDuration]) extends PassivationStrategy
