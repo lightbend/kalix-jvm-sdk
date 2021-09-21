@@ -55,19 +55,19 @@ For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 * Send an AddItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCartApi/AddItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCart/AddItem
 ```
 
 * Send a GetCart command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.ShoppingCartApi/GetCart
+grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.ShoppingCart/GetCart
 ```
 
 * Send a RemoveItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCartApi/RemoveItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCart/RemoveItem
 ```
 
 ## Deploying
