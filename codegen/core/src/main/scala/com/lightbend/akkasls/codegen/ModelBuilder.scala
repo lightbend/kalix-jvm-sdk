@@ -41,7 +41,15 @@ object ModelBuilder {
   /**
    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
    */
-  case class Model(services: Map[String, Service], entities: Map[String, Entity])
+  case class Model(services: Map[String, Service], entities: Map[String, Entity]) {
+    def lookupEntity(service: EntityService): Entity = {
+      entities.getOrElse(
+        service.componentFullName,
+        throw new IllegalArgumentException(
+          "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
+          "], but no entity configuration is found for that component name"))
+    }
+  }
 
   /**
    * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.

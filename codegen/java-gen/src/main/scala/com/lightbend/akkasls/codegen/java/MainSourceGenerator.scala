@@ -31,7 +31,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen._
 
 /**
- * Responsible for generating Main and AkkaServerless Java source from an entity model
+ * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
  */
 object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
