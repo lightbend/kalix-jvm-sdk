@@ -33,14 +33,14 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
 
-private[scalasdk] class Scala2JavaValueEntityAdapter[S](scalasdkValueEntity: ValueEntity[S])
+private[scalasdk] class JavaValueEntityAdapter[S](scalasdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
   override def emptyState(): S = scalasdkValueEntity.emptyState
   override def _internalSetCommandContext(context: Optional[javasdk.valueentity.CommandContext]): Unit =
-    scalasdkValueEntity._internalSetCommandContext(context.map(new Scala2JavaCommandContextAdapter(_)).toScala)
+    scalasdkValueEntity._internalSetCommandContext(context.map(new JavaCommandContextAdapter(_)).toScala)
 }
 
-private[scalasdk] class Scala2JavaValueEntityProviderAdapter[S, E <: ValueEntity[S]](
+private[scalasdk] class JavaValueEntityProviderAdapter[S, E <: ValueEntity[S]](
     scalasdkProvider: ValueEntityProvider[S, E])
     extends javasdk.valueentity.ValueEntityProvider[S, javasdk.valueentity.ValueEntity[S]] {
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
@@ -49,18 +49,16 @@ private[scalasdk] class Scala2JavaValueEntityProviderAdapter[S, E <: ValueEntity
   override def newHandler(context: javasdk.valueentity.ValueEntityContext)
       : javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]] = {
     val scaladslHandler = scalasdkProvider
-      .newHandler(new Java2ScalaValueEntityContextAdapter(context))
+      .newHandler(new ScalaValueEntityContextAdapter(context))
       .asInstanceOf[ValueEntityHandler[S, ValueEntity[S]]]
-    new Scala2JavaValueEntityHandlerAdapter[S](
-      new Scala2JavaValueEntityAdapter[S](scaladslHandler.entity),
-      scaladslHandler)
+    new JavaValueEntityHandlerAdapter[S](new JavaValueEntityAdapter[S](scaladslHandler.entity), scaladslHandler)
   }
-  override def options(): javasdk.valueentity.ValueEntityOptions = new Scala2JavaValueEntityOptionsAdapter(
+  override def options(): javasdk.valueentity.ValueEntityOptions = new JavaValueEntityOptionsAdapter(
     scalasdkProvider.options)
   override def serviceDescriptor(): Descriptors.ServiceDescriptor = scalasdkProvider.serviceDescriptor
 }
 
-private[scalasdk] class Scala2JavaValueEntityHandlerAdapter[S](
+private[scalasdk] class JavaValueEntityHandlerAdapter[S](
     javasdkValueEntity: javasdk.valueentity.ValueEntity[S],
     scalasdkHandler: ValueEntityHandler[S, ValueEntity[S]])
     extends javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]](javasdkValueEntity) {
@@ -70,12 +68,12 @@ private[scalasdk] class Scala2JavaValueEntityHandlerAdapter[S](
       state: S,
       command: Any,
       context: javasdk.valueentity.CommandContext): javasdk.valueentity.ValueEntity.Effect[_] = {
-    scalasdkHandler.handleCommand(commandName, state, command, new Scala2JavaCommandContextAdapter(context)) match {
+    scalasdkHandler.handleCommand(commandName, state, command, new JavaCommandContextAdapter(context)) match {
       case ValueEntityEffectImpl(javasdkEffectImpl) => javasdkEffectImpl
     }
   }
 }
-private[scalasdk] class Scala2JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions: ValueEntityOptions)
+private[scalasdk] class JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions: ValueEntityOptions)
     extends javasdk.valueentity.ValueEntityOptions {
   def forwardHeaders(): java.util.Set[String] = scalasdkValueEntityOptions.forwardHeaders
   def passivationStrategy(): javasdk.PassivationStrategy = new JavaPassivationStrategyAdapter(
@@ -84,10 +82,10 @@ private[scalasdk] class Scala2JavaValueEntityOptionsAdapter(scalasdkValueEntityO
     scalasdkValueEntityOptions.withForwardHeaders(headers)
   def withPassivationStrategy(
       passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
-    new Scala2JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy))
+    new JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy))
 }
 
-private[scalasdk] class Scala2JavaCommandContextAdapter(val javasdkContext: javasdk.valueentity.CommandContext)
+private[scalasdk] class JavaCommandContextAdapter(val javasdkContext: javasdk.valueentity.CommandContext)
     extends CommandContext {
   override def commandName: String = javasdkContext.commandName()
 
@@ -104,7 +102,7 @@ private[scalasdk] class Scala2JavaCommandContextAdapter(val javasdkContext: java
     new MetadataImpl(javasdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 }
 
-private[scalasdk] class Java2ScalaValueEntityContextAdapter(javasdkContext: javasdk.valueentity.ValueEntityContext)
+private[scalasdk] class ScalaValueEntityContextAdapter(javasdkContext: javasdk.valueentity.ValueEntityContext)
     extends ValueEntityContext {
   def entityId: String = javasdkContext.entityId()
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =

@@ -24,7 +24,6 @@ import com.google.protobuf.Descriptors
  * @tparam T
  *   The type of message the call accepts.
  */
-//FIXME not sure if needed, Context returns 'javasdk' version.
 trait ServiceCallRef[T] {
 
   /**

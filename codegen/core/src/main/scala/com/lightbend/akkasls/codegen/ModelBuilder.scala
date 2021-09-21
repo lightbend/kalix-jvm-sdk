@@ -32,7 +32,10 @@ object ModelBuilder {
    * (an alternative implementation could have been to pass the descriptor into FullyQualifiedName and put the logic on
    * the 'read side', but that makes testing with programmatically-generated names harder)
    */
-  type FullyQualifiedNameExtractor = Descriptors.GenericDescriptor => FullyQualifiedName
+  abstract class FullyQualifiedNameExtractor {
+    def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName
+    def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming
+  }
 
   /**
    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
@@ -57,8 +60,13 @@ object ModelBuilder {
   /**
    * A type of Entity that stores its current state directly.
    */
-  case class ValueEntity(override val fqn: FullyQualifiedName, override val entityType: String, state: State)
-      extends Entity(fqn, entityType)
+  case class ValueEntity(
+      // TODO this should probably be promoted to Entity level
+      val componentFullName: String,
+      override val fqn: FullyQualifiedName,
+      override val entityType: String,
+      state: State)
+      extends Entity(fqn, entityType) {}
 
   /**
    * A type of Entity that replicates its current state using CRDTs.
@@ -247,12 +255,12 @@ object ModelBuilder {
       outToTopic: Boolean)
 
   object Command {
-    def from(method: Descriptors.MethodDescriptor)(implicit e: FullyQualifiedNameExtractor): Command = {
+    def from(method: Descriptors.MethodDescriptor)(implicit fqnExtractor: FullyQualifiedNameExtractor): Command = {
       val eventing = method.getOptions.getExtension(com.akkaserverless.Annotations.method).getEventing
       Command(
         method.getName,
-        method.getInputType,
-        method.getOutputType,
+        fqnExtractor(method.getInputType),
+        fqnExtractor(method.getOutputType),
         streamedInput = method.isClientStreaming,
         streamedOutput = method.isServerStreaming,
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
@@ -282,8 +290,9 @@ object ModelBuilder {
    * @return
    *   the entities found
    */
-  def introspectProtobufClasses(
-      descriptors: Iterable[Descriptors.FileDescriptor])(implicit log: Log, e: FullyQualifiedNameExtractor): Model =
+  def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Model =
     descriptors.foldLeft(Model(Map.empty, Map.empty)) { case (Model(existingServices, existingEntities), descriptor) =>
       log.debug("Looking at descriptor " + descriptor.getName)
       val services = for {
@@ -292,7 +301,7 @@ object ModelBuilder {
           .getOptions()
           .getExtension(com.akkaserverless.Annotations.service)
         serviceType <- Option(options.getType())
-        serviceName = serviceDescriptor
+        serviceName = fqnExtractor(serviceDescriptor)
 
         methods = serviceDescriptor.getMethods.asScala
         commands = methods.map(Command.from)
@@ -340,7 +349,7 @@ object ModelBuilder {
         existingServices ++ services,
         existingEntities ++
         extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
-        extractValueEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
+        extractValueEntityDefinition(descriptor).map(entity => entity.componentFullName -> entity) ++
         extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
     }
 
@@ -397,17 +406,19 @@ object ModelBuilder {
    *   the file descriptor to extract from
    */
   private def extractValueEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
-      log: Log): Option[ValueEntity] = {
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Option[ValueEntity] = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
     log.debug("Raw value entity name: " + rawEntity.getName)
 
-    val protoReference = PackageNaming.from(descriptor)
+    val protoReference = fqnExtractor.packageName(descriptor)
 
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       ValueEntity(
+        descriptor.getFile.getPackage + "." + name,
         FullyQualifiedName(name, protoReference),
         rawEntity.getEntityType,
         State(FullyQualifiedName(rawEntity.getState, protoReference)))

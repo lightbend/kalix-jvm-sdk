@@ -48,7 +48,7 @@ object ValueEntity {
        *   The payload of the reply.
        * @return
        *   A message reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def reply[T](message: T): Effect[T]
@@ -62,7 +62,7 @@ object ValueEntity {
        *   The metadata for the message.
        * @return
        *   A message reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def reply[T](message: T, metadata: Metadata): Effect[T]
@@ -74,7 +74,7 @@ object ValueEntity {
        *   The service call representing the forward.
        * @return
        *   A forward reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def forward[T](serviceCall: ServiceCall): Effect[T]
@@ -86,7 +86,7 @@ object ValueEntity {
        *   The description of the error.
        * @return
        *   An error reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def error[T](description: String): Effect[T]
@@ -98,7 +98,7 @@ object ValueEntity {
        *
        * @return
        *   The reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def noReply[T]: Effect[T]
@@ -107,13 +107,13 @@ object ValueEntity {
     trait OnSuccessBuilder[S] {
 
       /**
-       * Reply after for example <code>updateState</code>.
+       * Reply after for example `updateState`.
        *
        * @param message
        *   The payload of the reply.
        * @return
        *   A message reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenReply[T](message: T): Effect[T]
@@ -127,7 +127,7 @@ object ValueEntity {
        *   The metadata for the message.
        * @return
        *   A message reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenReply[T](message: T, metadata: Metadata): Effect[T]
@@ -139,7 +139,7 @@ object ValueEntity {
        *   The service call representing the forward.
        * @return
        *   A forward reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenForward[T](serviceCall: ServiceCall): Effect[T]
@@ -151,7 +151,7 @@ object ValueEntity {
        *
        * @return
        *   The reply.
-       * @param [T]
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenNoReply[T]: Effect[T]
@@ -161,7 +161,7 @@ object ValueEntity {
   /**
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
-   * @param [T]
+   * @tparam T
    *   The type of the message that must be returned by this call.
    */
   trait Effect[T] {
