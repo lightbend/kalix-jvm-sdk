@@ -24,7 +24,7 @@ object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
-    val imports =
+    implicit val imports =
       generateImports(
         Seq(entity.state.fqn) ++
         service.commands.map(_.inputType) ++
@@ -36,13 +36,8 @@ object ValueEntitySourceGenerator {
 
     val methods = service.commands.map { cmd =>
       // TODO 'override', use 'effect' for output, use actual state type for state
-      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(
-        entity.state.fqn,
-        entity.fqn.parent,
-        imports)}, command: ${typeName(cmd.inputType, entity.fqn.parent, imports)}): ${typeName(
-        cmd.outputType,
-        entity.fqn.parent,
-        imports)} = ???
+      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(entity.state.fqn)}, command: ${typeName(
+        cmd.inputType)}): ${typeName(cmd.outputType)} = ???
           |""".stripMargin
     }
 

@@ -94,12 +94,24 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
+  class Imports(val currentPackage: String, val imports: Seq[String], val semi: Boolean) {
+    def contains(imp: String) = imports.contains(imp)
+
+    override def toString = {
+      val suffix = if (semi) ";" else ""
+      imports
+        .map(pkg => s"import $pkg$suffix")
+        .mkString("\n")
+    }
+
+  }
+
   def generateImports(
       types: Iterable[FullyQualifiedName],
       packageName: String,
       otherImports: Seq[String],
       packageImports: Seq[String] = Seq.empty,
-      semi: Boolean = true): String = {
+      semi: Boolean = true): Imports = {
     val messageTypeImports = types
       .filterNot { typ =>
         typ.parent.javaPackage == packageName
@@ -109,10 +121,7 @@ object SourceGeneratorUtils {
       }
       .map(typeImport)
 
-    val suffix = if (semi) ";" else ""
-    (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted
-      .map(pkg => s"import $pkg$suffix")
-      .mkString("\n")
+    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted, semi)
   }
 
   def generateCommandImports(
@@ -120,7 +129,7 @@ object SourceGeneratorUtils {
       state: State,
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): String = {
+      semi: Boolean = true): Imports = {
     val types = commandTypes(commands) :+ state.fqn
     generateImports(types, packageName, otherImports, Seq.empty, semi)
   }
@@ -130,7 +139,7 @@ object SourceGeneratorUtils {
       typeArguments: Iterable[TypeArgument],
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): String = {
+      semi: Boolean = true): Imports = {
     val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
       fqn
     }
@@ -145,10 +154,9 @@ object SourceGeneratorUtils {
   def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 
-  def typeName(fqn: FullyQualifiedName, currentPackage: PackageNaming, importString: String): String = {
-    val imports = importString.filter(_ != ';').split("\n").map(_.replace("import ", ""))
+  def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
     if (imports.contains(fqn.fullQualifiedName)) fqn.name
-    else if (currentPackage.javaPackage == fqn.parent.javaPackage) fqn.name
+    else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
     else if (imports.contains(fqn.parent.javaPackage))
       fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
     else fqn.fullQualifiedName
