@@ -18,13 +18,14 @@ package com.akkaserverless.scalasdk.impl.valueentity
 
 import java.util.Optional
 
-import scala.jdk.OptionConverters._
 import scala.compat.java8.DurationConverters._
+import scala.jdk.OptionConverters._
+
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.PassivationStrategy
+import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataImpl
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
+import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
@@ -91,7 +92,8 @@ private[scalasdk] class JavaCommandContextAdapter(val javasdkContext: javasdk.va
   override def commandId: Long = javasdkContext.commandId()
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javasdkContext.getGrpcClient(clientClass, service)
-  override def serviceCallFactory(): com.akkaserverless.javasdk.ServiceCallFactory = javasdkContext.serviceCallFactory()
+  override def serviceCallFactory: ServiceCallFactory =
+    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
 
   override def entityId: String = javasdkContext.entityId()
 
@@ -105,7 +107,8 @@ private[scalasdk] class ScalaValueEntityContextAdapter(javasdkContext: javasdk.v
   def entityId: String = javasdkContext.entityId()
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javasdkContext.getGrpcClient(clientClass, service)
-  override def serviceCallFactory(): com.akkaserverless.javasdk.ServiceCallFactory = javasdkContext.serviceCallFactory()
+  override def serviceCallFactory: ServiceCallFactory =
+    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
 }
 
 private[scalasdk] class JavaPassivationStrategyAdapter(scalasdkPassivationStrategy: PassivationStrategy)

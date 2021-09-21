@@ -17,16 +17,15 @@
 package com.akkaserverless.scalasdk
 
 import scala.concurrent.Future
-import scala.compat.java8.FutureConverters
 
 import akka.Done
-import com.typesafe.config.Config
 import com.akkaserverless.javasdk.{ AkkaServerless => Impl }
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
+import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
 import com.akkaserverless.scalasdk.impl.view.Scala2JavaViewProviderAdapter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
@@ -35,6 +34,7 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewProvider
+import com.typesafe.config.Config
 
 object AkkaServerless {
   def apply(impl: Impl) = new AkkaServerless(impl)
@@ -148,7 +148,7 @@ class AkkaServerless(impl: Impl) {
    *   This stateful service builder.
    */
   def register[A <: Action](provider: ActionProvider[A]): AkkaServerless =
-    AkkaServerless(impl.register(provider.impl))
+    AkkaServerless(impl.register(JavaActionProviderAdapter(provider)))
 
   /**
    * Starts a server with the configured entities.

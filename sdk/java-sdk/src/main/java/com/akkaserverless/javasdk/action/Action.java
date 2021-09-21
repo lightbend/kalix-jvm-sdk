@@ -41,7 +41,7 @@ public abstract class Action {
   }
 
   /** INTERNAL API */
-  public final void _internalSetActionContext(Optional<ActionContext> context) {
+  public void _internalSetActionContext(Optional<ActionContext> context) {
     actionContext = context;
   }
 

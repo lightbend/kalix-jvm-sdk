@@ -16,17 +16,6 @@
 
 package com.akkaserverless.scalasdk.action
 
-import scala.collection.immutable
+import com.akkaserverless.scalasdk.Context
 
-import com.akkaserverless.scalasdk.impl.action.ActionHandler
-import com.google.protobuf.Descriptors
-
-trait ActionProvider[A <: Action] {
-  def options: ActionOptions
-
-  def serviceDescriptor: Descriptors.ServiceDescriptor
-
-  def newHandler(context: ActionCreationContext): ActionHandler[A]
-
-  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
-}
+trait ActionCreationContext extends Context {}

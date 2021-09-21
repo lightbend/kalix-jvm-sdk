@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package com.akkaserverless.scalasdk.impl.action
 
-import scala.collection.immutable
+import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.action.MessageEnvelope
 
-import com.akkaserverless.scalasdk.impl.action.ActionHandler
-import com.google.protobuf.Descriptors
-
-trait ActionProvider[A <: Action] {
-  def options: ActionOptions
-
-  def serviceDescriptor: Descriptors.ServiceDescriptor
-
-  def newHandler(context: ActionCreationContext): ActionHandler[A]
-
-  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
-}
+case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]

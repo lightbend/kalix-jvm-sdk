@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import akka.dispatch.ExecutionContexts
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect

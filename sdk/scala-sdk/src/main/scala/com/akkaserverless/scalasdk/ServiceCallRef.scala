@@ -16,7 +16,6 @@
 
 package com.akkaserverless.scalasdk
 
-import com.akkaserverless.javasdk
 import com.google.protobuf.Descriptors
 
 /**

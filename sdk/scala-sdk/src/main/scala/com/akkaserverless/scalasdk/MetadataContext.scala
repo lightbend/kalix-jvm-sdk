@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk
 
 /** Context that provides access to metadata. */
-trait MetadataContext {
+trait MetadataContext extends Context {
 
   /** Get the metadata associated with this context. */
   def metadata: Metadata
