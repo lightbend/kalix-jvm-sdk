@@ -16,33 +16,42 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import com.google.protobuf.Descriptors
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.FullyQualifiedName
-import scalapb.compiler.DescriptorImplicits
-import scalapb.descriptors.ScalaType
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
+    val imports =
+      generateImports(
+        Seq(entity.state.fqn) ++
+        service.commands.map(_.inputType) ++
+        service.commands.map(_.outputType),
+        entity.fqn.parent.scalaPackage,
+        otherImports = Seq.empty,
+        packageImports = Seq(service.fqn.parent.scalaPackage),
+        semi = false)
+
     val methods = service.commands.map { cmd =>
       // TODO 'override', use 'effect' for output, use actual state type for state
-      s"""|def ${lowerFirst(cmd.name)}(currentState: ${entity.state.fqn.fullQualifiedName}, command: ${cmd.inputType.name}): ${cmd.outputType.name} = ???
+      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(
+        entity.state.fqn,
+        entity.fqn.parent,
+        imports)}, command: ${typeName(cmd.inputType, entity.fqn.parent, imports)}): ${typeName(
+        cmd.outputType,
+        entity.fqn.parent,
+        imports)} = ???
           |""".stripMargin
     }
-    val imports =
-      (service.commands.map(_.inputType.fullQualifiedName) ++
-        service.commands.map(_.outputType.fullQualifiedName)).toSet.toList.sorted
 
     File(
       entity.fqn.fileBasename + ".scala",
       s"""
-         |package ${entity.fqn.parent.javaPackage}
+         |package ${entity.fqn.parent.scalaPackage}
          |
-         |${imports.map(i => s"import $i").mkString("\n")}
+         |$imports
          |
          |class ${entity.fqn.name} /* extends Abstract${entity.fqn.name} */ {
          |  ${Format.indent(methods, 2)}

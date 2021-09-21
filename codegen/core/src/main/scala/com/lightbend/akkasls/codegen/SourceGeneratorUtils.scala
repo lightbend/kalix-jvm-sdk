@@ -80,7 +80,8 @@ object SourceGeneratorUtils {
   def typeImport(fullyQualifiedName: FullyQualifiedName): String = {
     val name =
       if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
-      else fullyQualifiedName.parent.javaOuterClassname
+      else if (fullyQualifiedName.parent.javaOuterClassname.nonEmpty) fullyQualifiedName.parent.javaOuterClassname
+      else fullyQualifiedName.name
     s"${fullyQualifiedName.parent.javaPackage}.$name"
   }
 
@@ -97,15 +98,19 @@ object SourceGeneratorUtils {
       types: Iterable[FullyQualifiedName],
       packageName: String,
       otherImports: Seq[String],
+      packageImports: Seq[String] = Seq.empty,
       semi: Boolean = true): String = {
     val messageTypeImports = types
       .filterNot { typ =>
         typ.parent.javaPackage == packageName
       }
+      .filterNot { typ =>
+        packageImports.contains(typ.parent.javaPackage)
+      }
       .map(typeImport)
 
     val suffix = if (semi) ";" else ""
-    (messageTypeImports ++ otherImports).toSeq.distinct.sorted
+    (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted
       .map(pkg => s"import $pkg$suffix")
       .mkString("\n")
   }
@@ -117,7 +122,7 @@ object SourceGeneratorUtils {
       otherImports: Seq[String],
       semi: Boolean = true): String = {
     val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports, semi)
+    generateImports(types, packageName, otherImports, Seq.empty, semi)
   }
 
   def generateCommandAndTypeArgumentImports(
@@ -129,7 +134,7 @@ object SourceGeneratorUtils {
     val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
       fqn
     }
-    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), semi)
+    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), Seq.empty, semi)
   }
 
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
@@ -139,4 +144,13 @@ object SourceGeneratorUtils {
 
   def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
+
+  def typeName(fqn: FullyQualifiedName, currentPackage: PackageNaming, importString: String): String = {
+    val imports = importString.filter(_ != ';').split("\n").map(_.replace("import ", ""))
+    if (imports.contains(fqn.fullQualifiedName)) fqn.name
+    else if (currentPackage.javaPackage == fqn.parent.javaPackage) fqn.name
+    else if (imports.contains(fqn.parent.javaPackage))
+      fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
+    else fqn.fullQualifiedName
+  }
 }

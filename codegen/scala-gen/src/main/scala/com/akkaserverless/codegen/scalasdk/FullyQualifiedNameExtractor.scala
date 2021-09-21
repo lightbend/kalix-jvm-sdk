@@ -48,7 +48,7 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       None,
       None,
       None,
-      false)
+      javaMultipleFiles = false)
   }
 }
 object FullyQualifiedNameExtractor {

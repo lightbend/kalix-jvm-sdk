@@ -17,28 +17,30 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorRequest
-import com.lightbend.akkasls.codegen.TestData
+import com.lightbend.akkasls.codegen.{ PackageNaming, TestData }
 import protocgen.CodeGenRequest
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
 
+  val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, None, false)
+  val apiParent = PackageNaming("api.proto", "", "com.example.service", None, None, None, false)
+
   test("it can generate a value entity implementation skeleton") {
-    val file = generateImplementationSkeleton(TestData.valueEntity(), TestData.simpleEntityService())
+    val file =
+      generateImplementationSkeleton(TestData.valueEntity(domainParent), TestData.simpleEntityService(apiParent))
     assertNoDiff(
       file.content,
       s"""package com.example.service.domain
          |
-         |import com.example.service.GetValue
-         |import com.example.service.MyState
-         |import com.example.service.SetValue
+         |import com.example.service
          |import com.external.Empty
          |
          |class MyValueEntity /* extends AbstractMyValueEntity */ {
-         |  def set(currentState: com.example.service.domain.MyState, command: SetValue): Empty = ???
+         |  def set(currentState: MyState, command: service.SetValue): Empty = ???
          |
-         |  def get(currentState: com.example.service.domain.MyState, command: GetValue): MyState = ???
+         |  def get(currentState: MyState, command: service.GetValue): service.MyState = ???
          |}
          |""".stripMargin)
   }
