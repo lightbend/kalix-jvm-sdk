@@ -26,6 +26,15 @@ import com.akkaserverless.ServiceOptions.ServiceType
 object ModelBuilder {
 
   /**
+   * Convertor from Descriptor to FullyQualifiedName. Abstract because its implementation is different between Java and
+   * Scala.
+   *
+   * (an alternative implementation could have been to pass the descriptor into FullyQualifiedName and put the logic on
+   * the 'read side', but that makes testing with programmatically-generated names harder)
+   */
+  type FullyQualifiedNameExtractor = Descriptors.GenericDescriptor => FullyQualifiedName
+
+  /**
    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
    */
   case class Model(services: Map[String, Service], entities: Map[String, Entity])
@@ -229,7 +238,7 @@ object ModelBuilder {
    * A command is used to express the intention to alter the state of an Entity.
    */
   case class Command(
-      fqn: FullyQualifiedName,
+      name: String,
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName,
       streamedInput: Boolean,
@@ -238,12 +247,12 @@ object ModelBuilder {
       outToTopic: Boolean)
 
   object Command {
-    def from(method: Descriptors.MethodDescriptor): Command = {
+    def from(method: Descriptors.MethodDescriptor)(implicit e: FullyQualifiedNameExtractor): Command = {
       val eventing = method.getOptions.getExtension(com.akkaserverless.Annotations.method).getEventing
       Command(
-        FullyQualifiedName.from(method),
-        FullyQualifiedName.from(method.getInputType),
-        FullyQualifiedName.from(method.getOutputType),
+        method.getName,
+        method.getInputType,
+        method.getOutputType,
         streamedInput = method.isClientStreaming,
         streamedOutput = method.isServerStreaming,
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
@@ -273,7 +282,8 @@ object ModelBuilder {
    * @return
    *   the entities found
    */
-  def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit log: Log): Model =
+  def introspectProtobufClasses(
+      descriptors: Iterable[Descriptors.FileDescriptor])(implicit log: Log, e: FullyQualifiedNameExtractor): Model =
     descriptors.foldLeft(Model(Map.empty, Map.empty)) { case (Model(existingServices, existingEntities), descriptor) =>
       log.debug("Looking at descriptor " + descriptor.getName)
       val services = for {
@@ -282,7 +292,7 @@ object ModelBuilder {
           .getOptions()
           .getExtension(com.akkaserverless.Annotations.service)
         serviceType <- Option(options.getType())
-        serviceName = FullyQualifiedName.from(serviceDescriptor, serviceType)
+        serviceName = serviceDescriptor
 
         methods = serviceDescriptor.getMethods.asScala
         commands = methods.map(Command.from)

@@ -31,7 +31,9 @@ object AkkaserverlessTestGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)
-    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(DebugPrintlnLog(debugEnabled))
+    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
+      DebugPrintlnLog(debugEnabled),
+      FullyQualifiedNameExtractor(request))
     try {
       CodeGenResponse.succeed(
         SourceGenerator

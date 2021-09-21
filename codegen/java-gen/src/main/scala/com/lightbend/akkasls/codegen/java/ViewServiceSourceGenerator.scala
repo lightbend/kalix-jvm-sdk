@@ -85,7 +85,7 @@ object ViewServiceSourceGenerator {
 
     val cases = view.transformedUpdates
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = qualifiedType(cmd.inputType)
         s"""|case "$methodName":
             |  return view().${lowerFirst(methodName)}(
@@ -212,9 +212,9 @@ object ViewServiceSourceGenerator {
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
       s"""@Override
-         |public UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
+         |public UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
          |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)}) {
-         |  throw new UnsupportedOperationException("Update handler for '${update.fqn.name}' not implemented yet");
+         |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
          |}""".stripMargin
     }
 
@@ -248,7 +248,7 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
-      s"""public abstract UpdateEffect<${stateType}> ${lowerFirst(update.fqn.name)}(
+      s"""public abstract UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
          |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)});""".stripMargin
 
     }

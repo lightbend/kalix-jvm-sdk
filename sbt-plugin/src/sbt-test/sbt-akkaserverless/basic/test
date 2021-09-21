@@ -1,3 +1,4 @@
+$ pause
 > compile
 $ exists src/main/scala/foo/bar/Baz.scala
 $ exists target/scala-2.13/src_managed/main/akkaserverless/foo/bar/AbstractBaz.scala

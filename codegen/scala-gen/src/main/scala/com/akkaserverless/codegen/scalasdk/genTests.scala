@@ -16,7 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import protocbridge.{ Artifact, SandboxedJvmGenerator }
+import protocbridge.SandboxedJvmGenerator
 
 object genTests {
   def apply(options: Seq[String] = Seq.empty): (SandboxedJvmGenerator, Seq[String]) =

@@ -62,50 +62,41 @@ object TestData {
       javaMultipleFiles = true)
 
   def command(
-      fqn: FullyQualifiedName,
+      name: String,
       inputType: FullyQualifiedName,
       outputType: FullyQualifiedName,
       streamedInput: Boolean = false,
       streamedOutput: Boolean = false,
       inFromTopic: Boolean = false,
       outToTopic: Boolean = false) =
-    ModelBuilder.Command(fqn, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
+    ModelBuilder.Command(name, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
   def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
     ModelBuilder.EntityService(
       FullyQualifiedName(s"MyService$suffix", proto),
       List(
-        command(
-          FullyQualifiedName("Set", proto),
-          FullyQualifiedName("SetValue", proto),
-          FullyQualifiedName("Empty", externalProto)),
-        command(
-          FullyQualifiedName("Get", proto),
-          FullyQualifiedName("GetValue", proto),
-          FullyQualifiedName("MyState", proto))),
+        command("Set", FullyQualifiedName("SetValue", proto), FullyQualifiedName("Empty", externalProto)),
+        command("Get", FullyQualifiedName("GetValue", proto), FullyQualifiedName("MyState", proto))),
       s"com.example.Entity$suffix")
 
   def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
 
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto, null),
+      FullyQualifiedName(proto.name, proto.name, proto),
       List(
+        command("SimpleMethod", FullyQualifiedName("MyRequest", proto), FullyQualifiedName("Empty", externalProto)),
         command(
-          FullyQualifiedName("SimpleMethod", proto),
-          FullyQualifiedName("MyRequest", proto),
-          FullyQualifiedName("Empty", externalProto)),
-        command(
-          FullyQualifiedName("StreamedOutputMethod", proto),
+          "StreamedOutputMethod",
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
           streamedOutput = true),
         command(
-          FullyQualifiedName("StreamedInputMethod", proto),
+          "StreamedInputMethod",
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
           streamedInput = true),
         command(
-          FullyQualifiedName("FullStreamedMethod", proto),
+          "FullStreamedMethod",
           FullyQualifiedName("MyRequest", proto),
           FullyQualifiedName("Empty", externalProto),
           streamedInput = true,
@@ -114,15 +105,15 @@ object TestData {
 
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto, null),
+      FullyQualifiedName(proto.name, proto.name, proto),
       List(
         command(
-          FullyQualifiedName("InFromTopic", proto),
+          "InFromTopic",
           FullyQualifiedName("Any", googleProto),
           FullyQualifiedName("Empty", googleProto),
           inFromTopic = true),
         command(
-          FullyQualifiedName("OutToTopic", proto),
+          "OutToTopic",
           FullyQualifiedName("EntityUpdated", domainProto()),
           FullyQualifiedName("Any", googleProto),
           outToTopic = true)))
@@ -131,22 +122,22 @@ object TestData {
   def simpleViewService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.ViewService = {
     val updates = List(
       command(
-        FullyQualifiedName("Created", proto),
+        "Created",
         FullyQualifiedName("EntityCreated", domainProto(suffix)),
         FullyQualifiedName("ViewState", proto)),
       command(
-        FullyQualifiedName("Updated", proto),
+        "Updated",
         FullyQualifiedName("EntityUpdated", domainProto(suffix)),
         FullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
-      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto, null),
+      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
       List(
         command(
-          FullyQualifiedName("Created", proto),
+          "Created",
           FullyQualifiedName("EntityCreated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto)),
         command(
-          FullyQualifiedName("Updated", proto),
+          "Updated",
           FullyQualifiedName("EntityUpdated", domainProto(suffix)),
           FullyQualifiedName("ViewState", proto))),
       s"MyService$suffix",

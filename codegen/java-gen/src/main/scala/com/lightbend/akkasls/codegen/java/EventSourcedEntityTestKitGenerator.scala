@@ -165,8 +165,8 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.fqn.name)}(${command.inputType.fullName} command) {
-            |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.fqn.name)}(state, command);
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command) {
+            |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.name)}(state, command);
             |  return interpretEffects(effect);
             |}
             |""".stripMargin + "\n"
@@ -221,9 +221,9 @@ object EventSourcedEntityTestKitGenerator {
 
     val dummyTestCases = service.commands.map { command =>
       s"""|@Test
-          |public void ${lowerFirst(command.fqn.name)}Test() {
+          |public void ${lowerFirst(command.name)}Test() {
           |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-          |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.fqn.name)}(${command.inputType.name}.newBuilder()...build());
+          |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
           |}
           |
           |""".stripMargin

@@ -24,11 +24,7 @@ import com.google.protobuf.Descriptors
 /**
  * A fully qualified name that can be resolved in any target language
  */
-case class FullyQualifiedName(
-    protoName: String,
-    name: String,
-    parent: PackageNaming,
-    descriptor: Descriptors.GenericDescriptor) {
+case class FullyQualifiedName(protoName: String, name: String, parent: PackageNaming) {
 
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
@@ -49,29 +45,8 @@ case class FullyQualifiedName(
 
 object FullyQualifiedName {
   def apply(name: String, parent: PackageNaming): FullyQualifiedName =
-    FullyQualifiedName(name, name, parent, null)
+    FullyQualifiedName(name, name, parent)
 
-  def from(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
-    from(descriptor, ServiceType.SERVICE_TYPE_UNSPECIFIED)
-
-  def from(descriptor: Descriptors.GenericDescriptor, serviceType: ServiceType): FullyQualifiedName = {
-    val fileDescriptor = descriptor.getFile
-
-    val packageNaming =
-      if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
-        // In the case of placeholders for standard google types, we need to assume the package naming
-        // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
-        PackageNaming(
-          descriptor.getName,
-          descriptor.getName,
-          fileDescriptor.getPackage,
-          Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
-          Some(s"com.${fileDescriptor.getPackage}"),
-          Some(s"${descriptor.getName}Proto"),
-          javaMultipleFiles = true)
-      } else PackageNaming.from(fileDescriptor)
-    FullyQualifiedName(descriptor.getName, descriptor.getName, packageNaming, descriptor)
-  }
 }
 
 /**

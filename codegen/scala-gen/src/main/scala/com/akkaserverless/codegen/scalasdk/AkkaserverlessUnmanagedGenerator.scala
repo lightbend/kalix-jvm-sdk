@@ -17,14 +17,12 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.Annotations
-import com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator.descriptorImplicits
 import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import com.lightbend.akkasls.codegen.ModelBuilder
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
-import scalapb.compiler.DescriptorImplicits
 
 object AkkaserverlessUnmanagedGenerator extends CodeGenApp {
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
@@ -33,8 +31,9 @@ object AkkaserverlessUnmanagedGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)
-    implicit val di: DescriptorImplicits = descriptorImplicits(request)
-    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(DebugPrintlnLog(debugEnabled))
+    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
+      DebugPrintlnLog(debugEnabled),
+      FullyQualifiedNameExtractor(request))
     try {
       CodeGenResponse.succeed(
         SourceGenerator

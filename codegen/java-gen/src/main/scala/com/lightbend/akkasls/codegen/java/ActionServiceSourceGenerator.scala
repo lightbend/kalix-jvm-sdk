@@ -97,7 +97,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq("com.akkaserverless.javasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputTypeFullName = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
@@ -168,7 +168,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq("com.akkaserverless.javasdk.action.Action") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputTypeFullName = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
@@ -213,7 +213,7 @@ object ActionServiceSourceGenerator {
     val packageName = service.fqn.parent.javaPackage
 
     val unaryCases = service.commands.filter(isUnary).map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
@@ -223,7 +223,7 @@ object ActionServiceSourceGenerator {
     }
 
     val streamOutCases = service.commands.filter(isStreamOut).map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
@@ -233,7 +233,7 @@ object ActionServiceSourceGenerator {
     }
 
     val streamInCases = service.commands.filter(isStreamIn).map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
@@ -243,7 +243,7 @@ object ActionServiceSourceGenerator {
     }
 
     val streamInOutCases = service.commands.filter(isStreamInOut).map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":

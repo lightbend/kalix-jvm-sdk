@@ -38,7 +38,7 @@ object ValueEntitySourceGenerator {
     val stateType = entity.state.fqn.fullName
 
     val methods = service.commands.map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputType = cmd.inputType.fullName
       val outputType = qualifiedType(cmd.outputType)
 
@@ -92,7 +92,7 @@ object ValueEntitySourceGenerator {
 
     val commandCases = service.commands
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = cmd.inputType.fullName
         s"""|case "$methodName":
             |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
@@ -236,12 +236,12 @@ object ValueEntitySourceGenerator {
 
     val methods = service.commands
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
 
         val inputType = cmd.inputType.fullName
         val outputType = qualifiedType(cmd.outputType)
 
-        s"""|/** Command handler for "${cmd.fqn.name}". */
+        s"""|/** Command handler for "${cmd.name}". */
             |public abstract Effect<$outputType> ${lowerFirst(
           methodName)}($stateType currentState, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
