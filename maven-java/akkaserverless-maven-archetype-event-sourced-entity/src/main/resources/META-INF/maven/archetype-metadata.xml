@@ -24,7 +24,6 @@
                 <include>.gitignore</include>
                 <include>README.md</include>
                 <include>docker-compose.yml</include>
-                <include>docker-compose.linux.yml</include>
             </includes>
         </fileSet>
     </fileSets>

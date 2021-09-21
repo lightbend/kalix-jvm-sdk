@@ -183,12 +183,21 @@
         <executions>
           <execution>
             <goals>
-              <goal>java</goal>
+              <goal>exec</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <mainClass>${D}{mainClass}</mainClass>
+          <executable>java</executable>
+          <arguments>
+            <argument>-classpath</argument>
+            <classpath/>
+            <argument>${D}{mainClass}</argument>
+          </arguments>
+          <environmentVariables>
+            <!-- needed for the proxy to access the user function on all platforms -->
+            <HOST>0.0.0.0</HOST>
+          </environmentVariables>
         </configuration>
       </plugin>
 
