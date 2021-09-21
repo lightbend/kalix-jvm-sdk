@@ -152,12 +152,15 @@ object TestData {
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))),
       List(ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))))
 
-  def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
+  def valueEntity(): ModelBuilder.ValueEntity = valueEntity("")
+  def valueEntity(suffix: String): ModelBuilder.ValueEntity =
+    valueEntity(domainProto(suffix), suffix)
+  def valueEntity(parent: PackageNaming, suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
-      domainProto(suffix).pkg + s"MyValueEntity$suffix",
-      FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
+      parent.pkg + s"MyValueEntity$suffix",
+      FullyQualifiedName(s"MyValueEntity$suffix", parent),
       s"MyValueEntity$suffix",
-      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))))
+      ModelBuilder.State(FullyQualifiedName("MyState", parent)))
 
   def replicatedEntity(data: ModelBuilder.ReplicatedData, suffix: String = ""): ModelBuilder.ReplicatedEntity =
     ModelBuilder.ReplicatedEntity(
