@@ -29,7 +29,7 @@ object MessageEnvelope {
    * @return
    *   The message.
    */
-  def apply[T](payload: T) = new MessageEnvelopeImpl[T](payload, Metadata.empty)
+  def apply[T](payload: T): MessageEnvelope[T] = new MessageEnvelopeImpl[T](payload, Metadata.empty)
 
   /**
    * Create a message.
@@ -41,7 +41,7 @@ object MessageEnvelope {
    * @return
    *   The message.
    */
-  def apply[T](payload: T, metadata: Metadata) = new MessageEnvelopeImpl[T](payload, metadata)
+  def apply[T](payload: T, metadata: Metadata): MessageEnvelope[T] = new MessageEnvelopeImpl[T](payload, metadata)
 }
 trait MessageEnvelope[T] {
 

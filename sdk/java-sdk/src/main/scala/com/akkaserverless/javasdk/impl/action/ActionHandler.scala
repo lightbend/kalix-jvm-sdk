@@ -42,7 +42,6 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @return
    *   A future of the message to return.
    */
-  @throws[Throwable]
   final def handleUnary(commandName: String, message: MessageEnvelope[Any], context: ActionContext): Action.Effect[_] =
     callWithContext(context) { () =>
       handleUnary(commandName, message)
@@ -58,7 +57,6 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
    * @return
    *   A future of the message to return.
    */
-  @throws[Throwable]
   def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_]
 
   /**

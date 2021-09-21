@@ -33,7 +33,7 @@ trait ServiceCallFactory {
    *   The name of a method on the gRPC service.
    * @param messageType
    *   The expected type of the input message to the method.
-   * @tparam [T]
+   * @tparam T
    *   The type of the parameter that it accepts.
    * @return
    *   A reference to the service call.

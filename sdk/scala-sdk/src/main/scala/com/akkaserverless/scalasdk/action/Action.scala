@@ -29,7 +29,7 @@ object Action {
   /**
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
-   * @tparam [T]
+   * @tparam T
    *   The type of the message that must be returned by this call.
    */
   trait Effect[+T] {
@@ -61,7 +61,7 @@ object Action {
        *   The payload of the reply.
        * @return
        *   A message reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def reply[S](message: S): Action.Effect[S]
@@ -75,7 +75,7 @@ object Action {
        *   The metadata for the message.
        * @return
        *   A message reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def reply[S](message: S, metadata: Metadata): Action.Effect[S]
@@ -87,7 +87,7 @@ object Action {
        *   The service call representing the forward.
        * @return
        *   A forward reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def forward[S](serviceCall: ServiceCall): Action.Effect[S]
@@ -97,7 +97,7 @@ object Action {
        *
        * @return
        *   The reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def noReply[S]: Action.Effect[S]
@@ -109,7 +109,7 @@ object Action {
        *   The description of the error.
        * @return
        *   An error reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def error[S](description: String): Action.Effect[S]
@@ -121,7 +121,7 @@ object Action {
        *   The future payload of the reply.
        * @return
        *   A message reply.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def asyncReply[S](message: Future[S]): Action.Effect[S]
@@ -133,7 +133,7 @@ object Action {
        *   The future effect to reply with.
        * @return
        *   A reply, the actual type depends on the nested Effect.
-       * @tparam [S]
+       * @tparam S
        *   The type of the message that must be returned by this call.
        */
       def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S]

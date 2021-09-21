@@ -16,6 +16,8 @@
 
 package com.akkaserverless.scalasdk.action
 
+import scala.collection.immutable
+
 import com.akkaserverless.scalasdk.impl.action.ActionHandler
 import com.google.protobuf.Descriptors
 
@@ -26,5 +28,5 @@ trait ActionProvider[A <: Action] {
 
   def newHandler(context: ActionCreationContext): ActionHandler[A]
 
-  def additionalDescriptors: Array[Descriptors.FileDescriptor]
+  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }

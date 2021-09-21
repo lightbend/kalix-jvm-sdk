@@ -21,7 +21,7 @@ import com.google.protobuf.Descriptors
 /**
  * A reference to a call on a service.
  *
- * @tparam [T]
+ * @tparam T
  *   The type of message the call accepts.
  */
 //FIXME not sure if needed, Context returns 'javasdk' version.

@@ -58,7 +58,7 @@ private[scalasdk] case class JavaActionProviderAdapter[A <: Action](scalaSdkProv
     scalaSdkProvider.serviceDescriptor
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
-    scalaSdkProvider.additionalDescriptors
+    scalaSdkProvider.additionalDescriptors.toArray
 }
 
 private[scalasdk] case class JavaActionHandlerAdapter[A <: Action](

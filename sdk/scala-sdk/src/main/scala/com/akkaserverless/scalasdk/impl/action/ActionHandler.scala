@@ -21,11 +21,8 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.MessageEnvelope
-import com.akkaserverless.scalasdk.impl.action.ActionHandler.HandlerNotFound
+import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
 
-object ActionHandler {
-  case class HandlerNotFound(commandName: String) extends RuntimeException
-}
 abstract class ActionHandler[A <: Action](val action: A) {
 
   /**
