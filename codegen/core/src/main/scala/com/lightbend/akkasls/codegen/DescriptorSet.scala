@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 
 import com.google.protobuf.{ DescriptorProtos, Descriptors }
-import java.io.{ File, FileInputStream, FileNotFoundException, IOException }
+import java.io.{ File, FileInputStream, FileNotFoundException, IOException, InputStream }
 import java.util.logging.{ Level, Logger }
 
 import scala.jdk.CollectionConverters._
@@ -50,29 +50,31 @@ object DescriptorSet {
    * @return
    *   a collection of FileDescriptor objects or an error condition
    */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def fileDescriptors(file: File): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] =
     Using[FileInputStream, Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]]](
-      new FileInputStream(file)) { fis =>
-      val registry = ExtensionRegistry.newInstance()
-      Annotations.registerAllExtensions(registry)
-
-      Right(try {
-        val descriptorProtos =
-          DescriptorProtos.FileDescriptorSet.parseFrom(fis, registry).getFileList.asScala
-
-        val empty: Either[ReadFailure, Iterable[Descriptors.FileDescriptor]] =
-          Right(Array[Descriptors.FileDescriptor]())
-        descriptorProtos.foldLeft(empty)((acc, file) => accumulatedBuildFrom(acc, file))
-      } catch {
-        case e: IOException =>
-          Left(CannotRead(e))
-      })
-    } match {
+      new FileInputStream(file)) { fis => descriptors(fis) } match {
       case Success(result)                   => result
       case Failure(e: FileNotFoundException) => Left(CannotOpen(e))
       case Failure(e)                        => throw e
     }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def descriptors(is: InputStream): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] = {
+    val registry = ExtensionRegistry.newInstance()
+    Annotations.registerAllExtensions(registry)
+
+    Right(try {
+      val descriptorProtos =
+        DescriptorProtos.FileDescriptorSet.parseFrom(is, registry).getFileList.asScala
+
+      val empty: Either[ReadFailure, Iterable[Descriptors.FileDescriptor]] =
+        Right(Array[Descriptors.FileDescriptor]())
+      descriptorProtos.foldLeft(empty)((acc, file) => accumulatedBuildFrom(acc, file))
+    } catch {
+      case e: IOException =>
+        Left(CannotRead(e))
+    })
+  }
 
   private val descriptorslogger = Logger.getLogger(classOf[Descriptors].getName)
   descriptorslogger.setLevel(Level.OFF); // Silence protobuf

@@ -155,9 +155,9 @@ object ValueEntityTestKitGenerator {
     service.commands
       .map { command =>
         val output = selectOutput(command)
-        s"""|public ValueEntityResult<$output> ${lowerFirst(
-          command.fqn.name)}(${command.inputType.fullName} ${lowerFirst(command.inputType.name)}) {
-       |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.fqn.name)}(state, ${lowerFirst(
+        s"""|public ValueEntityResult<$output> ${lowerFirst(command.name)}(${command.inputType.fullName} ${lowerFirst(
+          command.inputType.name)}) {
+       |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.name)}(state, ${lowerFirst(
           command.inputType.name)});
        |  return interpretEffects(effect);
        |}""".stripMargin
@@ -188,9 +188,9 @@ object ValueEntityTestKitGenerator {
 
     val dummyTestCases = service.commands.map { command =>
       s"""|@Test
-          |public void ${lowerFirst(command.fqn.name)}Test() {
+          |public void ${lowerFirst(command.name)}Test() {
           |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-          |  // ValueEntityResult<${command.outputType.name}> result = testKit.${lowerFirst(command.fqn.name)}(${command.inputType.name}.newBuilder()...build());
+          |  // ValueEntityResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
           |}
           |
           |""".stripMargin

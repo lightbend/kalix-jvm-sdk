@@ -270,15 +270,15 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
       FullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
         command(
-          FullyQualifiedName("AddItem", shoppingCartProto),
+          "AddItem",
           FullyQualifiedName("AddLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
         command(
-          FullyQualifiedName("RemoveItem", shoppingCartProto),
+          "RemoveItem",
           FullyQualifiedName("RemoveLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
         command(
-          FullyQualifiedName("GetCart", shoppingCartProto),
+          "GetCart",
           FullyQualifiedName("GetShoppingCart", shoppingCartProto),
           FullyQualifiedName("Cart", shoppingCartProto))),
       entity.fqn.fullName)

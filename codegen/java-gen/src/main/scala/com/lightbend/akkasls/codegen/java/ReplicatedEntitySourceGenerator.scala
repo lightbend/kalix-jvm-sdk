@@ -51,7 +51,7 @@ object ReplicatedEntitySourceGenerator {
     }
 
     val methods = service.commands.map { cmd =>
-      val methodName = cmd.fqn.name
+      val methodName = cmd.name
       val inputType = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
       s"""|@Override
@@ -100,7 +100,7 @@ object ReplicatedEntitySourceGenerator {
 
     val commandCases = service.commands
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = cmd.inputType.fullName
         s"""|case "$methodName":
             |  return entity().${lowerFirst(methodName)}(data, ($inputType) command);
@@ -253,11 +253,11 @@ object ReplicatedEntitySourceGenerator {
 
     val methods = service.commands
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = cmd.inputType.fullName
         val outputType = cmd.outputType.fullName
 
-        s"""|/** Command handler for "${cmd.fqn.name}". */
+        s"""|/** Command handler for "${cmd.name}". */
             |public abstract Effect<$outputType> ${lowerFirst(
           methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin

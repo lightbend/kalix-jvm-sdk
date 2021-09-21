@@ -16,9 +16,13 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
+import com.google.protobuf.Descriptors
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import scalapb.compiler.DescriptorImplicits
+import scalapb.descriptors.ScalaType
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
@@ -26,16 +30,15 @@ object ValueEntitySourceGenerator {
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val stateType = entity.state.fqn.fullQualifiedName
     val methods = service.commands.map { cmd =>
-      // TODO 'override' and use 'effect'
-//      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: $stateType, command: ${cmd.inputType.fullQualifiedName}): ${cmd.outputType.fullQualifiedName} = ???
-//          |""".stripMargin
-      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: Unit, command: Unit): Unit = ???
+      // TODO 'override', use 'effect' for output, use actual state type for state
+      s"""|def ${lowerFirst(cmd.name)}(currentState: Unit, command: ${cmd.inputType.name}): ${cmd.outputType.name} = ???
           |""".stripMargin
     }
-    val imports = Set.empty
+    val imports =
 //      Set(stateType) ++
-//      service.commands.map(_.inputType.fullQualifiedName) ++
-//      service.commands.map(_.outputType.fullQualifiedName)
+      (Set.empty ++
+        service.commands.map(_.inputType.fullQualifiedName) ++
+        service.commands.map(_.outputType.fullQualifiedName)).toList.sorted
 
     File(
       entity.fqn.fileBasename + ".scala",

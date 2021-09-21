@@ -174,7 +174,7 @@ object EntityServiceSourceGenerator {
 
     val commandCases = service.commands
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = cmd.inputType.fullName
         s"""|case "$methodName":
             |  return entity().${lowerFirst(methodName)}(state, ($inputType) command);
@@ -329,9 +329,9 @@ object EntityServiceSourceGenerator {
       service.commands
         .map { command =>
           s"""|@Override
-              |public Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.fqn.name)}(${qualifiedType(
+              |public Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
             entity.state.fqn)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)}) {
-              |  return effects().error("The command handler for `${command.fqn.name}` is not implemented, yet");
+              |  return effects().error("The command handler for `${command.name}` is not implemented, yet");
               |}
               |""".stripMargin
         }
@@ -432,8 +432,8 @@ object EntityServiceSourceGenerator {
       Seq("com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity"))
 
     val commandHandlers = service.commands.map { command =>
-      s"""|/** Command handler for "${command.fqn.name}". */
-          |public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.fqn.name)}(${qualifiedType(
+      s"""|/** Command handler for "${command.name}". */
+          |public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
         entity.state.fqn)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)});
          |""".stripMargin
     }
@@ -495,9 +495,9 @@ object EntityServiceSourceGenerator {
 
     val testCases = service.commands.map { command =>
       s"""|@Test
-          |public void ${lowerFirst(command.fqn.name)}OnNonExistingEntity() throws Exception {
+          |public void ${lowerFirst(command.name)}OnNonExistingEntity() throws Exception {
           |  // TODO: set fields in command, and provide assertions to match replies
-          |  // client.${lowerFirst(command.fqn.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
+          |  // client.${lowerFirst(command.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
           |  //         .toCompletableFuture().get(2, SECONDS);
           |}
           |""".stripMargin

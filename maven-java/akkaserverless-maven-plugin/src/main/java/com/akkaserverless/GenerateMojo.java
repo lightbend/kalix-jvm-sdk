@@ -3,6 +3,7 @@ package com.akkaserverless;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.lightbend.akkasls.codegen.DescriptorSet;
+import com.lightbend.akkasls.codegen.java.FullyQualifiedNameExtractor$;
 import com.lightbend.akkasls.codegen.java.SourceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -97,7 +98,7 @@ public class GenerateMojo extends AbstractMojo {
                 Either<DescriptorSet.ReadFailure, Iterable<Descriptors.FileDescriptor>> protoFile = descriptors.right().get();
                 if (protoFile.isRight()){
                   Iterable<FileDescriptor> fileDescriptors = protoFile.right().get();
-                  ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log);
+                  ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log, FullyQualifiedNameExtractor$.MODULE$);
                   log.debug("Model: " + model);
                   Iterable<Path> generated = SourceGenerator.generate(
                           model,
