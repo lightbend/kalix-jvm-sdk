@@ -38,6 +38,7 @@ Compile / compile := {
   (Compile / compile).value
 }
 
+// FIXME sdk dependency should be included via sbt-akkaserverless
 val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.1")
 
 libraryDependencies ++= Seq(
