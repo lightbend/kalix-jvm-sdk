@@ -16,11 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import java.nio.file.Files
-import java.nio.file.Path
-
 import com.akkaserverless.codegen.scalasdk.File
-import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
 
@@ -73,7 +69,7 @@ object ViewServiceSourceGenerator {
 
     val cases = view.transformedUpdates
       .map { cmd =>
-        val methodName = cmd.fqn.name
+        val methodName = cmd.name
         val inputType = qualifiedType(cmd.inputType)
         s"""|case "$methodName" =>
             |  view.${lowerFirst(methodName)}(
@@ -175,9 +171,9 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
-      s"""override def ${lowerFirst(update.fqn.name)}(
+      s"""override def ${lowerFirst(update.name)}(
          |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${qualifiedType(update.inputType)}): UpdateEffect[$stateType] =
-         |  throw new UnsupportedOperationException("Update handler for '${update.fqn.name}' not implemented yet")
+         |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet")
          |""".stripMargin
     }
 
@@ -207,7 +203,7 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = qualifiedType(update.outputType)
-      s"""def ${lowerFirst(update.fqn.name)}(
+      s"""def ${lowerFirst(update.name)}(
          |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${qualifiedType(
         update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
 
