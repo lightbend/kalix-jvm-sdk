@@ -472,7 +472,7 @@ object EntityServiceSourceGenerator {
     val importTypes = commandTypes(service.commands) ++
       (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.fqn)
-        case ModelBuilder.ValueEntity(_, _, state)           => Seq(state.fqn)
+        case v: ModelBuilder.ValueEntity                     => Seq(v.state.fqn)
         case ModelBuilder.ReplicatedEntity(_, _, data) =>
           data.typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
       })

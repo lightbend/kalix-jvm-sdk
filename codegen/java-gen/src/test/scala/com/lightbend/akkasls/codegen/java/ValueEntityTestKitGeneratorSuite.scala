@@ -212,6 +212,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         javaMultipleFiles = false)
 
     ModelBuilder.ValueEntity(
+      domainProto.pkg + ".ShoppingCart",
       FullyQualifiedName("ShoppingCart", domainProto),
       "eventsourced-shopping-cart",
       ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))

@@ -23,15 +23,6 @@ import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
-  implicit val descriptorImplicits =
-    DescriptorImplicits.fromCodeGenRequest(
-      GeneratorParams(),
-      CodeGenRequest(
-        parameter = "",
-        filesToGenerate = Seq.empty,
-        allProtos = Seq.empty,
-        compilerVersion = None,
-        CodeGeneratorRequest.newBuilder().build()))
 
   test("it can generate a value entity implementation skeleton") {
     val file = generateImplementationSkeleton(TestData.valueEntity(), TestData.simpleEntityService())
@@ -45,9 +36,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.external.Empty
          |
          |class MyValueEntity /* extends AbstractMyValueEntity */ {
-         |  def set(currentState: Unit, command: SetValue): Empty = ???
+         |  def set(currentState: com.example.service.domain.MyState, command: SetValue): Empty = ???
          |
-         |  def get(currentState: Unit, command: GetValue): MyState = ???
+         |  def get(currentState: com.example.service.domain.MyState, command: GetValue): MyState = ???
          |}
          |""".stripMargin)
   }

@@ -35,16 +35,20 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
         s.getName
     }
 
-    FullyQualifiedName(
-      name,
-      PackageNaming(
-        descriptor.getFile.getName,
-        descriptor.getName,
-        descriptor.getFile.scalaPackage.fullName,
-        None,
-        None,
-        None,
-        false))
+    FullyQualifiedName(name, packageName(descriptor))
+  }
+
+  override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
+    import di._
+
+    PackageNaming(
+      descriptor.getFile.getName,
+      descriptor.getName,
+      descriptor.getFile.scalaPackage.fullName,
+      None,
+      None,
+      None,
+      false)
   }
 }
 object FullyQualifiedNameExtractor {
