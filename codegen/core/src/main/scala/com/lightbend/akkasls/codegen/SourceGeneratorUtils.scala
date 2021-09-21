@@ -93,36 +93,43 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  def generateImports(types: Iterable[FullyQualifiedName], packageName: String, otherImports: Seq[String]): String = {
+  def generateImports(
+      types: Iterable[FullyQualifiedName],
+      packageName: String,
+      otherImports: Seq[String],
+      semi: Boolean = true): String = {
     val messageTypeImports = types
       .filterNot { typ =>
         typ.parent.javaPackage == packageName
       }
       .map(typeImport)
 
+    val suffix = if (semi) ";" else ""
     (messageTypeImports ++ otherImports).toSeq.distinct.sorted
-      .map(pkg => s"import $pkg;")
+      .map(pkg => s"import $pkg$suffix")
       .mkString("\n")
   }
 
-  def generateImports(
+  def generateCommandImports(
       commands: Iterable[Command],
       state: State,
       packageName: String,
-      otherImports: Seq[String]): String = {
+      otherImports: Seq[String],
+      semi: Boolean = true): String = {
     val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports)
+    generateImports(types, packageName, otherImports, semi)
   }
 
-  def generateImports(
+  def generateCommandAndTypeArgumentImports(
       commands: Iterable[Command],
       typeArguments: Iterable[TypeArgument],
       packageName: String,
-      otherImports: Seq[String]): String = {
+      otherImports: Seq[String],
+      semi: Boolean = true): String = {
     val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
       fqn
     }
-    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments))
+    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), semi)
   }
 
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =

@@ -29,7 +29,7 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -79,7 +79,7 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -228,7 +228,7 @@ object ValueEntitySourceGenerator {
 
     val stateType = entity.state.fqn.fullName
 
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,

@@ -57,7 +57,7 @@ object ValueEntityTestKitGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -169,7 +169,7 @@ object ValueEntityTestKitGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String): String = {
-    val imports = generateImports(
+    val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
