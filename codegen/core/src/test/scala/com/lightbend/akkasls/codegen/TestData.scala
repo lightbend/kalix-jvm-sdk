@@ -154,6 +154,7 @@ object TestData {
 
   def valueEntity(suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
+      domainProto(suffix).pkg + s"MyValueEntity$suffix",
       FullyQualifiedName(s"MyValueEntity$suffix", domainProto(suffix)),
       s"MyValueEntity$suffix",
       ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))))
