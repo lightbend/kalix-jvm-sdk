@@ -21,22 +21,22 @@ import com.akkaserverless.scalasdk.view.View
 
 private[scalasdk] object ViewUpdateEffectImpl {
   sealed trait PrimaryUpdateEffect[S] extends View.UpdateEffect[S] {
-    def toJavasdk: javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[S]
+    def toJavaSdk: javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[S]
   }
 
   case class Update[S](state: S) extends PrimaryUpdateEffect[S] {
-    override def toJavasdk =
+    override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Update(state)
   }
 
   case object Ignore extends PrimaryUpdateEffect[Nothing] {
-    override def toJavasdk =
+    override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Ignore
         .asInstanceOf[javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[Nothing]]
   }
 
   case class Error[T](description: String) extends PrimaryUpdateEffect[T] {
-    override def toJavasdk =
+    override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Error(description)
   }
 }
