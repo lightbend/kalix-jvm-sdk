@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package com.akkaserverless.scalasdk.action
 
-/** Context that provides access to metadata. */
-trait MetadataContext extends Context {
+import com.akkaserverless.scalasdk.Context
 
-  /** Get the metadata associated with this context. */
-  def metadata: Metadata
-
-}
+trait ActionCreationContext extends Context {}

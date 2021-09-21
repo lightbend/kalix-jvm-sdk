@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package com.akkaserverless.scalasdk.impl.action
 
 import akka.NotUsed
-import akka.stream.javadsl.Source
-import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.action.ActionContext
-import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
-
-import java.util.Optional
+import akka.stream.scaladsl.Source
+import com.akkaserverless.scalasdk.action.Action
+import com.akkaserverless.scalasdk.action.ActionContext
+import com.akkaserverless.scalasdk.action.MessageEnvelope
+import com.akkaserverless.scalasdk.impl.action.ActionHandler.HandlerNotFound
 
 object ActionHandler {
   case class HandlerNotFound(commandName: String) extends RuntimeException
 }
-abstract class ActionHandler[A <: Action](protected val action: A) {
+abstract class ActionHandler[A <: Action](val action: A) {
 
   /**
    * Handle a unary call.
@@ -162,7 +160,7 @@ abstract class ActionHandler[A <: Action](protected val action: A) {
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
     // only set, never cleared, to allow access from other threads in async callbacks in the action
     // the same handler and action instance is expected to only ever be invoked for a single command
-    action._internalSetActionContext(Optional.of(context))
+    action._internalSetActionContext(Option(context))
     try {
       func()
     } catch {

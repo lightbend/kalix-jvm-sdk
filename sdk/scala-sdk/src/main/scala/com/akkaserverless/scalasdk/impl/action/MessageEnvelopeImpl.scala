@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package com.akkaserverless.scalasdk.impl.action
 
-/** Context that provides access to metadata. */
-trait MetadataContext extends Context {
+import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.action.MessageEnvelope
 
-  /** Get the metadata associated with this context. */
-  def metadata: Metadata
-
-}
+case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]

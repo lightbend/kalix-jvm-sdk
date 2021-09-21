@@ -28,21 +28,21 @@ public interface SideEffect {
   boolean synchronous();
 
   /**
-   * Create an effect of the given service call.
+   * Create a side effect of the given service call.
    *
    * @param serviceCall The service call to effect.
    * @param synchronous Whether this effect should be executed synchronously.
-   * @return The effect.
+   * @return The side effect.
    */
   static SideEffect of(ServiceCall serviceCall, boolean synchronous) {
     return new SideEffectImpl(serviceCall, synchronous);
   }
 
   /**
-   * Create an effect of the given service call.
+   * Create a side effect of the given service call.
    *
    * @param serviceCall The service call to effect.
-   * @return The effect.
+   * @return The side effect.
    */
   static SideEffect of(ServiceCall serviceCall) {
     return new SideEffectImpl(serviceCall, false);

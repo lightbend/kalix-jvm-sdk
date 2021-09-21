@@ -16,13 +16,15 @@
 
 package com.akkaserverless.scalasdk.action
 
-import com.akkaserverless.javasdk.action.{ ActionProvider => Impl }
-import com.akkaserverless.javasdk.action.{ Action => ActionImpl }
+import com.akkaserverless.scalasdk.impl.action.ActionHandler
+import com.google.protobuf.Descriptors
 
-//FIXME implement (the impl and type projection is temporary!)
-abstract class Action(impl: ActionImpl) {
-  type Impl = ActionImpl
+trait ActionProvider[A <: Action] {
+  def options: ActionOptions
+
+  def serviceDescriptor: Descriptors.ServiceDescriptor
+
+  def newHandler(context: ActionCreationContext): ActionHandler[A]
+
+  def additionalDescriptors: Array[Descriptors.FileDescriptor]
 }
-
-//FIXME possibly The Provider will not delegate to javasdk and we'll duplicate some more code
-class ActionProvider[A <: Action](private[akkaserverless] val impl: Impl[A#Impl])

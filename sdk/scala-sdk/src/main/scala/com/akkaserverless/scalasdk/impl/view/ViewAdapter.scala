@@ -21,9 +21,10 @@ import java.util.Optional
 import scala.jdk.OptionConverters._
 
 import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataImpl
+import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewCreationContext
@@ -74,8 +75,8 @@ private[scalasdk] class Java2ScalaViewCreationContextAdapter(javasdkContext: jav
   override def viewId: String =
     javasdkContext.viewId()
 
-  override def serviceCallFactory(): ServiceCallFactory =
-    javasdkContext.serviceCallFactory() // FIXME javasdk.ServiceCallFactory
+  override def serviceCallFactory: ServiceCallFactory =
+    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javasdkContext.getGrpcClient(clientClass, service)
@@ -89,8 +90,8 @@ private[scalasdk] class Java2ScalaUpdateContextAdapter(val javasdkContext: javas
   override def eventName: String =
     javasdkContext.eventName()
 
-  override def serviceCallFactory(): ServiceCallFactory =
-    javasdkContext.serviceCallFactory() // FIXME javasdk.ServiceCallFactory
+  override def serviceCallFactory: ServiceCallFactory =
+    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
 
   override def metadata: Metadata =
     // FIXME can we get rid of this cast?
