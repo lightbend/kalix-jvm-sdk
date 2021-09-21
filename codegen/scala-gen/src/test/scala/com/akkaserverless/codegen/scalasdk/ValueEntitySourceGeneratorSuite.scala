@@ -39,16 +39,15 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       file.content,
       s"""package com.example.service.domain
          |
-         |import com.example.service.MyState
          |import com.example.service.GetValue
+         |import com.example.service.MyState
          |import com.example.service.SetValue
-         |import com.example.service.domain.MyState
          |import com.external.Empty
          |
          |class MyValueEntity /* extends AbstractMyValueEntity */ {
-         |  def set(currentState: MyState, command: Unit): Unit = ???
+         |  def set(currentState: Unit, command: SetValue): Empty = ???
          |
-         |  def get(currentState: MyState, command: Unit): Unit = ???
+         |  def get(currentState: Unit, command: GetValue): MyState = ???
          |}
          |""".stripMargin)
   }

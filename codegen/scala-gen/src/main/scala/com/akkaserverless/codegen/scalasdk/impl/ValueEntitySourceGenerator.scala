@@ -30,16 +30,15 @@ object ValueEntitySourceGenerator {
   def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val stateType = entity.state.fqn.fullQualifiedName
     val methods = service.commands.map { cmd =>
-      // TODO 'override' and use 'effect'
-//      s"""|def ${lowerFirst(cmd.fqn.name)}(currentState: $stateType, command: ${cmd.inputType.fullQualifiedName}): ${cmd.outputType.fullQualifiedName} = ???
-//          |""".stripMargin
-      s"""|def ${lowerFirst(cmd.name)}(currentState: ${entity.state.fqn.name}, command: Unit): Unit = ???
+      // TODO 'override', use 'effect' for output, use actual state type for state
+      s"""|def ${lowerFirst(cmd.name)}(currentState: Unit, command: ${cmd.inputType.name}): ${cmd.outputType.name} = ???
           |""".stripMargin
     }
     val imports =
-      Set(stateType) ++
-      service.commands.map(_.inputType.fullQualifiedName) ++
-      service.commands.map(_.outputType.fullQualifiedName)
+//      Set(stateType) ++
+      (Set.empty ++
+        service.commands.map(_.inputType.fullQualifiedName) ++
+        service.commands.map(_.outputType.fullQualifiedName)).toList.sorted
 
     File(
       entity.fqn.fileBasename + ".scala",

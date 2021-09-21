@@ -16,21 +16,19 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import com.google.protobuf.CodedInputStream
-import com.google.protobuf.descriptor.FileDescriptorProto
 import com.lightbend.akkasls.codegen.DescriptorSet
-import scalapb.descriptors.FileDescriptor
 
 class ClassNameSuite extends munit.FunSuite {
-  test("parse a proto") {
+  test("parse a proto descriptor set") {
     val d = DescriptorSet.descriptors(
       classOf[ClassNameSuite].getResourceAsStream("/test-files/descriptor-sets/value-shoppingcart.desc"))
     val descriptors = d.right.get.right.get.toList
     assertEquals(descriptors.size, 10)
 
+    // This test doesn't test anything particularly interesting, but is useful
+    // for experimenting with what a 'real' parsed proto looks like after parsing ;)
     val api = descriptors.find(_.getName == "shoppingcart_api.proto").get
     assertEquals(api.getServices.size, 1)
     assertEquals(api.getMessageTypes.size, 6)
-
   }
 }
