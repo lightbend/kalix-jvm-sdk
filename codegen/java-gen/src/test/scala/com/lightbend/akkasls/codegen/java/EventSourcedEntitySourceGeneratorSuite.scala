@@ -18,11 +18,12 @@ package com.lightbend.akkasls.codegen
 package java
 
 class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test("EventSourcedEntity source") {
 
-    val entity = TestData.eventSourcedEntity()
-    val service = TestData.simpleEntityService()
+    val entity = testData.eventSourcedEntity()
+    val service = testData.simpleEntityService()
 
     val packageName = "com.example.service"
     val className = "MyServiceEntity"
@@ -80,8 +81,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("Abstract EventSourcedEntity baseclass source") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.eventSourcedEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.eventSourcedEntity()
     val packageName = "com.example.service"
     val className = "MyServiceEntity"
 
@@ -116,8 +117,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("EventSourcedEntity generated handler") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.eventSourcedEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.eventSourcedEntity()
     val packageName = "com.example.service"
     val className = "MyServiceEntity"
 
@@ -177,8 +178,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("EventSourcedEntity Provider") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.eventSourcedEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.eventSourcedEntity()
 
     val packageName = "com.example.service"
     val className = "MyService"
@@ -267,8 +268,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val mainPackageName = "com.example.service"
     val mainClassName = "SomeMain"
 
-    val service = TestData.simpleEntityService()
-    val entity = TestData.eventSourcedEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.eventSourcedEntity()
 
     val packageName = "com.example.service"
     val integrationTestClassName = "MyServiceEntityIntegrationTest"

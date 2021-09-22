@@ -80,7 +80,7 @@ object SourceGeneratorUtils {
   def typeImport(fullyQualifiedName: FullyQualifiedName): String = {
     val name =
       if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
-      else if (fullyQualifiedName.parent.javaOuterClassname.nonEmpty) fullyQualifiedName.parent.javaOuterClassname
+      else if (fullyQualifiedName.parent.javaOuterClassnameOption.nonEmpty) fullyQualifiedName.parent.javaOuterClassname
       else fullyQualifiedName.name
     s"${fullyQualifiedName.parent.javaPackage}.$name"
   }

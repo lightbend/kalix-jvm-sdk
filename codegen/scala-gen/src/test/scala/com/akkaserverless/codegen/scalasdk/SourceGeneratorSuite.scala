@@ -22,8 +22,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  private val testData = TestData()
+
   test("it can generate a simple 'main'") {
-    val main = generateMain(TestData.simple())
+    val main = generateMain(testData.simple())
     assertNoDiff(main.name, "com/example/Main.scala")
     assertNoDiff(
       main.content,

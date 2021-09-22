@@ -56,31 +56,16 @@ case class PackageNaming(
     protoFileName: String,
     name: String,
     pkg: String,
-    goPackage: Option[String],
+    goPackageOption: Option[String],
     javaPackageOption: Option[String],
-    javaOuterClassname: String,
+    javaOuterClassnameOption: Option[String],
     javaMultipleFiles: Boolean) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
-  lazy val scalaPackage: String = javaPackage
+  def scalaPackage: String = javaPackage
+  def javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }
 
 object PackageNaming {
-  def apply(
-      protoFileName: String,
-      name: String,
-      pkg: String,
-      goPackage: Option[String],
-      javaPackageOption: Option[String],
-      javaOuterClassnameOption: Option[String],
-      javaMultipleFiles: Boolean): PackageNaming =
-    PackageNaming(
-      protoFileName,
-      name,
-      pkg,
-      goPackage,
-      javaPackageOption,
-      javaOuterClassnameOption.getOrElse(name),
-      javaMultipleFiles)
 
   def from(descriptor: Descriptors.FileDescriptor): PackageNaming = {
     val name =
@@ -126,7 +111,7 @@ object PackageNaming {
       descriptor.getPackage,
       goPackage,
       javaPackage,
-      javaOuterClassname,
+      Some(javaOuterClassname),
       javaMultipleFiles)
   }
 }

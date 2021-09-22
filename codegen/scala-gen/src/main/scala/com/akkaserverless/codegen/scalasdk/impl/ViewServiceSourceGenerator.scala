@@ -35,7 +35,7 @@ object ViewServiceSourceGenerator {
     val packageName = service.fqn.parent.scalaPackage
     val packagePath = packageAsPath(packageName)
 
-    generatedSources += File(s"$packagePath/${service.className}.scala", viewSource(service, packageName))
+    generatedSources += File(s"$packagePath/${service.className}.scala", viewSource(service))
 
     generatedSources.result()
   }
@@ -49,46 +49,47 @@ object ViewServiceSourceGenerator {
     val packageName = service.fqn.parent.scalaPackage
     val packagePath = packageAsPath(packageName)
 
-    generatedSources += File(s"$packagePath/${service.abstractViewName}.scala", abstractView(service, packageName))
-    generatedSources += File(s"$packagePath/${service.handlerName}.scala", viewHandler(service, packageName))
-    generatedSources += File(s"$packagePath/${service.providerName}.scala", viewProvider(service, packageName))
+    generatedSources += File(s"$packagePath/${service.abstractViewName}.scala", abstractView(service))
+    generatedSources += File(s"$packagePath/${service.handlerName}.scala", viewHandler(service))
+    generatedSources += File(s"$packagePath/${service.providerName}.scala", viewProvider(service))
 
     generatedSources.result()
   }
 
-  private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateCommandImports(
-      view.commands,
-      view.state,
-      packageName,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.view.ViewHandler",
-        "com.akkaserverless.scalasdk.view.View"),
-      semi = false)
+  private[codegen] def viewHandler(view: ModelBuilder.ViewService): String = {
+    implicit val imports =
+      generateImports(
+        Seq(view.state.fqn) ++ view.commandTypes,
+        view.fqn.parent.scalaPackage,
+        otherImports = Seq(
+          "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
+          "com.akkaserverless.scalasdk.impl.view.ViewHandler",
+          "com.akkaserverless.scalasdk.view.View"),
+        packageImports = Nil,
+        semi = false)
 
     val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.name
-        val inputType = qualifiedType(cmd.inputType)
         s"""|case "$methodName" =>
             |  view.${lowerFirst(methodName)}(
             |      state,
-            |      event.asInstanceOf[$inputType])
+            |      event.asInstanceOf[${typeName(cmd.inputType)}])
             |""".stripMargin
       }
 
-    s"""|package $packageName
+    s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
         |/** A view handler */
-        |class ${view.handlerName}(view: ${view.className}) extends ViewHandler[${qualifiedType(view.state.fqn)}, ${view.className}](view) {
+        |class ${view.handlerName}(view: ${view.className})
+        |  extends ViewHandler[${typeName(view.state.fqn)}, ${view.className}](view) {
         |
         |  override def handleUpdate(
         |      eventName: String,
-        |      state: ${qualifiedType(view.state.fqn)},
-        |      event: Any): View.UpdateEffect[${qualifiedType(view.state.fqn)}] = {
+        |      state: ${typeName(view.state.fqn)},
+        |      event: Any): View.UpdateEffect[${typeName(view.state.fqn)}] = {
         |
         |    eventName match {
         |      ${Format.indent(cases, 6)}
@@ -102,24 +103,25 @@ object ViewServiceSourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateCommandImports(
-      Nil,
-      view.state,
-      packageName,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.view.ViewHandler",
-        "com.akkaserverless.scalasdk.view.ViewProvider",
-        "com.akkaserverless.scalasdk.view.ViewCreationContext",
-        "com.akkaserverless.scalasdk.view.View",
-        view.classNameQualified,
-        "com.google.protobuf.Descriptors",
-        "com.google.protobuf.EmptyProto",
-        "scala.collection.immutable"),
-      semi = false)
+  private[codegen] def viewProvider(view: ModelBuilder.ViewService): String = {
+    implicit val imports =
+      generateImports(
+        Seq(view.state.fqn),
+        view.fqn.parent.scalaPackage,
+        otherImports = Seq(
+          "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
+          "com.akkaserverless.scalasdk.impl.view.ViewHandler",
+          "com.akkaserverless.scalasdk.view.ViewProvider",
+          "com.akkaserverless.scalasdk.view.ViewCreationContext",
+          "com.akkaserverless.scalasdk.view.View",
+          view.classNameQualified,
+          "com.google.protobuf.Descriptors",
+          "com.google.protobuf.EmptyProto",
+          "scala.collection.immutable"),
+        packageImports = Nil,
+        semi = false)
 
-    s"""|package $packageName
+    s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -130,7 +132,7 @@ object ViewServiceSourceGenerator {
         |
         |class ${view.providerName} private(viewFactory: Function[ViewCreationContext, ${view.className}],
         |    override val viewId: String)
-        |  extends ViewProvider[${qualifiedType(view.state.fqn)}, ${view.className}] {
+        |  extends ViewProvider[${typeName(view.state.fqn)}, ${view.className}] {
         |
         |  /**
         |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
@@ -140,44 +142,45 @@ object ViewServiceSourceGenerator {
         |    new ${view.providerName}(viewFactory, viewId)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${view.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${view.fqn.protoName}")
+        |    ${view.fqn.parent.name}Proto.javaDescriptor.findServiceByName("${view.fqn.protoName}")
         |
         |  override final def newHandler(context: ViewCreationContext): ${view.handlerName} =
         |    new ${view.handlerName}(viewFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${view.fqn.parent.javaOuterClassname}.getDescriptor() ::
+        |    ${view.fqn.parent.name}Proto.javaDescriptor ::
         |    Nil
         |}
         |""".stripMargin
   }
 
-  private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: String): String = {
-
-    val imports =
+  private[codegen] def viewSource(view: ModelBuilder.ViewService): String = {
+    implicit val imports =
       generateImports(
-        view.commandTypes,
-        packageName,
-        Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
+        Seq(view.state.fqn) ++ view.commandTypes,
+        view.fqn.parent.scalaPackage,
+        otherImports =
+          Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
+        packageImports = Nil,
         semi = false)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
         ""
       else
-        s"""|  override def emptyState: ${qualifiedType(view.state.fqn)} =
+        s"""|  override def emptyState: ${typeName(view.state.fqn)} =
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
             |""".stripMargin
 
     val handlers = view.transformedUpdates.map { update =>
-      val stateType = qualifiedType(update.outputType)
+      val stateType = typeName(update.outputType)
       s"""override def ${lowerFirst(update.name)}(
-         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${qualifiedType(update.inputType)}): UpdateEffect[$stateType] =
+         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): UpdateEffect[$stateType] =
          |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet")
          |""".stripMargin
     }
 
-    s"""|package $packageName
+    s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -189,31 +192,36 @@ object ViewServiceSourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports =
-      generateImports(view.commandTypes, packageName, Seq("com.akkaserverless.scalasdk.view.View"), semi = false)
+  private[codegen] def abstractView(view: ModelBuilder.ViewService): String = {
+    implicit val imports =
+      generateImports(
+        Seq(view.state.fqn) ++ view.commandTypes,
+        view.fqn.parent.scalaPackage,
+        otherImports = Seq("com.akkaserverless.scalasdk.view.View"),
+        packageImports = Nil,
+        semi = false)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
-        s"""|  override def emptyState: ${qualifiedType(view.state.fqn)} =
+        s"""|  override def emptyState: ${typeName(view.state.fqn)} =
             |    null // emptyState is only used with transform_updates=true
             |""".stripMargin
       else
         ""
 
     val handlers = view.transformedUpdates.map { update =>
-      val stateType = qualifiedType(update.outputType)
+      val stateType = typeName(update.outputType)
       s"""def ${lowerFirst(update.name)}(
-         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${qualifiedType(
+         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(
         update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
 
     }
 
-    s"""|package $packageName
+    s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
-        |abstract class ${view.abstractViewName} extends View[${qualifiedType(view.state.fqn)}] {
+        |abstract class ${view.abstractViewName} extends View[${typeName(view.state.fqn)}] {
         |
         |$emptyState
         |  ${Format.indent(handlers, 2)}

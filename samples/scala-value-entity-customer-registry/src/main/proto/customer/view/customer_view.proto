@@ -17,8 +17,6 @@ syntax = "proto3";
 
 package customer.view;
 
-option java_outer_classname = "CustomerViewModel";
-
 import "customer/domain/customer_domain.proto";
 import "akkaserverless/annotations.proto";
 import "google/protobuf/any.proto";

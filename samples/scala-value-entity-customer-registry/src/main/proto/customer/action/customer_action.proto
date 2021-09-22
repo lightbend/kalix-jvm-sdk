@@ -16,8 +16,6 @@ syntax = "proto3";
 
 package customer.action;
 
-option java_outer_classname = "CustomerActionModel";
-
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 import "customer/api/customer_api.proto";

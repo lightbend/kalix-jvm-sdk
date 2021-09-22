@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory
 
 import _root_.java.nio.file.Files
 import _root_.java.nio.file.Path
-import scala.util.Try
 
 class SourceGeneratorSuite extends munit.FunSuite {
   val log = LoggerFactory.getLogger(getClass)
@@ -31,8 +30,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
     override def info(message: String): Unit = log.info(message)
   }
 
+  private val testData = TestData()
+
   def domainType(name: String): ModelBuilder.TypeArgument =
-    ModelBuilder.TypeArgument(name, TestData.domainProto())
+    ModelBuilder.TypeArgument(name, testData.domainProto())
 
   test("generate") {
     val sourceDirectory = Files.createTempDirectory("source-generator-test")
@@ -76,27 +77,27 @@ class SourceGeneratorSuite extends munit.FunSuite {
             FileUtils.touch(implSourceFile1)
             FileUtils.touch(implSourceFile2)
 
-            val service1Proto = TestData.serviceProto("1")
-            val service2Proto = TestData.serviceProto("2")
+            val service1Proto = testData.serviceProto("1")
+            val service2Proto = testData.serviceProto("2")
             val service3Proto =
-              TestData.serviceProto("3").copy(pkg = "com.example.service.something")
-            val service4Proto = TestData.serviceProto("4")
-            val service5Proto = TestData.serviceProto("5")
-            val service6Proto = TestData.serviceProto("6")
+              testData.serviceProto("3").copy(pkg = "com.example.service.something")
+            val service4Proto = testData.serviceProto("4")
+            val service5Proto = testData.serviceProto("5")
+            val service6Proto = testData.serviceProto("6")
 
             val services = Map(
-              "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
-              "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
-              "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
-              "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
-              "com.example.Service5" -> TestData.simpleActionService(service5Proto),
-              "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6"))
+              "com.example.Service1" -> testData.simpleEntityService(service1Proto, "1"),
+              "com.example.Service2" -> testData.simpleEntityService(service2Proto, "2"),
+              "com.example.Service3" -> testData.simpleEntityService(service3Proto, "3"),
+              "com.example.Service4" -> testData.simpleViewService(service4Proto, "4"),
+              "com.example.Service5" -> testData.simpleActionService(service5Proto),
+              "com.example.Service6" -> testData.simpleEntityService(service6Proto, "6"))
 
             val entities = Map(
-              "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
-              "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
-              "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
-              "com.example.Entity6" -> TestData.replicatedEntity(
+              "com.example.Entity1" -> testData.eventSourcedEntity(suffix = "1"),
+              "com.example.Entity2" -> testData.valueEntity(suffix = "2"),
+              "com.example.Entity3" -> testData.eventSourcedEntity(suffix = "3"),
+              "com.example.Entity6" -> testData.replicatedEntity(
                 ModelBuilder.ReplicatedSet(domainType("SomeElement")),
                 suffix = "6"))
 
@@ -169,26 +170,26 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("generated component registration source") {
-    val service1Proto = TestData.serviceProto("1")
-    val service2Proto = TestData.serviceProto("2")
-    val service3Proto = TestData.serviceProto("3").copy(pkg = "com.example.service.something")
-    val service4Proto = TestData.serviceProto("4").copy(pkg = "com.example.service.view")
-    val service5Proto = TestData.serviceProto("5")
-    val service6Proto = TestData.serviceProto("6")
+    val service1Proto = testData.serviceProto("1")
+    val service2Proto = testData.serviceProto("2")
+    val service3Proto = testData.serviceProto("3").copy(pkg = "com.example.service.something")
+    val service4Proto = testData.serviceProto("4").copy(pkg = "com.example.service.view")
+    val service5Proto = testData.serviceProto("5")
+    val service6Proto = testData.serviceProto("6")
 
     val services = Map(
-      "com.example.Service1" -> TestData.simpleEntityService(service1Proto, "1"),
-      "com.example.Service2" -> TestData.simpleEntityService(service2Proto, "2"),
-      "com.example.Service3" -> TestData.simpleEntityService(service3Proto, "3"),
-      "com.example.Service4" -> TestData.simpleViewService(service4Proto, "4"),
-      "com.example.Service5" -> TestData.simpleActionService(service5Proto),
-      "com.example.Service6" -> TestData.simpleEntityService(service6Proto, "6"))
+      "com.example.Service1" -> testData.simpleEntityService(service1Proto, "1"),
+      "com.example.Service2" -> testData.simpleEntityService(service2Proto, "2"),
+      "com.example.Service3" -> testData.simpleEntityService(service3Proto, "3"),
+      "com.example.Service4" -> testData.simpleViewService(service4Proto, "4"),
+      "com.example.Service5" -> testData.simpleActionService(service5Proto),
+      "com.example.Service6" -> testData.simpleEntityService(service6Proto, "6"))
 
     val entities = Map(
-      "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
-      "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
-      "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
-      "com.example.Entity6" -> TestData.replicatedEntity(
+      "com.example.Entity1" -> testData.eventSourcedEntity(suffix = "1"),
+      "com.example.Entity2" -> testData.valueEntity(suffix = "2"),
+      "com.example.Entity3" -> testData.eventSourcedEntity(suffix = "3"),
+      "com.example.Entity6" -> testData.replicatedEntity(
         ModelBuilder.ReplicatedSet(domainType("SomeElement")),
         suffix = "6"))
 
@@ -255,9 +256,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("generated component registration source for a view without update handlers") {
-    val serviceProto = TestData.serviceProto().copy(pkg = "com.example.service.view")
+    val serviceProto = testData.serviceProto().copy(pkg = "com.example.service.view")
 
-    val services = Map("com.example.Service" -> TestData.simpleViewService(serviceProto).copy(transformedUpdates = Nil))
+    val services = Map("com.example.Service" -> testData.simpleViewService(serviceProto).copy(transformedUpdates = Nil))
 
     val entities = Map.empty[String, ModelBuilder.Entity]
 
@@ -300,14 +301,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
     val mainClassName = "SomeMain"
 
     val entities = Map(
-      "com.example.Entity1" -> TestData.eventSourcedEntity(suffix = "1"),
-      "com.example.Entity2" -> TestData.valueEntity(suffix = "2"),
-      "com.example.Entity3" -> TestData.eventSourcedEntity(suffix = "3"),
-      "com.example.Entity6" -> TestData.replicatedEntity(
+      "com.example.Entity1" -> testData.eventSourcedEntity(suffix = "1"),
+      "com.example.Entity2" -> testData.valueEntity(suffix = "2"),
+      "com.example.Entity3" -> testData.eventSourcedEntity(suffix = "3"),
+      "com.example.Entity6" -> testData.replicatedEntity(
         ModelBuilder.ReplicatedSet(domainType("SomeElement")),
         suffix = "6"))
 
-    val services = Map("com.example.Service1" -> TestData.simpleActionService())
+    val services = Map("com.example.Service1" -> testData.simpleActionService())
 
     val generatedSrc = SourceGenerator.mainSource(mainPackageName, mainClassName, entities, services)
     assertNoDiff(

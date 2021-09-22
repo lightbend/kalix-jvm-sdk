@@ -16,10 +16,30 @@
 
 package com.lightbend.akkasls.codegen
 
+object TestData {
+  val defaultPackageNamingTemplate: PackageNaming =
+    PackageNaming(
+      "undefined.proto",
+      "Undefined",
+      "undefined",
+      None,
+      None,
+      Some("UndefinedOuterClass"),
+      javaMultipleFiles = false)
+
+  def apply(): TestData =
+    apply(defaultPackageNamingTemplate)
+
+  def apply(packageNamingTemplate: PackageNaming): TestData = {
+    new TestData(packageNamingTemplate)
+  }
+}
+
 /**
  * Used by java and scala codegen projects for their tests
  */
-object TestData {
+class TestData(packageNamingTemplate: PackageNaming) {
+
   def simple(): ModelBuilder.Model = {
     val service = simpleEntityService()
     val entity = valueEntity()
@@ -29,24 +49,18 @@ object TestData {
   }
 
   def serviceProto(suffix: String = ""): PackageNaming =
-    PackageNaming(
+    packageNamingTemplate.copy(
       "my_service.proto",
       s"MyService$suffix",
       "com.example.service",
-      None,
-      None,
-      Some(s"ServiceOuterClass$suffix"),
-      javaMultipleFiles = false)
+      javaOuterClassnameOption = packageNamingTemplate.javaOuterClassnameOption.map(_ => s"ServiceOuterClass$suffix"))
 
   def domainProto(suffix: String = ""): PackageNaming =
-    PackageNaming(
+    packageNamingTemplate.copy(
       "domain.proto",
       s"Domain$suffix",
       "com.example.service.domain",
-      None,
-      None,
-      Some(s"EntityOuterClass$suffix"),
-      javaMultipleFiles = false)
+      javaOuterClassnameOption = packageNamingTemplate.javaOuterClassnameOption.map(_ => s"EntityOuterClass$suffix"))
 
   val externalProto: PackageNaming =
     PackageNaming("external_domain.proto", "ExternalDomain", "com.external", None, None, None, javaMultipleFiles = true)
@@ -68,7 +82,7 @@ object TestData {
       streamedInput: Boolean = false,
       streamedOutput: Boolean = false,
       inFromTopic: Boolean = false,
-      outToTopic: Boolean = false) =
+      outToTopic: Boolean = false): ModelBuilder.Command =
     ModelBuilder.Command(name, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
   def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
