@@ -48,7 +48,7 @@ object ActionServiceSourceGenerator {
       sourceDirectory.resolve(packagePath.resolve(service.className + ".java"))
 
     val interfaceSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(service.interfaceName + ".java"))
+      generatedSourceDirectory.resolve(packagePath.resolve(service.abstractActionName + ".java"))
 
     interfaceSourcePath.getParent.toFile.mkdirs()
     Files.write(interfaceSourcePath, abstractActionSource(service).getBytes(Charsets.UTF_8))
@@ -73,14 +73,8 @@ object ActionServiceSourceGenerator {
     List(implSourcePath, interfaceSourcePath, providerSourcePath, handlerSourcePath)
   }
 
-  private def isUnary(cmd: ModelBuilder.Command): Boolean = !cmd.streamedInput && !cmd.streamedOutput
-  private def isStreamIn(cmd: ModelBuilder.Command): Boolean = cmd.streamedInput && !cmd.streamedOutput
-  private def isStreamOut(cmd: ModelBuilder.Command): Boolean = !cmd.streamedInput && cmd.streamedOutput
-  private def isStreamInOut(cmd: ModelBuilder.Command): Boolean = cmd.streamedInput && cmd.streamedOutput
-  private def hasStream(cmd: ModelBuilder.Command): Boolean = isStreamIn(cmd) || isStreamOut(cmd) || isStreamInOut(cmd)
-
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
-    if (commands.exists(c => hasStream(c)))
+    if (commands.exists(_.hasStream))
       "akka.NotUsed" :: "akka.stream.javadsl.Source" :: Nil
     else
       Nil
@@ -102,7 +96,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
 
-      if (isUnary(cmd)) {
+      if (cmd.isUnary) {
         val jsonTopicHint = {
           // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
           if (cmd.inFromTopic && cmd.inputType.fullQualifiedName == "com.google.protobuf.Any")
@@ -119,14 +113,14 @@ object ActionServiceSourceGenerator {
             |public Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input) {
             |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
             |}""".stripMargin
-      } else if (isStreamOut(cmd)) {
+      } else if (cmd.isStreamOut) {
         s"""
            |/** Handler for "$methodName". */
            |@Override
            |public Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
-      } else if (isStreamIn(cmd)) {
+      } else if (cmd.isStreamIn) {
         s"""
            |/** Handler for "$methodName". */
            |@Override
@@ -150,7 +144,7 @@ object ActionServiceSourceGenerator {
         |$imports
         |
         |/** An action. */
-        |public class $className extends ${service.interfaceName} {
+        |public class $className extends ${service.abstractActionName} {
         |
         |  public $className(ActionCreationContext creationContext) {}
         |
@@ -173,15 +167,15 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
 
-      if (isUnary(cmd)) {
+      if (cmd.isUnary) {
         s"""|/** Handler for "$methodName". */
             |public abstract Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
-      } else if (isStreamOut(cmd)) {
+      } else if (cmd.isStreamOut) {
         s"""
            |/** Handler for "$methodName". */
            |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(
           methodName)}($inputTypeFullName $input);""".stripMargin
-      } else if (isStreamIn(cmd)) {
+      } else if (cmd.isStreamIn) {
         s"""
            |/** Handler for "$methodName". */
            |public abstract Effect<$outputType> ${lowerFirst(
@@ -201,7 +195,7 @@ object ActionServiceSourceGenerator {
         |$imports
         |
         |/** An action. */
-        |public abstract class ${service.interfaceName} extends Action {
+        |public abstract class ${service.abstractActionName} extends Action {
         |
         |  ${Format.indent(methods, 2)}
         |}""".stripMargin
@@ -212,7 +206,7 @@ object ActionServiceSourceGenerator {
     val className = service.className
     val packageName = service.fqn.parent.javaPackage
 
-    val unaryCases = service.commands.filter(isUnary).map { cmd =>
+    val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -222,7 +216,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamOutCases = service.commands.filter(isStreamOut).map { cmd =>
+    val streamOutCases = service.commands.filter(_.isStreamOut).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -232,7 +226,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamInCases = service.commands.filter(isStreamIn).map { cmd =>
+    val streamInCases = service.commands.filter(_.isStreamIn).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -242,7 +236,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamInOutCases = service.commands.filter(isStreamInOut).map { cmd =>
+    val streamInOutCases = service.commands.filter(_.isStreamInOut).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
