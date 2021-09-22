@@ -43,7 +43,7 @@ object MainSourceGenerator {
             Nil
         }
       case (name, service: ModelBuilder.ViewService)   => List(name -> service)
-      case (name, service: ModelBuilder.ActionService) => Nil
+      case (name, service: ModelBuilder.ActionService) => List(name -> service)
     }
 
     val filteredEntities = model.entities.filter {
