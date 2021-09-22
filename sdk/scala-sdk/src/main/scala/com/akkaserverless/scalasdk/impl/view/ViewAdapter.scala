@@ -17,10 +17,9 @@
 package com.akkaserverless.scalasdk.impl.view
 
 import java.util.Optional
-
 import scala.jdk.OptionConverters._
-
 import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataImpl
@@ -28,6 +27,7 @@ import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewCreationContext
+import com.akkaserverless.scalasdk.view.ViewOptions.ViewOptionsImpl
 import com.akkaserverless.scalasdk.view.ViewProvider
 import com.google.protobuf.Descriptors
 
@@ -45,6 +45,8 @@ private[scalasdk] class Scala2JavaViewProviderAdapter[S, V <: View[S]](scalasdkP
 
   override def viewId(): String =
     scalasdkProvider.viewId
+
+  override def options(): ViewOptions = javasdk.impl.view.ViewOptionsImpl(scalasdkProvider.options.forwardHeaders())
 
   override def newHandler(
       context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]] = {

@@ -17,6 +17,7 @@
 package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.view.ViewCreationContext;
+import com.akkaserverless.javasdk.view.ViewOptions;
 import com.akkaserverless.javasdk.view.ViewProvider;
 import com.akkaserverless.tck.model.View;
 import com.google.protobuf.Descriptors;
@@ -28,21 +29,36 @@ public class ViewTckModelBehaviorProvider
     implements ViewProvider<com.akkaserverless.tck.model.View.ViewState, ViewTckModelBehavior> {
 
   private final Function<ViewCreationContext, ViewTckModelBehavior> viewFactory;
+  private final String viewId;
+  private final ViewOptions options;
 
   /** Factory method of MyServiceProvider */
   public static ViewTckModelBehaviorProvider of(
       Function<ViewCreationContext, ViewTckModelBehavior> viewFactory) {
-    return new ViewTckModelBehaviorProvider(viewFactory);
+    return new ViewTckModelBehaviorProvider(viewFactory, "tck-view", ViewOptions.defaults());
   }
 
   private ViewTckModelBehaviorProvider(
-      Function<ViewCreationContext, ViewTckModelBehavior> viewFactory) {
+      Function<ViewCreationContext, ViewTckModelBehavior> viewFactory,
+      String viewId,
+      ViewOptions options) {
     this.viewFactory = viewFactory;
+    this.viewId = viewId;
+    this.options = options;
   }
 
   @Override
   public String viewId() {
-    return "tck-view";
+    return viewId;
+  }
+
+  @Override
+  public ViewOptions options() {
+    return options;
+  }
+
+  public ViewTckModelBehaviorProvider withOptions(ViewOptions options) {
+    return new ViewTckModelBehaviorProvider(viewFactory, viewId, options);
   }
 
   @Override

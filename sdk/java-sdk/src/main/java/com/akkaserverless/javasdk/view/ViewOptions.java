@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package com.akkaserverless.javasdk.view;
+/*
+ * Copyright (C) 2009-2021 Lightbend Inc. <https://www.lightbend.com>
+ */
 
 import com.akkaserverless.javasdk.impl.ComponentOptions;
-import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
+import com.akkaserverless.javasdk.impl.view.ViewOptionsImpl;
 
 import java.util.Collections;
 
-/** Options for actions */
-public interface ActionOptions extends ComponentOptions {
+public interface ViewOptions extends ComponentOptions {
 
-  /** Create default options for an action. */
-  static ActionOptions defaults() {
-    return new ActionOptionsImpl(Collections.emptySet());
+  /** Create default options for a view. */
+  static ViewOptions defaults() {
+    return new ViewOptionsImpl(Collections.emptySet());
   }
 
   /**

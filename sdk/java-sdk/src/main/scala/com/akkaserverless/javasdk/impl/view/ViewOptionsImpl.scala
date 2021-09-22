@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package com.akkaserverless.javasdk.impl.view
 
-import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Descriptors;
+import com.akkaserverless.javasdk.impl.ComponentOptions
+import com.akkaserverless.javasdk.view.ViewOptions
 
-public interface ViewProvider<S, V extends View<S>> {
+import java.util
 
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewHandler<S, V> newHandler(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
+/**
+ * INTERNAL API
+ */
+private[akkaserverless] final case class ViewOptionsImpl(override val forwardHeaders: java.util.Set[String])
+    extends ViewOptions {
+  def withForwardHeaders(headers: util.Set[String]): ComponentOptions = copy(forwardHeaders = headers)
 }
