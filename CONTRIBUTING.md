@@ -57,3 +57,15 @@ Ensure to remove/update generated files under `src` if they cause problems.
     ```
 
 Ensure to remove/update generated files under `src` if they cause problems.
+
+## Interactively run sbt scripted tests
+
+There are a number of Scala projects being tested as 'scripted' tests. After a
+scripted test has completed (successfully or not) it removes the temporary
+directory where it was running.
+
+To interactively inspect the project, you can insert a `$ pause` command in the
+`test` script of a scripted test. This will print the location of the temporary
+directory. You can inspect the project, and even enter it interactively with
+`cd /tmp/sbt_431151; sbt -Dplugin.version=....`, specifying the snapshot version
+of the project.
