@@ -26,5 +26,5 @@ import java.util
  */
 private[akkaserverless] final case class ViewOptionsImpl(override val forwardHeaders: java.util.Set[String])
     extends ViewOptions {
-  def withForwardHeaders(headers: util.Set[String]): ComponentOptions = copy(forwardHeaders = headers)
+  def withForwardHeaders(headers: util.Set[String]): ViewOptions = copy(forwardHeaders = headers)
 }

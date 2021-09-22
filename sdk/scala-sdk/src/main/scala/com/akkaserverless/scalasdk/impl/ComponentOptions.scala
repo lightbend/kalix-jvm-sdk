@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package com.akkaserverless.scalasdk.impl
 
 import scala.collection.immutable
 
-import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.scalasdk.EntityOptions
+trait ComponentOptions {
 
-/** Root entity options for all value based entities. */
-trait ValueEntityOptions extends EntityOptions {
-  def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions
-  def withForwardHeaders(headers: immutable.Set[String]): ValueEntityOptions
+  /**
+   * @return
+   *   the headers requested to be forwarded as metadata (cannot be mutated, use withForwardHeaders)
+   */
+  def forwardHeaders: immutable.Set[String]
+
+  /**
+   * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming
+   * commands. By default no headers except "X-Server-Timing" are forwarded.
+   */
+  def withForwardHeaders(headers: immutable.Set[String]): ComponentOptions
 }

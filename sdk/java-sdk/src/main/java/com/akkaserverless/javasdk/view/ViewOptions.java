@@ -15,9 +15,6 @@
  */
 
 package com.akkaserverless.javasdk.view;
-/*
- * Copyright (C) 2009-2021 Lightbend Inc. <https://www.lightbend.com>
- */
 
 import com.akkaserverless.javasdk.impl.ComponentOptions;
 import com.akkaserverless.javasdk.impl.view.ViewOptionsImpl;
@@ -41,5 +38,5 @@ public interface ViewOptions extends ComponentOptions {
    * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for
    * the incoming commands. By default, no headers except "X-Server-Timing" are forwarded.
    */
-  ComponentOptions withForwardHeaders(java.util.Set<String> headers);
+  ViewOptions withForwardHeaders(java.util.Set<String> headers);
 }
