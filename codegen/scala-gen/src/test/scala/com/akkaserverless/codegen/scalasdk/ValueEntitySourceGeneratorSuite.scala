@@ -47,4 +47,26 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |}
          |""".stripMargin)
   }
+  test("it can generate an abstract value entity implementation") {
+    val str = abstractEntity(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    assertNoDiff(
+      str,
+      s"""package com.example.service.domain
+          |
+          |import com.akkaserverless.scalasdk.valueentity.ValueEntity
+          |import com.example.service
+          |import com.external.Empty
+          |
+          |/** A value entity. */
+          |abstract class AbstractMyValueEntity extends ValueEntity[MyState] {
+          |
+          |  /** Command handler for "Set". */
+          |  def set(currentState: MyState, setValue: service.SetValue): ValueEntity.Effect[Empty]
+          |
+          |  /** Command handler for "Get". */
+          |  def get(currentState: MyState, getValue: service.GetValue): ValueEntity.Effect[service.MyState]
+          |}
+          |""".stripMargin)
+  }
+
 }

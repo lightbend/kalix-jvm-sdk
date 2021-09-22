@@ -33,7 +33,7 @@ object SourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.lookupEntity(service) match {
             case entity: ModelBuilder.ValueEntity =>
-              Nil // FIXME
+              ValueEntitySourceGenerator.generateManaged(entity, service)
             case entity: ModelBuilder.EventSourcedEntity =>
               Nil // FIXME
             case entity: ModelBuilder.ReplicatedEntity =>
@@ -66,7 +66,7 @@ object SourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.lookupEntity(service) match {
             case entity: ModelBuilder.ValueEntity =>
-              ValueEntitySourceGenerator.generateImplementationSkeleton(entity, service) :: Nil
+              ValueEntitySourceGenerator.generateUnmanaged(entity, service)
             case entity: ModelBuilder.EventSourcedEntity =>
               Nil // FIXME
             case entity: ModelBuilder.ReplicatedEntity =>

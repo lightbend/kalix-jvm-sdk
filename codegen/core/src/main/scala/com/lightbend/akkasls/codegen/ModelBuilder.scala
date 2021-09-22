@@ -75,7 +75,10 @@ object ModelBuilder {
       override val fqn: FullyQualifiedName,
       override val entityType: String,
       state: State)
-      extends Entity(fqn, entityType) {}
+      extends Entity(fqn, entityType) {
+    val abstractEntityName = "Abstract" + fqn.name
+
+  }
 
   /**
    * A type of Entity that replicates its current state using CRDTs.
