@@ -208,7 +208,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         "ShoppingcartDomain", // Cart here is lowerCase as per protobuf generation
         "com.example.shoppingcart.domain",
         None,
-        None,
         Some("ShoppingCartDomain"),
         javaMultipleFiles = false)
 
@@ -229,7 +228,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         "ShoppingcartApi", // Cart here is lowerCase as per protobuf generation
         "com.example.shoppingcart",
         None,
-        None,
         Some("ShoppingCartApi"),
         javaMultipleFiles = false)
     val googleEmptyProto =
@@ -237,7 +235,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         "Empty",
         "Empty",
         "google.protobuf",
-        Some("google.golang.org/protobuf/types/known/emptypb"),
         Some("com.google.protobuf"),
         Some("EmptyProto"),
         javaMultipleFiles = true)

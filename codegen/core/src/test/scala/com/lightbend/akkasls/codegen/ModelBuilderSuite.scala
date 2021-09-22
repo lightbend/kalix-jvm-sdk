@@ -70,7 +70,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
-          None,
           Some("ShoppingCartApi"),
           javaMultipleFiles = false)
 
@@ -80,7 +79,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
-          None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
@@ -89,7 +87,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "Empty",
           "Empty",
           "google.protobuf",
-          Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
           javaMultipleFiles = true)
@@ -152,7 +149,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
-          None,
           Some("ShoppingCartApi"),
           javaMultipleFiles = false)
 
@@ -162,7 +158,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
-          None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
@@ -171,7 +166,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "Empty",
           "Empty",
           "google.protobuf",
-          Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
           javaMultipleFiles = true)
@@ -234,7 +228,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
-          None,
           Some("ShoppingCartApi"),
           javaMultipleFiles = false)
 
@@ -244,7 +237,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
-          None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
@@ -253,7 +245,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "Empty",
           "Empty",
           "google.protobuf",
-          Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
           javaMultipleFiles = true)
@@ -318,7 +309,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingCartViewModel",
           "shopping.cart.view",
           None,
-          None,
           Some("ShoppingCartViewModel"),
           javaMultipleFiles = false)
 
@@ -328,7 +318,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "ShoppingCartDomain",
           "shopping.cart.domain",
           None,
-          None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
@@ -337,7 +326,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           "Empty",
           "Empty",
           "google.protobuf",
-          Some("google.golang.org/protobuf/types/known/emptypb"),
           Some("com.google.protobuf"),
           Some("EmptyProto"),
           javaMultipleFiles = true)
@@ -386,16 +374,9 @@ class ModelBuilderSuite extends munit.FunSuite {
     val name = "Name"
     val pkg = "com.example"
 
-    assertEquals(PackageNaming(protoFileName, name, pkg, None, None, None, javaMultipleFiles = false).javaPackage, pkg)
+    assertEquals(PackageNaming(protoFileName, name, pkg, None, None, javaMultipleFiles = false).javaPackage, pkg)
     assertEquals(
-      PackageNaming(
-        protoFileName,
-        name,
-        pkg,
-        None,
-        Some("override.package"),
-        None,
-        javaMultipleFiles = false).javaPackage,
+      PackageNaming(protoFileName, name, pkg, Some("override.package"), None, javaMultipleFiles = false).javaPackage,
       "override.package")
   }
 

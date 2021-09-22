@@ -32,7 +32,6 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
         descriptor.getName,
         descriptor.getName,
         fileDescriptor.getPackage,
-        Some(s"google.golang.org/protobuf/types/known/${descriptor.getName.toLowerCase}pb"),
         Some(s"com.${fileDescriptor.getPackage}"),
         Some(s"${descriptor.getName}Proto"),
         javaMultipleFiles = true)
