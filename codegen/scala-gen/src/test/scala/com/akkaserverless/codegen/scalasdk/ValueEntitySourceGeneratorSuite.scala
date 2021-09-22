@@ -24,6 +24,7 @@ import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
 
+  // TODO use package naming template parameter to generate Scala-style testData
   private val testData = TestData()
 
   val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, None, false)

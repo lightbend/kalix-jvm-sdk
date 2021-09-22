@@ -111,6 +111,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           "com.example.shoppingcart.ShoppingCartService" ->
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+            FullyQualifiedName("ShoppingCartApi", shoppingCartProto),
             List(
               command(
                 "AddItem",
@@ -188,6 +189,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           "com.example.shoppingcart.ShoppingCartService" ->
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+            FullyQualifiedName("ShoppingCartApi", shoppingCartProto),
             List(
               command(
                 "AddItem",
@@ -269,6 +271,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           "com.example.shoppingcart.ShoppingCartService" ->
           ModelBuilder.EntityService(
             FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+            FullyQualifiedName("ShoppingCartApi", shoppingCartProto),
             List(
               command(
                 "AddItem",
@@ -370,6 +373,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           "shopping.cart.view.ShoppingCartViewService" ->
           ModelBuilder.ViewService(
             FullyQualifiedName("ShoppingCartViewService", "ShoppingCartViewService", shoppingCartProto),
+            FullyQualifiedName("ShoppingCartViewModel", shoppingCartProto),
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
             transformedUpdates,

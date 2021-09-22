@@ -22,10 +22,9 @@ import protocgen.CodeGenRequest
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuilder.FullyQualifiedNameExtractor {
+  import di._
 
   override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
-    import di._
-
     val name = descriptor match {
       case d: Descriptors.Descriptor =>
         d.scalaType.name
@@ -38,9 +37,7 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
     FullyQualifiedName(name, packageName(descriptor))
   }
 
-  override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
-    import di._
-
+  override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming =
     PackageNaming(
       descriptor.getFile.getName,
       descriptor.getName,
@@ -49,7 +46,21 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       None,
       None,
       javaMultipleFiles = false)
-  }
+
+  def packageName(protoFileName: String, scalaName: ScalaName): PackageNaming =
+    PackageNaming(
+      protoFileName,
+      scalaName.name,
+      scalaName.fullName.split("\\.").init.mkString("."),
+      None,
+      None,
+      None,
+      javaMultipleFiles = false)
+
+  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName =
+    FullyQualifiedName(
+      descriptor.fileDescriptorObject.name,
+      packageName(descriptor.getName, descriptor.fileDescriptorObject))
 }
 object FullyQualifiedNameExtractor {
   def apply(request: CodeGenRequest): FullyQualifiedNameExtractor =

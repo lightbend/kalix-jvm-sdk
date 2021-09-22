@@ -282,7 +282,7 @@ object EntityServiceSourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.fqn.parent.javaOuterClassname}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override

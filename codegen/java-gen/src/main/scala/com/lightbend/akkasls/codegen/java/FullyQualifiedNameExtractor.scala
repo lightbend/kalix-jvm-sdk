@@ -38,4 +38,9 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
         javaMultipleFiles = true)
     } else PackageNaming.from(fileDescriptor)
   }
+
+  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName = {
+    val parent = apply(descriptor).parent
+    FullyQualifiedName(parent.javaOuterClassname, parent)
+  }
 }

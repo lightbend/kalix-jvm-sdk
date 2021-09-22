@@ -22,6 +22,11 @@ object TestFullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameEx
   override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
     FullyQualifiedName(descriptor.getName, descriptor.getName, packageName(descriptor))
 
+  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName = {
+    val parent = apply(descriptor).parent
+    FullyQualifiedName(parent.javaOuterClassname, parent)
+  }
+
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
     val fileDescriptor = descriptor.getFile
     if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
