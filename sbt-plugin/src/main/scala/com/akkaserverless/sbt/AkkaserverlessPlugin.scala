@@ -16,10 +16,11 @@
 
 package com.akkaserverless.sbt
 
+import akka.grpc.sbt.AkkaGrpcPlugin
+
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-
 import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
@@ -28,8 +29,8 @@ import sbtprotoc.ProtocPlugin.autoImport.PB
 import scalapb.GeneratorOption
 
 object AkkaserverlessPlugin extends AutoPlugin {
-  override def trigger = allRequirements
-  override def requires = ProtocPlugin
+  override def trigger = noTrigger
+  override def requires = ProtocPlugin && AkkaGrpcPlugin
 
   trait Keys { _: autoImport.type =>
     val generateUnmanaged = taskKey[Unit](
