@@ -179,7 +179,6 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
-         |import com.example.service.ServiceOuterClass;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |import com.external.ExternalDomain;

@@ -174,19 +174,21 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.impl.view.ViewHandler
          |import com.akkaserverless.scalasdk.view.View
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
+         |import com.akkaserverless.scalasdk.view.ViewOptions
          |import com.akkaserverless.scalasdk.view.ViewProvider
-         |import com.example.service.MyServiceViewImpl
          |import com.google.protobuf.Descriptors
          |import com.google.protobuf.EmptyProto
          |import scala.collection.immutable
          |
          |object MyServiceViewProvider {
          |  def apply(viewFactory: Function[ViewCreationContext, MyServiceViewImpl]): MyServiceViewProvider =
-         |    new MyServiceViewProvider(viewFactory, viewId = "MyService")
+         |    new MyServiceViewProvider(viewFactory, viewId = "MyService", options = ViewOptions.defaults)
          |}
          |
-         |class MyServiceViewProvider private(viewFactory: Function[ViewCreationContext, MyServiceViewImpl],
-         |    override val viewId: String)
+         |class MyServiceViewProvider private(
+         |    viewFactory: Function[ViewCreationContext, MyServiceViewImpl],
+         |    override val viewId: String,
+         |    override val options: ViewOptions)
          |  extends ViewProvider[ViewState, MyServiceViewImpl] {
          |
          |  /**
@@ -194,7 +196,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |   * A different identifier can be needed when making rolling updates with changes to the view definition.
          |   */
          |  def withViewId(viewId: String): MyServiceViewProvider =
-         |    new MyServiceViewProvider(viewFactory, viewId)
+         |    new MyServiceViewProvider(viewFactory, viewId, options)
+         |
+         |  def withOptions(newOptions: ViewOptions): MyServiceViewProvider =
+         |    new MyServiceViewProvider(viewFactory, viewId, newOptions)
          |
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
          |    MyServiceProto.javaDescriptor.findServiceByName("MyService")

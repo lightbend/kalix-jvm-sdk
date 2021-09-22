@@ -111,6 +111,7 @@ object ViewServiceSourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
           "com.akkaserverless.scalasdk.impl.view.ViewHandler",
+          "com.akkaserverless.scalasdk.view.ViewOptions",
           "com.akkaserverless.scalasdk.view.ViewProvider",
           "com.akkaserverless.scalasdk.view.ViewCreationContext",
           "com.akkaserverless.scalasdk.view.View",
@@ -127,11 +128,13 @@ object ViewServiceSourceGenerator {
         |
         |object ${view.providerName} {
         |  def apply(viewFactory: Function[ViewCreationContext, ${view.className}]): ${view.providerName} =
-        |    new ${view.providerName}(viewFactory, viewId = "${view.viewId}")
+        |    new ${view.providerName}(viewFactory, viewId = "${view.viewId}", options = ViewOptions.defaults)
         |}
         |
-        |class ${view.providerName} private(viewFactory: Function[ViewCreationContext, ${view.className}],
-        |    override val viewId: String)
+        |class ${view.providerName} private(
+        |    viewFactory: Function[ViewCreationContext, ${view.className}],
+        |    override val viewId: String,
+        |    override val options: ViewOptions)
         |  extends ViewProvider[${typeName(view.state.fqn)}, ${view.className}] {
         |
         |  /**
@@ -139,7 +142,10 @@ object ViewServiceSourceGenerator {
         |   * A different identifier can be needed when making rolling updates with changes to the view definition.
         |   */
         |  def withViewId(viewId: String): ${view.providerName} =
-        |    new ${view.providerName}(viewFactory, viewId)
+        |    new ${view.providerName}(viewFactory, viewId, options)
+        |
+        |  def withOptions(newOptions: ViewOptions): ${view.providerName} =
+        |    new ${view.providerName}(viewFactory, viewId, newOptions)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
         |    ${typeName(view.descriptorObject)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")

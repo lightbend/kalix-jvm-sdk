@@ -20,6 +20,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import scala.annotation.tailrec
+import scala.collection.immutable
 
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
@@ -94,10 +95,21 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  class Imports(val currentPackage: String, val imports: Seq[String], val semi: Boolean) {
-    def contains(imp: String) = imports.contains(imp)
+  class Imports(val currentPackage: String, _imports: Seq[String], val semi: Boolean) {
 
-    override def toString = {
+    val imports: Seq[String] = _imports.filterNot(isInCurrentPackage)
+
+    private def isInCurrentPackage(imp: String): Boolean = {
+      val i = imp.lastIndexOf('.')
+      if (i == -1)
+        currentPackage == ""
+      else
+        currentPackage == imp.substring(0, i)
+    }
+
+    def contains(imp: String): Boolean = imports.contains(imp)
+
+    override def toString: String = {
       val suffix = if (semi) ";" else ""
       imports
         .map(pkg => s"import $pkg$suffix")
@@ -160,5 +172,23 @@ object SourceGeneratorUtils {
     else if (imports.contains(fqn.parent.javaPackage))
       fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
     else fqn.fullQualifiedName
+  }
+
+  def collectRelevantTypes(
+      fullQualifiedNames: Iterable[FullyQualifiedName],
+      service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
+    fullQualifiedNames.filterNot { desc =>
+      desc.parent == service.parent
+    }.toList
+  }
+
+  def collectRelevantTypeDescriptors(
+      fullQualifiedNames: Iterable[FullyQualifiedName],
+      service: FullyQualifiedName): String = {
+    collectRelevantTypes(fullQualifiedNames, service)
+      .map(desc => s"${desc.parent.javaOuterClassname}.getDescriptor()")
+      .distinct
+      .sorted
+      .mkString(",\n")
   }
 }

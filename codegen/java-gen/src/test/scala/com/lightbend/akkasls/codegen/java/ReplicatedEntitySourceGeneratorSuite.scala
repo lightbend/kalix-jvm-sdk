@@ -527,7 +527,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
-       |import com.example.service.ServiceOuterClass;
        |""".stripMargin.trim,
     "ReplicatedCounter",
     """|      ExternalDomain.getDescriptor(),
@@ -539,7 +538,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedRegister<EntityOuterClass.SomeValue>",
@@ -553,7 +551,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedSet<EntityOuterClass.SomeElement>",
@@ -568,7 +565,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedMap<EntityOuterClass.SomeKey, ReplicatedData>",
@@ -582,7 +578,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedCounterMap<EntityOuterClass.SomeKey>",
@@ -596,7 +591,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedRegisterMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>",
@@ -610,7 +604,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
-       |import com.example.service.ServiceOuterClass;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedMultiMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>",
@@ -624,7 +617,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote;
-       |import com.example.service.ServiceOuterClass;
        |""".stripMargin.trim,
     "ReplicatedVote",
     """|      ExternalDomain.getDescriptor(),

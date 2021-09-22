@@ -198,7 +198,6 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
-         |import com.example.service.ServiceOuterClass;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |import com.external.ExternalDomain;
@@ -291,8 +290,6 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |package com.example.service;
         |
         |import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-        |import com.example.service.MyServiceClient;
-        |import com.example.service.SomeMain;
         |import com.example.service.domain.EntityOuterClass;
         |import com.external.Empty;
         |import org.junit.ClassRule;

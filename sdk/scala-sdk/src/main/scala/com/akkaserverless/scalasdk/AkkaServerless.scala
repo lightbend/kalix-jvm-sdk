@@ -37,15 +37,16 @@ import com.akkaserverless.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 
 object AkkaServerless {
-  def apply(impl: Impl) = new AkkaServerless(impl)
   def apply() = new AkkaServerless(new Impl())
+
+  private[scalasdk] def apply(impl: Impl) = new AkkaServerless(impl)
 }
 
 /**
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless(impl: Impl) {
+class AkkaServerless private (impl: Impl) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
