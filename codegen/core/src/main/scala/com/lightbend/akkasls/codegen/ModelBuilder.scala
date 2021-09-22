@@ -196,7 +196,7 @@ object ModelBuilder {
     val className =
       if (fqn.name.contains("Action")) fqn.name + "Impl"
       else fqn.name + "Action"
-    val interfaceName = "Abstract" + baseClassName
+    val abstractActionName = "Abstract" + baseClassName
     val handlerName = baseClassName + "Handler"
     val providerName = baseClassName + "Provider"
 
@@ -261,7 +261,15 @@ object ModelBuilder {
       streamedInput: Boolean,
       streamedOutput: Boolean,
       inFromTopic: Boolean,
-      outToTopic: Boolean)
+      outToTopic: Boolean) {
+
+    def isUnary: Boolean = !streamedInput && !streamedOutput
+    def isStreamIn: Boolean = streamedInput && !streamedOutput
+    def isStreamOut: Boolean = !streamedInput && streamedOutput
+    def isStreamInOut: Boolean = streamedInput && streamedOutput
+    def hasStream: Boolean = isStreamIn || isStreamOut || isStreamInOut
+
+  }
 
   object Command {
     def from(method: Descriptors.MethodDescriptor)(implicit fqnExtractor: FullyQualifiedNameExtractor): Command = {

@@ -41,6 +41,8 @@ object SourceGenerator {
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateManaged(service)
+        case service: ModelBuilder.ActionService =>
+          ActionServiceSourceGenerator.generateManaged(service)
         case _ => Nil // FIXME
       }
       .map(_.prepend(managedComment))
@@ -72,6 +74,8 @@ object SourceGenerator {
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateUnmanaged(service)
+        case service: ModelBuilder.ActionService =>
+          ActionServiceSourceGenerator.generateUnmanaged(service)
         case _ => Nil // FIXME
       }
       .map(_.prepend(unmanagedComment))

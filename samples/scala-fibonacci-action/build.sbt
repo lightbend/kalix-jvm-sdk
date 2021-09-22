@@ -1,6 +1,6 @@
 import com.akkaserverless.sbt.AkkaserverlessPlugin.autoImport.generateUnmanaged
 
-name := "customer-registry"
+name := "fibonacci-action"
 
 organization := "com.akkaseverless.samples"
 organizationHomepage := Some(url("https://akkaserverless.com"))
