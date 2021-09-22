@@ -111,4 +111,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |""".stripMargin)
   }
 
+  test("it can generate a provider") {
+    val file =
+      provider(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    assertNoDiff(file.content, "")
+  }
 }

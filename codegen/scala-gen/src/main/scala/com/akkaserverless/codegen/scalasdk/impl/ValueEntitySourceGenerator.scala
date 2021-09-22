@@ -23,15 +23,9 @@ import com.lightbend.akkasls.codegen.Format
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  /**
-   * Generate Scala sources the user view source file.
-   */
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
 
-  /**
-   * Generate Scala sources for provider, handler, abstract baseclass for a view.
-   */
   def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] = {
     val generatedSources = Seq.newBuilder[File]
 
@@ -42,7 +36,7 @@ object ValueEntitySourceGenerator {
       s"$packagePath/${valueEntity.abstractEntityName}.scala",
       abstractEntity(valueEntity, service))
     generatedSources += File(s"$packagePath/${valueEntity.handlerName}.scala", handler(valueEntity, service))
-    //FIXME add Provider
+    generatedSources += provider(valueEntity, service)
 
     generatedSources.result()
   }
@@ -52,6 +46,7 @@ object ValueEntitySourceGenerator {
       service: ModelBuilder.EntityService): String = {
     val stateType = valueEntity.state.fqn.name
     val abstractEntityName = valueEntity.abstractEntityName
+
     implicit val imports =
       generateImports(
         Seq(valueEntity.state.fqn) ++
@@ -133,6 +128,39 @@ object ValueEntitySourceGenerator {
         |  }
         |}
         |""".stripMargin
+  }
+
+  def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
+    val packageName = entity.fqn.parent.scalaPackage
+    val className = entity.fqn.name + "Provider"
+
+    val imports = generateImports(
+      Seq(entity.state.fqn) ++ service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
+      // TODO descriptor imports
+      packageName,
+      Seq(
+        "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
+        "com.akkaserverless.scalasdk.valueentity.ValueEntityOptions",
+        "com.akkaserverless.scalasdk.valueentity.ValueEntityProvider",
+        "com.google.protobuf.Descriptors"),
+      semi = false)
+
+    File(
+      s"${packageAsPath(packageName)}/${className}.scala",
+      s"""
+         |package $packageName
+         |
+         |$imports
+         |
+         |object $className {
+         |  def apply(entityFactory: ValueEntityContext => ${entity.fqn.name}): $className =
+         |    new $className(entityFactory, ValueEntityOptions.defaults())
+         |}
+         |class $className private(entityFactory: ValueEntityContext => ${entity.fqn.name}, options: ValueEntityOptions) {
+         |  val serviceDescriptor: Descriptors.ServiceDescriptor =
+         |    ???
+         |}
+         |""".stripMargin)
   }
 
   def generateImplementationSkeleton(
