@@ -319,7 +319,6 @@ object ActionServiceSourceGenerator {
     val classNameAction = service.className
     val protoName = service.fqn.protoName
 
-    val grpcServiceClass = service.fqn.parent.javaOuterClassname
     val descriptors =
       (collectRelevantTypes(service.commandTypes, service.fqn)
         .map(d =>
@@ -374,7 +373,7 @@ object ActionServiceSourceGenerator {
       |
       |  @Override
       |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-      |    return $grpcServiceClass.getDescriptor().findServiceByName("$protoName");
+      |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("$protoName");
       |  }
       |
       |  @Override
