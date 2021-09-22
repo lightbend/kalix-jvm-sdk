@@ -26,6 +26,8 @@ trait ViewProvider[S, V <: View[S]] {
 
   def viewId: String
 
+  def options: ViewOptions
+
   def newHandler(context: ViewCreationContext): ViewHandler[S, V]
 
   def additionalDescriptors(): immutable.Seq[Descriptors.FileDescriptor]
