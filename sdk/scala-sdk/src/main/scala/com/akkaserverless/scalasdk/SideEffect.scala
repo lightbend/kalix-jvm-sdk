@@ -17,11 +17,10 @@
 package com.akkaserverless.scalasdk
 
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
 import com.akkaserverless.scalasdk.impl.MetadataImpl
-import com.google.protobuf
 import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 /* A side effect. */
 object SideEffect {
@@ -67,7 +66,7 @@ private[scalasdk] case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.S
 
 private[scalasdk] case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall) extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
-  override def message: protobuf.Any = javasdkServiceCall.message
+  override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkServiceCall.message)
   override def metadata: Metadata = {
     // FIXME can we get rid of this cast?
     new MetadataImpl(javasdkServiceCall.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])

@@ -25,6 +25,7 @@ import com.akkaserverless.scalasdk.ServiceCallRef
 import com.akkaserverless.scalasdk.SideEffect
 import com.google.protobuf
 import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 private[scalasdk] case class ScalaServiceCallFactoryAdapter(javaSdkServiceCallFactory: javasdk.ServiceCallFactory)
     extends ServiceCallFactory {
@@ -35,13 +36,13 @@ private[scalasdk] case class ScalaServiceCallFactoryAdapter(javaSdkServiceCallFa
 }
 private[scalasdk] case class JavaServiceCallAdapter(scalaSdkServiceCall: ServiceCall) extends javasdk.ServiceCall {
   override def ref(): javasdk.ServiceCallRef[_] = JavaServiceCallRefAdapter(scalaSdkServiceCall.ref)
-  override def message(): protobuf.Any = scalaSdkServiceCall.message
+  override def message(): protobuf.Any = ScalaPbAny.toJavaProto(scalaSdkServiceCall.message)
   override def metadata(): javasdk.Metadata = scalaSdkServiceCall.metadata.asInstanceOf[MetadataImpl].impl
 }
 
 private[scalasdk] case class ScalaServiceCallAdapter(javaSdkServiceCall: javasdk.ServiceCall) extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javaSdkServiceCall.ref())
-  override def message: protobuf.Any = javaSdkServiceCall.message
+  override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javaSdkServiceCall.message)
   override def metadata: Metadata =
     new MetadataImpl(javaSdkServiceCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 }
