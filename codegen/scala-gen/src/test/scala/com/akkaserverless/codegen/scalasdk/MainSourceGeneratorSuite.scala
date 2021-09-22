@@ -46,12 +46,11 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
       """|package com.example.service
          |
          |import com.akkaserverless.scalasdk.AkkaServerless
-         |import org.slf4j.LoggerFactory
-         |import com.example.service.MyServiceAction
          |import com.example.service.domain.MyEntity1
          |import com.example.service.domain.MyEntity3
          |import com.example.service.domain.MyReplicatedEntity6
          |import com.example.service.domain.MyValueEntity2
+         |import org.slf4j.LoggerFactory
          |
          |object SomeMain {
          |
@@ -103,7 +102,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         suffix = "6"))
 
     val mainPackageName = "com.example.service"
-    val mainClassName = "SomeMain"
 
     val generatedSrc =
       MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))

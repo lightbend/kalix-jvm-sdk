@@ -95,10 +95,21 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  class Imports(val currentPackage: String, val imports: Seq[String], val semi: Boolean) {
-    def contains(imp: String) = imports.contains(imp)
+  class Imports(val currentPackage: String, _imports: Seq[String], val semi: Boolean) {
 
-    override def toString = {
+    val imports: Seq[String] = _imports.filterNot(isInCurrentPackage)
+
+    private def isInCurrentPackage(imp: String): Boolean = {
+      val i = imp.lastIndexOf('.')
+      if (i == -1)
+        currentPackage == ""
+      else
+        currentPackage == imp.substring(0, i)
+    }
+
+    def contains(imp: String): Boolean = imports.contains(imp)
+
+    override def toString: String = {
       val suffix = if (semi) ";" else ""
       imports
         .map(pkg => s"import $pkg$suffix")

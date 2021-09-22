@@ -175,7 +175,6 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.View
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
          |import com.akkaserverless.scalasdk.view.ViewProvider
-         |import com.example.service.MyServiceViewImpl
          |import com.google.protobuf.Descriptors
          |import com.google.protobuf.EmptyProto
          |import scala.collection.immutable

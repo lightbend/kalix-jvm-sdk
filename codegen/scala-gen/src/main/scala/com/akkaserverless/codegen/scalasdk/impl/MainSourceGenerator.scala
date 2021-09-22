@@ -103,8 +103,12 @@ object MainSourceGenerator {
       case view: ModelBuilder.ViewService      => view.classNameQualified
     }.toSeq
 
-    val componentImports =
-      generateImports(Iterable.empty, mainClassPackageName, entityImports ++ serviceImports, semi = false)
+    val allImports = entityImports ++ serviceImports ++
+      List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
+
+    val imports =
+      generateImports(Iterable.empty, mainClassPackageName, allImports, semi = false)
+
     val entityRegistrationParameters = entities.values.toList
       .sortBy(_.fqn.name)
       .collect {
@@ -123,9 +127,7 @@ object MainSourceGenerator {
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
     s"""|package $mainClassPackageName
         |
-        |import com.akkaserverless.scalasdk.AkkaServerless
-        |import org.slf4j.LoggerFactory
-        |${componentImports}
+        |$imports
         |
         |object $mainClassName {
         |
@@ -173,44 +175,28 @@ object MainSourceGenerator {
       .sorted
 
     val entityImports = model.entities.values.flatMap { ety =>
-      if (ety.fqn.parent.javaPackage != mainClassPackageName) {
-        val imports =
-          ety.fqn.fullQualifiedName ::
-          Nil
-        ety match {
-          case _: ModelBuilder.EventSourcedEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _: ModelBuilder.ValueEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _: ModelBuilder.ReplicatedEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _ => imports
-        }
-      } else List.empty
+      val imp =
+        ety.fqn.fullQualifiedName :: Nil
+      ety match {
+        case _: ModelBuilder.EventSourcedEntity =>
+          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+        case _: ModelBuilder.ValueEntity =>
+          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+        case _: ModelBuilder.ReplicatedEntity =>
+          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+        case _ => imp
+      }
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      if (serv.fqn.parent.javaPackage != mainClassPackageName) {
-        serv match {
-          case actionServ: ModelBuilder.ActionService =>
-            List(actionServ.classNameQualified, actionServ.providerNameQualified)
-          case view: ModelBuilder.ViewService =>
-            List(view.classNameQualified, view.providerNameQualified)
-          case _ => Nil
-        }
-      } else List.empty
+      serv match {
+        case actionServ: ModelBuilder.ActionService =>
+          List(actionServ.classNameQualified, actionServ.providerNameQualified)
+        case view: ModelBuilder.ViewService =>
+          List(view.classNameQualified, view.providerNameQualified)
+        case _ => Nil
+      }
     }
-
-    val otherImports = Nil
-    // FIXME
-//      model.services.values.flatMap { serv =>
-//      val types = serv.commands.flatMap { cmd =>
-//        cmd.inputType :: cmd.outputType :: Nil
-//      }
-//      collectRelevantTypes(types, serv.fqn).map { typ =>
-//        s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
-//      }
-//    }
 
     val entityContextImports = model.entities.values.collect {
       case _: ModelBuilder.EventSourcedEntity =>
@@ -227,7 +213,12 @@ object MainSourceGenerator {
       case _: ModelBuilder.ViewService =>
         List("com.akkaserverless.scalasdk.view.ViewCreationContext")
     }.flatten
-    val contextImports = (entityContextImports ++ serviceContextImports).toSet
+
+    val allImports = (entityImports ++ serviceImports ++ entityContextImports ++ serviceContextImports ++
+      List("com.akkaserverless.scalasdk.AkkaServerless")).toList
+
+    val imports =
+      generateImports(Iterable.empty, mainClassPackageName, allImports, semi = false)
 
     val entityCreators =
       model.entities.values.toList
@@ -251,11 +242,6 @@ object MainSourceGenerator {
       }
 
     val creatorParameters = entityCreators ::: serviceCreators
-    val imports =
-      (List(
-        "com.akkaserverless.scalasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports ++ contextImports).distinct.sorted
-        .map(pkg => s"import $pkg")
-        .mkString("\n")
 
     s"""|package $mainClassPackageName
         |
