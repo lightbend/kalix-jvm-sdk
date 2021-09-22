@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk
 
-import com.google.protobuf.Any
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 /** Represents a call to a service, performed either as a forward, or as an effect. */
 trait ServiceCall {
@@ -33,9 +33,9 @@ trait ServiceCall {
    * The message to pass to the call when the call is invoked.
    *
    * @return
-   *   The message to pass to the call, serialized as an {@link Any}.
+   *   The message to pass to the call, serialized as an {{{ScalaPbAny}}}
    */
-  def message: Any
+  def message: ScalaPbAny
 
   /**
    * The metadata to pass with the message when the call is invoked.
