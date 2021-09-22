@@ -117,8 +117,7 @@ object Dependencies {
   val sbtPlugin = Seq(
     // we depend on it in the settings of the plugin since we set keys of the sbt-protoc plugin
     addSbtPlugin(sbtProtoc),
-    addSbtPlugin(akkaGrpc)
-    )
+    addSbtPlugin(akkaGrpc))
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here
