@@ -50,7 +50,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.AkkaServerless;
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
-         |import com.example.service.MyServiceAction;
          |import com.example.service.domain.MyEntity1;
          |import com.example.service.domain.MyEntity3;
          |import com.example.service.domain.MyReplicatedEntity6;

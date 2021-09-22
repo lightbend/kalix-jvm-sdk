@@ -370,7 +370,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
-        |import com.example.service.ServiceOuterClass;
         |import com.external.Empty;
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;
@@ -448,7 +447,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
-        |import com.example.service.ServiceOuterClass;
         |import com.external.Empty;
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;

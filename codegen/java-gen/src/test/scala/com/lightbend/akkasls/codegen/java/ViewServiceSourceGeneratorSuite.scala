@@ -216,7 +216,6 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewOptions;
        |import com.akkaserverless.javasdk.view.ViewProvider;
-       |import com.example.service.MyServiceViewImpl;
        |import com.google.protobuf.Descriptors;
        |import com.google.protobuf.EmptyProto;
        |import java.util.function.Function;
