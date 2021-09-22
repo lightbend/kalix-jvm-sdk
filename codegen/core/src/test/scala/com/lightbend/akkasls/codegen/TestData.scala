@@ -23,7 +23,6 @@ object TestData {
       "Undefined",
       "undefined",
       None,
-      None,
       Some("UndefinedOuterClass"),
       javaMultipleFiles = false)
 
@@ -63,17 +62,10 @@ class TestData(packageNamingTemplate: PackageNaming) {
       javaOuterClassnameOption = packageNamingTemplate.javaOuterClassnameOption.map(_ => s"EntityOuterClass$suffix"))
 
   val externalProto: PackageNaming =
-    PackageNaming("external_domain.proto", "ExternalDomain", "com.external", None, None, None, javaMultipleFiles = true)
+    PackageNaming("external_domain.proto", "ExternalDomain", "com.external", None, None, javaMultipleFiles = true)
 
   val googleProto: PackageNaming =
-    PackageNaming(
-      "google_proto.proto",
-      "GoogleProto",
-      "com.google.protobuf",
-      None,
-      None,
-      None,
-      javaMultipleFiles = true)
+    PackageNaming("google_proto.proto", "GoogleProto", "com.google.protobuf", None, None, javaMultipleFiles = true)
 
   def command(
       name: String,

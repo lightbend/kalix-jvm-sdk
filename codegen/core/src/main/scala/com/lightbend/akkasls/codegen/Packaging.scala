@@ -16,9 +16,8 @@
 
 package com.lightbend.akkasls.codegen
 
-import com.akkaserverless.ServiceOptions.ServiceType
-
 import scala.jdk.CollectionConverters._
+
 import com.google.protobuf.Descriptors
 
 /**
@@ -56,7 +55,6 @@ case class PackageNaming(
     protoFileName: String,
     name: String,
     pkg: String,
-    goPackageOption: Option[String],
     javaPackageOption: Option[String],
     javaOuterClassnameOption: Option[String],
     javaMultipleFiles: Boolean) {
@@ -84,7 +82,6 @@ object PackageNaming {
       (fieldDescriptor.getFullName, field)
     }
 
-    val goPackage = generalOptions.get("google.protobuf.FileOptions.go_package").map(_.toString())
     val javaPackage =
       generalOptions.get("google.protobuf.FileOptions.java_package").map(_.toString())
 
@@ -109,7 +106,6 @@ object PackageNaming {
       descriptor.getName,
       name,
       descriptor.getPackage,
-      goPackage,
       javaPackage,
       Some(javaOuterClassname),
       javaMultipleFiles)

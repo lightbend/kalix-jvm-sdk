@@ -27,8 +27,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   // TODO use package naming template parameter to generate Scala-style testData
   private val testData = TestData()
 
-  val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, None, false)
-  val apiParent = PackageNaming("api.proto", "", "com.example.service", None, None, None, false)
+  val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, false)
+  val apiParent = PackageNaming("api.proto", "", "com.example.service", None, None, false)
 
   test("it can generate a value entity implementation skeleton") {
     val file =

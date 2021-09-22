@@ -44,7 +44,6 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       descriptor.getFile.scalaPackage.fullName,
       None,
       None,
-      None,
       javaMultipleFiles = false)
 
   def packageName(protoFileName: String, scalaName: ScalaName): PackageNaming =
@@ -52,7 +51,6 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       protoFileName,
       scalaName.name,
       scalaName.fullName.split("\\.").init.mkString("."),
-      None,
       None,
       None,
       javaMultipleFiles = false)
