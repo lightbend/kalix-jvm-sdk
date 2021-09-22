@@ -139,6 +139,7 @@ object EventSourcedEntityTestKitGenerator {
           |    ${Format.indent(generateHandleEvents(entity.events), 4)}
           |  }
           |
+          |  @SuppressWarnings("unchecked")
           |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
           |    List<Object> events = EventSourcedResultImpl.eventsOf(effect);
           |    this.events.addAll(events);

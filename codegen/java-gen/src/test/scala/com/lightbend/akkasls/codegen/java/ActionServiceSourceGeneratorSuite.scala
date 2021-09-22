@@ -241,6 +241,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
@@ -263,6 +264,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
@@ -317,6 +319,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
@@ -339,6 +342,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":

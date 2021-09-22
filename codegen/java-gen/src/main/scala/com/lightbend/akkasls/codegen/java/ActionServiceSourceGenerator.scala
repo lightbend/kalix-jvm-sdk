@@ -278,6 +278,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Format.indent(streamOutCases, 6)}
@@ -296,6 +297,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Format.indent(streamInOutCases, 6)}
