@@ -37,10 +37,3 @@ Compile / compile := {
   (Compile / generateUnmanaged).value
   (Compile / compile).value
 }
-
-// FIXME sdk dependency should be included via sbt-akkaserverless
-val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.2")
-
-libraryDependencies ++= Seq(
-  "com.akkaserverless" %% "akkaserverless-scala-sdk" % AkkaServerlessSdkVersion
-)
