@@ -88,6 +88,7 @@ class TestData(packageNamingTemplate: PackageNaming) {
   def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
     ModelBuilder.EntityService(
       FullyQualifiedName(s"MyService$suffix", proto),
+      FullyQualifiedName(s"MyService${suffix}Proto", proto),
       List(
         command("Set", FullyQualifiedName("SetValue", proto), FullyQualifiedName("Empty", externalProto)),
         command("Get", FullyQualifiedName("GetValue", proto), FullyQualifiedName("MyState", proto))),
@@ -97,6 +98,7 @@ class TestData(packageNamingTemplate: PackageNaming) {
 
     ModelBuilder.ActionService(
       FullyQualifiedName(proto.name, proto.name, proto),
+      FullyQualifiedName(proto.name + "Proto", proto),
       List(
         command("SimpleMethod", FullyQualifiedName("MyRequest", proto), FullyQualifiedName("Empty", externalProto)),
         command(
@@ -120,6 +122,7 @@ class TestData(packageNamingTemplate: PackageNaming) {
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
     ModelBuilder.ActionService(
       FullyQualifiedName(proto.name, proto.name, proto),
+      FullyQualifiedName(proto.name + "Proto", proto),
       List(
         command(
           "InFromTopic",
@@ -145,6 +148,7 @@ class TestData(packageNamingTemplate: PackageNaming) {
         FullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
       FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
+      FullyQualifiedName(s"MyService${suffix}Proto", proto),
       List(
         command(
           "Created",

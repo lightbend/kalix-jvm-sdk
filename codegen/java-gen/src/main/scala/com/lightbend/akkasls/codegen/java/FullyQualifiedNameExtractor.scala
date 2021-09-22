@@ -38,4 +38,8 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
         javaMultipleFiles = true)
     } else PackageNaming.from(fileDescriptor)
   }
+
+  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName =
+    // TODO move logic from generator classes to here
+    ???
 }

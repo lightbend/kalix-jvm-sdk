@@ -41,15 +41,15 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
   val domain = descriptors.find(_.getName == "shoppingcart_domain.proto").get
   val stateCart = domain.getMessageTypes.asScala.find(_.getName == "Cart").get
 
-  implicit val fqnExtractor = new FullyQualifiedNameExtractor(
-    DescriptorImplicits.fromCodeGenRequest(
-      GeneratorParams(),
-      CodeGenRequest(
-        parameter = "",
-        filesToGenerate = Seq.empty,
-        allProtos = descriptors,
-        compilerVersion = None,
-        CodeGeneratorRequest.newBuilder().build())))
+  val di = DescriptorImplicits.fromCodeGenRequest(
+    GeneratorParams(),
+    CodeGenRequest(
+      parameter = "",
+      filesToGenerate = Seq.empty,
+      allProtos = descriptors,
+      compilerVersion = None,
+      CodeGeneratorRequest.newBuilder().build()))
+  implicit val fqnExtractor = new FullyQualifiedNameExtractor(di)
 
   test("extract api message types") {
     val fqn = fqnExtractor(apiCart)
@@ -68,5 +68,13 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
     val shoppingCartValueEntity = model.entities.values.head.asInstanceOf[ModelBuilder.ValueEntity]
 
     assertNoDiff(shoppingCartValueEntity.state.fqn.parent.scalaPackage, fqnExtractor(stateCart).parent.scalaPackage)
+  }
+
+  test("find the filename of the Scala representation of the proto") {
+    import di._
+    val fileDescriptorObject = fqnExtractor.fileDescriptorObject(api)
+    assertNoDiff(
+      "com.example.shoppingcart.shoppingcart_api.ShoppingcartApiProto",
+      fileDescriptorObject.fullQualifiedName)
   }
 }

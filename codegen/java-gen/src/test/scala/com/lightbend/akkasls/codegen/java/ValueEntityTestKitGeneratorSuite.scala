@@ -243,6 +243,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         javaMultipleFiles = true)
     ModelBuilder.EntityService(
       FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+      FullyQualifiedName("ShoppingCartServiceProto", shoppingCartProto),
       List(
         testData.command(
           "AddItem",
