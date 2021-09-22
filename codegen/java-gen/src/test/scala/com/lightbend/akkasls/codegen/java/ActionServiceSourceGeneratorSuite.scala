@@ -244,7 +244,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
-        |        return action()
+        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -266,7 +266,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
-        |        return action()
+        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -320,7 +320,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
-        |        return action()
+        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -342,7 +342,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
-        |        return action()
+        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);

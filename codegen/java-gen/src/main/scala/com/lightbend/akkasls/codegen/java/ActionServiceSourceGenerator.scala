@@ -221,7 +221,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
-          |  return  (Source<Action.Effect<?>, NotUsed>)(Object) action()
+          |  return (Source<Action.Effect<?>, NotUsed>)(Object) action()
           |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload());
           |""".stripMargin
     }
