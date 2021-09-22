@@ -23,32 +23,105 @@ import com.lightbend.akkasls.codegen.Format
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generateImplementationSkeleton(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
+  /**
+   * Generate Scala sources the user view source file.
+   */
+  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] = {
+    val generatedSources = Seq.newBuilder[File]
+
+    val packageName = service.fqn.parent.scalaPackage
+    val packagePath = packageAsPath(packageName)
+
+    generatedSources += generateImplementationSkeleton(valueEntity, service)
+
+    generatedSources.result()
+  }
+
+  /**
+   * Generate Scala sources for provider, handler, abstract baseclass for a view.
+   */
+  def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] = {
+    val generatedSources = Seq.newBuilder[File]
+
+    val packageName = valueEntity.fqn.parent.scalaPackage
+    val packagePath = packageAsPath(packageName)
+
+    generatedSources += File(
+      s"$packagePath/${valueEntity.abstractEntityName}.scala",
+      abstractEntity(valueEntity, service))
+    //FIXME add Handler and Provider
+
+    generatedSources.result()
+  }
+
+  private[codegen] def abstractEntity(
+      valueEntity: ModelBuilder.ValueEntity,
+      service: ModelBuilder.EntityService): String = {
+    val stateType = valueEntity.state.fqn.name
+    val abstractEntityName = valueEntity.abstractEntityName
     implicit val imports =
       generateImports(
-        Seq(entity.state.fqn) ++
+        Seq(valueEntity.state.fqn) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        entity.fqn.parent.scalaPackage,
+        valueEntity.fqn.parent.scalaPackage,
+        otherImports = Seq("com.akkaserverless.scalasdk.valueentity.ValueEntity"),
+        packageImports = Seq(service.fqn.parent.scalaPackage),
+        semi = false)
+
+    val methods = service.commands
+      .map { cmd =>
+        val methodName = cmd.name
+
+        val inputType = typeName(cmd.inputType)
+        val outputType = typeName(cmd.outputType)
+
+        s"""|/** Command handler for "${cmd.name}". */
+            |def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): ValueEntity.Effect[$outputType]
+            |""".stripMargin
+
+      }
+
+    s"""|package ${valueEntity.fqn.parent.scalaPackage}
+        |
+        |$imports
+        |
+        |/** A value entity. */
+        |abstract class $abstractEntityName extends ValueEntity[$stateType] {
+        |
+        |  ${Format.indent(methods, 2)}
+        |}
+        |""".stripMargin
+  }
+
+  def generateImplementationSkeleton(
+      valueEntity: ModelBuilder.ValueEntity,
+      service: ModelBuilder.EntityService): File = {
+    implicit val imports =
+      generateImports(
+        Seq(valueEntity.state.fqn) ++
+        service.commands.map(_.inputType) ++
+        service.commands.map(_.outputType),
+        valueEntity.fqn.parent.scalaPackage,
         otherImports = Seq.empty,
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
     val methods = service.commands.map { cmd =>
       // TODO 'override', use 'effect' for output, use actual state type for state
-      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(entity.state.fqn)}, command: ${typeName(
+      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
         cmd.inputType)}): ${typeName(cmd.outputType)} = ???
           |""".stripMargin
     }
 
     File(
-      entity.fqn.fileBasename + ".scala",
+      valueEntity.fqn.fileBasename + ".scala",
       s"""
-         |package ${entity.fqn.parent.scalaPackage}
+         |package ${valueEntity.fqn.parent.scalaPackage}
          |
          |$imports
          |
-         |class ${entity.fqn.name} /* extends Abstract${entity.fqn.name} */ {
+         |class ${valueEntity.fqn.name} /* extends ${valueEntity.abstractEntityName} */ {
          |  ${Format.indent(methods, 2)}
          |}
          |""".stripMargin)
