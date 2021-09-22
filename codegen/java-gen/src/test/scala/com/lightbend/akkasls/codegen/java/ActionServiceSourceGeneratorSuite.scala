@@ -17,13 +17,12 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.lightbend.akkasls.codegen.TestData.serviceProto
-
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test("Action source generation") {
 
-    val service = TestData.simpleActionService()
+    val service = testData.simpleActionService()
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionSource(service)
@@ -75,8 +74,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("Action source generation with 'Action' in the name") {
 
-    val packageNaming = serviceProto().copy(name = "MyServiceAction")
-    val service = TestData.simpleActionService(packageNaming)
+    val packageNaming = testData.serviceProto().copy(name = "MyServiceAction")
+    val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionSource(service)
@@ -127,7 +126,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("Action abstract class source generation") {
-    val service = TestData.simpleActionService()
+    val service = testData.simpleActionService()
 
     val generatedSrc =
       ActionServiceSourceGenerator.abstractActionSource(service)
@@ -166,8 +165,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
   /** confirms that the generated abstract class doesn't get a 'Impl' in the name */
   test("Action abstract class source generation with 'Action' in the name") {
 
-    val packageNaming = serviceProto().copy(name = "MyServiceAction")
-    val service = TestData.simpleActionService(packageNaming)
+    val packageNaming = testData.serviceProto().copy(name = "MyServiceAction")
+    val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
       ActionServiceSourceGenerator.abstractActionSource(service)
@@ -204,7 +203,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("Action Handler source generation") {
-    val service = TestData.simpleActionService()
+    val service = testData.simpleActionService()
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionHandler(service)
@@ -279,8 +278,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("Action Handler source generation 'Action' in the name") {
 
-    val packageNaming = serviceProto().copy(name = "MyServiceAction")
-    val service = TestData.simpleActionService(packageNaming)
+    val packageNaming = testData.serviceProto().copy(name = "MyServiceAction")
+    val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionHandler(service)
@@ -354,7 +353,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("Action Provider source generation") {
-    val service = TestData.simpleActionService()
+    val service = testData.simpleActionService()
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionProvider(service)
@@ -431,8 +430,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("Action Provider source generation 'Action' in the name") {
 
-    val packageNaming = serviceProto().copy(name = "MyServiceAction")
-    val service = TestData.simpleActionService(packageNaming)
+    val packageNaming = testData.serviceProto().copy(name = "MyServiceAction")
+    val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionProvider(service)
@@ -509,7 +508,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("Action with pub/sub source generation") {
 
-    val service = TestData.simpleJsonPubSubActionService()
+    val service = testData.simpleJsonPubSubActionService()
 
     val generatedSrc =
       ActionServiceSourceGenerator.actionSource(service)

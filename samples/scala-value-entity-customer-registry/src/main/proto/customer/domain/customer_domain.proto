@@ -17,8 +17,6 @@ syntax = "proto3";
 
 package customer.domain;
 
-option java_outer_classname = "CustomerDomain";
-
 //end::declarations[]
 
 // tag::domain[]

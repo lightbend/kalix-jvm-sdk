@@ -18,9 +18,10 @@ package com.lightbend.akkasls.codegen
 package java
 
 class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test("source, transform_updates=true") {
-    val service = TestData.simpleViewService()
+    val service = testData.simpleViewService()
 
     val packageName = "com.example.service"
     val generatedSrc =
@@ -60,7 +61,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("source, transform_updates=false") {
-    val service = TestData.simpleViewService().copy(transformedUpdates = Nil)
+    val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
     val packageName = "com.example.service"
     val generatedSrc =
@@ -86,7 +87,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("abstract source, transform_updates=true") {
-    val service = TestData.simpleViewService()
+    val service = testData.simpleViewService()
     val packageName = "com.example.service"
 
     val generatedSrc =
@@ -113,7 +114,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("abstract source, transform_updates=false") {
-    val service = TestData.simpleViewService().copy(transformedUpdates = Nil)
+    val service = testData.simpleViewService().copy(transformedUpdates = Nil)
     val packageName = "com.example.service"
 
     val generatedSrc =
@@ -142,7 +143,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("handler source") {
-    val service = TestData.simpleViewService()
+    val service = testData.simpleViewService()
     val packageName = "com.example.service"
 
     val generatedSrc =
@@ -195,7 +196,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("provider source") {
-    val service = TestData.simpleViewService()
+    val service = testData.simpleViewService()
     val packageName = "com.example.service"
 
     val generatedSrc =

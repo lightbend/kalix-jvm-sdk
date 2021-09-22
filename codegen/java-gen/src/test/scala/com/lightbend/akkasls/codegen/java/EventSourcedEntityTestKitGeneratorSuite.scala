@@ -17,10 +17,8 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.lightbend.akkasls.codegen.TestData.command
-import com.lightbend.akkasls.codegen.TestData.externalProto
-
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test(
     "it can generate an specific TestKit for the proto files " +
@@ -269,15 +267,15 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
     ModelBuilder.EntityService(
       FullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
-        command(
+        testData.command(
           "AddItem",
           FullyQualifiedName("AddLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
-        command(
+        testData.command(
           "RemoveItem",
           FullyQualifiedName("RemoveLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
-        command(
+        testData.command(
           "GetCart",
           FullyQualifiedName("GetShoppingCart", shoppingCartProto),
           FullyQualifiedName("Cart", shoppingCartProto))),

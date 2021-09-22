@@ -19,9 +19,10 @@ package com.lightbend.akkasls.codegen.java
 import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.TestData.command
+import com.lightbend.akkasls.codegen.TestData
 
 class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test(
     "it can generate an specific TestKit for the proto files " +
@@ -243,15 +244,15 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     ModelBuilder.EntityService(
       FullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
-        command(
+        testData.command(
           "AddItem",
           FullyQualifiedName("AddLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
-        command(
+        testData.command(
           "RemoveItem",
           FullyQualifiedName("RemoveLineItem", shoppingCartProto),
           FullyQualifiedName("Empty", googleEmptyProto)),
-        command(
+        testData.command(
           "GetCart",
           FullyQualifiedName("GetShoppingCart", shoppingCartProto),
           FullyQualifiedName("Cart", shoppingCartProto))),

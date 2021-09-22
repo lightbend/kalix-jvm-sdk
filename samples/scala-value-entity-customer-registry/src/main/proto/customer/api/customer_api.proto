@@ -16,8 +16,6 @@ syntax = "proto3";
 
 package customer.api;
 
-option java_outer_classname = "CustomerApi";
-
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 

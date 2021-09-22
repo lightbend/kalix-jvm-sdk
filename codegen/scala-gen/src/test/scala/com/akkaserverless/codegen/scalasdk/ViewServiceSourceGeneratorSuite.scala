@@ -20,50 +20,49 @@ import com.akkaserverless.codegen.scalasdk.impl.ViewServiceSourceGenerator
 import com.lightbend.akkasls.codegen.TestData
 
 class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData(TestData.defaultPackageNamingTemplate.copy(javaOuterClassnameOption = None))
 
   test("source, transform_updates=true") {
-    val service = TestData.simpleViewService()
+    val service = testData.simpleViewService()
 
-    val packageName = "com.example.service"
-    val generatedSrc =
-      ViewServiceSourceGenerator.viewSource(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.viewSource(service)
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
          |
          |import com.akkaserverless.scalasdk.view.View.UpdateEffect
          |import com.akkaserverless.scalasdk.view.ViewContext
-         |import com.example.service.domain.EntityOuterClass
+         |import com.example.service.domain.EntityCreated
+         |import com.example.service.domain.EntityUpdated
          |
          |class MyServiceViewImpl(context: ViewContext) extends AbstractMyServiceView {
          |
-         |  override def emptyState: ServiceOuterClass.ViewState =
+         |  override def emptyState: ViewState =
          |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
          |
          |  override def created(
-         |    state: ServiceOuterClass.ViewState, entityCreated: EntityOuterClass.EntityCreated): UpdateEffect[ServiceOuterClass.ViewState] =
+         |    state: ViewState, entityCreated: EntityCreated): UpdateEffect[ViewState] =
          |    throw new UnsupportedOperationException("Update handler for 'Created' not implemented yet")
          |
          |  override def updated(
-         |    state: ServiceOuterClass.ViewState, entityUpdated: EntityOuterClass.EntityUpdated): UpdateEffect[ServiceOuterClass.ViewState] =
+         |    state: ViewState, entityUpdated: EntityUpdated): UpdateEffect[ViewState] =
          |    throw new UnsupportedOperationException("Update handler for 'Updated' not implemented yet")
          |}
          |""".stripMargin)
   }
 
   test("source, transform_updates=false") {
-    val service = TestData.simpleViewService().copy(transformedUpdates = Nil)
+    val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
-    val packageName = "com.example.service"
-    val generatedSrc =
-      ViewServiceSourceGenerator.viewSource(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.viewSource(service)
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
          |
          |import com.akkaserverless.scalasdk.view.View.UpdateEffect
          |import com.akkaserverless.scalasdk.view.ViewContext
-         |import com.example.service.domain.EntityOuterClass
+         |import com.example.service.domain.EntityCreated
+         |import com.example.service.domain.EntityUpdated
          |
          |class MyServiceViewImpl(context: ViewContext) extends AbstractMyServiceView {
          |
@@ -74,45 +73,43 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("abstract source, transform_updates=true") {
-    val service = TestData.simpleViewService()
-    val packageName = "com.example.service"
+    val service = testData.simpleViewService()
 
-    val generatedSrc =
-      ViewServiceSourceGenerator.abstractView(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.abstractView(service)
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
          |
          |import com.akkaserverless.scalasdk.view.View
-         |import com.example.service.domain.EntityOuterClass
+         |import com.example.service.domain.EntityCreated
+         |import com.example.service.domain.EntityUpdated
          |
-         |abstract class AbstractMyServiceView extends View[ServiceOuterClass.ViewState] {
+         |abstract class AbstractMyServiceView extends View[ViewState] {
          |
          |
          |  def created(
-         |    state: ServiceOuterClass.ViewState, entityCreated: EntityOuterClass.EntityCreated): View.UpdateEffect[ServiceOuterClass.ViewState]
+         |    state: ViewState, entityCreated: EntityCreated): View.UpdateEffect[ViewState]
          |  def updated(
-         |    state: ServiceOuterClass.ViewState, entityUpdated: EntityOuterClass.EntityUpdated): View.UpdateEffect[ServiceOuterClass.ViewState]
+         |    state: ViewState, entityUpdated: EntityUpdated): View.UpdateEffect[ViewState]
          |}
          |""".stripMargin)
   }
 
   test("abstract source, transform_updates=false") {
-    val service = TestData.simpleViewService().copy(transformedUpdates = Nil)
-    val packageName = "com.example.service"
+    val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
-    val generatedSrc =
-      ViewServiceSourceGenerator.abstractView(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.abstractView(service)
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
          |
          |import com.akkaserverless.scalasdk.view.View
-         |import com.example.service.domain.EntityOuterClass
+         |import com.example.service.domain.EntityCreated
+         |import com.example.service.domain.EntityUpdated
          |
-         |abstract class AbstractMyServiceView extends View[ServiceOuterClass.ViewState] {
+         |abstract class AbstractMyServiceView extends View[ViewState] {
          |
-         |  override def emptyState: ServiceOuterClass.ViewState =
+         |  override def emptyState: ViewState =
          |    null // emptyState is only used with transform_updates=true
          |
          |  
@@ -121,11 +118,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("handler source") {
-    val service = TestData.simpleViewService()
-    val packageName = "com.example.service"
+    val service = testData.simpleViewService()
 
-    val generatedSrc =
-      ViewServiceSourceGenerator.viewHandler(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.viewHandler(service)
 
     assertNoDiff(
       generatedSrc,
@@ -134,26 +129,28 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound
          |import com.akkaserverless.scalasdk.impl.view.ViewHandler
          |import com.akkaserverless.scalasdk.view.View
-         |import com.example.service.domain.EntityOuterClass
+         |import com.example.service.domain.EntityCreated
+         |import com.example.service.domain.EntityUpdated
          |
          |/** A view handler */
-         |class MyServiceViewHandler(view: MyServiceViewImpl) extends ViewHandler[ServiceOuterClass.ViewState, MyServiceViewImpl](view) {
+         |class MyServiceViewHandler(view: MyServiceViewImpl)
+         |  extends ViewHandler[ViewState, MyServiceViewImpl](view) {
          |
          |  override def handleUpdate(
          |      eventName: String,
-         |      state: ServiceOuterClass.ViewState,
-         |      event: Any): View.UpdateEffect[ServiceOuterClass.ViewState] = {
+         |      state: ViewState,
+         |      event: Any): View.UpdateEffect[ViewState] = {
          |
          |    eventName match {
          |      case "Created" =>
          |        view.created(
          |            state,
-         |            event.asInstanceOf[EntityOuterClass.EntityCreated])
+         |            event.asInstanceOf[EntityCreated])
          |
          |      case "Updated" =>
          |        view.updated(
          |            state,
-         |            event.asInstanceOf[EntityOuterClass.EntityUpdated])
+         |            event.asInstanceOf[EntityUpdated])
          |
          |      case _ =>
          |        throw new UpdateHandlerNotFound(eventName)
@@ -165,11 +162,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("provider source") {
-    val service = TestData.simpleViewService()
-    val packageName = "com.example.service"
+    val service = testData.simpleViewService()
 
-    val generatedSrc =
-      ViewServiceSourceGenerator.viewProvider(service, packageName)
+    val generatedSrc = ViewServiceSourceGenerator.viewProvider(service)
 
     assertNoDiff(
       generatedSrc,
@@ -192,7 +187,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |
          |class MyServiceViewProvider private(viewFactory: Function[ViewCreationContext, MyServiceViewImpl],
          |    override val viewId: String)
-         |  extends ViewProvider[ServiceOuterClass.ViewState, MyServiceViewImpl] {
+         |  extends ViewProvider[ViewState, MyServiceViewImpl] {
          |
          |  /**
          |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
@@ -202,13 +197,13 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |    new MyServiceViewProvider(viewFactory, viewId)
          |
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ServiceOuterClass.getDescriptor().findServiceByName("MyService")
+         |    MyServiceProto.javaDescriptor.findServiceByName("MyService")
          |
          |  override final def newHandler(context: ViewCreationContext): MyServiceViewHandler =
          |    new MyServiceViewHandler(viewFactory(context))
          |
          |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-         |    ServiceOuterClass.getDescriptor() ::
+         |    MyServiceProto.javaDescriptor ::
          |    Nil
          |}
          |""".stripMargin)

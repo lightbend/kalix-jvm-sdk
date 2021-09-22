@@ -24,12 +24,14 @@ import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
 
+  private val testData = TestData()
+
   val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, None, false)
   val apiParent = PackageNaming("api.proto", "", "com.example.service", None, None, None, false)
 
   test("it can generate a value entity implementation skeleton") {
     val file =
-      generateImplementationSkeleton(TestData.valueEntity(domainParent), TestData.simpleEntityService(apiParent))
+      generateImplementationSkeleton(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
     assertNoDiff(
       file.content,
       s"""package com.example.service.domain

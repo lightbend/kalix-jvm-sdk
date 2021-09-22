@@ -17,8 +17,10 @@
 package com.lightbend.akkasls.codegen
 
 class PackagingSuite extends munit.FunSuite {
+  private val testData = TestData()
+
   test("fqn should be able to produce filenames") {
-    val parent = TestData.domainProto()
+    val parent = testData.domainProto()
     val fqn = FullyQualifiedName("MyClass", parent)
 
     assertNoDiff(fqn.fileBasename + ".scala", "com/example/service/domain/MyClass.scala")

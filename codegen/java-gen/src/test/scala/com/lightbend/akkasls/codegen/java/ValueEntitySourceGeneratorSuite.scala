@@ -21,11 +21,12 @@ import com.lightbend.akkasls.codegen.TestData
 import munit.Location
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
+  private val testData = TestData()
 
   test("ValueEntity source") {
 
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.valueEntity()
 
     val packageName = "com.example.service"
     val className = "MyService"
@@ -73,8 +74,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("Abstract ValueEntity source") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.valueEntity()
     val packageName = "com.example.service"
     val className = "MyService"
 
@@ -106,8 +107,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("ValueEntity generated handler") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.valueEntity()
     val packageName = "com.example.service"
     val className = "MyService"
 
@@ -158,8 +159,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("ValueEntity Provider") {
-    val service = TestData.simpleEntityService()
-    val entity = TestData.valueEntity()
+    val service = testData.simpleEntityService()
+    val entity = testData.valueEntity()
 
     val packageName = "com.example.service"
     val className = "MyService"
