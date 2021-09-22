@@ -171,6 +171,7 @@ lazy val codegenJavaCompilationTest = project
   .settings(
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
+    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "proto-test-files",
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
 
 lazy val javaValueentityCustomerRegistry = project
