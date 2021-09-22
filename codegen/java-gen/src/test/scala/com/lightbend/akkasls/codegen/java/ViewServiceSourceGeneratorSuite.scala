@@ -213,6 +213,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.akkaserverless.javasdk.impl.view.ViewHandler;
        |import com.akkaserverless.javasdk.view.View;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
+       |import com.akkaserverless.javasdk.view.ViewOptions;
        |import com.akkaserverless.javasdk.view.ViewProvider;
        |import com.example.service.MyServiceViewImpl;
        |import com.google.protobuf.Descriptors;
@@ -223,18 +224,21 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |
        |  private final Function<ViewCreationContext, MyServiceViewImpl> viewFactory;
        |  private final String viewId;
+       |  private final ViewOptions options;
        |
        |  /** Factory method of MyServiceViewImpl */
        |  public static MyServiceViewProvider of(
        |      Function<ViewCreationContext, MyServiceViewImpl> viewFactory) {
-       |    return new MyServiceViewProvider(viewFactory, "MyService");
+       |    return new MyServiceViewProvider(viewFactory, "MyService", ViewOptions.defaults());
        |  }
        |
        |  private MyServiceViewProvider(
        |      Function<ViewCreationContext, MyServiceViewImpl> viewFactory,
-       |      String viewId) {
+       |      String viewId,
+       |      ViewOptions options) {
        |    this.viewFactory = viewFactory;
        |    this.viewId = viewId;
+       |    this.options = options;
        |  }
        |
        |  @Override
@@ -242,12 +246,21 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |    return viewId;
        |  }
        |
+       |  @Override
+       |  public final ViewOptions options() {
+       |    return options;
+       |  }
+       |
+       |  public final MyServiceViewProvider withOptions(ViewOptions options) {
+       |    return new MyServiceViewProvider(viewFactory, viewId, options);
+       |  }
+       |
        |  /**
        |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
        |   * A different identifier can be needed when making rolling updates with changes to the view definition.
        |   */
        |  public MyServiceViewProvider withViewId(String viewId) {
-       |    return new MyServiceViewProvider(viewFactory, viewId);
+       |    return new MyServiceViewProvider(viewFactory, viewId, options);
        |  }
        |
        |  @Override

@@ -135,6 +135,7 @@ object ViewServiceSourceGenerator {
         "com.akkaserverless.javasdk.view.ViewProvider",
         "com.akkaserverless.javasdk.view.ViewCreationContext",
         "com.akkaserverless.javasdk.view.View",
+        "com.akkaserverless.javasdk.view.ViewOptions",
         view.classNameQualified,
         "com.google.protobuf.Descriptors",
         "com.google.protobuf.EmptyProto",
@@ -149,18 +150,21 @@ object ViewServiceSourceGenerator {
         |
         |  private final Function<ViewCreationContext, ${view.className}> viewFactory;
         |  private final String viewId;
+        |  private final ViewOptions options;
         |
         |  /** Factory method of ${view.className} */
         |  public static ${view.providerName} of(
         |      Function<ViewCreationContext, ${view.className}> viewFactory) {
-        |    return new ${view.providerName}(viewFactory, "${view.viewId}");
+        |    return new ${view.providerName}(viewFactory, "${view.viewId}", ViewOptions.defaults());
         |  }
         |
         |  private ${view.providerName}(
         |      Function<ViewCreationContext, ${view.className}> viewFactory,
-        |      String viewId) {
+        |      String viewId,
+        |      ViewOptions options) {
         |    this.viewFactory = viewFactory;
         |    this.viewId = viewId;
+        |    this.options = options;
         |  }
         |
         |  @Override
@@ -168,12 +172,21 @@ object ViewServiceSourceGenerator {
         |    return viewId;
         |  }
         |
+        |  @Override
+        |  public final ViewOptions options() {
+        |    return options;
+        |  }
+        |
+        |  public final ${view.providerName} withOptions(ViewOptions options) {
+        |    return new ${view.providerName}(viewFactory, viewId, options);
+        |  }
+        |
         |  /**
         |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
         |   * A different identifier can be needed when making rolling updates with changes to the view definition.
         |   */
         |  public ${view.providerName} withViewId(String viewId) {
-        |    return new ${view.providerName}(viewFactory, viewId);
+        |    return new ${view.providerName}(viewFactory, viewId, options);
         |  }
         |
         |  @Override
