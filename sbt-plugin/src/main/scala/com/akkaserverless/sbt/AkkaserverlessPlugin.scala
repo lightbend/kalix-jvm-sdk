@@ -33,7 +33,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
   override def requires = ProtocPlugin && AkkaGrpcPlugin
 
   trait Keys { _: autoImport.type =>
-    val generateUnmanaged = taskKey[Unit](
+    val generateUnmanaged = taskKey[Seq[File]](
       "Generate \"unmanaged\" akkaserverless scaffolding code based on the available .proto definitions.\n" +
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
@@ -59,28 +59,33 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
-      (Compile / PB.generate).value
+      val _ = (Compile / PB.generate).value
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
         Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
         Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
     },
     Compile / managedSources :=
-      (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)))
+      (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
+    Compile / unmanagedSources :=
+      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value)
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
 
-  private def copyIfNotExist(from: Path, to: Path): Unit = {
+  private def copyIfNotExist(from: Path, to: Path): Seq[File] = {
     Files
       .walk(from)
       .filter(Files.isRegularFile(_))
-      .forEach(file => {
+      .flatMap[File](file => {
         val target = to.resolve(from.relativize(file))
         if (!Files.exists(target)) {
           Files.createDirectories(target.getParent)
           Files.copy(file, target)
-        }
+          java.util.stream.Stream.of[File](target.toFile)
+        } else java.util.stream.Stream.empty()
       })
+      .toArray(new Array[File](_))
+      .toVector
   }
 }
