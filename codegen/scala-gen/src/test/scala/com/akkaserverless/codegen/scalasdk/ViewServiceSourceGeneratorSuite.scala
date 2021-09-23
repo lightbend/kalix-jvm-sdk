@@ -20,7 +20,7 @@ import com.akkaserverless.codegen.scalasdk.impl.ViewServiceSourceGenerator
 import com.lightbend.akkasls.codegen.TestData
 
 class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData(TestData.defaultPackageNamingTemplate.copy(javaOuterClassnameOption = None))
+  private val testData = TestData.scalaStyle
 
   test("source, transform_updates=true") {
     val service = testData.simpleViewService()

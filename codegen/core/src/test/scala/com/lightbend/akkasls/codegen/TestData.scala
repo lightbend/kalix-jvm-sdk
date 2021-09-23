@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 
 object TestData {
-  val defaultPackageNamingTemplate: PackageNaming =
+  val javaStylePackageNamingTemplate: PackageNaming =
     PackageNaming(
       "undefined.proto",
       "Undefined",
@@ -26,12 +26,12 @@ object TestData {
       Some("UndefinedOuterClass"),
       javaMultipleFiles = false)
 
-  def apply(): TestData =
-    apply(defaultPackageNamingTemplate)
-
   def apply(packageNamingTemplate: PackageNaming): TestData = {
     new TestData(packageNamingTemplate)
   }
+
+  val javaStyle = apply(javaStylePackageNamingTemplate)
+  val scalaStyle = apply(javaStylePackageNamingTemplate.copy(javaOuterClassnameOption = None))
 }
 
 /**

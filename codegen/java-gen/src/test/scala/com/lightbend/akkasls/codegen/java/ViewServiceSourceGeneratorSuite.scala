@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   test("source, transform_updates=true") {
     val service = testData.simpleViewService()

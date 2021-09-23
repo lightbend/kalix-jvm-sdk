@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 
 class PackagingSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.scalaStyle
 
   test("fqn should be able to produce filenames") {
     val parent = testData.domainProto()

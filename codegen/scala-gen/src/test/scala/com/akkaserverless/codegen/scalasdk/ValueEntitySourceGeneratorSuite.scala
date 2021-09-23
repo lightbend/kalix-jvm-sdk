@@ -24,15 +24,11 @@ import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.ValueEntitySourceGenerator._
 
-  // TODO use package naming template parameter to generate Scala-style testData
-  private val testData = TestData()
-
-  val domainParent = PackageNaming("domain.proto", "", "com.example.service.domain", None, None, false)
-  val apiParent = PackageNaming("api.proto", "", "com.example.service", None, None, false)
+  private val testData = TestData.scalaStyle
 
   test("it can generate a value entity implementation skeleton") {
     val file =
-      generateImplementationSkeleton(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+      generateImplementationSkeleton(testData.valueEntity(), testData.simpleEntityService())
     assertNoDiff(
       file.content,
       s"""package com.example.service.domain
@@ -56,7 +52,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |""".stripMargin)
   }
   test("it can generate an abstract value entity implementation") {
-    val str = abstractEntity(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent)).content
+    val str = abstractEntity(testData.valueEntity(), testData.simpleEntityService()).content
     assertNoDiff(
       str,
       s"""package com.example.service.domain
@@ -78,7 +74,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("it can generate a value entity handler implementation") {
-    val str = handler(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent)).content
+    val str = handler(testData.valueEntity(), testData.simpleEntityService()).content
     assertNoDiff(
       str,
       s"""package com.example.service.domain
@@ -113,7 +109,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
 
   test("it can generate a provider") {
     val file =
-      provider(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+      provider(testData.valueEntity(), testData.simpleEntityService())
     assertNoDiff(
       file.content,
       """package com.example.service.domain

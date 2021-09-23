@@ -22,8 +22,7 @@ import com.lightbend.akkasls.codegen.TestData
 
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
 
-  private val testData = TestData()
-
+  private val testData = TestData.scalaStyle
   test("action source") {
     val service = testData.simpleActionService()
     val generatedSrc =

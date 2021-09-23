@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   test(
     "it can generate an specific TestKit for the proto files " +

@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.TestData
 
 class MainSourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData(TestData.defaultPackageNamingTemplate.copy(javaOuterClassnameOption = None))
+  private val testData = TestData.scalaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
     ModelBuilder.TypeArgument(name, testData.domainProto())

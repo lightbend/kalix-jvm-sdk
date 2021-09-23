@@ -29,7 +29,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedVote
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 
 class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   def testEntityServiceImplementation(
       testName: String,
