@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk.impl.action
 
 import java.util.Optional
 
+import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters.RichOptional
 
 import akka.NotUsed
@@ -46,7 +47,7 @@ private[scalasdk] case class JavaActionProviderAdapter[A <: Action](scalaSdkProv
     extends javasdk.action.ActionProvider[javasdk.action.Action] {
 
   override def options(): javasdk.action.ActionOptions =
-    ActionOptionsImpl(scalaSdkProvider.options.forwardHeaders())
+    ActionOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
   override def newHandler(javaSdkContext: javasdk.action.ActionCreationContext)
       : javasdk.impl.action.ActionHandler[javasdk.action.Action] = {
