@@ -232,7 +232,7 @@ object ActionServiceSourceGenerator {
         |$imports
         |
         |/** A Action handler */
-        |class ${service.handlerName}(actionBehavior: ${service.className}) extends ActionHandler[${service.className}](actionBehavior) {
+        |class ${service.handlerName}(action: ${service.className}) extends ActionHandler[${service.className}](action) {
         |
         |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
         |    commandName match {
@@ -294,7 +294,7 @@ object ActionServiceSourceGenerator {
         |}
         |
         |class ${service.providerName} private(actionFactory: ActionCreationContext => ${service.className},
-        |                                      options: ActionOptions)
+        |                                      override val options: ActionOptions)
         |  extends ActionProvider[${service.className}] {
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
