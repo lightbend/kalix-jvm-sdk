@@ -98,6 +98,22 @@ lazy val sdkScala = project
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
   .settings(Dependencies.sdkScala)
 
+lazy val sdkScalaTestKit = project
+  .in(file("sdk/scala-sdk-testkit"))
+  .dependsOn(sdkScala)
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(
+    name := "akkaserverless-scala-sdk-testkit",
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
+      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
+    Compile / scalacOptions ++= Seq("-release", "8"))
+  .settings(Dependencies.sdkScalaTestKit)
+
 lazy val testkitJava = project
   .in(file("testkit-java"))
   .dependsOn(sdkJava)
@@ -117,7 +133,7 @@ lazy val testkitJava = project
     Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
-  .settings(Dependencies.testkitJava)
+  .settings(Dependencies.sdkJavaTestKit)
 
 //FIXME add scalasdk as package to tck, tck will test both java and scala sdk
 lazy val tck = project

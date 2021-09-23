@@ -96,15 +96,17 @@ object Dependencies {
   // FIXME
   val sdkJava = sdkCore
 
+  val sdkJavaTestKit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
+
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
+
+  val sdkScalaTestKit = deps ++= Seq(testContainers, scalaTest)
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
     "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
-
-  val testkitJava = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
 
   val codegenCore = deps ++= Seq(
     protobufJava,
