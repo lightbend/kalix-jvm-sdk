@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   test("EventSourcedEntity source") {
 

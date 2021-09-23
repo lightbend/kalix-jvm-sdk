@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   test("Action source generation") {
 

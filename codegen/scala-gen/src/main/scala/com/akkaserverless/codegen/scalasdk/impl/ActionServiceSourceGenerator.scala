@@ -260,7 +260,7 @@ object ActionServiceSourceGenerator {
   }
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): File = {
-    val imports = generateImports(
+    implicit val imports: Imports = generateImports(
       commandTypes(service.commands),
       service.fqn.parent.scalaPackage,
       otherImports = Seq(
@@ -291,13 +291,13 @@ object ActionServiceSourceGenerator {
         |  extends ActionProvider[${service.className}] {
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${service.fqn.parent.name}Proto.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+        |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
         |
         |  override final def newHandler(context: ActionCreationContext): ${service.handlerName} =
         |    new ${service.handlerName}(actionFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${service.fqn.parent.name}Proto.javaDescriptor ::
+        |    ${typeName(service.descriptorObject)}.javaDescriptor ::
         |    Nil
         |
         |  def withOptions(options: ActionOptions): ${service.providerName} =

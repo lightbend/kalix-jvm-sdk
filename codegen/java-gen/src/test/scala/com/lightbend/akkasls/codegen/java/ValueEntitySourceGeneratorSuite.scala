@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.TestData
 import munit.Location
 
 class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   test("ValueEntity source") {
 

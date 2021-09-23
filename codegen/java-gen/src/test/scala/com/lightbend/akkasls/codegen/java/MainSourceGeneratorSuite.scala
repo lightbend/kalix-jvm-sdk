@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen
 package java
 
 class MainSourceGeneratorSuite extends munit.FunSuite {
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
     ModelBuilder.TypeArgument(name, testData.domainProto())

@@ -30,7 +30,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
     override def info(message: String): Unit = log.info(message)
   }
 
-  private val testData = TestData()
+  private val testData = TestData.javaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
     ModelBuilder.TypeArgument(name, testData.domainProto())
