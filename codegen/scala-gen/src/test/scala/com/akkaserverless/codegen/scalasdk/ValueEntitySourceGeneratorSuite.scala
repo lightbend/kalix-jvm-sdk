@@ -37,13 +37,24 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       file.content,
       s"""package com.example.service.domain
          |
+         |import com.akkaserverless.scalasdk.valueentity.ValueEntity
          |import com.example.service
          |import com.external.Empty
          |
-         |class MyValueEntity /* extends AbstractMyValueEntity */ {
-         |  def set(currentState: MyState, command: service.SetValue): Empty = ???
+         |/** A value entity. */
+         |class MyValueEntity(val entityId: String) extends AbstractMyValueEntity {
+         |  override def set(currentState: MyState, command: service.SetValue): ValueEntity.Effect[Empty] =
+         |    effects.error("The command handler for `Set` is not implemented, yet");
          |
-         |  def get(currentState: MyState, command: service.GetValue): service.MyState = ???
+         |  override def get(currentState: MyState, command: service.GetValue): ValueEntity.Effect[service.MyState] =
+         |    effects.error("The command handler for `Get` is not implemented, yet");
+         |
+         |  override def emptyState =
+         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+         |}
+         |object MyValueEntity {
+         |  def apply(context: Unit /* ValueEntityContext */): MyValueEntity =
+         |    new MyValueEntity("TODO get id from context")
          |}
          |""".stripMargin)
   }
