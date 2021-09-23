@@ -1,6 +1,3 @@
-# TODO replace with just ``> compile` when issue #454 has been fixed
-> protocGenerate
-> generateUnmanaged
 > compile
 $ exists src/main/scala/foo/bar/Baz.scala
 $ exists target/scala-2.13/src_managed/main/akkaserverless/foo/bar/AbstractBaz.scala
