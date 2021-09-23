@@ -30,7 +30,7 @@ object JsonSupport {
 
   /**
    * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's configuration, but that
-   * must only be performed before starting [[ com.akkaserverless.javasdk.AkkaServerless]]
+   * must only be performed before starting [[com.akkaserverless.javasdk.AkkaServerless]]
    */
   def getObjectMapper(): ObjectMapper = JavaJsonSupport.getObjectMapper
 
