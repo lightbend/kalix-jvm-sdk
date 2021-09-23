@@ -25,22 +25,21 @@ import scala.reflect.ClassTag
 object JsonSupport {
 
   /**
-   * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf Any with the type
-   * URL {@code "json.akkaserverless.com/[valueClassName]"}.
+   * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf `Any` with the type
+   * URL `json.akkaserverless.com/[valueClassName]`.
    *
    * <p>Note that if the serialized Any is published to a pub/sub topic that is consumed by an external service using
    * the class name suffix this introduces coupling as the internal class name of this service becomes known to the
-   * outside of the service (and for exampe renaming it may break existing consumers). For such cases consider using the
+   * outside of the service (and for example renaming it may break existing consumers). For such cases consider using the
    * overload with an explicit name for the JSON type instead.
    *
-   * @see
-   *   {{encodeJson(T, String}}
+   * @see [[encodeJson(T, java.lang.String)]]
    */
   def encodeJson[T](value: T): ScalaPbAny = ScalaPbAny.fromJavaProto(JavaJsonSupport.encodeJson(value))
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf Any with the type
-   * URL {@code "json.akkaserverless.com/[jsonType]"}.
+   * URL `json.akkaserverless.com/[jsonType]`.
    *
    * @param value
    *   the object to encode as JSON, must be an instance of a class properly annotated with the needed Jackson
@@ -55,8 +54,8 @@ object JsonSupport {
     ScalaPbAny.fromJavaProto(JavaJsonSupport.encodeJson(value, jsonType))
 
   /**
-   * Decode the given protobuf Any object to an instance of T using Jackson. The object must have the JSON string as
-   * bytes as value and a type URL starting with "json.akkaserverless.com/".
+   * Decode the given protobuf `Any` object to an instance of `T` using Jackson. The object must have the JSON string as
+   * bytes as value and a type URL starting with `json.akkaserverless.com/`.
    *
    * @param valueClass
    *   The type of class to deserialize the object to, the class must have the proper Jackson annotations for
@@ -70,7 +69,7 @@ object JsonSupport {
     JavaJsonSupport.decodeJson(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], ScalaPbAny.toJavaProto(any))
 
   /**
-   * Decode the given protobuf Any to an instance of T using Jackson but only if the suffix of the type URL matches the
+   * Decode the given protobuf Any to an instance of `T`` using Jackson but only if the suffix of the type URL matches the
    * given jsonType.
    *
    * @return
