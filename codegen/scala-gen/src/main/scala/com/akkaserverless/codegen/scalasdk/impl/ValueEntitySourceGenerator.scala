@@ -159,12 +159,16 @@ object ValueEntitySourceGenerator {
          |class $className private(entityFactory: ValueEntityContext => ${entity.fqn.name}, override val options: ValueEntityOptions)
          |  extends ValueEntityProvider[${typeName(entity.state.fqn)}, ${typeName(entity.fqn)}] {
          |
+         |  def withOptions(newOptions: ValueEntityOptions): $className =
+         |    new $className(entityFactory, newOptions)
+         |
          |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
          |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
          |
          |  override final val entityType = "${entity.entityType}"
          |
-         |  override final def newHandler(context: ValueEntityContext) = ???
+         |  override final def newHandler(context: ValueEntityContext): ${entity.handlerName} =
+         |    new ${entity.handlerName}(entityFactory(context))
          |
          |  override final val additionalDescriptors =
          |    ${typeName(service.descriptorObject)}.javaDescriptor :: Nil

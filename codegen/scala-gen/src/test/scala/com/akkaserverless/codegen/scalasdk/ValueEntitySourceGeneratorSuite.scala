@@ -132,12 +132,16 @@ object MyValueEntityProvider {
 class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValueEntity, override val options: ValueEntityOptions)
   extends ValueEntityProvider[MyState, MyValueEntity] {
 
+  def withOptions(newOptions: ValueEntityOptions): MyValueEntityProvider =
+    new MyValueEntityProvider(entityFactory, newOptions)
+
   override final val serviceDescriptor: Descriptors.ServiceDescriptor =
     service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
 
   override final val entityType = "MyValueEntity"
 
-  override final def newHandler(context: ValueEntityContext) = ???
+  override final def newHandler(context: ValueEntityContext): MyValueEntityHandler =
+    new MyValueEntityHandler(entityFactory(context))
 
   override final val additionalDescriptors =
     service.MyServiceProto.javaDescriptor :: Nil
