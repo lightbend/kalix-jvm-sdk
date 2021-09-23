@@ -17,14 +17,13 @@
 package com.akkaserverless.scalasdk.impl.valueentity
 
 import java.util.Optional
-
 import scala.collection.immutable
 import scala.compat.java8.DurationConverters._
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
-
 import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.impl.Timeout
 import com.akkaserverless.scalasdk.PassivationStrategy
 import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataImpl
@@ -90,7 +89,10 @@ private[scalasdk] class JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions
 
   def withPassivationStrategy(
       passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
-    new JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy))
+    new JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy match {
+      case Timeout(Some(duration)) => PassivationStrategy.timeout(duration.toScala)
+      case Timeout(None)           => PassivationStrategy.defaultTimeout
+    }))
 }
 
 private[scalasdk] class JavaCommandContextAdapter(val javasdkContext: javasdk.valueentity.CommandContext)

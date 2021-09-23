@@ -111,4 +111,40 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |""".stripMargin)
   }
 
+  test("it can generate a provider") {
+    val file =
+      provider(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    assertNoDiff(
+      file.content,
+      """package com.example.service.domain
+
+import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
+import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
+import com.example.service
+import com.external.Empty
+import com.google.protobuf.Descriptors
+
+object MyValueEntityProvider {
+  def apply(entityFactory: ValueEntityContext => MyValueEntity): MyValueEntityProvider =
+    new MyValueEntityProvider(entityFactory, ValueEntityOptions.defaults)
+}
+class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValueEntity, override val options: ValueEntityOptions)
+  extends ValueEntityProvider[MyState, MyValueEntity] {
+
+  def withOptions(newOptions: ValueEntityOptions): MyValueEntityProvider =
+    new MyValueEntityProvider(entityFactory, newOptions)
+
+  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
+    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
+
+  override final val entityType = "MyValueEntity"
+
+  override final def newHandler(context: ValueEntityContext): MyValueEntityHandler =
+    new MyValueEntityHandler(entityFactory(context))
+
+  override final val additionalDescriptors =
+    service.MyServiceProto.javaDescriptor :: Nil
+}""")
+  }
 }
