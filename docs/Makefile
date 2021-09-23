@@ -22,7 +22,7 @@ build: dev
 clean:
 	rm -rf build
 
-prepare: 
+prepare:
 	mkdir -p "${src_managed}"
 	cp src/antora.yml "${src_managed}/antora.yml"
 
@@ -49,9 +49,10 @@ apidocs:
 examples:
 	mkdir -p "${managed_examples}"
 	rsync -a --exclude-from=.examplesignore ../samples/ "${managed_examples}/"
-  
+
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
+	bin/bundle.sh --zip "${managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
 
 dev: clean managed validate-xrefs dev-html
 
