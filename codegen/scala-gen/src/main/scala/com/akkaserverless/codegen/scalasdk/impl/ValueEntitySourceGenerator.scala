@@ -95,7 +95,9 @@ object ValueEntitySourceGenerator {
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
         valueEntity.fqn.parent.scalaPackage,
-        otherImports = Seq("com.akkaserverless.scalasdk.valueentity.ValueEntity"),
+        otherImports = Seq(
+          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
+          "com.akkaserverless.scalasdk.valueentity.ValueEntityContext"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
@@ -114,15 +116,11 @@ object ValueEntitySourceGenerator {
          |$imports
          |
          |/** A value entity. */
-         |class ${valueEntity.fqn.name}(val entityId: String) extends ${valueEntity.abstractEntityName} {
-         |  ${Format.indent(methods, 2)}
-         |
-         |  override def emptyState =
+         |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {
+         |  override def emptyState: ${typeName(valueEntity.state.fqn)} =
          |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
-         |}
-         |object ${valueEntity.fqn.name} {
-         |  def apply(context: Unit /* ValueEntityContext */): ${valueEntity.fqn.name} =
-         |    new ${valueEntity.fqn.name}("TODO get id from context")
+         |
+         |  ${Format.indent(methods, 2)}
          |}
          |""".stripMargin)
   }
