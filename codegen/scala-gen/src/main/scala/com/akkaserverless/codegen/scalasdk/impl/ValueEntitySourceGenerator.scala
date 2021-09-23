@@ -26,16 +26,8 @@ object ValueEntitySourceGenerator {
   /**
    * Generate Scala sources the user view source file.
    */
-  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
-
-    val packageName = service.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += generateImplementationSkeleton(valueEntity, service)
-
-    generatedSources.result()
-  }
+  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] =
+    Seq(generateImplementationSkeleton(valueEntity, service))
 
   /**
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
@@ -97,20 +89,22 @@ object ValueEntitySourceGenerator {
   def generateImplementationSkeleton(
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
-    implicit val imports =
+    implicit val imports: Imports =
       generateImports(
         Seq(valueEntity.state.fqn) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
         valueEntity.fqn.parent.scalaPackage,
-        otherImports = Seq.empty,
+        otherImports = Seq(
+          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
+          "com.akkaserverless.scalasdk.valueentity.ValueEntityContext"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
     val methods = service.commands.map { cmd =>
-      // TODO 'override', use 'effect' for output, use actual state type for state
-      s"""|def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
-        cmd.inputType)}): ${typeName(cmd.outputType)} = ???
+      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
+        cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
+          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet");
           |""".stripMargin
     }
 
@@ -121,7 +115,11 @@ object ValueEntitySourceGenerator {
          |
          |$imports
          |
-         |class ${valueEntity.fqn.name} /* extends ${valueEntity.abstractEntityName} */ {
+         |/** A value entity. */
+         |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {
+         |  override def emptyState: ${typeName(valueEntity.state.fqn)} =
+         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+         |
          |  ${Format.indent(methods, 2)}
          |}
          |""".stripMargin)
