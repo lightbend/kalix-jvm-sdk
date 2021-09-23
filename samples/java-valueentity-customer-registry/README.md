@@ -18,7 +18,7 @@ To run the example locally:
   * trigger codegen, compile and run form Maven
     ```
     cd samples/java-valueentity-customer-registry
-    mvn -Dakkaserverless-sdk.verion="0.7.0-beta....-SNAPSHOT" compile exec:java
+    mvn -Dakkaserverless-sdk.version="0.7.0-beta....-SNAPSHOT" compile exec:java
     ```
 
 * Start the proxy

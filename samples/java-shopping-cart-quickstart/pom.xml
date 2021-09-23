@@ -1,25 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.example</groupId>
-  <artifactId>valueentity-counter</artifactId>
-  <version>0.0.1</version>
+  <groupId>shop</groupId>
+  <artifactId>shopping-cart</artifactId>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>first-service</name>
-    <properties>
+  <name>Shopping Cart (Quickstart)</name>
 
+  <properties>
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}</dockerTag>
-    <mainClass>com.example.Main</mainClass>
+    <mainClass>shopping.cart.Main</mainClass>
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <akkaserverless-sdk.version>0.7.2</akkaserverless-sdk.version>
+    <akkaserverless-sdk.version>0.7.0</akkaserverless-sdk.version>
     <akka-grpc.version>2.1.0</akka-grpc.version>
   </properties>
 
@@ -57,16 +55,6 @@
       </plugin>
 
       <plugin>
-        <!--
-          this plugin allow us to change the version of this projects and submodules
-          we use it in CI to align the project with the current SDK version
-        -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>2.8.1</version>
-      </plugin>
-
-      <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
@@ -83,6 +71,21 @@
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
               <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+            </configuration>
+          </execution>
+          <execution>
+            <!-- generate a gRPC client (with Akka gRPC) for integration testing -->
+            <id>grpc-client</id>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <writeDescriptorSet>true</writeDescriptorSet>
+              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
+              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
+              <checkStaleness>true</checkStaleness>
+              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
@@ -94,7 +97,6 @@
               </protocPlugins>
             </configuration>
           </execution>
-
       </executions>
       </plugin>
 
@@ -184,7 +186,7 @@
           </execution>
         </executions>
         <configuration>
-          <executable>java</executable>
+          <executable>${JAVA_HOME}/bin/java</executable>
           <arguments>
             <argument>-classpath</argument>
             <classpath/>
