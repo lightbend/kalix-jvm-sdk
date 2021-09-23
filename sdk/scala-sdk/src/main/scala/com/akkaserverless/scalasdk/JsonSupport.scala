@@ -16,8 +16,8 @@
 
 package com.akkaserverless.scalasdk
 
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.akkaserverless.javasdk.{JsonSupport => JavaJsonSupport}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.akkaserverless.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
@@ -29,9 +29,8 @@ object JsonSupport {
   getObjectMapper().registerModule(new DefaultScalaModule)
 
   /**
-   * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
-   * configuration, but that must only be performed before starting [[
-   * com.akkaserverless.javasdk.AkkaServerless]]
+   * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's configuration, but that
+   * must only be performed before starting [[ com.akkaserverless.javasdk.AkkaServerless]]
    */
   def getObjectMapper(): ObjectMapper = JavaJsonSupport.getObjectMapper
 
