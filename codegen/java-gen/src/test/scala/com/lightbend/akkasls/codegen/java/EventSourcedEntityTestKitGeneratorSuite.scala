@@ -116,6 +116,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    }
         |  }
         |
+        |  @SuppressWarnings("unchecked")
         |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
         |    List<Object> events = EventSourcedResultImpl.eventsOf(effect);
         |    this.events.addAll(events);

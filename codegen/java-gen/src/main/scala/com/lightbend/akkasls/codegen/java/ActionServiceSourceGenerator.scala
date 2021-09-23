@@ -221,7 +221,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
-          |  return action()
+          |  return (Source<Action.Effect<?>, NotUsed>)(Object) action()
           |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload());
           |""".stripMargin
     }
@@ -241,7 +241,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
-          |  return action()
+          |  return (Source<Action.Effect<?>, NotUsed>)(Object) action()
           |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()));
           |""".stripMargin
     }
@@ -278,6 +278,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Format.indent(streamOutCases, 6)}
@@ -296,6 +297,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
+        |  @SuppressWarnings("unchecked")
         |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Format.indent(streamInOutCases, 6)}
