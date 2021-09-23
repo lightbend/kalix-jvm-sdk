@@ -30,10 +30,11 @@ object JsonSupport {
    *
    * <p>Note that if the serialized Any is published to a pub/sub topic that is consumed by an external service using
    * the class name suffix this introduces coupling as the internal class name of this service becomes known to the
-   * outside of the service (and for example renaming it may break existing consumers). For such cases consider using the
-   * overload with an explicit name for the JSON type instead.
+   * outside of the service (and for example renaming it may break existing consumers). For such cases consider using
+   * the overload with an explicit name for the JSON type instead.
    *
-   * @see [[encodeJson(T, java.lang.String)]]
+   * @see
+   *   [[encodeJson(T, java.lang.String)]]
    */
   def encodeJson[T](value: T): ScalaPbAny = ScalaPbAny.fromJavaProto(JavaJsonSupport.encodeJson(value))
 
@@ -69,8 +70,8 @@ object JsonSupport {
     JavaJsonSupport.decodeJson(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], ScalaPbAny.toJavaProto(any))
 
   /**
-   * Decode the given protobuf Any to an instance of `T`` using Jackson but only if the suffix of the type URL matches the
-   * given jsonType.
+   * Decode the given protobuf Any to an instance of `T`` using Jackson but only if the suffix of the type URL matches
+   * the given jsonType.
    *
    * @return
    *   An Option containing the successfully decoded value or None if the type suffix does not match.
