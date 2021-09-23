@@ -142,6 +142,7 @@ object ValueEntitySourceGenerator {
         "com.akkaserverless.scalasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.scalasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors"),
+      packageImports = Seq(service.fqn.parent.scalaPackage),
       semi = false)
 
     File(
