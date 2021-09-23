@@ -181,12 +181,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import scala.collection.immutable
          |
          |object MyServiceViewProvider {
-         |  def apply(viewFactory: Function[ViewCreationContext, MyServiceViewImpl]): MyServiceViewProvider =
+         |  def apply(viewFactory: ViewCreationContext => MyServiceViewImpl): MyServiceViewProvider =
          |    new MyServiceViewProvider(viewFactory, viewId = "MyService", options = ViewOptions.defaults)
          |}
          |
          |class MyServiceViewProvider private(
-         |    viewFactory: Function[ViewCreationContext, MyServiceViewImpl],
+         |    viewFactory: ViewCreationContext => MyServiceViewImpl,
          |    override val viewId: String,
          |    override val options: ViewOptions)
          |  extends ViewProvider[ViewState, MyServiceViewImpl] {

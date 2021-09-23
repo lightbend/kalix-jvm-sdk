@@ -225,20 +225,20 @@ object MainSourceGenerator {
         .sortBy(_.fqn.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>
-            s"create${entity.fqn.name}: Function[EventSourcedEntityContext, ${entity.fqn.name}]"
+            s"create${entity.fqn.name}: EventSourcedEntityContext => ${entity.fqn.name}"
           case entity: ModelBuilder.ValueEntity =>
-            s"create${entity.fqn.name}: Function[ValueEntityContext, ${entity.fqn.name}]"
+            s"create${entity.fqn.name}: ValueEntityContext => ${entity.fqn.name}"
           case entity: ModelBuilder.ReplicatedEntity =>
-            s"create${entity.fqn.name}: Function[ReplicatedEntityContext, ${entity.fqn.name}]"
+            s"create${entity.fqn.name}: ReplicatedEntityContext => ${entity.fqn.name}"
         }
 
     val serviceCreators = model.services.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case service: ModelBuilder.ActionService =>
-          s"create${service.className}: Function[ActionCreationContext, ${service.className}]"
+          s"create${service.className}: ActionCreationContext => ${service.className}"
         case view: ModelBuilder.ViewService =>
-          s"create${view.className}: Function[ViewCreationContext, ${view.className}]"
+          s"create${view.className}: ViewCreationContext => ${view.className}"
       }
 
     val creatorParameters = entityCreators ::: serviceCreators
