@@ -16,8 +16,9 @@
 
 package com.akkaserverless.scalasdk
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.akkaserverless.javasdk.{ JsonSupport => JavaJsonSupport }
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.akkaserverless.javasdk.{JsonSupport => JavaJsonSupport}
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import scala.jdk.OptionConverters._
@@ -25,7 +26,14 @@ import scala.reflect.ClassTag
 
 object JsonSupport {
 
-  JavaJsonSupport.getObjectMapper.registerModule(new DefaultScalaModule)
+  getObjectMapper().registerModule(new DefaultScalaModule)
+
+  /**
+   * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
+   * configuration, but that must only be performed before starting [[
+   * com.akkaserverless.javasdk.AkkaServerless]]
+   */
+  def getObjectMapper(): ObjectMapper = JavaJsonSupport.getObjectMapper
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf `Any` with the type
