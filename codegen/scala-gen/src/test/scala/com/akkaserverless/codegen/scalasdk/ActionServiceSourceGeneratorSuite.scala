@@ -115,7 +115,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.external.Empty
          |
          |/** A Action handler */
-         |class MyServiceActionHandler(actionBehavior: MyServiceAction) extends ActionHandler[MyServiceAction](actionBehavior) {
+         |class MyServiceActionHandler(action: MyServiceAction) extends ActionHandler[MyServiceAction](action) {
          |
          |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
          |    commandName match {
@@ -182,7 +182,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |}
          |
          |class MyServiceActionProvider private(actionFactory: ActionCreationContext => MyServiceAction,
-         |                                      options: ActionOptions)
+         |                                      override val options: ActionOptions)
          |  extends ActionProvider[MyServiceAction] {
          |
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
