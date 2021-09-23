@@ -23,27 +23,15 @@ import com.lightbend.akkasls.codegen.Format
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] =
+  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
 
-  def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
-
-    val packageName = valueEntity.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += File(
-      s"$packagePath/${valueEntity.abstractEntityName}.scala",
-      abstractEntity(valueEntity, service))
-    generatedSources += File(s"$packagePath/${valueEntity.handlerName}.scala", handler(valueEntity, service))
-    generatedSources += provider(valueEntity, service)
-
-    generatedSources.result()
-  }
+  def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
+    Seq(abstractEntity(valueEntity, service), handler(valueEntity, service), provider(valueEntity, service))
 
   private[codegen] def abstractEntity(
       valueEntity: ModelBuilder.ValueEntity,
-      service: ModelBuilder.EntityService): String = {
+      service: ModelBuilder.EntityService): File = {
     val stateType = valueEntity.state.fqn.name
     val abstractEntityName = valueEntity.abstractEntityName
 
@@ -70,7 +58,10 @@ object ValueEntitySourceGenerator {
 
       }
 
-    s"""|package ${valueEntity.fqn.parent.scalaPackage}
+    File(
+      valueEntity.fqn.parent.scalaPackage,
+      abstractEntityName,
+      s"""|package ${valueEntity.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -79,10 +70,10 @@ object ValueEntitySourceGenerator {
         |
         |  ${Format.indent(methods, 2)}
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def handler(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): String = {
+  private[codegen] def handler(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val stateType = valueEntity.state.fqn.name
     val packageName = valueEntity.fqn.parent.scalaPackage
     val valueEntityName = valueEntity.fqn.name
@@ -109,7 +100,10 @@ object ValueEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|package $packageName
+    File(
+      packageName,
+      valueEntityName + "Handler",
+      s"""|package $packageName
         |
         |$imports
         |
@@ -127,7 +121,7 @@ object ValueEntitySourceGenerator {
         |    }
         |  }
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
   def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {

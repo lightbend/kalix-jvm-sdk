@@ -56,7 +56,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |""".stripMargin)
   }
   test("it can generate an abstract value entity implementation") {
-    val str = abstractEntity(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    val str = abstractEntity(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent)).content
     assertNoDiff(
       str,
       s"""package com.example.service.domain
@@ -78,7 +78,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("it can generate a value entity handler implementation") {
-    val str = handler(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    val str = handler(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent)).content
     assertNoDiff(
       str,
       s"""package com.example.service.domain

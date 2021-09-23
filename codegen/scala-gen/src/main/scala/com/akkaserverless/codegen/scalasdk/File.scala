@@ -16,7 +16,13 @@
 
 package com.akkaserverless.codegen.scalasdk
 
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.packageAsPath
+
 case class File(name: String, content: String) {
   def prepend(s: String): File =
     copy(content = s + "\n" + content)
+}
+object File {
+  def apply(packageName: String, className: String, content: String): File =
+    File(s"${packageAsPath(packageName)}/$className.scala", content)
 }

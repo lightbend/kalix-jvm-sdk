@@ -27,9 +27,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
     ModelBuilder.TypeArgument(name, testData.domainProto())
 
   test("main source") {
-    val mainPackageName = "com.example.service"
-    val mainClassName = "SomeMain"
-
     val entities = Map(
       "com.example.Entity1" -> testData.eventSourcedEntity(suffix = "1"),
       "com.example.Entity2" -> testData.valueEntity(suffix = "2"),
@@ -40,21 +37,22 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
 
     val services = Map("com.example.Service1" -> testData.simpleActionService())
 
-    val generatedSrc = MainSourceGenerator.mainSource(mainPackageName, mainClassName, entities, services)
+    val generatedSrc = MainSourceGenerator.mainSource(ModelBuilder.Model(services, entities)).content
     assertNoDiff(
       generatedSrc,
-      """|package com.example.service
+      """|package com.example
          |
          |import com.akkaserverless.scalasdk.AkkaServerless
+         |import com.example.service.MyServiceAction
          |import com.example.service.domain.MyEntity1
          |import com.example.service.domain.MyEntity3
          |import com.example.service.domain.MyReplicatedEntity6
          |import com.example.service.domain.MyValueEntity2
          |import org.slf4j.LoggerFactory
          |
-         |object SomeMain {
+         |object Main {
          |
-         |  private val log = LoggerFactory.getLogger("com.example.service.SomeMain")
+         |  private val log = LoggerFactory.getLogger("com.example.Main")
          |
          |  def createAkkaServerless(): AkkaServerless = {
          |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
@@ -101,13 +99,11 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         ModelBuilder.ReplicatedSet(domainType("SomeElement")),
         suffix = "6"))
 
-    val mainPackageName = "com.example.service"
-
     val generatedSrc =
-      MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
+      MainSourceGenerator.akkaServerlessFactorySource(ModelBuilder.Model(services, entities)).content
     assertNoDiff(
       generatedSrc,
-      """|package com.example.service
+      """|package com.example
          |
          |import com.akkaserverless.scalasdk.AkkaServerless
          |import com.akkaserverless.scalasdk.action.ActionCreationContext
@@ -115,6 +111,8 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
          |import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
+         |import com.example.service.MyService5Action
+         |import com.example.service.MyService5ActionProvider
          |import com.example.service.domain.MyEntity1
          |import com.example.service.domain.MyEntity1Provider
          |import com.example.service.domain.MyEntity3
@@ -155,13 +153,11 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
 
     val entities = Map.empty[String, ModelBuilder.Entity]
 
-    val mainPackageName = "com.example.service"
-
     val generatedSrc =
-      MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
+      MainSourceGenerator.akkaServerlessFactorySource(ModelBuilder.Model(services, entities)).content
     assertNoDiff(
       generatedSrc,
-      """|package com.example.service
+      """|package com.example
          |
          |import com.akkaserverless.scalasdk.AkkaServerless
          |import com.akkaserverless.scalasdk.view.ViewCreationContext

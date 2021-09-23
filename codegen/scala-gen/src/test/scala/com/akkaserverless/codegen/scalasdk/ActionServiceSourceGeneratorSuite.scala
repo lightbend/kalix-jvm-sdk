@@ -27,7 +27,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
   test("action source") {
     val service = testData.simpleActionService()
     val generatedSrc =
-      ActionServiceSourceGenerator.actionSource(service)
+      ActionServiceSourceGenerator.actionSource(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -68,7 +68,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.abstractAction(service)
+      ActionServiceSourceGenerator.abstractAction(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -100,7 +100,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.actionHandler(service)
+      ActionServiceSourceGenerator.actionHandler(service).content
 
     assertNoDiff(
       generatedSrc,
@@ -160,7 +160,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.actionProvider(service)
+      ActionServiceSourceGenerator.actionProvider(service).content
 
     assertNoDiff(
       generatedSrc,

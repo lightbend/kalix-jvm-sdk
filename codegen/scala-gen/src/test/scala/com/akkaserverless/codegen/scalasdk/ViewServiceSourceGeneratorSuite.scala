@@ -25,7 +25,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("source, transform_updates=true") {
     val service = testData.simpleViewService()
 
-    val generatedSrc = ViewServiceSourceGenerator.viewSource(service)
+    val generatedSrc = ViewServiceSourceGenerator.viewSource(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -54,7 +54,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("source, transform_updates=false") {
     val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
-    val generatedSrc = ViewServiceSourceGenerator.viewSource(service)
+    val generatedSrc = ViewServiceSourceGenerator.viewSource(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -75,7 +75,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("abstract source, transform_updates=true") {
     val service = testData.simpleViewService()
 
-    val generatedSrc = ViewServiceSourceGenerator.abstractView(service)
+    val generatedSrc = ViewServiceSourceGenerator.abstractView(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -98,7 +98,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("abstract source, transform_updates=false") {
     val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
-    val generatedSrc = ViewServiceSourceGenerator.abstractView(service)
+    val generatedSrc = ViewServiceSourceGenerator.abstractView(service).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -120,7 +120,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("handler source") {
     val service = testData.simpleViewService()
 
-    val generatedSrc = ViewServiceSourceGenerator.viewHandler(service)
+    val generatedSrc = ViewServiceSourceGenerator.viewHandler(service).content
 
     assertNoDiff(
       generatedSrc,
@@ -164,7 +164,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("provider source") {
     val service = testData.simpleViewService()
 
-    val generatedSrc = ViewServiceSourceGenerator.viewProvider(service)
+    val generatedSrc = ViewServiceSourceGenerator.viewProvider(service).content
 
     assertNoDiff(
       generatedSrc,
