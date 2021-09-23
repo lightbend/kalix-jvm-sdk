@@ -77,7 +77,7 @@ object ModelBuilder {
       state: State)
       extends Entity(fqn, entityType) {
     val abstractEntityName = "Abstract" + fqn.name
-
+    val handlerName = fqn.name + "Handler"
   }
 
   /**

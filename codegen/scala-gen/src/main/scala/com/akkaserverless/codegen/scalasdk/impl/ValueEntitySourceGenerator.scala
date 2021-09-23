@@ -41,7 +41,8 @@ object ValueEntitySourceGenerator {
     generatedSources += File(
       s"$packagePath/${valueEntity.abstractEntityName}.scala",
       abstractEntity(valueEntity, service))
-    //FIXME add Handler and Provider
+    generatedSources += File(s"$packagePath/${valueEntity.handlerName}.scala", handler(valueEntity, service))
+    //FIXME add Provider
 
     generatedSources.result()
   }
@@ -82,6 +83,54 @@ object ValueEntitySourceGenerator {
         |abstract class $abstractEntityName extends ValueEntity[$stateType] {
         |
         |  ${Format.indent(methods, 2)}
+        |}
+        |""".stripMargin
+  }
+
+  private[codegen] def handler(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): String = {
+    val stateType = valueEntity.state.fqn.name
+    val packageName = valueEntity.fqn.parent.scalaPackage
+    val valueEntityName = valueEntity.fqn.name
+    implicit val imports =
+      generateImports(
+        Seq(valueEntity.state.fqn) ++
+        service.commands.map(_.inputType) ++
+        service.commands.map(_.outputType),
+        valueEntity.fqn.parent.scalaPackage,
+        otherImports = Seq(
+          "com.akkaserverless.scalasdk.valueentity.CommandContext",
+          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
+          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
+          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
+        packageImports = Seq(service.fqn.parent.scalaPackage),
+        semi = false)
+
+    val commandCases = service.commands
+      .map { cmd =>
+        val methodName = cmd.name
+        val inputType = typeName(cmd.inputType)
+        s"""|case "$methodName" =>
+            |  entity.${lowerFirst(methodName)}(state, command.asInstanceOf[$inputType])
+            |""".stripMargin
+      }
+
+    s"""|package $packageName
+        |
+        |$imports
+        |
+        |/**
+        | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
+        | * and the command handler methods in the <code>Counter</code> class.
+        | */
+        |class ${valueEntityName}Handler(entity: ${valueEntityName}) extends ValueEntityHandler[$stateType, ${valueEntityName}](entity) {
+        |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
+        |    commandName match {
+        |      ${Format.indent(commandCases, 6)}
+        |
+        |      case _ =>
+        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName)
+        |    }
+        |  }
         |}
         |""".stripMargin
   }

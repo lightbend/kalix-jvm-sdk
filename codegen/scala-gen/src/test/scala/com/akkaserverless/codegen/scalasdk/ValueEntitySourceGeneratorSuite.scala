@@ -77,4 +77,38 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |""".stripMargin)
   }
 
+  test("it can generate a value entity handler implementation") {
+    val str = handler(testData.valueEntity(domainParent), testData.simpleEntityService(apiParent))
+    assertNoDiff(
+      str,
+      s"""package com.example.service.domain
+          |
+          |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
+          |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound
+          |import com.akkaserverless.scalasdk.valueentity.CommandContext
+          |import com.akkaserverless.scalasdk.valueentity.ValueEntity
+          |import com.example.service
+          |import com.external.Empty
+          |
+          |/**
+          | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
+          | * and the command handler methods in the <code>Counter</code> class.
+          | */
+          |class MyValueEntityHandler(entity: MyValueEntity) extends ValueEntityHandler[MyState, MyValueEntity](entity) {
+          |  def handleCommand(commandName: String, state: MyState, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
+          |    commandName match {
+          |      case "Set" =>
+          |        entity.set(state, command.asInstanceOf[service.SetValue])
+          |
+          |      case "Get" =>
+          |        entity.get(state, command.asInstanceOf[service.GetValue])
+          |
+          |      case _ =>
+          |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName)
+          |    }
+          |  }
+          |}
+          |""".stripMargin)
+  }
+
 }
