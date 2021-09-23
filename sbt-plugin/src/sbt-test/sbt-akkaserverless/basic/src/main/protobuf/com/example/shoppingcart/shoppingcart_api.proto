@@ -44,7 +44,7 @@ message Cart {  // <6>
 service ShoppingCartService {  // <7>
   option (akkaserverless.service) = {  // <8>
     type: SERVICE_TYPE_ENTITY
-    component: ".domain.ShoppingCart"
+    component: "com.example.shoppingcart.domain.ShoppingCart"
   };
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
