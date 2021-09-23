@@ -60,7 +60,7 @@ private[scalasdk] class Scala2JavaViewProviderAdapter[S, V <: View[S]](scalasdkP
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
-    scalasdkProvider.additionalDescriptors().toArray
+    scalasdkProvider.additionalDescriptors.toArray
 }
 
 private[scalasdk] class Scala2JavaViewHandlerAdapter[S](

@@ -30,5 +30,5 @@ trait ViewProvider[S, V <: View[S]] {
 
   def newHandler(context: ViewCreationContext): ViewHandler[S, V]
 
-  def additionalDescriptors(): immutable.Seq[Descriptors.FileDescriptor]
+  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }
