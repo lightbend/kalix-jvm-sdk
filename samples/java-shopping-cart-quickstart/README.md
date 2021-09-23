@@ -41,14 +41,7 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:exec
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
-
-
-* Send an AddItem command:
-
-```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}'
-```
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 
 For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
@@ -68,6 +61,15 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.
 
 ```shell
 grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCart/RemoveItem
+```
+
+In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. As defined in `shpping_cart_api.proto` (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/cart/<cart_id>/items/add`.
+
+
+* Send an AddItem command:
+
+```shell
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}'
 ```
 
 ## Deploying
