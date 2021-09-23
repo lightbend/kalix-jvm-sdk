@@ -29,34 +29,16 @@ object ViewServiceSourceGenerator {
   /**
    * Generate Scala sources the user view source file.
    */
-  def generateUnmanaged(service: ModelBuilder.ViewService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
-
-    val packageName = service.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += File(s"$packagePath/${service.className}.scala", viewSource(service))
-
-    generatedSources.result()
-  }
+  def generateUnmanaged(service: ModelBuilder.ViewService): Seq[File] =
+    Seq(viewSource(service))
 
   /**
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
-  def generateManaged(service: ModelBuilder.ViewService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
+  def generateManaged(service: ModelBuilder.ViewService): Seq[File] =
+    Seq(abstractView(service), viewHandler(service), viewProvider(service))
 
-    val packageName = service.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += File(s"$packagePath/${service.abstractViewName}.scala", abstractView(service))
-    generatedSources += File(s"$packagePath/${service.handlerName}.scala", viewHandler(service))
-    generatedSources += File(s"$packagePath/${service.providerName}.scala", viewProvider(service))
-
-    generatedSources.result()
-  }
-
-  private[codegen] def viewHandler(view: ModelBuilder.ViewService): String = {
+  private[codegen] def viewHandler(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
         Seq(view.state.fqn) ++ view.commandTypes,
@@ -78,7 +60,10 @@ object ViewServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|package ${view.fqn.parent.scalaPackage}
+    File(
+      view.fqn.parent.scalaPackage,
+      view.handlerName,
+      s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -100,10 +85,10 @@ object ViewServiceSourceGenerator {
         |  }
         |
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def viewProvider(view: ModelBuilder.ViewService): String = {
+  private[codegen] def viewProvider(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
         Seq(view.state.fqn, view.descriptorObject),
@@ -122,7 +107,10 @@ object ViewServiceSourceGenerator {
         packageImports = Nil,
         semi = false)
 
-    s"""|package ${view.fqn.parent.scalaPackage}
+    File(
+      view.fqn.parent.scalaPackage,
+      view.providerName,
+      s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -157,10 +145,10 @@ object ViewServiceSourceGenerator {
         |    ${typeName(view.descriptorObject)}.javaDescriptor ::
         |    Nil
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def viewSource(view: ModelBuilder.ViewService): String = {
+  private[codegen] def viewSource(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
         Seq(view.state.fqn) ++ view.commandTypes,
@@ -186,7 +174,10 @@ object ViewServiceSourceGenerator {
          |""".stripMargin
     }
 
-    s"""|package ${view.fqn.parent.scalaPackage}
+    File(
+      view.fqn.parent.scalaPackage,
+      view.className,
+      s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -195,10 +186,10 @@ object ViewServiceSourceGenerator {
         |$emptyState
         |  ${Format.indent(handlers, 2)}
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def abstractView(view: ModelBuilder.ViewService): String = {
+  private[codegen] def abstractView(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
         Seq(view.state.fqn) ++ view.commandTypes,
@@ -223,7 +214,10 @@ object ViewServiceSourceGenerator {
 
     }
 
-    s"""|package ${view.fqn.parent.scalaPackage}
+    File(
+      view.fqn.parent.scalaPackage,
+      view.abstractViewName,
+      s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -232,7 +226,7 @@ object ViewServiceSourceGenerator {
         |$emptyState
         |  ${Format.indent(handlers, 2)}
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
 }

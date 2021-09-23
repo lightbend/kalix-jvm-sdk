@@ -55,50 +55,24 @@ object MainSourceGenerator {
     ModelBuilder.Model(filteredServices, filteredEntities)
   }
 
-  def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] = {
-    val filteredModel = excludedUntilImplemented(model) // FIXME remove
-    val generatedSources = Seq.newBuilder[File]
+  def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
+    Seq(mainSource(excludedUntilImplemented(model)))
 
-    val mainPackage = mainPackageName(filteredModel.services.keys ++ filteredModel.entities.keys)
-    val mainPackageStr = mainPackage.mkString(".")
-    val mainPackagePath = mainPackage.mkString("/")
-    val mainClassName = "Main"
+  def generateManaged(model: ModelBuilder.Model): Iterable[File] =
+    // FIXME remove filtering
+    Seq(akkaServerlessFactorySource(excludedUntilImplemented(model)))
 
-    generatedSources += File(
-      s"$mainPackagePath/$mainClassName.scala",
-      mainSource(mainPackageStr, mainClassName, filteredModel.entities, filteredModel.services))
+  private[codegen] def mainSource(model: ModelBuilder.Model): File = {
+    val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
+    val className = "Main"
 
-    generatedSources.result()
-  }
-
-  def generateManaged(model: ModelBuilder.Model): Iterable[File] = {
-    val filteredModel = excludedUntilImplemented(model) // FIXME remove
-    val generatedSources = Seq.newBuilder[File]
-
-    val mainPackage = mainPackageName(filteredModel.services.keys ++ filteredModel.entities.keys)
-    val mainPackageStr = mainPackage.mkString(".")
-    val mainPackagePath = mainPackage.mkString("/")
-
-    generatedSources += File(
-      s"$mainPackagePath/AkkaServerlessFactory.scala",
-      akkaServerlessFactorySource(mainPackageStr, filteredModel))
-
-    generatedSources.result()
-  }
-
-  private[codegen] def mainSource(
-      mainClassPackageName: String,
-      mainClassName: String,
-      entities: Map[String, Entity],
-      services: Map[String, Service]): String = {
-
-    val entityImports = entities.values.collect {
+    val entityImports = model.entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
       case entity: ModelBuilder.ValueEntity        => entity.fqn.fullQualifiedName
       case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullQualifiedName
     }.toSeq
 
-    val serviceImports = services.values.collect {
+    val serviceImports = model.services.values.collect {
       case service: ModelBuilder.ActionService => service.classNameQualified
       case view: ModelBuilder.ViewService      => view.classNameQualified
     }.toSeq
@@ -107,9 +81,9 @@ object MainSourceGenerator {
       List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
     val imports =
-      generateImports(Iterable.empty, mainClassPackageName, allImports, semi = false)
+      generateImports(Iterable.empty, packageName, allImports, semi = false)
 
-    val entityRegistrationParameters = entities.values.toList
+    val entityRegistrationParameters = model.entities.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case entity: ModelBuilder.EventSourcedEntity => s"new ${entity.fqn.name}(_)"
@@ -117,7 +91,7 @@ object MainSourceGenerator {
         case entity: ModelBuilder.ReplicatedEntity   => s"new ${entity.fqn.name}(_)"
       }
 
-    val serviceRegistrationParameters = services.values.toList
+    val serviceRegistrationParameters = model.services.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case service: ModelBuilder.ActionService => s"new ${service.className}(_)"
@@ -125,13 +99,17 @@ object MainSourceGenerator {
       }
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
-    s"""|package $mainClassPackageName
+
+    File(
+      packageName,
+      className,
+      s"""|package $packageName
         |
         |$imports
         |
-        |object $mainClassName {
+        |object $className {
         |
-        |  private val log = LoggerFactory.getLogger("$mainClassPackageName.$mainClassName")
+        |  private val log = LoggerFactory.getLogger("$packageName.$className")
         |
         |  def createAkkaServerless(): AkkaServerless = {
         |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
@@ -147,11 +125,11 @@ object MainSourceGenerator {
         |    createAkkaServerless().start()
         |  }
         |}
-        |""".stripMargin
-
+        |""".stripMargin)
   }
 
-  private[codegen] def akkaServerlessFactorySource(mainClassPackageName: String, model: ModelBuilder.Model): String = {
+  private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model): File = {
+    val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
     val registrations = model.services.values
       .flatMap {
         case service: ModelBuilder.EntityService =>
@@ -218,7 +196,7 @@ object MainSourceGenerator {
       List("com.akkaserverless.scalasdk.AkkaServerless")).toList
 
     val imports =
-      generateImports(Iterable.empty, mainClassPackageName, allImports, semi = false)
+      generateImports(Iterable.empty, packageName, allImports, semi = false)
 
     val entityCreators =
       model.entities.values.toList
@@ -243,7 +221,10 @@ object MainSourceGenerator {
 
     val creatorParameters = entityCreators ::: serviceCreators
 
-    s"""|package $mainClassPackageName
+    File(
+      packageName,
+      "AkkaServerlessFactory",
+      s"""|package $packageName
         |
         |$imports
         |
@@ -256,7 +237,7 @@ object MainSourceGenerator {
         |      ${Format.indent(registrations, 6)}
         |  }
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
 }

@@ -30,32 +30,13 @@ object ActionServiceSourceGenerator {
   /**
    * Generate Scala sources the user view source file.
    */
-  def generateUnmanaged(service: ModelBuilder.ActionService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
-
-    val packageName = service.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += File(s"$packagePath/${service.className}.scala", actionSource(service))
-
-    generatedSources.result()
-  }
+  def generateUnmanaged(service: ModelBuilder.ActionService): Seq[File] = Seq(actionSource(service))
 
   /**
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
-  def generateManaged(service: ModelBuilder.ActionService): Iterable[File] = {
-    val generatedSources = Seq.newBuilder[File]
-
-    val packageName = service.fqn.parent.scalaPackage
-    val packagePath = packageAsPath(packageName)
-
-    generatedSources += File(s"$packagePath/${service.abstractActionName}.scala", abstractAction(service))
-    generatedSources += File(s"$packagePath/${service.handlerName}.scala", actionHandler(service))
-    generatedSources += File(s"$packagePath/${service.providerName}.scala", actionProvider(service))
-
-    generatedSources.result()
-  }
+  def generateManaged(service: ModelBuilder.ActionService): Seq[File] =
+    Seq(abstractAction(service), actionHandler(service), actionProvider(service))
 
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
     if (commands.exists(_.hasStream))
@@ -64,7 +45,7 @@ object ActionServiceSourceGenerator {
       Nil
   }
 
-  private[codegen] def actionSource(service: ModelBuilder.ActionService): String = {
+  private[codegen] def actionSource(service: ModelBuilder.ActionService): File = {
 
     val className = service.className
 
@@ -119,7 +100,10 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|package ${service.fqn.parent.scalaPackage}
+    File(
+      service.fqn.parent.scalaPackage,
+      className,
+      s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -128,10 +112,10 @@ object ActionServiceSourceGenerator {
         |
         |  ${Format.indent(methods, 2)}
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def abstractAction(service: ModelBuilder.ActionService): String = {
+  private[codegen] def abstractAction(service: ModelBuilder.ActionService): File = {
 
     implicit val imports = generateImports(
       service.commandTypes,
@@ -166,7 +150,10 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|package ${service.fqn.parent.scalaPackage}
+    File(
+      service.fqn.parent.scalaPackage,
+      service.abstractActionName,
+      s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -175,10 +162,10 @@ object ActionServiceSourceGenerator {
         |
         |  ${Format.indent(methods, 2)}
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def actionHandler(service: ModelBuilder.ActionService): String = {
+  private[codegen] def actionHandler(service: ModelBuilder.ActionService): File = {
     implicit val imports = generateImports(
       commandTypes(service.commands),
       service.fqn.parent.scalaPackage,
@@ -227,7 +214,10 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    s"""|package ${service.fqn.parent.scalaPackage}
+    File(
+      service.fqn.parent.scalaPackage,
+      service.handlerName,
+      s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -266,10 +256,10 @@ object ActionServiceSourceGenerator {
         |    }
         |  }
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 
-  private[codegen] def actionProvider(service: ModelBuilder.ActionService): String = {
+  private[codegen] def actionProvider(service: ModelBuilder.ActionService): File = {
     val imports = generateImports(
       commandTypes(service.commands),
       service.fqn.parent.scalaPackage,
@@ -281,7 +271,10 @@ object ActionServiceSourceGenerator {
         "scala.collection.immutable"),
       semi = false)
 
-    s"""|package ${service.fqn.parent.scalaPackage}
+    File(
+      service.fqn.parent.scalaPackage,
+      service.providerName,
+      s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
         |
@@ -310,6 +303,6 @@ object ActionServiceSourceGenerator {
         |  def withOptions(options: ActionOptions): ${service.providerName} =
         |    new ${service.providerName}(actionFactory, options)
         |}
-        |""".stripMargin
+        |""".stripMargin)
   }
 }
