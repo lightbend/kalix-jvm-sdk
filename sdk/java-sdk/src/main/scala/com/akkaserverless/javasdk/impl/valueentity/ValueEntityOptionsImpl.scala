@@ -33,3 +33,6 @@ private[impl] case class ValueEntityOptionsImpl(
   override def withForwardHeaders(headers: util.Set[String]): ValueEntityOptions =
     copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)))
 }
+object ValueEntityOptionsImpl {
+  val defaults = new ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout(), Collections.emptySet())
+}

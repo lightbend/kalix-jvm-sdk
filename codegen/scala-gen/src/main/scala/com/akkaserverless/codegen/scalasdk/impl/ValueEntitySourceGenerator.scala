@@ -134,9 +134,8 @@ object ValueEntitySourceGenerator {
     val packageName = entity.fqn.parent.scalaPackage
     val className = entity.fqn.name + "Provider"
 
-    val imports = generateImports(
+    implicit val imports: Imports = generateImports(
       Seq(entity.state.fqn) ++ service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
-      // TODO descriptor imports
       packageName,
       Seq(
         "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
@@ -154,11 +153,20 @@ object ValueEntitySourceGenerator {
          |
          |object $className {
          |  def apply(entityFactory: ValueEntityContext => ${entity.fqn.name}): $className =
-         |    new $className(entityFactory, ValueEntityOptions.defaults())
+         |    new $className(entityFactory, ValueEntityOptions.defaults)
          |}
-         |class $className private(entityFactory: ValueEntityContext => ${entity.fqn.name}, options: ValueEntityOptions) {
-         |  val serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ???
+         |class $className private(entityFactory: ValueEntityContext => ${entity.fqn.name}, override val options: ValueEntityOptions)
+         |  extends ValueEntityProvider[${typeName(entity.state.fqn)}, ${typeName(entity.fqn)}] {
+         |
+         |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
+         |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+         |
+         |  override final val entityType = "${entity.entityType}"
+         |
+         |  override final def newHandler(context: ValueEntityContext) = ???
+         |
+         |  override final val additionalDescriptors =
+         |    ${typeName(service.descriptorObject)}.javaDescriptor :: Nil
          |}
          |""".stripMargin)
   }

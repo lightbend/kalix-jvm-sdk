@@ -32,6 +32,6 @@ public interface ValueEntityOptions extends com.akkaserverless.javasdk.EntityOpt
    * @return the entity option
    */
   static ValueEntityOptions defaults() {
-    return new ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout(), Collections.emptySet());
+    return ValueEntityOptionsImpl.defaults();
   }
 }

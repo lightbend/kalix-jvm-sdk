@@ -18,11 +18,28 @@ package com.akkaserverless.scalasdk.valueentity
 
 import scala.collection.immutable
 
-import com.akkaserverless.javasdk.PassivationStrategy
+import com.akkaserverless.scalasdk
 import com.akkaserverless.scalasdk.EntityOptions
+import com.akkaserverless.scalasdk.PassivationStrategy
 
 /** Root entity options for all value based entities. */
 trait ValueEntityOptions extends EntityOptions {
   def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions
   def withForwardHeaders(headers: immutable.Set[String]): ValueEntityOptions
+}
+object ValueEntityOptions {
+  val defaults: ValueEntityOptions =
+    ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout, Set.empty)
+
+  private[akkaserverless] final case class ValueEntityOptionsImpl(
+      passivationStrategy: scalasdk.PassivationStrategy,
+      forwardHeaders: immutable.Set[String])
+      extends ValueEntityOptions {
+
+    override def withForwardHeaders(headers: immutable.Set[String]): ValueEntityOptions =
+      copy(forwardHeaders = headers)
+
+    override def withPassivationStrategy(passivationStrategy: scalasdk.PassivationStrategy): ValueEntityOptions =
+      copy(passivationStrategy = passivationStrategy)
+  }
 }
