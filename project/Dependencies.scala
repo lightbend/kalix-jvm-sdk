@@ -97,9 +97,7 @@ object Dependencies {
   val sdkJava = sdkCore
 
   // FIXME
-  val sdkScala = deps ++= coreDeps ++ Seq(
-    jacksonScala
-  )
+  val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
