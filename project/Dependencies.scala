@@ -61,6 +61,8 @@ object Dependencies {
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
+  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.0"
+
   private val deps = libraryDependencies
 
   val sdkCore = deps ++= Seq(
@@ -114,7 +116,8 @@ object Dependencies {
 
   val sbtPlugin = Seq(
     // we depend on it in the settings of the plugin since we set keys of the sbt-protoc plugin
-    addSbtPlugin(sbtProtoc))
+    addSbtPlugin(sbtProtoc),
+    addSbtPlugin(akkaGrpc))
 
   val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here

@@ -10,7 +10,6 @@ licenses := Seq(
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaGrpcPlugin)
 enablePlugins(AkkaserverlessPlugin)
 
 Compile / scalacOptions ++= Seq(
