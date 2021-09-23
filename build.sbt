@@ -92,6 +92,7 @@ lazy val sdkScala = project
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     // FIXME fix protobuf target and source settings in separate PR
     Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
+    Test / javacOptions += "-parameters", // for Jackson
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")

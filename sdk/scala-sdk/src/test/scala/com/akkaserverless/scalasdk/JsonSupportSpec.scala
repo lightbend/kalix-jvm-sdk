@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonCreator
-case class MyJsonable(@JsonProperty("field") field: String)
+case class MyJsonable(field: String)
 
 class JsonSupportSpec extends AnyWordSpec with Matchers {
 

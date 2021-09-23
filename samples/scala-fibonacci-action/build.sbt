@@ -20,7 +20,11 @@ Compile / scalacOptions ++= Seq(
   "-Xlog-reflective-calls",
   "-Xlint"
 )
-Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+Compile / javacOptions ++= Seq(
+  "-Xlint:unchecked",
+  "-Xlint:deprecation",
+  "-parameters" // for Jackson
+)
 
 Test / parallelExecution := false
 Test / testOptions += Tests.Argument("-oDF")

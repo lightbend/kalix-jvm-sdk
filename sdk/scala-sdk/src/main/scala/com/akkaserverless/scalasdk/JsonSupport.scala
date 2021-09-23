@@ -18,11 +18,14 @@ package com.akkaserverless.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.akkaserverless.javasdk.{ JsonSupport => JavaJsonSupport }
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
 
 object JsonSupport {
+
+  JavaJsonSupport.getObjectMapper.registerModule(new DefaultScalaModule)
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf `Any` with the type
