@@ -14,50 +14,50 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package com.akkaserverless.scalasdk.testkit
 
 /**
  * Represents the result of an ValueEntity handling a command when run in through the testkit.
  *
- * <p>Not for user extension, returned by the generated testkit.
+ * Not for user extension, returned by the generated testkit.
  *
- * @param <R> The type of reply that is expected from invoking command handler
+ * @tparam R The type of reply that is expected from invoking command handler
  */
-public interface ValueEntityResult<R> {
+trait ValueEntityResult[R] {
 
   /** @return true if the call had an effect with a reply, false if not */
-  boolean isReply();
+  def isReply: Boolean
 
   /**
    * The reply object from the handler if there was one. If the call had an effect without any reply
    * an exception is thrown
    */
-  R getReply();
+  def getReply: R
 
   /** @return true if the call was forwarded, false if not */
-  boolean isForward();
+  def isForward: Boolean
 
   /**
    * An object with details about the forward. If the result was not a forward an exception is
    * thrown
    */
-  ServiceCallDetails<R> getForward();
+  def getForward: ServiceCallDetails[R]
 
   /** @return true if the call was an error, false if not */
-  boolean isError();
+  def isError: Boolean
 
   /** The error description. If the result was not an error an exception is thrown */
-  String getError();
+  def getError: String
 
   /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
+  def isNoReply: Boolean
 
   /** @return true if the call updated the entity state */
-  boolean stateWasUpdated();
+  def stateWasUpdated: Boolean
 
   /** @return The updated state. If the state was not updated an exeption is thrown */
-  Object getUpdatedState();
+  def getUpdatedState: Any
 
   /** @return true if the call deleted the entity */
-  boolean stateWasDeleted();
+  def stateWasDeleted: Boolean
 }

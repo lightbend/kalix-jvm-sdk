@@ -24,6 +24,8 @@ import java.util.NoSuchElementException;
  * Represents the result of an EventSourcedEntity handling a command when run in through the
  * testkit.
  *
+ * <p>Not for user extension, returned by the generated testkit.
+ *
  * @param <R> The type of reply that is expected from invoking command handler
  */
 public interface EventSourcedResult<R> {
