@@ -129,12 +129,12 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |object AkkaServerlessFactory {
          |
          |  def withComponents(
-         |      createMyEntity1: Function[EventSourcedEntityContext, MyEntity1],
-         |      createMyEntity3: Function[EventSourcedEntityContext, MyEntity3],
-         |      createMyReplicatedEntity6: Function[ReplicatedEntityContext, MyReplicatedEntity6],
-         |      createMyValueEntity2: Function[ValueEntityContext, MyValueEntity2],
-         |      createMyService4ViewImpl: Function[ViewCreationContext, MyService4ViewImpl],
-         |      createMyService5Action: Function[ActionCreationContext, MyService5Action]): AkkaServerless = {
+         |      createMyEntity1: EventSourcedEntityContext => MyEntity1,
+         |      createMyEntity3: EventSourcedEntityContext => MyEntity3,
+         |      createMyReplicatedEntity6: ReplicatedEntityContext => MyReplicatedEntity6,
+         |      createMyValueEntity2: ValueEntityContext => MyValueEntity2,
+         |      createMyService4ViewImpl: ViewCreationContext => MyService4ViewImpl,
+         |      createMyService5Action: ActionCreationContext => MyService5Action): AkkaServerless = {
          |    val akkaServerless = AkkaServerless()
          |    akkaServerless
          |      .register(MyEntity1Provider(createMyEntity1))
@@ -171,7 +171,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |object AkkaServerlessFactory {
          |
          |  def withComponents(
-         |      createMyServiceViewImpl: Function[ViewCreationContext, MyServiceViewImpl]): AkkaServerless = {
+         |      createMyServiceViewImpl: ViewCreationContext => MyServiceViewImpl): AkkaServerless = {
          |    val akkaServerless = AkkaServerless()
          |    akkaServerless
          |      .register(MyServiceViewProvider(createMyServiceViewImpl))

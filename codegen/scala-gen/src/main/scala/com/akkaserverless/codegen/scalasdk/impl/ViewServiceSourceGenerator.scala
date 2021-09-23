@@ -127,12 +127,12 @@ object ViewServiceSourceGenerator {
         |$imports
         |
         |object ${view.providerName} {
-        |  def apply(viewFactory: Function[ViewCreationContext, ${view.className}]): ${view.providerName} =
+        |  def apply(viewFactory: ViewCreationContext => ${view.className}): ${view.providerName} =
         |    new ${view.providerName}(viewFactory, viewId = "${view.viewId}", options = ViewOptions.defaults)
         |}
         |
         |class ${view.providerName} private(
-        |    viewFactory: Function[ViewCreationContext, ${view.className}],
+        |    viewFactory: ViewCreationContext => ${view.className},
         |    override val viewId: String,
         |    override val options: ViewOptions)
         |  extends ViewProvider[${typeName(view.state.fqn)}, ${view.className}] {
