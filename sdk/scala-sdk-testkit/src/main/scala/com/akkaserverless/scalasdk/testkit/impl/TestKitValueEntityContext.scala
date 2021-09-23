@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package com.akkaserverless.scalasdk.testkit.impl
 
-import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 
-trait ServiceCallDetails[T] {
-
-  /** @return The forwarded message */
-  def getMessage: T
-
-  /** @return Any metadata attached to the call */
-  def getMetadata: Metadata
-
-  /** @return The name of the service being called */
-  def getServiceName: String
-
-  /** @return The method name being called */
-  def getMethodName: String
+/**
+ * INTERNAL API Used by the generated testkit
+ */
+final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
+  override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
 }

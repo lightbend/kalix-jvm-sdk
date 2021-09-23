@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 
 object TestData {
-  val javaStylePackageNamingTemplate: PackageNaming =
+  private val javaStylePackageNamingTemplate: PackageNaming =
     PackageNaming(
       "undefined.proto",
       "Undefined",
@@ -30,14 +30,14 @@ object TestData {
     new TestData(packageNamingTemplate)
   }
 
-  val javaStyle = apply(javaStylePackageNamingTemplate)
-  val scalaStyle = apply(javaStylePackageNamingTemplate.copy(javaOuterClassnameOption = None))
+  val javaStyle: TestData = apply(javaStylePackageNamingTemplate)
+  val scalaStyle: TestData = apply(javaStylePackageNamingTemplate.copy(javaOuterClassnameOption = None))
 }
 
 /**
  * Used by java and scala codegen projects for their tests
  */
-class TestData(packageNamingTemplate: PackageNaming) {
+class TestData(val packageNamingTemplate: PackageNaming) {
 
   def simple(): ModelBuilder.Model = {
     val service = simpleEntityService()

@@ -49,7 +49,26 @@ object SourceGenerator {
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
-  def generateManagedTest(model: ModelBuilder.Model): Seq[File] = Seq.empty
+  def generateManagedTest(model: ModelBuilder.Model): Seq[File] = {
+    model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.lookupEntity(service) match {
+            case entity: ModelBuilder.ValueEntity =>
+              ValueEntityTestKitGenerator.generateManaged(entity, service)
+            case _: ModelBuilder.EventSourcedEntity =>
+              Nil // FIXME
+            case _: ModelBuilder.ReplicatedEntity =>
+              Nil
+          }
+        case _: ModelBuilder.ViewService =>
+          Nil
+        case _: ModelBuilder.ActionService =>
+          Nil
+      }
+      .map(_.prepend(managedComment))
+      .toList
+  }
 
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
@@ -74,6 +93,31 @@ object SourceGenerator {
           ActionServiceSourceGenerator.generateUnmanaged(service)
       }
       .map(_.prepend(unmanagedComment))
+  }
+
+  /**
+   * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the user
+   */
+  // FIXME we need to call this from the sbt plugin
+  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] = {
+    model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.lookupEntity(service) match {
+            case entity: ModelBuilder.ValueEntity =>
+              ValueEntityTestKitGenerator.generateUnmanaged(entity, service)
+            case _: ModelBuilder.EventSourcedEntity =>
+              Nil // FIXME
+            case _: ModelBuilder.ReplicatedEntity =>
+              Nil
+          }
+        case _: ModelBuilder.ViewService =>
+          Nil
+        case _: ModelBuilder.ActionService =>
+          Nil
+      }
+      .map(_.prepend(managedComment))
+      .toList
   }
 
 }
