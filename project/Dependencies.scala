@@ -49,6 +49,7 @@ object Dependencies {
   val jacksonJdk8 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % JacksonVersion
   val jacksonJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % JacksonVersion
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
+  val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
 
   val testcontainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
@@ -65,7 +66,7 @@ object Dependencies {
 
   private val deps = libraryDependencies
 
-  val sdkCore = deps ++= Seq(
+  private val coreDeps = Seq(
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
@@ -90,11 +91,13 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
+  val sdkCore = deps ++= coreDeps
+
   // FIXME
   val sdkJava = sdkCore
 
   // FIXME
-  val sdkScala = sdkCore
+  val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
@@ -119,7 +122,7 @@ object Dependencies {
     addSbtPlugin(sbtProtoc),
     addSbtPlugin(akkaGrpc))
 
-  val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
+  lazy val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
     // exclusion rules can be added here
   )
 
