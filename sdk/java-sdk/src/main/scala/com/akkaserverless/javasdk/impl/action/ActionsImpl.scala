@@ -32,13 +32,14 @@ import com.akkaserverless.protocol.component.Failure
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import java.util.Optional
 
+import java.util.Optional
 import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
-
 import com.akkaserverless.javasdk.impl.ActionFactory
+
+import scala.util.control.NonFatal
 
 final class ActionService(
     val factory: ActionFactory,
@@ -83,10 +84,14 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           toProtocol(forward.metadata()))
         Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
-        futureEffect.flatMap { effect =>
-          val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
-          effectToResponse(withSurroundingSideEffects, anySupport)
-        }
+        futureEffect
+          .flatMap { effect =>
+            val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
+            effectToResponse(withSurroundingSideEffects, anySupport)
+          }
+          .recover { case NonFatal(ex) =>
+            ActionResponse(ActionResponse.Response.Failure(Failure(description = ex.getMessage)))
+          }
       case ErrorEffect(description, sideEffects) =>
         Future.successful(
           ActionResponse(ActionResponse.Response.Failure(Failure(description = description)), toProtocol(sideEffects)))
@@ -116,6 +121,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
     }
 
+  private def toProtocol(ex: Throwable): ActionResponse = {
+    ActionResponse(ActionResponse.Response.Failure(Failure(0, ex.getMessage)))
+  }
+
   /**
    * Handle a unary command. The input command will contain the service name, command name, request metadata and the
    * command payload. The reply may contain a direct reply, a forward or a failure, and it may contain many side
@@ -124,12 +133,16 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in)
-        val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
-        val effect = service.factory
-          .create(creationContext)
-          .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-        effectToResponse(effect, service.anySupport)
+        try {
+          val context = createContext(in)
+          val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
+          val effect = service.factory
+            .create(creationContext)
+            .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+          effectToResponse(effect, service.anySupport)
+        } catch {
+          case NonFatal(ex) => Future.successful(toProtocol(ex)) // command handler threw
+        }
       case None =>
         Future.successful(
           ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
@@ -156,17 +169,21 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              val effect = service.factory
-                .create(creationContext)
-                .handleStreamedIn(
-                  call.name,
-                  messages.map { message =>
-                    val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                    val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
-                    MessageEnvelope.of(decodedPayload, metadata)
-                  }.asJava,
-                  createContext(call))
-              effectToResponse(effect, service.anySupport)
+              try {
+                val effect = service.factory
+                  .create(creationContext)
+                  .handleStreamedIn(
+                    call.name,
+                    messages.map { message =>
+                      val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
+                      val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
+                      MessageEnvelope.of(decodedPayload, metadata)
+                    }.asJava,
+                    createContext(call))
+                effectToResponse(effect, service.anySupport)
+              } catch {
+                case NonFatal(ex) => Future.successful(toProtocol(ex)) // command handler threw
+              }
             case None =>
               Future.successful(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName))))
@@ -183,13 +200,18 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   override def handleStreamedOut(in: ActionCommand): Source[ActionResponse, NotUsed] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in)
-        val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
-        service.factory
-          .create(creationContext)
-          .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          .asScala
-          .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
+        try {
+          val context = createContext(in)
+          val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
+          service.factory
+            .create(creationContext)
+            .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+            .asScala
+            .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
+            .recover { case NonFatal(ex) => toProtocol(ex) } // user stream failed
+        } catch {
+          case NonFatal(ex) => Source.single(toProtocol(ex)) // command handler threw
+        }
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
@@ -216,18 +238,23 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
-              service.factory
-                .create(creationContext)
-                .handleStreamed(
-                  call.name,
-                  messages.map { message =>
-                    val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                    val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
-                    MessageEnvelope.of(decodedPayload, metadata)
-                  }.asJava,
-                  createContext(call))
-                .asScala
-                .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
+              try {
+                service.factory
+                  .create(creationContext)
+                  .handleStreamed(
+                    call.name,
+                    messages.map { message =>
+                      val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
+                      val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
+                      MessageEnvelope.of(decodedPayload, metadata)
+                    }.asJava,
+                    createContext(call))
+                  .asScala
+                  .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
+                  .recover { case NonFatal(ex) => toProtocol(ex) } // user stream failed
+              } catch {
+                case NonFatal(ex) => Source.single(toProtocol(ex)) // command handler threw
+              }
             case None =>
               Source.single(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName))))

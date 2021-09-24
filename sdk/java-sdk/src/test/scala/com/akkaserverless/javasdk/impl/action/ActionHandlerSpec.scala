@@ -34,6 +34,7 @@ import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
+import com.akkaserverless.protocol.action.ActionResponse.Response.Failure
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
@@ -88,6 +89,21 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
       }
     }
 
+    "turn thrown unary command handler exceptions into failure responses" in {
+      val service = create(new AbstractHandler {
+
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+          throw new RuntimeException("boom")
+      })
+
+      val reply =
+        Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+
+      inside(reply.response) { case ActionResponse.Response.Failure(fail) =>
+        fail.description should ===("boom")
+      }
+    }
+
     "invoke streamed in commands" in {
       val service = create(new AbstractHandler {
         override def handleStreamedIn(
@@ -137,6 +153,48 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
         inside(reply.response) { case ActionResponse.Response.Reply(Reply(payload, _, _)) =>
           extractOutField(payload) should ===(s"out ${idx + 1}: in")
         }
+      }
+    }
+
+    "turn streamed out command handler throwing exceptions into failure responses" in {
+      val service = create(new AbstractHandler {
+        override def handleStreamedOut(
+            commandName: String,
+            message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+          throw new RuntimeException("boom")
+        }
+      })
+
+      val replies = Await.result(
+        service
+          .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
+          .runWith(Sink.seq),
+        10.seconds)
+
+      replies should have size 1
+      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
+        fail.description should ===("boom")
+      }
+    }
+
+    "turn streamed out command handler failed stream into failure responses" in {
+      val service = create(new AbstractHandler {
+        override def handleStreamedOut(
+            commandName: String,
+            message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+          Source.failed(new RuntimeException("boom"))
+        }
+      })
+
+      val replies = Await.result(
+        service
+          .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
+          .runWith(Sink.seq),
+        10.seconds)
+
+      replies should have size 1
+      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
+        fail.description should ===("boom")
       }
     }
 
@@ -197,6 +255,21 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
           sideEffects should have size 2
       }
 
+    }
+
+    "turn async failure into failure response" in {
+      val service = create(new AbstractHandler {
+
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+          createAsyncReplyEffect(Future.failed(new RuntimeException("boom")))
+      })
+
+      val reply =
+        Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+
+      inside(reply.response) { case ActionResponse.Response.Failure(fail) =>
+        fail.description should ===("boom")
+      }
     }
 
   }
