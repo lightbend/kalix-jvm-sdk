@@ -65,4 +65,4 @@ $ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueenti
 $ exists src/main/scala/com/example/valueentity/domain/User.scala
 $ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueentity/domain/AbstractUser.scala
 
-> Test/compile
+#FIXME > Test/compile
