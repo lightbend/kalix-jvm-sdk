@@ -80,7 +80,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
             val service1Proto = testData.serviceProto("1")
             val service2Proto = testData.serviceProto("2")
             val service3Proto =
-              testData.serviceProto("3").copy(pkg = "com.example.service.something")
+              testData.serviceProto("3").copy(protoPackage = "com.example.service.something")
             val service4Proto = testData.serviceProto("4")
             val service5Proto = testData.serviceProto("5")
             val service6Proto = testData.serviceProto("6")

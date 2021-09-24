@@ -83,7 +83,7 @@ object ValueEntityTestKitGenerator {
     val testkitClassName = s"${entityClassName}TestKit"
 
     s"""$managedComment
-       |package ${entity.fqn.parent.pkg};
+       |package ${entity.fqn.parent.javaPackage};
        |
        |$imports
        |
@@ -197,7 +197,7 @@ object ValueEntityTestKitGenerator {
     }
 
     s"""$unmanagedComment
-       |package ${entity.fqn.parent.pkg};
+       |package ${entity.fqn.parent.javaPackage};
        |
        |$imports
        |

@@ -170,7 +170,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
-        domainProto.pkg + "." + "ShoppingCart",
+        domainProto.protoPackage + "." + "ShoppingCart",
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
         ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
@@ -330,7 +330,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
-        domainProto.pkg + "." + "ShoppingCart",
+        domainProto.protoPackage + "." + "ShoppingCart",
         FullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
         ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
