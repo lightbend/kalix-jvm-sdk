@@ -20,8 +20,14 @@ import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, PackageNaming }
 
 object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtractor {
-  override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
-    FullyQualifiedName(descriptor.getName, descriptor.getName, packageName(descriptor))
+  override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
+    val pack = packageName(descriptor)
+    FullyQualifiedName(
+      descriptor.getName,
+      descriptor.getName,
+      pack,
+      Some(FullyQualifiedName(pack.javaOuterClassname, pack.javaOuterClassname, pack, None)))
+  }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
     val fileDescriptor = descriptor.getFile

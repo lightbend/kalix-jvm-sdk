@@ -32,12 +32,20 @@ object TestData {
 
   val javaStyle: TestData = apply(javaStylePackageNamingTemplate)
   val scalaStyle: TestData = apply(javaStylePackageNamingTemplate.copy(javaOuterClassnameOption = None))
+
+  def guessDescriptor(protoName: String, proto: PackageNaming): Option[FullyQualifiedName] =
+    proto.javaOuterClassnameOption match {
+      case Some(outer) => Some(FullyQualifiedName(outer, outer, proto, None))
+      case None        => Some(FullyQualifiedName(protoName + "Proto", protoName + "Proto", proto, None))
+    }
+
 }
 
 /**
  * Used by java and scala codegen projects for their tests
  */
 class TestData(val packageNamingTemplate: PackageNaming) {
+  import TestData._
 
   def simple(): ModelBuilder.Model = {
     val service = simpleEntityService()
@@ -80,17 +88,14 @@ class TestData(val packageNamingTemplate: PackageNaming) {
   def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
     ModelBuilder.EntityService(
       FullyQualifiedName(s"MyService$suffix", proto),
-      FullyQualifiedName(proto.javaOuterClassnameOption.getOrElse(s"MyService${suffix}Proto"), proto),
       List(
         command("Set", FullyQualifiedName("SetValue", proto), FullyQualifiedName("Empty", externalProto)),
         command("Get", FullyQualifiedName("GetValue", proto), FullyQualifiedName("MyState", proto))),
       s"com.example.Entity$suffix")
 
   def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
-
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto),
-      FullyQualifiedName(proto.javaOuterClassnameOption.getOrElse(proto.name + "Proto"), proto),
+      FullyQualifiedName(proto.name, proto.name, proto, guessDescriptor(proto.name, proto)),
       List(
         command("SimpleMethod", FullyQualifiedName("MyRequest", proto), FullyQualifiedName("Empty", externalProto)),
         command(
@@ -113,8 +118,7 @@ class TestData(val packageNamingTemplate: PackageNaming) {
 
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
     ModelBuilder.ActionService(
-      FullyQualifiedName(proto.name, proto.name, proto),
-      FullyQualifiedName(proto.javaOuterClassnameOption.getOrElse(proto.name + "Proto"), proto),
+      FullyQualifiedName(proto.name, proto.name, proto, guessDescriptor(proto.name, proto)),
       List(
         command(
           "InFromTopic",
@@ -139,8 +143,11 @@ class TestData(val packageNamingTemplate: PackageNaming) {
         FullyQualifiedName("EntityUpdated", domainProto(suffix)),
         FullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
-      FullyQualifiedName(s"MyService${suffix}", s"MyService${suffix}View", proto),
-      FullyQualifiedName(proto.javaOuterClassnameOption.getOrElse(s"MyService${suffix}Proto"), proto),
+      FullyQualifiedName(
+        s"MyService${suffix}",
+        s"MyService${suffix}View",
+        proto,
+        guessDescriptor(s"MyService${suffix}", proto)),
       List(
         command(
           "Created",
