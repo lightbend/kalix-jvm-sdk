@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
+import akka.actor.ActorSystem
+import akka.stream.Materializer
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext
 
@@ -26,4 +28,6 @@ final class TestKitEventSourcedEntityContext(override val entityId: String) exte
   override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
+  override def materializer(): Materializer = throw new UnsupportedOperationException(
+    "Accessing the materializer from testkit not supported yet")
 }
