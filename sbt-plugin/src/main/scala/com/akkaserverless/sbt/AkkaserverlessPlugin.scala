@@ -17,6 +17,7 @@
 package com.akkaserverless.sbt
 
 import akka.grpc.sbt.AkkaGrpcPlugin
+import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.akkaGrpcCodeGeneratorSettings
 
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -47,15 +48,15 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.19" % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf"),
     Compile / PB.targets +=
-      gen(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / sourceManaged).value / "akkaserverless",
+      gen(
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value / "akkaserverless",
     Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
-    Compile / PB.targets ++= Seq(
-      // TODO allow user to customize options
-      scalapb.gen(grpc = false) -> (Compile / sourceManaged).value / "scalapb",
-      genUnmanaged(Seq(AkkaserverlessGenerator.enableDebug)) -> (Compile / temporaryUnmanagedDirectory).value),
+    Compile / PB.targets ++= Seq(genUnmanaged(
+      akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
-      genTests(Seq(AkkaserverlessGenerator.enableDebug)) -> (Test / sourceManaged).value / "akkaserverless",
+      genTests(
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value / "akkaserverless",
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
