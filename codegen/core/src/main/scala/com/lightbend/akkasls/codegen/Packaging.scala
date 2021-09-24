@@ -48,17 +48,14 @@ object FullyQualifiedName {
 
 }
 
-/**
- * The details of a package's naming, sufficient to construct fully qualified names in any target language
- */
 case class PackageNaming(
     protoFileName: String,
     name: String,
-    pkg: String,
+    protoPackage: String,
     javaPackageOption: Option[String],
     javaOuterClassnameOption: Option[String],
     javaMultipleFiles: Boolean) {
-  lazy val javaPackage: String = javaPackageOption.getOrElse(pkg)
+  lazy val javaPackage: String = javaPackageOption.getOrElse(protoPackage)
   def scalaPackage: String = javaPackage
   def javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
 }

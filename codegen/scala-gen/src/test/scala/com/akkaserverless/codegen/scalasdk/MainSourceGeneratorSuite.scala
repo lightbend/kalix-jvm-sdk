@@ -78,8 +78,8 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
   test("generated component registration source") {
     val service1Proto = testData.serviceProto("1")
     val service2Proto = testData.serviceProto("2")
-    val service3Proto = testData.serviceProto("3").copy(pkg = "com.example.service.something")
-    val service4Proto = testData.serviceProto("4").copy(pkg = "com.example.service.view")
+    val service3Proto = testData.serviceProto("3").copy(protoPackage = "com.example.service.something")
+    val service4Proto = testData.serviceProto("4").copy(protoPackage = "com.example.service.view")
     val service5Proto = testData.serviceProto("5")
     val service6Proto = testData.serviceProto("6")
 
@@ -147,7 +147,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("generated component registration source for a view without update handlers") {
-    val serviceProto = testData.serviceProto().copy(pkg = "com.example.service.view")
+    val serviceProto = testData.serviceProto().copy(protoPackage = "com.example.service.view")
 
     val services = Map("com.example.Service" -> testData.simpleViewService(serviceProto).copy(transformedUpdates = Nil))
 

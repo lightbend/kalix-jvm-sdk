@@ -42,7 +42,7 @@ object EventSourcedEntityTestKitGenerator {
     val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
     if (!testFilePath.toFile.exists()) {
       testFilePath.getParent.toFile.mkdirs()
-      Files.write(testFilePath, generateTestSources(service, entity, packageName).getBytes(Charsets.UTF_8))
+      Files.write(testFilePath, generateTestSources(service, entity).getBytes(Charsets.UTF_8))
       generatedFiles :+= testFilePath
     }
 
@@ -79,7 +79,7 @@ object EventSourcedEntityTestKitGenerator {
     val testkitClassName = s"${entityClassName}TestKit"
 
     s"""$managedComment
-          |package ${entity.fqn.parent.pkg};
+          |package ${entity.fqn.parent.javaPackage};
           |
           |$imports
           |
@@ -198,10 +198,8 @@ object EventSourcedEntityTestKitGenerator {
     top + middle.mkString("\n") + bottom
   }
 
-  def generateTestSources(
-      service: ModelBuilder.EntityService,
-      entity: ModelBuilder.EventSourcedEntity,
-      packageName: String): String = {
+  def generateTestSources(service: ModelBuilder.EntityService, entity: ModelBuilder.EventSourcedEntity): String = {
+    val packageName = entity.fqn.parent.javaPackage
     val imports = generateCommandImports(
       service.commands,
       entity.state,
@@ -231,7 +229,7 @@ object EventSourcedEntityTestKitGenerator {
     }
 
     s"""$unmanagedComment
-      |package ${entity.fqn.parent.pkg};
+      |package $packageName;
       |
       |$imports
       |
