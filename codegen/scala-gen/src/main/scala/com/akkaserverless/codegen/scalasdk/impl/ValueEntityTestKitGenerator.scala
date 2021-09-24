@@ -23,10 +23,10 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
+  def generateUnmanagedTest(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(test(valueEntity, service))
 
-  def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
+  def generateManagedTest(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(testkit(valueEntity, service))
 
   private[codegen] def testkit(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {

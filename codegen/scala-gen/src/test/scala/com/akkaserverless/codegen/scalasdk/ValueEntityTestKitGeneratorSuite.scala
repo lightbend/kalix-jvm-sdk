@@ -30,7 +30,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     "it can generate an specific TestKit for the proto files " +
     "in test/resources/testkit") {
 
-    val packageName = "com.example.shoppingcart"
     val entity = createShoppingCartEntity()
     val service = createShoppingCartService(entity)
 
@@ -161,10 +160,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     assertNoDiff(sourceCode, expected)
   }
 
-  /**
-   * This ModelBuilder.EventSourcedEntity is equivalent to the entity in
-   * test/resources/testkit/shoppingcart_domain.proto
-   */
   def createShoppingCartEntity(): ModelBuilder.ValueEntity = {
 
     val domainProto = {
@@ -176,9 +171,9 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     }
 
     ModelBuilder.ValueEntity(
-      domainProto.pkg + ".ShoppingCart",
+      domainProto.protoPackage + ".ShoppingCart",
       FullyQualifiedName("ShoppingCart", domainProto),
-      "eventsourced-shopping-cart",
+      "shopping-cart",
       ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
   }
 

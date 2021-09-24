@@ -55,7 +55,7 @@ object SourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.lookupEntity(service) match {
             case entity: ModelBuilder.ValueEntity =>
-              ValueEntityTestKitGenerator.generateManaged(entity, service)
+              ValueEntityTestKitGenerator.generateManagedTest(entity, service)
             case _: ModelBuilder.EventSourcedEntity =>
               Nil // FIXME
             case _: ModelBuilder.ReplicatedEntity =>
@@ -105,7 +105,7 @@ object SourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.lookupEntity(service) match {
             case entity: ModelBuilder.ValueEntity =>
-              ValueEntityTestKitGenerator.generateUnmanaged(entity, service)
+              ValueEntityTestKitGenerator.generateUnmanagedTest(entity, service)
             case _: ModelBuilder.EventSourcedEntity =>
               Nil // FIXME
             case _: ModelBuilder.ReplicatedEntity =>
@@ -116,7 +116,7 @@ object SourceGenerator {
         case _: ModelBuilder.ActionService =>
           Nil
       }
-      .map(_.prepend(managedComment))
+      .map(_.prepend(unmanagedComment))
       .toList
   }
 
