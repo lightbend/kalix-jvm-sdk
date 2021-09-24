@@ -23,7 +23,7 @@ import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, AkkaserverlessGenerator }
+import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, AkkaserverlessGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
@@ -40,6 +40,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
+    val temporaryUnmanagedTestDirectory = settingKey[File]("Directory to generate 'unmanaged' test sources into")
   }
   object autoImport extends Keys
   import autoImport._
@@ -52,12 +53,15 @@ object AkkaserverlessPlugin extends AutoPlugin {
       gen(
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value / "akkaserverless",
     Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
+    Test / temporaryUnmanagedTestDirectory := (Test / baseDirectory).value / "target" / "akkaserverless-unmanaged-test",
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
     // and the Akka Serverless 'handler'. For now working around it by only generating
     // the client, but we should probably resolve this before the first public release.
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Compile / PB.targets ++= Seq(genUnmanaged(
       akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedDirectory).value),
+    Test / PB.targets ++= Seq(genUnmanagedTest(
+      akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / temporaryUnmanagedTestDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
       genTests(
@@ -71,10 +75,23 @@ object AkkaserverlessPlugin extends AutoPlugin {
         Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
         Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
     },
+    Test / generateUnmanaged := {
+      Files.createDirectories(Paths.get((Test / temporaryUnmanagedTestDirectory).value.toURI))
+      // Make sure generation has happened
+      val _ = (Test / PB.generate).value
+      // Then copy over any new generated unmanaged sources
+      copyIfNotExist(
+        Paths.get((Test / temporaryUnmanagedTestDirectory).value.toURI),
+        Paths.get((Test / sourceDirectory).value.toURI).resolve("scala"))
+    },
     Compile / managedSources :=
       (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
     Compile / unmanagedSources :=
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value)
+      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value,
+    Test / managedSources :=
+      (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedTestDirectory).value)),
+    Test / unmanagedSources :=
+      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value)
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
