@@ -17,7 +17,8 @@
 package com.akkaserverless.sbt
 
 import akka.grpc.sbt.AkkaGrpcPlugin
-import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.akkaGrpcCodeGeneratorSettings
+import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.{ akkaGrpcCodeGeneratorSettings, akkaGrpcGeneratedSources }
+import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
 
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -51,6 +52,10 @@ object AkkaserverlessPlugin extends AutoPlugin {
       gen(
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value / "akkaserverless",
     Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
+    // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
+    // and the Akka Serverless 'handler'. For now working around it by only generating
+    // the client, but we should probably resolve this before the first public release.
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Compile / PB.targets ++= Seq(genUnmanaged(
       akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,

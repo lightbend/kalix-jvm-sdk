@@ -4,65 +4,65 @@ $ exists src/main/scala/com/example/Main.scala
 $ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/AkkaServerlessFactory.scala
 
 # com/example/echo_action.proto
-$ exists src/main/scala/com/example/echo_action/EchoActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/echo_action/AbstractEchoAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/echo_action/EchoActionProvider.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/echo_action/EchoActionHandler.scala
+$ exists src/main/scala/com/example/EchoActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/AbstractEchoAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/EchoActionProvider.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/EchoActionHandler.scala
 
 # com/example/action/all_commands_api.proto
-$ exists src/main/scala/com/example/action/all_commands_api/AllCommandsActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/all_commands_api/AbstractAllCommandsAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/all_commands_api/AllCommandsActionHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/all_commands_api/AllCommandsActionProvider.scala
+$ exists src/main/scala/com/example/action/AllCommandsActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/AbstractAllCommandsAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/AllCommandsActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action/AllCommandsActionProvider.scala
 
 # com/example/action1/simple_action.proto
-$ exists src/main/scala/com/example/action1/simple_action/SimpleActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/simple_action/AbstractSimpleAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/simple_action/SimpleActionHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/simple_action/SimpleActionProvider.scala
+$ exists src/main/scala/com/example/action1/SimpleActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/AbstractSimpleAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/SimpleActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action1/SimpleActionProvider.scala
 
 # com/example/action2/simple_action_api.proto
-$ exists src/main/scala/com/example/action2/simple_action_api/AnotherSimpleActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/simple_action_api/AbstractAnotherSimpleAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/simple_action_api/AnotherSimpleActionProvider.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/simple_action_api/AnotherSimpleActionHandler.scala
+$ exists src/main/scala/com/example/action2/AnotherSimpleActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/AbstractAnotherSimpleAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/AnotherSimpleActionProvider.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action2/AnotherSimpleActionHandler.scala
 
 # com/example/action3/some_action.proto
-$ exists src/main/scala/com/example/action3/some_action/SomeActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/some_action/AbstractSomeAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/some_action/SomeActionHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/some_action/SomeActionProvider.scala
+$ exists src/main/scala/com/example/action3/SomeActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/AbstractSomeAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/SomeActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action3/SomeActionProvider.scala
 
 # com/example/action4/some_other_action_api.proto
-$ exists src/main/scala/com/example/action4/some_other_action_api/SomeOtherActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/some_other_action_api/AbstractSomeOtherAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/some_other_action_api/SomeOtherActionHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/some_other_action_api/SomeOtherActionProvider.scala
+$ exists src/main/scala/com/example/action4/SomeOtherActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/AbstractSomeOtherAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/SomeOtherActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action4/SomeOtherActionProvider.scala
 
 # com/example/action5/yet_another_action.proto
-$ exists src/main/scala/com/example/action5/yet_another_action/YetAnotherActionImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/yet_another_action/AbstractYetAnotherAction.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/yet_another_action/YetAnotherActionHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/yet_another_action/YetAnotherActionProvider.scala
+$ exists src/main/scala/com/example/action5/YetAnotherActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/AbstractYetAnotherAction.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/YetAnotherActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/action5/YetAnotherActionProvider.scala
 
 # com/example/view/user_view.proto
-$ exists src/main/scala/com/example/view/user_view/UserByNameView.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/AbstractUserByNameView.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/UserByNameViewHandler.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/UserByNameViewProvider.scala
-$ exists src/main/scala/com/example/view/user_view/AdditionalViewImpl.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/AbstractAdditionalView.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/AdditionalViewProvider.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/user_view/AdditionalViewHandler.scala
+$ exists src/main/scala/com/example/view/UserByNameView.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/AbstractUserByNameView.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/UserByNameViewHandler.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/UserByNameViewProvider.scala
+$ exists src/main/scala/com/example/view/AdditionalViewImpl.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/AbstractAdditionalView.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/AdditionalViewProvider.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/view/AdditionalViewHandler.scala
 
 # com/example/valueentity/some_value_entity_api.proto
 # com/example/valueentity/domain/some_value_entity_domain.proto
-$ exists src/main/scala/com/example/valueentity/domain/some_value_entity_domain/SomeValueEntity.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueentity/domain/some_value_entity_domain/AbstractSomeValueEntity.scala
+$ exists src/main/scala/com/example/valueentity/domain/SomeValueEntity.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueentity/domain/AbstractSomeValueEntity.scala
 
 # com/example/valueentity/user_api.proto
 # com/example/valueentity/domain/user_domain.proto
-$ exists src/main/scala/com/example/valueentity/domain/user_domain/User.scala
-$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueentity/domain/user_domain/AbstractUser.scala
+$ exists src/main/scala/com/example/valueentity/domain/User.scala
+$ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueentity/domain/AbstractUser.scala
 
 > Test/compile
