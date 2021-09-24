@@ -41,7 +41,7 @@ attributes:
 
 apidocs:
 	cd .. && sbt sdkJava/doc
-	cd .. && sbt sdkTestkitJava/doc
+	cd .. && sbt sdkJavaTestKit/doc
 	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
 	rsync -a ../testkit-java/target/api/ "${managed_attachments}/testkit/"
