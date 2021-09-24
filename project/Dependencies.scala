@@ -101,7 +101,9 @@ object Dependencies {
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
-  val sdkScalaTestKit = deps ++= Seq(testContainers, scalaTest)
+  val sdkScalaTestKit = deps ++= Seq(
+    testContainers,
+    logback % "test;provided")
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",
