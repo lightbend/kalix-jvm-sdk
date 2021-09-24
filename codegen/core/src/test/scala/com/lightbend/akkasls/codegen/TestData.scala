@@ -70,7 +70,13 @@ class TestData(val packageNamingTemplate: PackageNaming) {
       javaOuterClassnameOption = packageNamingTemplate.javaOuterClassnameOption.map(_ => s"EntityOuterClass$suffix"))
 
   val externalProto: PackageNaming =
-    PackageNaming("external_domain.proto", "ExternalDomain", "com.external", None, None, javaMultipleFiles = true)
+    PackageNaming(
+      "external_domain.proto",
+      "ExternalDomain",
+      "com.external",
+      None,
+      packageNamingTemplate.javaOuterClassnameOption.map(_ => "ExternalDomain"),
+      javaMultipleFiles = true)
 
   val googleProto: PackageNaming =
     PackageNaming("google_proto.proto", "GoogleProto", "com.google.protobuf", None, None, javaMultipleFiles = true)

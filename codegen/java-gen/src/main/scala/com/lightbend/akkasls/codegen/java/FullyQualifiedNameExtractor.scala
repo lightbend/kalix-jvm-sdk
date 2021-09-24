@@ -22,11 +22,7 @@ import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, Package
 object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtractor {
   override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
     val pack = packageName(descriptor)
-    FullyQualifiedName(
-      descriptor.getName,
-      descriptor.getName,
-      pack,
-      Some(FullyQualifiedName(pack.javaOuterClassname, pack.javaOuterClassname, pack, None)))
+    FullyQualifiedName(descriptor.getName, descriptor.getName, pack, Some(fileDescriptorObject(descriptor)))
   }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
@@ -44,8 +40,8 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
     } else PackageNaming.from(fileDescriptor)
   }
 
-  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName = {
+  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
     val parent = apply(descriptor).parent
-    FullyQualifiedName(parent.javaOuterClassname, parent)
+    FullyQualifiedName(parent.javaOuterClassname, parent.javaOuterClassname, parent, None)
   }
 }

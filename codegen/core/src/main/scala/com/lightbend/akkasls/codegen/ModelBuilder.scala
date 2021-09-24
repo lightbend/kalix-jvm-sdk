@@ -34,7 +34,7 @@ object ModelBuilder {
    */
   abstract class FullyQualifiedNameExtractor {
     def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName
-    def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName
+    def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName
     def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming
   }
 
