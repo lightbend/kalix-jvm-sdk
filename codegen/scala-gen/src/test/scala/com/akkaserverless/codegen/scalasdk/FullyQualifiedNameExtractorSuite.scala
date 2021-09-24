@@ -61,6 +61,9 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
     val fqn = fqnExtractor(stateCart)
     assertNoDiff(fqn.name, "Cart")
     assertNoDiff(fqn.parent.scalaPackage, "com.example.shoppingcart.domain.shoppingcart_domain")
+    assertNoDiff(
+      fqn.descriptorImport.fullQualifiedName,
+      "com.example.shoppingcart.domain.shoppingcart_domain.ShoppingcartDomainProto")
   }
 
   test("extract consistent types when used in the ModelBuilder") {

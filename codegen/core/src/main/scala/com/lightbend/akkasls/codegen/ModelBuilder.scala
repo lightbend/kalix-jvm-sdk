@@ -180,10 +180,7 @@ object ModelBuilder {
   /**
    * A Service backed by Akka Serverless; either an Action, View or Entity
    */
-  sealed abstract class Service(
-      val fqn: FullyQualifiedName,
-      val descriptorObject: FullyQualifiedName,
-      val commands: Iterable[Command]) {
+  sealed abstract class Service(val fqn: FullyQualifiedName, val commands: Iterable[Command]) {
     lazy val commandTypes =
       commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
@@ -194,11 +191,8 @@ object ModelBuilder {
    * A Service backed by an Action - a serverless function that is executed based on a trigger. The trigger could be an
    * HTTP or gRPC request or a stream of messages or events.
    */
-  case class ActionService(
-      override val fqn: FullyQualifiedName,
-      override val descriptorObject: FullyQualifiedName,
-      override val commands: Iterable[Command])
-      extends Service(fqn, descriptorObject, commands) {
+  case class ActionService(override val fqn: FullyQualifiedName, override val commands: Iterable[Command])
+      extends Service(fqn, commands) {
 
     private val baseClassName =
       if (fqn.name.endsWith("Action")) fqn.name
@@ -222,14 +216,13 @@ object ModelBuilder {
    */
   case class ViewService(
       override val fqn: FullyQualifiedName,
-      override val descriptorObject: FullyQualifiedName,
       /** all commands - queries and updates */
       override val commands: Iterable[Command],
       viewId: String,
       /** all updates, also non-transformed */
       updates: Iterable[Command],
       transformedUpdates: Iterable[Command])
-      extends Service(fqn, descriptorObject, commands) {
+      extends Service(fqn, commands) {
 
     private val baseClassName =
       if (fqn.name.endsWith("View")) fqn.name
@@ -257,10 +250,9 @@ object ModelBuilder {
    */
   case class EntityService(
       override val fqn: FullyQualifiedName,
-      override val descriptorObject: FullyQualifiedName,
       override val commands: Iterable[Command],
       componentFullName: String)
-      extends Service(fqn, descriptorObject, commands)
+      extends Service(fqn, commands)
 
   /**
    * A command is used to express the intention to alter the state of an Entity.
@@ -330,7 +322,6 @@ object ModelBuilder {
           .getExtension(com.akkaserverless.Annotations.service)
         serviceType <- Option(options.getType())
         serviceName = fqnExtractor(serviceDescriptor)
-        descriptorObject = fqnExtractor.fileDescriptorObject(serviceDescriptor.getFile)
 
         methods = serviceDescriptor.getMethods.asScala
         commands = methods.map(Command.from)
@@ -343,10 +334,10 @@ object ModelBuilder {
                 val componentFullName =
                   resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
 
-                EntityService(serviceName, descriptorObject, commands, componentFullName)
+                EntityService(serviceName, commands, componentFullName)
               }
           case ServiceType.SERVICE_TYPE_ACTION =>
-            Some(ActionService(serviceName, descriptorObject, commands))
+            Some(ActionService(serviceName, commands))
           case ServiceType.SERVICE_TYPE_VIEW =>
             val methodDetails = methods.flatMap { method =>
               Option(method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()).map(
@@ -359,7 +350,6 @@ object ModelBuilder {
             Some(
               ViewService(
                 serviceName,
-                descriptorObject,
                 commands,
                 viewId = serviceDescriptor.getName(),
                 updates = updates,
@@ -449,9 +439,16 @@ object ModelBuilder {
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       ValueEntity(
         descriptor.getFile.getPackage + "." + name,
-        FullyQualifiedName(name, protoReference),
+        FullyQualifiedName(name, name, protoReference, Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
         rawEntity.getEntityType,
-        State(FullyQualifiedName(rawEntity.getState, protoReference)))
+        // FIXME this assumes the state is defined in the same proto file as the
+        // entity, which I don't think is necessarily true.
+        State(
+          FullyQualifiedName(
+            rawEntity.getState,
+            rawEntity.getState,
+            protoReference,
+            Some(fqnExtractor.fileDescriptorObject(descriptor.getFile)))))
     }
   }
 

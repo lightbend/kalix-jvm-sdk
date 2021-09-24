@@ -140,7 +140,7 @@ class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValue
     new MyValueEntityHandler(entityFactory(context))
 
   override final val additionalDescriptors =
-    service.MyServiceProto.javaDescriptor :: Nil
+    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: com.external.ExternalDomainProto.javaDescriptor :: Nil
 }""")
   }
 }

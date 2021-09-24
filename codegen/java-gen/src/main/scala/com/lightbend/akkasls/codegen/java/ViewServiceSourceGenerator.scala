@@ -125,7 +125,7 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateCommandImports(
+    implicit val imports: Imports = generateCommandImports(
       Nil,
       view.state,
       packageName,
@@ -191,7 +191,7 @@ object ViewServiceSourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${view.descriptorObject.name}.getDescriptor().findServiceByName("${view.fqn.protoName}");
+        |    return ${typeName(view.fqn.descriptorImport)}.getDescriptor().findServiceByName("${view.fqn.protoName}");
         |  }
         |
         |  @Override
