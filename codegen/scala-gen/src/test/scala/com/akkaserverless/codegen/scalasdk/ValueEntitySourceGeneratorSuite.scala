@@ -44,10 +44,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
          |
          |  override def set(currentState: MyState, command: service.SetValue): ValueEntity.Effect[Empty] =
-         |    effects.error("The command handler for `Set` is not implemented, yet");
+         |    effects.error("The command handler for `Set` is not implemented, yet")
          |
          |  override def get(currentState: MyState, command: service.GetValue): ValueEntity.Effect[service.MyState] =
-         |    effects.error("The command handler for `Get` is not implemented, yet");
+         |    effects.error("The command handler for `Get` is not implemented, yet")
          |}
          |""".stripMargin)
   }
