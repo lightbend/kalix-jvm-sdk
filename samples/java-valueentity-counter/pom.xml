@@ -312,23 +312,6 @@
       <version>${akkaserverless-sdk.version}</version>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
-    </dependency>
-    <dependency>
-      <!-- for JSON formatted logging -->
-      <groupId>ch.qos.logback.contrib</groupId>
-      <artifactId>logback-json-classic</artifactId>
-      <version>0.1.5</version>
-    </dependency>
-    <dependency>
-      <!-- for JSON formatted logging -->
-      <groupId>ch.qos.logback.contrib</groupId>
-      <artifactId>logback-jackson</artifactId>
-      <version>0.1.5</version>
-    </dependency>
-    <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk-testkit</artifactId>
       <version>${akkaserverless-sdk.version}</version>
