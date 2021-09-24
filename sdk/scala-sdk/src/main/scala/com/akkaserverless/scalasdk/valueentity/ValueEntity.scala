@@ -209,7 +209,7 @@ abstract class ValueEntity[S] {
 
   /** INTERNAL API */
   def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
-    _commandContext = context;
+    _commandContext = context
   }
 
   protected def effects: ValueEntity.Effect.Builder[S] =
