@@ -41,7 +41,7 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
   }
 
   override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
-    val parent = apply(descriptor).parent
+    val parent = packageName(descriptor)
     FullyQualifiedName(parent.javaOuterClassname, parent.javaOuterClassname, parent, None)
   }
 }
