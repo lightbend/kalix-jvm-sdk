@@ -38,6 +38,7 @@ import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
+import org.slf4j.LoggerFactory
 
 import scala.util.control.NonFatal
 
@@ -59,6 +60,7 @@ final class ActionService(
 final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionService], rootContext: Context)
     extends Actions {
 
+  private val log = LoggerFactory.getLogger(classOf[Action])
   import _system.dispatcher
   implicit val system: ActorSystem = _system
 
@@ -141,7 +143,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
           effectToResponse(effect, service.anySupport)
         } catch {
-          case NonFatal(ex) => Future.successful(toProtocol(ex)) // command handler threw
+          case NonFatal(ex) =>
+            log.error(s"Failure during handling of command ${in.serviceName}.${in.name}", ex)
+            Future.successful(toProtocol(ex)) // command handler threw
         }
       case None =>
         Future.successful(
@@ -182,7 +186,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     createContext(call))
                 effectToResponse(effect, service.anySupport)
               } catch {
-                case NonFatal(ex) => Future.successful(toProtocol(ex)) // command handler threw
+                case NonFatal(ex) =>
+                  log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
+                  Future.successful(toProtocol(ex)) // command handler threw
               }
             case None =>
               Future.successful(
@@ -210,7 +216,9 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
             .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
             .recover { case NonFatal(ex) => toProtocol(ex) } // user stream failed
         } catch {
-          case NonFatal(ex) => Source.single(toProtocol(ex)) // command handler threw
+          case NonFatal(ex) =>
+            log.error(s"Failure during handling of command ${in.serviceName}.${in.name}", ex)
+            Source.single(toProtocol(ex)) // command handler threw
         }
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
@@ -251,9 +259,16 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     createContext(call))
                   .asScala
                   .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
-                  .recover { case NonFatal(ex) => toProtocol(ex) } // user stream failed
+                  .recover { case NonFatal(ex) =>
+                    // user stream failed
+                    log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
+                    toProtocol(ex)
+                  }
               } catch {
-                case NonFatal(ex) => Source.single(toProtocol(ex)) // command handler threw
+                case NonFatal(ex) =>
+                  // command handler threw
+                  log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
+                  Source.single(toProtocol(ex))
               }
             case None =>
               Source.single(
