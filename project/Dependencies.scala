@@ -37,7 +37,8 @@ object Dependencies {
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
-  val logbackContrib = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
+  val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
+  val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
 
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
@@ -82,8 +83,9 @@ object Dependencies {
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,
-    logback % "test;provided",
-    logbackContrib % Provided,
+    logback,
+    logbackJson,
+    logbackJackson,
     jacksonCore,
     jacksonAnnotations,
     jacksonDatabind,
