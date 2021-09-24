@@ -14,10 +14,6 @@ dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 ThisBuild / dynverSeparator := "-"
 
-libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.2.3",
-)
-
 Compile / scalacOptions ++= Seq(
   "-target:11",
   "-deprecation",
