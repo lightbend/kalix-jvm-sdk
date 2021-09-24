@@ -15,6 +15,7 @@
  */
 
 package com.akkaserverless.scalasdk
+
 import scala.concurrent.Future
 import scala.compat.java8.FutureConverters
 import scala.compat.java8.FunctionConverters._
@@ -22,38 +23,37 @@ import scala.jdk.CollectionConverters._
 import akka.Done
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import com.akkaserverless.javasdk.impl.Service
-import com.akkaserverless.javasdk.{ AkkaServerlessRunner => Impl }
+import com.akkaserverless.javasdk
 
-object AkkaServerlessRunner {
+private[scalasdk] object AkkaServerlessRunner {
 
   /**
    * Creates an AkkaServerlessRunner from the given services. Use the default config to create the internal ActorSystem.
    */
-  def apply(services: Map[String, ActorSystem => Service]): AkkaServerlessRunner = {
-    new AkkaServerlessRunner(new Impl(toJava(services)))
-  }
+  def apply(services: Map[String, ActorSystem => javasdk.impl.Service]): AkkaServerlessRunner =
+    new AkkaServerlessRunner(new javasdk.AkkaServerlessRunner(toJava(services)))
 
   /**
    * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure as
    * the reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem
    * is in the `akkaserverless.system` section.
    */
-  def apply(services: Map[String, ActorSystem => Service], config: Config): AkkaServerlessRunner = {
-    new AkkaServerlessRunner(new Impl(toJava(services), config))
-  }
+  def apply(services: Map[String, ActorSystem => javasdk.impl.Service], config: Config): AkkaServerlessRunner =
+    new AkkaServerlessRunner(new javasdk.AkkaServerlessRunner(toJava(services), config))
 
-  private def toJava(services: Map[String, ActorSystem => Service]) = services.map { case (k, v) =>
-    (k -> v.asJava)
+  def apply(impl: javasdk.AkkaServerlessRunner): AkkaServerlessRunner =
+    new AkkaServerlessRunner(impl)
+
+  private def toJava(services: Map[String, ActorSystem => javasdk.impl.Service]) = services.map { case (k, v) =>
+    k -> v.asJava
   }.asJava
 }
 
-class AkkaServerlessRunner(impl: Impl) {
+class AkkaServerlessRunner private (impl: javasdk.AkkaServerlessRunner) {
   def run(): Future[Done] = {
     FutureConverters.toScala(impl.run())
   }
   def terminate(): Future[Done] = {
-    implicit val ec = impl.system.dispatcher
-    FutureConverters.toScala(impl.terminate()).map(_ => Done)
+    FutureConverters.toScala(impl.terminate().thenApply(_ => Done))
   }
 }

@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk
 import scala.concurrent.Future
 
 import akka.Done
-import com.akkaserverless.javasdk.{ AkkaServerless => Impl }
+import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
@@ -37,16 +37,17 @@ import com.akkaserverless.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 
 object AkkaServerless {
-  def apply() = new AkkaServerless(new Impl())
+  def apply() = new AkkaServerless(new javasdk.AkkaServerless())
 
-  private[scalasdk] def apply(impl: Impl) = new AkkaServerless(impl)
+  private[scalasdk] def apply(impl: javasdk.AkkaServerless) =
+    new AkkaServerless(impl.preferScalaProtobufs())
 }
 
 /**
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless private (impl: Impl) {
+class AkkaServerless private (impl: javasdk.AkkaServerless) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
@@ -93,11 +94,11 @@ class AkkaServerless private (impl: Impl) {
     AkkaServerless(impl.preferScalaProtobufs)
 
   /**
-   * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
-   * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for example
-   * <code>CustomerEntityProvider</code>.
+   * Register a replicated entity using a [[ReplicatedEntityProvider]]. The concrete `ReplicatedEntityProvider` is
+   * generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * <p>{@link ReplicatedEntityOptions} can be defined by in the <code>ReplicatedEntityProvider </code>.
+   * [[com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions]] can be defined by in the
+   * `ReplicatedEntityProvider `.
    *
    * @return
    *   This stateful service builder.
@@ -107,10 +108,10 @@ class AkkaServerless private (impl: Impl) {
     AkkaServerless(impl.register(provider.impl))
 
   /**
-   * Register a value based entity using a {{@link ValueEntityProvider}}. The concrete <code> ValueEntityProvider</code>
-   * is generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
+   * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for
+   * the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * <p>{{@link ValueEntityOptions}} can be defined by in the <code>ValueEntityProvider</code>.
+   * [[com.akkaserverless.scalasdk.valueentity.ValueEntityOptions]] can be defined by in the `ValueEntityProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -119,11 +120,11 @@ class AkkaServerless private (impl: Impl) {
     AkkaServerless(impl.register(new JavaValueEntityProviderAdapter(provider)))
 
   /**
-   * Register a event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete <code>
-   * EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf, for example
-   * <code>CustomerEntityProvider</code>.
+   * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
+   * is generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * <p>{{@link EventSourcedEntityOptions}} can be defined by in the <code> EventSourcedEntityProvider</code>.
+   * [[com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the `
+   * EventSourcedEntityProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -132,8 +133,8 @@ class AkkaServerless private (impl: Impl) {
     AkkaServerless(impl.register(provider.impl))
 
   /**
-   * Register a view using a {@link ViewProvider}. The concrete <code> ViewProvider</code> is generated for the specific
-   * views defined in Protobuf, for example <code> CustomerViewProvider</code>.
+   * Register a view using a [[ViewProvider]]. The concrete ` ViewProvider` is generated for the specific views defined
+   * in Protobuf, for example ` CustomerViewProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -142,8 +143,8 @@ class AkkaServerless private (impl: Impl) {
     AkkaServerless(impl.register(new Scala2JavaViewProviderAdapter(provider)))
 
   /**
-   * Register an action using an {{@link ActionProvider}}. The concrete <code> ActionProvider</code> is generated for
-   * the specific entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
+   * Register an action using an [[ActionProvider]]. The concrete ` ActionProvider` is generated for the specific
+   * entities defined in Protobuf, for example `CustomerActionProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -158,7 +159,7 @@ class AkkaServerless private (impl: Impl) {
    *   a CompletionStage which will be completed when the server has shut down.
    */
   def start(): Future[Done] = {
-    createRunner().run
+    createRunner().run()
   }
 
   /**
@@ -168,7 +169,7 @@ class AkkaServerless private (impl: Impl) {
    *   a CompletionStage which will be completed when the server has shut down.
    */
   def start(config: Config): Future[Done] = {
-    createRunner(config).run
+    createRunner(config).run()
   }
 
   /**
@@ -179,7 +180,7 @@ class AkkaServerless private (impl: Impl) {
    *   an AkkaServerlessRunner
    */
   def createRunner(): AkkaServerlessRunner =
-    new AkkaServerlessRunner(impl.createRunner())
+    AkkaServerlessRunner(impl.createRunner())
 
   /**
    * Creates an AkkaServerlessRunner using the currently configured services, using the supplied configuration. In order
@@ -189,5 +190,5 @@ class AkkaServerless private (impl: Impl) {
    *   an AkkaServerlessRunner
    */
   def createRunner(config: Config): AkkaServerlessRunner =
-    new AkkaServerlessRunner(impl.createRunner(config))
+    AkkaServerlessRunner(impl.createRunner(config))
 }
