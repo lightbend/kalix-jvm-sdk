@@ -35,7 +35,7 @@ public interface ActionContext extends MetadataContext {
    *
    * @return The call level metadata.
    */
-  Metadata metadata();
+  Metadata metadata(); // TODO this is not necessary
 
   /**
    * The origin subject of the {@link CloudEvent}. For example, the entity key when the event was

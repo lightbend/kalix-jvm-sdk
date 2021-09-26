@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package com.akkaserverless.javasdk.testkit.impl;
 
+import com.akkaserverless.javasdk.action.ActionContext;
+import com.akkaserverless.javasdk.Metadata;
+import java.util.Optional;
 import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 import com.akkaserverless.javasdk.action.ActionCreationContext
 import akka.stream.Materializer
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class StubActionCreationContext extends ActionCreationContext {
+/** Context for action calls. */
+final class StubActionContext extends ActionContext {
+
+  override def metadata() = Metadata.EMPTY
+
+  override def eventSubject() = Optional.of("testkitkat")
+
   override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
+
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
+
 }
