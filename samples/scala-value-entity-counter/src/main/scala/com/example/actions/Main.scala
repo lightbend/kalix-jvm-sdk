@@ -13,8 +13,8 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `AkkaServerless()` instance.
     AkkaServerlessFactory.withComponents(
-      new CounterJournalToTopicAction(_),
-      new CounterTopicSubscriptionAction(_))
+      new CounterStateSubscriptionAction(_),
+      new DoubleCounterAction(_))
   }
 
   def main(args: Array[String]): Unit = {
