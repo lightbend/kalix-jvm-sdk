@@ -1,11 +1,14 @@
-package com.example.actions
+package com.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
+import com.example.actions.CounterStateSubscriptionAction
+import com.example.actions.DoubleCounterAction
+import com.example.domain.Counter
 import org.slf4j.LoggerFactory
 
 object Main {
 
-  private val log = LoggerFactory.getLogger("com.example.actions.Main")
+  private val log = LoggerFactory.getLogger("com.example.Main")
 
   def createAkkaServerless(): AkkaServerless = {
     // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
@@ -13,6 +16,7 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `AkkaServerless()` instance.
     AkkaServerlessFactory.withComponents(
+      new Counter(_),
       new CounterStateSubscriptionAction(_),
       new DoubleCounterAction(_))
   }
