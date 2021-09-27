@@ -86,6 +86,14 @@ commands:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             mvn verify install
+
+  build-sbt-scala:
+    description: Build sbt plugin and scala artifacts
+    steps:
+      - run:
+          name: publish local
+          command: sbt publishLocal
+
 jobs:
   checks:
     docker:
@@ -199,8 +207,9 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       - build-maven-java
+      - build-sbt-scala
       - run:
-          name: Customer Registry quickstart
+          name: Java Customer Registry quickstart
           command: |
             cd samples/java-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -211,7 +220,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Fibonacci Action
+          name: Java Fibonacci Action
           command: |
             cd samples/java-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -221,13 +230,13 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Doc snippets
+          name: Java Doc snippets
           command: |
             cd samples/java-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: first-service by archetype
+          name: Java first-service by archetype
           command: |
             cd samples/java-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -236,7 +245,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Value Entity Views "Customer Registry" sample
+          name: Java Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -246,7 +255,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Event Sourced Views "Customer Registry" sample
+          name: Java Event Sourced Views "Customer Registry" sample
           command: |
             cd samples/java-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -256,7 +265,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Value Entity "Shopping Cart" sample
+          name: Java Value Entity "Shopping Cart" sample
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -266,7 +275,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run: 
-          name: Event Sourced Entity "Shopping Cart" sample
+          name: Java Event Sourced Entity "Shopping Cart" sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -276,7 +285,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Replicated Entity "Shopping Cart" sample
+          name: Java Replicated Entity "Shopping Cart" sample
           command: |
             cd samples/java-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -286,7 +295,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Event Sourced "Counter" sample
+          name: Java Event Sourced "Counter" sample
           command: |
             cd samples/java-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -298,7 +307,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Value Entity "Counter" sample
+          name: Java Value Entity "Counter" sample
           command: |
             cd samples/java-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -308,7 +317,7 @@ jobs:
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
-          name: Replicated Entity examples
+          name: Java Replicated Entity examples
           command: |
             cd samples/java-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -317,6 +326,26 @@ jobs:
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+      - run:
+          name: Scala Fibonacci Action
+          command: |
+            cd samples/scala-fibonacci-action
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            # FIXME tests && integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+      - run:
+          name: Scala Value Entity Customer Registry
+          command: |
+            cd samples/scala-value-entity-customer-registry
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            # FIXME integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
       - save_deps_cache
 
   publish:
