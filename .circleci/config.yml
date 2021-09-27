@@ -207,7 +207,7 @@ jobs:
             # must also compile without the profile!
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
-            echo "Verifying that generated unmanaged sources compile"
+            echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
@@ -217,6 +217,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Doc snippets
           command: |
@@ -229,6 +232,9 @@ jobs:
             cd samples/java-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Value Entity Views "Customer Registry" sample
           command: |
@@ -236,6 +242,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Event Sourced Views "Customer Registry" sample
           command: |
@@ -243,6 +252,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Value Entity "Shopping Cart" sample
           command: |
@@ -250,6 +262,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run: 
           name: Event Sourced Entity "Shopping Cart" sample
           command: |
@@ -257,6 +272,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Replicated Entity "Shopping Cart" sample
           command: |
@@ -264,6 +282,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Event Sourced "Counter" sample
           command: |
@@ -272,7 +293,10 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test 
             # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit 
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Value Entity "Counter" sample
           command: |
@@ -280,6 +304,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Replicated Entity examples
           command: |
@@ -287,6 +314,9 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - save_deps_cache
 
   publish:
