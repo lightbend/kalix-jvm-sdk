@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -481,6 +480,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a default entity option for a value based entity.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewOptions.html#defaults()">defaults()</a></span> - Static method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewOptions.html" title="interface in com.akkaserverless.javasdk.view">ViewOptions</a></dt>
+<dd>
+<div class="block">Create default options for a view.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/PassivationStrategy.html#defaultTimeout()">defaultTimeout()</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/PassivationStrategy.html" title="interface in com.akkaserverless.javasdk">PassivationStrategy</a></dt>
 <dd>
 <div class="block">Create a passivation strategy that passivates the entity after the default duration (30
@@ -679,6 +682,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionOptions.html#forwardHeaders()">forwardHeaders()</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionOptions.html" title="interface in com.akkaserverless.javasdk.action">ActionOptions</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/EntityOptions.html#forwardHeaders()">forwardHeaders()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/EntityOptions.html" title="interface in com.akkaserverless.javasdk">EntityOptions</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewOptions.html#forwardHeaders()">forwardHeaders()</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewOptions.html" title="interface in com.akkaserverless.javasdk.view">ViewOptions</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:G">
@@ -944,6 +949,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Updates will be written immediately to a majority of replicas, and then asynchronously
  distributed to remaining replicas in the background.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Context.html#materializer()">materializer()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Context.html" title="interface in com.akkaserverless.javasdk">Context</a></dt>
+<dd>
+<div class="block">An Akka Stream materializer to use for running streams.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCall.html#message()">message()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></dt>
 <dd>
 <div class="block">The message to pass to the call when the call is invoked.</div>
@@ -1056,11 +1065,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.ServiceCall)">of(ServiceCall)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
 <dd>
-<div class="block">Create an effect of the given service call.</div>
+<div class="block">Create a side effect of the given service call.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.ServiceCall,boolean)">of(ServiceCall, boolean)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
 <dd>
-<div class="block">Create an effect of the given service call.</div>
+<div class="block">Create a side effect of the given service call.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/CloudEvent.html#of(java.lang.String,java.net.URI,java.lang.String)">of(String, URI, String)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/CloudEvent.html" title="interface in com.akkaserverless.javasdk">CloudEvent</a></dt>
 <dd>
@@ -1081,6 +1090,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html#options()">options()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html#options()">options()</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewProvider.html#options()">options()</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:P">
@@ -1624,6 +1635,8 @@ the order they are declared.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewProvider.html#viewId()">viewId()</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/akkaserverless/javasdk/view/ViewOptions.html" title="interface in com.akkaserverless.javasdk.view"><span class="typeNameLink">ViewOptions</span></a> - Interface in <a href="com/akkaserverless/javasdk/view/package-summary.html">com.akkaserverless.javasdk.view</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view"><span class="typeNameLink">ViewProvider</span></a>&lt;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">S</a>,&#8203;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">V</a> extends <a href="com/akkaserverless/javasdk/view/View.html" title="class in com.akkaserverless.javasdk.view">View</a>&lt;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">S</a>&gt;&gt; - Interface in <a href="com/akkaserverless/javasdk/view/package-summary.html">com.akkaserverless.javasdk.view</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVote.html#vote(boolean)">vote(boolean)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedVote</a></dt>
@@ -1655,6 +1668,11 @@ the order they are declared.</div>
  the incoming commands.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/EntityOptions.html#withForwardHeaders(java.util.Set)">withForwardHeaders(Set&lt;String&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/EntityOptions.html" title="interface in com.akkaserverless.javasdk">EntityOptions</a></dt>
+<dd>
+<div class="block">Ask Akka Serverless to forward these headers from the incoming request as metadata headers for
+ the incoming commands.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewOptions.html#withForwardHeaders(java.util.Set)">withForwardHeaders(Set&lt;String&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewOptions.html" title="interface in com.akkaserverless.javasdk.view">ViewOptions</a></dt>
 <dd>
 <div class="block">Ask Akka Serverless to forward these headers from the incoming request as metadata headers for
  the incoming commands.</div>

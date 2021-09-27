@@ -1,17 +1,16 @@
-import com.akkaserverless.sbt.AkkaserverlessPlugin.autoImport.generateUnmanaged
-
 name := "customer-registry"
 
 organization := "com.akkaseverless.samples"
 organizationHomepage := Some(url("https://akkaserverless.com"))
-licenses := Seq(
-  ("CC0", url("https://creativecommons.org/publicdomain/zero/1.0"))
-)
+licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaGrpcPlugin)
-enablePlugins(AkkaserverlessPlugin)
+enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
+dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
+dockerUsername := sys.props.get("docker.username")
+dockerRepository := sys.props.get("docker.registry")
+ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
   "-target:11",
@@ -19,9 +18,9 @@ Compile / scalacOptions ++= Seq(
   "-feature",
   "-unchecked",
   "-Xlog-reflective-calls",
-  "-Xlint"
+  "-Xlint")
+Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-parameters" // for Jackson
 )
-Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 Test / parallelExecution := false
 Test / testOptions += Tests.Argument("-oDF")
@@ -30,17 +29,8 @@ Test / logBuffered := false
 run / fork := false
 Global / cancelable := false // ctrl-c
 
-Compile / compile := {
-  // Make sure 'generateUnmanaged' is executed on each compile, to generate scaffolding code for
-  // newly-introduced concepts.
-  // After initial generation they are to be maintained manually and will not be overwritten.
-  (Compile / generateUnmanaged).value
-  (Compile / compile).value
-}
-
-// FIXME sdk dependency should be included via sbt-akkaserverless
-val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.1")
-
+val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.2")
 libraryDependencies ++= Seq(
-  "com.akkaserverless" %% "akkaserverless-scala-sdk" % AkkaServerlessSdkVersion
-)
+  "org.scalatest" %% "scalatest" % "3.2.7" % Test,
+  // FIXME include testkit dependency via the AkkaserverlessPlugin
+  "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test)
