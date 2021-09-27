@@ -63,7 +63,7 @@ Java::
 ----
 include::example$java-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
-<1> Any classes generated from this protobuf file will be in the package `com.example`.
+<1> Any classes generated from this protobuf file will be in the Java package `com.example`.
 <2> Import the Akka Serverless protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the class `CounterApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
@@ -79,14 +79,13 @@ Scala::
 ----
 include::example$scala-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
-<1> Any classes generated from this protobuf file will be in the package `com.example`.
+<1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
 <2> Import the Akka Serverless protobuf annotations, or options.
-<3> Let the messages declared in this protobuf file be inner classes to the class `CounterApi`.
-<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
-<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
-<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless sbt plugin and points to the protobuf definition `Counter` we've seen above (in the `com.example.domain` package).
+<3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
+<5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<7> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless sbt plugin and points to the protobuf definition `Counter` we've seen above (in the `com.example.domain` package).
 
 == Implementing behavior
 
@@ -179,7 +178,7 @@ Scala::
 include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
-<2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
+<2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects.reply`.
 
 
 == Registering the Entity

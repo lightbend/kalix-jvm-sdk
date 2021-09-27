@@ -7,10 +7,8 @@ import "akkaserverless/annotations.proto"; // <2>
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-option java_outer_classname = "CounterApi"; // <3>
-
-message IncreaseValue { // <4>
-  string counter_id = 1 [(akkaserverless.field).entity_key = true]; // <5>
+message IncreaseValue { // <3>
+  string counter_id = 1 [(akkaserverless.field).entity_key = true]; // <4>
   int32 value = 2;
 }
 
@@ -27,12 +25,12 @@ message GetCounter {
   string counter_id = 1 [(akkaserverless.field).entity_key = true];
 }
 
-message CurrentCounter { // <6>
+message CurrentCounter { // <5>
   int32 value = 1;
 }
 
-service CounterService { // <7>
-  option (akkaserverless.service) = { // <8>
+service CounterService { // <6>
+  option (akkaserverless.service) = { // <7>
     type : SERVICE_TYPE_ENTITY
     component : "com.example.domain.Counter"
   };
