@@ -23,7 +23,14 @@ import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import com.akkaserverless.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, AkkaserverlessGenerator }
+import com.akkaserverless.codegen.scalasdk.{
+  gen,
+  genTests,
+  genUnmanaged,
+  genUnmanagedTest,
+  AkkaserverlessGenerator,
+  BuildInfo
+}
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
@@ -42,13 +49,17 @@ object AkkaserverlessPlugin extends AutoPlugin {
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
     val temporaryUnmanagedTestDirectory = settingKey[File]("Directory to generate 'unmanaged' test sources into")
   }
+
   object autoImport extends Keys
   import autoImport._
+
+  val AkkaServerlessSdkVersion = BuildInfo.version
 
   override def projectSettings: Seq[sbt.Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.0-beta.19" % "protobuf-src",
-      "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf"),
+      "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
+      "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
     Compile / PB.targets +=
       gen(
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value / "akkaserverless",
