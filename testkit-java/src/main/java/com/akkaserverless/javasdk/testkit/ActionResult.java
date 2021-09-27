@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import com.akkaserverless.javasdk.ServiceCall;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import com.akkaserverless.javasdk.action.Action;
 
 public interface ActionResult<T> {
@@ -28,7 +28,7 @@ public interface ActionResult<T> {
   /** @return true if the call had an effect with a reply, false if not */
   boolean isReply();
 
-  T getReplyMessage();
+  T getReplyMsg();
 
   /** @return true if the call was forwarded, false if not */
   boolean isForward();
@@ -39,7 +39,9 @@ public interface ActionResult<T> {
   /** @return true if the call was async, false if not */
   boolean isAsync();
 
-  CompletableFuture<Action.Effect<T>> getAsyncEffect();
+  CompletionStage<Action.Effect<T>> getAsyncEffect();
+
+  ActionResult<T> createResult(Action.Effect<T> effect);
 
   /** @return true if the call was an error, false if not */
   boolean isError();

@@ -27,9 +27,9 @@ import akka.stream.Materializer
 /** Context for action calls. */
 final class StubActionContext extends ActionContext {
 
-  override def metadata() = Metadata.EMPTY
+  override def metadata() = throw new UnsupportedOperationException("Accessing metadata from testkit not supported yet")
 
-  override def eventSubject() = Optional.of("testkitkat")
+  override def eventSubject() = Optional.of("test-subject-id")
 
   override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
 
