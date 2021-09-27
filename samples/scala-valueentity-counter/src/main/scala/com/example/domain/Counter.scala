@@ -14,9 +14,9 @@ import com.google.protobuf.empty.Empty
 // tag::class[]
 /** A value entity. */
 class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
-  // end::class[]
 
-  override def emptyState: CounterState = CounterState()
+  override def emptyState: CounterState = CounterState() // <2>
+  // end::class[]
 
   // tag::increase[]
   override def increase(currentState: CounterState, command: example.IncreaseValue): ValueEntity.Effect[Empty] =
