@@ -151,8 +151,8 @@ object ReplicatedEntitySourceGenerator {
       }
     }
 
-    val imports = generateImports(
-      relevantTypes,
+    implicit val imports: Imports = generateImports(
+      relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
@@ -160,7 +160,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport)
+        "java.util.function.Function")
         ++ extraImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
@@ -209,7 +209,7 @@ object ReplicatedEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override

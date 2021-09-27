@@ -291,13 +291,13 @@ object ActionServiceSourceGenerator {
         |  extends ActionProvider[${service.className}] {
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
         |
         |  override final def newHandler(context: ActionCreationContext): ${service.handlerName} =
         |    new ${service.handlerName}(actionFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(service.descriptorObject)}.javaDescriptor ::
+        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |
         |  def withOptions(options: ActionOptions): ${service.providerName} =

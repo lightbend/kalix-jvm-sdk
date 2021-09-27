@@ -142,15 +142,15 @@ object ValueEntitySourceGenerator {
       }
     }
 
-    val imports = generateImports(
-      relevantTypes,
+    implicit val imports: Imports = generateImports(
+      relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport))
+        "java.util.function.Function"))
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
@@ -196,7 +196,7 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override

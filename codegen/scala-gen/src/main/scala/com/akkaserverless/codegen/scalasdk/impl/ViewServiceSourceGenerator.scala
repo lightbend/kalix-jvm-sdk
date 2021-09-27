@@ -91,7 +91,7 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn, view.descriptorObject),
+        Seq(view.state.fqn, view.fqn.descriptorImport),
         view.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
@@ -136,13 +136,13 @@ object ViewServiceSourceGenerator {
         |    new ${view.providerName}(viewFactory, viewId, newOptions)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(view.descriptorObject)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
+        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
         |
         |  override final def newHandler(context: ViewCreationContext): ${view.handlerName} =
         |    new ${view.handlerName}(viewFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(view.descriptorObject)}.javaDescriptor ::
+        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |}
         |""".stripMargin)

@@ -139,6 +139,10 @@ object ValueEntitySourceGenerator {
       packageImports = Seq(service.fqn.parent.scalaPackage),
       semi = false)
 
+    val descriptors =
+      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
+        .map(_.descriptorImport)
+
     File(
       s"${packageAsPath(packageName)}/${className}.scala",
       s"""
@@ -157,7 +161,7 @@ object ValueEntitySourceGenerator {
          |    new $className(entityFactory, newOptions)
          |
          |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
          |
          |  override final val entityType = "${entity.entityType}"
          |
@@ -165,7 +169,7 @@ object ValueEntitySourceGenerator {
          |    new ${entity.handlerName}(entityFactory(context))
          |
          |  override final val additionalDescriptors =
-         |    ${typeName(service.descriptorObject)}.javaDescriptor :: Nil
+         |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
          |}
          |""".stripMargin)
   }
@@ -188,7 +192,7 @@ object ValueEntitySourceGenerator {
     val methods = service.commands.map { cmd =>
       s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
         cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
-          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet");
+          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
           |""".stripMargin
     }
 
