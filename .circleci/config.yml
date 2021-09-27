@@ -207,6 +207,9 @@ jobs:
             # must also compile without the profile!
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "Verifying that generated unmanaged sources compile"
+            rm -rf src/main/java src/test/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Fibonacci Action
           command: |
