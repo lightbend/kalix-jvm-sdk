@@ -15,10 +15,11 @@ public class CounterJournalToTopicActionTest {
   @Test
   public void increaseTest() {
     CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
-    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(1).build());
+    int valueToincrease = 1;
+    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(valueToincrease).build());
     assertTrue(result.isReply());
-    ActionEffectImpl.ReplyEffect reply = result.getEffectOfType(ActionEffectImpl.ReplyEffect.class);
-    //TODO Anything to assert on reply??
+    CounterTopicApi.Increased replyMessage = result.getReplyMessage();
+    assertEquals(replyMessage.getValue(),valueToincrease);
   }
 
 }

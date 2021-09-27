@@ -19,41 +19,33 @@ package com.akkaserverless.javasdk.testkit;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import com.akkaserverless.javasdk.ServiceCall;
+import java.util.concurrent.CompletableFuture;
+import com.akkaserverless.javasdk.action.Action;
 
-/**
- * Represents the result of an EventSourcedEntity handling a command when run in through the
- * testkit.
- *
- * <p>Not for user extension, returned by the generated testkit.
- *
- * @param <R> The type of reply that is expected from invoking command handler
- */
-public interface ActionResult<R> {
+public interface ActionResult<T> {
 
   /** @return true if the call had an effect with a reply, false if not */
   boolean isReply();
 
+  T getReplyMessage();
+
   /** @return true if the call was forwarded, false if not */
   boolean isForward();
+
+  ServiceCall getForwardServiceCall();
 
   // TODO rewrite name. Async doesn't seem very descriptive. Are the rest sync?
   /** @return true if the call was async, false if not */
   boolean isAsync();
 
+  CompletableFuture<Action.Effect<T>> getAsyncEffect();
+
   /** @return true if the call was an error, false if not */
   boolean isError();
 
+  String getErrorDescription();
+
   /** @return true if the call had a noReply effect, false if not */
   boolean isNoReply();
-
-  // boolean didEmitEffect();??? TODO review if useful
-
-  /**
-   * Look at the next effect and verify that it is of type E or fail if not or if there is no next
-   * effect. If successful this consumes the effect, so that the next call to this method looks at
-   * the next effect from here.
-   *
-   * @return The next effect if it is of type E, for additional assertions.
-   */
-  <E> E getEffectOfType(Class<E> expectedClass);
 }

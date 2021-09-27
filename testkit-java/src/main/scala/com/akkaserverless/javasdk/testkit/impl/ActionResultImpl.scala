@@ -35,21 +35,47 @@ package com.akkaserverless.javasdk.testkit.impl
 import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.action.Action
+import com.akkaserverless.javasdk.ServiceCall
+import java.util.concurrent.CompletableFuture;
+import scala.concurrent.Future;
+import scala.compat.java8.FutureConverters._
 
 final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T] {
 
   /** @return true if the call had an effect with a reply, false if not */
   def isReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[T]]
 
+  def getReplyMessage(): T = {
+    val reply = getEffectOfType(classOf[ActionEffectImpl.ReplyEffect[T]])
+    reply.msg
+  }
+
+  //TODO add metadata??
+
   /** @return true if the call was forwarded, false if not */
   def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
+
+  def getForwardServiceCall(): ServiceCall = {
+    val forward = getEffectOfType(classOf[ActionEffectImpl.ForwardEffect[T]])
+    forward.serviceCall
+  }
 
   // TODO rewrite
   /** @return true if the call was async, false if not */
   def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
 
+  def getAsyncEffect(): CompletableFuture[Action.Effect[T]] = {
+    val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
+    async.effect.toJava.toCompletableFuture
+  }
+
   /** @return true if the call was an error, false if not */
   def isError(): Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[T]]
+
+  def getErrorDescription(): String = {
+    val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
+    error.description
+  }
 
   /** @return true if the call had a noReply effect, false if not */
   def isNoReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.NoReply[T]]
@@ -61,7 +87,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
    * @return
    *   The next effect if it is of type E, for additional assertions.
    */
-  def getEffectOfType[E](expectedClass: Class[E]): E = {
+  private def getEffectOfType[E](expectedClass: Class[E]): E = {
     if (expectedClass.isInstance(effect)) effect.asInstanceOf[E]
     else
       throw new NoSuchElementException(
