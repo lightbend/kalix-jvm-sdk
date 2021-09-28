@@ -74,7 +74,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  /**
          |   * @return The current state of the ShoppingCart under test
          |   */
-         |  def getState(): Cart =
+         |  def currentState(): Cart =
          |    state
          |
          |  private def interpretEffects[Reply](effect: ValueEntity.Effect[Reply]): ValueEntityResult[Reply] = {
@@ -135,7 +135,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
          |      // val actualResponse = result.getReply()
          |      // actualResponse shouldBe expectedResponse
          |      // verify the final state after the command
-         |      // testKit.getState() shouldBe expectedState
+         |      // testKit.currentState() shouldBe expectedState
          |    }
          |
          |    "handle command AddItem" in {

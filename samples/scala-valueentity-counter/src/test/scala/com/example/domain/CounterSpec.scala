@@ -20,12 +20,12 @@ class CounterSpec
       val testKit = CounterTestKit(new Counter(_))
 
       val result1 = testKit.increase(IncreaseValue(value = 1))
-      result1.getReply shouldBe Empty.defaultInstance
+      result1.reply shouldBe Empty.defaultInstance
 
       // one more time
       val result2 = testKit.increase(IncreaseValue(value = 1))
-      result2.getReply shouldBe Empty.defaultInstance
-      testKit.getState.value shouldBe 2
+      result2.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 2
     }
     // end::sample-unit-test[]
 
@@ -33,24 +33,24 @@ class CounterSpec
       val testKit = CounterTestKit(new Counter(_))
 
       val result1 = testKit.increase(IncreaseValue(value = 1))
-      result1.getReply shouldBe Empty.defaultInstance
-      testKit.getState.value shouldBe 1
+      result1.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 1
 
       val result2 = testKit.decrease(DecreaseValue(value = 1))
-      result2.getReply shouldBe Empty.defaultInstance
-      testKit.getState.value shouldBe 0
+      result2.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 0
     }
 
     "handle command Reset" in {
       val testKit = CounterTestKit(new Counter(_))
 
       val result1 = testKit.increase(IncreaseValue(value = 1))
-      result1.getReply shouldBe Empty.defaultInstance
-      testKit.getState.value shouldBe 1
+      result1.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 1
 
       val resetResult = testKit.reset(ResetValue())
-      resetResult.getReply shouldBe Empty.defaultInstance
-      testKit.getState.value shouldBe 0
+      resetResult.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 0
     }
 
   }

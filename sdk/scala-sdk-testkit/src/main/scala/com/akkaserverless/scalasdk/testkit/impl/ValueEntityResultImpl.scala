@@ -47,7 +47,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
       case NoSecondaryEffectImpl  => "no effect" // this should never happen
     }
 
-  override def getReply: R =
+  override def reply: R =
     effect.javasdkEffect.secondaryEffect match {
       case reply: MessageReplyImpl[R @unchecked] => reply.message
       case _ => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
@@ -56,7 +56,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
   override def isForward: Boolean =
     effect.javasdkEffect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def getForward: ServiceCallDetails[R] =
+  override def forwardedTo: ServiceCallDetails[R] =
     ??? // FIXME
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>
@@ -72,7 +72,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
   override def isError: Boolean =
     effect.javasdkEffect.secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def getError: String =
+  override def errorDescription: String =
     effect.javasdkEffect.secondaryEffect match {
       case error: ErrorReplyImpl[_] => error.description
       case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
@@ -84,7 +84,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
   override def stateWasUpdated: Boolean =
     effect.javasdkEffect.primaryEffect.isInstanceOf[JValueEntityEffectImpl.UpdateState[_]]
 
-  override def getUpdatedState: Any =
+  override def updatedState: Any =
     effect.javasdkEffect.primaryEffect match {
       case JValueEntityEffectImpl.UpdateState(s) => s
       case _ => throw new IllegalStateException("State was not updated by the effect")
