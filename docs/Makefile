@@ -40,11 +40,15 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
+	mkdir -p "${managed_attachments}"
 	cd .. && sbt sdkJava/doc
 	cd .. && sbt sdkJavaTestKit/doc
-	mkdir -p "${managed_attachments}"
 	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
 	rsync -a ../testkit-java/target/api/ "${managed_attachments}/testkit/"
+	cd .. && sbt sdkScala/doc
+	cd .. && sbt sdkScalaTestKit/doc
+	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${managed_attachments}/scala-api/"
+	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${managed_attachments}/scala-testkit-api/"
 
 examples:
 	mkdir -p "${managed_examples}"
