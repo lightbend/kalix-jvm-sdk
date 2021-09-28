@@ -209,7 +209,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Fibonacci Action
@@ -219,7 +219,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Doc snippets
@@ -234,7 +234,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Value Entity Views "Customer Registry" sample
@@ -244,7 +244,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Event Sourced Views "Customer Registry" sample
@@ -254,7 +254,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Value Entity "Shopping Cart" sample
@@ -264,7 +264,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run: 
           name: Java Event Sourced Entity "Shopping Cart" sample
@@ -274,7 +274,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Replicated Entity "Shopping Cart" sample
@@ -284,7 +284,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Event Sourced "Counter" sample
@@ -296,7 +296,7 @@ jobs:
             # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
             # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Value Entity "Counter" sample
@@ -306,7 +306,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Java Replicated Entity examples
@@ -316,7 +316,7 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java
+            rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
       - run:
           name: Scala Fibonacci Action
@@ -326,7 +326,7 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/scala src/test/scala
+            rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
       - run:
           name: Scala Value Entity Customer Registry
@@ -336,7 +336,7 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/scala src/test/scala
+            rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
       - save_deps_cache
 
