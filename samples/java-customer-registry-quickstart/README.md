@@ -80,5 +80,5 @@ for more information on how to make your docker image available to Akka Serverle
 Finally, you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
 to create a project and then deploy your service into the project either by using `mvn deploy` which 
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
-publishing the docker image through `mvn package docker:push`  and then deploying the image
+publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
 through the `akkasls` CLI or via the web interface. 
