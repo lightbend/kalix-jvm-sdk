@@ -80,11 +80,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       s"""package com.example.service.domain
           |
           |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
-          |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound
           |import com.akkaserverless.scalasdk.valueentity.CommandContext
           |import com.akkaserverless.scalasdk.valueentity.ValueEntity
           |import com.example.service
-          |import com.external.Empty
           |
           |/**
           | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
@@ -118,7 +116,7 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.example.service
-import com.external.Empty
+import com.external.ExternalDomainProto
 import com.google.protobuf.Descriptors
 
 object MyValueEntityProvider {
@@ -140,7 +138,7 @@ class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValue
     new MyValueEntityHandler(entityFactory(context))
 
   override final val additionalDescriptors =
-    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: com.external.ExternalDomainProto.javaDescriptor :: Nil
+    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
 }""")
   }
 }
