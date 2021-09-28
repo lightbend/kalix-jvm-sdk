@@ -1,6 +1,6 @@
 name := "customer-registry"
 
-organization := "com.akkaseverless.samples"
+organization := "com.akkaserverless.samples"
 organizationHomepage := Some(url("https://akkaserverless.com"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
