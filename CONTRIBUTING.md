@@ -52,7 +52,7 @@ Ensure to remove/update generated files under `src` if they cause problems.
 2. Pass that version to the sample projects when building:
 
     ```shell
-    cd samples/scala-value-entity-customer-registry
+    cd samples/scala-valueentity-customer-registry
     sbt -Dakkaserverless-sdk.version="0.7...-SNAPSHOT" compile
     ```
 
