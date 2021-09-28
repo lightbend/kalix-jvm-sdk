@@ -80,14 +80,12 @@ object ValueEntitySourceGenerator {
     implicit val imports =
       generateImports(
         Seq(valueEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
+        service.commands.map(_.inputType),
         valueEntity.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.CommandContext",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
+          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
@@ -128,8 +126,12 @@ object ValueEntitySourceGenerator {
     val packageName = entity.fqn.parent.scalaPackage
     val className = entity.fqn.name + "Provider"
 
+    val descriptors =
+      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
+        .map(_.descriptorImport)
+
     implicit val imports: Imports = generateImports(
-      Seq(entity.state.fqn) ++ service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
+      Seq(entity.state.fqn) ++ descriptors,
       packageName,
       Seq(
         "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
@@ -138,10 +140,6 @@ object ValueEntitySourceGenerator {
         "com.google.protobuf.Descriptors"),
       packageImports = Seq(service.fqn.parent.scalaPackage),
       semi = false)
-
-    val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
-        .map(_.descriptorImport)
 
     File(
       s"${packageAsPath(packageName)}/${className}.scala",
