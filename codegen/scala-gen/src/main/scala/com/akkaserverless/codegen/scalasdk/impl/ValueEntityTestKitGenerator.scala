@@ -96,7 +96,7 @@ object ValueEntityTestKitGenerator {
           |  private def interpretEffects[Reply](effect: ValueEntity.Effect[Reply]): ValueEntityResult[Reply] = {
           |    val result = new ValueEntityResultImpl[Reply](effect)
           |    if (result.stateWasUpdated)
-          |      this.state = result.getUpdatedState.asInstanceOf[${typeName(valueEntity.state.fqn)}]
+          |      this.state = result.updatedState.asInstanceOf[${typeName(valueEntity.state.fqn)}]
           |    result
           |  }
           |
