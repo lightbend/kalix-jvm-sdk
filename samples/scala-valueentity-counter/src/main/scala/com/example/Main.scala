@@ -24,18 +24,18 @@ object Main {
       new CounterStateSubscriptionAction(_),
       new DoubleCounterAction(_))
 
-    /* the comment hack bellow is needed to only show the Counter::new and DoubleCounterAction
+    /* the comment hack bellow is needed to only show the Counter and DoubleCounterAction
     // tag::registration[]
     AkkaServerlessFactory.withComponents(
       new Counter(_),
-      new DoubleCounterAction(_));
+      new DoubleCounterAction(_))
     // end::registration[]
     */
 
-    /* the comment hack bellow is needed to only show the Counter::new
+    /* the comment hack bellow is needed to only show the Counter
     // tag::registration-value-entity[]
     AkkaServerlessFactory.withComponents(
-      new Counter(_));
+      new Counter(_))
     // end::registration-value-entity[]
      */
     // tag::registration-value-entity[]

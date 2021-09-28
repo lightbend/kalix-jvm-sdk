@@ -20,8 +20,6 @@ import "akkaserverless/annotations.proto";
 import "com/example/domain/counter_domain.proto"; // <1>
 import "google/protobuf/empty.proto";
 
-option java_outer_classname = "StateSubscriptionApi";
-
 service CounterStateSubscription {
   option (akkaserverless.service) = { 
     type : SERVICE_TYPE_ACTION // <2>

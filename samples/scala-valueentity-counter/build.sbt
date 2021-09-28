@@ -40,14 +40,9 @@ val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
 val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
 val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
 
-// FIXME include these dependencies via the AkkaserverlessPlugin
-val AkkaServerlessSdkVersion = System.getProperty("akkaserverless-sdk.version", "0.7.2")
 libraryDependencies ++= Seq(
   logback,
   logbackJson,
   logbackJackson,
-  "org.scalatest" %% "scalatest" % "3.2.7" % Test,
-  // FIXME include testkit dependency via the AkkaserverlessPlugin
-  "com.akkaserverless" %% "akkaserverless-scala-sdk" % AkkaServerlessSdkVersion,
-  "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test)
+  "org.scalatest" %% "scalatest" % "3.2.7" % Test)
 
