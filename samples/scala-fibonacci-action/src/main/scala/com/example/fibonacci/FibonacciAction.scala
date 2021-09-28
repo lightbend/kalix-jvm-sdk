@@ -8,9 +8,10 @@ import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 
 /** An action. */
-class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFibonacciAction {
+class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFibonacciAction { // <1>
 
-  private def isFibonacci(num: Long): Boolean = {
+  // tag::implemented-action[]
+  private def isFibonacci(num: Long): Boolean = { // <1>
     val isPerfectSquare = (n: Long) => {
       val square = Math.sqrt(n.toDouble).toLong
       square * square == n
@@ -26,9 +27,10 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
   /** Handler for "NextNumber". */
   override def nextNumber(number: Number): Action.Effect[Number] = {
     val num = number.value
-    if (isFibonacci(num))
+    if (isFibonacci(num)) // <2>
       effects.reply(Number(nextFib(num)))
     else
-      effects.error(s"Input number is not a Fibonacci number, received '$num'")
+      effects.error(s"Input number is not a Fibonacci number, received '$num'") // <3>
   }
+  // end::implemented-action[]
 }
