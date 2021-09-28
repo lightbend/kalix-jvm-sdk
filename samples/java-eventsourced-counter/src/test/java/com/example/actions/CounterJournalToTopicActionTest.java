@@ -1,4 +1,4 @@
-package com.example.domain;
+package com.example.actions;
 
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
@@ -7,6 +7,8 @@ import com.example.actions.CounterTopicApi;
 import com.example.actions.CounterJournalToTopicAction;
 import com.google.protobuf.Empty;
 import org.junit.Test;
+import com.example.actions.CounterJournalToTopicActionTestKit;
+import com.example.domain.CounterDomain;
 
 import static org.junit.Assert.*;
 
