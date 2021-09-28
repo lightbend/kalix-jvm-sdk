@@ -26,7 +26,7 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
-import com.akkaserverless.scalasdk.impl.view.Scala2JavaViewProviderAdapter
+import com.akkaserverless.scalasdk.impl.view.JavaViewProviderAdapter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
@@ -140,7 +140,7 @@ class AkkaServerless private (impl: javasdk.AkkaServerless) {
    *   This stateful service builder.
    */
   def register[S, V <: View[S]](provider: ViewProvider[S, V]): AkkaServerless =
-    AkkaServerless(impl.register(new Scala2JavaViewProviderAdapter(provider)))
+    AkkaServerless(impl.register(new JavaViewProviderAdapter(provider)))
 
   /**
    * Register an action using an [[ActionProvider]]. The concrete ` ActionProvider` is generated for the specific
