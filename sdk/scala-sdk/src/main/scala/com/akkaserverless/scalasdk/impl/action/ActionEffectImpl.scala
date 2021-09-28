@@ -19,7 +19,6 @@ package com.akkaserverless.scalasdk.impl.action
 import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.IterableHasAsJava
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.Metadata
@@ -29,7 +28,7 @@ import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
 import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 
-object ActionEffectImpl {
+private[scalasdk] object ActionEffectImpl {
 
   sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
 

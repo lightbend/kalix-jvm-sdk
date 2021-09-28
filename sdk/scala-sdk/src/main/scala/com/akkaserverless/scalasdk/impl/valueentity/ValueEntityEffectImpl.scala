@@ -16,7 +16,6 @@
 
 package com.akkaserverless.scalasdk.impl.valueentity
 
-import java.util
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
@@ -24,12 +23,12 @@ import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 
-object ValueEntityEffectImpl {
+private[scalasdk] object ValueEntityEffectImpl {
   def apply[S](): ValueEntityEffectImpl[S] = ValueEntityEffectImpl(
     new javasdk.impl.valueentity.ValueEntityEffectImpl[S]())
 }
 
-case class ValueEntityEffectImpl[S](javasdkEffect: javasdk.impl.valueentity.ValueEntityEffectImpl[S])
+private[scalasdk] case class ValueEntityEffectImpl[S](javasdkEffect: javasdk.impl.valueentity.ValueEntityEffectImpl[S])
     extends ValueEntity.Effect.Builder[S]
     with ValueEntity.Effect.OnSuccessBuilder[S]
     with ValueEntity.Effect[S] {

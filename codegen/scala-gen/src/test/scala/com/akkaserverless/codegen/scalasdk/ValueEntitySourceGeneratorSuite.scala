@@ -79,6 +79,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       str,
       s"""package com.example.service.domain
           |
+          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound
           |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
           |import com.akkaserverless.scalasdk.valueentity.CommandContext
           |import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -98,7 +99,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |        entity.get(state, command.asInstanceOf[service.GetValue])
           |
           |      case _ =>
-          |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName)
+          |        throw new CommandHandlerNotFound(commandName)
           |    }
           |  }
           |}

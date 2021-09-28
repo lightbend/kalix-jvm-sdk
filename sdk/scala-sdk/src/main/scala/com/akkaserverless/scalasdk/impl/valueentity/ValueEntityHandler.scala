@@ -19,10 +19,9 @@ package com.akkaserverless.scalasdk.impl.valueentity
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 
-object ValueEntityHandler {
-  final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
-}
-
+/**
+ * INTERNAL API, but used by generated code.
+ */
 abstract class ValueEntityHandler[S, E <: ValueEntity[S]](val entity: E) {
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): ValueEntity.Effect[_]
 }
