@@ -21,7 +21,7 @@ public class CounterJournalToTopicActionTest {
     ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(valueToincrease).build());
     assertTrue(result.isReply());
     CounterTopicApi.Increased replyMessage = result.getReplyMsg();
-    assertEquals(replyMessage.getValue(),valueToincrease);
+    assertEquals(valueToIncrease,replyMessage.getValue());
   }
 
 }
