@@ -42,7 +42,7 @@ private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) ext
     scalaSdkAction._internalSetActionContext(context.map(new ScalaActionContextAdapter(_)).toScala)
 }
 
-private[scalasdk] case class JavaActionProviderAdapter[A <: Action](scalaSdkProvider: ActionProvider[A])
+private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaSdkProvider: ActionProvider[A])
     extends javasdk.action.ActionProvider[javasdk.action.Action] {
 
   override def options(): javasdk.action.ActionOptions =
@@ -61,7 +61,7 @@ private[scalasdk] case class JavaActionProviderAdapter[A <: Action](scalaSdkProv
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] case class JavaActionHandlerAdapter[A <: Action](
+private[scalasdk] final case class JavaActionHandlerAdapter[A <: Action](
     javaSdkAction: javasdk.action.Action,
     scalaSdkHandler: ActionHandler[A])
     extends javasdk.impl.action.ActionHandler[javasdk.action.Action](javaSdkAction) {

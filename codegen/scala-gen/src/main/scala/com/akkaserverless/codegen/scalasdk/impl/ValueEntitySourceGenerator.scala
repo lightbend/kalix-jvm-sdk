@@ -85,7 +85,8 @@ object ValueEntitySourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.CommandContext",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler"),
+          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
+          "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
@@ -115,7 +116,7 @@ object ValueEntitySourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      case _ =>
-        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName)
+        |        throw new CommandHandlerNotFound(commandName)
         |    }
         |  }
         |}

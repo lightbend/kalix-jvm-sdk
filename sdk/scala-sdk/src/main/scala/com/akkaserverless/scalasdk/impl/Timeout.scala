@@ -18,4 +18,4 @@ package com.akkaserverless.scalasdk.impl
 import scala.concurrent.duration.FiniteDuration
 import com.akkaserverless.scalasdk.PassivationStrategy
 
-private[akkaserverless] case class Timeout(duration: Option[FiniteDuration]) extends PassivationStrategy
+private[akkaserverless] final case class Timeout(duration: Option[FiniteDuration]) extends PassivationStrategy
