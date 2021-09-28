@@ -1,4 +1,4 @@
-import Dependencies._
+import Dependencies.AkkaServerless
 
 lazy val `akkaserverless-java-sdk` = project
   .in(file("."))
@@ -96,7 +96,13 @@ lazy val sdkScala = project
     Test / javacOptions += "-parameters", // for Jackson
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
+    Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test",
+    inTask(doc)(
+      Seq(
+        Compile / scalacOptions ++= scaladocOptions(
+          "Akka Serverless Scala SDK",
+          version.value,
+          (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScala)
 
 lazy val sdkScalaTestKit = project
@@ -112,8 +118,34 @@ lazy val sdkScalaTestKit = project
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
-    Compile / scalacOptions ++= Seq("-release", "8"))
+    Compile / scalacOptions ++= Seq("-release", "8"),
+    inTask(doc)(
+      Seq(
+        Compile / scalacOptions ++= scaladocOptions(
+          "Akka Serverless Scala SDK TestKit",
+          version.value,
+          (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScalaTestKit)
+
+def scaladocOptions(title: String, ver: String, base: File): List[String] = {
+  val urlString = githubUrl(ver) + "/€{FILE_PATH_EXT}#L€{FILE_LINE}"
+  List(
+    "-implicits",
+    "-groups",
+    "-doc-source-url",
+    urlString,
+    "-sourcepath",
+    base.getAbsolutePath,
+    "-doc-title",
+    title,
+    "-doc-version",
+    ver)
+}
+
+def githubUrl(v: String): String = {
+  val branch = if (v.endsWith("SNAPSHOT")) "main" else "v" + v
+  "https://github.com/lightbend/akkaserverless-java-sdk/tree/" + branch
+}
 
 lazy val sdkJavaTestKit = project
   .in(file("testkit-java"))
@@ -199,10 +231,10 @@ lazy val javaValueentityCustomerRegistry = project
   .settings(
     name := "java-valueentity-customer-registry",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
-      "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
-      "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
+      "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
+      "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,
+      "ch.qos.logback.contrib" % "logback-jackson" % Dependencies.LogbackContribVersion,
+      "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
@@ -218,10 +250,10 @@ lazy val javaEventsourcedCustomerRegistry = project
   .settings(
     name := "java-eventsourced-customer-registry",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion,
-      "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion,
-      "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion % IntegrationTest,
+      "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
+      "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,
+      "ch.qos.logback.contrib" % "logback-jackson" % Dependencies.LogbackContribVersion,
+      "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
