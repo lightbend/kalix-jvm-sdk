@@ -73,12 +73,12 @@ commands:
             # the SDK_VERSION is later used to run the maven tests (see below)
             echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
 
-  build-maven-java:
-    description: Build maven-java
+  publish-local:
+    description: Build and publish artifacts and plugins locally for other tests to use
     steps:
       - run:
-          name: publish m2
-          command: sbt publishM2
+          name: publish m2 and local
+          command: sbt publishM2 publishLocal
       - run:
           name: "Build maven-java"
           command: |
@@ -86,13 +86,6 @@ commands:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             mvn verify install
-
-  build-sbt-scala:
-    description: Build sbt plugin and scala artifacts
-    steps:
-      - run:
-          name: publish local
-          command: sbt publishLocal
 
 jobs:
   checks:
@@ -181,7 +174,7 @@ jobs:
       - restore_deps_cache
       - setup_sbt
       - set-sdk-version
-      - build-maven-java
+      - publish-local
       - run: 
           name: Run integration tests for Value Entity Archetype
           command: |
@@ -206,8 +199,7 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - set-sdk-version
-      - build-maven-java
-      - build-sbt-scala
+      - publish-local
       - run:
           name: Java Customer Registry quickstart
           command: |
