@@ -52,8 +52,11 @@ To deploy your service, install the `akkasls` CLI as documented in
 [Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/setting-up/)
 and configure a Docker Registry to upload your docker image to.
 
-You will need to set the `docker.registry` and `docker.username` when starting sbt to be able to publish
-the image to a registry. Refer to
+You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser docker:publish`. 
+
+If you are publishing to a different registry than docker hub, you will also need to specify what registry using the system property `docker.registry`.
+
+Refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
