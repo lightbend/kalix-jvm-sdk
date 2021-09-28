@@ -59,12 +59,13 @@ trait SideEffect {
   def synchronous: Boolean
 }
 
-private[scalasdk] case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
+private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
   override def serviceCall: ServiceCall = ScalaServiceCallAdapter(javasdkSideEffect.serviceCall())
   override def synchronous: Boolean = javasdkSideEffect.synchronous()
 }
 
-private[scalasdk] case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall) extends ServiceCall {
+private[scalasdk] final case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall)
+    extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkServiceCall.message)
   override def metadata: Metadata = {
@@ -73,7 +74,7 @@ private[scalasdk] case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk
   }
 }
 
-private[scalasdk] case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
+private[scalasdk] final case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
     extends ServiceCallRef[T] {
   def method: Descriptors.MethodDescriptor = javasdkServiceCallRef.method()
 

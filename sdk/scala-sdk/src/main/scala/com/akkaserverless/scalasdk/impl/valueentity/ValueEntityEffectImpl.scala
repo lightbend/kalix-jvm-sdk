@@ -28,7 +28,8 @@ private[scalasdk] object ValueEntityEffectImpl {
     new javasdk.impl.valueentity.ValueEntityEffectImpl[S]())
 }
 
-private[scalasdk] case class ValueEntityEffectImpl[S](javasdkEffect: javasdk.impl.valueentity.ValueEntityEffectImpl[S])
+private[scalasdk] final case class ValueEntityEffectImpl[S](
+    javasdkEffect: javasdk.impl.valueentity.ValueEntityEffectImpl[S])
     extends ValueEntity.Effect.Builder[S]
     with ValueEntity.Effect.OnSuccessBuilder[S]
     with ValueEntity.Effect[S] {

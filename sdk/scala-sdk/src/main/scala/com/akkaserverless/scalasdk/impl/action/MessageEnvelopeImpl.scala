@@ -19,4 +19,4 @@ package com.akkaserverless.scalasdk.impl.action
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.action.MessageEnvelope
 
-private[scalasdk] case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
+private[scalasdk] final case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
