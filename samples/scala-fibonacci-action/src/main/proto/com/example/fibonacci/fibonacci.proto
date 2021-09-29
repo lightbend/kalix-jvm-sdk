@@ -18,15 +18,13 @@ package com.example.fibonacci; // <1>
 
 import "akkaserverless/annotations.proto"; // <2>
 
-option java_outer_classname = "FibonacciApi"; // <3>
-
 message Number {
   int64 value = 1;
 }
 
 service Fibonacci {
   option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION  // <4>
+    type : SERVICE_TYPE_ACTION  // <3>
   };
 
   rpc NextNumber(Number) returns (Number) {}
