@@ -1,24 +1,20 @@
 # Config for https://github.com/release-drafter/release-drafter
-name-template: 'Akka Serverless Java SDK $NEXT_PATCH_VERSION'
+name-template: 'Akka Serverless Java and Scala SDKs $NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
-  - title: '🚀 Features'
+  - title: 'Java SDK'
     labels:
-      - 'Feature'
+      - 'java-sdk'
+  - title: 'Scala SDK'
+    labels:
+      - 'scala-sdk'
   - title: 'Documentation'
     labels:
       - 'Documentation'
-      - 'Samples'
-  - title: 'Maven tooling'
-    labels:
-      - 'Maven'
-  - title: 'TCK'
-    labels:
-      - 'tck'
 
 change-template: '- $TITLE #$NUMBER by @$AUTHOR'
 template: |
-  # :mega: Akka Serverless Java SDK $NEXT_PATCH_VERSION
+  # :mega: Akka Serverless Java and Scala SDKs $NEXT_PATCH_VERSION
 
   ## Changes
 
@@ -28,15 +24,12 @@ template: |
   Special thanks to the following contributors who helped with this release: $CONTRIBUTORS
 
 autolabeler:
-  - label: 'Maven'
-    files:
-      - 'maven-java/*'
+  - label: 'java-sdk'
+    title:
+      - '/.*\(.*java.*\):/i'
+  - label: 'scala-sdk'
+    title:
+      - '/.*\(.*scala.*\):/i'
   - label: 'Documentation'
-    files:
-      - 'docs/*'
-  - label: 'Samples'
-    files:
-      - 'samples/*'
-  - label: 'tck'
-    files:
-      - 'tck/*'
+    title:
+      - '/doc.*:/i'
