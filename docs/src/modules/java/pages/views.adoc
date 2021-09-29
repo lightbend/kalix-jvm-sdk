@@ -38,7 +38,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -62,7 +61,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -90,7 +88,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -116,7 +113,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/java/customer/Main.java[tag=register]
 ----
 
-[.tabset]
 Scala::
 +
 [source,scala,indent=0]
@@ -146,7 +142,6 @@ Java::
 include::example$java-eventsourced-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain;events]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -166,7 +161,6 @@ Java::
 include::example$java-eventsourced-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=declarations;view]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -195,7 +189,6 @@ include::example$java-eventsourced-customer-registry/src/main/proto/customer/vie
 <5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 <6> Enable `transform_updates` for all update methods.
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -229,7 +222,6 @@ include::example$java-eventsourced-customer-registry/src/main/java/customer/view
 <2> Defines the initial, empty, state that is used before any updates.
 <3> One method for each event.
 
-[.tabset]
 Scala::
 +
 [source,scala,indent=0]
@@ -254,7 +246,6 @@ Java::
 include::example$java-eventsourced-customer-registry/src/main/java/customer/Main.java[tag=register]
 ----
 
-[.tabset]
 Scala::
 +
 [source,scala,indent=0]
@@ -278,7 +269,6 @@ include::example$java-eventsourced-customer-registry/src/main/proto/customer/vie
 ----
 <1> This is the only difference from <<event-sourced-entity>>.
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -305,7 +295,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -315,9 +304,6 @@ include::example$scala-value-entity-customer-registry/src/main/proto/customer/vi
 
 In a similar way, you can include values from the request message in the response, for example `:request_id`:
 
-[.tabset]
-Java::
-+
 [source,proto,indent=0]
 ----
 SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
@@ -335,7 +321,6 @@ Java::
 include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
 ----
 
-[.tabset]
 Scala::
 +
 [source,proto,indent=0]
@@ -388,7 +373,6 @@ Java::
 include::example$java-eventsourced-customer-registry/src/main/java/customer/MainWithCustomViewId.java[tag=register]
 ----
 
-[.tabset]
 Scala::
 +
 [source,scala,indent=0]
