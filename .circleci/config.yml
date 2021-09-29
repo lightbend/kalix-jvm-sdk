@@ -331,7 +331,7 @@ jobs:
       - run:
           name: Scala Value Entity Customer Registry
           command: |
-            cd samples/scala-value-entity-customer-registry
+            cd samples/scala-valueentity-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
             # FIXME integration tests
