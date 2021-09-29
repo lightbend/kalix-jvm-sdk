@@ -63,7 +63,6 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.ArrayList",
         "java.util.List",
         "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
@@ -206,10 +205,6 @@ object EventSourcedEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",

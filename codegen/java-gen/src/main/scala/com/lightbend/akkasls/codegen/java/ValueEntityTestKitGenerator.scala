@@ -63,10 +63,6 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
@@ -175,10 +171,6 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "org.junit.Test"))

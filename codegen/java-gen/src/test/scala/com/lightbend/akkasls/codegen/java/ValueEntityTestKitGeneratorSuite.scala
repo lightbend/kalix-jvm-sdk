@@ -51,11 +51,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
-        |import java.util.ArrayList;
-        |import java.util.List;
-        |import java.util.NoSuchElementException;
         |import java.util.function.Function;
-        |import scala.jdk.javaapi.CollectionConverters;
         |
         |/**
         | * TestKit for unit testing ShoppingCart
@@ -147,11 +143,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.valueentity.ValueEntity;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
-        |import java.util.ArrayList;
-        |import java.util.List;
-        |import java.util.NoSuchElementException;
         |import org.junit.Test;
-        |import scala.jdk.javaapi.CollectionConverters;
         |
         |import static org.junit.Assert.*;
         |

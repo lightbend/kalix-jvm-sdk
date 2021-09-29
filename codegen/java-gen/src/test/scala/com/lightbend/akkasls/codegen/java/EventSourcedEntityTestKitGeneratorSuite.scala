@@ -52,7 +52,6 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import java.util.List;
         |import java.util.NoSuchElementException;
         |import java.util.function.Function;
-        |import scala.jdk.javaapi.CollectionConverters;
         |
         |/**
         | * TestKit for unit testing ShoppingCart
@@ -165,11 +164,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.testkit.EventSourcedResult;
         |import com.example.shoppingcart.ShoppingCartApi;
         |import com.google.protobuf.Empty;
-        |import java.util.ArrayList;
-        |import java.util.List;
-        |import java.util.NoSuchElementException;
         |import org.junit.Test;
-        |import scala.jdk.javaapi.CollectionConverters;
         |
         |import static org.junit.Assert.*;
         |
