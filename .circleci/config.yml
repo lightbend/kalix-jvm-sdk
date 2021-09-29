@@ -323,11 +323,11 @@ jobs:
           command: |
             cd samples/scala-fibonacci-action
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
       - run:
           name: Scala Value Entity Customer Registry
           command: |
@@ -337,7 +337,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
       - run:
           name: Scala Value Entity Counter
           command: |
@@ -347,7 +347,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
       - save_deps_cache
 
   publish:
