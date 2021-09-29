@@ -103,7 +103,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    @SuppressWarnings("unchecked")
         |    ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
         |    if (result.stateWasUpdated()) {
-        |      this.state = (ShoppingCartDomain.Cart) result.updatedState;
+        |      this.state = (ShoppingCartDomain.Cart) result.getUpdatedState();
         |    }
         |    return result;
         |  }
