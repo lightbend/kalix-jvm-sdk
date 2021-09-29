@@ -1,3 +1,4 @@
+//tag::RegisterComponents[]
 package customer
 
 import com.akkaserverless.scalasdk.AkkaServerless
@@ -43,3 +44,4 @@ object Main {
     createAkkaServerless().start()
   }
 }
+//end::RegisterComponents[]
