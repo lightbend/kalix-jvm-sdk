@@ -189,8 +189,8 @@ object ValueEntitySourceGenerator {
         semi = false)
 
     val methods = service.commands.map { cmd =>
-      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
-        cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
+      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, ${lowerFirst(
+        cmd.inputType.name)}: ${typeName(cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
           |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
           |""".stripMargin
     }

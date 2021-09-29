@@ -62,12 +62,12 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |  }
             |$expectedEmptyValue
             |  @Override
-            |  public Effect<Empty> set($expectedDataType currentData, ServiceOuterClass.SetValue command) {
+            |  public Effect<Empty> set($expectedDataType currentData, ServiceOuterClass.SetValue setValue) {
             |    return effects().error("The command handler for `Set` is not implemented, yet");
             |  }
             |
             |  @Override
-            |  public Effect<ServiceOuterClass.MyState> get($expectedDataType currentData, ServiceOuterClass.GetValue command) {
+            |  public Effect<ServiceOuterClass.MyState> get($expectedDataType currentData, ServiceOuterClass.GetValue getValue) {
             |    return effects().error("The command handler for `Get` is not implemented, yet");
             |  }
             |}
