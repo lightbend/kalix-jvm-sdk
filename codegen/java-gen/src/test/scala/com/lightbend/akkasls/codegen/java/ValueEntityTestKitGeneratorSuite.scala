@@ -83,7 +83,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    this.entity = entity;
         |  }
         |
-        |  public ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
+        |  private ShoppingCartTestKit(ShoppingCart entity, ShoppingCartDomain.Cart state) {
         |    this.state = state;
         |    this.entity = entity;
         |  }
