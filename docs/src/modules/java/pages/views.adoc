@@ -12,7 +12,7 @@ Views can be defined from any of the following:
 
 The remainder of this page describes:
 
-* <<_how_to_transform_results>>
+* <<transform-results>>
 * <<#changing>>
 * <<#query>>
 
@@ -43,7 +43,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-value-entity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
 ----
 
 <1> The `(akkaserverless.file).value_entity` option configures code generation to provide base classes and initial implementations for a Value Entity.
@@ -66,7 +66,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$scala-value-entity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
 ----
 
 <1> The `UpdateCustomer` method defines how Akka Serverless will update the view.
@@ -92,7 +92,7 @@ Scala::
 +
 [source,proto,indent=0]
 ----
-include::example$scala-value-entity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
 ----
 
 <1> Without `stream` when expecting single result.
@@ -118,7 +118,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/customer/Main.scala
 ----
-include::example$scala-value-entity-customer-registry/src/main/scala/customer/Main.scala[tag=register]
+include::example$scala-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=register]
 ----
 
 [#event-sourced-entity]
@@ -277,6 +277,7 @@ Scala::
 TODO
 ----
 
+[#transform-results]
 == How to transform results
 
 When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
@@ -299,7 +300,7 @@ Scala::
 +
 [source,proto,indent=0]
 ----
-include::example$scala-value-entity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
 ----
 
 In a similar way, you can include values from the request message in the response, for example `:request_id`:
@@ -325,7 +326,7 @@ Scala::
 +
 [source,proto,indent=0]
 ----
-include::example$scala-value-entity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
 ----
 
 <1> The response message contains a `repeated` field.
