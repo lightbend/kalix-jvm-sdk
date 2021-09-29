@@ -117,7 +117,7 @@ object ValueEntityTestKitGenerator {
        |    this.entity = entity;
        |  }
        |
-       |  public $testkitClassName($entityClassName entity, $stateClassName state) {
+       |  private $testkitClassName($entityClassName entity, $stateClassName state) {
        |    this.state = state;
        |    this.entity = entity;
        |  }
