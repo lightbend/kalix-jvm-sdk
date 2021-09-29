@@ -55,7 +55,8 @@ object ReplicatedEntitySourceGenerator {
       val inputType = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
       s"""|@Override
-          |public Effect<$outputType> ${lowerFirst(methodName)}($parameterizedDataType currentData, $inputType command) {
+          |public Effect<$outputType> ${lowerFirst(
+        methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(cmd.inputType.name)}) {
           |  return effects().error("The command handler for `$methodName` is not implemented, yet");
           |}
           |""".stripMargin

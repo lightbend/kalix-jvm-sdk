@@ -43,7 +43,8 @@ object ValueEntitySourceGenerator {
       val outputType = qualifiedType(cmd.outputType)
 
       s"""|@Override
-          |public Effect<$outputType> ${lowerFirst(methodName)}($stateType currentState, $inputType command) {
+          |public Effect<$outputType> ${lowerFirst(methodName)}($stateType currentState, $inputType ${lowerFirst(
+        cmd.inputType.name)}) {
           |  return effects().error("The command handler for `$methodName` is not implemented, yet");
           |}
           |""".stripMargin
