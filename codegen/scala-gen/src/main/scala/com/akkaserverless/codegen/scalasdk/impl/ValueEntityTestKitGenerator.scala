@@ -90,13 +90,13 @@ object ValueEntityTestKitGenerator {
           |  /**
           |   * @return The current state of the $entityClassName under test
           |   */
-          |  def getState(): ${typeName(valueEntity.state.fqn)} =
+          |  def currentState(): ${typeName(valueEntity.state.fqn)} =
           |    state
           |
           |  private def interpretEffects[Reply](effect: ValueEntity.Effect[Reply]): ValueEntityResult[Reply] = {
           |    val result = new ValueEntityResultImpl[Reply](effect)
           |    if (result.stateWasUpdated)
-          |      this.state = result.getUpdatedState.asInstanceOf[${typeName(valueEntity.state.fqn)}]
+          |      this.state = result.updatedState.asInstanceOf[${typeName(valueEntity.state.fqn)}]
           |    result
           |  }
           |
@@ -152,7 +152,7 @@ object ValueEntityTestKitGenerator {
           |      // val actualResponse = result.getReply()
           |      // actualResponse shouldBe expectedResponse
           |      // verify the final state after the command
-          |      // testKit.getState() shouldBe expectedState
+          |      // testKit.currentState() shouldBe expectedState
           |    }
           |
           |    ${Format.indent(testCases, 4)}
