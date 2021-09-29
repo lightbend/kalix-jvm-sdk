@@ -33,82 +33,82 @@ import com.akkaserverless.scalasdk.view.ViewCreationContext
 import com.akkaserverless.scalasdk.view.ViewProvider
 import com.google.protobuf.Descriptors
 
-private[scalasdk] final class Scala2JavaViewAdapter[S](scalasdkView: View[S]) extends javasdk.view.View[S] {
-  override def emptyState(): S = scalasdkView.emptyState
+private[scalasdk] final class JavaViewAdapter[S](scalaSdkView: View[S]) extends javasdk.view.View[S] {
+  override def emptyState(): S = scalaSdkView.emptyState
 
   override def _internalSetUpdateContext(context: Optional[javasdk.view.UpdateContext]): Unit =
-    scalasdkView._internalSetUpdateContext(context.map(new Java2ScalaUpdateContextAdapter(_)).toScala)
+    scalaSdkView._internalSetUpdateContext(context.map(new ScalaUpdateContextAdapter(_)).toScala)
 }
 
-private[scalasdk] final class Scala2JavaViewProviderAdapter[S, V <: View[S]](scalasdkProvider: ViewProvider[S, V])
+private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkProvider: ViewProvider[S, V])
     extends javasdk.view.ViewProvider[S, javasdk.view.View[S]] {
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
-    scalasdkProvider.serviceDescriptor
+    scalaSdkProvider.serviceDescriptor
 
   override def viewId(): String =
-    scalasdkProvider.viewId
+    scalaSdkProvider.viewId
 
   override def options(): ViewOptions =
-    javasdk.impl.view.ViewOptionsImpl(scalasdkProvider.options.forwardHeaders.asJava)
+    javasdk.impl.view.ViewOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
   override def newHandler(
       context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]] = {
-    val scaladslHandler = scalasdkProvider
-      .newHandler(new Java2ScalaViewCreationContextAdapter(context))
+    val scaladslHandler = scalaSdkProvider
+      .newHandler(new ScalaViewCreationContextAdapter(context))
       .asInstanceOf[ViewHandler[S, View[S]]]
-    new Scala2JavaViewHandlerAdapter[S](new Scala2JavaViewAdapter[S](scaladslHandler.view), scaladslHandler)
+    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scaladslHandler.view), scaladslHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
-    scalasdkProvider.additionalDescriptors.toArray
+    scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] class Scala2JavaViewHandlerAdapter[S](
-    javasdkView: javasdk.view.View[S],
-    scalasdkHandler: ViewHandler[S, View[S]])
-    extends javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]](javasdkView) {
+private[scalasdk] class JavaViewHandlerAdapter[S](
+    javaSdkView: javasdk.view.View[S],
+    scalaSdkHandler: ViewHandler[S, View[S]])
+    extends javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]](javaSdkView) {
 
   override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
-    scalasdkHandler.handleUpdate(commandName, state, event) match {
+    scalaSdkHandler.handleUpdate(commandName, state, event) match {
       case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
     }
   }
 }
 
-private[scalasdk] final class Java2ScalaViewCreationContextAdapter(javasdkContext: javasdk.view.ViewCreationContext)
+private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: javasdk.view.ViewCreationContext)
     extends ViewCreationContext {
   override def viewId: String =
-    javasdkContext.viewId()
+    javaSdkContext.viewId()
 
   override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
+    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javasdkContext.getGrpcClient(clientClass, service)
+    javaSdkContext.getGrpcClient(clientClass, service)
 
-  override def materializer(): Materializer = javasdkContext.materializer()
+  override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
-private[scalasdk] final class Java2ScalaUpdateContextAdapter(val javasdkContext: javasdk.view.UpdateContext)
+private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: javasdk.view.UpdateContext)
     extends UpdateContext {
   override def eventSubject: Option[String] =
-    javasdkContext.eventSubject().toScala
+    javaSdkContext.eventSubject().toScala
 
   override def eventName: String =
-    javasdkContext.eventName()
+    javaSdkContext.eventName()
 
   override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
+    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
   override def metadata: Metadata =
     // FIXME can we get rid of this cast?
-    new MetadataImpl(javasdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+    new MetadataImpl(javaSdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 
   override def viewId: String =
-    javasdkContext.viewId()
+    javaSdkContext.viewId()
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javasdkContext.getGrpcClient(clientClass, service)
+    javaSdkContext.getGrpcClient(clientClass, service)
 
-  override def materializer(): Materializer = javasdkContext.materializer()
+  override def materializer(): Materializer = javaSdkContext.materializer()
 }
