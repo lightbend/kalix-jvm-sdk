@@ -73,7 +73,7 @@ mvn archetype:generate ^
 
 [.group-scala]
 . From a command window, run the template in a convenient location:
-
++
 [source,command window, subs="attributes"]
 ----
 sbt new lightbend/akkaserverless-value-entity.g8
@@ -126,15 +126,18 @@ IMPORTANT: Do not modify the base class as it is regenerated on each invocation 
 
 On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `Counter`) .
 
-[.group-java]
-.src/main/java/com/example/domain/Counter.java
+[.tabset]
+Java::
++
 [source,java]
+.src/main/java/com/example/domain/Counter.java
 ----
 include::example$java-first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
-[.group-scala]
-.src/main/java/com/example/domain/Counter.scala
+Scala::
++
+.src/main/scala/com/example/domain/Counter.scala
 [source,scala]
 ----
 include::example$scala-first-service/src/main/scala/com/example/domain/Counter.scala[]
@@ -142,15 +145,18 @@ include::example$scala-first-service/src/main/scala/com/example/domain/Counter.s
 
 The plugin provides the `Main` class implementation that registers service components with Akka Serverless.
 
-[.group-java]
+[.tabset]
+Java::
++
 .src/main/java/com/example/Main.java
 [source,java]
 ----
 include::example$java-first-service/src/main/java/com/example/Main.java[]
 ----
 
-[.group-scala]
-.src/main/java/com/example/Main.scala
+Scala::
++
+.src/main/scala/com/example/Main.scala
 [source,scala]
 ----
 include::example$scala-first-service/src/main/scala/com/example/Main.scala[]
@@ -164,30 +170,35 @@ For more details see xref:java:value-entity.adoc[].
 
 The Akka Serverless plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
 
-[.group-java]
+[.tabset]
+Java::
++
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]
 ----
 include::example$java-first-service/src/test/java/com/example/domain/CounterTest.java[]
 ----
 
-[.group-scala]
+Scala::
++
 .src/test/scala/com/example/domain/CounterSpec.scala
 [source,scala]
 ----
 include::example$scala-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
 ----
 
-
 Use the [.group-java]#`verify`# [.group-scala]#`compile`# command to run all unit tests.
 
-[.group-java]
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn verify
 ----
 
-[.group-scala]
+Scala::
++
 [source,bash]
 ----
 sbt compile Test/compile
@@ -220,13 +231,16 @@ The project is configured to package your service into a Docker image which can 
 
 The recommended version is JDK {recommended-java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
 
-[.group-java]
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn package
 ----
 
-[.group-java]
+Scala::
++
 [source,bash]
 ----
 sbt -Ddocker.username=alice docker:publish
@@ -253,13 +267,16 @@ NOTE: On Linux this requires Docker 20.10 or later (https://github.com/moby/moby
 
 Start the application locally with the following command:
 
-[.group-java]
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn compile exec:exec
 ----
 
-[.group-scala]
+Scala::
++
 [source,bash]
 ----
 sbt run
@@ -270,16 +287,15 @@ sbt run
 To deploy your service to Akka Serverless:
 
 [.group-java]
-. Update the `dockerImage` property in the `pom.xml` to point at your Docker registry.
+First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
 
-[.group-java]
-. In your command window, set your Akka Serverless project to be the current project:
+- Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt docker:publish`# which conveniently packages and publishes your Docker image prior to deployment.
+
+- When using the CLI, in your command window, set your Akka Serverless project to be the current project:
 +
 [source, command window]
 ----
 akkasls config set project <project-name>
 ----
 
-. Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt docker:publish`# which conveniently packages and publishes your Docker image prior to deployment.
-
-. Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_akka_serverless[Development Process - Deploy to Akka Serverless].
+- Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_akka_serverless[Development Process - Deploy to Akka Serverless].

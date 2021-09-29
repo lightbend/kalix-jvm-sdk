@@ -36,7 +36,9 @@ The following examples show how to install the SDK to build your services with M
 
 In your [.group-java]#`.pom` file# [.group-scala]#build.sbt#, add the following:
 
-[.group-java]
+[.tabset]
+Java::
++
 [source,xml,subs="attributes+"]
 ----
 <dependencies>
@@ -54,6 +56,8 @@ In your [.group-java]#`.pom` file# [.group-scala]#build.sbt#, add the following:
 </dependencies>
 ----
 
+Scala::
++
 [.group-scala]
 [source,scala,subs="attributes+"]
 ----
@@ -95,13 +99,16 @@ NOTE: There is a separate `src/test/resources/logback-test.xml` that is used whe
 
 The Akka Serverless plugin will create a main class for you and make sure all components get registered with the Akka Serverless server. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
 
-[.group-java]
+[.tabset]
+Java::
++
 [source,java,indent=0]
 ----  
 include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
 ----
 
-[.group-scala]
+Scala::
++
 [source,scala,indent=0]
 ----
 include::example$scala-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=RegisterComponents]
