@@ -78,7 +78,7 @@ commands:
     steps:
       - run:
           name: publish m2 and local
-          command: sbt publishM2 publishLocal
+          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
       - run:
           name: "Build maven-java"
           command: |
