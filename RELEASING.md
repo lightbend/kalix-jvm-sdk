@@ -3,6 +3,7 @@
 1. Create a `vX.Y.Z` tag and release notes at https://github.com/lightbend/akkaserverless-java-sdk/releases
 2. CircleCI will automatically publish to Sonatype OSSRH (Maven Central) based on the tag.
 3. Update the `akkaserverless-sdk.version` in the `samples/*/pom.xml` files to the released version.
+4. Update the `akkaserverless-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files to the release version.
 
 
 ## Publishing documentation hotfixes
