@@ -603,6 +603,8 @@ workflows:
   CI:
     jobs:
       - checks
+      - publish-local
+
       - validate-docs:
           requires:
             - checks
@@ -618,9 +620,6 @@ workflows:
           requires: 
             - checks
 
-      - publish-local:
-          requires:
-            - checks
 
       - maven-java-tests:
           requires:
