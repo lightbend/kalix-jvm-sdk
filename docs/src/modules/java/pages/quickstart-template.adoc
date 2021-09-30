@@ -1,14 +1,18 @@
-= Using the Maven archetype
+= Using the project template
 :page-aliases: java:kickstart.adoc
+:page-aliases: java:quickstart-java-maven.adoc
+:page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-The Akka Serverless code generation tools for Java help you to get started quickly. They include:
+Select your preferred language (Java/Scala) above.
 
-* A *Maven archetype* that generates the recommended project structure (including a `pom.xml`), a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
+The Akka Serverless code generation tools help you to get started quickly. They include:
 
-* A *Maven plugin* that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Akka Serverless Maven plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
+* A [.group-java]#*Maven archetype*# [.group-scala]#*giter8 template*# that generates the recommended project structure, a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
+
+* [.group-java]#A *Maven plugin*# [.group-scala]#An *sbt plugin*# that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Akka Serverless plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
 
 The generated project also contains configuration for packaging and deploying the service.
 
@@ -17,29 +21,31 @@ The generated project also contains configuration for packaging and deploying th
 Before running the code generation tools, make sure you have the following:
 
 * JDK {minimum-java-version} or higher (JDK {recommended-java-version} is recommended)
-* Apache Maven 3.6 or later
+* [.group-java]#Apache Maven 3.6 or later# [.group-scala]#sbt 1.3.6 or later#
 * Docker {minimum_docker_version} or higher (to run locally)
 
 To deploy the generated service, you will need:
 
 * An https://developer.lightbend.com/docs/akka-serverless/setting-up/index.html#_akka_serverless_account[Akka Serverless account]
 * An https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[Akka Serverless project]
-* The https://developer.lightbend.com/docs/akka-serverless/setting-up/#_akka_serverless_cli[akkasls] CLI
+* Optionally, the https://developer.lightbend.com/docs/akka-serverless/setting-up/#_akka_serverless_cli[akkasls] CLI
 * A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
 
 :sectnums:
 
 == Generate and build the Akka Serverless project
 
-The Maven archetype prompts you to specify the project's group ID, name and version interactively. Run it using the commands shown for your OS.
+The [.group-java]#Maven archetype# [.group-scala]#giter8 template# prompts you to specify the project's group ID, name and version interactively. Run it using the commands shown for your OS.
 
+[.group-java]
 [sidebar]
 In IntelliJ, you can skip the command line. Open the IDE, select
 *File > New > Project*, and click to activate *Create from archetype*. Use the UI to locate the archetype and fill in the blanks.
 
 Follow these steps to generate and build your project:
 
-. From a command window, run the archetype in a convenient location:
+[.group-java]
+. From a command window, run the template in a convenient location:
 +
 [.tabset]
 Linux or macOS::
@@ -65,16 +71,23 @@ mvn archetype:generate ^
 ----
 --
 
+[.group-scala]
+. From a command window, run the template in a convenient location:
++
+[source,command window, subs="attributes"]
+----
+sbt new lightbend/akkaserverless-value-entity.g8
+----
 
 . Navigate to the new project directory.
 
-. Enter `mvn compile` to generate and compile the sources.
+. Enter [.group-java]#`mvn compile`# [.group-scala]#`sbt` and run `compile`# to generate and compile the sources.
 
 As you develop your own logic, you can change the `.proto` file definitions and build again. The build generates classes and tests as you develop the project, but will not overwrite your work.
 
-== Examine the Maven project
+== Examine the project
 
-The archetype created the source files outlined in xref:developing:development-process-java.adoc[]. Take a look at the pieces it provided for you:
+The template created the source files outlined in xref:developing:development-process-java.adoc[]. Take a look at the pieces it provided for you:
 
 === Descriptors for the service interface and domain model
 
@@ -107,59 +120,106 @@ For more information on descriptors, see xref:java:proto.adoc[].
 
 === Component implementation
 
-For the default service description in the archetype, the plugin creates an abstract base class (eg. `AbstractCounter`) which always reflects the latest service description.
+For the default service description in the template, the plugin creates an abstract base class (eg. `AbstractCounter`) which always reflects the latest service description.
 
-IMPORTANT: Do not modify the base class as it is regenerated on each invocation of `mvn compile`
+IMPORTANT: Do not modify the base class as it is regenerated on each invocation of [.group-java]#`mvn compile`# [.group-scala]#`compile`#
 
 On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `Counter`) .
 
-.src/main/java/com/example/domain/Counter.java
+[.tabset]
+Java::
++
 [source,java]
+.src/main/java/com/example/domain/Counter.java
 ----
 include::example$java-first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
-The Maven plugin provides the `Main` class implementation that registers service components with Akka Serverless.
+Scala::
++
+.src/main/scala/com/example/domain/Counter.scala
+[source,scala]
+----
+include::example$scala-first-service/src/main/scala/com/example/domain/Counter.scala[]
+----
 
+The plugin provides the `Main` class implementation that registers service components with Akka Serverless.
+
+[.tabset]
+Java::
++
 .src/main/java/com/example/Main.java
 [source,java]
 ----
 include::example$java-first-service/src/main/java/com/example/Main.java[]
 ----
 
+Scala::
++
+.src/main/scala/com/example/Main.scala
+[source,scala]
+----
+include::example$scala-first-service/src/main/scala/com/example/Main.scala[]
+----
+
 This class is the entry point for running Akka Serverless within the container.
 
 For more details see xref:java:value-entity.adoc[].
 
-=== Unit and integration tests
+=== Unit [.source-java]#and integration# tests
 
-The Akka Serverless Maven plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].
+The Akka Serverless plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
 
+[.tabset]
+Java::
++
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]
 ----
 include::example$java-first-service/src/test/java/com/example/domain/CounterTest.java[]
 ----
 
-Use the `verify` command to run all unit tests.
+Scala::
++
+.src/test/scala/com/example/domain/CounterSpec.scala
+[source,scala]
+----
+include::example$scala-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
+----
 
+Use the [.group-java]#`verify`# [.group-scala]#`compile`# command to run all unit tests.
+
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn verify
 ----
 
+Scala::
++
+[source,bash]
+----
+sbt compile Test/compile
+----
+
 For more details, see xref:java:value-entity.adoc#_testing_the_entity[Testing the entity].
 
+[.group-java]
 The Maven plugin also provides you with an initial setup for integration tests based on the Akka Serverless Java SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].
 
+[.group-java]
 .src/it/java/com/example/domain/CounterIntegrationTest.java
 [source,java]
 ----
 include::example$java-first-service/src/it/java/com/example/domain/CounterIntegrationTest.java[]
 ----
 
+[.group-java]
 The Maven failsafe plugin runs the integration tests when the `it` profile is enabled via `-Pit`.
 
+[.group-java]
 [source,bash]
 ----
 mvn verify -Pit
@@ -167,13 +227,23 @@ mvn verify -Pit
 
 == Package service
 
-The Maven project is configured to package your service into a Docker image which can be deployed to Akka Serverless. The Docker image name can be changed in the `pom.xml` file's `properties` section. Update this file to publish your image to your Docker repository.
+The project is configured to package your service into a Docker image which can be deployed to Akka Serverless. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
 
-The recommended version is JDK {recommended-java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the `docker-maven-plugin` configuration  `pom.xml` file.
+The recommended version is JDK {recommended-java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
 
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn package
+----
+
+Scala::
++
+[source,bash]
+----
+sbt -Ddocker.username=alice docker:publish
 ----
 
 TIP: For more details see xref:developing:development-process-java.adoc#_package_service[Development Process - Package service].
@@ -195,24 +265,37 @@ NOTE: On Linux this requires Docker 20.10 or later (https://github.com/moby/moby
 
 --
 
-Use the `exec-maven-plugin` to start the application locally with the following command:
+Start the application locally with the following command:
 
+[.tabset]
+Java::
++
 [source,bash]
 ----
 mvn compile exec:exec
+----
+
+Scala::
++
+[source,bash]
+----
+sbt run
 ----
 
 == Deploy to Akka Serverless
 
 To deploy your service to Akka Serverless:
 
-. Update the `dockerImage` property in the `pom.xml` to point at your Docker registry.
+[.group-java]
+First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
 
-. In your command window, set your Akka Serverless project to be the current project:
+- Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt docker:publish`# which conveniently packages and publishes your Docker image prior to deployment.
+
+- When using the CLI, in your command window, set your Akka Serverless project to be the current project:
 +
 [source, command window]
 ----
 akkasls config set project <project-name>
 ----
 
-. Run `mvn deploy`, which conveniently packages and publishes your Docker image prior to deployment.
+- Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_akka_serverless[Development Process - Deploy to Akka Serverless].

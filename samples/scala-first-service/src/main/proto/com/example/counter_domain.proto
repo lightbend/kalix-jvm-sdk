@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package com.example.domain;
+
+import "akkaserverless/annotations.proto";
+
+option (akkaserverless.file).value_entity = {
+    name: "Counter"
+    entity_type: "counter"
+    state: "CounterState"
+};
+
+message CounterState {
+    int32 value = 1;
+}
