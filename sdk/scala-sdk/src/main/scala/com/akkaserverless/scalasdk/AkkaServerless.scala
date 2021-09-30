@@ -24,6 +24,7 @@ import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import com.akkaserverless.scalasdk.impl.eventsourcedentity.JavaEventSourcedEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
 import com.akkaserverless.scalasdk.impl.view.JavaViewProviderAdapter
@@ -35,7 +36,6 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
-
 object AkkaServerless {
   def apply() = new AkkaServerless(new javasdk.AkkaServerless())
 
@@ -130,7 +130,7 @@ class AkkaServerless private (impl: javasdk.AkkaServerless) {
    *   This stateful service builder.
    */
   def register[S, E <: EventSourcedEntity[S]](provider: EventSourcedEntityProvider[S, E]): AkkaServerless =
-    AkkaServerless(impl.register(provider.impl))
+    AkkaServerless(impl.register(new JavaEventSourcedEntityProviderAdapter(provider)))
 
   /**
    * Register a view using a [[ViewProvider]]. The concrete ` ViewProvider` is generated for the specific views defined

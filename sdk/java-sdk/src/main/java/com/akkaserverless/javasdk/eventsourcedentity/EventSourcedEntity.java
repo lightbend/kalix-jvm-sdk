@@ -54,7 +54,7 @@ public abstract class EventSourcedEntity<S> {
   }
 
   /** INTERNAL API */
-  public final void _internalSetCommandContext(Optional<CommandContext> context) {
+  public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
   }
 
@@ -69,7 +69,7 @@ public abstract class EventSourcedEntity<S> {
   }
 
   /** INTERNAL API */
-  public final void _internalSetEventContext(Optional<EventContext> context) {
+  public void _internalSetEventContext(Optional<EventContext> context) {
     eventContext = context;
   }
 
