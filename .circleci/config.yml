@@ -86,6 +86,22 @@ commands:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             mvn verify install
+      - run: mkdir -p workspace
+      - run: cp -r ~/.m2 workspace/
+      - run: cp -r ~/.ivy2 workspace/
+      # copy published files to workspace for other jobs to pick up rather than build their own
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - .m2
+            - .ivy2
+  copy-from-workspace:
+    description: Copy locally published artifacts from workspace
+    steps:
+      - attach_workspace:
+          at: workspace
+      - run: rsync -r workspace/.m2 .
+      - run: rsync -r workspace/.ivy2 .
 
 jobs:
   checks:
@@ -188,6 +204,7 @@ jobs:
       - setup_sbt
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run: 
           name: Run integration tests for Value Entity Archetype
           command: |
@@ -212,6 +229,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Customer Registry quickstart
           command: |
@@ -232,6 +250,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Fibonacci Action
           command: |
@@ -251,6 +270,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Doc snippets
           command: |
@@ -266,6 +286,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java first-service by archetype
           command: |
@@ -284,6 +305,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Value Entity Views "Customer Registry" sample
           command: |
@@ -303,6 +325,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Event Sourced Views "Customer Registry" sample
           command: |
@@ -322,6 +345,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Value Entity "Shopping Cart" sample
           command: |
@@ -341,6 +365,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Event Sourced Entity "Shopping Cart" sample
           command: |
@@ -360,6 +385,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Replicated Entity "Shopping Cart" sample
           command: |
@@ -379,6 +405,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Event Sourced "Counter" sample
           command: |
@@ -400,6 +427,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Value Entity "Counter" sample
           command: |
@@ -419,6 +447,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Java Replicated Entity examples
           command: |
@@ -438,6 +467,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Scala Fibonacci Action
           command: |
@@ -457,6 +487,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Scala Value Entity Customer Registry
           command: |
@@ -476,6 +507,7 @@ jobs:
       - restore_deps_cache
       - set-sdk-version
       # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - run:
           name: Scala Value Entity Counter
           command: |
