@@ -433,33 +433,30 @@ jobs:
 workflows:
   CI:
     jobs:
-      - validate-docs
       - checks
+      - validate-docs:
+          requires:
+            - checks
       - tests:
           requires: 
             - checks
-            - validate-docs
 
       - integration-tests:
           requires: 
             - checks
-            - validate-docs
 
       - tck-tests:
           requires: 
             - checks
-            - validate-docs
 
       - maven-java-tests:
           requires: 
             - checks
-            - validate-docs
 
       - samples-tests:
           requires: 
             - checks
-            - validate-docs
-            
+
       - publish:
           filters: # version tags only
             tags:
