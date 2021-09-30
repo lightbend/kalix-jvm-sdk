@@ -1,0 +1,42 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+
+package com.example;
+
+message IncreaseValue {
+    string counter_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
+}
+
+message DecreaseValue {
+    string counter_id = 1 [(akkaserverless.field).entity_key = true];
+    int32 value = 2;
+}
+
+message ResetValue {
+    string counter_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message GetCounter {
+    string counter_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message CurrentCounter {
+    int32 value = 1;
+}
+
+service CounterService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ENTITY
+        component : ".domain.Counter"
+    };
+
+    rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
+    rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);
+    rpc Reset(ResetValue) returns (google.protobuf.Empty);
+    rpc GetCurrentCounter(GetCounter) returns (CurrentCounter);
+}

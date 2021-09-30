@@ -1,8 +1,8 @@
 = Implementing Actions in Java
+:page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
 include::partial$actions.adoc[]
-
 
 == Defining the `proto` file
 
@@ -10,22 +10,35 @@ An Action may implement any service method defined in a Protobuf definition. In 
 implement an Action as a pure stateless function. We will define a `FibonacciAction` that takes a number and return the
 next number in the Fibonacci series.
 
-[source,protobuf,indent=0]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
 .src/main/proto/com/example/fibonacci/fibonacci.proto
 ----
 include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
-<1> Any classes generated from this protobuf file will be in the Java package `com.example.fibonacci`.
+<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Akka Serverless protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
 <4> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/fibonacci/fibonacci.proto
+----
+include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
+----
+<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
+<2> Import the Akka Serverless protobuf annotations, or options.
+<3> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
-An Action implementation is a Java class where you define how each message is handled. The class
+An Action implementation is a class where you define how each message is handled. The class
 `FibonacciAction` gets generated for us based on the proto file defined above. Once the
-`FibonacciAction.java` file exist, it is not overwritten, so you can freely add logic to it.
+[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exist, it is not overwritten, so you can freely add logic to it.
 `FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
 not supposed to change as it gets regenerated in case we update the protobuf descriptors.
 
@@ -33,28 +46,54 @@ not supposed to change as it gets regenerated in case we update the protobuf des
 If you change the API you will see compilation errors in the `FibonacciAction` class, and you have to
 implement the methods required by `AbstractFibonacciAction`.
 
-
+[.tabset]
+Java::
++
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
 include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
 ----
-
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
+<2> A `nextNumber` method is generated. We will implement it next.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/fibonacci/FibonacciAction.scala
+----
+include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciActionGenerated.scala[tag=generated-action]
+----
+<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 <2> A `nextNumber` method is generated. We will implement it next.
 
 Next we can implement `nextNumber` method to complete our Action.
 
+[.tabset]
+Java::
++
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
 include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
 ----
-
 <1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
 `nextFib` calculates the next number.
 <2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
 next number and builds a reply using `effects().reply()`.
+<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/fibonacci/FibonacciAction.scala
+----
+include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
+----
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
+`nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
+next number and builds a reply using `effects.reply()`.
 <3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
 === Multiple replies / reply streaming
@@ -74,10 +113,21 @@ To make Akka Serverless aware of the Action, we need to register it with the ser
 
 From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
 
+[.tabset]
+Java::
++
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
 include::java:example$java-fibonacci-action/src/main/java/com/example/Main.java[]
+----
+
+Scala::
++
+[source,scala]
+./src/main/scala/com/example/fibonacci/Main.scala
+----
+include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
 ----
 
 By default, the generated constructor has a `ActionCreationContext` parameter, but you can change this to accept other parameters. 

@@ -24,7 +24,7 @@ We recommend that you separate the service API and Entity domain data model in i
 
 The gRPC definitions in `.proto` files describe the external interface, messages, and events. From the `.proto` files, the gRPC CLI (`protoc`), generates the code framework for remote procedure calls, data access, and serialization. Take a look at xref:java:proto.adoc[Writing gRPC descriptors] for more information about defining messages and events.
 
-TIP: Kickstart a project using the xref:java:quickstart-java-maven.adoc[Maven archetype].
+TIP: Kickstart a project using the xref:java:quickstart-template.adoc[project template].
 
 
 [#_implement_components]
@@ -59,7 +59,7 @@ For more details and examples take a look at the following topics:
 [#_create_unit_tests]
 == Create unit tests
 
-It is good practice to write unit tests as you implement your services. The kickstart codegen project includes hooks for JUnit testing. For implementation details see the xref:java:quickstart-java-maven.adoc#_3_create_unit_tests[Java kickstart - Create unit tests] topic.
+It is good practice to write unit tests as you implement your services. The kickstart codegen project includes hooks for JUnit testing. For implementation details see the xref:java:quickstart-template.adoc#_3_create_unit_tests[Project template - Create unit tests] topic.
 
 [#_package_service]
 == Package service
