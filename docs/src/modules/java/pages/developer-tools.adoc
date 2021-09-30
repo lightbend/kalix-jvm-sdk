@@ -62,8 +62,8 @@ The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to
 * `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
 
 [.group-scala]
-== sbt g8 template
-A https://github.com/foundweekends/giter8[g8 template]; https://github.com/lightbend/akkaserverless-value-entity.g8[lightbend/akkaserverless-value-entity.g8] provides the tooling to xref:quickstart-template.adoc[kickstart an sbt project]. The g8 template can be used via the `sbt` CLI.
+== sbt Giter8 template
+A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/akkaserverless-value-entity.g8[lightbend/akkaserverless-value-entity.g8] provides the tooling to xref:quickstart-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
 
 [source,command line,subs="attributes"]
 ----
@@ -77,7 +77,7 @@ The development support tooling is provided via an sbt plugin; _sbt-akkaserverle
 
 [.group-scala]
 === Commands
-The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `test:compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the g8 template, which can be used for building and publishing Docker images, respectively using the `docker:publishLocal` and `docker:publish` commands. 
+The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `test:compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `docker:publishLocal` and `docker:publish` commands. 
 
 [.group-scala]
 === Configuration
