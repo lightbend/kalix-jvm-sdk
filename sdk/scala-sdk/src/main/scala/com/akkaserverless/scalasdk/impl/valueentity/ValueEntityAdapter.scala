@@ -16,18 +16,19 @@
 
 package com.akkaserverless.scalasdk.impl.valueentity
 
-import akka.stream.Materializer
-
 import java.util.Optional
+
 import scala.collection.immutable
-import scala.compat.java8.DurationConverters._
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
+
+import akka.stream.Materializer
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.PassivationStrategy
 import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.MetadataImpl
+import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -85,20 +86,13 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalasdkValueEntityO
     new JavaValueEntityOptionsAdapter(
       scalasdkValueEntityOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
 
-  def passivationStrategy(): javasdk.PassivationStrategy = {
-    scalasdkValueEntityOptions.passivationStrategy match {
-      case com.akkaserverless.scalasdk.impl.Timeout(Some(duration)) =>
-        javasdk.PassivationStrategy.timeout(duration.toJava)
-      case com.akkaserverless.scalasdk.impl.Timeout(None) => javasdk.PassivationStrategy.defaultTimeout()
-    }
-  }
+  def passivationStrategy(): javasdk.PassivationStrategy =
+    PassivationStrategyConverters.toJava(scalasdkValueEntityOptions.passivationStrategy)
 
   def withPassivationStrategy(
       passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
-    new JavaValueEntityOptionsAdapter(scalasdkValueEntityOptions.withPassivationStrategy(passivationStrategy match {
-      case javasdk.impl.Timeout(Some(duration)) => PassivationStrategy.timeout(duration.toScala)
-      case javasdk.impl.Timeout(None)           => PassivationStrategy.defaultTimeout
-    }))
+    new JavaValueEntityOptionsAdapter(
+      scalasdkValueEntityOptions.withPassivationStrategy(PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
 private[scalasdk] final class JavaCommandContextAdapter(val javasdkContext: javasdk.valueentity.CommandContext)
@@ -114,8 +108,7 @@ private[scalasdk] final class JavaCommandContextAdapter(val javasdkContext: java
   override def entityId: String = javasdkContext.entityId()
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
-    // FIXME can we get rid of this cast?
-    new MetadataImpl(javasdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+    MetadataConverters.toScala(javasdkContext.metadata())
 
   override def materializer(): Materializer = javasdkContext.materializer()
 }
