@@ -100,8 +100,8 @@ commands:
     steps:
       - attach_workspace:
           at: workspace
-      - run: rsync -r workspace/.m2 .
-      - run: rsync -r workspace/.ivy2 .
+      - run: rsync -rv workspace/.m2/ ~/.m2/
+      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
 
 jobs:
   checks:
