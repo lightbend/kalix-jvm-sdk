@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.impl
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk
 
-object MetadataConverters {
+private[scalasdk] object MetadataConverters {
   def toScala(javaSdkMetadata: javasdk.Metadata): scalasdk.Metadata =
     // FIXME can we get rid of this cast?
     new scalasdk.impl.MetadataImpl(javaSdkMetadata.asInstanceOf[javasdk.impl.MetadataImpl])
