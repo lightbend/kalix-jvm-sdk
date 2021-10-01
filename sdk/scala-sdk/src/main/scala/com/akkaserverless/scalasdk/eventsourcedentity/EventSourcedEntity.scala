@@ -65,7 +65,7 @@ object EventSourcedEntity {
        *   The payload of the reply.
        * @return
        *   A message reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def reply[T](message: T): Effect[T]
@@ -79,7 +79,7 @@ object EventSourcedEntity {
        *   The metadata for the message.
        * @return
        *   A message reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def reply[T](message: T, metadata: Metadata): Effect[T]
@@ -91,7 +91,7 @@ object EventSourcedEntity {
        *   The service call representing the forward.
        * @return
        *   A forward reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def forward[T](serviceCall: ServiceCall): Effect[T]
@@ -103,7 +103,7 @@ object EventSourcedEntity {
        *   The description of the error.
        * @return
        *   An error reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def error[T](description: String): Effect[T]
@@ -115,7 +115,7 @@ object EventSourcedEntity {
        *
        * @return
        *   The reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def noReply[T]: Effect[T]
@@ -130,7 +130,7 @@ object EventSourcedEntity {
        *   Function to create the reply message from the new state.
        * @return
        *   A message reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenReply[T](replyMessage: S => T): Effect[T]
@@ -144,7 +144,7 @@ object EventSourcedEntity {
        *   The metadata for the message.
        * @return
        *   A message reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenReply[T](replyMessage: S => T, metadata: Metadata): Effect[T]
@@ -156,7 +156,7 @@ object EventSourcedEntity {
        *   The service call representing the forward.
        * @return
        *   A forward reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenForward[T](serviceCall: S => ServiceCall): Effect[T]
@@ -168,7 +168,7 @@ object EventSourcedEntity {
        *
        * @return
        *   The reply.
-       * @param <T>
+       * @tparam T
        *   The type of the message that must be returned by this call.
        */
       def thenNoReply[T]: Effect[T]
@@ -230,7 +230,7 @@ abstract class EventSourcedEntity[S] {
       _eventContext.get
     } catch {
       case _: NoSuchElementException =>
-        throw new IllegalStateException("EventContext is only available when handling a command.")
+        throw new IllegalStateException("EventContext is only available when handling an event.")
     }
   }
 
