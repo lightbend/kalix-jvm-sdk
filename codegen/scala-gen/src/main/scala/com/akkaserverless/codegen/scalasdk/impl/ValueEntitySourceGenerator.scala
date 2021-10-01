@@ -65,6 +65,8 @@ object ValueEntitySourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A value entity. */
         |abstract class $abstractEntityName extends ValueEntity[$stateType] {
         |
@@ -105,6 +107,8 @@ object ValueEntitySourceGenerator {
       s"""|package $packageName
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
@@ -148,6 +152,8 @@ object ValueEntitySourceGenerator {
          |package $packageName
          |
          |$imports
+         |
+         |$managedComment
          |
          |object $className {
          |  def apply(entityFactory: ValueEntityContext => ${entity.fqn.name}): $className =
@@ -201,6 +207,8 @@ object ValueEntitySourceGenerator {
          |package ${valueEntity.fqn.parent.scalaPackage}
          |
          |$imports
+         |
+         |$unmanagedComment
          |
          |/** A value entity. */
          |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {

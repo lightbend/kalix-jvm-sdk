@@ -50,10 +50,11 @@ object ValueEntitySourceGenerator {
           |""".stripMargin
     }
 
-    s"""|$unmanagedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** A value entity. */
         |public class $className extends Abstract$className {
@@ -100,10 +101,11 @@ object ValueEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -158,10 +160,11 @@ object ValueEntitySourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A value entity provider that defines how to register and create the entity for
@@ -249,10 +252,11 @@ object ValueEntitySourceGenerator {
 
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** A value entity. */
         |public abstract class Abstract$className extends ValueEntity<$stateType> {

@@ -67,6 +67,8 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A view handler */
         |class ${view.handlerName}(view: ${view.className})
         |  extends ViewHandler[${typeName(view.state.fqn)}, ${view.className}](view) {
@@ -113,6 +115,8 @@ object ViewServiceSourceGenerator {
       s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |object ${view.providerName} {
         |  def apply(viewFactory: ViewCreationContext => ${view.className}): ${view.providerName} =
@@ -181,6 +185,8 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
+        |$unmanagedComment
+        |
         |class ${view.className}(context: ViewContext) extends ${view.abstractViewName} {
         |
         |$emptyState
@@ -220,6 +226,8 @@ object ViewServiceSourceGenerator {
       s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |abstract class ${view.abstractViewName} extends View[${typeName(view.state.fqn)}] {
         |

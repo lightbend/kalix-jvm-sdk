@@ -137,11 +137,11 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$unmanagedComment
-        |
-        |package $packageName;
+    s"""|package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** An action. */
         |public class $className extends ${service.abstractActionName} {
@@ -188,11 +188,11 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$managedComment
-        |
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** An action. */
         |public abstract class ${service.abstractActionName} extends Action {
@@ -256,11 +256,11 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.javasdk.action.MessageEnvelope",
         "com.akkaserverless.javasdk.impl.action.ActionHandler"))
 
-    s"""|$managedComment
-        |
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |public class ${service.handlerName} extends ActionHandler<$className> {
         |
@@ -331,11 +331,11 @@ object ActionServiceSourceGenerator {
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
-    s"""$managedComment
-      |
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
+      |
+      |$managedComment
       |
       |/**
       | * ${service.providerName} that defines how to register and create the action for

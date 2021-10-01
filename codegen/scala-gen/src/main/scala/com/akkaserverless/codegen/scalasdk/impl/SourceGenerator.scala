@@ -43,31 +43,27 @@ object SourceGenerator {
         case service: ModelBuilder.ActionService =>
           ActionServiceSourceGenerator.generateManaged(service)
       }
-      .map(_.prepend(managedComment))
   }
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManagedTest(model: ModelBuilder.Model): Seq[File] = {
-    model.services.values
-      .flatMap {
-        case service: ModelBuilder.EntityService =>
-          model.lookupEntity(service) match {
-            case entity: ModelBuilder.ValueEntity =>
-              ValueEntityTestKitGenerator.generateManagedTest(entity, service)
-            case _: ModelBuilder.EventSourcedEntity =>
-              Nil // FIXME
-            case _: ModelBuilder.ReplicatedEntity =>
-              Nil
-          }
-        case _: ModelBuilder.ViewService =>
-          Nil
-        case _: ModelBuilder.ActionService =>
-          Nil
-      }
-      .map(_.prepend(managedComment))
-      .toList
+    model.services.values.flatMap {
+      case service: ModelBuilder.EntityService =>
+        model.lookupEntity(service) match {
+          case entity: ModelBuilder.ValueEntity =>
+            ValueEntityTestKitGenerator.generateManagedTest(entity, service)
+          case _: ModelBuilder.EventSourcedEntity =>
+            Nil // FIXME
+          case _: ModelBuilder.ReplicatedEntity =>
+            Nil
+        }
+      case _: ModelBuilder.ViewService =>
+        Nil
+      case _: ModelBuilder.ActionService =>
+        Nil
+    }.toList
   }
 
   /**
@@ -92,7 +88,6 @@ object SourceGenerator {
         case service: ModelBuilder.ActionService =>
           ActionServiceSourceGenerator.generateUnmanaged(service)
       }
-      .map(_.prepend(unmanagedComment))
   }
 
   /**
