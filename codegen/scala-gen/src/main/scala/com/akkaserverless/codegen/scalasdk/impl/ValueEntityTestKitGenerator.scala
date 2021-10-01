@@ -62,6 +62,8 @@ object ValueEntityTestKitGenerator {
           |
           |$imports
           |
+          |$managedComment
+          |
           |/**
           | * TestKit for unit testing $entityClassName
           | */

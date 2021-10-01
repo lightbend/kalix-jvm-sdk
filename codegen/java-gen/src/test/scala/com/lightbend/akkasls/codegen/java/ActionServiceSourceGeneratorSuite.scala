@@ -132,17 +132,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.abstractActionSource(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends Action {
@@ -172,17 +171,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.abstractActionSource(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends Action {
@@ -209,12 +207,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.actionHandler(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
@@ -222,6 +215,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |public class MyServiceActionHandler extends ActionHandler<MyServiceAction> {
         |
@@ -287,12 +284,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.actionHandler(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
@@ -300,6 +292,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |public class MyServiceActionHandler extends ActionHandler<MyServiceActionImpl> {
         |
@@ -363,12 +359,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.actionProvider(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.action.ActionOptions;
@@ -378,6 +369,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/**
         | * MyServiceActionProvider that defines how to register and create the action for
@@ -440,12 +435,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.actionProvider(service)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.action.ActionOptions;
@@ -455,6 +445,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/**
         | * MyServiceActionProvider that defines how to register and create the action for

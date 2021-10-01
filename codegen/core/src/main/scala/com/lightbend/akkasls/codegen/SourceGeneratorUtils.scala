@@ -30,10 +30,10 @@ import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 
 object SourceGeneratorUtils {
-  val managedComment = """/* This code is managed by Akka Serverless tooling.
-                         | * It will be re-generated to reflect any changes to your protobuf definitions.
-                         | * DO NOT EDIT
-                         | */""".stripMargin
+  val managedComment =
+    """// This code is managed by Akka Serverless tooling.
+       |// It will be re-generated to reflect any changes to your protobuf definitions.
+       |// DO NOT EDIT""".stripMargin
 
   val unmanagedComment =
     """// This class was initially generated based on the .proto definition by Akka Serverless tooling.

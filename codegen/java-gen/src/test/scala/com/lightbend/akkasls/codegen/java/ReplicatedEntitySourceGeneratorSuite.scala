@@ -236,14 +236,14 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           entity = testData.replicatedEntity(replicatedData),
           packageName = "com.example.service",
           className = "MyService"),
-        s"""|/* This code is managed by Akka Serverless tooling.
-            | * It will be re-generated to reflect any changes to your protobuf definitions.
-            | * DO NOT EDIT
-            | */
-            |package com.example.service;
+        s"""package com.example.service;
             |
             |$expectedImports
             |import com.external.Empty;
+            |
+            |// This code is managed by Akka Serverless tooling.
+            |// It will be re-generated to reflect any changes to your protobuf definitions.
+            |// DO NOT EDIT
             |
             |/** A replicated entity. */
             |public abstract class AbstractMyService extends $expectedBaseClass {
@@ -337,16 +337,16 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           entity = testData.replicatedEntity(replicatedData),
           packageName = "com.example.service",
           className = "MyService"),
-        s"""|/* This code is managed by Akka Serverless tooling.
-            | * It will be re-generated to reflect any changes to your protobuf definitions.
-            | * DO NOT EDIT
-            | */
-            |package com.example.service;
+        s"""package com.example.service;
             |
             |import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
             |import com.akkaserverless.javasdk.replicatedentity.CommandContext;
             |$expectedImports
             |import com.external.Empty;
+            |
+            |// This code is managed by Akka Serverless tooling.
+            |// It will be re-generated to reflect any changes to your protobuf definitions.
+            |// DO NOT EDIT
             |
             |/**
             | * A replicated entity handler that is the glue between the Protobuf service <code>MyService</code>
@@ -452,17 +452,17 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           entity = testData.replicatedEntity(replicatedData),
           packageName = "com.example.service",
           className = "MyService"),
-        s"""|/* This code is managed by Akka Serverless tooling.
-            | * It will be re-generated to reflect any changes to your protobuf definitions.
-            | * DO NOT EDIT
-            | */
-            |package com.example.service;
+        s"""package com.example.service;
             |
             |$expectedImports
             |import com.external.Empty;
             |import com.external.ExternalDomain;
             |import com.google.protobuf.Descriptors;
             |import java.util.function.Function;
+            |
+            |// This code is managed by Akka Serverless tooling.
+            |// It will be re-generated to reflect any changes to your protobuf definitions.
+            |// DO NOT EDIT
             |
             |/**
             | * A replicated entity provider that defines how to register and create the entity for

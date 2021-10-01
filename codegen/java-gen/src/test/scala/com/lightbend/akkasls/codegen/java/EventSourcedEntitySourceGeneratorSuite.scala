@@ -91,15 +91,15 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-      | * It will be re-generated to reflect any changes to your protobuf definitions.
-      | * DO NOT EDIT
-      | */
-      |package com.example.service;
+      """package com.example.service;
       |
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
       |import com.example.service.domain.EntityOuterClass;
       |import com.external.Empty;
+      |
+      |// This code is managed by Akka Serverless tooling.
+      |// It will be re-generated to reflect any changes to your protobuf definitions.
+      |// DO NOT EDIT
       |
       |/** An event sourced entity. */
       |public abstract class AbstractMyServiceEntity extends EventSourcedEntity<EntityOuterClass.MyState> {
@@ -128,17 +128,17 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/**
          | * An event sourced entity handler that is the glue between the Protobuf service <code>MyService</code>
@@ -190,11 +190,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
@@ -204,6 +200,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.external.ExternalDomain;
          |import com.google.protobuf.Descriptors;
          |import java.util.function.Function;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/**
          | * An event sourced entity provider that defines how to register and create the entity for

@@ -159,6 +159,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** An action. */
         |abstract class ${service.abstractActionName} extends Action {
         |
@@ -223,6 +225,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A Action handler */
         |class ${service.handlerName}(action: ${service.className}) extends ActionHandler[${service.className}](action) {
         |
@@ -279,6 +283,8 @@ object ActionServiceSourceGenerator {
       s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |object ${service.providerName} {
         |  def apply(actionFactory: ActionCreationContext => ${service.className}): ${service.providerName} =

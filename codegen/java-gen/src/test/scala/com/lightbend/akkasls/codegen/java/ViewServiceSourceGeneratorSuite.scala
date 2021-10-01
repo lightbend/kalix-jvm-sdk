@@ -96,14 +96,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       ViewServiceSourceGenerator.abstractView(service, packageName)
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |public abstract class AbstractMyServiceView extends View<ServiceOuterClass.ViewState> {
         |
@@ -123,14 +123,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       ViewServiceSourceGenerator.abstractView(service, packageName)
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.view.View;
          |import com.example.service.domain.EntityOuterClass;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |public abstract class AbstractMyServiceView extends View<ServiceOuterClass.ViewState> {
          |
@@ -153,16 +153,16 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |import com.akkaserverless.javasdk.impl.view.ViewHandler;
         |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/** A view handler */
         |public class MyServiceViewHandler extends ViewHandler<ServiceOuterClass.ViewState, MyServiceViewImpl> {
@@ -206,11 +206,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-       | * It will be re-generated to reflect any changes to your protobuf definitions.
-       | * DO NOT EDIT
-       | */
-       |package com.example.service;
+      """package com.example.service;
        |
        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
        |import com.akkaserverless.javasdk.impl.view.ViewHandler;
@@ -221,6 +217,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |import com.google.protobuf.Descriptors;
        |import com.google.protobuf.EmptyProto;
        |import java.util.function.Function;
+       |
+       |// This code is managed by Akka Serverless tooling.
+       |// It will be re-generated to reflect any changes to your protobuf definitions.
+       |// DO NOT EDIT
        |
        |public class MyServiceViewProvider implements ViewProvider<ServiceOuterClass.ViewState, MyServiceViewImpl> {
        |

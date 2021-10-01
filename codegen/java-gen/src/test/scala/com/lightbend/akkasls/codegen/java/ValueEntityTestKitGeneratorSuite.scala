@@ -35,11 +35,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     val sourceCode = ValueEntityTestKitGenerator.generateSourceCode(service, entity, packageName)
 
     val expected =
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |package com.example.shoppingcart.domain;
+      """package com.example.shoppingcart.domain;
         |
         |import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
         |import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
@@ -52,6 +48,10 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/**
         | * TestKit for unit testing ShoppingCart

@@ -181,10 +181,11 @@ object EntityServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -243,10 +244,11 @@ object EntityServiceSourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * An event sourced entity provider that defines how to register and create the entity for
@@ -446,10 +448,11 @@ object EntityServiceSourceGenerator {
          |""".stripMargin
     }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** An event sourced entity. */
         |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {

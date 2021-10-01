@@ -82,6 +82,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.Action
          |import com.external.Empty
          |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
          |/** An action. */
          |abstract class AbstractMyServiceAction extends Action {
          |
@@ -117,6 +121,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.MessageEnvelope
          |import com.akkaserverless.scalasdk.impl.action.ActionHandler
          |import com.external.Empty
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/** A Action handler */
          |class MyServiceActionHandler(action: MyServiceAction) extends ActionHandler[MyServiceAction](action) {
@@ -176,6 +184,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.external.Empty
          |import com.google.protobuf.Descriptors
          |import scala.collection.immutable
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |object MyServiceActionProvider {
          |  def apply(actionFactory: ActionCreationContext => MyServiceAction): MyServiceActionProvider =

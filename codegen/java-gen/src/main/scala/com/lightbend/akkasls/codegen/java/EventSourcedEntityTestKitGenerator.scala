@@ -77,10 +77,11 @@ object EventSourcedEntityTestKitGenerator {
     val stateClassName = entity.state.fqn.fullName
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""$managedComment
-          |package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.fqn.parent.javaPackage};
           |
           |$imports
+          |
+          |$managedComment
           |
           |/**
           | * TestKit for unit testing $entityClassName

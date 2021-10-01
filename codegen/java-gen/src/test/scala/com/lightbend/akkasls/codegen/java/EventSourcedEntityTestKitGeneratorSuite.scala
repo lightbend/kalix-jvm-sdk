@@ -32,11 +32,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
     val sourceCode = EventSourcedEntityTestKitGenerator.generateSourceCode(service, entity, packageName, className)
 
     val expected =
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |package com.example.shoppingcart.domain;
+      """package com.example.shoppingcart.domain;
         |
         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
         |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
@@ -52,6 +48,10 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import java.util.List;
         |import java.util.NoSuchElementException;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |/**
         | * TestKit for unit testing ShoppingCart

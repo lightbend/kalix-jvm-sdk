@@ -241,11 +241,11 @@ object MainSourceGenerator {
         .map(pkg => s"import $pkg;")
         .mkString("\n")
 
-    s"""|$managedComment
-        |
-        |package $mainClassPackageName;
+    s"""package $mainClassPackageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |public final class AkkaServerlessFactory {
         |

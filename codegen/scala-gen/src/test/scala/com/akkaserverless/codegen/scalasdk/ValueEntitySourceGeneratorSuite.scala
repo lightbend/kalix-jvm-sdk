@@ -66,6 +66,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |import com.example.service
           |import com.external.Empty
           |
+          |// This code is managed by Akka Serverless tooling.
+          |// It will be re-generated to reflect any changes to your protobuf definitions.
+          |// DO NOT EDIT
+          |
           |/** A value entity. */
           |abstract class AbstractMyValueEntity extends ValueEntity[MyState] {
           |
@@ -89,6 +93,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |import com.akkaserverless.scalasdk.valueentity.CommandContext
           |import com.akkaserverless.scalasdk.valueentity.ValueEntity
           |import com.example.service
+          |
+          |// This code is managed by Akka Serverless tooling.
+          |// It will be re-generated to reflect any changes to your protobuf definitions.
+          |// DO NOT EDIT
           |
           |/**
           | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
@@ -124,6 +132,10 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.example.service
 import com.external.ExternalDomainProto
 import com.google.protobuf.Descriptors
+
+// This code is managed by Akka Serverless tooling.
+// It will be re-generated to reflect any changes to your protobuf definitions.
+// DO NOT EDIT
 
 object MyValueEntityProvider {
   def apply(entityFactory: ValueEntityContext => MyValueEntity): MyValueEntityProvider =

@@ -129,6 +129,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.view.MyService4ViewImpl
          |import com.example.service.view.MyService4ViewProvider
          |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
          |object AkkaServerlessFactory {
          |
          |  def withComponents(
@@ -168,6 +172,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
          |import com.example.service.view.MyServiceViewImpl
          |import com.example.service.view.MyServiceViewProvider
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |object AkkaServerlessFactory {
          |

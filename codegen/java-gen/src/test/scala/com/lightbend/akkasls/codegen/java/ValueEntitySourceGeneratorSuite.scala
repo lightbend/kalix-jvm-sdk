@@ -84,15 +84,15 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/** A value entity. */
          |public abstract class AbstractMyService extends ValueEntity<EntityOuterClass.MyState> {
@@ -118,17 +118,17 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
          |import com.akkaserverless.javasdk.valueentity.CommandContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/**
          | * A value entity handler that is the glue between the Protobuf service <code>MyService</code>
@@ -171,11 +171,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
 
     assertNoDiff(
       generatedSrc,
-      """|/* This code is managed by Akka Serverless tooling.
-         | * It will be re-generated to reflect any changes to your protobuf definitions.
-         | * DO NOT EDIT
-         | */
-         |package com.example.service;
+      """package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
@@ -185,6 +181,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.external.ExternalDomain;
          |import com.google.protobuf.Descriptors;
          |import java.util.function.Function;
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/**
          | * A value entity provider that defines how to register and create the entity for

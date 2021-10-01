@@ -228,6 +228,8 @@ object MainSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |object AkkaServerlessFactory {
         |
         |  def withComponents(

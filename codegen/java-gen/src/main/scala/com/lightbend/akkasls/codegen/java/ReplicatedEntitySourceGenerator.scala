@@ -109,10 +109,11 @@ object ReplicatedEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A replicated entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -172,10 +173,11 @@ object ReplicatedEntitySourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A replicated entity provider that defines how to register and create the entity for
@@ -266,10 +268,11 @@ object ReplicatedEntitySourceGenerator {
 
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** A replicated entity. */
         |public abstract class Abstract$className extends $baseClass$typeArguments {

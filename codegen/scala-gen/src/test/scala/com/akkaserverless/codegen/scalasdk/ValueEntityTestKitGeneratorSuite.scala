@@ -46,6 +46,10 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.example.shoppingcart.api
          |import com.google.protobuf.Empty
          |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
          |/**
          | * TestKit for unit testing ShoppingCart
          | */

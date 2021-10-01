@@ -94,6 +94,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
          |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
          |abstract class AbstractMyServiceView extends View[ViewState] {
          |
          |
@@ -116,6 +120,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.View
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |abstract class AbstractMyServiceView extends View[ViewState] {
          |
@@ -141,6 +149,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.View
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |/** A view handler */
          |class MyServiceViewHandler(view: MyServiceViewImpl)
@@ -189,6 +201,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.google.protobuf.Descriptors
          |import com.google.protobuf.EmptyProto
          |import scala.collection.immutable
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |object MyServiceViewProvider {
          |  def apply(viewFactory: ViewCreationContext => MyServiceViewImpl): MyServiceViewProvider =

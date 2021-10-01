@@ -111,12 +111,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
       MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
@@ -143,6 +138,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.view.ServiceOuterClass4;
         |import com.external.ExternalDomain;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |public final class AkkaServerlessFactory {
         |
@@ -180,12 +179,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
       MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
     assertNoDiff(
       generatedSrc,
-      """/* This code is managed by Akka Serverless tooling.
-        | * It will be re-generated to reflect any changes to your protobuf definitions.
-        | * DO NOT EDIT
-        | */
-        |
-        |package com.example.service;
+      """package com.example.service;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.akkaserverless.javasdk.view.ViewCreationContext;
@@ -194,6 +188,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.view.MyServiceViewProvider;
         |import com.example.service.view.ServiceOuterClass;
         |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
         |
         |public final class AkkaServerlessFactory {
         |
