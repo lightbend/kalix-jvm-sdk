@@ -27,7 +27,7 @@ object EventSourcedEntity {
   /**
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
-   * @param <T>
+   * @tparam T
    *   The type of the message that must be returned by this call.
    */
   trait Effect[T] {
