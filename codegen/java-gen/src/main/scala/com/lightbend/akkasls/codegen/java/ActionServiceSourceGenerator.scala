@@ -141,9 +141,9 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
-        |/**
-        | * An action.$unmanagedComment
-        | */
+        |$unmanagedComment
+        |
+        |/** An action. */
         |public class $className extends ${service.abstractActionName} {
         |
         |  public $className(ActionCreationContext creationContext) {}

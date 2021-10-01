@@ -35,12 +35,11 @@ object SourceGeneratorUtils {
                          | * DO NOT EDIT
                          | */""".stripMargin
 
-  val unmanagedComment = """|
-                            | *
-                            | * This class was initially generated based on the .proto definition by Akka Serverless tooling.
-                            | *
-                            | * As long as this file exists it will not be overwritten: you can maintain it yourself,
-                            | * or delete it so it is regenerated as needed.""".stripMargin
+  val unmanagedComment =
+    """// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+       |//
+       |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+       |// or delete it so it is regenerated as needed.""".stripMargin
 
   def mainPackageName(classNames: Iterable[String]): List[String] = {
     val packages = classNames
