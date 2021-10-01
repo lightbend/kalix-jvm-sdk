@@ -89,6 +89,7 @@ lazy val sdkScala = project
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk",
     Compile / scalacOptions ++= Seq("-release", "8"),
+    Compile / javacOptions ++= Seq("--release", "8"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     // FIXME fix protobuf target and source settings in separate PR
