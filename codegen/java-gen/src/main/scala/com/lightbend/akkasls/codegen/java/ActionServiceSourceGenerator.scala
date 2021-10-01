@@ -137,13 +137,13 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$unmanagedComment
-        |
-        |package $packageName;
+    s"""|package $packageName;
         |
         |$imports
         |
-        |/** An action. */
+        |/**
+        | * An action.$unmanagedComment
+        | */
         |public class $className extends ${service.abstractActionName} {
         |
         |  public $className(ActionCreationContext creationContext) {}
