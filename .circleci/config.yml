@@ -140,6 +140,18 @@ jobs:
           name: Validate docs
           command: |
             make -C docs
+      - save_deps_cache
+
+  validate-doc-links:
+    machine: true
+    description: "Validate doc links"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      - run:
+          name: Validate links
+          command: |
             make -C docs validate-links
       - save_deps_cache
 
@@ -606,6 +618,9 @@ workflows:
       - publish-local
 
       - validate-docs:
+          requires:
+            - checks
+      - validate-doc-links:
           requires:
             - checks
       - tests:
