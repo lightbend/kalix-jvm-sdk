@@ -17,8 +17,10 @@
 package com.akkaserverless.scalasdk.impl.action
 
 import java.util.Optional
+
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters.RichOptional
+
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.javadsl.Source
@@ -31,6 +33,7 @@ import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.action.MessageEnvelope
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.google.protobuf.Descriptors
@@ -69,6 +72,7 @@ private[scalasdk] final case class JavaActionHandlerAdapter[A <: Action](
   override def handleUnary(
       commandName: String,
       message: javasdk.action.MessageEnvelope[Any]): javasdk.action.Action.Effect[_] = {
+
     val messageEnvelopeAdapted = ScalaMessageEnvelopeAdapter(message)
     scalaSdkHandler.handleUnary(commandName, messageEnvelopeAdapted) match {
       case eff: ActionEffectImpl.PrimaryEffect[_] => eff.toJavaSdk
@@ -89,6 +93,7 @@ private[scalasdk] final case class JavaActionHandlerAdapter[A <: Action](
   override def handleStreamedIn(
       commandName: String,
       stream: Source[javasdk.action.MessageEnvelope[Any], NotUsed]): javasdk.action.Action.Effect[_] = {
+
     val convertedStream =
       stream
         .map(el => ScalaMessageEnvelopeAdapter(el))
@@ -119,9 +124,10 @@ private[scalasdk] final case class JavaActionHandlerAdapter[A <: Action](
 
 private[scalasdk] final case class ScalaMessageEnvelopeAdapter[A](javaSdkMsgEnvelope: javasdk.action.MessageEnvelope[A])
     extends MessageEnvelope[A] {
-  override def metadata: Metadata = new MetadataImpl(
-    // FIXME can we get rid of this cast?
-    javaSdkMsgEnvelope.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+
+  override def metadata: Metadata =
+    MetadataConverters.toScala(javaSdkMsgEnvelope.metadata())
+
   override def payload: A = javaSdkMsgEnvelope.payload()
 }
 
@@ -140,9 +146,9 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
 
 private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: javasdk.action.ActionContext)
     extends ActionContext {
+
   override def metadata: Metadata =
-    // FIXME can we get rid of this cast?
-    new MetadataImpl(javaSdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+    MetadataConverters.toScala(javaSdkContext.metadata())
 
   override def eventSubject: Option[String] =
     javaSdkContext.eventSubject().toScala

@@ -17,14 +17,16 @@
 package com.akkaserverless.scalasdk.impl.view
 
 import akka.stream.Materializer
-
 import java.util.Optional
+
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters._
+
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
@@ -53,10 +55,10 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
 
   override def newHandler(
       context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]] = {
-    val scaladslHandler = scalaSdkProvider
+    val scalaSdkHandler = scalaSdkProvider
       .newHandler(new ScalaViewCreationContextAdapter(context))
       .asInstanceOf[ViewHandler[S, View[S]]]
-    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scaladslHandler.view), scaladslHandler)
+    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scalaSdkHandler.view), scalaSdkHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
@@ -101,8 +103,7 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
     ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
   override def metadata: Metadata =
-    // FIXME can we get rid of this cast?
-    new MetadataImpl(javaSdkContext.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+    MetadataConverters.toScala(javaSdkContext.metadata())
 
   override def viewId: String =
     javaSdkContext.viewId()

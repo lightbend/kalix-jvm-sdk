@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -68,10 +69,8 @@ private[scalasdk] final case class ScalaServiceCallAdapter(javasdkServiceCall: j
     extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkServiceCall.message)
-  override def metadata: Metadata = {
-    // FIXME can we get rid of this cast?
-    new MetadataImpl(javasdkServiceCall.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
-  }
+  override def metadata: Metadata =
+    MetadataConverters.toScala(javasdkServiceCall.metadata())
 }
 
 private[scalasdk] final case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
