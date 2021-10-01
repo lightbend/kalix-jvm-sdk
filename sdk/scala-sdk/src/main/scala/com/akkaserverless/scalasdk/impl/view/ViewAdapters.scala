@@ -55,10 +55,10 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
 
   override def newHandler(
       context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]] = {
-    val scaladslHandler = scalaSdkProvider
+    val scalaSdkHandler = scalaSdkProvider
       .newHandler(new ScalaViewCreationContextAdapter(context))
       .asInstanceOf[ViewHandler[S, View[S]]]
-    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scaladslHandler.view), scaladslHandler)
+    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scalaSdkHandler.view), scalaSdkHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
