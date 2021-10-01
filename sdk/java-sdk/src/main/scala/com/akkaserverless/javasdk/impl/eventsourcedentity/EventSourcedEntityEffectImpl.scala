@@ -40,7 +40,7 @@ object EventSourcedEntityEffectImpl {
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
-class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[Any] {
+class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[S] {
   import EventSourcedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
@@ -63,70 +63,69 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     secondary
   }
 
-  override def emitEvent(event: Any): OnSuccessBuilder[S] = {
+  override def emitEvent(event: Any): EventSourcedEntityEffectImpl[S] = {
     _primaryEffect = EmitEvents(Vector(event))
     this
   }
 
-  override def emitEvents(events: util.List[_]): OnSuccessBuilder[S] = {
+  override def emitEvents(events: util.List[_]): EventSourcedEntityEffectImpl[S] = {
     _primaryEffect = EmitEvents(events.toVector)
     this
   }
 
-  override def reply[T](message: T): Effect[T] =
+  override def reply[T](message: T): EventSourcedEntityEffectImpl[T] =
     reply(message, Metadata.EMPTY)
 
-  override def reply[T](message: T, metadata: Metadata): Effect[T] = {
+  override def reply[T](message: T, metadata: Metadata): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): Effect[T] = {
+  override def forward[T](serviceCall: ServiceCall): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def error[T](description: String): Effect[T] = {
+  override def error[T](description: String): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = ErrorReplyImpl(description, _secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def noReply[T](): Effect[T] = {
+  override def noReply[T](): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenReply[T](replyMessage: JFunction[S, T]): Effect[T] =
+  override def thenReply[T](replyMessage: JFunction[S, T]): EventSourcedEntityEffectImpl[T] =
     thenReply(replyMessage, Metadata.EMPTY)
 
-  override def thenReply[T](replyMessage: JFunction[S, T], metadata: Metadata): Effect[T] = {
+  override def thenReply[T](replyMessage: JFunction[S, T], metadata: Metadata): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => MessageReplyImpl(replyMessage.apply(state), metadata, Vector.empty)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: JFunction[S, ServiceCall]): Effect[T] = {
+  override def thenForward[T](serviceCall: JFunction[S, ServiceCall]): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenNoReply[T](): Effect[T] = {
+  override def thenNoReply[T](): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[Effect[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenAddSideEffect(sideEffect: JFunction[S, SideEffect]): OnSuccessBuilder[S] = {
+  override def thenAddSideEffect(sideEffect: JFunction[S, SideEffect]): EventSourcedEntityEffectImpl[S] = {
     _functionSideEffects :+= sideEffect
     this
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): Effect[Any] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): EventSourcedEntityEffectImpl[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): Effect[Any] = {
+  override def addSideEffects(sideEffects: SideEffect*): EventSourcedEntityEffectImpl[S] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }
-
 }

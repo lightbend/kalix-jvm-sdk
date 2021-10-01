@@ -14,31 +14,49 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package com.akkaserverless.scalasdk.eventsourcedentity
 
-import scala.jdk.CollectionConverters._
-import akka.actor.ActorSystem
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCall
 import com.akkaserverless.scalasdk.Context
 import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
+import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 
-object ValueEntity {
+object EventSourcedEntity {
+
+  /**
+   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   *
+   * @tparam T
+   *   The type of the message that must be returned by this call.
+   */
+  trait Effect[T] {
+
+    /**
+     * Attach the given side effects to this reply.
+     *
+     * @param sideEffects
+     *   The effects to attach.
+     * @return
+     *   A new reply with the attached effects.
+     */
+    def addSideEffects(sideEffects: Seq[SideEffect]): Effect[T]
+  }
+
   object Effect {
 
     /**
      * Construct the effect that is returned by the command handler. The effect describes next processing actions, such
-     * as updating state and sending a reply.
+     * as emitting events and sending a reply.
      *
      * @tparam S
      *   The type of the state for this entity.
      */
     trait Builder[S] {
 
-      def updateState(newState: S): OnSuccessBuilder[S]
+      def emitEvent(event: Object): OnSuccessBuilder[S]
 
-      def deleteState: OnSuccessBuilder[S]
+      def emitEvents(event: List[_]): OnSuccessBuilder[S]
 
       /**
        * Create a message reply.
@@ -106,22 +124,22 @@ object ValueEntity {
     trait OnSuccessBuilder[S] {
 
       /**
-       * Reply after for example `updateState`.
+       * Reply after for example <code>emitEvent</code>.
        *
-       * @param message
-       *   The payload of the reply.
+       * @param replyMessage
+       *   Function to create the reply message from the new state.
        * @return
        *   A message reply.
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def thenReply[T](message: T): Effect[T]
+      def thenReply[T](replyMessage: S => T): Effect[T]
 
       /**
-       * Reply after for example <code>updateState</code>.
+       * Reply after for example <code>emitEvent</code>.
        *
-       * @param message
-       *   The payload of the reply.
+       * @param replyMessage
+       *   Function to create the reply message from the new state.
        * @param metadata
        *   The metadata for the message.
        * @return
@@ -129,10 +147,10 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def thenReply[T](message: T, metadata: Metadata): Effect[T]
+      def thenReply[T](replyMessage: S => T, metadata: Metadata): Effect[T]
 
       /**
-       * Create a forward reply after for example <code>updateState</code>.
+       * Create a forward reply after for example <code>emitEvent</code>.
        *
        * @param serviceCall
        *   The service call representing the forward.
@@ -141,7 +159,7 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def thenForward[T](serviceCall: ServiceCall): Effect[T]
+      def thenForward[T](serviceCall: S => ServiceCall): Effect[T]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.
@@ -154,37 +172,28 @@ object ValueEntity {
        *   The type of the message that must be returned by this call.
        */
       def thenNoReply[T]: Effect[T]
+
+      /**
+       * Attach the given side effect to this reply from the new state.
+       *
+       * @param sideEffect
+       *   The effect to attach.
+       * @return
+       *   A new reply with the attached effect.
+       */
+      def thenAddSideEffect(sideEffect: S => SideEffect): OnSuccessBuilder[S]
     }
   }
-
-  /**
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
-   *
-   * @tparam T
-   *   The type of the message that must be returned by this call.
-   */
-  trait Effect[T] {
-
-    /**
-     * Attach the given side effects to this reply.
-     *
-     * @param sideEffects
-     *   The effects to attach.
-     * @return
-     *   A new reply with the attached effects.
-     */
-    def addSideEffects(sideEffects: Seq[SideEffect]): Effect[T]
-  }
-
 }
 
 /** @tparam S The type of the state for this entity. */
-abstract class ValueEntity[S] {
+abstract class EventSourcedEntity[S] {
   private var _commandContext: Option[CommandContext] = None
+  private var _eventContext: Option[EventContext] = None
 
   /**
-   * Implement by returning the initial empty state object. This object will be passed into the command handlers, until
-   * a new state replaces it.
+   * Implement by returning the initial empty state object. This object will be passed into the command and event
+   * handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
    *
@@ -211,7 +220,26 @@ abstract class ValueEntity[S] {
     _commandContext = context
   }
 
-  protected def effects: ValueEntity.Effect.Builder[S] =
-    ValueEntityEffectImpl[S]()
+  /**
+   * Additional context and metadata for a command handler.
+   *
+   * <p>It will throw an exception if accessed from constructor.
+   */
+  protected def eventContext(): EventContext = {
+    try {
+      _eventContext.get
+    } catch {
+      case _: NoSuchElementException =>
+        throw new IllegalStateException("EventContext is only available when handling an event.")
+    }
+  }
+
+  /** INTERNAL API */
+  def _internalSetEventContext(context: Option[EventContext]): Unit = {
+    _eventContext = context
+  }
+
+  protected def effects: EventSourcedEntity.Effect.Builder[S] =
+    EventSourcedEntityEffectImpl[S]()
 
 }
