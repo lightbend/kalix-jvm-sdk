@@ -116,7 +116,7 @@ include::example$scala-valueentity-customer-registry/src/main/scala/customer/Mai
 
 == What's next
 
-This section provides details on how to accomplish common tasks in Java:
+This section provides details on how to accomplish common tasks:
 
 * xref:quickstart-template.adoc[]
 * xref:proto.adoc[]
