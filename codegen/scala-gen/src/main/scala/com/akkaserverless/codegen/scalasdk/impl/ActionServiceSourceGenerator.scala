@@ -107,6 +107,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$unmanagedComment
+        |
         |/** An action. */
         |class $className(creationContext: ActionCreationContext) extends ${service.abstractActionName} {
         |

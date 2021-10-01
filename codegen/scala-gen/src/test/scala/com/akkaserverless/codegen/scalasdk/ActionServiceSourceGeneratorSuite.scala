@@ -29,13 +29,18 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
       ActionServiceSourceGenerator.actionSource(service).content
     assertNoDiff(
       generatedSrc,
-      """|package com.example.service
+      """package com.example.service
          |
          |import akka.NotUsed
          |import akka.stream.scaladsl.Source
          |import com.akkaserverless.scalasdk.action.Action
          |import com.akkaserverless.scalasdk.action.ActionCreationContext
          |import com.external.Empty
+         |
+         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+         |//
+         |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+         |// or delete it so it is regenerated as needed.
          |
          |/** An action. */
          |class MyServiceAction(creationContext: ActionCreationContext) extends AbstractMyServiceAction {

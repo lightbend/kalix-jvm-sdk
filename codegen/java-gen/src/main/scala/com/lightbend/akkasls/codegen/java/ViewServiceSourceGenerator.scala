@@ -231,10 +231,11 @@ object ViewServiceSourceGenerator {
          |}""".stripMargin
     }
 
-    s"""$unmanagedComment
-       |package $packageName;
+    s"""package $packageName;
        |
        |$imports
+       |
+       |$unmanagedComment
        |
        |public class ${view.className} extends ${view.abstractViewName} {
        |

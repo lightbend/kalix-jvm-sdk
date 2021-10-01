@@ -181,6 +181,8 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
+        |$unmanagedComment
+        |
         |class ${view.className}(context: ViewContext) extends ${view.abstractViewName} {
         |
         |$emptyState

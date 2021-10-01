@@ -202,6 +202,8 @@ object ValueEntitySourceGenerator {
          |
          |$imports
          |
+         |$unmanagedComment
+         |
          |/** A value entity. */
          |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {
          |  override def emptyState: ${typeName(valueEntity.state.fqn)} =

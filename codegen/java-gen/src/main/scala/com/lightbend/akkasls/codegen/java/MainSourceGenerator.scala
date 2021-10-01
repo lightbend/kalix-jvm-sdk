@@ -102,14 +102,14 @@ object MainSourceGenerator {
       }
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
-    s"""|$unmanagedComment
-        |
-        |package $mainClassPackageName;
+    s"""package $mainClassPackageName;
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
         |${componentImports}
+        |
+        |$unmanagedComment
         |
         |public final class ${mainClassName} {
         |

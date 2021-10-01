@@ -35,6 +35,11 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
          |
+         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+         |//
+         |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+         |// or delete it so it is regenerated as needed.
+         |
          |class MyServiceViewImpl(context: ViewContext) extends AbstractMyServiceView {
          |
          |  override def emptyState: ViewState =
@@ -63,6 +68,11 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.ViewContext
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
+         |
+         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+         |//
+         |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+         |// or delete it so it is regenerated as needed.
          |
          |class MyServiceViewImpl(context: ViewContext) extends AbstractMyServiceView {
          |

@@ -188,12 +188,13 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$unmanagedComment
-       |package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.fqn.parent.javaPackage};
        |
        |$imports
        |
        |import static org.junit.Assert.*;
+       |
+       |$unmanagedComment
        |
        |public class ${entityClassName}Test {
        |

@@ -348,10 +348,11 @@ object EntityServiceSourceGenerator {
           }
       }
 
-    s"""$unmanagedComment
-       |package $packageName;
+    s"""package $packageName;
        |
        |$imports
+       |
+       |$unmanagedComment
        |
        |/** An event sourced entity. */
        |public class $className extends ${interfaceClassName} {
@@ -504,12 +505,13 @@ object EntityServiceSourceGenerator {
 
     }
 
-    s"""$unmanagedComment
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
       |
       |import static java.util.concurrent.TimeUnit.*;
+      |
+      |$unmanagedComment
       |
       |// Example of an integration test calling our service via the Akka Serverless proxy
       |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`

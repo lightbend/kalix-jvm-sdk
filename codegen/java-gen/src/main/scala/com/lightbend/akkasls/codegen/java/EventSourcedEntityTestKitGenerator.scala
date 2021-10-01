@@ -223,12 +223,13 @@ object EventSourcedEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$unmanagedComment
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
       |
       |import static org.junit.Assert.*;
+      |
+      |$unmanagedComment
       |
       |public class ${entityClassName}Test {
       |

@@ -158,7 +158,9 @@ class SourceGeneratorSuite extends munit.FunSuite {
             sources.foreach { (source: Path) =>
               assert(Files.exists(source))
               try {
-                assertEquals(Files.readAllBytes(source).head.toChar, '/', s"$source did not start with '/'")
+                val firstCharacter = Files.readAllBytes(source).head.toChar
+                if (firstCharacter != '/' && firstCharacter != 'p')
+                  fail(s"$source did not start with 'p' (for 'package') or '/' (for comment)")
               } catch {
                 case e: Throwable => fail(s"Failed to read [$source]: ${e.getMessage}")
               }

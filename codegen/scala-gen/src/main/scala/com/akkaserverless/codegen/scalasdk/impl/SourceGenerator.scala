@@ -92,7 +92,6 @@ object SourceGenerator {
         case service: ModelBuilder.ActionService =>
           ActionServiceSourceGenerator.generateUnmanaged(service)
       }
-      .map(_.prepend(unmanagedComment))
   }
 
   /**

@@ -105,6 +105,8 @@ object MainSourceGenerator {
         |
         |$imports
         |
+        |$unmanagedComment
+        |
         |object $className {
         |
         |  private val log = LoggerFactory.getLogger("$packageName.$className")

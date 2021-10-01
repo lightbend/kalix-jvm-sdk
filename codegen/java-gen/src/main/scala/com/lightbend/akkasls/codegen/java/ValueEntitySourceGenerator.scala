@@ -50,10 +50,11 @@ object ValueEntitySourceGenerator {
           |""".stripMargin
     }
 
-    s"""|$unmanagedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** A value entity. */
         |public class $className extends Abstract$className {

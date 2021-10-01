@@ -62,10 +62,11 @@ object ReplicatedEntitySourceGenerator {
           |""".stripMargin
     }
 
-    s"""|$unmanagedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** A replicated entity. */
         |public class $className extends Abstract$className {
