@@ -52,7 +52,6 @@ object Dependencies {
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
 
-  val testcontainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % MunitVersion
@@ -98,7 +97,13 @@ object Dependencies {
   // FIXME
   val sdkJava = sdkCore
 
-  val sdkJavaTestKit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
+  val sdkJavaTestKit = deps ++= Seq(
+    testContainers,
+    // Override for security vulnerabilities. Can be removed once testcontainers is updated:
+    // https://github.com/testcontainers/testcontainers-java/issues/4308
+    "org.apache.commons" % "commons-compress" % "1.21",
+    junit4 % Provided,
+    junit5 % Provided)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
