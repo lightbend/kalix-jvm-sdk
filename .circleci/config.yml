@@ -69,9 +69,15 @@ commands:
       - run: 
           name: "Set SDK version"
           command: |
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            if [ -e workspace/published-version ]; then
+              echo "Extracting version from previous publish step"
+              echo 'export SDK_VERSION='`cat workspace/published-version` >> $BASH_ENV
+            else
+              # tail 2 + head 1 because CircleCI adds an extra line
+              # the SDK_VERSION is later used to run the maven tests (see below)
+              echo "Extracting version from sbt build"
+              echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            fi
 
   publish-local:
     description: Build and publish artifacts and plugins locally for other tests to use
@@ -89,12 +95,14 @@ commands:
       - run: mkdir -p workspace
       - run: cp -r ~/.m2 workspace/
       - run: cp -r ~/.ivy2 workspace/
+      - run: echo $SDK_VERSION > workspace/published-version
       # copy published files to workspace for other jobs to pick up rather than build their own
       - persist_to_workspace:
           root: workspace
           paths:
             - .m2
             - .ivy2
+            - published-version
   copy-from-workspace:
     description: Copy locally published artifacts from workspace
     steps:
@@ -214,10 +222,10 @@ jobs:
       - checkout-and-merge-to-main
       - restore_deps_cache
       - setup_sbt
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
-      - run: 
+      - set-sdk-version
+      - run:
           name: Run integration tests for Value Entity Archetype
           command: |
             cd maven-java
@@ -239,9 +247,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Customer Registry quickstart
           command: |
@@ -260,9 +268,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Fibonacci Action
           command: |
@@ -280,9 +288,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Doc snippets
           command: |
@@ -296,9 +304,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java first-service by archetype
           command: |
@@ -315,9 +323,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Value Entity Views "Customer Registry" sample
           command: |
@@ -335,9 +343,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Event Sourced Views "Customer Registry" sample
           command: |
@@ -355,9 +363,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Value Entity "Shopping Cart" sample
           command: |
@@ -375,9 +383,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Event Sourced Entity "Shopping Cart" sample
           command: |
@@ -395,9 +403,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Replicated Entity "Shopping Cart" sample
           command: |
@@ -415,9 +423,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Event Sourced "Counter" sample
           command: |
@@ -437,9 +445,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Value Entity "Counter" sample
           command: |
@@ -457,9 +465,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Replicated Entity examples
           command: |
@@ -477,9 +485,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Scala Fibonacci Action
           command: |
@@ -497,9 +505,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Scala Value Entity Customer Registry
           command: |
@@ -517,9 +525,9 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
-      - set-sdk-version
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Scala Value Entity Counter
           command: |
