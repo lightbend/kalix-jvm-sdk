@@ -104,6 +104,7 @@ lazy val sdkScala = project
 lazy val sdkScalaTestKit = project
   .in(file("sdk/scala-sdk-testkit"))
   .dependsOn(sdkScala)
+  .dependsOn(sdkJavaTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-scala-sdk-testkit",

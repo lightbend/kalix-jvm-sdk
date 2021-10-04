@@ -60,9 +60,22 @@ object MainSourceGenerator {
     // FIXME remove filtering
     Seq(akkaServerlessFactorySource(excludedUntilImplemented(model)))
 
-  private[codegen] def mainSource(model: ModelBuilder.Model): File = {
+  def mainClassName(model: ModelBuilder.Model): FullyQualifiedName = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
     val className = "Main"
+    FullyQualifiedName(
+      className,
+      new PackageNaming(
+        protoFileName = "",
+        name = "",
+        protoPackage = packageName,
+        javaPackageOption = None,
+        javaOuterClassnameOption = None,
+        javaMultipleFiles = false))
+  }
+
+  private[codegen] def mainSource(model: ModelBuilder.Model): File = {
+    val mainClass = mainClassName(model)
 
     val entityImports = model.entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
@@ -79,7 +92,7 @@ object MainSourceGenerator {
       List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
     val imports =
-      generateImports(Iterable.empty, packageName, allImports, semi = false)
+      generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports, semi = false)
 
     val entityRegistrationParameters = model.entities.values.toList
       .sortBy(_.fqn.name)
@@ -99,17 +112,17 @@ object MainSourceGenerator {
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
 
     File(
-      packageName,
-      className,
-      s"""|package $packageName
+      mainClass.parent.scalaPackage,
+      mainClass.name,
+      s"""|package ${mainClass.parent.scalaPackage}
         |
         |$imports
         |
         |$unmanagedComment
         |
-        |object $className {
+        |object ${mainClass.name} {
         |
-        |  private val log = LoggerFactory.getLogger("$packageName.$className")
+        |  private val log = LoggerFactory.getLogger("${mainClass.parent.scalaPackage}.${mainClass.name}")
         |
         |  def createAkkaServerless(): AkkaServerless = {
         |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,

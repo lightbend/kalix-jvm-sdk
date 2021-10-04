@@ -47,7 +47,7 @@ object AkkaServerless {
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless private (impl: javasdk.AkkaServerless) {
+class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServerless) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless

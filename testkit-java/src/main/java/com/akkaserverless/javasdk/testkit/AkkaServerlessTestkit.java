@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Testkit for running Akka Serverless services locally.
  *
- * <p>Requires Docker for starting a local instance of Akka Serverless.
+ * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
  * <p>Create an AkkaServerlessTestkit with an {@link AkkaServerless} service descriptor, and then
  * {@link #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link
