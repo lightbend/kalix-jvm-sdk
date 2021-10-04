@@ -17,11 +17,13 @@
 package com.akkaserverless.javasdk.impl.action
 
 import akka.NotUsed
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.LogCapturing
+import akka.actor.testkit.typed.scaladsl.LoggingTestKit
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.ServiceCallFactory
+import akka.testkit.EventFilter
 import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
@@ -34,35 +36,37 @@ import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
-import com.akkaserverless.protocol.action.ActionResponse.Response.Failure
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Inside
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Inside with OptionValues {
+class ActionHandlerSpec
+    extends ScalaTestWithActorTestKit
+    with LogCapturing
+    with AnyWordSpecLike
+    with Matchers
+    with BeforeAndAfterAll
+    with Inside
+    with OptionValues {
 
-  private implicit val system = ActorSystem("ActionHandlerSpec")
-
-  import system.dispatcher
+  import testKit.internalSystem.executionContext
+  private val classicSystem = system.toClassic
 
   private val serviceDescriptor =
     ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
   private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
-  override protected def afterAll(): Unit = {
-    super.afterAll()
-    system.terminate()
-  }
 
   def create(handler: ActionHandler[_]): Actions = {
     val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
@@ -70,7 +74,7 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
     val services = Map(serviceName -> service)
     val scf = new ResolvedServiceCallFactory(services)
 
-    new ActionsImpl(system, services, new AbstractContext(scf, system) {})
+    new ActionsImpl(classicSystem, services, new AbstractContext(scf, classicSystem) {})
   }
 
   "The action service" should {
@@ -97,10 +101,14 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
       })
 
       val reply =
-        Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+        LoggingTestKit
+          .error("Failure during handling of command")
+          .expect {
+            Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+          }
 
       inside(reply.response) { case ActionResponse.Response.Failure(fail) =>
-        fail.description should ===("boom")
+        fail.description should startWith("Unexpected error")
       }
     }
 
@@ -165,15 +173,18 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
         }
       })
 
-      val replies = Await.result(
-        service
-          .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
-          .runWith(Sink.seq),
-        10.seconds)
+      val replies =
+        LoggingTestKit.error("Failure during handling of command").expect {
+          Await.result(
+            service
+              .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
+              .runWith(Sink.seq),
+            10.seconds)
+        }
 
       replies should have size 1
       inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
-        fail.description should ===("boom")
+        fail.description should startWith("Unexpected error")
       }
     }
 
@@ -186,15 +197,18 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
         }
       })
 
-      val replies = Await.result(
-        service
-          .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
-          .runWith(Sink.seq),
-        10.seconds)
+      val replies =
+        LoggingTestKit.error("Failure during handling of command").expect {
+          Await.result(
+            service
+              .handleStreamedOut(ActionCommand(serviceName, "Unary", createInPayload("in")))
+              .runWith(Sink.seq),
+            10.seconds)
+        }
 
       replies should have size 1
       inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
-        fail.description should ===("boom")
+        fail.description should startWith("Unexpected error")
       }
     }
 
@@ -265,10 +279,11 @@ class ActionHandlerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll
       })
 
       val reply =
-        Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
-
+        LoggingTestKit.error("Failure during handling of command").expect {
+          Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+        }
       inside(reply.response) { case ActionResponse.Response.Failure(fail) =>
-        fail.description should ===("boom")
+        fail.description should startWith("Unexpected error")
       }
     }
 
