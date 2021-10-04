@@ -34,26 +34,25 @@ import scala.util.Try
 class ActionTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.javaStyle
 
+  val log = LoggerFactory.getLogger(getClass)
+
   test(
-    "it can generate an specific TestKit for the proto files " +
-    "in test/resources/testkit") {
+    "it can generate an specific TestKit for the user-function file " +
+    "in test/resources/descriptor-sets build from the proto files" +
+    "from samples/java-eventsourced-counter") {
 
     val packageName = "com.example.actions"
     val model = generateModel
-    val className = "CounterJournalToTopicAction"
     val service: ModelBuilder.ActionService = {
       model.get.services("com.example.actions.CounterJournalToTopic").asInstanceOf[ModelBuilder.ActionService]
-
     }
-    val entity: ModelBuilder.EventSourcedEntity = {
-      model.get.entities("com.example.domain.Counter").asInstanceOf[ModelBuilder.EventSourcedEntity]
-    }
+    val className = service.className
 
-    //This prints the contents of the model, services or entity. Necessary to
+    //This prints the contents of the model, services or entity. It's necessary to
     // see how the user-function.desc (see generateModel below) maps to ModelBuilder objects.
-    // println(munit.Assertions.munitPrint(entity))
+    log.debug(munit.Assertions.munitPrint(service))
 
-    val sourceCode = ActionTestKitGenerator.generateSourceCode(entity, service, packageName, className)
+    val sourceCode = ActionTestKitGenerator.generateSourceCode(service, packageName, className)
 
     val expected =
       """|/* This code is managed by Akka Serverless tooling.
@@ -65,6 +64,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
           |import com.akkaserverless.javasdk.action.Action;
           |import com.akkaserverless.javasdk.action.ActionCreationContext;
           |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
+          |import com.akkaserverless.javasdk.testkit.ActionResult;
           |import com.akkaserverless.javasdk.testkit.impl.ActionResultImpl;
           |import com.akkaserverless.javasdk.testkit.impl.StubActionContext;
           |import com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext;
@@ -100,18 +100,18 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
           |    return new ActionResultImpl(effect);
           |  }
           |
-          |  public ActionResult<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased event) {
-          |    Action.Effect<CounterTopicApi.Increased> effect = createAction().increase(event);
+          |  public ActionResult<com.example.actions.CounterTopicApi.Increased> increase(com.example.domain.CounterDomain.ValueIncreased valueIncreased) {
+          |    Action.Effect<com.example.actions.CounterTopicApi.Increased> effect = createAction().increase(valueIncreased);
           |    return interpretEffects(effect);
           |  }
           |
-          |  public ActionResult<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased event) {
-          |    Action.Effect<CounterTopicApi.Decreased> effect = createAction().decrease(event);
+          |  public ActionResult<com.example.actions.CounterTopicApi.Decreased> decrease(com.example.domain.CounterDomain.ValueDecreased valueDecreased) {
+          |    Action.Effect<com.example.actions.CounterTopicApi.Decreased> effect = createAction().decrease(valueDecreased);
           |    return interpretEffects(effect);
           |  }
           |
-          |  public ActionResult<Empty> ignore(CounterDomain.Any event) {
-          |    Action.Effect<Empty> effect = createAction().ignore(event);
+          |  public ActionResult<com.google.protobuf.Empty> ignore(com.google.protobuf.Any any) {
+          |    Action.Effect<com.google.protobuf.Empty> effect = createAction().ignore(any);
           |    return interpretEffects(effect);
           |  }
           |

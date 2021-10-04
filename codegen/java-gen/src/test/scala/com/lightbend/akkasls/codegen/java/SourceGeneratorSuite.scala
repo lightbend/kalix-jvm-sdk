@@ -142,6 +142,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve("com/example/service/AbstractMyService5Action.java"),
                 generatedSourceDirectory.resolve("com/example/service/MyService5ActionProvider.java"),
                 generatedSourceDirectory.resolve("com/example/service/MyService5ActionHandler.java"),
+                generatedTestSourceDirectory.resolve("com/example/service/MyService5ActionTestKit.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyReplicatedEntity6.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyReplicatedEntity6.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyReplicatedEntity6Handler.java"),

@@ -28,7 +28,7 @@ public interface ActionResult<T> {
   /** @return true if the call had an effect with a reply, false if not */
   boolean isReply();
 
-  T getReplyMsg();
+  T getReply();
 
   /** @return true if the call was forwarded, false if not */
   boolean isForward();
@@ -39,9 +39,7 @@ public interface ActionResult<T> {
   /** @return true if the call was async, false if not */
   boolean isAsync();
 
-  CompletionStage<Action.Effect<T>> getAsyncEffect();
-
-  ActionResult<T> createResult(Action.Effect<T> effect);
+  CompletionStage<? extends ActionResult<T>> getAsyncEffect();
 
   /** @return true if the call was an error, false if not */
   boolean isError();

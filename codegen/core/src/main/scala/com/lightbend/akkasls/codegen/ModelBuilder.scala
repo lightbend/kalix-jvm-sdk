@@ -508,5 +508,4 @@ object ModelBuilder {
       }
     }
   }
-
 }

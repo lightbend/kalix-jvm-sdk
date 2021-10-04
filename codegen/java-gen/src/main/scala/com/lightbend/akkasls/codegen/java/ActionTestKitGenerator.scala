@@ -24,18 +24,17 @@ object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generate(
-      entity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.ActionService,
       testSourceDirectory: Path,
-      generatedSourceDirectory: Path): Iterable[Path] = {
+      generatedTestSourceDirectory: Path): Iterable[Path] = {
     var generatedFiles: Seq[Path] = Vector.empty
     val packageName = service.fqn.parent.javaPackage
-    val className = service.fqn.name
+    val className = service.className
 
     val packagePath = packageAsPath(packageName)
-    val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
+    val testKitPath = generatedTestSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
     testKitPath.getParent.toFile.mkdirs()
-    val sourceCode = generateSourceCode(entity, service, packageName, className)
+    val sourceCode = generateSourceCode(service, packageName, className)
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
     generatedFiles :+= testKitPath
 
@@ -43,10 +42,10 @@ object ActionTestKitGenerator {
   }
 
   private[codegen] def generateSourceCode(
-      entity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.ActionService,
       packageName: String,
       className: String): String = {
+
     val imports = generateImports(
       commandTypes(service.commands),
       "",
@@ -55,18 +54,16 @@ object ActionTestKitGenerator {
         "java.util.List",
         "java.util.function.Function",
         "java.util.Optional",
+        s"$packageName.$className",
         "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
+        "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
         "com.akkaserverless.javasdk.impl.action.ActionEffectImpl",
-        "com.example.actions.CounterJournalToTopicAction",
-        "com.example.actions.CounterTopicApi",
         "com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext",
         "com.akkaserverless.javasdk.testkit.impl.StubActionContext"))
 
     val testKitClassName = s"${className}TestKit"
-
-    println(packageName)
 
     s"""$managedComment
           |package ${service.fqn.parent.javaPackage};
@@ -77,7 +74,7 @@ object ActionTestKitGenerator {
           |
           |  private Function<ActionCreationContext, $className> actionFactory;
           |
-          |  private CounterJournalToTopicAction createAction() {
+          |  private $className createAction() {
           |    $className action = actionFactory.apply(new StubActionCreationContext());
           |    action._internalSetActionContext(Optional.of(new StubActionContext()));
           |    return action;
@@ -95,28 +92,44 @@ object ActionTestKitGenerator {
           |    return new ActionResultImpl(effect);
           |  }
           |
-          |  ${Format.indent(generateServices(service, entity), 2)}
+          |  ${Format.indent(generateServices(service), 2)}
           |
           |}
           |""".stripMargin
   }
 
-  def generateServices(service: ModelBuilder.ActionService, entity: ModelBuilder.EventSourcedEntity): String = {
+  def generateServices(service: ModelBuilder.ActionService): String = {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
 
-    def selectOutput(command: ModelBuilder.Command): String =
-      if (command.outputType.name == "Empty") {
-        "Empty"
-      } else {
-        command.outputType.fullName
-      }
+    def selectOutput(command: ModelBuilder.Command): String = {
+      val parent = command.outputType.parent
+      s"${parent.javaPackageOption.getOrElse(parent.protoPackage)}.${filterJavaOuterClassname(
+        parent.javaOuterClassnameOption)}${command.outputType.name}"
 
-    val domainOuterClass = entity.fqn.parent.name
+    }
+
+    def selectInput(command: ModelBuilder.Command): String = {
+      val parent = command.inputType.parent
+      s"${parent.javaPackageOption.getOrElse(parent.protoPackage)}.${filterJavaOuterClassname(
+        parent.javaOuterClassnameOption)}${command.inputType.name}"
+
+    }
+
+    def filterJavaOuterClassname(javaOuterClassnameOption: Option[String]): String = {
+      javaOuterClassnameOption match {
+        case None => ""
+        case Some(value) =>
+          if (value == "EmptyProto" || value == "AnyProto") ""
+          else value + "."
+      }
+    }
 
     service.commands
       .map { command =>
-        s"""|public ActionResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${domainOuterClass}.${command.inputType.protoName} event) {
-            |  Action.Effect<${selectOutput(command)}> effect = createAction().${lowerFirst(command.name)}(event);
+        s"""|public ActionResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${selectInput(
+          command)} ${lowerFirst(command.inputType.protoName)}) {
+            |  Action.Effect<${selectOutput(command)}> effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
+          command.inputType.protoName)});
             |  return interpretEffects(effect);
             |}
             |""".stripMargin + "\n"

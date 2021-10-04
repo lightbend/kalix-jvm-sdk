@@ -23,13 +23,16 @@ import com.akkaserverless.javasdk.ServiceCall
 import java.util.concurrent.CompletionStage;
 import scala.concurrent.Future;
 import scala.compat.java8.FutureConverters._
+import scala.concurrent.ExecutionContext
 
 final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T] {
+
+  implicit val ec = ExecutionContext.Implicits.global
 
   /** @return true if the call had an effect with a reply, false if not */
   def isReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[T]]
 
-  def getReplyMsg(): T = {
+  def getReply(): T = {
     val reply = getEffectOfType(classOf[ActionEffectImpl.ReplyEffect[T]])
     reply.msg
   }
@@ -48,12 +51,10 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was async, false if not */
   def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
 
-  def getAsyncEffect(): CompletionStage[Action.Effect[T]] = {
+  def getAsyncEffect(): CompletionStage[ActionResultImpl[T]] = {
     val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
-    async.effect.toJava
+    async.effect.map(new ActionResultImpl(_)).toJava
   }
-
-  def createResult(effect: Action.Effect[T]): ActionResult[T] = new ActionResultImpl(effect)
 
   /** @return true if the call was an error, false if not */
   def isError(): Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[T]]
