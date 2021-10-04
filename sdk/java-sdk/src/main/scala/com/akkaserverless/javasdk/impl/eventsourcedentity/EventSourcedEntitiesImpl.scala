@@ -31,7 +31,6 @@ import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
@@ -42,9 +41,11 @@ import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.{ Any => JavaPbAny }
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
+import com.akkaserverless.protocol.component.Failure
+import org.slf4j.LoggerFactory
 
 final class EventSourcedEntityService(
     val factory: EventSourcedEntityFactory,
@@ -121,15 +122,18 @@ final class EventSourcedEntitiesImpl(
           source.via(runEntity(init))
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
-          log.warning("Event Sourced Entity stream closed before init.")
+          log.error("Event Sourced Entity stream closed before init.")
           Source.empty[EventSourcedStreamOut]
         case (Seq(EventSourcedStreamIn(other, _)), _) =>
           throw ProtocolException(
             s"Expected init message for Event Sourced Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        EventSourcedStreamOut(OutFailure(failure(error)))
+        // only "unexpected" exceptions should end up here
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(error, failureMessageForLog(error))
+          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+        }
       }
 
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
@@ -170,9 +174,6 @@ final class EventSourcedEntitiesImpl(
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
 
-          // FIXME we'd want to somehow share this handle-command-apply-event logic to get the end effect ready for asserting in the testkit
-          // FIXME a bit mixed concerns here, esp with the serialization to PbAny but it's either that or pushing this into the handler and making
-          // SecondaryEffectImpl a public API (or make handler internal, which may be a good idea, also for the testkit)
           val CommandResult(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,
@@ -207,6 +208,7 @@ final class EventSourcedEntitiesImpl(
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
+              // FIXME I don't think effect.error(yadi) should lead to logged error but just be an "expected" error reply to user
               log.error(
                 "Fail invoked for command [{}] for entity [{}]: {}",
                 command.name,

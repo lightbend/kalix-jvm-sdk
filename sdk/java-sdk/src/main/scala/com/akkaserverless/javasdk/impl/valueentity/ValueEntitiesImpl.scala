@@ -18,14 +18,14 @@ package com.akkaserverless.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
+import com.akkaserverless.protocol.component.Failure
+import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
 import com.akkaserverless.javasdk.Context
@@ -114,8 +114,10 @@ final class ValueEntitiesImpl(
           throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ValueEntityStreamOut(OutFailure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(error, failureMessageForLog(error))
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
 
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {

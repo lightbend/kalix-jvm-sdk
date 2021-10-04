@@ -33,6 +33,7 @@ final class TestValueEntityProtocol(context: TestProtocolContext) {
 object TestValueEntityProtocol {
 
   final class Connection(client: ValueEntitiesClient, context: TestProtocolContext) {
+
     import context.system
 
     private val in = TestPublisher.probe[ValueEntityStreamIn]()
@@ -53,6 +54,13 @@ object TestValueEntityProtocol {
     def expectNext(): ValueEntityStreamOut.Message = {
       out.request(1).expectNext().message
     }
+
+    def expectFailure(descStartingWith: String): Connection =
+      expectNext() match {
+        case ValueEntityStreamOut.Message.Failure(failure) if failure.description.startsWith(descStartingWith) =>
+          this
+        case other => throw new RuntimeException(s"Expected failure starting with [$descStartingWith] but got [$other]")
+      }
 
     def expectClosed(): Unit = {
       out.expectComplete()

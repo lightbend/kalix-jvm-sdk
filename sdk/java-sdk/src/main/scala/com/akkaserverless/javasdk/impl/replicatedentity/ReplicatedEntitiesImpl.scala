@@ -18,7 +18,8 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{ Logging, LoggingAdapter }
+import akka.event.Logging
+import akka.event.LoggingAdapter
 import akka.stream.scaladsl.{ Flow, Source }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
@@ -32,9 +33,10 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
+import com.akkaserverless.protocol.component.Failure
 
 final class ReplicatedEntityService(
     val factory: ReplicatedEntityFactory,
@@ -94,8 +96,10 @@ final class ReplicatedEntitiesImpl(
             s"Expected init message for Replicated Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(error, failureMessageForLog(error))
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
 
   private def runEntity(
@@ -127,8 +131,10 @@ final class ReplicatedEntitiesImpl(
         }
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(error, failureMessageForLog(error))
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
   }
 }
