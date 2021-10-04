@@ -41,11 +41,20 @@ public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic
     if (event.getMDCPropertyMap().containsKey(ErrorHandling.CorrelationIdMdcKey())) {
       // automatically include correlation id in message if present (for now)
       String correlationID = event.getMDCPropertyMap().get(ErrorHandling.CorrelationIdMdcKey());
-      add(
-          MESSAGE_ATTR_NAME,
-          this.includeMessage,
-          map.get(MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
-          map);
+      if (this.includeMessage) {
+        add(
+            MESSAGE_ATTR_NAME,
+            this.includeMessage,
+            map.get(MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
+            map);
+      }
+      if (this.includeFormattedMessage) {
+        add(
+            FORMATTED_MESSAGE_ATTR_NAME,
+            this.includeFormattedMessage,
+            map.get(FORMATTED_MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
+            map);
+      }
     }
   }
 }
