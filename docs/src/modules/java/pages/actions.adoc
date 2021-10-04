@@ -19,7 +19,7 @@ Java::
 include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
 <4> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
@@ -31,14 +31,14 @@ Scala::
 include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
 An Action implementation is a class where you define how each message is handled. The class
 `FibonacciAction` gets generated for us based on the proto file defined above. Once the
-[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exist, it is not overwritten, so you can freely add logic to it.
+[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exists, it is not overwritten, so you can freely add logic to it.
 `FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
 not supposed to change as it gets regenerated in case we update the protobuf descriptors.
 
@@ -67,7 +67,7 @@ include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Fib
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 <2> A `nextNumber` method is generated. We will implement it next.
 
-Next we can implement `nextNumber` method to complete our Action.
+Next, we can implement `nextNumber` method to complete our Action.
 
 [.tabset]
 Java::
@@ -130,8 +130,43 @@ Scala::
 include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
 ----
 
-By default, the generated constructor has a `ActionCreationContext` parameter, but you can change this to accept other parameters. 
+By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters. 
 If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the 
 factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
 When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+== Testing the Action 
+
+
+=== Unit tests
+
+The following snippet shows how the `CounterJournalToTopicActionTestKit` is used to test the `CounterJournalToTopicAction` implementation.
+
+AkkaServerless provides the `CounterJournalToTopicActionTestKit` that allows us to call the methods of `CounterJournalToTopicAction`. For each `Action` AkkaServerless generates an specific test kit for it, with the name `[ActionName]TestKit`. This test kit hold an instance of its `Action`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying `CounterJournalToTopicAction`. 
+
+Apart from the test kit, to facilitate the creation of unit tests, AkkaServerless generates test classes, ready to use, based on the Action defined in the .proto files. This is shown in the snippet below. 
+
+Is worth noting that Actions are unique units of computation. The framework doesn't reuse an Action instance. A consequence of this is that we should create a test kit for each method we evaluate as shown in the snippet. 
+
+.src/test/java/com/example/actions/CounterJournalToTopicActionTest.java
+[source,java]
+----
+include::example$java-eventsourced-counter/src/test/java/com/example/actions/CounterJournalToTopicActionTest.java[class] 
+----
+<1> creating the test kit to test `increase` Action's method.
+<2> calling `increase` method with some value.
+<3> retrieving the `Reply` from `increase` method.
+
+*ActionResult*
+
+Calling an entity method through the TestKit gives us back an link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
+
+* `getReply` is the response of the method called in the test
+* `getForwardServiceCall` returns the `ServiceCall` to which is fowarded the command the `Action` receives.
+
+
+
+*CounterJournalToTopicActionTestKit*
+
+This class is generated by AkkaServerless when the project is compiled and located in `target/generated-test-sources/akkaserveless/java/com/example/actions/`. The snippet `CounterJournalToTopicActionTest.java` above shows all the available methods for this specific test kit.  

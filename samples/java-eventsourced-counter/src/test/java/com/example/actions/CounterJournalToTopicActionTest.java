@@ -3,8 +3,7 @@
  * You are free to make changes to this file.
  */
 package com.example.actions;
-
-import com.akkaserverless.javasdk.action.Action;
+// tag::class[]
 import com.akkaserverless.javasdk.testkit.ActionResult;
 import com.example.actions.CounterJournalToTopicAction;
 import com.example.actions.CounterJournalToTopicActionTestKit;
@@ -15,27 +14,19 @@ import com.google.protobuf.Empty;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+
 public class CounterJournalToTopicActionTest {
 
   @Test
-  public void exampleTest() {
-    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
-    // use the testkit to execute a command
-    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
-  }
-
-  @Test
   public void increaseTest() {
-    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
+    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new); // <1>
     int valueToincrease = 1;
-    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(valueToincrease).build());
+    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(valueToincrease).build()); // <2>
     assertTrue(result.isReply());
-    CounterTopicApi.Increased replyMessage = result.getReply();
+    CounterTopicApi.Increased replyMessage = result.getReply(); // <3>
     assertEquals(valueToincrease,replyMessage.getValue());
   }  
+  // end::class[]
 
   @Test
   public void decreaseTest() {

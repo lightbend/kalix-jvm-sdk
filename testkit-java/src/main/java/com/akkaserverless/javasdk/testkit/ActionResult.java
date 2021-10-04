@@ -33,12 +33,13 @@ public interface ActionResult<T> {
   /** @return true if the call was forwarded, false if not */
   boolean isForward();
 
+  /** @return ServiceCall representing a call to a service */
   ServiceCall getForwardServiceCall();
 
-  // TODO rewrite name. Async doesn't seem very descriptive. Are the rest sync?
   /** @return true if the call was async, false if not */
   boolean isAsync();
 
+  /** @return a CompletionStage as a future ActionResult of an Action */
   CompletionStage<ActionResult<T>> getAsyncEffect();
 
   /** @return true if the call was an error, false if not */

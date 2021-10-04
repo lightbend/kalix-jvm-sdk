@@ -62,7 +62,6 @@ object ActionTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
-        "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
@@ -114,7 +113,6 @@ object ActionTestKitGenerator {
       otherImports = Seq(
         s"$packageName.$className",
         s"${packageName}.${className}TestKit",
-        "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "org.junit.Test",
         "static org.junit.Assert.*"))
