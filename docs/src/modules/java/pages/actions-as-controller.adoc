@@ -1,4 +1,5 @@
 = Actions as Controller
+:page-supergroup-java-scala: Language
 
 Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC Controllers] by
 acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call
@@ -11,7 +12,10 @@ an Action that will take the incoming `Increase` command, double its value and f
 
 Note that in this example we are adding an Action to an existing service, the xref:value-entity.adoc[Value Entity Counter] service.
 
-[source,protobuf,indent=0]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
 .src/main/proto/com/example/actions/double-counter.proto
 ----
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=double-action-proto]
@@ -20,20 +24,43 @@ include::example$java-valueentity-counter/src/main/proto/com/example/actions/dou
 <2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The Action mimics the Counter API
 
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/double-counter.proto
+----
+include::example$scala-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=double-action-proto]
+----
+<1> Import the Counter API definition
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The Action mimics the Counter API
 
 == Implementing the Action
 
 The class `DoubleCounterAction` gets generated for us based on the proto file defined above.
 
+[.tabset]
+Java::
++
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
 include::example$java-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-forward]
 ----
-
 <1> In the constructor, we use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
 <2> On incoming requests, we double the value of `IncreaseValue`
 <3> We use the `increaseCallRef` to build a `ServiceCall` that is then passed to `effects().forward()` method.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/actions/DoubleCounterAction.scala
+----
+include::example$scala-valueentity-counter/src/main/scala/com/example/actions/DoubleCounterAction.scala[tag=controller-forward]
+----
+<1> We use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
+<2> On incoming requests, we double the value of `IncreaseValue`
+<3> We use the `increaseCallRef` to build a `ServiceCall` that is then passed to `effects.forward()` method.
 
 == Registering the Action
 
@@ -45,8 +72,19 @@ When we add an Action to an existing service, like we did here, the `Main` class
 of the  xref:value-entity.adoc[Value Entity Counter] example. Therefore, the generated `AkkaServerlessFactory.withComponents` is now accepting
 two registrations: the `Counter` and the `DoubleCounterAction`, and we need to adapt it.
 
+[.tabset]
+Java::
++
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
 include::example$java-valueentity-counter/src/main/java/com/example/Main.java[tag=registration]
+----
+
+Scala::
++
+[source,scala]
+./src/main/scala/com/example/fibonacci/Main.scala
+----
+include::example$scala-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration]
 ----

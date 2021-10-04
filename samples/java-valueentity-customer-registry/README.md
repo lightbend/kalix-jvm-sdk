@@ -1,4 +1,4 @@
-# Views documentation example
+# Customer Registry example (using a Value Entity)
 
 This example includes the code snippets that are used in the Views documentation.
 

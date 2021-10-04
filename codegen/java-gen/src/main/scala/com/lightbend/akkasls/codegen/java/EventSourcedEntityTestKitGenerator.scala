@@ -63,7 +63,6 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.ArrayList",
         "java.util.List",
         "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
@@ -78,10 +77,11 @@ object EventSourcedEntityTestKitGenerator {
     val stateClassName = entity.state.fqn.fullName
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""$managedComment
-          |package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.fqn.parent.javaPackage};
           |
           |$imports
+          |
+          |$managedComment
           |
           |/**
           | * TestKit for unit testing $entityClassName
@@ -114,7 +114,7 @@ object EventSourcedEntityTestKitGenerator {
           |    this.entity = entity;
           |  }
           |
-          |  public ${testkitClassName}(${entityClassName} entity, $stateClassName state) {
+          |  private ${testkitClassName}(${entityClassName} entity, $stateClassName state) {
           |    this.state = state;
           |    this.entity = entity;
           |  }
@@ -206,10 +206,6 @@ object EventSourcedEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
@@ -228,12 +224,13 @@ object EventSourcedEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$unmanagedComment
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
       |
       |import static org.junit.Assert.*;
+      |
+      |$unmanagedComment
       |
       |public class ${entityClassName}Test {
       |

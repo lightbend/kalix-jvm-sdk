@@ -40,11 +40,12 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
-	cd .. && sbt sdkJava/doc
-	cd .. && sbt testkitJava/doc
 	mkdir -p "${managed_attachments}"
+	cd .. && sbt sdkJava/doc sdkJavaTestKit/doc sdkScala/doc sdkScalaTestKit/doc
 	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
 	rsync -a ../testkit-java/target/api/ "${managed_attachments}/testkit/"
+	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${managed_attachments}/scala-api/"
+	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${managed_attachments}/scala-testkit-api/"
 
 examples:
 	mkdir -p "${managed_examples}"
@@ -53,6 +54,7 @@ examples:
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
 	bin/bundle.sh --zip "${managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
+	bin/bundle.sh --zip "${managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 

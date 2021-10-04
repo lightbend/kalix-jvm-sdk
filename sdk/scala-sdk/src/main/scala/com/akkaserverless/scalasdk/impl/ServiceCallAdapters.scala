@@ -27,32 +27,34 @@ import com.google.protobuf
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-private[scalasdk] case class ScalaServiceCallFactoryAdapter(javaSdkServiceCallFactory: javasdk.ServiceCallFactory)
+private[scalasdk] final case class ScalaServiceCallFactoryAdapter(javaSdkServiceCallFactory: javasdk.ServiceCallFactory)
     extends ServiceCallFactory {
 
   override def lookup[T](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T] =
     ScalaServiceCallRefAdapter(javaSdkServiceCallFactory.lookup(serviceName, methodName, messageType))
 
 }
-private[scalasdk] case class JavaServiceCallAdapter(scalaSdkServiceCall: ServiceCall) extends javasdk.ServiceCall {
+private[scalasdk] final case class JavaServiceCallAdapter(scalaSdkServiceCall: ServiceCall)
+    extends javasdk.ServiceCall {
   override def ref(): javasdk.ServiceCallRef[_] = JavaServiceCallRefAdapter(scalaSdkServiceCall.ref)
   override def message(): protobuf.Any = ScalaPbAny.toJavaProto(scalaSdkServiceCall.message)
   override def metadata(): javasdk.Metadata = scalaSdkServiceCall.metadata.asInstanceOf[MetadataImpl].impl
 }
 
-private[scalasdk] case class ScalaServiceCallAdapter(javaSdkServiceCall: javasdk.ServiceCall) extends ServiceCall {
+private[scalasdk] final case class ScalaServiceCallAdapter(javaSdkServiceCall: javasdk.ServiceCall)
+    extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javaSdkServiceCall.ref())
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javaSdkServiceCall.message)
   override def metadata: Metadata =
     new MetadataImpl(javaSdkServiceCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 }
 
-private[scalasdk] case class JavaSideEffectAdapter(scalaSdkSideEffect: SideEffect) extends javasdk.SideEffect {
+private[scalasdk] final case class JavaSideEffectAdapter(scalaSdkSideEffect: SideEffect) extends javasdk.SideEffect {
   override def serviceCall(): javasdk.ServiceCall = JavaServiceCallAdapter(scalaSdkSideEffect.serviceCall)
   override def synchronous(): Boolean = scalaSdkSideEffect.synchronous
 }
 
-private[scalasdk] case class JavaServiceCallRefAdapter[T](scalaSdkServiceCallRef: ServiceCallRef[T])
+private[scalasdk] final case class JavaServiceCallRefAdapter[T](scalaSdkServiceCallRef: ServiceCallRef[T])
     extends javasdk.ServiceCallRef[T] {
   def method(): Descriptors.MethodDescriptor = scalaSdkServiceCallRef.method
 
@@ -63,7 +65,7 @@ private[scalasdk] case class JavaServiceCallRefAdapter[T](scalaSdkServiceCallRef
   }
 }
 
-private[scalasdk] case class ScalaServiceCallRefAdapter[T](javaSdkServiceCallRef: javasdk.ServiceCallRef[T])
+private[scalasdk] final case class ScalaServiceCallRefAdapter[T](javaSdkServiceCallRef: javasdk.ServiceCallRef[T])
     extends ServiceCallRef[T] {
   override def method: Descriptors.MethodDescriptor = javaSdkServiceCallRef.method()
   override def createCall(message: T, metadata: scalasdk.Metadata): ServiceCall =

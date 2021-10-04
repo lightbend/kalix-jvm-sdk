@@ -69,16 +69,22 @@ commands:
       - run: 
           name: "Set SDK version"
           command: |
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            if [ -e workspace/published-version ]; then
+              echo "Extracting version from previous publish step"
+              echo 'export SDK_VERSION='`cat workspace/published-version` >> $BASH_ENV
+            else
+              # tail 2 + head 1 because CircleCI adds an extra line
+              # the SDK_VERSION is later used to run the maven tests (see below)
+              echo "Extracting version from sbt build"
+              echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            fi
 
-  build-maven-java:
-    description: Build maven-java
+  publish-local:
+    description: Build and publish artifacts and plugins locally for other tests to use
     steps:
       - run:
-          name: publish m2
-          command: sbt publishM2
+          name: publish m2 and local
+          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
       - run:
           name: "Build maven-java"
           command: |
@@ -86,6 +92,25 @@ commands:
             echo "Running maven-java with SDK version: '$SDK_VERSION'"
             mvn versions:set -DnewVersion=$SDK_VERSION
             mvn verify install
+      - run: mkdir -p workspace
+      - run: cp -r ~/.m2 workspace/
+      - run: cp -r ~/.ivy2 workspace/
+      - run: echo $SDK_VERSION > workspace/published-version
+      # copy published files to workspace for other jobs to pick up rather than build their own
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - .m2
+            - .ivy2
+            - published-version
+  copy-from-workspace:
+    description: Copy locally published artifacts from workspace
+    steps:
+      - attach_workspace:
+          at: workspace
+      - run: rsync -rv workspace/.m2/ ~/.m2/
+      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
+
 jobs:
   checks:
     docker:
@@ -123,6 +148,18 @@ jobs:
           name: Validate docs
           command: |
             make -C docs
+      - save_deps_cache
+
+  validate-doc-links:
+    machine: true
+    description: "Validate doc links"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      - run:
+          name: Validate links
+          command: |
             make -C docs validate-links
       - save_deps_cache
 
@@ -136,7 +173,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test codegenCore/publishLocal codegenScala/publishLocal sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal scripted
+          command: sbt test codegenCore/publishLocal codegenScala/publishLocal sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkScalaTestKit/publishLocal scripted
       - save_deps_cache
 
   integration-tests:
@@ -165,6 +202,19 @@ jobs:
           command: sbt tck/Test/run
       - save_deps_cache
 
+  # by setting a snapshot version with set-sdk-version we publish the deps so that
+  # other jobs can use them by depending on this job in the workflow
+  publish-local:
+    machine: true
+    description: "Build and publish a local version of the artifacts"
+    steps:
+      - checkout-and-merge-to-main
+      - restore_deps_cache
+      - setup_sbt
+      - set-sdk-version
+      - publish-local
+      - save_deps_cache
+
   maven-java-tests:
     machine: true
     description: "Maven Java (plugin and archetype tests)"
@@ -172,9 +222,10 @@ jobs:
       - checkout-and-merge-to-main
       - restore_deps_cache
       - setup_sbt
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - set-sdk-version
-      - build-maven-java
-      - run: 
+      - run:
           name: Run integration tests for Value Entity Archetype
           command: |
             cd maven-java
@@ -190,101 +241,303 @@ jobs:
             mvn -B compile
       - save_deps_cache
 
-  samples-tests:
+  sample-java-customer-registry-quickstart:
     machine: true
-    description: "Maven Samples Integration Tests"
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
       - set-sdk-version
-      - build-maven-java
       - run:
-          name: Customer Registry quickstart
+          name: Java Customer Registry quickstart
           command: |
             cd samples/java-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-fibonacci-action:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Fibonacci Action
+          name: Java Fibonacci Action
           command: |
             cd samples/java-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-doc-snippets:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Doc snippets
+          name: Java Doc snippets
           command: |
             cd samples/java-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-first-service:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: first-service by archetype
+          name: Java first-service by archetype
           command: |
             cd samples/java-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-valueentity-customer-registry:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Value Entity Views "Customer Registry" sample
+          name: Java Value Entity Views "Customer Registry" sample
           command: |
             cd samples/java-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-eventsourced-customer-registry:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Event Sourced Views "Customer Registry" sample
+          name: Java Event Sourced Views "Customer Registry" sample
           command: |
             cd samples/java-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-valueentity-shopping-cart:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Value Entity "Shopping Cart" sample
+          name: Java Value Entity "Shopping Cart" sample
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
-      - run: 
-          name: Event Sourced Entity "Shopping Cart" sample
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-eventsourced-shopping-cart:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Event Sourced Entity "Shopping Cart" sample
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-replicatedentity-shopping-cart:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Replicated Entity "Shopping Cart" sample
+          name: Java Replicated Entity "Shopping Cart" sample
           command: |
             cd samples/java-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-eventsourced-counter:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Event Sourced "Counter" sample
+          name: Java Event Sourced "Counter" sample
           command: |
             cd samples/java-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test 
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test
             # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit 
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-valueentity-counter:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Value Entity "Counter" sample
+          name: Java Value Entity "Counter" sample
           command: |
             cd samples/java-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-java-replicatedentity-examples:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
       - run:
-          name: Replicated Entity examples
+          name: Java Replicated Entity examples
           command: |
             cd samples/java-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
-      - save_deps_cache
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
+  sample-scala-fibonacci-action:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Fibonacci Action
+          command: |
+            cd samples/scala-fibonacci-action
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            # FIXME tests && integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala src/it/scala
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+
+  sample-scala-valueentity-customer-registry:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Value Entity Customer Registry
+          command: |
+            cd samples/scala-valueentity-customer-registry
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            # FIXME integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala src/it/scala
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+
+  sample-scala-valueentity-counter:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Value Entity Counter
+          command: |
+            cd samples/scala-valueentity-counter
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            # FIXME integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala src/it/scala
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   publish:
     docker:
@@ -369,33 +622,95 @@ jobs:
 workflows:
   CI:
     jobs:
-      - validate-docs
       - checks
+      - publish-local
+
+      - validate-docs:
+          requires:
+            - checks
+      - validate-doc-links:
+          requires:
+            - checks
       - tests:
           requires: 
             - checks
-            - validate-docs
 
       - integration-tests:
           requires: 
             - checks
-            - validate-docs
 
       - tck-tests:
           requires: 
             - checks
-            - validate-docs
+
 
       - maven-java-tests:
-          requires: 
+          requires:
             - checks
-            - validate-docs
+            - publish-local
 
-      - samples-tests:
-          requires: 
+      # individual samples as jobs to allow parallelizing them
+      - sample-java-customer-registry-quickstart:
+          requires:
             - checks
-            - validate-docs
-            
+            - publish-local
+      - sample-java-fibonacci-action:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-doc-snippets:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-first-service:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-valueentity-customer-registry:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-eventsourced-customer-registry:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-valueentity-shopping-cart:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-eventsourced-shopping-cart:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-replicatedentity-shopping-cart:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-eventsourced-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-replicatedentity-examples:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-fibonacci-action:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-valueentity-customer-registry:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+
       - publish:
           filters: # version tags only
             tags:

@@ -43,16 +43,18 @@ object ValueEntitySourceGenerator {
       val outputType = qualifiedType(cmd.outputType)
 
       s"""|@Override
-          |public Effect<$outputType> ${lowerFirst(methodName)}($stateType currentState, $inputType command) {
+          |public Effect<$outputType> ${lowerFirst(methodName)}($stateType currentState, $inputType ${lowerFirst(
+        cmd.inputType.name)}) {
           |  return effects().error("The command handler for `$methodName` is not implemented, yet");
           |}
           |""".stripMargin
     }
 
-    s"""|$unmanagedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** A value entity. */
         |public class $className extends Abstract$className {
@@ -99,10 +101,11 @@ object ValueEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -142,25 +145,26 @@ object ValueEntitySourceGenerator {
       }
     }
 
-    val imports = generateImports(
-      relevantTypes,
+    implicit val imports: Imports = generateImports(
+      relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport))
+        "java.util.function.Function"))
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A value entity provider that defines how to register and create the entity for
@@ -196,7 +200,7 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override
@@ -248,10 +252,11 @@ object ValueEntitySourceGenerator {
 
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** A value entity. */
         |public abstract class Abstract$className extends ValueEntity<$stateType> {

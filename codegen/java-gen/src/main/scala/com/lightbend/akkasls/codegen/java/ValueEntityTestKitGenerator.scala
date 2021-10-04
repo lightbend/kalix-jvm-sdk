@@ -63,10 +63,6 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
         "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
@@ -82,10 +78,11 @@ object ValueEntityTestKitGenerator {
 
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""$managedComment
-       |package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.fqn.parent.javaPackage};
        |
        |$imports
+       |
+       |$managedComment
        |
        |/**
        | * TestKit for unit testing $entityClassName
@@ -117,7 +114,7 @@ object ValueEntityTestKitGenerator {
        |    this.entity = entity;
        |  }
        |
-       |  public $testkitClassName($entityClassName entity, $stateClassName state) {
+       |  private $testkitClassName($entityClassName entity, $stateClassName state) {
        |    this.state = state;
        |    this.entity = entity;
        |  }
@@ -175,10 +172,6 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "java.util.ArrayList",
-        "java.util.List",
-        "java.util.NoSuchElementException",
-        "scala.jdk.javaapi.CollectionConverters",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "org.junit.Test"))
@@ -196,12 +189,13 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""$unmanagedComment
-       |package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.fqn.parent.javaPackage};
        |
        |$imports
        |
        |import static org.junit.Assert.*;
+       |
+       |$unmanagedComment
        |
        |public class ${entityClassName}Test {
        |

@@ -181,10 +181,11 @@ object EntityServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -228,25 +229,26 @@ object EntityServiceSourceGenerator {
       }.toSeq :+ entity.state.fqn
     }
 
-    val imports = generateImports(
-      relevantTypes,
+    implicit val imports: Imports = generateImports(
+      relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport))
+        "java.util.function.Function"))
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * An event sourced entity provider that defines how to register and create the entity for
@@ -282,7 +284,7 @@ object EntityServiceSourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override
@@ -348,10 +350,11 @@ object EntityServiceSourceGenerator {
           }
       }
 
-    s"""$unmanagedComment
-       |package $packageName;
+    s"""package $packageName;
        |
        |$imports
+       |
+       |$unmanagedComment
        |
        |/** An event sourced entity. */
        |public class $className extends ${interfaceClassName} {
@@ -445,10 +448,11 @@ object EntityServiceSourceGenerator {
          |""".stripMargin
     }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** An event sourced entity. */
         |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
@@ -504,12 +508,13 @@ object EntityServiceSourceGenerator {
 
     }
 
-    s"""$unmanagedComment
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
       |
       |import static java.util.concurrent.TimeUnit.*;
+      |
+      |$unmanagedComment
       |
       |// Example of an integration test calling our service via the Akka Serverless proxy
       |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`

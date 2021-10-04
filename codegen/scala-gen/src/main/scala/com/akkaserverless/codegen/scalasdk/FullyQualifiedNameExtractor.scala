@@ -34,7 +34,7 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
         s.getName
     }
 
-    FullyQualifiedName(name, packageName(descriptor))
+    FullyQualifiedName(name, name, packageName(descriptor), Some(fileDescriptorObject(descriptor.getFile)))
   }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming =
@@ -55,10 +55,10 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       None,
       javaMultipleFiles = false)
 
-  override def fileDescriptorObject(descriptor: Descriptors.FileDescriptor): FullyQualifiedName =
+  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
     FullyQualifiedName(
-      descriptor.fileDescriptorObject.name,
-      packageName(descriptor.getName, descriptor.fileDescriptorObject))
+      descriptor.getFile.fileDescriptorObject.name,
+      packageName(descriptor.getName, descriptor.getFile.fileDescriptorObject))
 }
 object FullyQualifiedNameExtractor {
   def apply(request: CodeGenRequest): FullyQualifiedNameExtractor =

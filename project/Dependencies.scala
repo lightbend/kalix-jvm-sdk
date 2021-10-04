@@ -37,7 +37,8 @@ object Dependencies {
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
-  val logbackContrib = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
+  val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
+  val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
 
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
@@ -51,7 +52,6 @@ object Dependencies {
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
 
-  val testcontainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % MunitVersion
@@ -82,8 +82,9 @@ object Dependencies {
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,
-    logback % "test;provided",
-    logbackContrib % Provided,
+    logback,
+    logbackJson,
+    logbackJackson,
     jacksonCore,
     jacksonAnnotations,
     jacksonDatabind,
@@ -96,12 +97,18 @@ object Dependencies {
   // FIXME
   val sdkJava = sdkCore
 
-  val sdkJavaTestKit = deps ++= Seq(testContainers, junit4 % Provided, junit5 % Provided)
+  val sdkJavaTestKit = deps ++= Seq(
+    testContainers,
+    // Override for security vulnerabilities. Can be removed once testcontainers is updated:
+    // https://github.com/testcontainers/testcontainers-java/issues/4308
+    "org.apache.commons" % "commons-compress" % "1.21",
+    junit4 % Provided,
+    junit5 % Provided)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
-  val sdkScalaTestKit = deps ++= Seq(testContainers, scalaTest)
+  val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided")
 
   val tck = deps ++= Seq(
     akkaslsTckProtocol % "protobuf-src",

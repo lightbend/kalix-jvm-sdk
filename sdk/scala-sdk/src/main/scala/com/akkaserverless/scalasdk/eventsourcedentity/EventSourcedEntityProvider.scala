@@ -16,13 +16,23 @@
 
 package com.akkaserverless.scalasdk.eventsourcedentity
 
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => Impl }
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntity => EntityImpl }
+import scala.collection.immutable
+import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityHandler
+import com.google.protobuf.Descriptors
 
-//FIXME implement (the impl and type projection is temporary!)
-abstract class EventSourcedEntity[S](val impl: EntityImpl[S]) {
-  type Impl = EntityImpl[S]
+/**
+ * Register an event sourced entity in {@link com.akkaserverless.scalasdk.AkkaServerless} using a
+ * <code>EventSourcedEntityProvider</code>. The concrete <code>EventSourcedEntityProvider</code> is generated for the
+ * specific entities defined in Protobuf, for example <code>CustomerEntityProvider </code>.
+ */
+trait EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]] {
+  def options: EventSourcedEntityOptions
+
+  def serviceDescriptor: Descriptors.ServiceDescriptor
+
+  def entityType: String
+
+  def newHandler(context: EventSourcedEntityContext): EventSourcedEntityHandler[S, E]
+
+  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }
-
-//FIXME possibly The Provider will not delegate to javasdk and we'll duplicate some more code
-class EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](private[akkaserverless] val impl: Impl[S, E#Impl])

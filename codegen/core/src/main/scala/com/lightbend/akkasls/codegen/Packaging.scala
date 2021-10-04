@@ -22,8 +22,15 @@ import com.google.protobuf.Descriptors
 
 /**
  * A fully qualified name that can be resolved in any target language
+ *
+ * @param descriptorObject
+ *   code representation of the descriptor that defined this type, if any
  */
-case class FullyQualifiedName(protoName: String, name: String, parent: PackageNaming) {
+case class FullyQualifiedName(
+    protoName: String,
+    name: String,
+    parent: PackageNaming,
+    descriptorObject: Option[FullyQualifiedName]) {
 
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
   lazy val fullName = {
@@ -32,7 +39,7 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
   }
 
   lazy val typeImport = s"${parent.javaPackage}.$fullName"
-  lazy val descriptorImport = s"${parent.javaPackage}.${parent.javaOuterClassname}"
+  lazy val descriptorImport = descriptorObject.get
 
   /**
    * 'base' name of the file that will contain this fqn relative to the package root,
@@ -40,12 +47,32 @@ case class FullyQualifiedName(protoName: String, name: String, parent: PackageNa
    */
   def fileBasename =
     parent.javaPackage.replace('.', '/') + "/" + name
+
 }
 
 object FullyQualifiedName {
-  def apply(name: String, parent: PackageNaming): FullyQualifiedName =
-    FullyQualifiedName(name, name, parent)
-
+  // FIXME should only be used for testing, move there
+  def apply(name: String, parent: PackageNaming): FullyQualifiedName = {
+    FullyQualifiedName(
+      name,
+      name,
+      parent,
+      parent.javaOuterClassnameOption match {
+        case Some(outer) =>
+          Some(FullyQualifiedName(outer, outer, parent, None))
+        case None =>
+          def capitalize(s: String, capitalizeNext: Boolean = true): String =
+            s.headOption match {
+              case None      => ""
+              case Some('_') => capitalize(s.tail, true)
+              case Some(c) =>
+                if (capitalizeNext) c.toUpper + capitalize(s.tail, false)
+                else c + capitalize(s.tail, false)
+            }
+          val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
+          Some(FullyQualifiedName(protoClassName, protoClassName, parent, None))
+      })
+  }
 }
 
 case class PackageNaming(

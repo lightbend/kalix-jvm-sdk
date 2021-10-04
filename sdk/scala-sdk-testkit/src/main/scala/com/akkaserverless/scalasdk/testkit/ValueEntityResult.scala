@@ -21,7 +21,8 @@ package com.akkaserverless.scalasdk.testkit
  *
  * Not for user extension, returned by the generated testkit.
  *
- * @tparam R The type of reply that is expected from invoking command handler
+ * @tparam R
+ *   The type of reply that is expected from invoking command handler
  */
 trait ValueEntityResult[R] {
 
@@ -29,25 +30,24 @@ trait ValueEntityResult[R] {
   def isReply: Boolean
 
   /**
-   * The reply object from the handler if there was one. If the call had an effect without any reply
-   * an exception is thrown
+   * The reply object from the handler if there was one. If the call had an effect without any reply an exception is
+   * thrown
    */
-  def getReply: R
+  def reply: R
 
   /** @return true if the call was forwarded, false if not */
   def isForward: Boolean
 
   /**
-   * An object with details about the forward. If the result was not a forward an exception is
-   * thrown
+   * An object with details about the forward. If the result was not a forward an exception is thrown
    */
-  def getForward: ServiceCallDetails[R]
+  def forwardedTo: ServiceCallDetails[R]
 
   /** @return true if the call was an error, false if not */
   def isError: Boolean
 
   /** The error description. If the result was not an error an exception is thrown */
-  def getError: String
+  def errorDescription: String
 
   /** @return true if the call had a noReply effect, false if not */
   def isNoReply: Boolean
@@ -56,7 +56,7 @@ trait ValueEntityResult[R] {
   def stateWasUpdated: Boolean
 
   /** @return The updated state. If the state was not updated an exeption is thrown */
-  def getUpdatedState: Any
+  def updatedState: Any
 
   /** @return true if the call deleted the entity */
   def stateWasDeleted: Boolean

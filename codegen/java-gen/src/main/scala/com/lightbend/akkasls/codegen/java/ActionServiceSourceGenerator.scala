@@ -137,11 +137,11 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$unmanagedComment
-        |
-        |package $packageName;
+    s"""|package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** An action. */
         |public class $className extends ${service.abstractActionName} {
@@ -188,11 +188,11 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    s"""|$managedComment
-        |
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** An action. */
         |public abstract class ${service.abstractActionName} extends Action {
@@ -256,11 +256,11 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.javasdk.action.MessageEnvelope",
         "com.akkaserverless.javasdk.impl.action.ActionHandler"))
 
-    s"""|$managedComment
-        |
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |public class ${service.handlerName} extends ActionHandler<$className> {
         |
@@ -320,8 +320,8 @@ object ActionServiceSourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    val imports = generateImports(
-      service.commandTypes,
+    implicit val imports: Imports = generateImports(
+      service.commandTypes ++ service.commandTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.action.ActionCreationContext",
@@ -329,13 +329,13 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.javasdk.action.ActionOptions",
         "com.akkaserverless.javasdk.impl.action.ActionHandler",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ service.commandTypes.map(_.descriptorImport))
+        "java.util.function.Function"))
 
-    s"""$managedComment
-      |
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
+      |
+      |$managedComment
       |
       |/**
       | * ${service.providerName} that defines how to register and create the action for
@@ -369,7 +369,7 @@ object ActionServiceSourceGenerator {
       |
       |  @Override
       |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-      |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("$protoName");
+      |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("$protoName");
       |  }
       |
       |  @Override

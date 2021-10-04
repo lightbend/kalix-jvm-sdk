@@ -18,7 +18,6 @@ package com.akkaserverless.scalasdk.valueentity
 
 import scala.jdk.CollectionConverters._
 import akka.actor.ActorSystem
-import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCall
 import com.akkaserverless.scalasdk.Context
@@ -32,7 +31,7 @@ object ValueEntity {
      * Construct the effect that is returned by the command handler. The effect describes next processing actions, such
      * as updating state and sending a reply.
      *
-     * @param [S]
+     * @tparam S
      *   The type of the state for this entity.
      */
     trait Builder[S] {
@@ -179,7 +178,7 @@ object ValueEntity {
 
 }
 
-/** @param [S] The type of the state for this entity. */
+/** @tparam S The type of the state for this entity. */
 abstract class ValueEntity[S] {
   private var _commandContext: Option[CommandContext] = None
 
@@ -209,7 +208,7 @@ abstract class ValueEntity[S] {
 
   /** INTERNAL API */
   def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
-    _commandContext = context;
+    _commandContext = context
   }
 
   protected def effects: ValueEntity.Effect.Builder[S] =

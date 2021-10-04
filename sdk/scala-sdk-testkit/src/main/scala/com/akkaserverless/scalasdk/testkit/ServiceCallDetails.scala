@@ -19,6 +19,7 @@ package com.akkaserverless.scalasdk.testkit
 import com.akkaserverless.scalasdk.Metadata
 
 trait ServiceCallDetails[T] {
+
   /** @return The forwarded message */
   def getMessage: T
 

@@ -55,16 +55,18 @@ object ReplicatedEntitySourceGenerator {
       val inputType = cmd.inputType.fullName
       val outputType = cmd.outputType.fullName
       s"""|@Override
-          |public Effect<$outputType> ${lowerFirst(methodName)}($parameterizedDataType currentData, $inputType command) {
+          |public Effect<$outputType> ${lowerFirst(
+        methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(cmd.inputType.name)}) {
           |  return effects().error("The command handler for `$methodName` is not implemented, yet");
           |}
           |""".stripMargin
     }
 
-    s"""|$unmanagedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |/** A replicated entity. */
         |public class $className extends Abstract$className {
@@ -107,10 +109,11 @@ object ReplicatedEntitySourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A replicated entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
@@ -151,8 +154,8 @@ object ReplicatedEntitySourceGenerator {
       }
     }
 
-    val imports = generateImports(
-      relevantTypes,
+    implicit val imports: Imports = generateImports(
+      relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
@@ -160,7 +163,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "java.util.function.Function") ++ relevantTypes.map(_.descriptorImport)
+        "java.util.function.Function")
         ++ extraImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
@@ -170,10 +173,11 @@ object ReplicatedEntitySourceGenerator {
         .map(d =>
           s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/**
         | * A replicated entity provider that defines how to register and create the entity for
@@ -209,7 +213,7 @@ object ReplicatedEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${service.descriptorObject.name}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
         |  }
         |
         |  @Override
@@ -264,10 +268,11 @@ object ReplicatedEntitySourceGenerator {
 
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** A replicated entity. */
         |public abstract class Abstract$className extends $baseClass$typeArguments {

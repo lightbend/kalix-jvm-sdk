@@ -24,6 +24,8 @@
 .history
 .idea
 .ideaq
+.sublime-project
+.sublime-workspace
 .manager
 .metals
 .multi-jvm

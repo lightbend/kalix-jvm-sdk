@@ -107,6 +107,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$unmanagedComment
+        |
         |/** An action. */
         |class $className(creationContext: ActionCreationContext) extends ${service.abstractActionName} {
         |
@@ -156,6 +158,8 @@ object ActionServiceSourceGenerator {
       s"""|package ${service.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** An action. */
         |abstract class ${service.abstractActionName} extends Action {
@@ -221,6 +225,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A Action handler */
         |class ${service.handlerName}(action: ${service.className}) extends ActionHandler[${service.className}](action) {
         |
@@ -278,6 +284,8 @@ object ActionServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |object ${service.providerName} {
         |  def apply(actionFactory: ActionCreationContext => ${service.className}): ${service.providerName} =
         |    new ${service.providerName}(actionFactory, ActionOptions.defaults)
@@ -291,13 +299,13 @@ object ActionServiceSourceGenerator {
         |  extends ActionProvider[${service.className}] {
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
         |
         |  override final def newHandler(context: ActionCreationContext): ${service.handlerName} =
         |    new ${service.handlerName}(actionFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(service.descriptorObject)}.javaDescriptor ::
+        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |
         |  def withOptions(options: ActionOptions): ${service.providerName} =

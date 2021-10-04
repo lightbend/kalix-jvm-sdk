@@ -67,6 +67,8 @@ object ViewServiceSourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A view handler */
         |class ${view.handlerName}(view: ${view.className})
         |  extends ViewHandler[${typeName(view.state.fqn)}, ${view.className}](view) {
@@ -91,7 +93,7 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn, view.descriptorObject),
+        Seq(view.state.fqn, view.fqn.descriptorImport),
         view.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
@@ -113,6 +115,8 @@ object ViewServiceSourceGenerator {
       s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |object ${view.providerName} {
         |  def apply(viewFactory: ViewCreationContext => ${view.className}): ${view.providerName} =
@@ -136,13 +140,13 @@ object ViewServiceSourceGenerator {
         |    new ${view.providerName}(viewFactory, viewId, newOptions)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(view.descriptorObject)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
+        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
         |
         |  override final def newHandler(context: ViewCreationContext): ${view.handlerName} =
         |    new ${view.handlerName}(viewFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(view.descriptorObject)}.javaDescriptor ::
+        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |}
         |""".stripMargin)
@@ -180,6 +184,8 @@ object ViewServiceSourceGenerator {
       s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$unmanagedComment
         |
         |class ${view.className}(context: ViewContext) extends ${view.abstractViewName} {
         |
@@ -220,6 +226,8 @@ object ViewServiceSourceGenerator {
       s"""|package ${view.fqn.parent.scalaPackage}
         |
         |$imports
+        |
+        |$managedComment
         |
         |abstract class ${view.abstractViewName} extends View[${typeName(view.state.fqn)}] {
         |

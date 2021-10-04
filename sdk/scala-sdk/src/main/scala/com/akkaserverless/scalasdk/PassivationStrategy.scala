@@ -16,8 +16,8 @@
 
 package com.akkaserverless.scalasdk
 
-import scala.compat.java8.DurationConverters._
 import scala.concurrent.duration.FiniteDuration
+
 import com.akkaserverless.scalasdk.impl.Timeout
 
 /** A passivation strategy. */

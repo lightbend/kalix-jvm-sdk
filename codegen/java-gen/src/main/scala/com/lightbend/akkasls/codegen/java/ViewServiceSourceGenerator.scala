@@ -94,10 +94,11 @@ object ViewServiceSourceGenerator {
             |""".stripMargin
       }
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |/** A view handler */
         |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.className}> {
@@ -125,7 +126,7 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateCommandImports(
+    implicit val imports: Imports = generateCommandImports(
       Nil,
       view.state,
       packageName,
@@ -141,10 +142,11 @@ object ViewServiceSourceGenerator {
         "com.google.protobuf.EmptyProto",
         "java.util.function.Function"))
 
-    s"""|$managedComment
-        |package $packageName;
+    s"""package $packageName;
         |
         |$imports
+        |
+        |$managedComment
         |
         |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.className}> {
         |
@@ -191,7 +193,7 @@ object ViewServiceSourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${view.descriptorObject.name}.getDescriptor().findServiceByName("${view.fqn.protoName}");
+        |    return ${typeName(view.fqn.descriptorImport)}.getDescriptor().findServiceByName("${view.fqn.protoName}");
         |  }
         |
         |  @Override
@@ -231,10 +233,11 @@ object ViewServiceSourceGenerator {
          |}""".stripMargin
     }
 
-    s"""$unmanagedComment
-       |package $packageName;
+    s"""package $packageName;
        |
        |$imports
+       |
+       |$unmanagedComment
        |
        |public class ${view.className} extends ${view.abstractViewName} {
        |
@@ -266,10 +269,11 @@ object ViewServiceSourceGenerator {
 
     }
 
-    s"""$managedComment
-      |package $packageName;
+    s"""package $packageName;
       |
       |$imports
+      |
+      |$managedComment
       |
       |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
       |$emptyState

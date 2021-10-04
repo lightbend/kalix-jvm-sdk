@@ -43,13 +43,28 @@ object SourceGenerator {
         case service: ModelBuilder.ActionService =>
           ActionServiceSourceGenerator.generateManaged(service)
       }
-      .map(_.prepend(managedComment))
   }
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
-  def generateManagedTest(model: ModelBuilder.Model): Seq[File] = Seq.empty
+  def generateManagedTest(model: ModelBuilder.Model): Seq[File] = {
+    model.services.values.flatMap {
+      case service: ModelBuilder.EntityService =>
+        model.lookupEntity(service) match {
+          case entity: ModelBuilder.ValueEntity =>
+            ValueEntityTestKitGenerator.generateManagedTest(entity, service)
+          case _: ModelBuilder.EventSourcedEntity =>
+            Nil // FIXME
+          case _: ModelBuilder.ReplicatedEntity =>
+            Nil
+        }
+      case _: ModelBuilder.ViewService =>
+        Nil
+      case _: ModelBuilder.ActionService =>
+        Nil
+    }.toList
+  }
 
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
@@ -73,7 +88,31 @@ object SourceGenerator {
         case service: ModelBuilder.ActionService =>
           ActionServiceSourceGenerator.generateUnmanaged(service)
       }
+  }
+
+  /**
+   * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the user
+   */
+  // FIXME we need to call this from the sbt plugin
+  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] = {
+    model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.lookupEntity(service) match {
+            case entity: ModelBuilder.ValueEntity =>
+              ValueEntityTestKitGenerator.generateUnmanagedTest(entity, service)
+            case _: ModelBuilder.EventSourcedEntity =>
+              Nil // FIXME
+            case _: ModelBuilder.ReplicatedEntity =>
+              Nil
+          }
+        case _: ModelBuilder.ViewService =>
+          Nil
+        case _: ModelBuilder.ActionService =>
+          Nil
+      }
       .map(_.prepend(unmanagedComment))
+      .toList
   }
 
 }

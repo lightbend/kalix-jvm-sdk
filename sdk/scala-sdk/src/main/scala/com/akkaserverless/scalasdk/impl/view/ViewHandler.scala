@@ -18,8 +18,9 @@ package com.akkaserverless.scalasdk.impl.view
 
 import com.akkaserverless.scalasdk.view.View
 
-// FIXME it's strange to have this public in impl and ViewProvider in public api (same problem in javasdk)
-
+/**
+ * INTERNAL API, but used by generated code.
+ */
 abstract class ViewHandler[S, V <: View[S]](val view: V) {
   def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
 }

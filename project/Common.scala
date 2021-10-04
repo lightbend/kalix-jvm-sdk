@@ -34,7 +34,11 @@ object CommonSettings extends AutoPlugin {
       scalaVersion := Dependencies.ScalaVersion,
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
-      })
+      }) ++ (
+      if (sys.props.contains("disable.apidocs"))
+        Seq(Compile / doc / sources := Seq.empty, publishArtifact in (Compile, packageDoc) := false)
+      else Seq.empty
+    )
 
   override def projectSettings = Seq(run / fork := true, Test / fork := true, Test / javaOptions ++= Seq("-Xms1G"))
 }

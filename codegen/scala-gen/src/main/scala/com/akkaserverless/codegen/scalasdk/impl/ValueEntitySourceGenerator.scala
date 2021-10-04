@@ -65,6 +65,8 @@ object ValueEntitySourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/** A value entity. */
         |abstract class $abstractEntityName extends ValueEntity[$stateType] {
         |
@@ -80,14 +82,13 @@ object ValueEntitySourceGenerator {
     implicit val imports =
       generateImports(
         Seq(valueEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
+        service.commands.map(_.inputType),
         valueEntity.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.CommandContext",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
+          "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
@@ -107,6 +108,8 @@ object ValueEntitySourceGenerator {
         |
         |$imports
         |
+        |$managedComment
+        |
         |/**
         | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
         | * and the command handler methods in the <code>Counter</code> class.
@@ -117,7 +120,7 @@ object ValueEntitySourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      case _ =>
-        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName)
+        |        throw new CommandHandlerNotFound(commandName)
         |    }
         |  }
         |}
@@ -128,8 +131,12 @@ object ValueEntitySourceGenerator {
     val packageName = entity.fqn.parent.scalaPackage
     val className = entity.fqn.name + "Provider"
 
+    val descriptors =
+      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
+        .map(_.descriptorImport)
+
     implicit val imports: Imports = generateImports(
-      Seq(entity.state.fqn) ++ service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
+      Seq(entity.state.fqn) ++ descriptors,
       packageName,
       Seq(
         "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
@@ -146,6 +153,8 @@ object ValueEntitySourceGenerator {
          |
          |$imports
          |
+         |$managedComment
+         |
          |object $className {
          |  def apply(entityFactory: ValueEntityContext => ${entity.fqn.name}): $className =
          |    new $className(entityFactory, ValueEntityOptions.defaults)
@@ -157,7 +166,7 @@ object ValueEntitySourceGenerator {
          |    new $className(entityFactory, newOptions)
          |
          |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.descriptorObject)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
          |
          |  override final val entityType = "${entity.entityType}"
          |
@@ -165,7 +174,7 @@ object ValueEntitySourceGenerator {
          |    new ${entity.handlerName}(entityFactory(context))
          |
          |  override final val additionalDescriptors =
-         |    ${typeName(service.descriptorObject)}.javaDescriptor :: Nil
+         |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
          |}
          |""".stripMargin)
   }
@@ -186,9 +195,9 @@ object ValueEntitySourceGenerator {
         semi = false)
 
     val methods = service.commands.map { cmd =>
-      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, command: ${typeName(
-        cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
-          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet");
+      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, ${lowerFirst(
+        cmd.inputType.name)}: ${typeName(cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
+          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
           |""".stripMargin
     }
 
@@ -198,6 +207,8 @@ object ValueEntitySourceGenerator {
          |package ${valueEntity.fqn.parent.scalaPackage}
          |
          |$imports
+         |
+         |$unmanagedComment
          |
          |/** A value entity. */
          |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {

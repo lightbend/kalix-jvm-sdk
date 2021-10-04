@@ -23,6 +23,9 @@ import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
 
+/**
+ * INTERNAL API, but used by generated code.
+ */
 abstract class ActionHandler[A <: Action](val action: A) {
 
   /**

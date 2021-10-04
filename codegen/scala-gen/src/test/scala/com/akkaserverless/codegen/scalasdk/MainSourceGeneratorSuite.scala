@@ -50,6 +50,11 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.domain.MyValueEntity2
          |import org.slf4j.LoggerFactory
          |
+         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+         |//
+         |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+         |// or delete it so it is regenerated as needed.
+         |
          |object Main {
          |
          |  private val log = LoggerFactory.getLogger("com.example.Main")
@@ -124,6 +129,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service.view.MyService4ViewImpl
          |import com.example.service.view.MyService4ViewProvider
          |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
          |object AkkaServerlessFactory {
          |
          |  def withComponents(
@@ -163,6 +172,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
          |import com.example.service.view.MyServiceViewImpl
          |import com.example.service.view.MyServiceViewProvider
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
          |
          |object AkkaServerlessFactory {
          |

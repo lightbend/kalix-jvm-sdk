@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -59,21 +60,20 @@ trait SideEffect {
   def synchronous: Boolean
 }
 
-private[scalasdk] case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
+private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
   override def serviceCall: ServiceCall = ScalaServiceCallAdapter(javasdkSideEffect.serviceCall())
   override def synchronous: Boolean = javasdkSideEffect.synchronous()
 }
 
-private[scalasdk] case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall) extends ServiceCall {
+private[scalasdk] final case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall)
+    extends ServiceCall {
   override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkServiceCall.message)
-  override def metadata: Metadata = {
-    // FIXME can we get rid of this cast?
-    new MetadataImpl(javasdkServiceCall.metadata().asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
-  }
+  override def metadata: Metadata =
+    MetadataConverters.toScala(javasdkServiceCall.metadata())
 }
 
-private[scalasdk] case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
+private[scalasdk] final case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
     extends ServiceCallRef[T] {
   def method: Descriptors.MethodDescriptor = javasdkServiceCallRef.method()
 

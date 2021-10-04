@@ -24,7 +24,7 @@ private[scalasdk] object ViewUpdateEffectImpl {
     def toJavaSdk: javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[S]
   }
 
-  case class Update[S](state: S) extends PrimaryUpdateEffect[S] {
+  final case class Update[S](state: S) extends PrimaryUpdateEffect[S] {
     override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Update(state)
   }
@@ -35,7 +35,7 @@ private[scalasdk] object ViewUpdateEffectImpl {
         .asInstanceOf[javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[Nothing]]
   }
 
-  case class Error[T](description: String) extends PrimaryUpdateEffect[T] {
+  final case class Error[T](description: String) extends PrimaryUpdateEffect[T] {
     override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Error(description)
   }

@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.impl
 
 import scala.collection.immutable
 
-trait ComponentOptions {
+private[scalasdk] trait ComponentOptions {
 
   /**
    * @return
