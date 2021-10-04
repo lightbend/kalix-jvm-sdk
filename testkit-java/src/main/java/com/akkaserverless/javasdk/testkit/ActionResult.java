@@ -39,7 +39,7 @@ public interface ActionResult<T> {
   /** @return true if the call was async, false if not */
   boolean isAsync();
 
-  CompletionStage<? extends ActionResult<T>> getAsyncEffect();
+  CompletionStage<ActionResult<T>> getAsyncEffect();
 
   /** @return true if the call was an error, false if not */
   boolean isError();

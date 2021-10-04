@@ -51,9 +51,9 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was async, false if not */
   def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
 
-  def getAsyncEffect(): CompletionStage[ActionResultImpl[T]] = {
+  def getAsyncEffect(): CompletionStage[ActionResult[T]] = {
     val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
-    async.effect.map(new ActionResultImpl(_)).toJava
+    async.effect.map(new ActionResultImpl(_).asInstanceOf[ActionResult[T]]).toJava
   }
 
   /** @return true if the call was an error, false if not */

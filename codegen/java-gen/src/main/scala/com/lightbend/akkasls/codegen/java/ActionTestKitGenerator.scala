@@ -34,17 +34,24 @@ object ActionTestKitGenerator {
     val packagePath = packageAsPath(packageName)
     val testKitPath = generatedTestSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
     testKitPath.getParent.toFile.mkdirs()
-    val sourceCode = generateSourceCode(service, packageName, className)
+    val sourceCode = generateSourceCode(service)
     Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
     generatedFiles :+= testKitPath
+
+    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
+    if (!testFilePath.toFile.exists()) {
+      testFilePath.getParent.toFile.mkdirs()
+      Files.write(testFilePath, generateTestSourceCode(service).getBytes(Charsets.UTF_8))
+      generatedFiles :+= testFilePath
+    }
 
     generatedFiles
   }
 
-  private[codegen] def generateSourceCode(
-      service: ModelBuilder.ActionService,
-      packageName: String,
-      className: String): String = {
+  private[codegen] def generateSourceCode(service: ModelBuilder.ActionService): String = {
+
+    val packageName = service.fqn.parent.javaPackage
+    val className = service.className
 
     val imports = generateImports(
       commandTypes(service.commands),
@@ -98,31 +105,47 @@ object ActionTestKitGenerator {
           |""".stripMargin
   }
 
+  private[codegen] def generateTestSourceCode(service: ModelBuilder.ActionService): String = {
+    val className = service.className
+    val packageName = service.fqn.parent.javaPackage
+    val imports = generateImports(
+      commandTypes(service.commands),
+      "",
+      otherImports = Seq(
+        s"$packageName.$className",
+        s"${packageName}.${className}TestKit",
+        "com.akkaserverless.javasdk.action.Action",
+        "com.akkaserverless.javasdk.testkit.ActionResult",
+        "org.junit.Test",
+        "static org.junit.Assert.*"))
+
+    val testClassName = s"${className}Test"
+
+    s"""$unmanagedComment
+          |package ${service.fqn.parent.javaPackage};
+          |
+          |$imports
+          |
+          |public class $testClassName {
+          |
+          |  @Test
+          |  public void exampleTest() {
+          |    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
+          |    // use the testkit to execute a command
+          |    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+          |    // verify the response
+          |    // SomeResponse actualResponse = result.getReply();
+          |    // assertEquals(expectedResponse, actualResponse);
+          |  }
+          |
+          |  ${Format.indent(generateTestingServices(service), 2)}
+          |
+          |}
+          |""".stripMargin
+  }
+
   def generateServices(service: ModelBuilder.ActionService): String = {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
-
-    def selectOutput(command: ModelBuilder.Command): String = {
-      val parent = command.outputType.parent
-      s"${parent.javaPackageOption.getOrElse(parent.protoPackage)}.${filterJavaOuterClassname(
-        parent.javaOuterClassnameOption)}${command.outputType.name}"
-
-    }
-
-    def selectInput(command: ModelBuilder.Command): String = {
-      val parent = command.inputType.parent
-      s"${parent.javaPackageOption.getOrElse(parent.protoPackage)}.${filterJavaOuterClassname(
-        parent.javaOuterClassnameOption)}${command.inputType.name}"
-
-    }
-
-    def filterJavaOuterClassname(javaOuterClassnameOption: Option[String]): String = {
-      javaOuterClassnameOption match {
-        case None => ""
-        case Some(value) =>
-          if (value == "EmptyProto" || value == "AnyProto") ""
-          else value + "."
-      }
-    }
 
     service.commands
       .map { command =>
@@ -135,6 +158,44 @@ object ActionTestKitGenerator {
             |""".stripMargin + "\n"
       }
       .mkString("")
+  }
+
+  def generateTestingServices(service: ModelBuilder.ActionService): String = {
+    service.commands
+      .map { command =>
+        s"""|@Test
+            |public void ${lowerFirst(command.name)}Test() {
+            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
+            |  // ActionResult<${selectOutput(command)}> result = testKit.${lowerFirst(command.name)}(${selectInput(
+          command)}.newBuilder()...build());
+            |}
+            |""".stripMargin + "\n"
+      }
+      .mkString("")
+  }
+
+  def selectOutput(command: ModelBuilder.Command): String = {
+    val parent = command.outputType.parent
+    s"${filterJavaOuterClassname(parent.javaOuterClassnameOption)}${command.outputType.name}"
+
+  }
+
+  def selectInput(command: ModelBuilder.Command): String = {
+    val parent = command.inputType.parent
+    s"${filterJavaOuterClassname(parent.javaOuterClassnameOption)}${command.inputType.name}"
+
+  }
+
+  def filterJavaOuterClassname(javaOuterClassnameOption: Option[String]): String = {
+    javaOuterClassnameOption match {
+      case None => ""
+      case Some(value) =>
+        if (value == "EmptyProto" || value == "AnyProto")
+          "" //TODO review this. Might not be needed if proto are 'well' defined.
+        // original .proto file on test might be badly defined
+        // e.g. `rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty)` might have to be `rpc Ignore(com.google.protobuf.Any) returns (com.google.protobuf.Empty)`
+        else value + "."
+    }
   }
 
 }
