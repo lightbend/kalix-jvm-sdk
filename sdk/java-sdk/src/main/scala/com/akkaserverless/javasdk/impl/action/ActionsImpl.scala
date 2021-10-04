@@ -38,6 +38,7 @@ import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
@@ -50,6 +51,19 @@ final class ActionService(
     val anySupport: AnySupport)
     extends Service {
 
+  @volatile var actionClass: Option[Class[_]] = None
+
+  def createAction(context: ActionCreationContext): ActionHandler[_] = {
+    val handler = factory.create(context)
+    actionClass = Some(handler.actionClass())
+    handler
+  }
+
+  def log: Logger = actionClass match {
+    case Some(clazz) => LoggerFactory.getLogger(clazz)
+    case None        => ActionsImpl.log
+  }
+
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
@@ -60,11 +74,11 @@ final class ActionService(
 }
 
 private[javasdk] object ActionsImpl {
-  private val log = LoggerFactory.getLogger(classOf[Action])
+  private[action] val log = LoggerFactory.getLogger(classOf[Action])
 
-  private def handleUnexpectedException(command: ActionCommand, ex: Throwable): ActionResponse =
+  private def handleUnexpectedException(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
     ErrorHandling.withCorrelationId { correlationId =>
-      log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
+      service.log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
       protocolFailure(correlationId)
     }
 
@@ -92,6 +106,7 @@ private[javasdk] final class ActionsImpl(
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
 
   private def effectToResponse(
+      service: ActionService,
       command: ActionCommand,
       effect: Action.Effect[_],
       anySupport: AnySupport): Future[ActionResponse] = {
@@ -112,10 +127,10 @@ private[javasdk] final class ActionsImpl(
         futureEffect
           .flatMap { effect =>
             val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
-            effectToResponse(command, withSurroundingSideEffects, anySupport)
+            effectToResponse(service, command, withSurroundingSideEffects, anySupport)
           }
           .recover { case NonFatal(ex) =>
-            handleUnexpectedException(command, ex)
+            handleUnexpectedException(service, command, ex)
           }
       case ErrorEffect(description, sideEffects) =>
         Future.successful(
@@ -160,14 +175,11 @@ private[javasdk] final class ActionsImpl(
           val effect = service.factory
             .create(creationContext)
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(in, effect, service.anySupport)
+          effectToResponse(service, in, effect, service.anySupport)
         } catch {
           case NonFatal(ex) =>
-            ErrorHandling.withCorrelationId { correlationId =>
-              // command handler threw an "unexpected" error
-              log.error(s"Failure during handling of command ${in.serviceName}.${in.name}", ex)
-              Future.successful(protocolFailure(correlationId))
-            }
+            // command handler threw an "unexpected" error
+            Future.successful(handleUnexpectedException(service, in, ex))
         }
       case None =>
         Future.successful(
@@ -206,11 +218,11 @@ private[javasdk] final class ActionsImpl(
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
                     createContext(call))
-                effectToResponse(call, effect, service.anySupport)
+                effectToResponse(service, call, effect, service.anySupport)
               } catch {
                 case NonFatal(ex) =>
                   // command handler threw an "unexpected" error
-                  Future.successful(handleUnexpectedException(call, ex))
+                  Future.successful(handleUnexpectedException(service, call, ex))
               }
             case None =>
               Future.successful(
@@ -235,15 +247,15 @@ private[javasdk] final class ActionsImpl(
             .create(creationContext)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
-            .mapAsync(1)(effect => effectToResponse(in, effect, service.anySupport))
+            .mapAsync(1)(effect => effectToResponse(service, in, effect, service.anySupport))
             .recover { case NonFatal(ex) =>
               // user stream failed with an "unexpected" error
-              handleUnexpectedException(in, ex)
+              handleUnexpectedException(service, in, ex)
             }
         } catch {
           case NonFatal(ex) =>
             // command handler threw an "unexpected" error
-            Source.single(handleUnexpectedException(in, ex))
+            Source.single(handleUnexpectedException(service, in, ex))
         }
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
@@ -283,10 +295,10 @@ private[javasdk] final class ActionsImpl(
                     }.asJava,
                     createContext(call))
                   .asScala
-                  .mapAsync(1)(effect => effectToResponse(call, effect, service.anySupport))
+                  .mapAsync(1)(effect => effectToResponse(service, call, effect, service.anySupport))
                   .recover { case NonFatal(ex) =>
                     // user stream failed with an "unexpected" error
-                    handleUnexpectedException(call, ex)
+                    handleUnexpectedException(service, call, ex)
                   }
               } catch {
                 case NonFatal(ex) =>
