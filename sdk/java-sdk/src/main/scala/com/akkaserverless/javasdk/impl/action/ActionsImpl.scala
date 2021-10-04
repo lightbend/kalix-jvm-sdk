@@ -59,6 +59,7 @@ final class ActionService(
     handler
   }
 
+  // use a logger specific to the service impl if possible
   def log: Logger = actionClass match {
     case Some(clazz) => LoggerFactory.getLogger(clazz)
     case None        => ActionsImpl.log

@@ -235,6 +235,13 @@ final class EventSourcedEntitiesImpl(
       .collect { case (_, Some(message)) =>
         EventSourcedStreamOut(message)
       }
+      .recover { case error =>
+        // only "unexpected" exceptions should end up here
+        ErrorHandling.withCorrelationId { correlationId =>
+          Logging(system.eventStream, handler.entityClass).error(error, failureMessageForLog(error))
+          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+        }
+      }
   }
 
   private class CommandContextImpl(

@@ -21,6 +21,7 @@ import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
+import akka.event.LoggingAdapter
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
@@ -208,6 +209,12 @@ final class ValueEntitiesImpl(
 
         case InEmpty =>
           throw ProtocolException(init, "Value entity received empty/unknown message")
+      }
+      .recover { case error =>
+        ErrorHandling.withCorrelationId { correlationId =>
+          Logging(system.eventStream, handler.entityClass).error(error, failureMessageForLog(error))
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
   }
 

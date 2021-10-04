@@ -123,4 +123,6 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
       command: Any,
       context: CommandContext): ReplicatedEntity.Effect[_]
 
+  def entityClass: Class[_] = entity.getClass
+
 }

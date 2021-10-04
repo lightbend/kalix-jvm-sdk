@@ -111,7 +111,7 @@ final class ReplicatedEntitiesImpl(
       ReplicatedEntityDeltaTransformer.create(delta, service.anySupport)
     }
 
-    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system, log)
+    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system)
 
     Flow[ReplicatedEntityStreamIn]
       .mapConcat { in =>
@@ -132,7 +132,7 @@ final class ReplicatedEntitiesImpl(
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          log.error(error, failureMessageForLog(error))
+          Logging(system.eventStream, runner.handler.entityClass).error(error, failureMessageForLog(error))
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
@@ -147,10 +147,9 @@ object ReplicatedEntitiesImpl {
       entityId: String,
       initialData: Option[InternalReplicatedData],
       rootContext: Context,
-      system: ActorSystem,
-      log: LoggingAdapter) {
+      system: ActorSystem) {
 
-    private val handler = {
+    val handler = {
       val context = new ReplicatedEntityCreationContext(entityId, rootContext, system)
       try {
         service.factory.create(context)
