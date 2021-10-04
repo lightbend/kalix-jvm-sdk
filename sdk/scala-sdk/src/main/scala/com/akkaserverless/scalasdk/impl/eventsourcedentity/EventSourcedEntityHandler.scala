@@ -19,6 +19,12 @@ package com.akkaserverless.scalasdk.impl.eventsourcedentity
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
+object EventSourcedEntityHandler {
+  final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
+
+  final case class EventHandlerNotFound(commandName: String) extends RuntimeException
+}
+
 abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](val entity: E) {
   def handleEvent(state: S, event: Any): S
 
