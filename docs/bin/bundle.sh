@@ -22,11 +22,26 @@ readonly script_dir="$(cd -P "$(dirname "$script_path")" && pwd)"
 readonly docs_dir="$(cd "$script_dir/.." && pwd)"
 readonly bundle_dir="$docs_dir/build/bundle"
 
+readonly sdk_version="$("$script_dir/version.sh")"
+
 function _remove_doc_tags {
   local -r dir="$1"
   # note: use commands that are compatible with both GNU sed and BSD (macOS) sed
   find "$dir" -type f -exec sed -i.bak "/tag::[^\[]*\[.*\]/d" {} \; -exec rm -f {}.bak \;
   find "$dir" -type f -exec sed -i.bak "/end::[^\[]*\[.*\]/d" {} \; -exec rm -f {}.bak \;
+}
+
+function _set_sdk_version {
+  local -r dir="$1"
+  # note: use commands that are compatible with both GNU sed and BSD (macOS) sed
+  if [ -f "$dir/pom.xml" ] ; then
+    sed -i.bak "s/<akkaserverless-sdk.version>.*</<akkaserverless-sdk.version>$sdk_version</" "$dir/pom.xml"
+    rm -f "$dir/pom.xml.bak"
+  fi
+  if [ -f "$dir/project/plugins.sbt" ] ; then
+    sed -i.bak "s/\"sbt-akkaserverless\" % .*/\"sbt-akkaserverless\" % \"$sdk_version\")/" "$dir/project/plugins.sbt"
+    rm -f "$dir/project/plugins.sbt.bak"
+  fi
 }
 
 function _bundle {
@@ -53,6 +68,7 @@ function _bundle {
   rsync -a --exclude-from "$sample/.bundleignore" --exclude ".bundleignore" "$sample"/ "$sample_bundle_dir"/
 
   _remove_doc_tags "$sample_bundle_dir"
+  _set_sdk_version "$sample_bundle_dir"
 
   pushd "$sample_bundle_dir" > /dev/null
   zip -q -r "$zip_file" .
