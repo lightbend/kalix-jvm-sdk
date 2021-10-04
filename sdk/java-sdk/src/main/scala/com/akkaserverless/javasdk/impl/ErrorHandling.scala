@@ -25,13 +25,15 @@ import java.util.UUID
  */
 private[javasdk] object ErrorHandling {
 
+  val CorrelationIdMdcKey = "correlationID"
+
   def withCorrelationId[T](block: String => T): T = {
     val correlationId = UUID.randomUUID().toString
-    MDC.put("correlationID", correlationId)
+    MDC.put(CorrelationIdMdcKey, correlationId)
     try {
       block(correlationId)
     } finally {
-      MDC.remove("correlationID")
+      MDC.remove(CorrelationIdMdcKey)
     }
   }
 

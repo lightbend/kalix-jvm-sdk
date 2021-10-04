@@ -16,6 +16,9 @@
 
 package com.akkaserverless.javasdk.logging;
 
+import com.akkaserverless.javasdk.impl.ErrorHandling;
+import com.akkaserverless.javasdk.impl.ErrorHandling$;
+
 /**
  * This Logback JSON layout uses the name `severity` (instead of `level`).
  *
@@ -35,5 +38,14 @@ public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic
   public void addCustomDataToJsonMap(
       java.util.Map<String, Object> map, ch.qos.logback.classic.spi.ILoggingEvent event) {
     add("severity", true, String.valueOf(event.getLevel()), map);
+    if (event.getMDCPropertyMap().containsKey(ErrorHandling.CorrelationIdMdcKey())) {
+      // automatically include correlation id in message if present (for now)
+      String correlationID = event.getMDCPropertyMap().get(ErrorHandling.CorrelationIdMdcKey());
+      add(
+          MESSAGE_ATTR_NAME,
+          this.includeMessage,
+          map.get(MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
+          map);
+    }
   }
 }
