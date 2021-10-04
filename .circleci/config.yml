@@ -69,9 +69,15 @@ commands:
       - run: 
           name: "Set SDK version"
           command: |
-            # tail 2 + head 1 because CircleCI adds an extra line
-            # the SDK_VERSION is later used to run the maven tests (see below)
-            echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            if [ -e workspace/published-version ]; then
+              echo "Extracting version from previous publish step"
+              echo 'export SDK_VERSION='`cat workspace/published-version` >> $BASH_ENV
+            else
+              # tail 2 + head 1 because CircleCI adds an extra line
+              # the SDK_VERSION is later used to run the maven tests (see below)
+              echo "Extracting version from sbt build"
+              echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+            fi
 
   publish-local:
     description: Build and publish artifacts and plugins locally for other tests to use
@@ -89,12 +95,14 @@ commands:
       - run: mkdir -p workspace
       - run: cp -r ~/.m2 workspace/
       - run: cp -r ~/.ivy2 workspace/
+      - run: echo $SDK_VERSION workspace/published-version
       # copy published files to workspace for other jobs to pick up rather than build their own
       - persist_to_workspace:
           root: workspace
           paths:
             - .m2
             - .ivy2
+            - published-version
   copy-from-workspace:
     description: Copy locally published artifacts from workspace
     steps:
