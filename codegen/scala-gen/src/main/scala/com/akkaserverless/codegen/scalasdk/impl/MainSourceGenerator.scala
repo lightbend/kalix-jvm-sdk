@@ -34,9 +34,8 @@ object MainSourceGenerator {
     val filteredServices = model.services.flatMap {
       case (name, service: ModelBuilder.EntityService) =>
         model.lookupEntity(service) match {
-          case _: ModelBuilder.ValueEntity => List(name -> service)
-          case _: ModelBuilder.EventSourcedEntity =>
-            Nil
+          case _: ModelBuilder.ValueEntity        => List(name -> service)
+          case _: ModelBuilder.EventSourcedEntity => List(name -> service)
           case _: ModelBuilder.ReplicatedEntity =>
             Nil
         }
@@ -46,7 +45,7 @@ object MainSourceGenerator {
 
     val filteredEntities = model.entities.filter {
       case (_, _: ModelBuilder.ValueEntity)        => true
-      case (_, _: ModelBuilder.EventSourcedEntity) => false
+      case (_, _: ModelBuilder.EventSourcedEntity) => true
       case (_, _: ModelBuilder.ReplicatedEntity)   => false
     }
 

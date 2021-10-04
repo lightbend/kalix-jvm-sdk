@@ -54,7 +54,10 @@ object ModelBuilder {
   /**
    * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
    */
-  sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String)
+  sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String) {
+    val abstractEntityName = "Abstract" + fqn.name
+    val handlerName = fqn.name + "Handler"
+  }
 
   /**
    * A type of Entity that stores its state using a journal of events, and restores its state by replaying that journal.
@@ -75,10 +78,7 @@ object ModelBuilder {
       override val fqn: FullyQualifiedName,
       override val entityType: String,
       state: State)
-      extends Entity(fqn, entityType) {
-    val abstractEntityName = "Abstract" + fqn.name
-    val handlerName = fqn.name + "Handler"
-  }
+      extends Entity(fqn, entityType)
 
   /**
    * A type of Entity that replicates its current state using CRDTs.
@@ -400,8 +400,9 @@ object ModelBuilder {
    * @return
    *   the event sourced entity
    */
-  private def extractEventSourcedEntityDefinition(
-      descriptor: Descriptors.FileDescriptor): Option[EventSourcedEntity] = {
+  private def extractEventSourcedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Option[EventSourcedEntity] = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
@@ -411,9 +412,16 @@ object ModelBuilder {
 
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       EventSourcedEntity(
-        FullyQualifiedName(name, protoReference),
+        FullyQualifiedName(name, name, protoReference, Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
         rawEntity.getEntityType,
-        State(FullyQualifiedName(rawEntity.getState, protoReference)),
+        // FIXME this assumes the state is defined in the same proto file as the
+        // entity, which I don't think is necessarily true.
+        State(
+          FullyQualifiedName(
+            rawEntity.getState,
+            rawEntity.getState,
+            protoReference,
+            Some(fqnExtractor.fileDescriptorObject(descriptor.getFile)))),
         rawEntity.getEventsList.asScala
           .map(event => Event(FullyQualifiedName(event, protoReference))))
     }
