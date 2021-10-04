@@ -95,7 +95,7 @@ commands:
       - run: mkdir -p workspace
       - run: cp -r ~/.m2 workspace/
       - run: cp -r ~/.ivy2 workspace/
-      - run: echo $SDK_VERSION workspace/published-version
+      - run: echo $SDK_VERSION > workspace/published-version
       # copy published files to workspace for other jobs to pick up rather than build their own
       - persist_to_workspace:
           root: workspace
