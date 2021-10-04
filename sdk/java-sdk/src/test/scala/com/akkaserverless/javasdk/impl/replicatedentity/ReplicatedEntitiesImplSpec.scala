@@ -183,24 +183,21 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
     }
 
     "fail action when command handler returns error effect" in {
-      service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
-        protocol.replicatedEntity
-          .connect()
-          .send(init(ShoppingCart.Name, "cart"))
-          .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-          .expect(failure(1, "Quantity for item foo must be greater than zero."))
-          .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
-          .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
-          .passivate()
+      protocol.replicatedEntity
+        .connect()
+        .send(init(ShoppingCart.Name, "cart"))
+        .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
+        .expect(failure(1, "Quantity for item foo must be greater than zero."))
+        .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
+        .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
+        .passivate()
 
-        protocol.replicatedEntity
-          .connect()
-          .send(init(ShoppingCart.Name, "cart"))
-          .send(command(1, "cart", "GetCart", getShoppingCart("cart")))
-          .expect(reply(1, EmptyCart))
-          .passivate()
-      }
+      protocol.replicatedEntity
+        .connect()
+        .send(init(ShoppingCart.Name, "cart"))
+        .send(command(1, "cart", "GetCart", getShoppingCart("cart")))
+        .expect(reply(1, EmptyCart))
+        .passivate()
     }
 
     "fail when command handler throws exception" in {

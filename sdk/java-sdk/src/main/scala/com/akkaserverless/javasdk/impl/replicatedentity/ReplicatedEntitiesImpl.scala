@@ -194,7 +194,6 @@ object ReplicatedEntitiesImpl {
 
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>
-          log.error("Fail invoked for command [{}] for entity [{}]: {}", command.name, entityId, error.description)
           if (handler._internalHasDelta)
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(

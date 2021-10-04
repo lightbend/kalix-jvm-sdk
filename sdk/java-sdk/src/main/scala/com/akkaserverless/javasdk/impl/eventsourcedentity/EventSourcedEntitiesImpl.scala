@@ -208,12 +208,6 @@ final class EventSourcedEntitiesImpl(
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
-              // FIXME I don't think effect.error(yadi) should lead to logged error but just be an "expected" error reply to user
-              log.error(
-                "Fail invoked for command [{}] for entity [{}]: {}",
-                command.name,
-                thisEntityId,
-                error.description)
               (
                 endSequenceNumber,
                 Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))

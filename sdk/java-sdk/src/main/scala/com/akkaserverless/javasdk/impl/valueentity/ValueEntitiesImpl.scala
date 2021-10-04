@@ -181,11 +181,6 @@ final class ValueEntitiesImpl(
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
-              log.error(
-                "Fail invoked for command [{}] for entity [{}]: {}",
-                command.name,
-                thisEntityId,
-                error.description)
               ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
 
             case _ => // non-error
