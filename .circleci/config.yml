@@ -222,10 +222,10 @@ jobs:
       - checkout-and-merge-to-main
       - restore_deps_cache
       - setup_sbt
-      - set-sdk-version
       # note: depends on publish local as separate job before this
-      
-      - run: 
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
           name: Run integration tests for Value Entity Archetype
           command: |
             cd maven-java
@@ -249,6 +249,7 @@ jobs:
       - restore_deps_cache
       # note: depends on publish local as separate job before this
       - copy-from-workspace
+      - set-sdk-version
       - run:
           name: Java Customer Registry quickstart
           command: |
