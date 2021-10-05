@@ -55,7 +55,7 @@ object SourceGenerator {
           case entity: ModelBuilder.ValueEntity =>
             ValueEntityTestKitGenerator.generateManagedTest(entity, service)
           case _: ModelBuilder.EventSourcedEntity =>
-            Nil
+            Nil // FIXME
           case _: ModelBuilder.ReplicatedEntity =>
             Nil
         }

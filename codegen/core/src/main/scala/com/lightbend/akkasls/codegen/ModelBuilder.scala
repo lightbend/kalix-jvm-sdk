@@ -57,6 +57,7 @@ object ModelBuilder {
   sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String) {
     val abstractEntityName = "Abstract" + fqn.name
     val handlerName = fqn.name + "Handler"
+    val providerName = fqn.name + "Provider"
   }
 
   /**

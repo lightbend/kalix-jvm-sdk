@@ -109,15 +109,6 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           | * and the command handler methods in the <code>Counter</code> class.
           | */
           |class MyEntityHandler(entity: MyEntity) extends EventSourcedEntityHandler[MyState, MyEntity](entity) {
-          |  def handleEvent(state: MyState, event: Any): MyState = {
-          |    event match {
-          |      case evt: SetEvent =>
-          |        entity.setEvent(state, evt)
-          |
-          |      case _ =>
-          |        throw new EventHandlerNotFound(event.getClass)
-          |    }
-          |  }
           |  def handleCommand(commandName: String, state: MyState, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
           |    commandName match {
           |      case "Set" =>
@@ -128,6 +119,15 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |
           |      case _ =>
           |        throw new CommandHandlerNotFound(commandName)
+          |    }
+          |  }
+          |  def handleEvent(state: MyState, event: Any): MyState = {
+          |    event match {
+          |      case evt: SetEvent =>
+          |        entity.setEvent(state, evt)
+          |
+          |      case _ =>
+          |        throw new EventHandlerNotFound(event.getClass)
           |    }
           |  }
           |}

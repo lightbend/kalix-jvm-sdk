@@ -39,7 +39,7 @@ object EventSourcedEntitySourceGenerator {
   private[codegen] def abstractEntity(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    val stateType = eventSourcedEntity.state.fqn.name
+
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
     implicit val imports =
@@ -51,7 +51,7 @@ object EventSourcedEntitySourceGenerator {
         otherImports = Seq("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
-
+    val stateType = typeName(eventSourcedEntity.state.fqn)
     val commandHandlers = service.commands
       .map { cmd =>
         val methodName = cmd.name
@@ -68,9 +68,8 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           events.map { event =>
-            s"""|def ${lowerFirst(event.fqn.name)}(currentState: ${typeName(
-              eventSourcedEntity.state.fqn)}, ${lowerFirst(event.fqn.name)}: ${typeName(event.fqn)}): ${typeName(
-              eventSourcedEntity.state.fqn)}""".stripMargin
+            s"""|def ${lowerFirst(event.fqn.name)}(currentState: $stateType, ${lowerFirst(event.fqn.name)}: ${typeName(
+              event.fqn)}): $stateType""".stripMargin
           }
       }
 
@@ -143,14 +142,6 @@ object EventSourcedEntitySourceGenerator {
         | * and the command handler methods in the <code>Counter</code> class.
         | */
         |class ${eventSourcedEntityName}Handler(entity: ${eventSourcedEntityName}) extends EventSourcedEntityHandler[$stateType, ${eventSourcedEntityName}](entity) {
-        |  def handleEvent(state: $stateType, event: Any): $stateType = {
-        |    event match {
-        |      ${Format.indent(eventCases, 6)}
-        |
-        |      case _ =>
-        |        throw new EventHandlerNotFound(event.getClass)
-        |    }
-        |  }
         |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
         |    commandName match {
         |      ${Format.indent(commandCases, 6)}
@@ -159,13 +150,21 @@ object EventSourcedEntitySourceGenerator {
         |        throw new CommandHandlerNotFound(commandName)
         |    }
         |  }
+        |  def handleEvent(state: $stateType, event: Any): $stateType = {
+        |    event match {
+        |      ${Format.indent(eventCases, 6)}
+        |
+        |      case _ =>
+        |        throw new EventHandlerNotFound(event.getClass)
+        |    }
+        |  }
         |}
         |""".stripMargin)
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
     val packageName = entity.fqn.parent.scalaPackage
-    val className = entity.fqn.name + "Provider"
+    val className = entity.providerName
 
     val descriptors =
       (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
