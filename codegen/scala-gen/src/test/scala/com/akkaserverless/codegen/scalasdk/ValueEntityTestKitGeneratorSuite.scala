@@ -167,7 +167,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
   test("it can generate an specific integrationtest stub for the entity") {
     val entity = createShoppingCartEntity()
     val service = createShoppingCartService(entity)
-    val main = FullyQualifiedName("Main", packageNaming)
+    val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
 
     assertEquals(
       ValueEntityTestKitGenerator.integrationTest(main, entity, service).content,
@@ -176,6 +176,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit
 import com.akkaserverless.scalasdk.testkit.ValueEntityResult
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import com.example.shoppingcart.Main
 import com.example.shoppingcart.domain
 import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
@@ -185,7 +186,6 @@ import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpec
-import undefined.Main
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //
