@@ -59,8 +59,8 @@ object ViewServiceSourceGenerator {
     if (!implSourcePath.toFile.exists()) {
       implSourcePath.getParent.toFile.mkdirs()
       Files.write(implSourcePath, viewSource(service, packageName).getBytes(Charsets.UTF_8))
-      generatedSources += implSourcePath
     }
+    generatedSources += implSourcePath
 
     val handlerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.handlerName + ".java"))
     Files.write(handlerSourcePath, viewHandler(service, packageName).getBytes(Charsets.UTF_8))
