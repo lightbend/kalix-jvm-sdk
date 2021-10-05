@@ -201,6 +201,8 @@ object ValueEntityTestKitGenerator {
           |
           |$imports
           |
+          |$unmanagedComment
+          |
           |class ${entityClassName}IntegrationSpec
           |    extends AnyWordSpec
           |    with Matchers
