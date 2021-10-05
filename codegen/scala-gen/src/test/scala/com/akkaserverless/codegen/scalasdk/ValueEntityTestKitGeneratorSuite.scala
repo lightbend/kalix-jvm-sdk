@@ -173,6 +173,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
       ValueEntityTestKitGenerator.integrationTest(main, entity, service).content,
       """package com.example.shoppingcart.api
         |
+        |import akka.actor.ActorSystem
         |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit
         |import com.akkaserverless.scalasdk.testkit.ValueEntityResult
         |import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -203,7 +204,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |
         |  val testkit = AkkaServerlessTestkit(Main.createAkkaServerless())
         |  testkit.start()
-        |  implicit val system = testkit.system
+        |  implicit val system: ActorSystem = testkit.system
         |
         |  "ShoppingCartService" must {
         |    val client: ShoppingCartServiceClient =

@@ -180,6 +180,7 @@ object ValueEntityTestKitGenerator {
         service.commands.map(_.outputType),
         service.fqn.parent.scalaPackage,
         otherImports = Seq(
+          "akka.actor.ActorSystem",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit",
@@ -214,7 +215,7 @@ object ValueEntityTestKitGenerator {
           |
           |  val testkit = AkkaServerlessTestkit(Main.createAkkaServerless())
           |  testkit.start()
-          |  implicit val system = testkit.system
+          |  implicit val system: ActorSystem = testkit.system
           |
           |  "${entityClassName}" must {
           |    val client: ${typeName(client)} =
