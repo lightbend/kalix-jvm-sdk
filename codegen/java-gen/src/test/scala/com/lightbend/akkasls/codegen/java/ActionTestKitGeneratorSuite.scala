@@ -57,6 +57,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
           |// DO NOT EDIT
           |package com.example.actions;
           |
+          |import com.akkaserverless.javasdk.action.Action;
           |import com.akkaserverless.javasdk.action.ActionCreationContext;
           |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
           |import com.akkaserverless.javasdk.testkit.ActionResult;

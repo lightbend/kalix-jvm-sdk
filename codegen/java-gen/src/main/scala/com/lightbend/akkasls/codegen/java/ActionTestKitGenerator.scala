@@ -62,6 +62,7 @@ object ActionTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
+        "com.akkaserverless.javasdk.action.Action",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
@@ -128,7 +129,7 @@ object ActionTestKitGenerator {
           |
           |  @Test
           |  public void exampleTest() {
-          |    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
+          |    ${className}TestKit testKit = ${className}TestKit.of($className::new);
           |    // use the testkit to execute a command
           |    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
           |    // verify the response
