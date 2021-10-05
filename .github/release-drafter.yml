@@ -27,9 +27,15 @@ autolabeler:
   - label: 'java-sdk'
     title:
       - '/.*\(.*java.*\):/i'
+    files:
+      - '/sdk/java-sdk/**'
   - label: 'scala-sdk'
     title:
       - '/.*\(.*scala.*\):/i'
+    files:
+      - '/sdk/scala-sdk/**'
   - label: 'Documentation'
     title:
       - '/doc.*:/i'
+    files:
+      - '/docs/**'
