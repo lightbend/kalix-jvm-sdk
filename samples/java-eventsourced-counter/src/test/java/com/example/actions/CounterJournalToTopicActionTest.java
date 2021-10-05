@@ -40,4 +40,6 @@ public class CounterJournalToTopicActionTest {
     // ActionResult<com.google.protobuf.Empty> result = testKit.ignore(com.google.protobuf.Any.newBuilder()...build());
   }
 
+// tag::class[]
 }
+// end::class[]
