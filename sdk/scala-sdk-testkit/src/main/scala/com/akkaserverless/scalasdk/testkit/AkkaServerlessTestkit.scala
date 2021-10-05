@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.testkit
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.javasdk.testkit.{AkkaServerlessTestkit => JTestKit}
+import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestkit => JTestKit }
 
 /**
  * Testkit for running Akka Serverless services locally.
@@ -51,4 +51,3 @@ class AkkaServerlessTestkit private (delegate: JTestKit) {
 
   def stop(): Unit = delegate.stop()
 }
-
