@@ -1,4 +1,4 @@
-# Implementing a Counter as a Value Entity
+# Implementing a Counter as a Event Sourced Entity
 
 
 ## Building and running unit tests
