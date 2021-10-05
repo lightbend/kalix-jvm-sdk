@@ -16,11 +16,11 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
-import akka.testkit.EventFilter
+import akka.actor.testkit.typed.scaladsl.LoggingTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
 import com.akkaserverless.javasdk.{ AkkaServerless, AkkaServerlessRunner }
 import com.typesafe.config.{ Config, ConfigFactory }
-
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider
 
 object TestEventSourced {
@@ -36,7 +36,6 @@ class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _]) 
       user-function-port = $port
       system.akka {
         loglevel = DEBUG
-        loggers = ["akka.testkit.TestEventListener"]
         coordinated-shutdown.exit-jvm = off
       }
     }
@@ -49,7 +48,7 @@ class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _]) 
   runner.run()
 
   def expectLogError[T](message: String)(block: => T): T =
-    EventFilter.error(message, occurrences = 1).intercept(block)(runner.system)
+    LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
 
   def terminate(): Unit = runner.terminate()
 }

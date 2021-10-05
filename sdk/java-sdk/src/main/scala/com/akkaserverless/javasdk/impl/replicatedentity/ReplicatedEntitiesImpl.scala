@@ -18,8 +18,6 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.event.LoggingAdapter
 import akka.stream.scaladsl.{ Flow, Source }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
@@ -37,6 +35,7 @@ import com.google.protobuf.Descriptors
 import scala.util.control.NonFatal
 import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
 import com.akkaserverless.protocol.component.Failure
+import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityService(
     val factory: ReplicatedEntityFactory,
@@ -73,7 +72,7 @@ final class ReplicatedEntitiesImpl(
   import ReplicatedEntitiesImpl._
   import EntityExceptions._
 
-  private val log = Logging(system.eventStream, this.getClass)
+  private val log = LoggerFactory.getLogger(this.getClass)
 
   /**
    * After invoking handle, the first message sent will always be a ReplicatedEntityInit message, containing the entity
@@ -89,7 +88,7 @@ final class ReplicatedEntitiesImpl(
           source.via(runEntity(init))
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
-          log.warning("Replicated Entity stream closed before init.")
+          log.warn("Replicated Entity stream closed before init.")
           Source.empty[ReplicatedEntityStreamOut]
         case (Seq(ReplicatedEntityStreamIn(other, _)), _) =>
           throw ProtocolException(
@@ -97,7 +96,7 @@ final class ReplicatedEntitiesImpl(
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          log.error(error, failureMessageForLog(error))
+          log.error(failureMessageForLog(error), error)
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
@@ -132,7 +131,7 @@ final class ReplicatedEntitiesImpl(
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          Logging(system.eventStream, runner.handler.entityClass).error(error, failureMessageForLog(error))
+          LoggerFactory.getLogger(runner.handler.entityClass).error(failureMessageForLog(error), error)
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }

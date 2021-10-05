@@ -18,7 +18,6 @@ package com.akkaserverless.javasdk.impl.eventsourcedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.Logging
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
@@ -40,7 +39,6 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Me
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
-import com.google.protobuf.{ Any => JavaPbAny }
 
 import scala.util.control.NonFatal
 import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
@@ -96,10 +94,10 @@ final class EventSourcedEntitiesImpl(
     extends EventSourcedEntities {
   import EntityExceptions._
 
-  private val log = Logging(system.eventStream, this.getClass)
+  private val log = LoggerFactory.getLogger(this.getClass)
   private final val services = _services.iterator.map { case (name, service) =>
     if (service.snapshotEvery < 0)
-      log.warning("Snapshotting disabled for entity [{}], this is not recommended.", service.entityType)
+      log.warn("Snapshotting disabled for entity [{}], this is not recommended.", service.entityType)
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
@@ -131,7 +129,7 @@ final class EventSourcedEntitiesImpl(
       .recover { case error =>
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
-          log.error(error, failureMessageForLog(error))
+          log.error(failureMessageForLog(error), error)
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
@@ -238,7 +236,7 @@ final class EventSourcedEntitiesImpl(
       .recover { case error =>
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
-          Logging(system.eventStream, handler.entityClass).error(error, failureMessageForLog(error))
+          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }

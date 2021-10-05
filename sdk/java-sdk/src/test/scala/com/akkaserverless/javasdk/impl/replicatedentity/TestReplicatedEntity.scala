@@ -16,7 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import akka.testkit.EventFilter
+import akka.actor.testkit.typed.scaladsl.LoggingTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
 import com.akkaserverless.javasdk.AkkaServerless
 import com.akkaserverless.javasdk.AkkaServerlessRunner
@@ -50,7 +51,7 @@ class TestReplicatedService(entityProvider: ReplicatedEntityProvider[_, _]) {
   runner.run()
 
   def expectLogError[T](message: String)(block: => T): T =
-    EventFilter.error(message, occurrences = 1).intercept(block)(runner.system)
+    LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
 
   def terminate(): Unit = runner.terminate()
 }

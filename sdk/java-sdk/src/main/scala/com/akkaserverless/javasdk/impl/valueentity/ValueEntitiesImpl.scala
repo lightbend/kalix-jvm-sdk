@@ -20,8 +20,6 @@ import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.event.LoggingAdapter
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
@@ -91,7 +89,7 @@ final class ValueEntitiesImpl(
   import EntityExceptions._
 
   private implicit val ec: ExecutionContext = system.dispatcher
-  private final val log = Logging(system.eventStream, this.getClass)
+  private final val log = LoggerFactory.getLogger(this.getClass)
 
   /**
    * One stream will be established per active entity. Once established, the first message sent will be Init, which
@@ -109,14 +107,14 @@ final class ValueEntitiesImpl(
           source.via(runEntity(init))
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
-          log.warning("Value Entity stream closed before init.")
+          log.warn("Value Entity stream closed before init.")
           Source.empty[ValueEntityStreamOut]
         case (Seq(ValueEntityStreamIn(other, _)), _) =>
           throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          log.error(error, failureMessageForLog(error))
+          log.error(failureMessageForLog(error), error)
           ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
@@ -212,7 +210,7 @@ final class ValueEntitiesImpl(
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          Logging(system.eventStream, handler.entityClass).error(error, failureMessageForLog(error))
+          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
           ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
