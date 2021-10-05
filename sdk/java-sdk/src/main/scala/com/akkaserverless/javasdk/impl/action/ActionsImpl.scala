@@ -75,7 +75,7 @@ final class ActionService(
 }
 
 private[javasdk] object ActionsImpl {
-  private[action] val log = LoggerFactory.getLogger(classOf[Action])
+  private[action] val log = LoggerFactory.getLogger(classOf[ActionsImpl])
 
   private def handleUnexpectedException(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
     ErrorHandling.withCorrelationId { correlationId =>
