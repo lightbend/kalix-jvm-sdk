@@ -113,7 +113,12 @@ object SourceGeneratorUtils {
     override def toString: String = {
       val suffix = if (semi) ";" else ""
       imports
-        .map(pkg => s"import $pkg$suffix")
+        .map { imported =>
+          if (imported == "com.google.protobuf.any.Any") {
+            s"import com.google.protobuf.any.{ Any => ScalaPbAny }$suffix"
+          } else
+            s"import $imported$suffix"
+        }
         .mkString("\n")
     }
 
@@ -168,7 +173,8 @@ object SourceGeneratorUtils {
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 
   def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
-    if (imports.contains(fqn.fullQualifiedName)) fqn.name
+    if (fqn.fullQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
+    else if (imports.contains(fqn.fullQualifiedName)) fqn.name
     else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
     else if (imports.contains(fqn.parent.javaPackage))
       fqn.parent.javaPackage.split("\\.").last + "." + fqn.name

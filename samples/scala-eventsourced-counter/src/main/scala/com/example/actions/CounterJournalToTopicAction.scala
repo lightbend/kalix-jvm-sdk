@@ -4,7 +4,7 @@ import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.example.domain.ValueDecreased
 import com.example.domain.ValueIncreased
-import com.google.protobuf.any.Any
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.empty.Empty
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -24,7 +24,7 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
     throw new RuntimeException("The command handler for `Decrease` is not implemented, yet")
   }
   /** Handler for "Ignore". */
-  override def ignore(any: Any): Action.Effect[Empty] = {
+  override def ignore(any: ScalaPbAny): Action.Effect[Empty] = {
     throw new RuntimeException("The command handler for `Ignore` is not implemented, yet")
   }
 }
