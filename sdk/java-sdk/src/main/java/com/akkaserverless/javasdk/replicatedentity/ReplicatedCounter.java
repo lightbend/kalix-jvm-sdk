@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.replicatedentity.ReplicatedData;
+
 /** A counter that can be incremented and decremented. */
 public interface ReplicatedCounter extends ReplicatedData {
   /**

@@ -23,6 +23,7 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedMultiMapDelta,
   ReplicatedMultiMapEntryDelta
 }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 import java.util.{ Collection => JCollection, Collections => JCollections, Set => JSet }
 import scala.jdk.CollectionConverters._
@@ -109,4 +110,6 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
   }
 
   override def toString = s"ReplicatedMultiMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+
+  override def internal(): ReplicatedData = this
 }

@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.tck.model.replicatedentity;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.*;
 import com.akkaserverless.tck.model.ReplicatedEntity.*;
 

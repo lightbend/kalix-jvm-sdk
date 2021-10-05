@@ -18,11 +18,12 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.UpdateData
-
 import java.util.Optional
-import com.akkaserverless.javasdk.replicatedentity.{ CommandContext, ReplicatedData, ReplicatedEntity }
+
+import com.akkaserverless.javasdk.replicatedentity.{ CommandContext, ReplicatedEntity }
 import com.akkaserverless.javasdk.impl.{ AnySupport, EntityExceptions }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 object ReplicatedEntityHandler {
   final case class CommandResult(effect: ReplicatedEntity.Effect[_])
@@ -54,8 +55,10 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
         val dataFactory = new ReplicatedDataFactoryImpl(anySupport)
         val emptyData = entity.emptyData(dataFactory)
         require(emptyData ne null, "Initial empty data for a replicated entity cannot be null")
-        require(emptyData eq dataFactory.internalData, "Replicated data objects must be created with the given factory")
-        data = emptyData
+        require(
+          emptyData.internal() eq dataFactory.internalData,
+          "Replicated data objects must be created with the given factory")
+        data = emptyData.internal().asInstanceOf[D]
     }
 
   /** INTERNAL API */
@@ -109,7 +112,7 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
       commandEffect.primaryEffect match {
         case UpdateData(newData) =>
           require(newData ne null, "update effect with null data is not allowed")
-          data = newData.asInstanceOf[D]
+          data = newData.internal().asInstanceOf[D]
         case _ =>
       }
     }

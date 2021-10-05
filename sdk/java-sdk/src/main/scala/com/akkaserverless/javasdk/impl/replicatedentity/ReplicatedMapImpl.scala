@@ -23,6 +23,7 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedMapDelta,
   ReplicatedMapEntryDelta
 }
+import com.akkaserverless.replicatedentity.ReplicatedData
 import org.slf4j.LoggerFactory
 
 import java.util.function
@@ -151,4 +152,6 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
   }
 
   override def toString = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+
+  override def internal(): ReplicatedData = this
 }

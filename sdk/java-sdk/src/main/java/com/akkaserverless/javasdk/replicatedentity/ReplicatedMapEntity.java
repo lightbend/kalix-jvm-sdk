@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.replicatedentity.ReplicatedData;
+
 public class ReplicatedMapEntity<K, V extends ReplicatedData>
     extends ReplicatedEntity<ReplicatedMap<K, V>> {
   @Override

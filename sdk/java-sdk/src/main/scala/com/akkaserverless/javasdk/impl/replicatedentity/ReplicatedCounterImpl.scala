@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter
 import com.akkaserverless.protocol.replicated_entity.{ ReplicatedCounterDelta, ReplicatedEntityDelta }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 private[replicatedentity] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 0)
     extends ReplicatedCounter
@@ -47,4 +48,6 @@ private[replicatedentity] final class ReplicatedCounterImpl(value: Long = 0, del
   }
 
   override def toString = s"ReplicatedCounter($value)"
+
+  override def internal(): ReplicatedData = this
 }

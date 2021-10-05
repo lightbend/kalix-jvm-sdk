@@ -16,20 +16,18 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityProvider => Impl }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedData => DataImpl }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntity => EntityImpl }
+import scala.collection.immutable
 
-//FIXME implement (the impl and type projection is temporary!)
-trait ReplicatedData {
-  type Impl = DataImpl
+import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityHandler
+import com.google.protobuf.Descriptors
+
+trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
+
+  def entityType: String
+  def options: ReplicatedEntityOptions
+  def newHandler(context: ReplicatedEntityContext): ReplicatedEntityHandler[D, E]
+
+  def serviceDescriptor: Descriptors.ServiceDescriptor
+  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }
-
-//FIXME implement (the impl and type projection is temporary!)
-abstract class ReplicatedEntity[D <: ReplicatedData](val impl: EntityImpl[D#Impl]) {
-  type Impl = EntityImpl[D#Impl]
-}
-
-//FIXME possibly The Provider will not delegate to javasdk and we'll duplicate some more code
-class ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]](
-    private[akkaserverless] val impl: Impl[D#Impl, E#Impl])

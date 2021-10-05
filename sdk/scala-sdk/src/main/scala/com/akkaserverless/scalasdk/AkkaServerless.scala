@@ -20,6 +20,7 @@ import scala.concurrent.Future
 
 import akka.Done
 import com.akkaserverless.javasdk
+import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
@@ -28,7 +29,7 @@ import com.akkaserverless.scalasdk.impl.eventsourcedentity.JavaEventSourcedEntit
 import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
 import com.akkaserverless.scalasdk.impl.view.JavaViewProviderAdapter
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedData
+import com.akkaserverless.scalasdk.replicatedentity.JavaReplicatedEntityProviderAdapter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -105,7 +106,7 @@ class AkkaServerless private (private[akkaserverless] val delegate: javasdk.Akka
    */
   def register[D <: ReplicatedData, E <: ReplicatedEntity[D]](
       provider: ReplicatedEntityProvider[D, E]): AkkaServerless =
-    AkkaServerless(delegate.register(provider.impl))
+    AkkaServerless(delegate.register(JavaReplicatedEntityProviderAdapter(provider)))
 
   /**
    * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for

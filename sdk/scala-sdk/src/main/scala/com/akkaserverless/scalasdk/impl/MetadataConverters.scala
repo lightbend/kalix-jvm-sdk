@@ -23,4 +23,8 @@ private[scalasdk] object MetadataConverters {
   def toScala(javaSdkMetadata: javasdk.Metadata): scalasdk.Metadata =
     // FIXME can we get rid of this cast?
     new scalasdk.impl.MetadataImpl(javaSdkMetadata.asInstanceOf[javasdk.impl.MetadataImpl])
+
+  def toJava(scalaSdkMetadata: scalasdk.Metadata): javasdk.Metadata =
+    scalaSdkMetadata.impl
+
 }

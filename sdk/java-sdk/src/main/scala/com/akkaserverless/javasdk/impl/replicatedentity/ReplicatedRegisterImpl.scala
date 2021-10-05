@@ -23,9 +23,10 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedRegisterDelta
 }
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import java.util.Objects
 
+import java.util.Objects
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 private[replicatedentity] final class ReplicatedRegisterImpl[T](
     anySupport: AnySupport,
@@ -72,4 +73,6 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](
     }
 
   override def toString = s"ReplicatedRegister($value)"
+
+  override def internal(): ReplicatedData = this
 }

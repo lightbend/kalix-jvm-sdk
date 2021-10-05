@@ -23,6 +23,7 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedRegisterMapDelta,
   ReplicatedRegisterMapEntryDelta
 }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
@@ -100,4 +101,6 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
   }
 
   override def toString = s"ReplicatedRegisterMap(${registers.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+
+  override def internal(): ReplicatedData = this
 }

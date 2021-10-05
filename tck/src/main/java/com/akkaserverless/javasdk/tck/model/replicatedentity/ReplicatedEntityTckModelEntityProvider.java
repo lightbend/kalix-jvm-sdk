@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;

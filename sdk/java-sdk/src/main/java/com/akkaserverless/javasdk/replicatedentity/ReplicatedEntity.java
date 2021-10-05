@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl;
-
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
   }
 
   /** INTERNAL API */
-  public final void _internalSetCommandContext(Optional<CommandContext> context) {
+  public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
   }
 

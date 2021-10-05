@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.protocol.replicated_entity.{ ReplicatedEntityDelta, ReplicatedSetDelta }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 import scala.jdk.CollectionConverters._
 
@@ -106,4 +107,6 @@ private[replicatedentity] class ReplicatedSetImpl[E](
   }
 
   override def toString = s"ReplicatedSet(${value.mkString(",")})"
+
+  override def internal(): ReplicatedData = this
 }
