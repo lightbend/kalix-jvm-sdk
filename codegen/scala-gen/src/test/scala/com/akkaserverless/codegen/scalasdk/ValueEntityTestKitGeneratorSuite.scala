@@ -164,7 +164,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     assertNoDiff(sourceCode, expected)
   }
 
-  test("it can generate an specific integrationtest stub for the entity") {
+  test("it can generate an specific integration test stub for the entity") {
     val entity = createShoppingCartEntity()
     val service = createShoppingCartService(entity)
     val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
