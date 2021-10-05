@@ -171,12 +171,12 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     assertEquals(
       ValueEntityTestKitGenerator.integrationTest(main, entity, service).content,
-      """package com.example.shoppingcart.domain
+      """package com.example.shoppingcart.api
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit
 import com.akkaserverless.scalasdk.testkit.ValueEntityResult
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.example.shoppingcart.api
+import com.example.shoppingcart.domain
 import com.google.protobuf.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
@@ -187,7 +187,7 @@ import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpec
 import undefined.Main
 
-class ShoppingCartIntegrationSpec
+class ShoppingCartServiceIntegrationSpec
     extends AnyWordSpec
     with Matchers
     with BeforeAndAfterAll
@@ -200,9 +200,9 @@ class ShoppingCartIntegrationSpec
   testkit.start()
   implicit val system = testkit.system
 
-  "ShoppingCart" must {
-    val client: api.ShoppingCartServiceClient =
-      api.ShoppingCartServiceClient(testkit.grpcClientSettings)
+  "ShoppingCartService" must {
+    val client: ShoppingCartServiceClient =
+      ShoppingCartServiceClient(testkit.grpcClientSettings)
 
     "have example test that can be removed" in {
       // use the gRPC client to send requests to the

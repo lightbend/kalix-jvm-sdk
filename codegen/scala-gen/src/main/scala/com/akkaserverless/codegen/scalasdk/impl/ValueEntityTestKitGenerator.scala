@@ -178,7 +178,7 @@ object ValueEntityTestKitGenerator {
         Seq(main, valueEntity.state.fqn, client) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        valueEntity.fqn.parent.scalaPackage,
+        service.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
@@ -190,14 +190,14 @@ object ValueEntityTestKitGenerator {
           "org.scalatest.time.Span",
           "org.scalatest.time.Seconds",
           "org.scalatest.time.Millis"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
+        packageImports = Seq(valueEntity.fqn.parent.scalaPackage),
         semi = false)
 
-    val entityClassName = valueEntity.fqn.name
+    val entityClassName = service.fqn.name
 
     File(
-      valueEntity.fqn.fileBasename + "IntegrationSpec.scala",
-      s"""|package ${valueEntity.fqn.parent.scalaPackage}
+      service.fqn.fileBasename + "IntegrationSpec.scala",
+      s"""|package ${service.fqn.parent.scalaPackage}
           |
           |$imports
           |
