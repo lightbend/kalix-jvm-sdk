@@ -171,9 +171,11 @@ object ValueEntityTestKitGenerator {
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
 
+    val client = FullyQualifiedName(service.fqn.name + "Client", service.fqn.parent)
+
     implicit val imports: Imports =
       generateImports(
-        Seq(main, valueEntity.state.fqn) ++
+        Seq(main, valueEntity.state.fqn, client) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
         valueEntity.fqn.parent.scalaPackage,
@@ -213,9 +215,8 @@ object ValueEntityTestKitGenerator {
           |  implicit val system = testkit.system
           |
           |  "${entityClassName}" must {
-          |    val client: ${entityClassName}Client =
-          |      ${entityClassName}Client(testkit.grpcClientSettings)
-          |
+          |    val client: ${typeName(client)} =
+          |      ${typeName(client)}(testkit.grpcClientSettings)
           |
           |    "have example test that can be removed" in {
           |      // use the gRPC client to send requests to the
