@@ -47,7 +47,7 @@ object AkkaServerless {
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServerless) {
+class AkkaServerless private (private[akkaserverless] val delegate: javasdk.AkkaServerless) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
@@ -59,7 +59,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This AkkaServerless instance.
    */
   def withClassLoader(classLoader: ClassLoader): AkkaServerless =
-    AkkaServerless(impl.withClassLoader(classLoader))
+    AkkaServerless(delegate.withClassLoader(classLoader))
 
   /**
    * Sets the type URL prefix to be used when serializing and deserializing types from and to Protobyf Any values.
@@ -71,7 +71,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This AkkaServerless instance.
    */
   def withTypeUrlPrefix(prefix: String): AkkaServerless =
-    AkkaServerless(impl.withTypeUrlPrefix(prefix))
+    AkkaServerless(delegate.withTypeUrlPrefix(prefix))
 
   /**
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the classpath, this specifies
@@ -81,7 +81,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This AkkaServerless instance.
    */
   def preferJavaProtobufs: AkkaServerless =
-    AkkaServerless(impl.preferJavaProtobufs)
+    AkkaServerless(delegate.preferJavaProtobufs)
 
   /**
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the classpath, this specifies
@@ -91,7 +91,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This AkkaServerless instance.
    */
   def preferScalaProtobufs: AkkaServerless =
-    AkkaServerless(impl.preferScalaProtobufs)
+    AkkaServerless(delegate.preferScalaProtobufs)
 
   /**
    * Register a replicated entity using a [[ReplicatedEntityProvider]]. The concrete `ReplicatedEntityProvider` is
@@ -105,7 +105,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    */
   def register[D <: ReplicatedData, E <: ReplicatedEntity[D]](
       provider: ReplicatedEntityProvider[D, E]): AkkaServerless =
-    AkkaServerless(impl.register(provider.impl))
+    AkkaServerless(delegate.register(provider.impl))
 
   /**
    * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for
@@ -117,7 +117,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This stateful service builder.
    */
   def register[S, E <: ValueEntity[S]](provider: ValueEntityProvider[S, E]): AkkaServerless =
-    AkkaServerless(impl.register(new JavaValueEntityProviderAdapter(provider)))
+    AkkaServerless(delegate.register(new JavaValueEntityProviderAdapter(provider)))
 
   /**
    * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
@@ -130,7 +130,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This stateful service builder.
    */
   def register[S, E <: EventSourcedEntity[S]](provider: EventSourcedEntityProvider[S, E]): AkkaServerless =
-    AkkaServerless(impl.register(new JavaEventSourcedEntityProviderAdapter(provider)))
+    AkkaServerless(delegate.register(new JavaEventSourcedEntityProviderAdapter(provider)))
 
   /**
    * Register a view using a [[ViewProvider]]. The concrete ` ViewProvider` is generated for the specific views defined
@@ -140,7 +140,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This stateful service builder.
    */
   def register[S, V <: View[S]](provider: ViewProvider[S, V]): AkkaServerless =
-    AkkaServerless(impl.register(new JavaViewProviderAdapter(provider)))
+    AkkaServerless(delegate.register(new JavaViewProviderAdapter(provider)))
 
   /**
    * Register an action using an [[ActionProvider]]. The concrete ` ActionProvider` is generated for the specific
@@ -150,7 +150,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   This stateful service builder.
    */
   def register[A <: Action](provider: ActionProvider[A]): AkkaServerless =
-    AkkaServerless(impl.register(JavaActionProviderAdapter(provider)))
+    AkkaServerless(delegate.register(JavaActionProviderAdapter(provider)))
 
   /**
    * Starts a server with the configured entities.
@@ -180,7 +180,7 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   an AkkaServerlessRunner
    */
   def createRunner(): AkkaServerlessRunner =
-    AkkaServerlessRunner(impl.createRunner())
+    AkkaServerlessRunner(delegate.createRunner())
 
   /**
    * Creates an AkkaServerlessRunner using the currently configured services, using the supplied configuration. In order
@@ -190,5 +190,5 @@ class AkkaServerless private (private[akkaserverless] val impl: javasdk.AkkaServ
    *   an AkkaServerlessRunner
    */
   def createRunner(config: Config): AkkaServerlessRunner =
-    AkkaServerlessRunner(impl.createRunner(config))
+    AkkaServerlessRunner(delegate.createRunner(config))
 }

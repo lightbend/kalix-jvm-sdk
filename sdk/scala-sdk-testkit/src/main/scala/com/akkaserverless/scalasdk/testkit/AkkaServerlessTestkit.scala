@@ -28,8 +28,8 @@ import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestkit => JTestKit }
  * <p>Create an AkkaServerlessTestkit with an {@link AkkaServerless} service descriptor, and then {@link #start} the
  * testkit before testing the service with gRPC or HTTP clients. Call {@link #stop} after tests are complete.
  */
-class AkkaServerlessTestkit(impl: JTestKit) {
-  def start() = impl.start()
+class AkkaServerlessTestkit(delegate: JTestKit) {
+  def start() = delegate.start()
 
   /**
    * Get {@link GrpcClientSettings} for creating Akka gRPC clients.
@@ -37,13 +37,13 @@ class AkkaServerlessTestkit(impl: JTestKit) {
    * @return
    *   test gRPC client settings
    */
-  def grpcClientSettings: GrpcClientSettings = impl.getGrpcClientSettings()
+  def grpcClientSettings: GrpcClientSettings = delegate.getGrpcClientSettings()
 
-  def system = impl.getActorSystem()
+  def system = delegate.getActorSystem()
 
-  def stop() = impl.stop()
+  def stop() = delegate.stop()
 }
 object AkkaServerlessTestkit {
   def apply(main: AkkaServerless): AkkaServerlessTestkit =
-    new AkkaServerlessTestkit(new JTestKit(main.impl))
+    new AkkaServerlessTestkit(new JTestKit(main.delegate))
 }
