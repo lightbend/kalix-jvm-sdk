@@ -68,8 +68,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   def isNoReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.NoReply[T]]
 
   /**
-   * Look at the next effect and verify that it is of type E or fail if not or if there is no next effect. If successful
-   * this consumes the effect, so that the next call to this method looks at the next effect from here.
+   * Look at effect and verifies that it is of type E or fail if not.
    *
    * @return
    *   The next effect if it is of type E, for additional assertions.

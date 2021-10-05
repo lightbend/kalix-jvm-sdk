@@ -68,7 +68,8 @@ object ActionTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
         "com.akkaserverless.javasdk.impl.action.ActionEffectImpl",
         "com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext",
-        "com.akkaserverless.javasdk.testkit.impl.StubActionContext"))
+        "com.akkaserverless.javasdk.testkit.impl.StubActionContext")
+        ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
 
@@ -116,7 +117,8 @@ object ActionTestKitGenerator {
         s"${packageName}.${className}TestKit",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "org.junit.Test",
-        "static org.junit.Assert.*"))
+        "static org.junit.Assert.*")
+        ++ commandStreamedTypes(service.commands))
 
     val testClassName = s"${className}Test"
 
@@ -148,11 +150,11 @@ object ActionTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public ActionResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${selectInput(
-          command)} ${lowerFirst(command.inputType.protoName)}) {
-            |  Action.Effect<${selectOutput(command)}> effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
+        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
+          command.inputType.protoName)}) {
+            |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
-            |  return interpretEffects(effect);
+            |  return ${selectOutputReturn(command)}
             |}
             |""".stripMargin + "\n"
       }
@@ -165,17 +167,38 @@ object ActionTestKitGenerator {
         s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
             |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
-            |  // ActionResult<${selectOutput(command)}> result = testKit.${lowerFirst(command.name)}(${selectInput(
-          command)}.newBuilder()...build());
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());
             |}
             |""".stripMargin + "\n"
       }
       .mkString("")
   }
 
-  def selectOutput(command: ModelBuilder.Command): String =
-    command.outputType.fullName
+  def selectOutputResult(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput)
+      s"akka.stream.javadsl.Source<ActionResult<${command.outputType.fullName}>, akka.NotUsed>"
+    else s"ActionResult<${command.outputType.fullName}>"
+  }
 
-  def selectInput(command: ModelBuilder.Command): String =
-    command.inputType.fullName
+  def selectOutputEffect(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput)
+      s"akka.stream.javadsl.Source<Action.Effect<${command.outputType.fullName}>, akka.NotUsed>"
+    else s"Action.Effect<${command.outputType.fullName}>"
+  }
+
+  def selectOutputReturn(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput) "effect.map(e -> interpretEffects(e));"
+    else "interpretEffects(effect);"
+  }
+
+  def selectInput(command: ModelBuilder.Command): String = {
+    if (command.streamedInput) s"akka.stream.javadsl.Source<${command.inputType.fullName}, akka.NotUsed>"
+    else command.inputType.fullName
+  }
+
+  def commandStreamedTypes(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
+    if (commands.exists(c => c.streamedInput || c.streamedOutput)) Seq("akka.stream.javadsl.Source", "akka.NotUsed")
+    else Nil
+  }
+
 }
