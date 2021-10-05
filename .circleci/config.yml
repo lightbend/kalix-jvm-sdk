@@ -173,7 +173,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test codegenCore/publishLocal codegenScala/publishLocal sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkScalaTestKit/publishLocal scripted
+          command: sbt test codegenCore/publishLocal codegenScala/publishLocal sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkJavaTestKit/publishLocal sdkScalaTestKit/publishLocal scripted
       - save_deps_cache
 
   integration-tests:
