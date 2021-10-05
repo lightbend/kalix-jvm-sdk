@@ -34,7 +34,7 @@ object SourceGenerator {
             case entity: ModelBuilder.ValueEntity =>
               ValueEntitySourceGenerator.generateManaged(entity, service)
             case entity: ModelBuilder.EventSourcedEntity =>
-              Nil // FIXME
+              EventSourcedEntitySourceGenerator.generateManaged(entity, service)
             case entity: ModelBuilder.ReplicatedEntity =>
               Nil // FIXME
           }
@@ -79,7 +79,7 @@ object SourceGenerator {
             case entity: ModelBuilder.ValueEntity =>
               ValueEntitySourceGenerator.generateUnmanaged(entity, service)
             case entity: ModelBuilder.EventSourcedEntity =>
-              Nil // FIXME
+              EventSourcedEntitySourceGenerator.generateUnmanaged(entity, service)
             case entity: ModelBuilder.ReplicatedEntity =>
               Nil // FIXME
           }
