@@ -52,10 +52,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
     val sourceCode = ActionTestKitGenerator.generateSourceCode(service)
 
     val expected =
-      """|// This code is managed by Akka Serverless tooling.
-          |// It will be re-generated to reflect any changes to your protobuf definitions.
-          |// DO NOT EDIT
-          |package com.example.actions;
+      """package com.example.actions;
           |
           |import com.akkaserverless.javasdk.action.Action;
           |import com.akkaserverless.javasdk.action.ActionCreationContext;
@@ -73,6 +70,10 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
           |import java.util.List;
           |import java.util.Optional;
           |import java.util.function.Function;
+          |
+          |// This code is managed by Akka Serverless tooling.
+          |// It will be re-generated to reflect any changes to your protobuf definitions.
+          |// DO NOT EDIT
           |
           |public final class CounterJournalToTopicActionTestKit {
           |

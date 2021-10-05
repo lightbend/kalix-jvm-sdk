@@ -73,10 +73,11 @@ object ActionTestKitGenerator {
 
     val testKitClassName = s"${className}TestKit"
 
-    s"""$managedComment
-          |package ${service.fqn.parent.javaPackage};
+    s"""package ${service.fqn.parent.javaPackage};
           |
           |$imports
+          |
+          |$managedComment
           |
           |public final class $testKitClassName {
           |
@@ -176,13 +177,13 @@ object ActionTestKitGenerator {
 
   def selectOutputResult(command: ModelBuilder.Command): String = {
     if (command.streamedOutput)
-      s"akka.stream.javadsl.Source<ActionResult<${command.outputType.fullName}>, akka.NotUsed>"
+      s"Source<ActionResult<${command.outputType.fullName}>, akka.NotUsed>"
     else s"ActionResult<${command.outputType.fullName}>"
   }
 
   def selectOutputEffect(command: ModelBuilder.Command): String = {
     if (command.streamedOutput)
-      s"akka.stream.javadsl.Source<Action.Effect<${command.outputType.fullName}>, akka.NotUsed>"
+      s"Source<Action.Effect<${command.outputType.fullName}>, akka.NotUsed>"
     else s"Action.Effect<${command.outputType.fullName}>"
   }
 
@@ -192,7 +193,7 @@ object ActionTestKitGenerator {
   }
 
   def selectInput(command: ModelBuilder.Command): String = {
-    if (command.streamedInput) s"akka.stream.javadsl.Source<${command.inputType.fullName}, akka.NotUsed>"
+    if (command.streamedInput) s"Source<${command.inputType.fullName}, akka.NotUsed>"
     else command.inputType.fullName
   }
 
