@@ -122,11 +122,13 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity1TestKit.java"),
                 testSourceDirectory.resolve("com/example/service/domain/MyEntity1Test.java"),
                 integrationTestSourceDirectory.resolve("com/example/service/domain/MyEntity1IntegrationTest.java"),
+                sourceDirectory.resolve("com/example/service/domain/MyEntity1.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyValueEntity2.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Provider.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Handler.java"),
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2TestKit.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2IntegrationTest.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyEntity3.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity3.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Handler.java"),
@@ -157,13 +159,14 @@ class SourceGeneratorSuite extends munit.FunSuite {
             // Test that the files were written to
             sources.foreach { (source: Path) =>
               assert(Files.exists(source))
-              try {
-                val firstCharacter = Files.readAllBytes(source).head.toChar
-                if (firstCharacter != '/' && firstCharacter != 'p')
-                  fail(s"$source did not start with 'p' (for 'package') or '/' (for comment)")
-              } catch {
-                case e: Throwable => fail(s"Failed to read [$source]: ${e.getMessage}")
-              }
+              if (Files.size(source) > 0) // otherwise we assume it has been touched above
+                try {
+                  val firstCharacter = Files.readAllBytes(source).head.toChar
+                  if (firstCharacter != '/' && firstCharacter != 'p')
+                    fail(s"$source did not start with 'p' (for 'package') or '/' (for comment)")
+                } catch {
+                  case e: Throwable => fail(s"Failed to read [$source]: ${e.getMessage}")
+                }
             }
           } finally FileUtils.deleteDirectory(generatedSourceDirectory.toFile)
         } finally FileUtils.deleteDirectory(integrationTestSourceDirectory.toFile)

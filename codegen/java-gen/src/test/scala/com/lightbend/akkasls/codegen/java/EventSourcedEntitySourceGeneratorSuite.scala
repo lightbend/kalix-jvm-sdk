@@ -220,7 +220,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  public static MyServiceProvider of(Function<EventSourcedEntityContext, MyService> entityFactory) {
          |    return new MyServiceProvider(entityFactory, EventSourcedEntityOptions.defaults());
          |  }
-         | 
+         |
          |  private MyServiceProvider(
          |      Function<EventSourcedEntityContext, MyService> entityFactory,
          |      EventSourcedEntityOptions options) {
@@ -232,7 +232,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  public final EventSourcedEntityOptions options() {
          |    return options;
          |  }
-         | 
+         |
          |  public final MyServiceProvider withOptions(EventSourcedEntityOptions options) {
          |    return new MyServiceProvider(entityFactory, options);
          |  }
