@@ -30,7 +30,7 @@ object Main {
       new Counter(_),
       new DoubleCounterAction(_))
     // end::registration[]
-    */
+     */
 
     /* the comment hack bellow is needed to only show the Counter
     // tag::registration-value-entity[]

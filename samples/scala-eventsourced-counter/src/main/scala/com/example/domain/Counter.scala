@@ -1,4 +1,3 @@
-
 package com.example.domain
 
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
@@ -13,27 +12,46 @@ import com.google.protobuf.empty.Empty
 
 /** An event sourced entity. */
 class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
-  override def emptyState: CounterState =
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+  override def emptyState: CounterState = CounterState()
 
-  override def increase(currentState: CounterState, increaseValue: example.IncreaseValue): EventSourcedEntity.Effect[Empty] =
-    effects.error("The command handler for `Increase` is not implemented, yet")
+  override def increase(
+      currentState: CounterState,
+      increaseValue: example.IncreaseValue): EventSourcedEntity.Effect[Empty] =
+    if (increaseValue.value < 0) {
+      effects.error("Value must be a zero or a positive number")
+    } else {
+      effects
+        .emitEvent(ValueIncreased(increaseValue.value))
+        .thenReply(_ => Empty())
+    }
 
-  override def decrease(currentState: CounterState, decreaseValue: example.DecreaseValue): EventSourcedEntity.Effect[Empty] =
-    effects.error("The command handler for `Decrease` is not implemented, yet")
+  override def decrease(
+      currentState: CounterState,
+      decreaseValue: example.DecreaseValue): EventSourcedEntity.Effect[Empty] =
+    if (decreaseValue.value < 0) {
+      effects.error("Value must be a zero or a positive number")
+    } else {
+      effects
+        .emitEvent(ValueDecreased(decreaseValue.value))
+        .thenReply(_ => Empty())
+    }
 
   override def reset(currentState: CounterState, resetValue: example.ResetValue): EventSourcedEntity.Effect[Empty] =
-    effects.error("The command handler for `Reset` is not implemented, yet")
+    effects
+      .emitEvent(ValueReset())
+      .thenReply(_ => Empty())
 
-  override def getCurrentCounter(currentState: CounterState, getCounter: example.GetCounter): EventSourcedEntity.Effect[example.CurrentCounter] =
-    effects.error("The command handler for `GetCurrentCounter` is not implemented, yet")
+  override def getCurrentCounter(
+      currentState: CounterState,
+      getCounter: example.GetCounter): EventSourcedEntity.Effect[example.CurrentCounter] =
+    effects.reply(example.CurrentCounter(currentState.value))
 
   override def valueIncreased(currentState: CounterState, valueIncreased: ValueIncreased): CounterState =
-    throw new RuntimeException("The event handler for `ValueIncreased` is not implemented, yet")
+    currentState.copy(value = currentState.value + valueIncreased.value)
 
   override def valueDecreased(currentState: CounterState, valueDecreased: ValueDecreased): CounterState =
-    throw new RuntimeException("The event handler for `ValueDecreased` is not implemented, yet")
+    currentState.copy(value = currentState.value - valueDecreased.value)
 
   override def valueReset(currentState: CounterState, valueReset: ValueReset): CounterState =
-    throw new RuntimeException("The event handler for `ValueReset` is not implemented, yet")
+    emptyState
 }

@@ -4,15 +4,13 @@
  */
 package com.example.domain
 
-import com.example.{DecreaseValue, IncreaseValue, ResetValue}
+import com.example.{ DecreaseValue, IncreaseValue, ResetValue }
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 // tag::sample-unit-test[]
-class CounterSpec
-    extends AnyWordSpec
-    with Matchers {
+class CounterSpec extends AnyWordSpec with Matchers {
 
   "Counter" must {
 

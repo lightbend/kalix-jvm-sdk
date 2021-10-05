@@ -10,7 +10,8 @@ import com.example.domain.CounterState
 import com.google.protobuf.empty.Empty
 
 /** An action. */
-class CounterStateSubscriptionAction(creationContext: ActionCreationContext) extends AbstractCounterStateSubscriptionAction {
+class CounterStateSubscriptionAction(creationContext: ActionCreationContext)
+    extends AbstractCounterStateSubscriptionAction {
 
   /** Handler for "OnUpdateState". */
   override def onUpdateState(counterState: CounterState): Action.Effect[Empty] =

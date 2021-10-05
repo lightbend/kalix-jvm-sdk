@@ -17,14 +17,16 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
 
   /** Handler for "Increase". */
   override def increase(valueIncreased: ValueIncreased): Action.Effect[Increased] = {
-    throw new RuntimeException("The command handler for `Increase` is not implemented, yet")
+    effects.reply(Increased(valueIncreased.value))
   }
+
   /** Handler for "Decrease". */
   override def decrease(valueDecreased: ValueDecreased): Action.Effect[Decreased] = {
-    throw new RuntimeException("The command handler for `Decrease` is not implemented, yet")
+    effects.reply(Decreased(valueDecreased.value))
   }
+
   /** Handler for "Ignore". */
   override def ignore(any: ScalaPbAny): Action.Effect[Empty] = {
-    throw new RuntimeException("The command handler for `Ignore` is not implemented, yet")
+    effects.noReply
   }
 }

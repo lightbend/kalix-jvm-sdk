@@ -111,8 +111,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |class MyEntityHandler(entity: MyEntity) extends EventSourcedEntityHandler[MyState, MyEntity](entity) {
           |  def handleEvent(state: MyState, event: Any): MyState = {
           |    event match {
-          |      case SetEvent =>
-          |        entity.setEvent(state, event.asInstanceOf[SetEvent])
+          |      case evt: SetEvent =>
+          |        entity.setEvent(state, evt)
           |
           |      case _ =>
           |        throw new EventHandlerNotFound(event.getClass)
