@@ -115,9 +115,8 @@ object EventSourcedEntitySourceGenerator {
 
     val eventCases = eventSourcedEntity.events.map { evt =>
       val eventType = typeName(evt.fqn)
-      //val eventType = evt.fqn.fullName
-      s"""|case $eventType =>
-              |  entity.${lowerFirst(evt.fqn.name)}(state, event.asInstanceOf[$eventType])
+      s"""|case evt: $eventType =>
+              |  entity.${lowerFirst(evt.fqn.name)}(state, evt)
               |""".stripMargin
     }
 
