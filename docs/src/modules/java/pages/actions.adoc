@@ -152,7 +152,7 @@ Is worth noting that Actions are unique units of computation. The framework does
 .src/test/java/com/example/actions/CounterJournalToTopicActionTest.java
 [source,java]
 ----
-include::example$java-eventsourced-counter/src/test/java/com/example/actions/CounterJournalToTopicActionTest.java[class] 
+include::example$java-eventsourced-counter/src/test/java/com/example/actions/CounterJournalToTopicActionTest.java[tag=class] 
 ----
 <1> creating the test kit to test `increase` Action's method.
 <2> calling `increase` method with some value.

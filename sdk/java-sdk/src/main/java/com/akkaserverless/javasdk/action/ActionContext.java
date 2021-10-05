@@ -25,6 +25,9 @@ import java.util.Optional;
 
 /** Context for action calls. */
 public interface ActionContext extends MetadataContext {
+
+  // FIX: remove this method and move docs currently pointing
+  // to this method toMetadataContext
   /**
    * Get the metadata associated with this call.
    *
@@ -35,9 +38,7 @@ public interface ActionContext extends MetadataContext {
    *
    * @return The call level metadata.
    */
-  Metadata
-      metadata(); // FIX: remove this method and move docs pointing to this method to
-                  // MetadataContext
+  Metadata metadata();
 
   /**
    * The origin subject of the {@link CloudEvent}. For example, the entity key when the event was
