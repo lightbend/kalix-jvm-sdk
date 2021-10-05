@@ -59,7 +59,7 @@ final class ActionService(
     handler
   }
 
-  // use a logger specific to the service impl if possible
+  // use a logger specific to the service impl if possible (concrete action was successfully created at least once)
   def log: Logger = actionClass match {
     case Some(clazz) => LoggerFactory.getLogger(clazz)
     case None        => ActionsImpl.log
@@ -305,7 +305,7 @@ private[javasdk] final class ActionsImpl(
                 case NonFatal(ex) =>
                   // command handler threw an "unexpected" error
                   ErrorHandling.withCorrelationId { correlationId =>
-                    log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
+                    service.log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
                     Source.single(protocolFailure(correlationId))
                   }
               }
