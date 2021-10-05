@@ -16,9 +16,10 @@
 
 package com.akkaserverless.scalasdk.testkit
 
+import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestkit => JTestKit }
+import com.akkaserverless.javasdk.testkit.{AkkaServerlessTestkit => JTestKit}
 
 /**
  * Testkit for running Akka Serverless services locally.
@@ -32,8 +33,11 @@ object AkkaServerlessTestkit {
   def apply(main: AkkaServerless): AkkaServerlessTestkit =
     new AkkaServerlessTestkit(new JTestKit(main.delegate))
 }
-class AkkaServerlessTestkit(delegate: JTestKit) {
-  def start() = delegate.start()
+class AkkaServerlessTestkit private (delegate: JTestKit) {
+  def start(): AkkaServerlessTestkit = {
+    delegate.start()
+    this
+  }
 
   /**
    * Get {@link GrpcClientSettings} for creating Akka gRPC clients.
@@ -43,8 +47,8 @@ class AkkaServerlessTestkit(delegate: JTestKit) {
    */
   def grpcClientSettings: GrpcClientSettings = delegate.getGrpcClientSettings()
 
-  def system = delegate.getActorSystem()
+  def system: ActorSystem = delegate.getActorSystem()
 
-  def stop() = delegate.stop()
+  def stop(): Unit = delegate.stop()
 }
 
