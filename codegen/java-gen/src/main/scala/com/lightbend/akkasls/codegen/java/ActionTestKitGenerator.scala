@@ -173,28 +173,9 @@ object ActionTestKitGenerator {
       .mkString("")
   }
 
-  def selectOutput(command: ModelBuilder.Command): String = {
-    val parent = command.outputType.parent
-    s"${filterJavaOuterClassname(parent.javaOuterClassnameOption)}${command.outputType.name}"
+  def selectOutput(command: ModelBuilder.Command): String =
+    command.outputType.fullName
 
-  }
-
-  def selectInput(command: ModelBuilder.Command): String = {
-    val parent = command.inputType.parent
-    s"${filterJavaOuterClassname(parent.javaOuterClassnameOption)}${command.inputType.name}"
-
-  }
-
-  def filterJavaOuterClassname(javaOuterClassnameOption: Option[String]): String = {
-    javaOuterClassnameOption match {
-      case None => ""
-      case Some(value) =>
-        if (value == "EmptyProto" || value == "AnyProto")
-          "" //TODO review this. Might not be needed if proto are 'well' defined.
-        // original .proto file on test might be badly defined
-        // e.g. `rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty)` might have to be `rpc Ignore(com.google.protobuf.Any) returns (com.google.protobuf.Empty)`
-        else value + "."
-    }
-  }
-
+  def selectInput(command: ModelBuilder.Command): String =
+    command.inputType.fullName
 }

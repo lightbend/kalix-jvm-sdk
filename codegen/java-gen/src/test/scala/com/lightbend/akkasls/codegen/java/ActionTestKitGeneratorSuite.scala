@@ -42,7 +42,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
   }
   //This prints the contents of the model, services or entity. It's necessary to
   // see how the user-function.desc (see generateModel below) maps to ModelBuilder objects.
-  //println(munit.Assertions.munitPrint(service))
+  // println(munit.Assertions.munitPrint(service.commands))
 
   test(
     "it can generate an specific TestKit for the user-function file " +
