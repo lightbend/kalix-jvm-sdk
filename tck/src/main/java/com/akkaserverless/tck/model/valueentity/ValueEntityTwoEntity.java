@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.valueentity;
+package com.akkaserverless.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.tck.model.ValueEntity.Request;
-import com.akkaserverless.tck.model.ValueEntity.Response;
+import com.akkaserverless.tck.model.valueentity.ValueEntityApi.Request;
+import com.akkaserverless.tck.model.valueentity.ValueEntityApi.Response;
 
-public class ValueEntityTwoEntity extends ValueEntity<String> {
+public class ValueEntityTwoEntity extends AbstractValueEntityTwoEntity {
 
   public ValueEntityTwoEntity(ValueEntityContext context) {}
 

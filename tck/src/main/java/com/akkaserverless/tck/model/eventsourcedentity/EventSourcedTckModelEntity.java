@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
+package com.akkaserverless.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.akkaserverless.tck.model.EventSourcedTwo;
-import com.akkaserverless.tck.model.EventSourcedEntity.*;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventSourcedTckModelEntity extends EventSourcedEntity<Persisted> {
+public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEntity {
 
   private final ServiceCallRef<Request> serviceTwoCall;
 
@@ -41,7 +40,7 @@ public class EventSourcedTckModelEntity extends EventSourcedEntity<Persisted> {
         context.serviceCallFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
   }
 
-  public Persisted handleEvent(Persisted state, Persisted event) {
+  public Persisted persisted(Persisted state, Persisted event) {
     return Persisted.newBuilder().setValue(state.getValue() + event.getValue()).build();
   }
 
@@ -74,8 +73,7 @@ public class EventSourcedTckModelEntity extends EventSourcedEntity<Persisted> {
           break;
         case EFFECT:
           if (!failed) {
-            com.akkaserverless.tck.model.EventSourcedEntity.Effect actionEffect =
-                action.getEffect();
+            EventSourcedEntityApi.Effect actionEffect = action.getEffect();
             e.add(
                 SideEffect.of(
                     serviceTwoRequest(actionEffect.getId()), actionEffect.getSynchronous()));

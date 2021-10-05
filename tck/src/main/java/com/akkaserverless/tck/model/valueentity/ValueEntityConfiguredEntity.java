@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.action;
+package com.akkaserverless.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.tck.model.Action.OtherRequest;
-import com.akkaserverless.tck.model.Action.Response;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import com.akkaserverless.tck.model.valueentity.ValueEntityApi.*;
 
-import java.util.concurrent.CompletableFuture;
+public class ValueEntityConfiguredEntity extends AbstractValueEntityConfiguredEntity {
 
-public class ActionTwoBehavior extends Action {
-  public ActionTwoBehavior(ActionCreationContext creationContext) {}
+  public ValueEntityConfiguredEntity(ValueEntityContext context) {}
 
-  public Effect<Response> call(OtherRequest request) {
-    return effects().asyncReply(CompletableFuture.completedFuture(Response.getDefaultInstance()));
+  public Effect<Response> call(String state, Request request) {
+    return effects().reply(Response.getDefaultInstance());
+  }
+
+  @Override
+  public String emptyState() {
+    return null;
   }
 }

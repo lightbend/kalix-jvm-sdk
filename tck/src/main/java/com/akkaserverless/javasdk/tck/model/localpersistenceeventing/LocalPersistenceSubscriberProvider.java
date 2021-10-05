@@ -19,8 +19,6 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.action.ActionOptions;
 import com.akkaserverless.javasdk.action.ActionProvider;
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
-import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 

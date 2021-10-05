@@ -170,8 +170,8 @@ lazy val sdkJavaTestKit = project
 //FIXME add scalasdk as package to tck, tck will test both java and scala sdk
 lazy val tck = project
   .in(file("tck"))
-  .dependsOn(sdkJava, sdkJavaTestKit % Test)
-  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage)
+  .dependsOn(sdkJava, sdkJavaTestKit)
+  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(
     name := "akkaserverless-tck-java-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),

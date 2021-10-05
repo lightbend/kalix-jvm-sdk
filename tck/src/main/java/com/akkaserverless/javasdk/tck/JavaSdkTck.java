@@ -21,16 +21,6 @@ import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
-import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehavior;
-import com.akkaserverless.javasdk.tck.model.action.ActionTckModelBehaviorProvider;
-import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehavior;
-import com.akkaserverless.javasdk.tck.model.action.ActionTwoBehaviorProvider;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedConfiguredEntityProvider;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTckModelEntityProvider;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntity;
-import com.akkaserverless.javasdk.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOne;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOneProvider;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwo;
@@ -47,25 +37,31 @@ import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTck
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTckModelEntityProvider;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntity;
 import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntityProvider;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityConfiguredEntityProvider;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTckModelEntityProvider;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntity;
-import com.akkaserverless.javasdk.tck.model.valueentity.ValueEntityTwoEntityProvider;
+
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehaviorProvider;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity;
 import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntityProvider;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
+import com.akkaserverless.tck.model.action.ActionTckModelActionProvider;
+import com.akkaserverless.tck.model.action.ActionTwoActionProvider;
+import com.akkaserverless.tck.model.action.ActionTckModelImpl;
+import com.akkaserverless.tck.model.action.ActionTwoImpl;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntityProvider;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntityProvider;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider;
+import com.akkaserverless.tck.model.valueentity.*;
 
 import java.time.Duration;
 
 public final class JavaSdkTck {
   public static AkkaServerless SERVICE =
       new AkkaServerless()
-          .register(ActionTckModelBehaviorProvider.of(ActionTckModelBehavior::new))
-          .register(ActionTwoBehaviorProvider.of(ActionTwoBehavior::new))
+          .register(ActionTckModelActionProvider.of(ActionTckModelImpl::new))
+          .register(ActionTwoActionProvider.of(ActionTwoImpl::new))
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
           .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
           .register(
