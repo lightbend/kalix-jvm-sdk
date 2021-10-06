@@ -19,7 +19,8 @@ package com.akkaserverless.javasdk.testkit.impl
 import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.ServiceCall
+import com.akkaserverless.javasdk.testkit.ServiceCallDetails
+import com.akkaserverless.javasdk.testkit.impl.TestKitServiceCallFactory
 import java.util.concurrent.CompletionStage;
 import scala.concurrent.Future;
 import scala.compat.java8.FutureConverters._
@@ -42,10 +43,14 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was forwarded, false if not */
   def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
 
-  def getForwardServiceCall(): ServiceCall = {
-    val forward = getEffectOfType(classOf[ActionEffectImpl.ForwardEffect[T]])
-    forward.serviceCall
-  }
+  def getForwardServiceCall(): ServiceCallDetails[T] =
+    effect match {
+      case ActionEffectImpl.ForwardEffect(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked], _) =>
+        serviceCall
+      case _ =>
+        throw new IllegalStateException(
+          "expected effect type [ActionEffectImpl.ForwardEffect] but found [" + effect.getClass.getName + "]")
+    }
 
   // TODO rewrite
   /** @return true if the call was async, false if not */

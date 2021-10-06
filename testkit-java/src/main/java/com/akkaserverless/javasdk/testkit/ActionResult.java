@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk.testkit;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.testkit.ServiceCallDetails;
 import java.util.concurrent.CompletionStage;
 import com.akkaserverless.javasdk.action.Action;
 
@@ -34,7 +34,7 @@ public interface ActionResult<T> {
   boolean isForward();
 
   /** @return ServiceCall representing a call to a service */
-  ServiceCall getForwardServiceCall();
+  ServiceCallDetails getForwardServiceCall();
 
   /** @return true if the call was async, false if not */
   boolean isAsync();
