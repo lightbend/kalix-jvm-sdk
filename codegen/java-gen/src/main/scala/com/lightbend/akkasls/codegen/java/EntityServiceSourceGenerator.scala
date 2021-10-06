@@ -66,16 +66,13 @@ object EntityServiceSourceGenerator {
     interfaceSourcePath.getParent.toFile.mkdirs()
     Files.write(interfaceSourcePath, interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
 
-    val implSourceFiles = if (!implSourcePath.toFile.exists()) {
+    if (!implSourcePath.toFile.exists()) {
       // Now we generate the entity
       implSourcePath.getParent.toFile.mkdirs()
       Files.write(
         implSourcePath,
         source(service, entity, packageName, implClassName, interfaceClassName, entity.entityType).getBytes(
           Charsets.UTF_8))
-      List(implSourcePath)
-    } else {
-      List.empty
     }
 
     val handlerClassName = className + "Handler"
@@ -105,7 +102,7 @@ object EntityServiceSourceGenerator {
     val integrationTestSourcePath =
       integrationTestSourceDirectory
         .resolve(packagePath.resolve(integrationTestClassName + ".java"))
-    val integrationTestSourceFiles = if (!integrationTestSourcePath.toFile.exists()) {
+    if (!integrationTestSourcePath.toFile.exists()) {
       integrationTestSourcePath.getParent.toFile.mkdirs()
       Files.write(
         integrationTestSourcePath,
@@ -116,12 +113,14 @@ object EntityServiceSourceGenerator {
           entity,
           packageName,
           integrationTestClassName).getBytes(Charsets.UTF_8))
-      List(integrationTestSourcePath)
-    } else {
-      List.empty
     }
 
-    implSourceFiles ++ testSourceFiles ++ integrationTestSourceFiles :+ interfaceSourcePath :+ providerSourcePath :+ handlerSourcePath
+    Seq(
+      implSourcePath,
+      integrationTestSourcePath,
+      interfaceSourcePath,
+      providerSourcePath,
+      handlerSourcePath) ++ testSourceFiles
   }
 
   private[codegen] def source(
@@ -265,7 +264,7 @@ object EntityServiceSourceGenerator {
         |  public static ${className}Provider of(Function<EventSourcedEntityContext, $className> entityFactory) {
         |    return new ${className}Provider(entityFactory, EventSourcedEntityOptions.defaults());
         |  }
-        | 
+        |
         |  private ${className}Provider(
         |      Function<EventSourcedEntityContext, $className> entityFactory,
         |      EventSourcedEntityOptions options) {
@@ -277,7 +276,7 @@ object EntityServiceSourceGenerator {
         |  public final EventSourcedEntityOptions options() {
         |    return options;
         |  }
-        | 
+        |
         |  public final ${className}Provider withOptions(EventSourcedEntityOptions options) {
         |    return new ${className}Provider(entityFactory, options);
         |  }

@@ -62,10 +62,8 @@ object MainSourceGenerator {
       Files.write(
         mainClassPath,
         mainSource(mainClassPackageName, mainClassName, model.entities, model.services).getBytes(Charsets.UTF_8))
-      List(akkaServerlessFactorySourcePath, mainClassPath)
-    } else {
-      List(akkaServerlessFactorySourcePath)
     }
+    List(akkaServerlessFactorySourcePath, mainClassPath)
   }
 
   private[codegen] def mainSource(
