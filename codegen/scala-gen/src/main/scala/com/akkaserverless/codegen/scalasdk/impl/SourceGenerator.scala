@@ -113,6 +113,5 @@ object SourceGenerator {
         case _: ModelBuilder.ActionService =>
           Nil
       }
-      .map(_.prepend(unmanagedComment))
       .toList
 }

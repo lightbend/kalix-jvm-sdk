@@ -241,18 +241,26 @@ The unit tests can be run from sbt using `sbt test` or if you prefer from inside
 
 === Integration tests
 
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `AkkaServerlessTestKitResource`# [.group-scala]#`AkkaServerlessTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+
 [.tabset]
 Java::
 +
-An example integration test class to start from is also generated for you. It uses an `AkkaServerlessTestKitResource` to start docker containers and interacts with the entity with an actual gRPC client.
-+
 [source,java]
-./src/test/java/com/example/domain/CounterTest.java
+./src/it/java/com/example/domain/CounterTest.java
 ----
 include::example$java-valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
 ----
 +
 The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
+
+Scala::
 +
+[source,scala]
+./src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[]
+----
+
 Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also mean they take a bit more time to execute compared to the unit tests which are completely local and does not involve networking.
 
