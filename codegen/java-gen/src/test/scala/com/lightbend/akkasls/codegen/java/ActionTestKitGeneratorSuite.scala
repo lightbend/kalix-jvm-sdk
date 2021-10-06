@@ -53,67 +53,66 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
 
     val expected =
       """package com.example.actions;
-          |
-          |import com.akkaserverless.javasdk.action.Action;
-          |import com.akkaserverless.javasdk.action.ActionCreationContext;
-          |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
-          |import com.akkaserverless.javasdk.testkit.ActionResult;
-          |import com.akkaserverless.javasdk.testkit.impl.ActionResultImpl;
-          |import com.akkaserverless.javasdk.testkit.impl.StubActionContext;
-          |import com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext;
-          |import com.example.actions.CounterJournalToTopicAction;
-          |import com.example.actions.CounterTopicApi;
-          |import com.example.domain.CounterDomain;
-          |import com.google.protobuf.Any;
-          |import com.google.protobuf.Empty;
-          |import java.util.ArrayList;
-          |import java.util.List;
-          |import java.util.Optional;
-          |import java.util.function.Function;
-          |
-          |// This code is managed by Akka Serverless tooling.
-          |// It will be re-generated to reflect any changes to your protobuf definitions.
-          |// DO NOT EDIT
-          |
-          |public final class CounterJournalToTopicActionTestKit {
-          |
-          |  private Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory;
-          |
-          |  private CounterJournalToTopicAction createAction() {
-          |    CounterJournalToTopicAction action = actionFactory.apply(new StubActionCreationContext());
-          |    action._internalSetActionContext(Optional.of(new StubActionContext()));
-          |    return action;
-          |  };
-          |
-          |  public static CounterJournalToTopicActionTestKit of(Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory) {
-          |    return new CounterJournalToTopicActionTestKit(actionFactory);
-          |  }
-          |
-          |  private CounterJournalToTopicActionTestKit(Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory) {
-          |    this.actionFactory = actionFactory;
-          |  }
-          |
-          |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
-          |    return new ActionResultImpl(effect);
-          |  }
-          |
-          |  public ActionResult<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased valueIncreased) {
-          |    Action.Effect<CounterTopicApi.Increased> effect = createAction().increase(valueIncreased);
-          |    return interpretEffects(effect);
-          |  }
-          |
-          |  public ActionResult<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
-          |    Action.Effect<CounterTopicApi.Decreased> effect = createAction().decrease(valueDecreased);
-          |    return interpretEffects(effect);
-          |  }
-          |
-          |  public ActionResult<Empty> ignore(Any any) {
-          |    Action.Effect<Empty> effect = createAction().ignore(any);
-          |    return interpretEffects(effect);
-          |  }
-          |
-          |}""".stripMargin
-
+        |
+        |import com.akkaserverless.javasdk.action.Action;
+        |import com.akkaserverless.javasdk.action.ActionCreationContext;
+        |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
+        |import com.akkaserverless.javasdk.testkit.ActionResult;
+        |import com.akkaserverless.javasdk.testkit.impl.ActionResultImpl;
+        |import com.akkaserverless.javasdk.testkit.impl.StubActionContext;
+        |import com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext;
+        |import com.example.actions.CounterJournalToTopicAction;
+        |import com.example.actions.CounterTopicApi;
+        |import com.example.domain.CounterDomain;
+        |import com.google.protobuf.Any;
+        |import com.google.protobuf.Empty;
+        |import java.util.ArrayList;
+        |import java.util.List;
+        |import java.util.Optional;
+        |import java.util.function.Function;
+        |
+        |// This code is managed by Akka Serverless tooling.
+        |// It will be re-generated to reflect any changes to your protobuf definitions.
+        |// DO NOT EDIT
+        |
+        |public final class CounterJournalToTopicActionTestKit {
+        |
+        |  private Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory;
+        |
+        |  private CounterJournalToTopicAction createAction() {
+        |    CounterJournalToTopicAction action = actionFactory.apply(new StubActionCreationContext());
+        |    action._internalSetActionContext(Optional.of(new StubActionContext()));
+        |    return action;
+        |  };
+        |
+        |  public static CounterJournalToTopicActionTestKit of(Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory) {
+        |    return new CounterJournalToTopicActionTestKit(actionFactory);
+        |  }
+        |
+        |  private CounterJournalToTopicActionTestKit(Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory) {
+        |    this.actionFactory = actionFactory;
+        |  }
+        |
+        |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
+        |    return new ActionResultImpl(effect);
+        |  }
+        |
+        |  public ActionResult<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased valueIncreased) {
+        |    Action.Effect<CounterTopicApi.Increased> effect = createAction().increase(valueIncreased);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public ActionResult<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
+        |    Action.Effect<CounterTopicApi.Decreased> effect = createAction().decrease(valueDecreased);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |  public ActionResult<Empty> ignore(Any any) {
+        |    Action.Effect<Empty> effect = createAction().ignore(any);
+        |    return interpretEffects(effect);
+        |  }
+        |
+        |}""".stripMargin
     assertNoDiff(sourceCode, expected)
   }
 
@@ -122,11 +121,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
     val sourceCode = ActionTestKitGenerator.generateTestSourceCode(service)
 
     val expected =
-      """// This class was initially generated based on the .proto definition by Akka Serverless tooling.
-        |//
-        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
-        |// or delete it so it is regenerated as needed.
-        |package com.example.actions;
+      """package com.example.actions;
         |
         |import com.akkaserverless.javasdk.testkit.ActionResult;
         |import com.example.actions.CounterJournalToTopicAction;
@@ -137,6 +132,11 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |import com.google.protobuf.Empty;
         |import org.junit.Test;
         |import static org.junit.Assert.*;
+        |
+        |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+        |//
+        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+        |// or delete it so it is regenerated as needed.
         |
         |public class CounterJournalToTopicActionTest {
         |

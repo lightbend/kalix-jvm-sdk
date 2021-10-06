@@ -74,37 +74,37 @@ object ActionTestKitGenerator {
     val testKitClassName = s"${className}TestKit"
 
     s"""package ${service.fqn.parent.javaPackage};
-          |
-          |$imports
-          |
-          |$managedComment
-          |
-          |public final class $testKitClassName {
-          |
-          |  private Function<ActionCreationContext, $className> actionFactory;
-          |
-          |  private $className createAction() {
-          |    $className action = actionFactory.apply(new StubActionCreationContext());
-          |    action._internalSetActionContext(Optional.of(new StubActionContext()));
-          |    return action;
-          |  };
-          |
-          |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-          |    return new $testKitClassName(actionFactory);
-          |  }
-          |
-          |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory) {
-          |    this.actionFactory = actionFactory;
-          |  }
-          |
-          |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
-          |    return new ActionResultImpl(effect);
-          |  }
-          |
-          |  ${Format.indent(generateServices(service), 2)}
-          |
-          |}
-          |""".stripMargin
+        |
+        |$imports
+        |
+        |$managedComment
+        |
+        |public final class $testKitClassName {
+        |
+        |  private Function<ActionCreationContext, $className> actionFactory;
+        |
+        |  private $className createAction() {
+        |    $className action = actionFactory.apply(new StubActionCreationContext());
+        |    action._internalSetActionContext(Optional.of(new StubActionContext()));
+        |    return action;
+        |  };
+        |
+        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
+        |    return new $testKitClassName(actionFactory);
+        |  }
+        |
+        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory) {
+        |    this.actionFactory = actionFactory;
+        |  }
+        |
+        |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
+        |    return new ActionResultImpl(effect);
+        |  }
+        |
+        |  ${Format.indent(generateServices(service), 2)}
+        |
+        |}
+        |""".stripMargin
   }
 
   private[codegen] def generateTestSourceCode(service: ModelBuilder.ActionService): String = {
@@ -123,27 +123,28 @@ object ActionTestKitGenerator {
 
     val testClassName = s"${className}Test"
 
-    s"""$unmanagedComment
-          |package ${service.fqn.parent.javaPackage};
-          |
-          |$imports
-          |
-          |public class $testClassName {
-          |
-          |  @Test
-          |  public void exampleTest() {
-          |    ${className}TestKit testKit = ${className}TestKit.of($className::new);
-          |    // use the testkit to execute a command
-          |    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-          |    // verify the response
-          |    // SomeResponse actualResponse = result.getReply();
-          |    // assertEquals(expectedResponse, actualResponse);
-          |  }
-          |
-          |  ${Format.indent(generateTestingServices(service), 2)}
-          |
-          |}
-          |""".stripMargin
+    s"""package ${service.fqn.parent.javaPackage};
+        |
+        |$imports
+        |
+        |$unmanagedComment
+        |
+        |public class $testClassName {
+        |
+        |  @Test
+        |  public void exampleTest() {
+        |    ${className}TestKit testKit = ${className}TestKit.of($className::new);
+        |    // use the testkit to execute a command
+        |    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+        |    // verify the response
+        |    // SomeResponse actualResponse = result.getReply();
+        |    // assertEquals(expectedResponse, actualResponse);
+        |  }
+        |
+        |  ${Format.indent(generateTestingServices(service), 2)}
+        |
+        |}
+        |""".stripMargin
   }
 
   def generateServices(service: ModelBuilder.ActionService): String = {
