@@ -160,7 +160,7 @@ include::example$java-eventsourced-counter/src/test/java/com/example/actions/Cou
 
 *ActionResult*
 
-Calling an action method through the TestKit gives us back an link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
+Calling an action method through the test kit gives us back an  {attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
 
 * `getReply` returns the value passed to the `Effect.reply`, if any.
 * `getForwardServiceCall` returns the `ServiceCall` to use to forward the call, if any.
