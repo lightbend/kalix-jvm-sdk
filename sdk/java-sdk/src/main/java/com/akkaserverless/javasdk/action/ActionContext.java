@@ -25,6 +25,9 @@ import java.util.Optional;
 
 /** Context for action calls. */
 public interface ActionContext extends MetadataContext {
+
+  // FIX: remove this method and move docs currently pointing
+  // to this method toMetadataContext
   /**
    * Get the metadata associated with this call.
    *

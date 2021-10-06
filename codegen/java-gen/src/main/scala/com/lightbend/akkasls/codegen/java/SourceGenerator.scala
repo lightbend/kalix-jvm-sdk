@@ -101,7 +101,8 @@ object SourceGenerator {
           integrationTestSourceDirectory,
           generatedSourceDirectory)
       case service: ModelBuilder.ActionService =>
-        ActionServiceSourceGenerator.generate(service, sourceDirectory, generatedSourceDirectory)
+        ActionServiceSourceGenerator.generate(service, sourceDirectory, generatedSourceDirectory) ++
+          ActionTestKitGenerator.generate(service, testSourceDirectory, generatedTestSourceDirectory)
       case _ => Seq.empty
     } ++ {
       MainSourceGenerator.generate(
