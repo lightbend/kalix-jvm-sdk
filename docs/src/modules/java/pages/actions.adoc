@@ -143,7 +143,7 @@ When more components are added the `AkkaServerlessFactory` is regenerated, and y
 
 The following snippet shows how the `CounterJournalToTopicActionTestKit` is used to test the `CounterJournalToTopicAction` implementation.
 
-AkkaServerless provides the `CounterJournalToTopicActionTestKit` that allows us to call the methods of `CounterJournalToTopicAction`. For each `Action` AkkaServerless generates an specific test kit for it, with the name `[ActionName]TestKit`. This test kit hold an instance of its `Action`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying `CounterJournalToTopicAction`. 
+AkkaServerless generates the `CounterJournalToTopicActionTestKit` that allows us to call the methods of `CounterJournalToTopicAction`. For each `Action` Akka Serverless generates a specific test kit for it, with the name `[ActionName]TestKit`. This test kit hold an instance of its `Action`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying `CounterJournalToTopicAction`. 
 
 Apart from the test kit AkkaServerless generates test classes based on the Action defined in the .proto files. This is shown in the snippet below. 
 
