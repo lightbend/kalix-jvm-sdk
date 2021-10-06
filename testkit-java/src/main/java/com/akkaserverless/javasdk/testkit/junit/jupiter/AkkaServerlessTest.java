@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.junit.jupiter;
 
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestkit;
+import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 
 /**
  * {@code @AkkaServerlessTest} registers a JUnit Jupiter extension to automatically manage the
- * lifecycle of {@link AkkaServerlessTestkit} and Akka gRPC clients.
+ * lifecycle of {@link AkkaServerlessTestKit} and Akka gRPC clients.
  *
  * <p><b>Note</b>: JUnit Jupiter is not provided as a transitive dependency of the Java SDK testkit
  * module but must be added explicitly to your project.
@@ -69,6 +69,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(AkkaServerlessTestkitExtension.class)
+@ExtendWith(AkkaServerlessTestKitExtension.class)
 @Inherited
 public @interface AkkaServerlessTest {}

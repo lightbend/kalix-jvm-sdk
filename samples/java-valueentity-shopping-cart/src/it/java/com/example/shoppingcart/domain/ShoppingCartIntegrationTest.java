@@ -16,7 +16,7 @@
 package com.example.shoppingcart.domain;
 
 import com.example.shoppingcart.Main;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.ShoppingCartServiceClient;
 import org.junit.ClassRule;
@@ -35,8 +35,8 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit =
-          new AkkaServerlessTestkitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testkit =
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.

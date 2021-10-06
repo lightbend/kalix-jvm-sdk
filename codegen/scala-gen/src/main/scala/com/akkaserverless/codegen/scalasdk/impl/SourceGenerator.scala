@@ -93,26 +93,20 @@ object SourceGenerator {
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the user
    */
-  // FIXME we need to call this from the sbt plugin
-  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] = {
-    model.services.values
-      .flatMap {
-        case service: ModelBuilder.EntityService =>
-          model.lookupEntity(service) match {
-            case entity: ModelBuilder.ValueEntity =>
-              ValueEntityTestKitGenerator.generateUnmanagedTest(entity, service)
-            case _: ModelBuilder.EventSourcedEntity =>
-              Nil // FIXME
-            case _: ModelBuilder.ReplicatedEntity =>
-              Nil
-          }
-        case _: ModelBuilder.ViewService =>
-          Nil
-        case _: ModelBuilder.ActionService =>
-          Nil
-      }
-      .map(_.prepend(unmanagedComment))
-      .toList
-  }
-
+  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] =
+    model.services.values.flatMap {
+      case service: ModelBuilder.EntityService =>
+        model.lookupEntity(service) match {
+          case entity: ModelBuilder.ValueEntity =>
+            ValueEntityTestKitGenerator.generateUnmanagedTest(MainSourceGenerator.mainClassName(model), entity, service)
+          case _: ModelBuilder.EventSourcedEntity =>
+            Nil // FIXME
+          case _: ModelBuilder.ReplicatedEntity =>
+            Nil
+        }
+      case _: ModelBuilder.ViewService =>
+        Nil
+      case _: ModelBuilder.ActionService =>
+        Nil
+    }.toList
 }

@@ -27,6 +27,7 @@ lazy val sdkCore = project
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
       (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
     },
+    Compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"))
   .settings(Dependencies.sdkCore)
 
@@ -104,6 +105,7 @@ lazy val sdkScala = project
 lazy val sdkScalaTestKit = project
   .in(file("sdk/scala-sdk-testkit"))
   .dependsOn(sdkScala)
+  .dependsOn(sdkJavaTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(
     name := "akkaserverless-scala-sdk-testkit",
@@ -114,6 +116,7 @@ lazy val sdkScalaTestKit = project
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
+    Compile / javacOptions ++= Seq("--release", "8"),
     Compile / scalacOptions ++= Seq("-release", "8"),
     inTask(doc)(
       Seq(
@@ -190,7 +193,9 @@ lazy val codegenCore =
     .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
       crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
+      scalaVersion := Dependencies.ScalaVersionForCodegen.head,
+      Compile / javacOptions ++= Seq("--release", "8"),
+      Compile / scalacOptions ++= Seq("-release", "8"))
 
 lazy val codegenJava =
   project

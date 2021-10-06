@@ -70,4 +70,5 @@ $ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/valueenti
 # com/example/valueentity/some_value_entity_api.proto
 # com/example/valueentity/domain/some_value_entity_domain.proto
 $ exists src/test/scala/com/example/valueentity/domain/SomeValueEntitySpec.scala
+$ exists src/test/scala/com/example/valueentity/SomeValueEntityServiceIntegrationSpec.scala
 $ exists target/scala-2.13/src_managed/test/akkaserverless/com/example/valueentity/domain/SomeValueEntityTestKit.scala

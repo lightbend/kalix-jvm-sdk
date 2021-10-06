@@ -19,11 +19,11 @@ package com.akkaserverless.javasdk.testkit.junit;
 import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestkit;
+import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link AkkaServerlessTestkit}, which automatically manages the
+ * A JUnit external resource for {@link AkkaServerlessTestKit}, which automatically manages the
  * lifecycle of the testkit. The testkit will be automatically stopped when the test completes or
  * fails.
  *
@@ -40,12 +40,12 @@ import org.junit.rules.ExternalResource;
  *   private static final AkkaServerless MY_AKKA_SERVERLESS = new AkkaServerless(); // with registered services
  *
  *   &#64;ClassRule
- *   public static final AkkaServerlessTestkitResource testkit = new AkkaServerlessTestkitResource(MY_AKKA_SERVERLESS);
+ *   public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(MY_AKKA_SERVERLESS);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client
  *
  *   public MyAkkaServerlessIntegrationTest() {
- *     this.client = MyServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+ *     this.client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
  *   }
  *
  *   &#64;Test
@@ -55,17 +55,17 @@ import org.junit.rules.ExternalResource;
  * }
  * </pre>
  */
-public final class AkkaServerlessTestkitResource extends ExternalResource {
+public final class AkkaServerlessTestKitResource extends ExternalResource {
 
-  private final AkkaServerlessTestkit testkit;
+  private final AkkaServerlessTestKit testkit;
 
-  public AkkaServerlessTestkitResource(AkkaServerless akkaServerless) {
-    this(akkaServerless, AkkaServerlessTestkit.Settings.DEFAULT);
+  public AkkaServerlessTestKitResource(AkkaServerless akkaServerless) {
+    this(akkaServerless, AkkaServerlessTestKit.Settings.DEFAULT);
   }
 
-  public AkkaServerlessTestkitResource(
-      AkkaServerless akkaServerless, AkkaServerlessTestkit.Settings settings) {
-    this.testkit = new AkkaServerlessTestkit(akkaServerless, settings);
+  public AkkaServerlessTestKitResource(
+      AkkaServerless akkaServerless, AkkaServerlessTestKit.Settings settings) {
+    this.testkit = new AkkaServerlessTestKit(akkaServerless, settings);
   }
 
   @Override
