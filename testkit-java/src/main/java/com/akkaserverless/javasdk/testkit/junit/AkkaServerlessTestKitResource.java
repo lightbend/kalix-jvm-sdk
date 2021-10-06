@@ -55,15 +55,15 @@ import org.junit.rules.ExternalResource;
  * }
  * </pre>
  */
-public final class AkkaServerlessTestkitResource extends ExternalResource {
+public final class AkkaServerlessTestKitResource extends ExternalResource {
 
   private final AkkaServerlessTestKit testkit;
 
-  public AkkaServerlessTestkitResource(AkkaServerless akkaServerless) {
+  public AkkaServerlessTestKitResource(AkkaServerless akkaServerless) {
     this(akkaServerless, AkkaServerlessTestKit.Settings.DEFAULT);
   }
 
-  public AkkaServerlessTestkitResource(
+  public AkkaServerlessTestKitResource(
       AkkaServerless akkaServerless, AkkaServerlessTestKit.Settings settings) {
     this.testkit = new AkkaServerlessTestKit(akkaServerless, settings);
   }

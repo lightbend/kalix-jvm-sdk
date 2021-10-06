@@ -69,6 +69,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(AkkaServerlessTestkitExtension.class)
+@ExtendWith(AkkaServerlessTestKitExtension.class)
 @Inherited
 public @interface AkkaServerlessTest {}

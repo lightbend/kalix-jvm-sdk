@@ -30,9 +30,9 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-class AkkaServerlessTestkitExtension implements BeforeAllCallback, ParameterResolver {
+class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterResolver {
 
-  private static final Namespace NAMESPACE = Namespace.create(AkkaServerlessTestkitExtension.class);
+  private static final Namespace NAMESPACE = Namespace.create(AkkaServerlessTestKitExtension.class);
   private static final String TESTKIT = "testkit";
 
   @Override
@@ -46,11 +46,11 @@ class AkkaServerlessTestkitExtension implements BeforeAllCallback, ParameterReso
   private static AkkaServerless findAkkaServerlessDescriptor(final Class<?> testClass) {
     return ReflectionUtils.findFields(
             testClass,
-            AkkaServerlessTestkitExtension::isAkkaServerlessDescriptor,
+            AkkaServerlessTestKitExtension::isAkkaServerlessDescriptor,
             ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
         .stream()
         .findFirst()
-        .map(AkkaServerlessTestkitExtension::getAkkaServerlessDescriptor)
+        .map(AkkaServerlessTestKitExtension::getAkkaServerlessDescriptor)
         .orElseThrow(
             () ->
                 new ExtensionConfigurationException(
