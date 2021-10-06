@@ -147,7 +147,7 @@ AkkaServerless generates the `CounterJournalToTopicActionTestKit` that allows us
 
 Apart from the test kit Akka Serverless generates test classes based on the Action defined in the .proto files. This is shown in the snippet below. 
 
-Is worth noting that Actions are unique units of computation. The framework doesn't reuse an Action instance. A consequence of this is that we should create a test kit for each method we evaluate as shown in the snippet. 
+Is worth noting that Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves. 
 
 .src/test/java/com/example/actions/CounterJournalToTopicActionTest.java
 [source,java]
