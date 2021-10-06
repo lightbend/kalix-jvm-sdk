@@ -206,14 +206,9 @@ abstract class ReplicatedEntity[D <: ReplicatedData] {
    *
    * It will throw an exception if accessed from constructor.
    */
-  protected def commandContext(): CommandContext = {
-    try {
-      _commandContext.get
-    } catch {
-      case _: NoSuchElementException =>
-        throw new IllegalStateException("CommandContext is only available when handling a command.")
-    }
-  }
+  protected def commandContext(): CommandContext =
+    _commandContext.getOrElse(
+      throw new IllegalStateException("CommandContext is only available when handling a command."))
 
   /** INTERNAL API */
   def _internalSetCommandContext(context: Option[CommandContext]): Unit =
