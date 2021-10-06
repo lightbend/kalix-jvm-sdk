@@ -492,7 +492,7 @@ object EntityServiceSourceGenerator {
       packageName,
       List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
       Seq(
-        "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource",
+        "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource",
         "org.junit.ClassRule",
         "org.junit.Test",
         mainClassPackageName + "." + mainClassName) ++ extraImports)
@@ -524,8 +524,8 @@ object EntityServiceSourceGenerator {
       |   * The test kit starts both the service container and the Akka Serverless proxy.
       |   */
       |  @ClassRule
-      |  public static final AkkaServerlessTestkitResource testkit =
-      |    new AkkaServerlessTestkitResource(${mainClassName}.createAkkaServerless());
+      |  public static final AkkaServerlessTestKitResource testKit =
+      |    new AkkaServerlessTestKitResource(${mainClassName}.createAkkaServerless());
       |
       |  /**
       |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -533,7 +533,7 @@ object EntityServiceSourceGenerator {
       |  private final ${serviceName}Client client;
       |
       |  public ${testClassName}() {
-      |    client = ${serviceName}Client.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+      |    client = ${serviceName}Client.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
       |  }
       |
       |  ${Format.indent(testCases, num = 2)}

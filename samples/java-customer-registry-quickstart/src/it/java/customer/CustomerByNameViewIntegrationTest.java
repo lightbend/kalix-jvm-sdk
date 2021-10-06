@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit.*;
 
 import akka.stream.javadsl.Sink;
 import io.grpc.StatusRuntimeException;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import customer.api.CustomerApi;
 import customer.api.CustomerServiceClient;
 import customer.domain.CustomerDomain;
@@ -42,8 +42,8 @@ public class CustomerByNameViewIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit =
-          new AkkaServerlessTestkitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testkit =
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.

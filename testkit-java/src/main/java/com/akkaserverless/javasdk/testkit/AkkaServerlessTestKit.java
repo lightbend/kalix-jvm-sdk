@@ -24,7 +24,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.Testcontainers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -42,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * {@link #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link
  * #stop} after tests are complete.
  */
-public class AkkaServerlessTestkit {
+public class AkkaServerlessTestKit {
 
   /** Settings for AkkaServerlessTestkit. */
   public static class Settings {
@@ -74,7 +73,7 @@ public class AkkaServerlessTestkit {
     }
   }
 
-  private static final Logger log = LoggerFactory.getLogger(AkkaServerlessTestkit.class);
+  private static final Logger log = LoggerFactory.getLogger(AkkaServerlessTestKit.class);
 
   private final AkkaServerless akkaServerless;
   private final Settings settings;
@@ -89,7 +88,7 @@ public class AkkaServerlessTestkit {
    *
    * @param akkaServerless AkkaServerless service descriptor
    */
-  public AkkaServerlessTestkit(final AkkaServerless akkaServerless) {
+  public AkkaServerlessTestKit(final AkkaServerless akkaServerless) {
     this(akkaServerless, Settings.DEFAULT);
   }
 
@@ -99,7 +98,7 @@ public class AkkaServerlessTestkit {
    * @param akkaServerless AkkaServerless service descriptor
    * @param settings custom testkit settings
    */
-  public AkkaServerlessTestkit(final AkkaServerless akkaServerless, final Settings settings) {
+  public AkkaServerlessTestKit(final AkkaServerless akkaServerless, final Settings settings) {
     this.akkaServerless = akkaServerless;
     this.settings = settings;
   }
@@ -109,7 +108,7 @@ public class AkkaServerlessTestkit {
    *
    * @return this AkkaServerlessTestkit
    */
-  public AkkaServerlessTestkit start() {
+  public AkkaServerlessTestKit start() {
     return start(ConfigFactory.load());
   }
 
@@ -119,7 +118,7 @@ public class AkkaServerlessTestkit {
    * @param config custom test configuration for the AkkaServerlessRunner
    * @return this AkkaServerlessTestkit
    */
-  public AkkaServerlessTestkit start(final Config config) {
+  public AkkaServerlessTestKit start(final Config config) {
     if (started) throw new IllegalStateException("AkkaServerlessTestkit already started");
     int port = availableLocalPort();
     Map<String, Object> conf = new HashMap<>();

@@ -286,7 +286,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
         |
-        |import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+        |import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
         |import com.example.service.domain.EntityOuterClass;
         |import com.external.Empty;
         |import org.junit.ClassRule;
@@ -307,8 +307,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |   * The test kit starts both the service container and the Akka Serverless proxy.
         |   */
         |  @ClassRule
-        |  public static final AkkaServerlessTestkitResource testkit =
-        |    new AkkaServerlessTestkitResource(SomeMain.createAkkaServerless());
+        |  public static final AkkaServerlessTestKitResource testKit =
+        |    new AkkaServerlessTestKitResource(SomeMain.createAkkaServerless());
         |
         |  /**
         |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -316,7 +316,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |  private final MyServiceClient client;
         |
         |  public MyServiceEntityIntegrationTest() {
-        |    client = MyServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        |    client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
         |  }
         |
         |  @Test

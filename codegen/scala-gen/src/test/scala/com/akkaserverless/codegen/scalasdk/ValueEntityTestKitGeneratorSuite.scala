@@ -174,7 +174,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
       """package com.example.shoppingcart.api
         |
         |import akka.actor.ActorSystem
-        |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit
+        |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
         |import com.akkaserverless.scalasdk.testkit.ValueEntityResult
         |import com.akkaserverless.scalasdk.valueentity.ValueEntity
         |import com.example.shoppingcart.Main
@@ -202,13 +202,13 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |  implicit val patience: PatienceConfig =
         |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
         |
-        |  val testkit = AkkaServerlessTestkit(Main.createAkkaServerless())
-        |  testkit.start()
-        |  implicit val system: ActorSystem = testkit.system
+        |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
+        |  testKit.start()
+        |  implicit val system: ActorSystem = testKit.system
         |
         |  "ShoppingCartService" must {
         |    val client: ShoppingCartServiceClient =
-        |      ShoppingCartServiceClient(testkit.grpcClientSettings)
+        |      ShoppingCartServiceClient(testKit.grpcClientSettings)
         |
         |    "have example test that can be removed" in {
         |      // use the gRPC client to send requests to the
@@ -218,7 +218,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  override def afterAll() = {
-        |    testkit.stop()
+        |    testKit.stop()
         |    super.afterAll()
         |  }
         |}

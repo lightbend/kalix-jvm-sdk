@@ -20,7 +20,7 @@ import akka.actor.ClassicActorSystemProvider;
 import akka.grpc.GrpcClientSettings;
 import akka.grpc.javadsl.AkkaGrpcClient;
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestkit;
+import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
@@ -39,7 +39,7 @@ class AkkaServerlessTestkitExtension implements BeforeAllCallback, ParameterReso
   public void beforeAll(ExtensionContext context) {
     Class<?> testClass = context.getRequiredTestClass();
     AkkaServerless akkaServerless = findAkkaServerlessDescriptor(testClass);
-    AkkaServerlessTestkit testkit = new AkkaServerlessTestkit(akkaServerless).start();
+    AkkaServerlessTestKit testkit = new AkkaServerlessTestKit(akkaServerless).start();
     context.getStore(NAMESPACE).put(TESTKIT, new StoredTestkit(testkit));
   }
 
@@ -84,15 +84,15 @@ class AkkaServerlessTestkitExtension implements BeforeAllCallback, ParameterReso
   @Override
   public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext context) {
     Class<?> type = parameterContext.getParameter().getType();
-    return (type == AkkaServerlessTestkit.class) || AkkaGrpcClient.class.isAssignableFrom(type);
+    return (type == AkkaServerlessTestKit.class) || AkkaGrpcClient.class.isAssignableFrom(type);
   }
 
   @Override
   public Object resolveParameter(ParameterContext parameterContext, ExtensionContext context) {
     Class<?> type = parameterContext.getParameter().getType();
     Store store = context.getStore(NAMESPACE);
-    AkkaServerlessTestkit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
-    if (type == AkkaServerlessTestkit.class) {
+    AkkaServerlessTestKit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
+    if (type == AkkaServerlessTestKit.class) {
       return testkit;
     } else if (AkkaGrpcClient.class.isAssignableFrom(type)) {
       return store
@@ -119,13 +119,13 @@ class AkkaServerlessTestkitExtension implements BeforeAllCallback, ParameterReso
 
   // Wrap testkit in CloseableResource, auto-closed when test finishes (extension store is closed)
   private static class StoredTestkit implements Store.CloseableResource {
-    private final AkkaServerlessTestkit testkit;
+    private final AkkaServerlessTestKit testkit;
 
-    private StoredTestkit(AkkaServerlessTestkit testkit) {
+    private StoredTestkit(AkkaServerlessTestKit testkit) {
       this.testkit = testkit;
     }
 
-    public AkkaServerlessTestkit getTestkit() {
+    public AkkaServerlessTestKit getTestkit() {
       return testkit;
     }
 

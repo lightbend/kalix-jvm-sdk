@@ -183,7 +183,7 @@ object ValueEntityTestKitGenerator {
           "akka.actor.ActorSystem",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
-          "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestkit",
+          "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
           "org.scalatest.BeforeAndAfterAll",
@@ -213,13 +213,13 @@ object ValueEntityTestKitGenerator {
           |  implicit val patience: PatienceConfig =
           |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
           |
-          |  val testkit = AkkaServerlessTestkit(Main.createAkkaServerless())
-          |  testkit.start()
-          |  implicit val system: ActorSystem = testkit.system
+          |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
+          |  testKit.start()
+          |  implicit val system: ActorSystem = testKit.system
           |
           |  "${entityClassName}" must {
           |    val client: ${typeName(client)} =
-          |      ${typeName(client)}(testkit.grpcClientSettings)
+          |      ${typeName(client)}(testKit.grpcClientSettings)
           |
           |    "have example test that can be removed" in {
           |      // use the gRPC client to send requests to the
@@ -229,7 +229,7 @@ object ValueEntityTestKitGenerator {
           |  }
           |
           |  override def afterAll() = {
-          |    testkit.stop()
+          |    testKit.stop()
           |    super.afterAll()
           |  }
           |}

@@ -244,7 +244,7 @@ The unit tests can be run from sbt using `sbt test` or if you prefer from inside
 [.tabset]
 Java::
 +
-An example integration test class to start from is also generated for you. It uses an `AkkaServerlessTestkitResource` to start docker containers and interacts with the entity with an actual gRPC client.
+An example integration test class to start from is also generated for you. It uses an `AkkaServerlessTestKitResource` to start docker containers and interacts with the entity with an actual gRPC client.
 +
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java

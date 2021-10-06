@@ -19,22 +19,22 @@ package com.akkaserverless.scalasdk.testkit
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestkit => JTestKit }
+import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestKit => JTestKit }
 
 /**
- * Testkit for running Akka Serverless services locally.
+ * TestKit for running Akka Serverless services locally.
  *
  * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
- * <p>Create an AkkaServerlessTestkit with an {@link AkkaServerless} service descriptor, and then {@link #start} the
+ * <p>Create an AkkaServerlessTestKit with an {@link AkkaServerless} service descriptor, and then {@link #start} the
  * testkit before testing the service with gRPC or HTTP clients. Call {@link #stop} after tests are complete.
  */
-object AkkaServerlessTestkit {
-  def apply(main: AkkaServerless): AkkaServerlessTestkit =
-    new AkkaServerlessTestkit(new JTestKit(main.delegate))
+object AkkaServerlessTestKit {
+  def apply(main: AkkaServerless): AkkaServerlessTestKit =
+    new AkkaServerlessTestKit(new JTestKit(main.delegate))
 }
-class AkkaServerlessTestkit private (delegate: JTestKit) {
-  def start(): AkkaServerlessTestkit = {
+class AkkaServerlessTestKit private (delegate: JTestKit) {
+  def start(): AkkaServerlessTestKit = {
     delegate.start()
     this
   }
