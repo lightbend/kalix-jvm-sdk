@@ -38,23 +38,5 @@ public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic
   public void addCustomDataToJsonMap(
       java.util.Map<String, Object> map, ch.qos.logback.classic.spi.ILoggingEvent event) {
     add("severity", true, String.valueOf(event.getLevel()), map);
-    if (event.getMDCPropertyMap().containsKey(ErrorHandling.CorrelationIdMdcKey())) {
-      // automatically include correlation id in message if present (for now)
-      String correlationID = event.getMDCPropertyMap().get(ErrorHandling.CorrelationIdMdcKey());
-      if (this.includeMessage) {
-        add(
-            MESSAGE_ATTR_NAME,
-            this.includeMessage,
-            map.get(MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
-            map);
-      }
-      if (this.includeFormattedMessage) {
-        add(
-            FORMATTED_MESSAGE_ATTR_NAME,
-            this.includeFormattedMessage,
-            map.get(FORMATTED_MESSAGE_ATTR_NAME) + " [" + correlationID + "]",
-            map);
-      }
-    }
   }
 }
