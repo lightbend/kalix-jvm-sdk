@@ -28,7 +28,7 @@ import scala.jdk.CollectionConverters.SetHasAsScala
  * @tparam K
  *   The type for keys.
  */
-class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkReplicatedCounterMap[K])
+class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: JavaSdkReplicatedCounterMap[K])
     extends ReplicatedData {
 
   /**
@@ -39,7 +39,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   the current value of the counter at that key, or zero if no counter exists
    */
-  def get(key: K): Long = internal.get(key)
+  def get(key: K): Long = _internal.get(key)
 
   /**
    * Increment the counter at the given key by the given amount.
@@ -53,8 +53,8 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   a new counter map with the incremented value
    */
-  def increment(key: K, amount: Long) =
-    new ReplicatedCounterMap(internal.increment(key, amount))
+  def increment(key: K, amount: Long): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(_internal.increment(key, amount))
 
   /**
    * Decrement the counter at the given key by the given amount.
@@ -68,8 +68,8 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   a new counter map with the decremented value
    */
-  def decrement(key: K, amount: Long) =
-    new ReplicatedCounterMap(internal.decrement(key, amount))
+  def decrement(key: K, amount: Long): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(_internal.decrement(key, amount))
 
   /**
    * Remove the mapping for a key if it is present.
@@ -79,8 +79,8 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   a new counter map with the removed mapping
    */
-  def remove(key: K) =
-    new ReplicatedCounterMap(internal.remove(key))
+  def remove(key: K): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(_internal.remove(key))
 
   /**
    * Remove all mappings from this counter map.
@@ -88,8 +88,8 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   a new empty counter map
    */
-  def clear =
-    new ReplicatedCounterMap(internal.clear())
+  def clear(): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(_internal.clear())
 
   /**
    * Get the number of key-counter mappings in this counter map.
@@ -97,7 +97,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   the number of key-counter mappings in this counter map
    */
-  def size: Int = internal.size()
+  def size: Int = _internal.size()
 
   /**
    * Check whether this counter map is empty.
@@ -105,7 +105,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   `true` if this counter map contains no key-counter mappings
    */
-  def isEmpty: Boolean = internal.isEmpty
+  def isEmpty: Boolean = _internal.isEmpty
 
   /**
    * Check whether this counter map contains a mapping for the given key.
@@ -115,7 +115,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    * @return
    *   `true` if this counter map contains a mapping for the given key
    */
-  def containsKey(key: K): Boolean = internal.containsKey(key)
+  def containsKey(key: K): Boolean = _internal.containsKey(key)
 
   /**
    * Get a [[immutable.Set]] view of the keys contained in this counter map.
@@ -124,6 +124,6 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val internal: JavaSdkR
    *   the keys contained in this counter map
    */
   def keySet: immutable.Set[K] =
-    immutable.Set.from(internal.keySet().asScala)
+    _internal.keySet().asScala.toSet
 
 }

@@ -71,7 +71,7 @@ import scala.jdk.CollectionConverters.SetHasAsScala
  * @tparam V
  *   The replicated data type to be used for values.
  */
-class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val internal: JavaSdkReplicatedMap[K, V])
+class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _internal: JavaSdkReplicatedMap[K, V])
     extends ReplicatedData {
 
   /**
@@ -84,7 +84,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    * @throws NoSuchElementException
    *   if the key is not preset in the map
    */
-  def get(key: K): V = internal.get(key)
+  def get(key: K): V = _internal.get(key)
 
   /**
    * Get the [[ReplicatedData]] value for the given key. If the key is not present in the map, then a new value is
@@ -99,7 +99,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    *   the [[ReplicatedData]] for the key
    */
   def getOrElse[ValueT <: ReplicatedData](key: K, create: ReplicatedDataFactory => ValueT): ValueT =
-    internal
+    _internal
       .getOrElse(key, factory => create(ScalaReplicatedDataFactoryAdapter(factory)).asInstanceOf[V])
       .asInstanceOf[ValueT]
 
@@ -114,7 +114,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    *   a new map with the updated value
    */
   def update(key: K, value: V): ReplicatedMap[K, V] =
-    new ReplicatedMap(internal.update(key, value))
+    new ReplicatedMap(_internal.update(key, value))
 
   /**
    * Remove the mapping for a key if it is present.
@@ -125,7 +125,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    *   a new map with the removed mapping
    */
   def remove(key: K): ReplicatedMap[K, V] =
-    new ReplicatedMap(internal.remove(key))
+    new ReplicatedMap(_internal.remove(key))
 
   /**
    * Remove all entries from this map.
@@ -133,8 +133,8 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    * @return
    *   a new empty map
    */
-  def clear: ReplicatedMap[K, V] =
-    new ReplicatedMap(internal.clear())
+  def clear(): ReplicatedMap[K, V] =
+    new ReplicatedMap(_internal.clear())
 
   /**
    * Get the number of key-value mappings in this map.
@@ -142,7 +142,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    * @return
    *   the number of key-value mappings in this map
    */
-  def size: Int = internal.size()
+  def size: Int = _internal.size()
 
   /**
    * Check whether this map is empty.
@@ -150,7 +150,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    * @return
    *   `true` if this map contains no key-value mappings
    */
-  def isEmpty: Boolean = internal.isEmpty
+  def isEmpty: Boolean = _internal.isEmpty
 
   /**
    * Check whether this map contains a mapping for the given key.
@@ -160,7 +160,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    * @return
    *   `true` if this map contains a mapping for the given key
    */
-  def containsKey(key: K): Boolean = internal.containsKey(key)
+  def containsKey(key: K): Boolean = _internal.containsKey(key)
 
   /**
    * Get a [[immutable.Set]] view of the keys contained in this map.
@@ -169,7 +169,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val inte
    *   the keys contained in this map
    */
   def keySet: immutable.Set[K] =
-    immutable.Set.from(internal.keySet().asScala)
+    _internal.keySet().asScala.toSet
 
   /**
    * Get a [[ReplicatedCounter]] from a heterogeneous Replicated Map (a map with different types of Replicated Data

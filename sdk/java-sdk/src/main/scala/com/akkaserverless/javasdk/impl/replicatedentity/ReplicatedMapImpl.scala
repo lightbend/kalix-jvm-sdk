@@ -153,5 +153,5 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
 
   override def toString = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }

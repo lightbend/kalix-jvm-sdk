@@ -31,7 +31,7 @@ import scala.jdk.CollectionConverters.{ IterableHasAsJava, SetHasAsScala }
  * @tparam V
  *   The type for values.
  */
-class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdkReplicatedMultiMap[K, V])
+class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSdkReplicatedMultiMap[K, V])
     extends ReplicatedData {
 
   /**
@@ -43,7 +43,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   the current values at the given key, or an empty Set
    */
   def get(key: K): immutable.Set[V] =
-    immutable.Set.from(internal.get(key).asScala)
+    _internal.get(key).asScala.toSet
 
   /**
    * Store a key-value pair, if not already present.
@@ -56,7 +56,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   a new multi-map with the additional value, or this unchanged multi-map
    */
   def put(key: K, value: V): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(internal.put(key, value))
+    new ReplicatedMultiMap(_internal.put(key, value))
 
   /**
    * Store multiple values for a key.
@@ -69,7 +69,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   a new multi-map with the additional values, or this unchanged multi-map
    */
   def putAll(key: K, values: Iterable[V]): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(internal.putAll(key, values.asJavaCollection))
+    new ReplicatedMultiMap(_internal.putAll(key, values.asJavaCollection))
 
   /**
    * Remove a single key-value pair for the given key and value, if present.
@@ -82,7 +82,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   a new multi-map with the removed value, or this unchanged multi-map
    */
   def remove(key: K, value: V): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(internal.remove(key, value))
+    new ReplicatedMultiMap(_internal.remove(key, value))
 
   /**
    * Remove all values associated with the given key.
@@ -93,7 +93,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   a new multi-map with the removed mapping
    */
   def removeAll(key: K): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(internal.removeAll(key))
+    new ReplicatedMultiMap(_internal.removeAll(key))
 
   /**
    * Remove all key-value pairs from the multi-map, leaving it empty.
@@ -101,8 +101,8 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    * @return
    *   a new empty multi-map
    */
-  def clear: ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(internal.clear())
+  def clear(): ReplicatedMultiMap[K, V] =
+    new ReplicatedMultiMap(_internal.clear())
 
   /**
    * Return the number of key-value pairs in this multi-map.
@@ -113,7 +113,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    * @return
    *   the number of key-value pairs stored in this multi-map
    */
-  def size: Int = internal.size()
+  def size: Int = _internal.size()
 
   /**
    * Check whether this multi-map is empty.
@@ -121,7 +121,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    * @return
    *   `true` if this multi-map contains no key-value pairs
    */
-  def isEmpty: Boolean = internal.isEmpty
+  def isEmpty: Boolean = _internal.isEmpty
 
   /**
    * Check whether this multi-map contains at least one value for the given key.
@@ -131,7 +131,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    * @return
    *   `true` if there is at least one key-value pair for the key
    */
-  def containsKey(key: K): Boolean = internal.containsKey(key)
+  def containsKey(key: K): Boolean = _internal.containsKey(key)
 
   /**
    * Check whether this multi-map contains the given value associated with the given key.
@@ -143,7 +143,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    * @return
    *   `true` if the key-value pair is in this multi-map
    */
-  def containsValue(key: K, value: V): Boolean = internal.containsValue(key, value)
+  def containsValue(key: K, value: V): Boolean = _internal.containsValue(key, value)
 
   /**
    * Return the keys contained in this multi-map.
@@ -154,5 +154,5 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val internal: JavaSdk
    *   the set of keys in this multi-map
    */
   def keySet: immutable.Set[K] =
-    immutable.Set.from(internal.keySet().asScala)
+    _internal.keySet().asScala.toSet
 }

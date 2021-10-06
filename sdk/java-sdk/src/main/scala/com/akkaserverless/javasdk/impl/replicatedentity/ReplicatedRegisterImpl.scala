@@ -74,5 +74,5 @@ private[replicatedentity] final class ReplicatedRegisterImpl[T](
 
   override def toString = s"ReplicatedRegister($value)"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }

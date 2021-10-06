@@ -108,5 +108,5 @@ private[replicatedentity] class ReplicatedSetImpl[E](
 
   override def toString = s"ReplicatedSet(${value.mkString(",")})"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }

@@ -56,9 +56,9 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
         val emptyData = entity.emptyData(dataFactory)
         require(emptyData ne null, "Initial empty data for a replicated entity cannot be null")
         require(
-          emptyData.internal() eq dataFactory.internalData,
+          emptyData._internal() eq dataFactory.internalData,
           "Replicated data objects must be created with the given factory")
-        data = emptyData.internal().asInstanceOf[D]
+        data = emptyData._internal().asInstanceOf[D]
     }
 
   /** INTERNAL API */
@@ -112,7 +112,7 @@ abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntit
       commandEffect.primaryEffect match {
         case UpdateData(newData) =>
           require(newData ne null, "update effect with null data is not allowed")
-          data = newData.internal().asInstanceOf[D]
+          data = newData._internal().asInstanceOf[D]
         case _ =>
       }
     }

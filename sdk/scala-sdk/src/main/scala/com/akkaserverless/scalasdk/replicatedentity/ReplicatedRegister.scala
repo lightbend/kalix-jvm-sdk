@@ -39,7 +39,7 @@ object ReplicatedRegister {
  *
  * @tparam T
  */
-class ReplicatedRegister[T] private[scalasdk] (override val internal: JavaSdkReplicatedRegister[T])
+class ReplicatedRegister[T] private[scalasdk] (override val _internal: JavaSdkReplicatedRegister[T])
     extends ReplicatedData {
 
   /**
@@ -48,7 +48,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val internal: JavaSdkRep
    * @return
    *   the current value of the register
    */
-  def get: T = internal.get()
+  def get: T = _internal.get()
 
   /**
    * Set the value of the register, using the default clock.
@@ -59,7 +59,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val internal: JavaSdkRep
    *   a new register with updated value
    */
   def set(value: T): ReplicatedRegister[T] =
-    new ReplicatedRegister(internal.set(value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
+    new ReplicatedRegister(_internal.set(value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
 
   /**
    * Set the current value of the register, using the given custom clock and clock value if required.
@@ -81,7 +81,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val internal: JavaSdkRep
         case ReplicatedRegister.Custom              => JavaSdkReplicatedRegister.Clock.CUSTOM
         case ReplicatedRegister.CustomAutoIncrement => JavaSdkReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT
       }
-    new ReplicatedRegister(internal.set(value, javaClock, customClockValue))
+    new ReplicatedRegister(_internal.set(value, javaClock, customClockValue))
   }
 
 }

@@ -18,5 +18,5 @@ package com.akkaserverless.replicatedentity;
 
 /** Root interface for all data entries in Replicated Entities. */
 public interface ReplicatedData {
-  ReplicatedData internal();
+  ReplicatedData _internal();
 }

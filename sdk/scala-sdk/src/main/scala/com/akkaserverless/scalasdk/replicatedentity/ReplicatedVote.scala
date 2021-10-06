@@ -24,7 +24,7 @@ import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedVote => JavaSdkRe
  *
  * This replicated data type is used to allow all the nodes in a cluster to vote on a condition.
  */
-class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicatedVote) extends ReplicatedData {
+class ReplicatedVote private[scalasdk] (override val _internal: JavaSdkReplicatedVote) extends ReplicatedData {
 
   /**
    * Get the current value for this node's vote.
@@ -32,7 +32,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   this node's vote
    */
-  def getSelfVote: Boolean = internal.getSelfVote
+  def selfVote: Boolean = _internal.getSelfVote
 
   /**
    * Get the number of voters participating in the vote (ie, the number of nodes in the cluster).
@@ -40,7 +40,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   the number of voters
    */
-  def voters: Int = internal.getVoters
+  def voters: Int = _internal.getVoters
 
   /**
    * Get the number of votes for.
@@ -48,7 +48,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   the number of votes for
    */
-  def votesFor: Int = internal.getVotesFor
+  def votesFor: Int = _internal.getVotesFor
 
   /**
    * Update this node's vote to the given value.
@@ -59,7 +59,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    *   a new vote, or this unchanged vote
    */
   def vote(vote: Boolean): ReplicatedVote =
-    new ReplicatedVote(internal.vote(vote))
+    new ReplicatedVote(_internal.vote(vote))
 
   /**
    * Has at least one node voted true?
@@ -67,7 +67,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   `true` if at least one node has voted true
    */
-  def isAtLeastOne: Boolean = internal.isAtLeastOne
+  def isAtLeastOne: Boolean = _internal.isAtLeastOne
 
   /**
    * Have a majority of nodes voted true?
@@ -75,7 +75,7 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   `true` if more than half of the nodes have voted true
    */
-  def isMajority: Boolean = internal.isMajority
+  def isMajority: Boolean = _internal.isMajority
 
   /**
    * Is the vote unanimous?
@@ -83,5 +83,5 @@ class ReplicatedVote private[scalasdk] (override val internal: JavaSdkReplicated
    * @return
    *   `true` if all nodes have voted true
    */
-  def isUnanimous: Boolean = internal.isUnanimous
+  def isUnanimous: Boolean = _internal.isUnanimous
 }

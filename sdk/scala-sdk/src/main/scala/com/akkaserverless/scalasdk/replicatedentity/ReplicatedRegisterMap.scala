@@ -32,7 +32,7 @@ import scala.jdk.OptionConverters.RichOptional
  * @tparam V
  *   The type for values.
  */
-class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: JavaSdkReplicatedRegisterMap[K, V])
+class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: JavaSdkReplicatedRegisterMap[K, V])
     extends ReplicatedData {
 
   /**
@@ -43,7 +43,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    * @return
    *   the current value of the register, if it exists (as an Option)
    */
-  def getValue(key: K): Option[V] = internal.getValue(key).toScala
+  def getValue(key: K): Option[V] = _internal.getValue(key).toScala
 
   /**
    * Set the current value of the register at the given key, using the default clock.
@@ -56,7 +56,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    *   a new register map with the updated value
    */
   def setValue(key: K, value: V): ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(internal.setValue(key, value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
+    new ReplicatedRegisterMap(_internal.setValue(key, value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
 
   /**
    * Set the current value of the register at the given key, using the given clock and custom clock value if required.
@@ -84,7 +84,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
         case ReplicatedRegister.Custom              => JavaSdkReplicatedRegister.Clock.CUSTOM
         case ReplicatedRegister.CustomAutoIncrement => JavaSdkReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT
       }
-    new ReplicatedRegisterMap(internal.setValue(key, value, javaClock, customClockValue))
+    new ReplicatedRegisterMap(_internal.setValue(key, value, javaClock, customClockValue))
   }
 
   /**
@@ -96,7 +96,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    *   a new register map with the removed mapping
    */
   def remove(key: K): ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(internal.remove(key))
+    new ReplicatedRegisterMap(_internal.remove(key))
 
   /**
    * Remove all mappings from this register map.
@@ -104,8 +104,8 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    * @return
    *   a new empty register map
    */
-  def clear: ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(internal.clear())
+  def clear(): ReplicatedRegisterMap[K, V] =
+    new ReplicatedRegisterMap(_internal.clear())
 
   /**
    * Get the number of key-register mappings in this register map.
@@ -113,7 +113,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    * @return
    *   the number of key-register mappings in this register map
    */
-  def size: Int = internal.size()
+  def size: Int = _internal.size()
 
   /**
    * Check whether this register map is empty.
@@ -121,7 +121,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    * @return
    *   `true` if this register map contains no key-register mappings
    */
-  def isEmpty: Boolean = internal.isEmpty
+  def isEmpty: Boolean = _internal.isEmpty
 
   /**
    * Check whether this register map contains a mapping for the given key.
@@ -131,7 +131,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    * @return
    *   `true` if this register map contains a mapping for the given key
    */
-  def containsKey(key: K): Boolean = internal.containsKey(key)
+  def containsKey(key: K): Boolean = _internal.containsKey(key)
 
   /**
    * Get a [[immutable.Set]] view of the keys contained in this register map.
@@ -140,5 +140,5 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val internal: Java
    *   the keys contained in this register map
    */
   def keySet: immutable.Set[K] =
-    immutable.Set.from(internal.keySet().asScala)
+    _internal.keySet().asScala.toSet
 }

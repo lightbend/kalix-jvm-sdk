@@ -99,5 +99,5 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
 
   override def toString = s"ReplicatedCounterMap(${counters.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }

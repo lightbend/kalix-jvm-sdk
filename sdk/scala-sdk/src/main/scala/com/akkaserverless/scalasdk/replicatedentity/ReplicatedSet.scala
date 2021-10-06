@@ -40,7 +40,7 @@ import scala.jdk.CollectionConverters.{ IterableHasAsJava, SetHasAsScala }
  * @tparam E
  *   The type of elements.
  */
-class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicatedSet[E]) extends ReplicatedData {
+class ReplicatedSet[E] private[scalasdk] (override val _internal: JavaSdkReplicatedSet[E]) extends ReplicatedData {
 
   /**
    * Get the number of elements in this set (its cardinality).
@@ -48,7 +48,7 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   the number of elements in the set
    */
-  def size: Int = internal.size()
+  def size: Int = _internal.size()
 
   /**
    * Check whether this set is empty.
@@ -56,7 +56,7 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   `true` if this set contains no elements
    */
-  def isEmpty: Boolean = internal.isEmpty
+  def isEmpty: Boolean = _internal.isEmpty
 
   /**
    * Elements of this set as a regular [[immutable.Set]]
@@ -65,7 +65,7 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    *   elements as [[immutable.Set]]
    */
   def elements: immutable.Set[E] =
-    immutable.Set.from(internal.elements().asScala)
+    _internal.elements().asScala.toSet
 
   /**
    * Check whether this set contains the given element.
@@ -76,7 +76,7 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    *   `true` if this set contains the specified element
    */
   def contains(element: E): Boolean =
-    internal.contains(element)
+    _internal.contains(element)
 
   /**
    * Add an element to this set if it is not already present.
@@ -86,8 +86,8 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new set with the additional element, or this unchanged set
    */
-  def add(element: E) =
-    new ReplicatedSet(internal.add(element))
+  def add(element: E): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.add(element))
 
   /**
    * Remove an element from this set if it is present.
@@ -97,8 +97,8 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new set without the removed element, or this unchanged set
    */
-  def remove(element: E) =
-    new ReplicatedSet(internal.remove(element))
+  def remove(element: E): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.remove(element))
 
   /**
    * Check whether this set contains all the given elements.
@@ -109,7 +109,7 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    *   `true` if this set contains all the given elements
    */
   def containsAll(elements: Iterable[E]): Boolean =
-    internal.containsAll(elements.asJavaCollection)
+    _internal.containsAll(elements.asJavaCollection)
 
   /**
    * Add elements to this set if they're not already present.
@@ -121,8 +121,8 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new set with the additional elements, or this unchanged set
    */
-  def addAll(elements: Iterable[E]) =
-    new ReplicatedSet(internal.addAll(elements.asJavaCollection))
+  def addAll(elements: Iterable[E]): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.addAll(elements.asJavaCollection))
 
   /**
    * Retain only the elements that are contained in the given collection.
@@ -134,8 +134,8 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new set with the retained elements, or this unchanged set
    */
-  def retainAll(elements: Iterable[E]) =
-    new ReplicatedSet(internal.retainAll(elements.asJavaCollection))
+  def retainAll(elements: Iterable[E]): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.retainAll(elements.asJavaCollection))
 
   /**
    * Remove elements from this set if they're present.
@@ -147,8 +147,8 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new set without the removed elements, or this unchanged set
    */
-  def removeAll(elements: Iterable[E]) =
-    new ReplicatedSet(internal.removeAll(elements.asJavaCollection))
+  def removeAll(elements: Iterable[E]): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.removeAll(elements.asJavaCollection))
 
   /**
    * Remove all elements from this set.
@@ -156,6 +156,6 @@ class ReplicatedSet[E] private[scalasdk] (override val internal: JavaSdkReplicat
    * @return
    *   a new empty set
    */
-  def clear =
-    new ReplicatedSet(internal.clear())
+  def clear(): ReplicatedSet[E] =
+    new ReplicatedSet(_internal.clear())
 }

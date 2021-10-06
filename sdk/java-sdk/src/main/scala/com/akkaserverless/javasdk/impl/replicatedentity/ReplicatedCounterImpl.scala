@@ -49,5 +49,5 @@ private[replicatedentity] final class ReplicatedCounterImpl(value: Long = 0, del
 
   override def toString = s"ReplicatedCounter($value)"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }

@@ -20,7 +20,7 @@ import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedCounter => JavaSdkReplicatedCounter }
 
 /** A counter that can be incremented and decremented. */
-class ReplicatedCounter private[scalasdk] (override val internal: JavaSdkReplicatedCounter) extends ReplicatedData {
+class ReplicatedCounter private[scalasdk] (override val _internal: JavaSdkReplicatedCounter) extends ReplicatedData {
 
   /**
    * Get the current value of the counter.
@@ -28,7 +28,7 @@ class ReplicatedCounter private[scalasdk] (override val internal: JavaSdkReplica
    * @return
    *   the current value of the counter
    */
-  def value: Long = internal.getValue
+  def value: Long = _internal.getValue
 
   /**
    * Increment the counter.
@@ -40,8 +40,8 @@ class ReplicatedCounter private[scalasdk] (override val internal: JavaSdkReplica
    * @return
    *   a new counter with incremented value
    */
-  def increment(amount: Long) =
-    new ReplicatedCounter(internal.increment(amount))
+  def increment(amount: Long): ReplicatedCounter =
+    new ReplicatedCounter(_internal.increment(amount))
 
   /**
    * Decrement the counter.
@@ -53,7 +53,7 @@ class ReplicatedCounter private[scalasdk] (override val internal: JavaSdkReplica
    * @return
    *   a new counter with decremented value
    */
-  def decrement(amount: Long) =
-    new ReplicatedCounter(internal.decrement(amount))
+  def decrement(amount: Long): ReplicatedCounter =
+    new ReplicatedCounter(_internal.decrement(amount))
 
 }

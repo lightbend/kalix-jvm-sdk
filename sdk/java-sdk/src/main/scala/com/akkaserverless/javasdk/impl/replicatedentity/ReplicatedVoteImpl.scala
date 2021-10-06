@@ -59,5 +59,5 @@ private[replicatedentity] final class ReplicatedVoteImpl(
 
   override def toString = s"Vote($selfVote)"
 
-  override def internal(): ReplicatedData = this
+  override def _internal(): ReplicatedData = this
 }
