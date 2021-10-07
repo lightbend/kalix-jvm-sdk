@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends ReplicatedDataFactory {
   private var _internalData: InternalReplicatedData = _

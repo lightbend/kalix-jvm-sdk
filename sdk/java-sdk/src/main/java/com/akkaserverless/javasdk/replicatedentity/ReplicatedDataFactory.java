@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.replicatedentity.ReplicatedData;
+
 /**
  * Factory for creating Replicated Data objects.
  *

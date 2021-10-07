@@ -17,6 +17,7 @@
 package com.akkaserverless.javasdk.replicatedentity;
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.google.protobuf.Descriptors;
 
 /**

@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.replicatedentity;
 import com.akkaserverless.javasdk.EntityOptions;
 import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityOptionsImpl;
-import scala.collection.immutable.Set;
 
 import java.util.Collections;
 

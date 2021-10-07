@@ -23,6 +23,7 @@ import com.akkaserverless.protocol.replicated_entity.{
   ReplicatedCounterMapEntryDelta,
   ReplicatedEntityDelta
 }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 import scala.jdk.CollectionConverters._
 
@@ -97,4 +98,6 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
   }
 
   override def toString = s"ReplicatedCounterMap(${counters.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+
+  override def _internal(): ReplicatedData = this
 }

@@ -18,11 +18,11 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 import java.util.Collection;
 import java.util.Set;
-
+import com.akkaserverless.replicatedentity.ReplicatedData;
 /**
  * A Replicated Set that allows both the addition and removal of elements in a set.
  *
- * <p><pA removal can only be done if all of the additions that added the key have been seen by this
+ * <p>A removal can only be done if all of the additions that added the key have been seen by this
  * node. This means that, for example if node 1 adds element A, and node 2 also adds element A, then
  * node 1's addition is replicated to node 3, and node 3 deletes it before node 2's addition is
  * replicated, then the element will still be in the map because node 2's addition had not yet been

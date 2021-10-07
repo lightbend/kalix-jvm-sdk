@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import java.util.Set;
 
 /**

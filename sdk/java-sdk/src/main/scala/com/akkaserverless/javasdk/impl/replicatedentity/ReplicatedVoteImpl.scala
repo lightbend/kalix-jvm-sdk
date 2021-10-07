@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote
 import com.akkaserverless.protocol.replicated_entity.{ ReplicatedEntityDelta, VoteDelta }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 private[replicatedentity] final class ReplicatedVoteImpl(
     selfVote: Boolean = false,
@@ -57,4 +58,6 @@ private[replicatedentity] final class ReplicatedVoteImpl(
   }
 
   override def toString = s"Vote($selfVote)"
+
+  override def _internal(): ReplicatedData = this
 }

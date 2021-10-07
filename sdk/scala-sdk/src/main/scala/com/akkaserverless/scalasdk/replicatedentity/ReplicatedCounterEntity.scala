@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package com.akkaserverless.scalasdk.replicatedentity
 
-/** Root interface for all data entries in Replicated Entities. */
-public interface ReplicatedData {}
+private[scalasdk] class ReplicatedCounterEntity extends ReplicatedEntity[ReplicatedCounter] {
+
+  /**
+   * Implement by returning the initial empty replicated data object. This object will be passed into the command
+   * handlers.
+   *
+   * Also known as the "zero" or "neutral" state.
+   *
+   * The initial data cannot be `null`.
+   *
+   * @param factory
+   *   the factory to create the initial empty replicated data object
+   */
+  override def emptyData(factory: ReplicatedDataFactory): ReplicatedCounter =
+    factory.newCounter
+}

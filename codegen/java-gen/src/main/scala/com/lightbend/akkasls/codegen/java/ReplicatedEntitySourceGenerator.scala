@@ -286,7 +286,7 @@ object ReplicatedEntitySourceGenerator {
   private[codegen] def extraImports(replicatedData: ModelBuilder.ReplicatedData): Seq[String] = {
     replicatedData match {
       // special case ReplicatedMap as heterogeneous with ReplicatedData values
-      case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.javasdk.replicatedentity.ReplicatedData")
+      case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.replicatedentity.ReplicatedData")
       case _                             => Seq.empty
     }
   }
