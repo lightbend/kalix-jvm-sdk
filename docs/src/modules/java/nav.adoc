@@ -13,4 +13,5 @@
 *** xref:java:side-effects.adoc[Running Side Effects]
 *** xref:java:serialization.adoc[Handling Serialization]
 *** xref:call-another-service.adoc[Calling other services]
+*** xref:failures-and-errors.adoc[Failures and Errors]
 *** xref:java:api.adoc[Java API docs]
