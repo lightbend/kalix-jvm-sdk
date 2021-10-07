@@ -54,7 +54,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
     val expected =
       """package com.example.actions;
         |
-        |import com.akkaserverless.javasdk.action.Action;
+        |import com.akkaserverless.javasdk.action.Action.Effect;
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
         |import com.akkaserverless.javasdk.testkit.ActionResult;
@@ -93,22 +93,22 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |    this.actionFactory = actionFactory;
         |  }
         |
-        |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
+        |  private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
         |    return new ActionResultImpl(effect);
         |  }
         |
         |  public ActionResult<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased valueIncreased) {
-        |    Action.Effect<CounterTopicApi.Increased> effect = createAction().increase(valueIncreased);
+        |    Effect<CounterTopicApi.Increased> effect = createAction().increase(valueIncreased);
         |    return interpretEffects(effect);
         |  }
         |
         |  public ActionResult<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
-        |    Action.Effect<CounterTopicApi.Decreased> effect = createAction().decrease(valueDecreased);
+        |    Effect<CounterTopicApi.Decreased> effect = createAction().decrease(valueDecreased);
         |    return interpretEffects(effect);
         |  }
         |
         |  public ActionResult<Empty> ignore(Any any) {
-        |    Action.Effect<Empty> effect = createAction().ignore(any);
+        |    Effect<Empty> effect = createAction().ignore(any);
         |    return interpretEffects(effect);
         |  }
         |
