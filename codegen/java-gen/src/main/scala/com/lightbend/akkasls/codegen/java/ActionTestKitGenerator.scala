@@ -62,7 +62,7 @@ object ActionTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
-        "com.akkaserverless.javasdk.action.Action",
+        "com.akkaserverless.javasdk.action.Action.Effect",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
@@ -97,7 +97,7 @@ object ActionTestKitGenerator {
         |    this.actionFactory = actionFactory;
         |  }
         |
-        |  private <E> ActionResult<E> interpretEffects(Action.Effect<E> effect) {
+        |  private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
         |    return new ActionResultImpl(effect);
         |  }
         |
@@ -184,8 +184,8 @@ object ActionTestKitGenerator {
 
   def selectOutputEffect(command: ModelBuilder.Command): String = {
     if (command.streamedOutput)
-      s"Source<Action.Effect<${command.outputType.fullName}>, akka.NotUsed>"
-    else s"Action.Effect<${command.outputType.fullName}>"
+      s"Source<Effect<${command.outputType.fullName}>, akka.NotUsed>"
+    else s"Effect<${command.outputType.fullName}>"
   }
 
   def selectOutputReturn(command: ModelBuilder.Command): String = {
