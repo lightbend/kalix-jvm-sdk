@@ -147,7 +147,7 @@ def githubUrl(v: String): String = {
 }
 
 lazy val sdkJavaTestKit = project
-  .in(file("testkit-java"))
+  .in(file("sdk/java-sdk-testkit"))
   .dependsOn(sdkJava)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(
