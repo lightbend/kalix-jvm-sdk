@@ -254,7 +254,6 @@ You can run your service locally for manual testing via HTTP or gRPC requests. T
 
 To start the proxy, run the following command from the project directory:
 
---
 [source,bash]
 ----
 docker compose up
