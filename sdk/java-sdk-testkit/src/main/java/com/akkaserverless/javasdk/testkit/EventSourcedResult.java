@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
  *
  * <p>Not for user extension, returned by the generated testkit.
  *
- * @param <R> The type of reply that is expected from invoking command handler
+ * @param <R> The type of reply that is expected from invoking a command handler
  */
 public interface EventSourcedResult<R> {
 

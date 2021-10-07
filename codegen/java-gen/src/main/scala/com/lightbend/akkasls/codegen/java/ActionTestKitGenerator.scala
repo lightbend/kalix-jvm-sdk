@@ -67,8 +67,7 @@ object ActionTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
         "com.akkaserverless.javasdk.impl.action.ActionEffectImpl",
-        "com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext",
-        "com.akkaserverless.javasdk.testkit.impl.StubActionContext")
+        "com.akkaserverless.javasdk.testkit.impl.TestKitActionContext")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -84,8 +83,8 @@ object ActionTestKitGenerator {
         |  private Function<ActionCreationContext, $className> actionFactory;
         |
         |  private $className createAction() {
-        |    $className action = actionFactory.apply(new StubActionCreationContext());
-        |    action._internalSetActionContext(Optional.of(new StubActionContext()));
+        |    $className action = actionFactory.apply(new TestKitActionContext());
+        |    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
         |    return action;
         |  };
         |

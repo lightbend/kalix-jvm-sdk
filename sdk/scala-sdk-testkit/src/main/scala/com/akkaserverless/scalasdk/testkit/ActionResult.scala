@@ -14,55 +14,56 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package com.akkaserverless.scalasdk.testkit
 
-import java.util.concurrent.CompletionStage;
+import scala.concurrent.Future
 
 /**
  * Represents the result of an Action handling a command when run in through the testkit.
  *
  * <p>Not for user extension, returned by the generated testkit.
  *
- * @param <T> The type of reply that is expected from invoking a command handler
+ * @param T
+ *   The type of reply that is expected from invoking a command handler
  */
-public interface ActionResult<T> {
+trait ActionResult[T] {
 
   /** @return true if the call had an effect with a reply, false if not */
-  boolean isReply();
+  def isReply: Boolean
 
   /**
-   * @return The reply message if the returned effect was a reply or throws if the returned effect
-   *     was not a reply.
+   * @return
+   *   The reply message if the returned effect was a reply or throws if the returned effect was not a reply.
    */
-  T getReply();
+  def reply: T
 
   /** @return true if the call was forwarded, false if not */
-  boolean isForward();
+  def isForward: Boolean
 
   /**
-   * @return An object with details about the forward. If the result was not a forward an exception
-   *     is thrown.
+   * @return
+   *   An object with details about the forward. If the result was not a forward an exception is thrown.
    */
-  ServiceCallDetails<T> getForward();
+  def forwardedTo: ServiceCallDetails[T]
 
   /** @return true if the call was async, false if not */
-  boolean isAsync();
+  def isAsync: Boolean
 
   /**
-   * @return The future result if the returned effect was an async effect or throws if the returned
-   *     effect was not async.
+   * @return
+   *   The future result if the returned effect was an async effect or throws if the returned effect was not async.
    */
-  CompletionStage<ActionResult<T>> getAsyncResult();
+  def asyncResult: Future[ActionResult[T]]
 
   /** @return true if the call was an error, false if not */
-  boolean isError();
+  def isError: Boolean
 
   /**
-   * @return The error description returned or throws if the effect returned by the action was not
-   *     an error
+   * @return
+   *   The error description returned or throws if the effect returned by the action was not an error
    */
-  String getError();
+  def errorDescription: String
 
   /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
+  def isNoReply: Boolean
 }
