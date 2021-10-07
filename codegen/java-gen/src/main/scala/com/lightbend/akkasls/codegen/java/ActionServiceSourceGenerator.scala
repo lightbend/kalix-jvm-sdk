@@ -218,7 +218,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
-          |  return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
+          |  return (Source<Effect<?>, NotUsed>)(Object) action()
           |           .${lowerFirst(methodName)}(($inputTypeFullName) message.payload());
           |""".stripMargin
     }
@@ -238,7 +238,7 @@ object ActionServiceSourceGenerator {
       val inputTypeFullName = cmd.inputType.fullName
 
       s"""|case "$methodName":
-          |  return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
+          |  return (Source<Effect<?>, NotUsed>)(Object) action()
           |           .${lowerFirst(methodName)}(stream.map(el -> ($inputTypeFullName) el.payload()));
           |""".stripMargin
     }
@@ -249,6 +249,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
+        "com.akkaserverless.javasdk.action.Action.Effect",
         "com.akkaserverless.javasdk.action.MessageEnvelope",
         "com.akkaserverless.javasdk.impl.action.ActionHandler"))
 
@@ -265,7 +266,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
+        |  public Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Format.indent(unaryCases, 6)}
         |      default:
@@ -275,7 +276,7 @@ object ActionServiceSourceGenerator {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      ${Format.indent(streamOutCases, 6)}
         |      default:
@@ -284,7 +285,7 @@ object ActionServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Format.indent(streamInCases, 6)}
         |      default:
@@ -294,7 +295,7 @@ object ActionServiceSourceGenerator {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      ${Format.indent(streamInOutCases, 6)}
         |      default:
