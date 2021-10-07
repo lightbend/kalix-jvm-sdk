@@ -1,6 +1,5 @@
 > compile
 
-$ pause
 $ exists src/main/scala/com/example/Main.scala
 $ exists target/scala-2.13/src_managed/main/akkaserverless/com/example/AkkaServerlessFactory.scala
 

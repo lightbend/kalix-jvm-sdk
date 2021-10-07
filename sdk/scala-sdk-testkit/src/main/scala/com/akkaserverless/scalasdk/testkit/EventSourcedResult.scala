@@ -52,9 +52,6 @@ trait EventSourcedResult[R] {
   /** @return true if the call had a noReply effect, false if not */
   def isNoReply: Boolean
 
-  /** @return true if the call updated the entity state */
-  def stateWasUpdated: Boolean
-
   /** @return The updated state. If the state was not updated an exeption is thrown */
   def updatedState: Any
 

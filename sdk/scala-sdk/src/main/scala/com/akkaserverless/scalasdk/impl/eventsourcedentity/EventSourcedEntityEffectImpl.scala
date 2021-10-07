@@ -43,15 +43,15 @@ import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
-  def apply[S](): EventSourcedEntityEffectImpl[S] = EventSourcedEntityEffectImpl(
+  def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
     new javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S]())
 }
 
-private[scalasdk] final case class EventSourcedEntityEffectImpl[S](
+private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
     javasdkEffect: javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S])
     extends EventSourcedEntity.Effect.Builder[S]
     with EventSourcedEntity.Effect.OnSuccessBuilder[S]
-    with EventSourcedEntity.Effect[S] {
+    with EventSourcedEntity.Effect[R] {
 
   def emitEvent(event: Object): EventSourcedEntity.Effect.OnSuccessBuilder[S] = EventSourcedEntityEffectImpl(
     javasdkEffect.emitEvent(event))
@@ -72,7 +72,7 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[S](
 
   def reply[T](message: T): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.reply(message))
 
-  def addSideEffects(sideEffects: Seq[SideEffect]): EventSourcedEntity.Effect[S] =
+  def addSideEffects(sideEffects: Seq[SideEffect]): EventSourcedEntity.Effect[R] =
     EventSourcedEntityEffectImpl(
       javasdkEffect.addSideEffects(
         sideEffects.map(se => JavaSideEffectAdapter(se).asInstanceOf[javasdk.SideEffect]).asJavaCollection))

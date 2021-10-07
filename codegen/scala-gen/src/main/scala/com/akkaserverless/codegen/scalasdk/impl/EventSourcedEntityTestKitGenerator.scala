@@ -43,10 +43,18 @@ object EventSourcedEntityTestKitGenerator {
         entity.fqn.parent.scalaPackage,
         Seq(
           "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
+          "com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl",
+          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext"),
         packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
+
+    val eventHandlers = entity.events.map { event =>
+      s"""|case e: ${typeName(event.fqn)} =>
+          |  entity.${lowerFirst(event.fqn.name)}(state, e)
+         |""".stripMargin
+    }
 
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
@@ -84,14 +92,27 @@ object EventSourcedEntityTestKitGenerator {
        |}
        |final class $className private(entity: ${typeName(entity.fqn)}) {
        |  private var state: ${typeName(entity.state.fqn)} = entity.emptyState
+       |  private var events: Seq[Any] = Nil
        |
+       |  private def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
+       |   event match {
+       |     ${Format.indent(eventHandlers, 4)}
+       |   }
        |
+       |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
+       |    val events = EventSourcedResultImpl.eventsOf(effect)
+       |    this.events ++= events
+       |    this.state = events.foldLeft(this.state)(handleEvent)
+       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, state)
+       |  }
+       |
+       |  ${Format.indent(methods, 2)}
        |}
        |""".stripMargin)
   }
 
   def test(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
-    val className = s"${entity.fqn.name}Test"
+    val className = s"${entity.fqn.name}Spec"
     implicit val imports = generateImports(
       Seq(entity.state.fqn) ++
       service.commands.map(_.inputType) ++
@@ -109,7 +130,7 @@ object EventSourcedEntityTestKitGenerator {
 
     val dummyTestCases = service.commands.map { command =>
       s"""|"correctly process commands of type ${command.name}" in {
-          |  val testKit = $testKitClassName(${entity.fqn.name}.apply)
+          |  val testKit = $testKitClassName(new ${entity.fqn.name}(_))
           |  // val result: EventSourcedResult[${typeName(command.outputType)}] = testKit.${lowerFirst(
         command.name)}(${typeName(command.inputType)}(...))
           |}
@@ -117,8 +138,7 @@ object EventSourcedEntityTestKitGenerator {
     }
 
     File(
-      entity.fqn.fileBasename,
-      s"$className.scala",
+      entity.fqn.fileBasename + "Spec.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
          |
          |$imports
@@ -128,7 +148,7 @@ object EventSourcedEntityTestKitGenerator {
          |class $className extends AnyWordSpec with Matchers {
          |  "The ${entity.fqn.name}" should {
          |    "have example test that can be removed" in {
-         |      val testKit = $testKitClassName(${entity.fqn.name}.apply)
+         |      val testKit = $testKitClassName(new ${entity.fqn.name}(_))
          |      // use the testkit to execute a command:
          |      // val result: EventSourcedResult[R] = testKit.someOperation(SomeRequest("id"));
          |      // verify the emitted events
