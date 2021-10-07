@@ -33,9 +33,6 @@ To start the proxy, run the following command from this directory:
 docker-compose up
 ```
 
-> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
-> or for a `USER_FUNCTION_HOST` environment variable to be set manually.
-
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
 ```
