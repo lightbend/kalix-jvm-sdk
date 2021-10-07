@@ -136,7 +136,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -144,7 +143,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |// DO NOT EDIT
         |
         |/** An action. */
-        |public abstract class AbstractMyServiceAction extends Action {
+        |public abstract class AbstractMyServiceAction extends com.akkaserverless.javasdk.action.Action {
         |
         |  /** Handler for "SimpleMethod". */
         |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
@@ -175,7 +174,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.action.Action;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -183,7 +181,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |// DO NOT EDIT
         |
         |/** An action. */
-        |public abstract class AbstractMyServiceAction extends Action {
+        |public abstract class AbstractMyServiceAction extends com.akkaserverless.javasdk.action.Action {
         |
         |  /** Handler for "SimpleMethod". */
         |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
@@ -211,7 +209,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.action.Action;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
@@ -227,7 +224,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
+        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "SimpleMethod":
         |        return action()
@@ -239,10 +236,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
-        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
+        |        return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -250,7 +247,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "StreamedInputMethod":
         |        return action()
@@ -262,10 +259,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
-        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
+        |        return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -288,7 +285,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
-        |import com.akkaserverless.javasdk.action.Action;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
         |import com.akkaserverless.javasdk.impl.action.ActionHandler;
         |import com.external.Empty;
@@ -304,7 +300,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
+        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "SimpleMethod":
         |        return action()
@@ -316,10 +312,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
+        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamedOut(String commandName, MessageEnvelope<Object> message) {
         |    switch (commandName) {
         |      case "StreamedOutputMethod":
-        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
+        |        return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
@@ -327,7 +323,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public com.akkaserverless.javasdk.action.Action.Effect<?> handleStreamedIn(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "StreamedInputMethod":
         |        return action()
@@ -339,10 +335,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |  @Override
         |  @SuppressWarnings("unchecked")
-        |  public Source<Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
+        |  public Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed> handleStreamed(String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
         |    switch (commandName) {
         |      case "FullStreamedMethod":
-        |        return (Source<Action.Effect<?>, NotUsed>)(Object) action()
+        |        return (Source<com.akkaserverless.javasdk.action.Action.Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
         |        throw new ActionHandler.HandlerNotFound(commandName);
