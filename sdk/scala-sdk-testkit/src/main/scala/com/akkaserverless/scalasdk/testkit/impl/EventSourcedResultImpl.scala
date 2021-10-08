@@ -85,7 +85,7 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
   override def isNoReply: Boolean =
     effect.javasdkEffect.secondaryEffect(state).isInstanceOf[NoReply[_]]
 
-  override def updatedState: AnyRef = state.asInstanceOf[AnyRef]
+  override def updatedState: S = state
 
   override def didEmitEvents: Boolean = events.nonEmpty
 
