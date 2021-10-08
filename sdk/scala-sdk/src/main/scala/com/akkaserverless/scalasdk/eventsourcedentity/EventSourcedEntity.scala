@@ -240,6 +240,6 @@ abstract class EventSourcedEntity[S] {
   }
 
   protected def effects: EventSourcedEntity.Effect.Builder[S] =
-    EventSourcedEntityEffectImpl[S]()
+    EventSourcedEntityEffectImpl[Any, S]()
 
 }

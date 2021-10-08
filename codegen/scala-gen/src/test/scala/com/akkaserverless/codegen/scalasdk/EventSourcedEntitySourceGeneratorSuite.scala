@@ -29,10 +29,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
   test("it can generate an event sourced entity implementation skeleton") {
     val file =
       generateImplementationSkeleton(testData.eventSourcedEntity(), testData.simpleEntityService())
-    assertNoDiff(
+    assertEquals(
       file.content,
-      s"""
-         |package com.example.service.domain
+      s"""package com.example.service.domain
          |
          |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
          |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext

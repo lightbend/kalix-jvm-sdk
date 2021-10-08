@@ -54,8 +54,8 @@ object SourceGenerator {
         model.lookupEntity(service) match {
           case entity: ModelBuilder.ValueEntity =>
             ValueEntityTestKitGenerator.generateManagedTest(entity, service)
-          case _: ModelBuilder.EventSourcedEntity =>
-            Nil // FIXME
+          case entity: ModelBuilder.EventSourcedEntity =>
+            EventSourcedEntityTestKitGenerator.generateManagedTest(entity, service)
           case _: ModelBuilder.ReplicatedEntity =>
             Nil
         }
@@ -99,8 +99,8 @@ object SourceGenerator {
         model.lookupEntity(service) match {
           case entity: ModelBuilder.ValueEntity =>
             ValueEntityTestKitGenerator.generateUnmanagedTest(MainSourceGenerator.mainClassName(model), entity, service)
-          case _: ModelBuilder.EventSourcedEntity =>
-            Nil // FIXME
+          case entity: ModelBuilder.EventSourcedEntity =>
+            EventSourcedEntityTestKitGenerator.generateUnmanagedTest(entity, service)
           case _: ModelBuilder.ReplicatedEntity =>
             Nil
         }

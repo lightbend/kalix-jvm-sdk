@@ -441,7 +441,6 @@ object ModelBuilder {
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
-    log.debug("Raw value entity name: " + rawEntity.getName)
 
     val protoReference = fqnExtractor.packageName(descriptor)
 
@@ -475,7 +474,6 @@ object ModelBuilder {
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getReplicatedEntity
-    log.debug("Raw replicated entity name: " + rawEntity.getName)
 
     val protoReference = PackageNaming.from(descriptor)
 

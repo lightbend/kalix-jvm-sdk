@@ -248,8 +248,7 @@ object EventSourcedEntitySourceGenerator {
 
     File(
       eventSourcedEntity.fqn.fileBasename + ".scala",
-      s"""
-         |package ${eventSourcedEntity.fqn.parent.scalaPackage}
+      s"""package ${eventSourcedEntity.fqn.parent.scalaPackage}
          |
          |$imports
          |
