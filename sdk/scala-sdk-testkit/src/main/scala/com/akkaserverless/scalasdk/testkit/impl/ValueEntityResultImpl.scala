@@ -57,7 +57,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
     effect.javasdkEffect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
   override def forwardedTo: ServiceCallDetails[R] =
-    ??? // FIXME
+    ??? // FIXME #587
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>
 //      reply.serviceCall match {

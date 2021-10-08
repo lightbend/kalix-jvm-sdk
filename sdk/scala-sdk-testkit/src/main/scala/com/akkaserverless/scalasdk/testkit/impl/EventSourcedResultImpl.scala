@@ -63,7 +63,7 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
     effect.javasdkEffect.secondaryEffect(state).isInstanceOf[ForwardReplyImpl[_]]
 
   override def forwardedTo: ServiceCallDetails[R] =
-    ??? // FIXME
+    ??? // FIXME #587
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>
 //      reply.serviceCall match {
