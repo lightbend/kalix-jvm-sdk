@@ -19,6 +19,7 @@ package com.akkaserverless.testkit.eventsourcedentity
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
+import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.akkaserverless.testkit.TestProtocol.TestProtocolContext
 
@@ -32,6 +33,7 @@ final class TestEventSourcedProtocol(context: TestProtocolContext) {
 
 object TestEventSourcedProtocol {
   final class Connection(client: EventSourcedEntitiesClient, context: TestProtocolContext) {
+
     import context.system
 
     private val in = TestPublisher.probe[EventSourcedStreamIn]()
@@ -51,6 +53,13 @@ object TestEventSourcedProtocol {
 
     def expectMessage(): EventSourcedStreamOut.Message =
       out.request(1).expectNext().message
+
+    def expectFailure(descStartingWith: String): Connection =
+      expectMessage() match {
+        case EventSourcedStreamOut.Message.Failure(failure) if failure.description.startsWith(descStartingWith) =>
+          this
+        case other => throw new RuntimeException(s"Expected failure starting with [$descStartingWith] but got [$other]")
+      }
 
     def expectClosed(): Unit = {
       out.expectComplete()

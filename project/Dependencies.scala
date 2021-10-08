@@ -79,6 +79,7 @@ object Dependencies {
     akkaslsProxyProtocol % "protobuf-src",
     akkaslsSdkProtocol % "compile;protobuf-src",
     akkaDependency("akka-testkit") % Test,
+    akkaDependency("akka-actor-testkit-typed") % Test,
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,

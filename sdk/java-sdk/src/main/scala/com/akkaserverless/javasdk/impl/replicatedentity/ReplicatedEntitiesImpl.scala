@@ -18,7 +18,6 @@ package com.akkaserverless.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{ Logging, LoggingAdapter }
 import akka.stream.scaladsl.{ Flow, Source }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
@@ -32,9 +31,11 @@ import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{
 import com.akkaserverless.protocol.replicated_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
+import com.akkaserverless.protocol.component.Failure
+import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityService(
     val factory: ReplicatedEntityFactory,
@@ -71,7 +72,7 @@ final class ReplicatedEntitiesImpl(
   import ReplicatedEntitiesImpl._
   import EntityExceptions._
 
-  private val log = Logging(system.eventStream, this.getClass)
+  private val log = LoggerFactory.getLogger(this.getClass)
 
   /**
    * After invoking handle, the first message sent will always be a ReplicatedEntityInit message, containing the entity
@@ -87,15 +88,17 @@ final class ReplicatedEntitiesImpl(
           source.via(runEntity(init))
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
-          log.warning("Replicated Entity stream closed before init.")
+          log.warn("Replicated Entity stream closed before init.")
           Source.empty[ReplicatedEntityStreamOut]
         case (Seq(ReplicatedEntityStreamIn(other, _)), _) =>
           throw ProtocolException(
             s"Expected init message for Replicated Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(failureMessageForLog(error), error)
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
 
   private def runEntity(
@@ -107,7 +110,7 @@ final class ReplicatedEntitiesImpl(
       ReplicatedEntityDeltaTransformer.create(delta, service.anySupport)
     }
 
-    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system, log)
+    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system)
 
     Flow[ReplicatedEntityStreamIn]
       .mapConcat { in =>
@@ -127,8 +130,10 @@ final class ReplicatedEntitiesImpl(
         }
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ReplicatedEntityStreamOut(Out.Failure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          LoggerFactory.getLogger(runner.handler.entityClass).error(failureMessageForLog(error), error)
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
   }
 }
@@ -141,10 +146,9 @@ object ReplicatedEntitiesImpl {
       entityId: String,
       initialData: Option[InternalReplicatedData],
       rootContext: Context,
-      system: ActorSystem,
-      log: LoggingAdapter) {
+      system: ActorSystem) {
 
-    private val handler = {
+    val handler = {
       val context = new ReplicatedEntityCreationContext(entityId, rootContext, system)
       try {
         service.factory.create(context)
@@ -188,7 +192,6 @@ object ReplicatedEntitiesImpl {
 
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>
-          log.error("Fail invoked for command [{}] for entity [{}]: {}", command.name, entityId, error.description)
           if (handler._internalHasDelta)
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(

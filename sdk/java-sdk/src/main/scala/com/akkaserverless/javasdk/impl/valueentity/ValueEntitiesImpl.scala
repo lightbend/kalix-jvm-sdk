@@ -18,14 +18,13 @@ package com.akkaserverless.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.Logging
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
+import com.akkaserverless.protocol.component.Failure
+import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
 import com.akkaserverless.javasdk.Context
@@ -90,7 +89,7 @@ final class ValueEntitiesImpl(
   import EntityExceptions._
 
   private implicit val ec: ExecutionContext = system.dispatcher
-  private final val log = Logging(system.eventStream, this.getClass)
+  private final val log = LoggerFactory.getLogger(this.getClass)
 
   /**
    * One stream will be established per active entity. Once established, the first message sent will be Init, which
@@ -108,14 +107,16 @@ final class ValueEntitiesImpl(
           source.via(runEntity(init))
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
-          log.warning("Value Entity stream closed before init.")
+          log.warn("Value Entity stream closed before init.")
           Source.empty[ValueEntityStreamOut]
         case (Seq(ValueEntityStreamIn(other, _)), _) =>
           throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
       }
       .recover { case error =>
-        log.error(error, failureMessage(error))
-        ValueEntityStreamOut(OutFailure(failure(error)))
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(failureMessageForLog(error), error)
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
 
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
@@ -179,11 +180,6 @@ final class ValueEntitiesImpl(
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
-              log.error(
-                "Fail invoked for command [{}] for entity [{}]: {}",
-                command.name,
-                thisEntityId,
-                error.description)
               ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
 
             case _ => // non-error
@@ -211,6 +207,12 @@ final class ValueEntitiesImpl(
 
         case InEmpty =>
           throw ProtocolException(init, "Value entity received empty/unknown message")
+      }
+      .recover { case error =>
+        ErrorHandling.withCorrelationId { correlationId =>
+          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
       }
   }
 

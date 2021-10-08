@@ -96,4 +96,5 @@ abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: 
       command: Any,
       context: CommandContext): ValueEntity.Effect[_]
 
+  def entityClass: Class[_] = entity.getClass
 }

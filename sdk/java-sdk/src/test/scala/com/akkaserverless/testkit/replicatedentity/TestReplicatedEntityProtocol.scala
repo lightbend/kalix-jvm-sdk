@@ -35,6 +35,7 @@ final class TestReplicatedEntityProtocol(context: TestProtocolContext) {
 
 object TestReplicatedEntityProtocol {
   final class Connection(client: ReplicatedEntitiesClient, context: TestProtocolContext) {
+
     import context.system
 
     private val in = TestPublisher.probe[ReplicatedEntityStreamIn]()
@@ -59,6 +60,15 @@ object TestReplicatedEntityProtocol {
     def expectClosed(): Unit = {
       out.expectComplete()
       in.expectCancellation()
+    }
+
+    def expectEntityFailure(descStartingWith: String): Connection = {
+      expectNext() match {
+        case m: ReplicatedEntityStreamOut.Message =>
+          if (m.failure.exists(_.description.startsWith(descStartingWith))) this
+          else
+            throw new RuntimeException(s"Expected failure starting with [$descStartingWith] but got $m")
+      }
     }
 
     def passivate(): Unit = close()

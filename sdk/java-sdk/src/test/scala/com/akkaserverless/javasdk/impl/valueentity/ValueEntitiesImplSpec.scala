@@ -45,7 +45,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         entity.send(command(1, "cart", "command"))
         val message = entity.expectNext()
         val failure = message.failure.get
-        failure.description should startWith("Protocol error: Expected init message for Value Entity")
+        failure.description should startWith("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -55,7 +55,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(init(ShoppingCart.Name, "cart"))
-        entity.expect(failure("Protocol error: Value entity already inited"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -64,7 +64,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       service.expectLogError("Terminating entity [foo] due to unexpected failure") {
         val entity = protocol.valueEntity.connect()
         entity.send(init(serviceName = "DoesNotExist", entityId = "foo"))
-        entity.expect(failure("Protocol error: Service not found: DoesNotExist"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -74,7 +74,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart1"))
         entity.send(command(1, "cart2", "foo"))
-        entity.expect(failure(1, "Protocol error: Receiving Value entity is not the intended recipient of command"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -84,7 +84,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo", payload = None))
-        entity.expect(failure(1, "Protocol error: No command payload for Value entity"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -94,7 +94,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(EmptyInMessage)
-        entity.expect(failure("Protocol error: Value entity received empty/unknown message"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
@@ -104,28 +104,25 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo"))
-        entity.expect(failure(1, s"No command handler found for command [foo] on ${classOf[CartEntity]}"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }
 
     "fail action when command handler returns error effect" in {
-      service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
-        val entity = protocol.valueEntity.connect()
-        entity.send(init(ShoppingCart.Name, "cart"))
-        entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-        entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
-        entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
-        entity.expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
+      val entity = protocol.valueEntity.connect()
+      entity.send(init(ShoppingCart.Name, "cart"))
+      entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
+      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
+      entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
+      entity.expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
 
-        entity.passivate()
-        val reactivated = protocol.valueEntity.connect()
-        reactivated.send(init(ShoppingCart.Name, "cart"))
-        reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
-        reactivated.expect(reply(1, EmptyCart))
-        reactivated.passivate()
-      }
+      entity.passivate()
+      val reactivated = protocol.valueEntity.connect()
+      reactivated.send(init(ShoppingCart.Name, "cart"))
+      reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
+      reactivated.expect(reply(1, EmptyCart))
+      reactivated.passivate()
     }
 
     "fail when command handler throws exception" in {
@@ -133,7 +130,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
         val entity = protocol.valueEntity.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(failure(1, "Unexpected failure: java.lang.RuntimeException: Boom: foo"))
+        entity.expectFailure("Unexpected error")
         entity.expectClosed()
       }
     }

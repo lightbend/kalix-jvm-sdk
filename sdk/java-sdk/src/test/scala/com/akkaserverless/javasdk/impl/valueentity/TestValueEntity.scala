@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.valueentity
 
+import akka.actor.testkit.typed.scaladsl.LoggingTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
 import com.akkaserverless.javasdk.AkkaServerless
@@ -37,7 +39,6 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
       user-function-port = $port
       system.akka {
         loglevel = DEBUG
-        loggers = ["akka.testkit.TestEventListener"]
         coordinated-shutdown.exit-jvm = off
       }
     }
@@ -49,8 +50,9 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
 
   runner.run()
 
-  def expectLogError[T](message: String)(block: => T): T =
-    EventFilter.error(message, occurrences = 1).intercept(block)(runner.system)
+  def expectLogError[T](message: String)(block: => T): T = {
+    LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
+  }
 
   def terminate(): Unit = runner.terminate()
 }

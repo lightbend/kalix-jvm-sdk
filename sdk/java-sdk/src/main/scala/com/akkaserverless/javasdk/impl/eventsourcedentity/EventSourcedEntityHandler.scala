@@ -139,4 +139,5 @@ abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protecte
 
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): EventSourcedEntity.Effect[_]
 
+  def entityClass: Class[_] = entity.getClass
 }

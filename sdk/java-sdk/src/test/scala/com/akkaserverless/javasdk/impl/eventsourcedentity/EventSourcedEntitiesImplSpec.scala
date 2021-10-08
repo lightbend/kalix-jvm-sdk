@@ -92,7 +92,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         entity.send(command(1, "cart", "command"))
         val message = entity.expectMessage()
         val failure = message.failure.get
-        failure.description should startWith("Protocol error: Expected init message for Event Sourced Entity")
+        failure.description should startWith("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -101,7 +101,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       service.expectLogError("Terminating entity [foo] due to unexpected failure") {
         val entity = protocol.eventSourced.connect()
         entity.send(init(serviceName = "DoesNotExist", entityId = "foo"))
-        entity.expect(failure("Protocol error: Service not found: DoesNotExist"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -111,7 +111,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo", payload = None))
-        entity.expect(failure(1, "Protocol error: No command payload"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -121,7 +121,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart1"))
         entity.send(command(1, "cart2", "foo"))
-        entity.expect(failure(1, "Protocol error: Receiving entity is not the intended recipient of command"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -131,7 +131,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(init(ShoppingCart.Name, "cart"))
-        entity.expect(failure("Protocol error: Entity already inited"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -141,7 +141,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(EmptyInMessage)
-        entity.expect(failure("Protocol error: Received empty/unknown message"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -150,10 +150,9 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       service.expectLogError("Terminating entity due to unexpected failure") {
         val entity = protocol.eventSourced.connect()
         val notEvent = domainLineItem("?", "not an event", 1)
-        val eventClass = notEvent.getClass
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(event(1, notEvent))
-        entity.expect(failure(s"Unexpected failure: Unknown event type [$eventClass] on ${classOf[CartEntity]}"))
+        entity.expectFailure(s"Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -163,7 +162,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(event(1, itemAdded("123", "FAIL", 42)))
-        entity.expect(failure("Unexpected failure: Boom: name is FAIL"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
@@ -173,22 +172,19 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "foo"))
-        entity.expect(failure(1, s"No command handler found for command [foo] on ${classOf[CartEntity]}"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }
 
     "fail action when command handler returns error effect" in {
-      service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
-        val entity = protocol.eventSourced.connect()
-        entity.send(init(ShoppingCart.Name, "cart"))
-        entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-        entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
-        entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
-        entity.expect(reply(2, EmptyCart)) // check entity state hasn't changed
-        entity.passivate()
-      }
+      val entity = protocol.eventSourced.connect()
+      entity.send(init(ShoppingCart.Name, "cart"))
+      entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
+      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
+      entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
+      entity.expect(reply(2, EmptyCart)) // check entity state hasn't changed
+      entity.passivate()
     }
 
     "fail when command handler throws exception" in {
@@ -196,7 +192,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(command(1, "cart", "RemoveItem", removeItem("foo")))
-        entity.expect(failure(1, "Unexpected failure: java.lang.RuntimeException: Boom: foo"))
+        entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }
     }

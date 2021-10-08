@@ -16,6 +16,9 @@
 
 package com.akkaserverless.javasdk.logging;
 
+import com.akkaserverless.javasdk.impl.ErrorHandling;
+import com.akkaserverless.javasdk.impl.ErrorHandling$;
+
 /**
  * This Logback JSON layout uses the name `severity` (instead of `level`).
  *

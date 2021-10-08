@@ -17,7 +17,6 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.{ eventsourcedentity, valueentity }
-import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityInit
@@ -79,12 +78,7 @@ object EntityExceptions {
       ProtocolException(init.entityId, message)
   }
 
-  def failure(cause: Throwable): Failure = cause match {
-    case e: EntityException => Failure(e.commandId, e.message)
-    case e                  => Failure(description = "Unexpected failure: " + e.getMessage)
-  }
-
-  def failureMessage(cause: Throwable): String = cause match {
+  def failureMessageForLog(cause: Throwable): String = cause match {
     case EntityException(entityId, commandId, commandName, _, _) =>
       val commandDescription = if (commandId != 0) s" for command [$commandName]" else ""
       val entityDescription = if (entityId.nonEmpty) s"entity [$entityId]" else "entity"

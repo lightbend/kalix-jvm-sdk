@@ -101,18 +101,18 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
         entity.send(command(1, "cart", "command"))
         val message = entity.expectNext()
         val failure = message.failure.get
-        failure.description should startWith("Protocol error: Expected init message for Replicated Entity")
+        failure.description should startWith("Unexpected error")
         entity.expectClosed()
       }
     }
 
     "fail when entity is sent multiple init" in {
       service.expectLogError("Terminating entity [cart] due to unexpected failure") {
-        protocol.replicatedEntity
+        val response = protocol.replicatedEntity
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(init(ShoppingCart.Name, "cart"))
-          .expect(entityFailure("Protocol error: Replicated Entity received additional init message"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -122,7 +122,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
         protocol.replicatedEntity
           .connect()
           .send(init(serviceName = "DoesNotExist", entityId = "foo"))
-          .expect(entityFailure("Protocol error: Service not found: DoesNotExist"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -133,7 +133,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart1"))
           .send(command(1, "cart2", "foo"))
-          .expect(entityFailure(1, "Protocol error: Entity is not the intended recipient of command"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -144,7 +144,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(command(1, "cart", "foo", payload = None))
-          .expect(entityFailure(1, "Protocol error: No command payload"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -155,7 +155,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(EmptyInMessage)
-          .expect(entityFailure("Protocol error: Replicated Entity received empty or unknown message"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -166,9 +166,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(delta(deltaCounter(42)))
-          .expect(entityFailure(
-            "Protocol error: Received delta class com.akkaserverless.protocol.replicated_entity.ReplicatedCounterDelta" +
-            " which doesn't match the expected replicated data type: ReplicatedRegisterMap"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
@@ -179,30 +177,27 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(command(1, "cart", "foo"))
-          .expect(entityFailure(1, s"No command handler found for command [foo] on ${classOf[CartEntity]}"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }
 
     "fail action when command handler returns error effect" in {
-      service.expectLogError(
-        "Fail invoked for command [AddItem] for entity [cart]: Quantity for item foo must be greater than zero.") {
-        protocol.replicatedEntity
-          .connect()
-          .send(init(ShoppingCart.Name, "cart"))
-          .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-          .expect(failure(1, "Quantity for item foo must be greater than zero."))
-          .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
-          .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
-          .passivate()
+      protocol.replicatedEntity
+        .connect()
+        .send(init(ShoppingCart.Name, "cart"))
+        .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
+        .expect(failure(1, "Quantity for item foo must be greater than zero."))
+        .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
+        .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
+        .passivate()
 
-        protocol.replicatedEntity
-          .connect()
-          .send(init(ShoppingCart.Name, "cart"))
-          .send(command(1, "cart", "GetCart", getShoppingCart("cart")))
-          .expect(reply(1, EmptyCart))
-          .passivate()
-      }
+      protocol.replicatedEntity
+        .connect()
+        .send(init(ShoppingCart.Name, "cart"))
+        .send(command(1, "cart", "GetCart", getShoppingCart("cart")))
+        .expect(reply(1, EmptyCart))
+        .passivate()
     }
 
     "fail when command handler throws exception" in {
@@ -211,7 +206,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(command(1, "cart", "RemoveItem", removeItem("foo")))
-          .expect(entityFailure(1, "Unexpected failure: java.lang.RuntimeException: Boom: foo"))
+          .expectEntityFailure("Unexpected error")
           .expectClosed()
       }
     }

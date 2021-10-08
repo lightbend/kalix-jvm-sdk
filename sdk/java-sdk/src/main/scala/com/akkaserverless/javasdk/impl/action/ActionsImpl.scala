@@ -38,8 +38,11 @@ import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 
+import java.util.UUID
 import scala.util.control.NonFatal
 
 final class ActionService(
@@ -47,6 +50,20 @@ final class ActionService(
     override val descriptor: Descriptors.ServiceDescriptor,
     val anySupport: AnySupport)
     extends Service {
+
+  @volatile var actionClass: Option[Class[_]] = None
+
+  def createAction(context: ActionCreationContext): ActionHandler[_] = {
+    val handler = factory.create(context)
+    actionClass = Some(handler.actionClass())
+    handler
+  }
+
+  // use a logger specific to the service impl if possible (concrete action was successfully created at least once)
+  def log: Logger = actionClass match {
+    case Some(clazz) => LoggerFactory.getLogger(clazz)
+    case None        => ActionsImpl.log
+  }
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -57,10 +74,28 @@ final class ActionService(
   override final val componentType = Actions.name
 }
 
-final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionService], rootContext: Context)
+private[javasdk] object ActionsImpl {
+  private[action] val log = LoggerFactory.getLogger(classOf[ActionsImpl])
+
+  private def handleUnexpectedException(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
+    ErrorHandling.withCorrelationId { correlationId =>
+      service.log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
+      protocolFailure(correlationId)
+    }
+
+  private def protocolFailure(correlationId: String): ActionResponse = {
+    ActionResponse(ActionResponse.Response.Failure(Failure(0, s"Unexpected error [$correlationId]")))
+  }
+
+}
+
+private[javasdk] final class ActionsImpl(
+    _system: ActorSystem,
+    services: Map[String, ActionService],
+    rootContext: Context)
     extends Actions {
 
-  private val log = LoggerFactory.getLogger(classOf[Action])
+  import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
 
@@ -71,7 +106,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
 
-  private def effectToResponse(effect: Action.Effect[_], anySupport: AnySupport): Future[ActionResponse] = {
+  private def effectToResponse(
+      service: ActionService,
+      command: ActionCommand,
+      effect: Action.Effect[_],
+      anySupport: AnySupport): Future[ActionResponse] = {
     import ActionEffectImpl._
     effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
@@ -89,10 +128,10 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         futureEffect
           .flatMap { effect =>
             val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
-            effectToResponse(withSurroundingSideEffects, anySupport)
+            effectToResponse(service, command, withSurroundingSideEffects, anySupport)
           }
           .recover { case NonFatal(ex) =>
-            ActionResponse(ActionResponse.Response.Failure(Failure(description = ex.getMessage)))
+            handleUnexpectedException(service, command, ex)
           }
       case ErrorEffect(description, sideEffects) =>
         Future.successful(
@@ -123,10 +162,6 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
         throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
     }
 
-  private def toProtocol(ex: Throwable): ActionResponse = {
-    ActionResponse(ActionResponse.Response.Failure(Failure(0, ex.getMessage)))
-  }
-
   /**
    * Handle a unary command. The input command will contain the service name, command name, request metadata and the
    * command payload. The reply may contain a direct reply, a forward or a failure, and it may contain many side
@@ -141,11 +176,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
           val effect = service.factory
             .create(creationContext)
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(effect, service.anySupport)
+          effectToResponse(service, in, effect, service.anySupport)
         } catch {
           case NonFatal(ex) =>
-            log.error(s"Failure during handling of command ${in.serviceName}.${in.name}", ex)
-            Future.successful(toProtocol(ex)) // command handler threw
+            // command handler threw an "unexpected" error
+            Future.successful(handleUnexpectedException(service, in, ex))
         }
       case None =>
         Future.successful(
@@ -184,11 +219,11 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
                     createContext(call))
-                effectToResponse(effect, service.anySupport)
+                effectToResponse(service, call, effect, service.anySupport)
               } catch {
                 case NonFatal(ex) =>
-                  log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
-                  Future.successful(toProtocol(ex)) // command handler threw
+                  // command handler threw an "unexpected" error
+                  Future.successful(handleUnexpectedException(service, call, ex))
               }
             case None =>
               Future.successful(
@@ -213,12 +248,15 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
             .create(creationContext)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
-            .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
-            .recover { case NonFatal(ex) => toProtocol(ex) } // user stream failed
+            .mapAsync(1)(effect => effectToResponse(service, in, effect, service.anySupport))
+            .recover { case NonFatal(ex) =>
+              // user stream failed with an "unexpected" error
+              handleUnexpectedException(service, in, ex)
+            }
         } catch {
           case NonFatal(ex) =>
-            log.error(s"Failure during handling of command ${in.serviceName}.${in.name}", ex)
-            Source.single(toProtocol(ex)) // command handler threw
+            // command handler threw an "unexpected" error
+            Source.single(handleUnexpectedException(service, in, ex))
         }
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
@@ -258,17 +296,18 @@ final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionServic
                     }.asJava,
                     createContext(call))
                   .asScala
-                  .mapAsync(1)(effect => effectToResponse(effect, service.anySupport))
+                  .mapAsync(1)(effect => effectToResponse(service, call, effect, service.anySupport))
                   .recover { case NonFatal(ex) =>
-                    // user stream failed
-                    log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
-                    toProtocol(ex)
+                    // user stream failed with an "unexpected" error
+                    handleUnexpectedException(service, call, ex)
                   }
               } catch {
                 case NonFatal(ex) =>
-                  // command handler threw
-                  log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
-                  Source.single(toProtocol(ex))
+                  // command handler threw an "unexpected" error
+                  ErrorHandling.withCorrelationId { correlationId =>
+                    service.log.error(s"Failure during handling of command ${call.serviceName}.${call.name}", ex)
+                    Source.single(protocolFailure(correlationId))
+                  }
               }
             case None =>
               Source.single(
