@@ -147,8 +147,11 @@ Akka Serverless generates the `CounterJournalToTopicActionTestKit` that allows u
 
 Apart from the test kit Akka Serverless generates test classes based on the Action defined in the .proto files. This is shown in the snippet below. 
 
-Is worth noting that Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves. 
+Is worth noting that Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
 
+[.tabset]
+Java::
++
 .src/test/java/com/example/actions/CounterJournalToTopicActionTest.java
 [source,java]
 ----
@@ -156,10 +159,28 @@ include::example$java-eventsourced-counter/src/test/java/com/example/actions/Cou
 ----
 <1> creating the test kit to test `increase` Action's method.
 <2> calling `increase` method with some value.
-<3> retrieving the `Reply` from `increase` method.
-
+<3> retrieving the reply message from the result.
++
 *ActionResult*
-
++
 Calling an action method through the test kit gives us back an  {attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
-
++
 * `getReply()` returns the reply message passed to `effects().reply()` or throws an exception failing the test, if the effect returned was not a reply.
+
+Scala::
++
+[source,scala]
+.src/test/java/com/example/actions/CounterJournalToTopicActionSpec.scala
+[source,java]
+----
+include::example$scala-eventsourced-counter/src/test/scala/com/example/actions/CounterJournalToTopicActionSpec.scala[tag=class]
+----
+<1> creating the test kit to test `increase` Action's method.
+<2> calling `increase` method with some value.
+<3> retrieving the reply message from the result.
++
+*ActionResult*
++
+Calling an action method through the test kit gives us back an  {attachmentsdir}/testkit/com/akkaserverless/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
++
+* `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.

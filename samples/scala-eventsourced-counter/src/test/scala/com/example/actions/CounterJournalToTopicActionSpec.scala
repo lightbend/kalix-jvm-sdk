@@ -24,7 +24,7 @@ class CounterJournalToTopicActionSpec extends AnyWordSpec with Matchers {
     "handle command Increase" in {
       val testKit = CounterJournalToTopicActionTestKit(new CounterJournalToTopicAction(_)) // <1>
       val result = testKit.increase(ValueIncreased(1)) // <2>
-      result.reply shouldBe Increased(1)
+      result.reply shouldBe Increased(1) // <3>
 
     }
     // end::class[]
