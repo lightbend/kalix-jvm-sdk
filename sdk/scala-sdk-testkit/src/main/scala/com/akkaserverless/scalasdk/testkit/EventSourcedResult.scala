@@ -16,6 +16,8 @@
 
 package com.akkaserverless.scalasdk.testkit
 
+import scala.reflect.ClassTag
+
 /**
  * Represents the result of an EventSourcedEntity handling a command when run in through the testkit.
  *
@@ -67,5 +69,5 @@ trait EventSourcedResult[R] {
    * @return
    *   The next event if it is of type E, for additional assertions.
    */
-  def nextEventOfType[E](expectedClass: Class[E]): E
+  def nextEvent[E](implicit expectedClass: ClassTag[E]): E
 }

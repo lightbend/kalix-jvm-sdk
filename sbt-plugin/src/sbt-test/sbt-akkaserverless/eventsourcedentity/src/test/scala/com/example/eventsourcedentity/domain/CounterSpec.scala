@@ -48,7 +48,7 @@ class CounterSpec extends AnyWordSpec with Matchers {
       current.reply.value shouldBe(42)
 
       val reset = testKit.reset(eventsourcedentity.ResetValue(counterId))
-      reset.nextEventOfType(classOf[Decreased]).value shouldBe(42)
+      reset.nextEvent[Decreased].value shouldBe(42)
 
       val next = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
       next.reply.value shouldBe(0)

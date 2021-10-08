@@ -25,6 +25,8 @@ import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEff
 import com.akkaserverless.scalasdk.testkit.{ EventSourcedResult, ServiceCallDetails }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
+import scala.reflect.ClassTag
+
 /**
  * INTERNAL API Used by the generated testkit
  */
@@ -89,14 +91,14 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
 
   override def didEmitEvents: Boolean = events.nonEmpty
 
-  override def nextEventOfType[E](expectedClass: Class[E]): E =
+  override def nextEvent[E](implicit expectedClass: ClassTag[E]): E =
     if (!eventsIterator.hasNext) throw new NoSuchElementException("No more events found")
     else {
       @SuppressWarnings(Array("unchecked")) val next = eventsIterator.next
-      if (expectedClass.isInstance(next)) next.asInstanceOf[E]
+      if (expectedClass.runtimeClass.isInstance(next)) next.asInstanceOf[E]
       else
         throw new NoSuchElementException(
-          "expected event type [" + expectedClass.getName + "] but found [" + next.getClass.getName + "]")
+          "expected event type [" + expectedClass.runtimeClass.getName + "] but found [" + next.getClass.getName + "]")
     }
 
 }
