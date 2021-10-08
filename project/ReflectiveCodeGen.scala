@@ -20,7 +20,6 @@ object ReflectiveCodeGen extends AutoPlugin {
     Seq(
       Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
       Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-      Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
       Compile / sourceGenerators += runCodeGenTask.taskValue) ++ attachProtobufDescriptorSets
 
   def runAkkaServerlessCodegen(
