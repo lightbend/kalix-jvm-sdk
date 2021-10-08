@@ -49,7 +49,7 @@ public class CounterIntegrationTest {
   }
 
   private <T> T awaitResult(CompletionStage<T> stage) throws Exception {
-    return stage.toCompletableFuture().get(2, SECONDS);
+    return stage.toCompletableFuture().get(5, SECONDS);
   }
 
   @Test

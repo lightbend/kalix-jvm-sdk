@@ -501,7 +501,7 @@ object EntityServiceSourceGenerator {
           |public void ${lowerFirst(command.name)}OnNonExistingEntity() throws Exception {
           |  // TODO: set fields in command, and provide assertions to match replies
           |  // client.${lowerFirst(command.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
-          |  //         .toCompletableFuture().get(2, SECONDS);
+          |  //         .toCompletableFuture().get(5, SECONDS);
           |}
           |""".stripMargin
 
