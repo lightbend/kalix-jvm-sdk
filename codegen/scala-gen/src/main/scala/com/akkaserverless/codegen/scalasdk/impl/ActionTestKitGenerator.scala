@@ -44,8 +44,9 @@ object ActionTestKitGenerator {
 
     val actionClassName = service.className
 
-    val methods = service.commands.map { cmd =>
-      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ActionResult[${typeName(cmd.outputType)}] =
+    val methods = service.commands.collect {
+      case cmd if cmd.isUnary =>
+        s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ActionResult[${typeName(cmd.outputType)}] =
           |  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))
           |""".stripMargin
     }
@@ -100,8 +101,9 @@ object ActionTestKitGenerator {
 
     val actionClassName = service.className
 
-    val testCases = service.commands.map { cmd =>
-      s"""|"handle command ${cmd.name}" in {
+    val testCases = service.commands.collect {
+      case cmd if cmd.isUnary =>
+        s"""|"handle command ${cmd.name}" in {
           |  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
           |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
           |}

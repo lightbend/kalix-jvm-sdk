@@ -150,11 +150,12 @@ object ActionTestKitGenerator {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
 
     service.commands
-      .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
-          command.inputType.protoName)}) {
+      .collect {
+        case command if command.isUnary =>
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
+            command.inputType.protoName)}) {
             |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
-          command.inputType.protoName)});
+            command.inputType.protoName)});
             |  return ${selectOutputReturn(command)}
             |}
             |""".stripMargin + "\n"
@@ -164,8 +165,9 @@ object ActionTestKitGenerator {
 
   def generateTestingServices(service: ModelBuilder.ActionService): String = {
     service.commands
-      .map { command =>
-        s"""|@Test
+      .collect {
+        case command if command.isUnary =>
+          s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
             |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
             |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());
