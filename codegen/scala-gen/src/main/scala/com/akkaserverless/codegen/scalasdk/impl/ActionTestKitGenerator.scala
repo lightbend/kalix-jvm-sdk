@@ -17,7 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, FullyQualifiedName, ModelBuilder }
+import com.lightbend.akkasls.codegen.{ Format, ModelBuilder }
 
 object ActionTestKitGenerator {
 
@@ -96,7 +96,6 @@ object ActionTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
     val actionClassName = service.className
@@ -139,73 +138,4 @@ object ActionTestKitGenerator {
           |""".stripMargin)
   }
 
-  def integrationTest(
-      main: FullyQualifiedName,
-      valueEntity: ModelBuilder.ValueEntity,
-      service: ModelBuilder.EntityService): File = {
-
-    val client = FullyQualifiedName(service.fqn.name + "Client", service.fqn.parent)
-
-    implicit val imports: Imports =
-      generateImports(
-        Seq(main, valueEntity.state.fqn, client) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
-        service.fqn.parent.scalaPackage,
-        otherImports = Seq(
-          "akka.actor.ActorSystem",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
-          "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
-          "org.scalatest.matchers.should.Matchers",
-          "org.scalatest.wordspec.AnyWordSpec",
-          "org.scalatest.BeforeAndAfterAll",
-          "org.scalatest.concurrent.ScalaFutures",
-          "org.scalatest.time.Span",
-          "org.scalatest.time.Seconds",
-          "org.scalatest.time.Millis"),
-        packageImports = Seq(valueEntity.fqn.parent.scalaPackage),
-        semi = false)
-
-    val entityClassName = service.fqn.name
-
-    File(
-      service.fqn.fileBasename + "IntegrationSpec.scala",
-      s"""|package ${service.fqn.parent.scalaPackage}
-          |
-          |$imports
-          |
-          |$unmanagedComment
-          |
-          |class ${entityClassName}IntegrationSpec
-          |    extends AnyWordSpec
-          |    with Matchers
-          |    with BeforeAndAfterAll
-          |    with ScalaFutures {
-          |
-          |  implicit val patience: PatienceConfig =
-          |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
-          |
-          |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-          |  testKit.start()
-          |  implicit val system: ActorSystem = testKit.system
-          |
-          |  "${entityClassName}" must {
-          |    val client: ${typeName(client)} =
-          |      ${typeName(client)}(testKit.grpcClientSettings)
-          |
-          |    "have example test that can be removed" in {
-          |      // use the gRPC client to send requests to the
-          |      // proxy and verify the results
-          |    }
-          |
-          |  }
-          |
-          |  override def afterAll() = {
-          |    testKit.stop()
-          |    super.afterAll()
-          |  }
-          |}
-          |""".stripMargin)
-  }
 }
