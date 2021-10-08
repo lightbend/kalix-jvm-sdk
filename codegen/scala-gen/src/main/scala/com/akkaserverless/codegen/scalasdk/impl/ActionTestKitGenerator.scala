@@ -116,6 +116,8 @@ object ActionTestKitGenerator {
           |
           |$imports
           |
+          |$unmanagedComment
+          |
           |class ${actionClassName}Spec
           |    extends AnyWordSpec
           |    with Matchers {
