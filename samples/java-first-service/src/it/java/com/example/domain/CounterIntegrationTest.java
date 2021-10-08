@@ -38,27 +38,27 @@ public class CounterIntegrationTest {
   public void increaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.increase(CounterApi.IncreaseValue.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void decreaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.decrease(CounterApi.DecreaseValue.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void resetOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.reset(CounterApi.ResetValue.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void getCurrentCounterOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getCurrentCounter(CounterApi.GetCounter.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 }

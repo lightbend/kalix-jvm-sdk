@@ -38,20 +38,20 @@ public class ShoppingCartEntityIntegrationTest {
   public void addItemOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.addItem(ShoppingCartApi.AddLineItem.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void removeItemOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.removeItem(ShoppingCartApi.RemoveLineItem.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void getCartOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getCart(ShoppingCartApi.GetShoppingCart.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 }

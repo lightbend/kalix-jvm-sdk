@@ -42,7 +42,7 @@ public class CounterIntegrationTest {
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
                .toCompletableFuture().get(5, SECONDS);
       CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(2, SECONDS);
+              .toCompletableFuture().get(5, SECONDS);
       assertThat(reply.getValue(), is(42));
   }
   // end::sample-it-test[]
@@ -53,9 +53,9 @@ public class CounterIntegrationTest {
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
                .toCompletableFuture().get(5, SECONDS);
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(27).build())
-               .toCompletableFuture().get(2, SECONDS);
+               .toCompletableFuture().get(5, SECONDS);
       CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(2, SECONDS);
+              .toCompletableFuture().get(5, SECONDS);
       assertThat(reply.getValue(), is(69));
   }
 }

@@ -323,14 +323,14 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |  public void setOnNonExistingEntity() throws Exception {
         |    // TODO: set fields in command, and provide assertions to match replies
         |    // client.set(ServiceOuterClass.SetValue.newBuilder().build())
-        |    //         .toCompletableFuture().get(2, SECONDS);
+        |    //         .toCompletableFuture().get(5, SECONDS);
         |  }
         |
         |  @Test
         |  public void getOnNonExistingEntity() throws Exception {
         |    // TODO: set fields in command, and provide assertions to match replies
         |    // client.get(ServiceOuterClass.GetValue.newBuilder().build())
-        |    //         .toCompletableFuture().get(2, SECONDS);
+        |    //         .toCompletableFuture().get(5, SECONDS);
         |  }
         |}
         |""".stripMargin)

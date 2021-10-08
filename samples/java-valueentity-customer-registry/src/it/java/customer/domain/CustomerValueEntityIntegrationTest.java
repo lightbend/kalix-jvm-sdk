@@ -37,27 +37,27 @@ public class CustomerValueEntityIntegrationTest {
     public void createOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.create(CustomerApi.Customer.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void changeNameOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.changeName(CustomerApi.ChangeNameRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void changeAddressOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void getCustomerOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.getCustomer(CustomerApi.GetCustomerRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
 }
