@@ -61,8 +61,8 @@ object SourceGenerator {
         }
       case _: ModelBuilder.ViewService =>
         Nil
-      case _: ModelBuilder.ActionService =>
-        Nil
+      case service: ModelBuilder.ActionService =>
+        ActionTestKitGenerator.generateManagedTest(service)
     }.toList
   }
 
@@ -106,7 +106,7 @@ object SourceGenerator {
         }
       case _: ModelBuilder.ViewService =>
         Nil
-      case _: ModelBuilder.ActionService =>
-        Nil
+      case service: ModelBuilder.ActionService =>
+        ActionTestKitGenerator.generateUnmanagedTest(service)
     }.toList
 }

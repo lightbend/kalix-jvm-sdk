@@ -43,7 +43,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was forwarded, false if not */
   def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
 
-  def getForwardServiceCall(): ServiceCallDetails[T] =
+  def getForward(): ServiceCallDetails[T] =
     effect match {
       case ActionEffectImpl.ForwardEffect(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked], _) =>
         serviceCall
@@ -56,7 +56,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was async, false if not */
   def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
 
-  def getAsyncEffect(): CompletionStage[ActionResult[T]] = {
+  def getAsyncResult(): CompletionStage[ActionResult[T]] = {
     val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
     async.effect.map(new ActionResultImpl(_).asInstanceOf[ActionResult[T]]).toJava
   }
@@ -64,7 +64,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was an error, false if not */
   def isError(): Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[T]]
 
-  def getErrorDescription(): String = {
+  def getError(): String = {
     val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
     error.description
   }

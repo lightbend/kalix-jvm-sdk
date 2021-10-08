@@ -67,8 +67,7 @@ object ActionTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
         "com.akkaserverless.javasdk.impl.action.ActionEffectImpl",
-        "com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext",
-        "com.akkaserverless.javasdk.testkit.impl.StubActionContext")
+        "com.akkaserverless.javasdk.testkit.impl.TestKitActionContext")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -84,8 +83,8 @@ object ActionTestKitGenerator {
         |  private Function<ActionCreationContext, $className> actionFactory;
         |
         |  private $className createAction() {
-        |    $className action = actionFactory.apply(new StubActionCreationContext());
-        |    action._internalSetActionContext(Optional.of(new StubActionContext()));
+        |    $className action = actionFactory.apply(new TestKitActionContext());
+        |    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
         |    return action;
         |  };
         |
@@ -151,11 +150,12 @@ object ActionTestKitGenerator {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
 
     service.commands
-      .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
-          command.inputType.protoName)}) {
+      .collect {
+        case command if command.isUnary =>
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
+            command.inputType.protoName)}) {
             |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
-          command.inputType.protoName)});
+            command.inputType.protoName)});
             |  return ${selectOutputReturn(command)}
             |}
             |""".stripMargin + "\n"
@@ -165,8 +165,9 @@ object ActionTestKitGenerator {
 
   def generateTestingServices(service: ModelBuilder.ActionService): String = {
     service.commands
-      .map { command =>
-        s"""|@Test
+      .collect {
+        case command if command.isUnary =>
+          s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
             |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
             |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());

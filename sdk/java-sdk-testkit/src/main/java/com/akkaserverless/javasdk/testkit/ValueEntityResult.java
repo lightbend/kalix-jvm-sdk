@@ -21,7 +21,7 @@ package com.akkaserverless.javasdk.testkit;
  *
  * <p>Not for user extension, returned by the generated testkit.
  *
- * @param <R> The type of reply that is expected from invoking command handler
+ * @param <R> The type of reply that is expected from invoking a command handler
  */
 public interface ValueEntityResult<R> {
 
@@ -29,8 +29,8 @@ public interface ValueEntityResult<R> {
   boolean isReply();
 
   /**
-   * The reply object from the handler if there was one. If the call had an effect without any reply
-   * an exception is thrown
+   * @return The reply object from the handler if there was one. If the call had an effect without
+   *     any reply an exception is thrown.
    */
   R getReply();
 
@@ -38,8 +38,8 @@ public interface ValueEntityResult<R> {
   boolean isForward();
 
   /**
-   * An object with details about the forward. If the result was not a forward an exception is
-   * thrown
+   * @return An object with details about the forward. If the result was not a forward an exception
+   *     is thrown.
    */
   ServiceCallDetails<R> getForward();
 

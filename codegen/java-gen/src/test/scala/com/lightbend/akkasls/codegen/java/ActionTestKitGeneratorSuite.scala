@@ -59,8 +59,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
         |import com.akkaserverless.javasdk.testkit.ActionResult;
         |import com.akkaserverless.javasdk.testkit.impl.ActionResultImpl;
-        |import com.akkaserverless.javasdk.testkit.impl.StubActionContext;
-        |import com.akkaserverless.javasdk.testkit.impl.StubActionCreationContext;
+        |import com.akkaserverless.javasdk.testkit.impl.TestKitActionContext;
         |import com.example.actions.CounterJournalToTopicAction;
         |import com.example.actions.CounterTopicApi;
         |import com.example.domain.CounterDomain;
@@ -80,8 +79,8 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |  private Function<ActionCreationContext, CounterJournalToTopicAction> actionFactory;
         |
         |  private CounterJournalToTopicAction createAction() {
-        |    CounterJournalToTopicAction action = actionFactory.apply(new StubActionCreationContext());
-        |    action._internalSetActionContext(Optional.of(new StubActionContext()));
+        |    CounterJournalToTopicAction action = actionFactory.apply(new TestKitActionContext());
+        |    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
         |    return action;
         |  };
         |
