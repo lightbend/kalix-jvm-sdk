@@ -20,38 +20,38 @@ class CounterSpec extends AnyWordSpec with Matchers {
       val testKit = CounterTestKit(new Counter(_))
 
       testKit.increase(eventsourcedentity.IncreaseValue(counterId, 42))
-      val current = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      current.reply.value shouldBe(42)
+      val result1 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result1.reply.value shouldBe(42)
 
       testKit.increase(eventsourcedentity.IncreaseValue(counterId, 15))
-      val next = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      next.reply.value shouldBe(42+15)
+      val result2 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result2.reply.value shouldBe(42+15)
     }
 
     "correctly process commands of type Decrease" in {
       val testKit = CounterTestKit(new Counter(_))
 
       testKit.increase(eventsourcedentity.IncreaseValue(counterId, 42))
-      val current = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      current.reply.value shouldBe(42)
+      val result1 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result1.reply.value shouldBe(42)
 
       testKit.decrease(eventsourcedentity.DecreaseValue(counterId, 15))
-      val next = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      next.reply.value shouldBe(42-15)
+      val result2 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result2.reply.value shouldBe(42-15)
     }
 
     "correctly process commands of type Reset" in {
       val testKit = CounterTestKit(new Counter(_))
 
       testKit.increase(eventsourcedentity.IncreaseValue(counterId, 42))
-      val current = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      current.reply.value shouldBe(42)
+      val result1 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result1.reply.value shouldBe(42)
 
       val reset = testKit.reset(eventsourcedentity.ResetValue(counterId))
       reset.nextEvent[Decreased].value shouldBe(42)
 
-      val next = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
-      next.reply.value shouldBe(0)
+      val result2 = testKit.getCurrentCounter(eventsourcedentity.GetCounter(counterId))
+      result2.reply.value shouldBe(0)
     }
   }
 }
