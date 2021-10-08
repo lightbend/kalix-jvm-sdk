@@ -141,46 +141,50 @@ When more components are added the `AkkaServerlessFactory` is regenerated, and y
 
 === Unit tests
 
-The following snippet shows how the `CounterJournalToTopicActionTestKit` is used to test the `CounterJournalToTopicAction` implementation.
+The following snippet shows how the `FibonacciActionTestKit` is used to test the `FibonacciAction` implementation.
 
-Akka Serverless generates the `CounterJournalToTopicActionTestKit` that allows us to call the methods of `CounterJournalToTopicAction`. For each `Action` Akka Serverless generates a specific test kit for it, with the name `[ActionName]TestKit`. This test kit hold an instance of its `Action`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying `CounterJournalToTopicAction`. 
+Akka Serverless generates the `FibonacciActionTestKit` that allows us to call the methods of `FibonacciAction`. For each `Action` Akka Serverless generates a specific test kit for it, with the name `[ActionName]TestKit`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying action method.
 
-Apart from the test kit Akka Serverless generates test classes based on the Action defined in the .proto files. This is shown in the snippet below. 
+Apart from the test kit Akka Serverless generates test classes based on the Action defined in the `.proto` files. This is shown in the snippet below.
 
-Is worth noting that Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
+NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
 
 [.tabset]
 Java::
 +
-.src/test/java/com/example/actions/CounterJournalToTopicActionTest.java
+.src/test/java/com/example/actions/FibonacciActionTest.java
 [source,java]
 ----
-include::example$java-eventsourced-counter/src/test/java/com/example/actions/CounterJournalToTopicActionTest.java[tag=class] 
+include::example$java-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
 ----
-<1> creating the test kit to test `increase` Action's method.
-<2> calling `increase` method with some value.
-<3> retrieving the reply message from the result.
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `getReply()`.
 +
 *ActionResult*
 +
-Calling an action method through the test kit gives us back an  {attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
 +
 * `getReply()` returns the reply message passed to `effects().reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `getError()` returns the error description when `effects().error()` was returned to signal an error.
+* `getForward()` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
 
 Scala::
 +
 [source,scala]
-.src/test/java/com/example/actions/CounterJournalToTopicActionSpec.scala
+.src/test/java/com/example/actions/FibonacciActionSpec.scala
 [source,java]
 ----
-include::example$scala-eventsourced-counter/src/test/scala/com/example/actions/CounterJournalToTopicActionSpec.scala[tag=class]
+include::example$scala-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
 ----
-<1> creating the test kit to test `increase` Action's method.
-<2> calling `increase` method with some value.
-<3> retrieving the reply message from the result.
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `reply`.
 +
 *ActionResult*
 +
-Calling an action method through the test kit gives us back an  {attachmentsdir}/testkit/com/akkaserverless/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/scala-testkit-api/com/akkaserverless/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
 +
 * `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `errorDescription` returns the error description when `effects().error()` was returned to signal an error.
+* `forwardedTo` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).

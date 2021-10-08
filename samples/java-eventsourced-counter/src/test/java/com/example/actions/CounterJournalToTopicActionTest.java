@@ -3,7 +3,7 @@
  * You are free to make changes to this file.
  */
 package com.example.actions;
-// tag::class[]
+
 import com.akkaserverless.javasdk.testkit.ActionResult;
 import com.example.actions.CounterJournalToTopicAction;
 import com.example.actions.CounterJournalToTopicActionTestKit;
@@ -19,27 +19,15 @@ public class CounterJournalToTopicActionTest {
 
   @Test
   public void increaseTest() {
-    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new); // <1>
-    int valueToincrease = 1;
-    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(valueToincrease).build()); // <2>
-    assertTrue(result.isReply());
-    CounterTopicApi.Increased replyMessage = result.getReply(); // <3>
-    assertEquals(valueToincrease,replyMessage.getValue());
-  }  
-  // end::class[]
+    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
+    ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(1).build());
+    assertEquals(1, result.getReply().getValue());
+  }
 
   @Test
   public void decreaseTest() {
     CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
-    // ActionResult<com.example.actions.CounterTopicApi.Decreased> result = testKit.decrease(com.example.domain.CounterDomain.ValueDecreased.newBuilder()...build());
+    ActionResult<CounterTopicApi.Decreased> result = testKit.decrease(CounterDomain.ValueDecreased.newBuilder().setValue(1).build());
+    assertEquals(1, result.getReply().getValue());
   }
-
-  @Test
-  public void ignoreTest() {
-    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
-    // ActionResult<com.google.protobuf.Empty> result = testKit.ignore(com.google.protobuf.Any.newBuilder()...build());
-  }
-
-// tag::class[]
 }
-// end::class[]
