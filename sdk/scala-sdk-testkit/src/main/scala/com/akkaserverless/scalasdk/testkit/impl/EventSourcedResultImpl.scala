@@ -16,11 +16,9 @@
 
 package com.akkaserverless.scalasdk.testkit.impl
 
+import scala.collection.immutable
 import com.akkaserverless.javasdk.impl.effect._
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
-import com.akkaserverless.javasdk.impl.eventsourcedentity.{
-  EventSourcedEntityEffectImpl => JEventSourcedEntityEffectImpl
-}
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.scalasdk.testkit.{ EventSourcedResult, ServiceCallDetails }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
@@ -107,7 +105,7 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
  * INTERNAL API
  */
 object EventSourcedResultImpl {
-  def eventsOf(effect: EventSourcedEntity.Effect[_]): Seq[Any] = {
+  def eventsOf(effect: EventSourcedEntity.Effect[_]): immutable.Seq[Any] = {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_, _] =>
         ei.javasdkEffect.primaryEffect match {
