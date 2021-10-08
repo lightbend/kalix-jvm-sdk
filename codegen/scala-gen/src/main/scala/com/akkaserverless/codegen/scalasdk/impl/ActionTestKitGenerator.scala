@@ -38,11 +38,8 @@ object ActionTestKitGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
-          "com.akkaserverless.scalasdk.action.Action",
-          "com.akkaserverless.scalasdk.action.ActionContext",
           "com.akkaserverless.scalasdk.action.ActionCreationContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
         semi = false)
 
     val actionClassName = service.className
@@ -53,9 +50,9 @@ object ActionTestKitGenerator {
           |""".stripMargin
     }
 
-    // FIXME somethings off here with the class name (YadiYadiActionSpec) vs the file name from fqn.fileBasename (YadiYadiSpec)
     File(
-      service.fqn.fileBasename + "TestKit.scala",
+      service.fqn.parent.scalaPackage,
+      s"${actionClassName}TestKit",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
           |$imports
@@ -112,7 +109,8 @@ object ActionTestKitGenerator {
     }
 
     File(
-      service.fqn.fileBasename + "Spec.scala",
+      service.fqn.parent.scalaPackage,
+      actionClassName + "Spec",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
           |$imports
