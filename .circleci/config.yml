@@ -477,7 +477,7 @@ jobs:
       - run:
           name: Scala Documentation Snippets
           command: |
-            cd samples/scala-doc-snippets-action
+            cd samples/scala-doc-snippets
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
             # FIXME tests && integration tests
