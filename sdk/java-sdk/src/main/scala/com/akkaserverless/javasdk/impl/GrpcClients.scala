@@ -17,13 +17,15 @@
 package com.akkaserverless.javasdk.impl
 
 import akka.Done
+import akka.actor.ClassicActorSystemProvider
 import akka.actor.CoordinatedShutdown
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
-import akka.grpc.javadsl.AkkaGrpcClient
+import akka.grpc.javadsl.{ AkkaGrpcClient => AkkaGrpcJavaClient }
+import akka.grpc.scaladsl.{ AkkaGrpcClient => AkkaGrpcScalaClient }
 import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
@@ -51,15 +53,20 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
   private implicit val ec: ExecutionContext = system.dispatcher
-  private val clients = new ConcurrentHashMap[Key, AkkaGrpcClient]()
+  private val clients = new ConcurrentHashMap[Key, AnyRef]()
 
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceStop, "stop-grpc-clients")(() =>
-    Future.traverse(clients.values().asScala)(_.close().asScala).map(_ => Done))
+    Future
+      .traverse(clients.values().asScala) {
+        case javaClient: AkkaGrpcJavaClient   => javaClient.close().asScala
+        case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
+      }
+      .map(_ => Done))
 
   def getGrpcClient[T](serviceClass: Class[T], service: String): T =
     clients.computeIfAbsent(Key(serviceClass, service), createClient(_)).asInstanceOf[T]
 
-  private def createClient(key: Key): AkkaGrpcClient = {
+  private def createClient(key: Key): AnyRef = {
     val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
       // "service" is not present in the config, treat it as an Akka gRPC inter-service call
       log.debug("Creating gRPC client for Akka Serverless service [{}]", key.service)
@@ -74,14 +81,31 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     }
 
     // expected to have a ServiceNameClient generated in the same package, so look that up through reflection
-    val clientClass = system.dynamicAccess.getClassFor[AkkaGrpcClient](key.serviceClass.getName + "Client").get
-    val create = clientClass.getMethod("create", classOf[GrpcClientSettings])
-    val client: AkkaGrpcClient = create.invoke(null, settings).asInstanceOf[AkkaGrpcClient]
-    client.closed().asScala.foreach { _ =>
+    val clientClass = system.dynamicAccess.getClassFor[AnyRef](key.serviceClass.getName + "Client").get
+    val client =
+      if (classOf[AkkaGrpcJavaClient].isAssignableFrom(clientClass)) {
+        // Java API - static create
+        val create = clientClass.getMethod("create", classOf[GrpcClientSettings], classOf[ClassicActorSystemProvider])
+        create.invoke(null, settings, system)
+      } else if (classOf[AkkaGrpcScalaClient].isAssignableFrom(clientClass)) {
+        // Scala API - companion object apply
+        val companion = system.dynamicAccess.getObjectFor[AnyRef](key.serviceClass.getName + "Client").get
+        val create =
+          companion.getClass.getMethod("apply", classOf[GrpcClientSettings], classOf[ClassicActorSystemProvider])
+        create.invoke(companion, settings, system)
+      }
+
+    val closeDone = client match {
+      case javaClient: AkkaGrpcJavaClient =>
+        javaClient.closed().asScala
+      case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
+    }
+    closeDone.foreach { _ =>
       // if the client is closed, remove it from the pool
       log.debug("gRPC client for service [{}] was closed", key.service)
       clients.remove(key)
     }
+
     client
   }
 
