@@ -51,28 +51,12 @@ case class FullyQualifiedName(
 }
 
 object FullyQualifiedName {
-  // FIXME should only be used for testing, move there
-  def apply(name: String, parent: PackageNaming): FullyQualifiedName = {
-    FullyQualifiedName(
-      name,
-      name,
-      parent,
-      parent.javaOuterClassnameOption match {
-        case Some(outer) =>
-          Some(FullyQualifiedName(outer, outer, parent, None))
-        case None =>
-          def capitalize(s: String, capitalizeNext: Boolean = true): String =
-            s.headOption match {
-              case None      => ""
-              case Some('_') => capitalize(s.tail, true)
-              case Some(c) =>
-                if (capitalizeNext) c.toUpper + capitalize(s.tail, false)
-                else c + capitalize(s.tail, false)
-            }
-          val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
-          Some(FullyQualifiedName(protoClassName, protoClassName, parent, None))
-      })
-  }
+
+  /**
+   * Creates a FullyQualifiedName without a descriptor.
+   */
+  def noDescritor(name: String, parent: PackageNaming) =
+    FullyQualifiedName(name, name, parent, None)
 }
 
 case class PackageNaming(

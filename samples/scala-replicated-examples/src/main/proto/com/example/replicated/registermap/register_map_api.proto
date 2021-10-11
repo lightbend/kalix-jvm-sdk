@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.registermap;
 
-option java_outer_classname = "SomeRegisterMapApi";
-
 message Key {
   string field = 1;
 }

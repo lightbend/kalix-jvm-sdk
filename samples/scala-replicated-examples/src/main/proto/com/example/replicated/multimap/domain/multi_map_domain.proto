@@ -18,8 +18,6 @@ package com.example.replicated.multimap.domain;
 
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "SomeMultiMapDomain";
-
 // tag::replicated_entity[]
 option (akkaserverless.file).replicated_entity = {
   name: "SomeMultiMap"

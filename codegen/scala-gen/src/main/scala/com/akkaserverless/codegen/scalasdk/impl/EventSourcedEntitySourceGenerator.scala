@@ -17,12 +17,12 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.{ Format, Imports, ModelBuilder, Scala }
 
 object EventSourcedEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Scala
   def generateUnmanaged(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): Seq[File] =
@@ -49,8 +49,7 @@ object EventSourcedEntitySourceGenerator {
         service.commands.map(_.outputType),
         eventSourcedEntity.fqn.parent.scalaPackage,
         otherImports = Seq("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
     val stateType = typeName(eventSourcedEntity.state.fqn)
     val commandHandlers = service.commands
       .map { cmd =>
@@ -78,7 +77,7 @@ object EventSourcedEntitySourceGenerator {
       abstractEntityName,
       s"""|package ${eventSourcedEntity.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -109,8 +108,7 @@ object EventSourcedEntitySourceGenerator {
           "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityHandler",
           "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandHandlerNotFound",
           "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.EventHandlerNotFound"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventCases = eventSourcedEntity.events.map { evt =>
       val eventType = typeName(evt.fqn)
@@ -130,10 +128,10 @@ object EventSourcedEntitySourceGenerator {
 
     File(
       packageName,
-      eventSourcedEntityName + "Handler",
+      eventSourcedEntity.handlerName,
       s"""|package $packageName
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -177,15 +175,14 @@ object EventSourcedEntitySourceGenerator {
         "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions",
         "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider",
         "com.google.protobuf.Descriptors"),
-      packageImports = Seq(service.fqn.parent.scalaPackage),
-      semi = false)
+      packageImports = Seq(service.fqn.parent.scalaPackage))
 
     File(
       s"${packageAsPath(packageName)}/${className}.scala",
       s"""
          |package $packageName
          |
-         |$imports
+         |${lang.writeImports(imports)}
          |
          |$managedComment
          |
@@ -225,8 +222,7 @@ object EventSourcedEntitySourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
     val eventHandlers =
       eventSourcedEntity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
@@ -250,7 +246,7 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.fqn.fileBasename + ".scala",
       s"""package ${eventSourcedEntity.fqn.parent.scalaPackage}
          |
-         |$imports
+         |${lang.writeImports(imports)}
          |
          |$unmanagedComment
          |

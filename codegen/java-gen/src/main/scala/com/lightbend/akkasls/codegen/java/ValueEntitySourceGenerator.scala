@@ -16,13 +16,13 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.{ Format, Java, ModelBuilder }
 
 object ValueEntitySourceGenerator {
   import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
@@ -52,7 +52,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -103,7 +103,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -145,7 +145,7 @@ object ValueEntitySourceGenerator {
       }
     }
 
-    implicit val imports: Imports = generateImports(
+    implicit val imports = generateImports(
       relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
@@ -162,7 +162,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -254,7 +254,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |

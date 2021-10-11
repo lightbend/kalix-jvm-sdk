@@ -1,6 +1,13 @@
-package com.example.actions
+package com.example.replicated
 
 import com.akkaserverless.scalasdk.AkkaServerless
+import com.example.replicated.counter.domain.SomeCounter
+import com.example.replicated.countermap.domain.SomeCounterMap
+import com.example.replicated.map.domain.SomeMap
+import com.example.replicated.multimap.domain.SomeMultiMap
+import com.example.replicated.register.domain.SomeRegister
+import com.example.replicated.registermap.domain.SomeRegisterMap
+import com.example.replicated.set.domain.SomeSet
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -10,7 +17,7 @@ import org.slf4j.LoggerFactory
 
 object Main {
 
-  private val log = LoggerFactory.getLogger("com.example.actions.Main")
+  private val log = LoggerFactory.getLogger("com.example.replicated.Main")
 
   def createAkkaServerless(): AkkaServerless = {
     // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
@@ -18,7 +25,13 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `AkkaServerless()` instance.
     AkkaServerlessFactory.withComponents(
-      new DoubleCounterAction(_))
+      new SomeCounter(_),
+      new SomeCounterMap(_),
+      new SomeMap(_),
+      new SomeMultiMap(_),
+      new SomeRegister(_),
+      new SomeRegisterMap(_),
+      new SomeSet(_))
   }
 
   def main(args: Array[String]): Unit = {

@@ -33,6 +33,8 @@ object EntityServiceSourceGenerator {
   import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
+
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
    * Note that we only generate tests for entities where we are successful in generating an entity. The user may not
@@ -59,7 +61,7 @@ object EntityServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = "Abstract" + className
+    val interfaceClassName = entity.abstractEntityName
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -75,7 +77,7 @@ object EntityServiceSourceGenerator {
           Charsets.UTF_8))
     }
 
-    val handlerClassName = className + "Handler"
+    val handlerClassName = entity.handlerName
     val handlerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
       path.getParent.toFile.mkdirs()
@@ -83,7 +85,7 @@ object EntityServiceSourceGenerator {
       path
     }
 
-    val providerClassName = className + "Provider"
+    val providerClassName = entity.providerName
     val providerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
       path.getParent.toFile.mkdirs()
@@ -182,7 +184,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -245,7 +247,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -351,7 +353,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${lang.writeImports(imports)}
        |
        |$unmanagedComment
        |
@@ -449,7 +451,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -482,7 +484,7 @@ object EntityServiceSourceGenerator {
 
     val extraImports = entity match {
       case ModelBuilder.ReplicatedEntity(_, _, data) =>
-        ReplicatedEntitySourceGenerator.extraImports(data) ++ extraTypeImports(data.typeArguments)
+        extraReplicatedImports(data) ++ extraTypeImports(data.typeArguments)
       case _ => Seq.empty
     }
 
@@ -509,7 +511,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${lang.writeImports(imports)}
       |
       |import static java.util.concurrent.TimeUnit.*;
       |

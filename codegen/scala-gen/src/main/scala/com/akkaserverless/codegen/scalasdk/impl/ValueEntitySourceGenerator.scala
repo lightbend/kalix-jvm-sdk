@@ -17,11 +17,15 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.Scala
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+
+  implicit val lang = Scala
 
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
@@ -42,8 +46,7 @@ object ValueEntitySourceGenerator {
         service.commands.map(_.outputType),
         valueEntity.fqn.parent.scalaPackage,
         otherImports = Seq("com.akkaserverless.scalasdk.valueentity.ValueEntity"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val methods = service.commands
       .map { cmd =>
@@ -63,7 +66,7 @@ object ValueEntitySourceGenerator {
       abstractEntityName,
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -89,8 +92,7 @@ object ValueEntitySourceGenerator {
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
           "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val commandCases = service.commands
       .map { cmd =>
@@ -103,10 +105,10 @@ object ValueEntitySourceGenerator {
 
     File(
       packageName,
-      valueEntityName + "Handler",
+      valueEntity.handlerName,
       s"""|package $packageName
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -129,7 +131,7 @@ object ValueEntitySourceGenerator {
 
   def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     val packageName = entity.fqn.parent.scalaPackage
-    val className = entity.fqn.name + "Provider"
+    val className = entity.providerName
 
     val descriptors =
       (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
@@ -143,15 +145,14 @@ object ValueEntitySourceGenerator {
         "com.akkaserverless.scalasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.scalasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors"),
-      packageImports = Seq(service.fqn.parent.scalaPackage),
-      semi = false)
+      packageImports = Seq(service.fqn.parent.scalaPackage))
 
     File(
       s"${packageAsPath(packageName)}/${className}.scala",
       s"""
          |package $packageName
          |
-         |$imports
+         |${lang.writeImports(imports)}
          |
          |$managedComment
          |
@@ -191,8 +192,7 @@ object ValueEntitySourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.valueentity.ValueEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val methods = service.commands.map { cmd =>
       s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, ${lowerFirst(
@@ -206,7 +206,7 @@ object ValueEntitySourceGenerator {
       s"""
          |package ${valueEntity.fqn.parent.scalaPackage}
          |
-         |$imports
+         |${lang.writeImports(imports)}
          |
          |$unmanagedComment
          |

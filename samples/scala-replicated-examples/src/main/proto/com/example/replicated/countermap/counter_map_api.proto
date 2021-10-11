@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.countermap;
 
-option java_outer_classname = "SomeCounterMapApi";
-
 message IncreaseValue {
   string counter_map_id = 1 [(akkaserverless.field).entity_key = true];
   string key = 2;

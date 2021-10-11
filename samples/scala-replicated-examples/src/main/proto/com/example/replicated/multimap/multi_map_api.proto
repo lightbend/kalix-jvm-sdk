@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.multimap;
 
-option java_outer_classname = "SomeMultiMapApi";
-
 message PutValue {
   string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
   string key = 2;

@@ -29,6 +29,8 @@ object ActionServiceSourceGenerator {
   import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
+
   /**
    * Generate Java source from views where the target source and test source directories have no existing source.
    *
@@ -139,7 +141,7 @@ object ActionServiceSourceGenerator {
 
     s"""|package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -187,7 +189,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -255,7 +257,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -330,7 +332,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${lang.writeImports(imports)}
       |
       |$managedComment
       |

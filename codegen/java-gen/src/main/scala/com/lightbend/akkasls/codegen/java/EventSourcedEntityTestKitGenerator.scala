@@ -23,6 +23,7 @@ import _root_.java.nio.file.{ Files, Path }
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
   def generate(
       entity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService,
@@ -79,7 +80,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
           |
-          |$imports
+          |${lang.writeImports(imports)}
           |
           |$managedComment
           |
@@ -226,7 +227,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${lang.writeImports(imports)}
       |
       |import static org.junit.Assert.*;
       |

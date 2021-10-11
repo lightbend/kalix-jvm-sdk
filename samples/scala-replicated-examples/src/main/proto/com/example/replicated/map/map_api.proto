@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.map;
 
-option java_outer_classname = "SomeMapApi";
-
 message IncreaseFooValue {
   string map_id = 1 [(akkaserverless.field).entity_key = true];
   int32 value = 2;

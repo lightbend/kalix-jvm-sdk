@@ -96,40 +96,11 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  class Imports(val currentPackage: String, _imports: Seq[String], val semi: Boolean) {
-
-    val imports: Seq[String] = _imports.filterNot(isInCurrentPackage)
-
-    private def isInCurrentPackage(imp: String): Boolean = {
-      val i = imp.lastIndexOf('.')
-      if (i == -1)
-        currentPackage == ""
-      else
-        currentPackage == imp.substring(0, i)
-    }
-
-    def contains(imp: String): Boolean = imports.contains(imp)
-
-    override def toString: String = {
-      val suffix = if (semi) ";" else ""
-      imports
-        .map { imported =>
-          if (imported == "com.google.protobuf.any.Any") {
-            s"import com.google.protobuf.any.{ Any => ScalaPbAny }$suffix"
-          } else
-            s"import $imported$suffix"
-        }
-        .mkString("\n")
-    }
-
-  }
-
   def generateImports(
       types: Iterable[FullyQualifiedName],
       packageName: String,
       otherImports: Seq[String],
-      packageImports: Seq[String] = Seq.empty,
-      semi: Boolean = true): Imports = {
+      packageImports: Seq[String] = Seq.empty): Imports = {
     val messageTypeImports = types
       .filterNot { typ =>
         typ.parent.javaPackage == packageName
@@ -139,7 +110,7 @@ object SourceGeneratorUtils {
       }
       .map(typeImport)
 
-    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted, semi)
+    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
   }
 
   def generateCommandImports(
@@ -147,9 +118,9 @@ object SourceGeneratorUtils {
       state: State,
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): Imports = {
+      packageImports: Seq[String] = Seq.empty): Imports = {
     val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports, Seq.empty, semi)
+    generateImports(types, packageName, otherImports, packageImports)
   }
 
   def generateCommandAndTypeArgumentImports(
@@ -157,11 +128,12 @@ object SourceGeneratorUtils {
       typeArguments: Iterable[TypeArgument],
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): Imports = {
-    val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
-      fqn
-    }
-    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), Seq.empty, semi)
+      packageImports: Seq[String] = Seq.empty): Imports = {
+
+    val types = commandTypes(commands) ++
+      typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
+
+    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
 
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
@@ -198,4 +170,55 @@ object SourceGeneratorUtils {
       .sorted
       .mkString(",\n")
   }
+
+  def extraReplicatedImports(replicatedData: ModelBuilder.ReplicatedData): Seq[String] = {
+    replicatedData match {
+      // special case ReplicatedMap as heterogeneous with ReplicatedData values
+      case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.replicatedentity.ReplicatedData")
+      case _                             => Seq.empty
+    }
+  }
+
+  def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit lang: Lang, imports: Imports): String =
+    typeArgument match {
+      case ModelBuilder.MessageTypeArgument(fqn) =>
+        typeName(fqn)
+        lang match {
+          // FIXME: there is a bug here the full name is EntityOuterClass.SomeValue
+          //  and the fullQualifiedName is com.example.service.domain.SomeValue (missing EntityOuterClass)
+          case Java  => fqn.fullName
+          case Scala => typeName(fqn)
+        }
+      case ModelBuilder.ScalarTypeArgument(scalar) =>
+        scalar match {
+          case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
+              ModelBuilder.ScalarType.Fixed32 | ModelBuilder.ScalarType.SFixed32 =>
+            lang.intType
+          case ModelBuilder.ScalarType.Int64 | ModelBuilder.ScalarType.UInt64 | ModelBuilder.ScalarType.SInt64 |
+              ModelBuilder.ScalarType.Fixed64 | ModelBuilder.ScalarType.SFixed64 =>
+            "Long"
+          case ModelBuilder.ScalarType.Double => "Double"
+          case ModelBuilder.ScalarType.Float  => "Float"
+          case ModelBuilder.ScalarType.Bool   => "Boolean"
+          case ModelBuilder.ScalarType.String => "String"
+          case ModelBuilder.ScalarType.Bytes  => "ByteString"
+          case _                              => lang.wildcard
+        }
+    }
+
+  def parameterizeDataType(
+      replicatedData: ModelBuilder.ReplicatedData)(implicit lang: Lang, imports: Imports): String = {
+    val typeArguments =
+      replicatedData match {
+        // special case ReplicatedMap as heterogeneous with ReplicatedData values
+        case ModelBuilder.ReplicatedMap(key) => Seq(dataType(key), "ReplicatedData")
+        case data                            => data.typeArguments.map(typ => dataType(typ))
+      }
+    parameterizeTypes(typeArguments)
+  }
+
+  def parameterizeTypes(types: Iterable[String])(implicit lang: Lang): String =
+    if (types.isEmpty) ""
+    else lang.wrapTypeParams(types)
+
 }

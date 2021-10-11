@@ -23,6 +23,8 @@ import _root_.java.nio.file.{ Files, Path }
 object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
+
   def generate(
       service: ModelBuilder.ActionService,
       testSourceDirectory: Path,
@@ -74,7 +76,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -124,7 +126,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$unmanagedComment
         |

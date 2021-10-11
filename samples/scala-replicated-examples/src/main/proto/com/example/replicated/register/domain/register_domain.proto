@@ -18,8 +18,6 @@ package com.example.replicated.register.domain;
 
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "SomeRegisterDomain";
-
 // tag::replicated_entity[]
 option (akkaserverless.file).replicated_entity = {
   name: "SomeRegister"

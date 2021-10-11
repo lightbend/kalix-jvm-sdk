@@ -29,12 +29,15 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Entity
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen._
+import sun.tools.java.Imports
 
 /**
  * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
  */
 object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+
+  implicit val lang = Java
 
   def generate(
       model: ModelBuilder.Model,
@@ -105,7 +108,7 @@ object MainSourceGenerator {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
-        |${componentImports}
+        |${lang.writeImports(componentImports)}
         |
         |$unmanagedComment
         |

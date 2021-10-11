@@ -27,6 +27,8 @@ import _root_.java.nio.file.{ Files, Path }
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
+
   /**
    * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
    * it does not already exist.
@@ -96,7 +98,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -144,7 +146,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${lang.writeImports(imports)}
         |
         |$managedComment
         |
@@ -235,7 +237,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${lang.writeImports(imports)}
        |
        |$unmanagedComment
        |
@@ -271,7 +273,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${lang.writeImports(imports)}
       |
       |$managedComment
       |

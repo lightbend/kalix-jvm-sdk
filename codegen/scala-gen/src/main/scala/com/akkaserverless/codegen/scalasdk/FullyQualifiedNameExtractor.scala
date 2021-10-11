@@ -56,7 +56,7 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       javaMultipleFiles = false)
 
   override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
-    FullyQualifiedName(
+    FullyQualifiedName.noDescritor(
       descriptor.getFile.fileDescriptorObject.name,
       packageName(descriptor.getName, descriptor.getFile.fileDescriptorObject))
 }

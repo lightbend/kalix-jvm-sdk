@@ -17,8 +17,7 @@
 package com.lightbend.akkasls.codegen.java
 
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.{ Format, Java, ModelBuilder }
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -26,6 +25,7 @@ import java.nio.file.Path
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
+  implicit val lang = Java
   def generate(
       entity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService,
@@ -80,7 +80,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |$imports
+       |${lang.writeImports(imports)}
        |
        |$managedComment
        |
@@ -191,7 +191,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |$imports
+       |${lang.writeImports(imports)}
        |
        |import static org.junit.Assert.*;
        |
