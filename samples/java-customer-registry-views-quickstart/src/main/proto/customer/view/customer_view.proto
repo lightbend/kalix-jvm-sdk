@@ -13,34 +13,34 @@
 // limitations under the License.
 
 // tag::declarations[]
-syntax = "proto3";
+syntax = "proto3"; // <1>
 
-package customer.view;
+package customer.view; // <2>
 
-option java_outer_classname = "CustomerViewModel";
+option java_outer_classname = "CustomerViewModel"; // <3>
 
-import "customer/domain/customer_domain.proto";
+import "customer/domain/customer_domain.proto"; // <4>
 import "akkaserverless/annotations.proto";
 // end::declarations[]
 
 // tag::CustomerByEmail[]
-service CustomerByEmail {
-  option (akkaserverless.service) = {
+service CustomerByEmail { // <1>
+  option (akkaserverless.service) = { // <2>
     type: SERVICE_TYPE_VIEW
   };
 
-  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing.in = {
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <3>
+    option (akkaserverless.method).eventing.in = { // <4>
       value_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (akkaserverless.method).view.update = { // <5>
       table: "customers_by_email"
     };
   }
 
-  rpc GetCustomer(ByEmailRequest) returns (domain.CustomerState) {
+  rpc GetCustomer(ByEmailRequest) returns (domain.CustomerState) { // <6>
     option (akkaserverless.method).view.query = {
-      query: "SELECT * FROM customers_by_email WHERE email = :email"
+      query: "SELECT * FROM customers_by_email WHERE email = :email" // <7>
     };
   }
 }
@@ -56,17 +56,17 @@ service CustomerByName {
     type: SERVICE_TYPE_VIEW
   };
 
-  rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) {
+  rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) { // <1>
     option (akkaserverless.method).eventing.in = {
       value_entity: "customers"
     };
     option (akkaserverless.method).view.update = {
       table: "customers_by_name"
-      transform_updates: true
+      transform_updates: true // <2>
     };
   }
 
-  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) {
+  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) { // <3>
     option (akkaserverless.method).view.query = {
       query: "SELECT * FROM customers_by_name WHERE name = :customer_name"
     };

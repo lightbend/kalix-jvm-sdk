@@ -53,7 +53,7 @@ With both the proxy and your application running, any defined endpoints should b
   ```
 * Query by email:
   ```
-  grpcurl --plaintext -d '{"email": "wip@example.com"}' localhost:9000 customer.view.CustomerByEmail/GetCustomers
+  grpcurl --plaintext -d '{"email": "wip@example.com"}' localhost:9000 customer.view.CustomerByEmail/GetCustomer
   ```
 * Query by name:
   ```
