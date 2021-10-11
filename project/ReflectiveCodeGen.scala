@@ -7,7 +7,7 @@ import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport._
 import sbt.internal.inc.classpath.ClasspathUtilities
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{ Files, Path, Paths }
 
 /**
  * A plugin that allows to use a code generator compiled in one subproject to be used in a test project
@@ -72,7 +72,13 @@ object ReflectiveCodeGen extends AutoPlugin {
         val srcManaged = (Compile / sourceManaged).value
         val testSrcManaged = (Test / sourceManaged).value
         val sbtLogger = streams.value.log
-        runAkkaServerlessCodegen(cp, protobufDescriptorSetOut.value, (Compile / temporaryUnmanagedDirectory).value, srcManaged, testSrcManaged, sbtLogger)
+        runAkkaServerlessCodegen(
+          cp,
+          protobufDescriptorSetOut.value,
+          (Compile / temporaryUnmanagedDirectory).value,
+          srcManaged,
+          testSrcManaged,
+          sbtLogger)
           .filterNot(_.getPath.contains("akkaserverless-unmanaged"))
       }
       .dependsOn(Compile / PB.generate)
@@ -81,8 +87,8 @@ object ReflectiveCodeGen extends AutoPlugin {
   val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
   val generateUnmanaged = taskKey[Seq[File]](
     "Generate \"unmanaged\" akkaserverless scaffolding code based on the available .proto definitions.\n" +
-      "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
-      "Files that already exist they are not re-generated.")
+    "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
+    "Files that already exist they are not re-generated.")
 
   lazy val attachProtobufDescriptorSets = Seq(
     protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
@@ -105,11 +111,11 @@ object ReflectiveCodeGen extends AutoPlugin {
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
         Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
-        Paths.get((Compile / sourceDirectory).value.toURI).resolve("java")) // FIXME: copy java and scala separately
+        Paths.get((Compile / sourceDirectory).value.toURI).resolve("java")
+      ) // FIXME: copy java and scala separately
     },
     Compile / unmanagedSources :=
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
-  )
+      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value)
 
   // copied from AkkaserverlessPlugin.scala
   private def copyIfNotExist(from: Path, to: Path): Seq[File] = {
