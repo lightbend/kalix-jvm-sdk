@@ -14,7 +14,7 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
   }
 
   @Override
-  public CustomerViewModel.CustomerViewState emptyState() {
+  public CustomerViewModel.CustomerViewState emptyState() { // <1>
     return CustomerViewModel.CustomerViewState.getDefaultInstance();
   }
 
@@ -22,14 +22,14 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
   public UpdateEffect<CustomerViewModel.CustomerViewState> updateCustomer(
       CustomerViewModel.CustomerViewState state, CustomerDomain.CustomerState customerState) {
 
-    CustomerViewModel.CustomerViewState newViewState =
+    CustomerViewModel.CustomerViewState newViewState = // <2>
         CustomerViewModel.CustomerViewState.newBuilder()
             .setCustomerId(customerState.getCustomerId())
             .setEmail(customerState.getEmail())
             .setName(customerState.getName())
             .build();
 
-    return effects().updateState(newViewState);
+    return effects().updateState(newViewState); // <3>
   }
 }
 // #end::view[]
