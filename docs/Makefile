@@ -32,7 +32,7 @@ attributes:
 	mkdir -p "${managed_partials}"
 	bin/version.sh | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
 		> "${managed_partials}/attributes.adoc"
-	echo ":minimum-java-version: 8" \
+	echo ":minimum-java-version: 11" \
 		>> "${managed_partials}/attributes.adoc"
 	echo ":recommended-java-version: 11" \
 		>> "${managed_partials}/attributes.adoc"
