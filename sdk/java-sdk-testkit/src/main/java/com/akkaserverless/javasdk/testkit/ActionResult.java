@@ -17,6 +17,8 @@
 package com.akkaserverless.javasdk.testkit;
 
 import java.util.concurrent.CompletionStage;
+import java.util.List;
+import com.akkaserverless.javasdk.SideEffect;
 
 /**
  * Represents the result of an Action handling a command when run in through the testkit.
@@ -65,4 +67,7 @@ public interface ActionResult<T> {
 
   /** @return true if the call had a noReply effect, false if not */
   boolean isNoReply();
+
+  /** @return The list of side effects */
+  List<ServiceCallDetails<T>> getSideEffects();
 }

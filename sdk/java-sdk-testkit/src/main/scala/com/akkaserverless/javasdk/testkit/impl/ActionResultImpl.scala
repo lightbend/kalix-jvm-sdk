@@ -16,17 +16,23 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.testkit.ActionResult
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.action.Action
+import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
+import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.testkit.ServiceCallDetails
 import com.akkaserverless.javasdk.testkit.impl.TestKitServiceCallFactory
 import java.util.concurrent.CompletionStage;
+import java.util.{ List => JList }
+import scala.collection.JavaConverters._
 import scala.concurrent.Future;
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 
 final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T] {
+
+  //because I have the effect => ActionEffectImpl then I can have their msg, for
+  // example. See line 41.
 
   implicit val ec = ExecutionContext.Implicits.global
 
@@ -36,6 +42,17 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   def getReply(): T = {
     val reply = getEffectOfType(classOf[ActionEffectImpl.ReplyEffect[T]])
     reply.msg
+  }
+
+  private def extractServices(sideEffects: Seq[SideEffect]): JList[ServiceCallDetails[T]] =
+    sideEffects.map(_.serviceCall.asInstanceOf[ServiceCallDetails[T]]).asJava
+
+  def getSideEffects(): JList[ServiceCallDetails[T]] = effect match {
+    case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
+    case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
+    case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
+    case ActionEffectImpl.ErrorEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
+    case ActionEffectImpl.NoReply(internalSideEffects)           => extractServices(internalSideEffects)
   }
 
   //TODO add metadata??

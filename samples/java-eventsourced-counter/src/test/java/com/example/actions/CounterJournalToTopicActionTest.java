@@ -11,6 +11,7 @@ import com.example.actions.CounterTopicApi;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
+import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -22,6 +23,7 @@ public class CounterJournalToTopicActionTest {
     CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
     ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(1).build());
     assertEquals(1, result.getReply().getValue());
+    assertEquals("com.example.CounterService", result.getSideEffects().get(0).getServiceName());
   }
 
   @Test
