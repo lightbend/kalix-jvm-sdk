@@ -28,7 +28,6 @@ import com.lightbend.akkasls.codegen._
 object MainSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-  implicit val lang = Scala
 
   def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
     Seq(mainSource(model))
@@ -39,7 +38,7 @@ object MainSourceGenerator {
   def mainClassName(model: ModelBuilder.Model): FullyQualifiedName = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
     val className = "Main"
-    FullyQualifiedName.noDescritor(
+    FullyQualifiedName.noDescriptor(
       className,
       new PackageNaming(
         protoFileName = "",
@@ -92,7 +91,7 @@ object MainSourceGenerator {
       mainClass.name,
       s"""|package ${mainClass.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$unmanagedComment
         |
@@ -215,7 +214,7 @@ object MainSourceGenerator {
       "AkkaServerlessFactory",
       s"""|package $packageName
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |

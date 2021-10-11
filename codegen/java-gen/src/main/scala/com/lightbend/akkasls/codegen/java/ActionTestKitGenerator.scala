@@ -17,13 +17,13 @@
 package com.lightbend.akkasls.codegen
 package java
 
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
+
 import com.google.common.base.Charsets
-import _root_.java.nio.file.{ Files, Path }
 
 object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  implicit val lang = Java
 
   def generate(
       service: ModelBuilder.ActionService,
@@ -76,7 +76,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -126,7 +126,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$unmanagedComment
         |

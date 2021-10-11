@@ -16,28 +16,20 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import _root_.java.io.File
 import _root_.java.nio.file.Files
 import _root_.java.nio.file.Path
 
-import scala.collection.immutable
-
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.DescriptorSet
-import com.lightbend.akkasls.codegen.Log
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Entity
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen._
-import sun.tools.java.Imports
 
 /**
  * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
  */
 object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  implicit val lang = Java
 
   def generate(
       model: ModelBuilder.Model,
@@ -108,7 +100,7 @@ object MainSourceGenerator {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
-        |${lang.writeImports(componentImports)}
+        |${writeImports(componentImports, isScala = false)}
         |
         |$unmanagedComment
         |

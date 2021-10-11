@@ -17,14 +17,13 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.Scala
-import com.lightbend.akkasls.codegen.{ Format, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ActionTestKitGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  implicit val lang = Scala
   def generateUnmanagedTest(service: ModelBuilder.ActionService): Seq[File] =
     Seq(test(service))
 
@@ -57,7 +56,7 @@ object ActionTestKitGenerator {
       s"${actionClassName}TestKit",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${lang.writeImports(imports)}
+          |${writeImports(imports, isScala = true)}
           |
           |$managedComment
           |
@@ -114,7 +113,7 @@ object ActionTestKitGenerator {
       actionClassName + "Spec",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${lang.writeImports(imports)}
+          |${writeImports(imports, isScala = true)}
           |
           |$unmanagedComment
           |

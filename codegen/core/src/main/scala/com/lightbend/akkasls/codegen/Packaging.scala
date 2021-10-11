@@ -55,7 +55,7 @@ object FullyQualifiedName {
   /**
    * Creates a FullyQualifiedName without a descriptor.
    */
-  def noDescritor(name: String, parent: PackageNaming) =
+  def noDescriptor(name: String, parent: PackageNaming) =
     FullyQualifiedName(name, name, parent, None)
 }
 

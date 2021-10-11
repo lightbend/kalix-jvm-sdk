@@ -254,7 +254,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         "shopping-cart",
         ModelBuilder.ReplicatedCounterMap(
           ModelBuilder
-            .TypeArgument("Product", domainProto, TestData.guessDescriptor(shoppingCartProto.name, shoppingCartProto))))
+            .TypeArgument("Product", domainProto, TestData.guessDescriptor(domainProto.name, domainProto))))
 
       assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
 

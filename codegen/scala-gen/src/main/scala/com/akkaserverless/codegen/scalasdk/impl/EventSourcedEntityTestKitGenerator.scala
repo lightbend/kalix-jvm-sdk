@@ -17,13 +17,12 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.Scala
-import com.lightbend.akkasls.codegen.{ Format, FullyQualifiedName, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  implicit val lang = Scala
   def generateUnmanagedTest(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): Seq[File] =
@@ -68,7 +67,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "TestKit.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
        |
-       |${lang.writeImports(imports)}
+       |${writeImports(imports, isScala = true)}
        |
        |$managedComment
        |
@@ -141,7 +140,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "Spec.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
          |
-         |${lang.writeImports(imports)}
+         |${writeImports(imports, isScala = true)}
          |
          |$unmanagedComment
          |

@@ -290,7 +290,17 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     "ReplicatedVoteEntity",
     "ReplicatedVote")
 
-  def testEntityHandler(replicatedData: ReplicatedData, specificImport: String, expectedDataType: String): Unit =
+  // test for scalar types, using ByteString because of extra import
+  testAbstractEntityService(
+    ReplicatedSet(domainType("bytes")),
+    Set(
+      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
+      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSetEntity",
+      "import com.google.protobuf.ByteString"),
+    "ReplicatedSetEntity[ByteString]",
+    "ReplicatedSet[ByteString]")
+
+  def testEntityHandler(replicatedData: ReplicatedData, specificImports: Set[String], expectedDataType: String): Unit =
     test(s"Generated replicated entity handler - ${replicatedData.name}") {
 
       val fixedImports =
@@ -302,7 +312,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           "import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityHandler",
           "import com.akkaserverless.scalasdk.replicatedentity.CommandContext")
 
-      val expectedImports = (fixedImports + specificImport).toList.sorted.mkString("\n")
+      val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
 
       assertNoDiff(
         ReplicatedEntitySourceGenerator
@@ -347,43 +357,49 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   testEntityHandler(
     ReplicatedCounter,
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
     "ReplicatedCounter")
 
   testEntityHandler(
     ReplicatedRegister(domainType("SomeValue")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
     "ReplicatedRegister[SomeValue]")
 
   testEntityHandler(
     ReplicatedSet(domainType("SomeElement")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[SomeElement]")
 
   testEntityHandler(
     ReplicatedMap(domainType("SomeKey")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
   testEntityHandler(
     ReplicatedCounterMap(domainType("SomeKey")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[SomeKey]")
 
   testEntityHandler(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[SomeKey, SomeValue]")
 
   testEntityHandler(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[SomeKey, SomeValue]")
 
   testEntityHandler(
     ReplicatedVote,
-    "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote",
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
     "ReplicatedVote")
+
+  // test for scalar types, using ByteString because of extra import
+  testEntityHandler(
+    ReplicatedSet(domainType("bytes")),
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "import com.google.protobuf.ByteString"),
+    "ReplicatedSet[ByteString]")
 
   def testEntityProvider(
       replicatedData: ReplicatedData,
@@ -498,5 +514,12 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedVote,
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
     "ReplicatedVote",
+    "ExternalDomainProto.javaDescriptor")
+
+  // test for scalar types, using ByteString because of extra import
+  testEntityProvider(
+    ReplicatedSet(domainType("bytes")),
+    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "import com.google.protobuf.ByteString"),
+    "ReplicatedSet[ByteString]",
     "ExternalDomainProto.javaDescriptor")
 }

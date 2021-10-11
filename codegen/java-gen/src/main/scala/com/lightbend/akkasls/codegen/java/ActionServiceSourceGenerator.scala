@@ -26,10 +26,7 @@ import com.google.common.base.Charsets
  * Responsible for generating Java source from an entity model
  */
 object ActionServiceSourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  implicit val lang = Java
 
   /**
    * Generate Java source from views where the target source and test source directories have no existing source.
@@ -141,7 +138,7 @@ object ActionServiceSourceGenerator {
 
     s"""|package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$unmanagedComment
         |
@@ -189,7 +186,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -257,7 +254,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -332,7 +329,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |${lang.writeImports(imports)}
+      |${writeImports(imports, isScala = false)}
       |
       |$managedComment
       |

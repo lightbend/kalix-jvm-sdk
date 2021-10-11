@@ -30,10 +30,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
  * Responsible for generating Java source from an entity model
  */
 object EntityServiceSourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  implicit val lang = Java
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -184,7 +181,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -247,7 +244,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -353,7 +350,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |${lang.writeImports(imports)}
+       |${writeImports(imports, isScala = false)}
        |
        |$unmanagedComment
        |
@@ -451,7 +448,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -511,7 +508,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |${lang.writeImports(imports)}
+      |${writeImports(imports, isScala = false)}
       |
       |import static java.util.concurrent.TimeUnit.*;
       |

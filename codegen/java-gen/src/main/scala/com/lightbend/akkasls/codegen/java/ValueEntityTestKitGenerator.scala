@@ -16,16 +16,16 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.{ Format, Java, ModelBuilder }
-
 import java.nio.file.Files
 import java.nio.file.Path
+
+import com.google.common.base.Charsets
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  implicit val lang = Java
   def generate(
       entity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService,
@@ -80,7 +80,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |${lang.writeImports(imports)}
+       |${writeImports(imports, isScala = false)}
        |
        |$managedComment
        |
@@ -191,7 +191,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |${lang.writeImports(imports)}
+       |${writeImports(imports, isScala = false)}
        |
        |import static org.junit.Assert.*;
        |

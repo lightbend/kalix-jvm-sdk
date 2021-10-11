@@ -17,12 +17,13 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, Imports, ModelBuilder, Scala }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.Imports
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  implicit val lang = Scala
   def generateUnmanaged(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): Seq[File] =
@@ -77,7 +78,7 @@ object EventSourcedEntitySourceGenerator {
       abstractEntityName,
       s"""|package ${eventSourcedEntity.fqn.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -131,7 +132,7 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.handlerName,
       s"""|package $packageName
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -182,7 +183,7 @@ object EventSourcedEntitySourceGenerator {
       s"""
          |package $packageName
          |
-         |${lang.writeImports(imports)}
+         |${writeImports(imports, isScala = true)}
          |
          |$managedComment
          |
@@ -246,7 +247,7 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.fqn.fileBasename + ".scala",
       s"""package ${eventSourcedEntity.fqn.parent.scalaPackage}
          |
-         |${lang.writeImports(imports)}
+         |${writeImports(imports, isScala = true)}
          |
          |$unmanagedComment
          |

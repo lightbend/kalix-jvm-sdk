@@ -17,16 +17,13 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.Scala
 
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  implicit val lang = Scala
 
   def generateUnmanagedTest(
       main: FullyQualifiedName,
@@ -67,7 +64,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "TestKit.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |${lang.writeImports(imports)}
+          |${writeImports(imports, isScala = true)}
           |
           |$managedComment
           |
@@ -143,7 +140,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "Spec.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |${lang.writeImports(imports)}
+          |${writeImports(imports, isScala = true)}
           |
           |class ${entityClassName}Spec
           |    extends AnyWordSpec
@@ -175,7 +172,7 @@ object ValueEntityTestKitGenerator {
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
 
-    val client = FullyQualifiedName.noDescritor(service.fqn.name + "Client", service.fqn.parent)
+    val client = FullyQualifiedName.noDescriptor(service.fqn.name + "Client", service.fqn.parent)
 
     implicit val imports: Imports =
       generateImports(
@@ -203,7 +200,7 @@ object ValueEntityTestKitGenerator {
       service.fqn.fileBasename + "IntegrationSpec.scala",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${lang.writeImports(imports)}
+          |${writeImports(imports, isScala = true)}
           |
           |$unmanagedComment
           |

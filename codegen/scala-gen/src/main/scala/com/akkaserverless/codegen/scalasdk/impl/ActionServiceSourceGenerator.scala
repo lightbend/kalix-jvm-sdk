@@ -18,7 +18,8 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.Imports
-import com.lightbend.akkasls.codegen.{ Format, ModelBuilder, Scala }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 /**
  * Responsible for generating Scala sourced for Actions
@@ -26,7 +27,6 @@ import com.lightbend.akkasls.codegen.{ Format, ModelBuilder, Scala }
 object ActionServiceSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-  implicit val lang = Scala
 
   /**
    * Generate Scala sources the user view source file.
@@ -105,7 +105,7 @@ object ActionServiceSourceGenerator {
       className,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$unmanagedComment
         |
@@ -156,7 +156,7 @@ object ActionServiceSourceGenerator {
       service.abstractActionName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -221,7 +221,7 @@ object ActionServiceSourceGenerator {
       service.handlerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -279,7 +279,7 @@ object ActionServiceSourceGenerator {
       service.providerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |${lang.writeImports(imports)}
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
