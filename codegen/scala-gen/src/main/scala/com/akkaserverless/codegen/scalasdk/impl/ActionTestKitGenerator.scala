@@ -41,13 +41,12 @@ object ActionTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
           "com.akkaserverless.scalasdk.action.ActionCreationContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext"))
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 
-    val methods = service.commands.collect {
-      case cmd if cmd.isUnary =>
-        s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ActionResult[${typeName(cmd.outputType)}] =
+    val methods = service.commands.map { cmd =>
+      s"""|def ${lowerFirst(cmd.name)}(command: ${selectInput(cmd)}): ${selectOutputResult(cmd)} =
           |  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))
           |""".stripMargin
     }
@@ -96,17 +95,22 @@ object ActionTestKitGenerator {
           "com.akkaserverless.scalasdk.action.Action",
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "org.scalatest.matchers.should.Matchers",
-          "org.scalatest.wordspec.AnyWordSpec"))
+          "org.scalatest.wordspec.AnyWordSpec") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 
-    val testCases = service.commands.collect {
-      case cmd if cmd.isUnary =>
-        s"""|"handle command ${cmd.name}" in {
-          |  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
-          |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
-          |}
-          |""".stripMargin
+    val testCases = service.commands.map { cmd =>
+      s""""handle command ${cmd.name}" in {\n""" +
+      (if (cmd.isUnary || cmd.isStreamOut)
+         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
+              |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
+              |}
+              |""".stripMargin
+       else
+         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
+              |  // val result = testKit.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
+              |}
+              |""".stripMargin)
     }
 
     File(
@@ -138,6 +142,33 @@ object ActionTestKitGenerator {
           |  }
           |}
           |""".stripMargin)
+  }
+
+  def selectOutputResult(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput)
+      s"Source[ActionResult[${command.outputType.name}], akka.NotUsed]"
+    else s"ActionResult[${command.outputType.name}]"
+  }
+
+  def selectOutputEffect(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput)
+      s"Source[Effect[${command.outputType.name}], akka.NotUsed]"
+    else s"Effect[${command.outputType.name}]"
+  }
+
+  def selectOutputReturn(command: ModelBuilder.Command): String = {
+    if (command.streamedOutput) "effect.map(interpretEffects);"
+    else "interpretEffects(effect);"
+  }
+
+  def selectInput(command: ModelBuilder.Command): String = {
+    if (command.streamedInput) s"Source[${command.inputType.name}, akka.NotUsed]"
+    else command.inputType.name
+  }
+
+  def commandStreamedTypes(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
+    if (commands.exists(c => c.streamedInput || c.streamedOutput)) Seq("akka.stream.scaladsl.Source", "akka.NotUsed")
+    else Nil
   }
 
 }
