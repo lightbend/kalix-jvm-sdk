@@ -67,13 +67,13 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |    new ActionResultImpl(newActionInstance().simpleMethod(command))
         |
         |  def streamedOutputMethod(command: MyRequest): Source[ActionResult[Empty], akka.NotUsed] =
-        |    new ActionResultImpl(newActionInstance().streamedOutputMethod(command))
+        |    newActionInstance().streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
         |
         |  def streamedInputMethod(command: Source[MyRequest, akka.NotUsed]): ActionResult[Empty] =
         |    new ActionResultImpl(newActionInstance().streamedInputMethod(command))
         |
         |  def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed]): Source[ActionResult[Empty], akka.NotUsed] =
-        |    new ActionResultImpl(newActionInstance().fullStreamedMethod(command))
+        |    newActionInstance().fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
         |}""".stripMargin)
   }
 

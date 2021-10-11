@@ -46,9 +46,12 @@ object ActionTestKitGenerator {
     val actionClassName = service.className
 
     val methods = service.commands.map { cmd =>
-      s"""|def ${lowerFirst(cmd.name)}(command: ${selectInput(cmd)}): ${selectOutputResult(cmd)} =
-          |  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))
-          |""".stripMargin
+      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(cmd)}): ${selectOutputResult(cmd)} =\n""" +
+      (if (cmd.isUnary || cmd.isStreamIn) {
+         s"""  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))"""
+       } else {
+         s"""  newActionInstance().${lowerFirst(cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
+       }) + "\n"
     }
 
     File(
