@@ -26,7 +26,7 @@ lazy val sdkCore = project
   .settings(common)
   .settings(
     name := "akkaserverless-jvm-sdk",
-    crossPaths := true,
+    crossPaths := false,
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
