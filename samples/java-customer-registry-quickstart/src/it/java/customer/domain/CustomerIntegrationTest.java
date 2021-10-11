@@ -4,15 +4,17 @@
  */
 package customer.domain;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
-import com.google.protobuf.Empty;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerServiceClient;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static java.util.concurrent.TimeUnit.*;
+import java.util.UUID;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
@@ -22,8 +24,8 @@ public class CustomerIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
-    new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestkitResource testkit =
+    new AkkaServerlessTestkitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -34,31 +36,66 @@ public class CustomerIntegrationTest {
     client = CustomerServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
   }
 
-  @Test
-  public void createOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.create(CustomerApi.Customer.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+  CustomerApi.Customer getCustomer(String customerId) throws Exception {
+    return client
+            .getCustomer(CustomerApi.GetCustomerRequest.newBuilder().setCustomerId(customerId).build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
   }
 
   @Test
-  public void getCustomerOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.getCustomer(CustomerApi.GetCustomerRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+  public void create() throws Exception {
+    String id = UUID.randomUUID().toString();
+    client.create(CustomerApi.Customer.newBuilder()
+                    .setCustomerId(id)
+                    .setName("Johanna")
+                    .setEmail("foo@example.com")
+                    .build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
+    assertEquals("Johanna", getCustomer(id).getName());
   }
 
   @Test
-  public void changeNameOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.changeName(CustomerApi.ChangeNameRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+  public void changeName() throws Exception {
+    String id = UUID.randomUUID().toString();
+    client.create(CustomerApi.Customer.newBuilder()
+                    .setCustomerId(id)
+                    .setName("Johanna")
+                    .setEmail("foo@example.com")
+                    .build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
+    client.changeName(CustomerApi.ChangeNameRequest.newBuilder()
+                    .setCustomerId(id)
+                    .setNewName("Katarina")
+                    .build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
+    assertEquals("Katarina", getCustomer(id).getName());
   }
 
   @Test
-  public void changeAddressOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+  public void changeAddress() throws Exception {
+    String id = UUID.randomUUID().toString();
+    client.create(CustomerApi.Customer.newBuilder()
+                    .setCustomerId(id)
+                    .setName("Johanna")
+                    .setEmail("foo@example.com")
+                    .build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
+    client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder()
+                    .setCustomerId(id)
+                    .setNewAddress(
+                            CustomerApi.Address.newBuilder()
+                                    .setStreet("Elm st. 5")
+                                    .setCity("New Orleans")
+                                    .build()
+                    )
+                    .build())
+            .toCompletableFuture()
+            .get(5, SECONDS);
+    assertEquals("Elm st. 5", getCustomer(id).getAddress().getStreet());
   }
 }
