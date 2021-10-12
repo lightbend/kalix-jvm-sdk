@@ -8,6 +8,7 @@ import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
 import com.akkaserverless.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Tag
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.Millis
@@ -38,7 +39,7 @@ class CounterServiceIntegrationSpec
     val client: CounterServiceClient =
       CounterServiceClient(testKit.grpcClientSettings)
 
-    "Increase and decrease a timer" in {
+    "Increase and decrease a timer" taggedAs(new Tag("it")) in {
       val counterId = "42"
       Future.sequence(Seq(
         client.increase(IncreaseValue(counterId, 42)),

@@ -2,4 +2,11 @@ scalaVersion := "2.13.6"
 
 enablePlugins(AkkaserverlessPlugin)
 
+testOptions ++=(
+  // Skip integration tests in CircleCI since to be able to connect to docker
+  // we'd have to switch to the 'machine' executor
+  if (sys.env.get("CIRCLECI").contains("true")) Seq(Tests.Argument("-l", "it"))
+  else Nil
+)
+
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.7" % Test)
