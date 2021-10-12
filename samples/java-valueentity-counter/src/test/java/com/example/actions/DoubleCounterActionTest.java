@@ -16,8 +16,9 @@ import static org.junit.Assert.*;
 // or delete it so it is regenerated as needed.
 
 public class DoubleCounterActionTest {
-
+// tag::side-effect-test[]
   @Test
+// end::side-effect-test[]
   public void exampleTest() {
     DoubleCounterActionTestKit testKit = DoubleCounterActionTestKit.of(DoubleCounterAction::new);
     // use the testkit to execute a command
