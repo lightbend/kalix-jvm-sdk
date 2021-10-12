@@ -8,7 +8,7 @@ lazy val `akkaserverless-java-sdk` = project
     sdkScala,
     sdkJavaTestKit,
     sdkScalaTestKit,
-    tck,
+    tckJava,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -165,8 +165,8 @@ lazy val sdkJavaTestKit = project
   .settings(Dependencies.sdkJavaTestKit)
 
 //FIXME add scalasdk as package to tck, tck will test both java and scala sdk
-lazy val tck = project
-  .in(file("tck"))
+lazy val tckJava = project
+  .in(file("tck/java-tck"))
   .dependsOn(sdkJava, sdkJavaTestKit)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(common)
