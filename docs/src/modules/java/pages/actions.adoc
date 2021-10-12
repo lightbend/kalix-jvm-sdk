@@ -19,7 +19,7 @@ Java::
 include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
 <4> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
@@ -31,14 +31,14 @@ Scala::
 include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
 An Action implementation is a class where you define how each message is handled. The class
 `FibonacciAction` gets generated for us based on the proto file defined above. Once the
-[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exist, it is not overwritten, so you can freely add logic to it.
+[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exists, it is not overwritten, so you can freely add logic to it.
 `FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
 not supposed to change as it gets regenerated in case we update the protobuf descriptors.
 
@@ -67,7 +67,7 @@ include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Fib
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 <2> A `nextNumber` method is generated. We will implement it next.
 
-Next we can implement `nextNumber` method to complete our Action.
+Next, we can implement `nextNumber` method to complete our Action.
 
 [.tabset]
 Java::
@@ -130,8 +130,61 @@ Scala::
 include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
 ----
 
-By default, the generated constructor has a `ActionCreationContext` parameter, but you can change this to accept other parameters. 
+By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters. 
 If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the 
 factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
 When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+== Testing the Action 
+
+
+=== Unit tests
+
+The following snippet shows how the `FibonacciActionTestKit` is used to test the `FibonacciAction` implementation.
+
+Akka Serverless generates the `FibonacciActionTestKit` that allows us to call the methods of `FibonacciAction`. For each `Action` Akka Serverless generates a specific test kit for it, with the name `[ActionName]TestKit`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying action method.
+
+Apart from the test kit Akka Serverless generates test classes based on the Action defined in the `.proto` files. This is shown in the snippet below.
+
+NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/actions/FibonacciActionTest.java
+[source,java]
+----
+include::example$java-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
+----
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `getReply()`.
++
+*ActionResult*
++
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
++
+* `getReply()` returns the reply message passed to `effects().reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `getError()` returns the error description when `effects().error()` was returned to signal an error.
+* `getForward()` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
+
+Scala::
++
+[source,scala]
+.src/test/java/com/example/actions/FibonacciActionSpec.scala
+[source,java]
+----
+include::example$scala-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
+----
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `reply`.
++
+*ActionResult*
++
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/scala-testkit-api/com/akkaserverless/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
++
+* `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `errorDescription` returns the error description when `effects().error()` was returned to signal an error.
+* `forwardedTo` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).

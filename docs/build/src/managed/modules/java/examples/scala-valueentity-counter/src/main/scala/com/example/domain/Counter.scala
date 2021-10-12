@@ -24,7 +24,8 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
       effects.error(s"Increase requires a positive value. It was [${command.value}].")
     else {
       val newState = currentState.copy(value = currentState.value + command.value) // <2>
-      effects.updateState(newState) // <3>
+      effects
+        .updateState(newState) // <3>
         .thenReply(Empty.defaultInstance) // <4>
     }
   // end::increase[]
@@ -32,7 +33,8 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
   override def decrease(currentState: CounterState, command: example.DecreaseValue): ValueEntity.Effect[Empty] =
     if (command.value < 0) effects.error(s"Increase requires a positive value. It was [${command.value}].")
     else
-      effects.updateState(currentState.copy(value = currentState.value - command.value))
+      effects
+        .updateState(currentState.copy(value = currentState.value - command.value))
         .thenReply(Empty.defaultInstance)
 
   override def reset(currentState: CounterState, command: example.ResetValue): ValueEntity.Effect[Empty] =
@@ -40,9 +42,8 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
 
   // tag::getCurrentCounter[]
   override def getCurrentCounter(
-                                  currentState: CounterState, // <1>
-                                  command: example.GetCounter
-                                ): ValueEntity.Effect[example.CurrentCounter] =
-    effects.reply(CurrentCounter(currentState.value))  // <2>
+      currentState: CounterState, // <1>
+      command: example.GetCounter): ValueEntity.Effect[example.CurrentCounter] =
+    effects.reply(CurrentCounter(currentState.value)) // <2>
   // end::getCurrentCounter[]
 }

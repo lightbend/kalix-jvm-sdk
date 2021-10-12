@@ -7,7 +7,7 @@ package customer.domain;
 
 import customer.Main;
 import customer.api.CustomerServiceClient;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -21,8 +21,8 @@ public class CustomerEntityIntegrationTest {
      * The test kit starts both the service container and the Akka Serverless proxy.
      */
     @ClassRule
-    public static final AkkaServerlessTestkitResource testkit =
-            new AkkaServerlessTestkitResource(Main.createAkkaServerless());
+    public static final AkkaServerlessTestKitResource testkit =
+            new AkkaServerlessTestKitResource(Main.createAkkaServerless());
     
     /**
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -37,27 +37,27 @@ public class CustomerEntityIntegrationTest {
     public void createOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.create(CustomerApi.Customer.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void changeNameOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.changeName(CustomerApi.ChangeNameRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void changeAddressOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
     
     @Test
     public void getCustomerOnNonExistingEntity() throws Exception {
         // TODO: set fields in command, and provide assertions to match replies
         // client.getCustomer(CustomerApi.GetCustomerRequest.newBuilder().build())
-        //         .toCompletableFuture().get(2, SECONDS);
+        //         .toCompletableFuture().get(5, SECONDS);
     }
 }

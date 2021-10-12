@@ -1,7 +1,7 @@
 package com.example.replicated.map.domain;
 
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedData;
+import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;

@@ -36,7 +36,8 @@ class DoubleCounterAction(creationContext: ActionCreationContext) extends Abstra
     val doubled = increaseValue.value * 2
     val increaseValueDoubled = increaseValue.copy(value = doubled) // <2>
 
-    effects.reply(Empty.defaultInstance) // <3>
+    effects
+      .reply(Empty.defaultInstance) // <3>
       .addSideEffect( // <4>
         SideEffect(increaseCallRef.createCall(increaseValueDoubled)))
   }

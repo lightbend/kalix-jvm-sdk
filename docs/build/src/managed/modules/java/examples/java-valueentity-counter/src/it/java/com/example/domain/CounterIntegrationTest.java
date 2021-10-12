@@ -8,7 +8,7 @@ package com.example.domain;
 import com.example.Main;
 import com.example.CounterApi;
 import com.example.CounterServiceClient;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 import static org.hamcrest.MatcherAssert.*;
@@ -24,8 +24,8 @@ public class CounterIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit =
-          new AkkaServerlessTestkitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testkit =
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
   
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -42,7 +42,7 @@ public class CounterIntegrationTest {
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
                .toCompletableFuture().get(5, SECONDS);
       CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(2, SECONDS);
+              .toCompletableFuture().get(5, SECONDS);
       assertThat(reply.getValue(), is(42));
   }
   // end::sample-it-test[]
@@ -53,9 +53,9 @@ public class CounterIntegrationTest {
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
                .toCompletableFuture().get(5, SECONDS);
       client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(27).build())
-               .toCompletableFuture().get(2, SECONDS);
+               .toCompletableFuture().get(5, SECONDS);
       CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(2, SECONDS);
+              .toCompletableFuture().get(5, SECONDS);
       assertThat(reply.getValue(), is(69));
   }
 }

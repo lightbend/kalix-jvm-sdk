@@ -4,7 +4,7 @@
  */
 package shopping.cart.domain;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -22,8 +22,8 @@ public class ShoppingCartEntityIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestkitResource testkit =
-    new AkkaServerlessTestkitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testkit =
+    new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -38,20 +38,20 @@ public class ShoppingCartEntityIntegrationTest {
   public void addItemOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.addItem(ShoppingCartApi.AddLineItem.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void removeItemOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.removeItem(ShoppingCartApi.RemoveLineItem.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void getCartOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getCart(ShoppingCartApi.GetShoppingCart.newBuilder().build())
-    //         .toCompletableFuture().get(2, SECONDS);
+    //         .toCompletableFuture().get(5, SECONDS);
   }
 }

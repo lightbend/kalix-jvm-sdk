@@ -222,7 +222,7 @@ extends Object</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>&lt;D extends <a href="replicatedentity/ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;<br><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
+<td class="colFirst"><code>&lt;D extends com.akkaserverless.replicatedentity.ReplicatedData,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;<br><a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider)">register</a></span>&#8203;(<a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D,&#8203;E&gt;&nbsp;provider)</code></th>
 <td class="colLast">
 <div class="block">Register a replicated entity using a <a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityProvider</code></a>.</div>
@@ -385,7 +385,7 @@ extends Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>register</h4>
-<pre class="methodSignature">public&nbsp;&lt;D extends <a href="replicatedentity/ReplicatedData.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedData</a>,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D,&#8203;E&gt;&nbsp;provider)</pre>
+<pre class="methodSignature">public&nbsp;&lt;D extends com.akkaserverless.replicatedentity.ReplicatedData,&#8203;E extends <a href="replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;&gt;&nbsp;<a href="AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a>&nbsp;register&#8203;(<a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;D,&#8203;E&gt;&nbsp;provider)</pre>
 <div class="block">Register a replicated entity using a <a href="replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity"><code>ReplicatedEntityProvider</code></a>. The concrete <code>
  ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
  example <code>CustomerEntityProvider</code>.
