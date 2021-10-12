@@ -96,11 +96,12 @@ object SourceGenerator {
   def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] =
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
+        val main = MainSourceGenerator.mainClassName(model)
         model.lookupEntity(service) match {
           case entity: ModelBuilder.ValueEntity =>
-            ValueEntityTestKitGenerator.generateUnmanagedTest(MainSourceGenerator.mainClassName(model), entity, service)
+            ValueEntityTestKitGenerator.generateUnmanagedTest(main, entity, service)
           case entity: ModelBuilder.EventSourcedEntity =>
-            EventSourcedEntityTestKitGenerator.generateUnmanagedTest(entity, service)
+            EventSourcedEntityTestKitGenerator.generateUnmanagedTest(main, entity, service)
           case _: ModelBuilder.ReplicatedEntity =>
             Nil
         }

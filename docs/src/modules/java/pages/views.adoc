@@ -147,7 +147,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain;events]
 ----
 
 It also assumes a `customer_api.proto` that defines the state stored in the view and returned by queries:
@@ -166,7 +166,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=declarations;view]
 ----
 
 
@@ -194,7 +194,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/customer_view.proto
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-event-sourced]
 ----
 
 See <<#query>> for more examples of valid query syntax.
@@ -227,8 +227,11 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/customer/view/CustomerByNameView.scala
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/scala/customer/view/CustomerByNameView.scala[tag=process-events]
 ----
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/view/View.html[`View` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+<3> One method for each event.
 
 NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
 
@@ -251,7 +254,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/customer/Main.scala
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/scala/customer/Main.scala[tag=register]
 ----
 
 [#topic-view]
@@ -274,8 +277,9 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
 ----
+<1> This is the only difference from <<event-sourced-entity>>.
 
 [#transform-results]
 == How to transform results
@@ -379,7 +383,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/customer/Main.scala
 ----
-TODO
+include::example$scala-eventsourced-customer-registry/src/main/scala/customer/MainWithCustomViewId.scala[tag=register]
 ----
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.

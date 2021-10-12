@@ -1,4 +1,5 @@
 = Serialization options for Java services
+:page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
 
@@ -41,30 +42,63 @@ Akka Serverless supports serializing the following primitive types:
 
 == JSON
 
+[.tabset]
+Java::
++
 Akka Serverless provides the link:{attachmentsdir}/api/com/akkaserverless/javasdk/JsonSupport.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
-
++
 A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
-
++
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::java:example$java-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+include::example$java-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
 ----
 <1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
 <2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
-
++
 NOTE: The `type_url` in the `google.protobuf.Any` must start with `json.akkaserverless.com/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
+
+
+Scala::
++
+Akka Serverless provides the link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/JsonSupport$.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.any.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.any.Any`.
++
+NOTE: The `type_url` in the `google.protobuf.any.Any` must start with `json.akkaserverless.com/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
 
 The corresponding implementation class:
 
+[.tabset]
+Java::
++
 [source,java,indent=0]
 .src/main/java/com/example/json/MyServiceAction.java
 ----
-include::java:example$java-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+include::example$java-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
 ----
 <1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
 <2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
 <3> Encode the Java class `JsonKeyValueMessage` to JSON.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/json/MyServiceAction.scala
+----
+include::example$scala-doc-snippets/src/main/scala/com/example/json/MyServiceAction.scala[tag=action]
+----
+<1> Decode the JSON message to a Scala class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Scala class `JsonKeyValueMessage`.
+<3> Encode the Scala class `JsonKeyValueMessage` to JSON.
 
 Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
 

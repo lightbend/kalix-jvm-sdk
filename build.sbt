@@ -8,17 +8,22 @@ lazy val `akkaserverless-java-sdk` = project
     sdkScala,
     sdkJavaTestKit,
     sdkScalaTestKit,
-    tck,
+    tckJava,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
     codegenScala,
     sbtPlugin)
 
-//FIXME duplicating most settings in sdkCore, sdkJava, sdkScala for now, cleanup later.
+def common: Seq[Setting[_]] =
+  Seq(
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
+    Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11"))
+
 lazy val sdkCore = project
   .in(file("sdk/core"))
   .enablePlugins(PublishSonatype)
+  .settings(common)
   .settings(
     name := "akkaserverless-jvm-sdk",
     crossPaths := false,
@@ -26,15 +31,14 @@ lazy val sdkCore = project
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
       (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
-    },
-    Compile / javacOptions ++= Seq("--release", "8"),
-    Compile / scalacOptions ++= Seq("-release", "8"))
+    })
   .settings(Dependencies.sdkCore)
 
 lazy val sdkJava = project
   .in(file("sdk/java-sdk"))
   .dependsOn(sdkCore)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .settings(common)
   .settings(
     name := "akkaserverless-java-sdk",
     crossPaths := false,
@@ -63,9 +67,6 @@ lazy val sdkJava = project
       "Akka Serverless Java SDK",
       "-noqualifier",
       "java.lang"),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
-    Compile / compile / javacOptions ++= Seq("--release", "8"),
-    Compile / scalacOptions ++= Seq("-release", "8"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala), // FIXME should be Java, but here be dragons
     // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
@@ -80,6 +81,7 @@ lazy val sdkScala = project
   .in(file("sdk/scala-sdk"))
   .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .settings(common)
   .settings(
     name := "akkaserverless-scala-sdk",
     buildInfoKeys := Seq[BuildInfoKey](
@@ -89,8 +91,6 @@ lazy val sdkScala = project
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk",
-    Compile / scalacOptions ++= Seq("-release", "8"),
-    Compile / javacOptions ++= Seq("--release", "8"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions += "-parameters", // for Jackson
@@ -107,6 +107,7 @@ lazy val sdkScalaTestKit = project
   .dependsOn(sdkScala)
   .dependsOn(sdkJavaTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
   .settings(
     name := "akkaserverless-scala-sdk-testkit",
     buildInfoKeys := Seq[BuildInfoKey](
@@ -116,8 +117,6 @@ lazy val sdkScalaTestKit = project
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
-    Compile / javacOptions ++= Seq("--release", "8"),
-    Compile / scalacOptions ++= Seq("-release", "8"),
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
@@ -150,6 +149,7 @@ lazy val sdkJavaTestKit = project
   .in(file("sdk/java-sdk-testkit"))
   .dependsOn(sdkJava)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
   .settings(
     name := "akkaserverless-java-sdk-testkit",
     crossPaths := false,
@@ -160,23 +160,21 @@ lazy val sdkJavaTestKit = project
       "proxyVersion" -> AkkaServerless.FrameworkVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "com.akkaserverless.javasdk.testkit",
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
-    Compile / compile / javacOptions ++= Seq("--release", "8"),
-    Compile / scalacOptions ++= Seq("-release", "8"),
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.sdkJavaTestKit)
 
 //FIXME add scalasdk as package to tck, tck will test both java and scala sdk
-lazy val tck = project
-  .in(file("tck"))
-  .dependsOn(sdkJava, sdkJavaTestKit % Test)
-  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage)
+lazy val tckJava = project
+  .in(file("tck/java-tck"))
+  .dependsOn(sdkJava, sdkJavaTestKit)
+  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
+  .settings(common)
   .settings(
     name := "akkaserverless-tck-java-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
+    ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
@@ -185,6 +183,7 @@ lazy val codegenCore =
   project
     .in(file("codegen/core"))
     .enablePlugins(AkkaGrpcPlugin, PublishSonatype)
+    .settings(common)
     .settings(
       name := "akkaserverless-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
@@ -193,9 +192,7 @@ lazy val codegenCore =
     .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
       crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-      scalaVersion := Dependencies.ScalaVersionForCodegen.head,
-      Compile / javacOptions ++= Seq("--release", "8"),
-      Compile / scalacOptions ++= Seq("-release", "8"))
+      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
 lazy val codegenJava =
   project
@@ -203,6 +200,7 @@ lazy val codegenJava =
     .configs(IntegrationTest)
     .dependsOn(codegenCore % "compile->compile;test->test")
     .enablePlugins(PublishSonatype)
+    .settings(common)
     .settings(Defaults.itSettings)
     .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
@@ -218,17 +216,19 @@ lazy val codegenJavaCompilationTest = project
   // Note: we don't use test scope since all code is generated in src_managed
   // and the goal is to verify if it compiles
   .dependsOn(sdkJavaTestKit)
+  .settings(common)
   .settings(libraryDependencies ++= Seq(Dependencies.junit4))
   .settings(
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
+    ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val javaValueentityCustomerRegistry = project
   .in(file("samples/java-valueentity-customer-registry"))
   .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
+  .settings(common)
   .settings(
     name := "java-valueentity-customer-registry",
     libraryDependencies ++= Seq(
@@ -238,7 +238,6 @@ lazy val javaValueentityCustomerRegistry = project
       "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
     inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
@@ -248,6 +247,7 @@ lazy val javaEventsourcedCustomerRegistry = project
   .in(file("samples/java-eventsourced-customer-registry"))
   .dependsOn(sdkJava)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
+  .settings(common)
   .settings(
     name := "java-eventsourced-customer-registry",
     libraryDependencies ++= Seq(
@@ -257,7 +257,6 @@ lazy val javaEventsourcedCustomerRegistry = project
       "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
     inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
@@ -286,6 +285,7 @@ lazy val codegenScala =
     .enablePlugins(BuildInfoPlugin)
     .enablePlugins(PublishSonatype)
     .settings(Dependencies.codegenScala)
+    .settings(common)
     .settings(
       name := "akkaserverless-codegen-scala",
       scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
@@ -298,6 +298,7 @@ lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"
   .enablePlugins(SbtPlugin)
   .enablePlugins(PublishSonatype)
   .settings(Dependencies.sbtPlugin)
+  .settings(common)
   .settings(
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
     scriptedLaunchOpts := {
