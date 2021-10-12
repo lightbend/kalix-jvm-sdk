@@ -1,0 +1,393 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// == Akka Serverless TCK model test for replicated entites ==
+// see tck/src/main/scala/com/akkaserverless/tck/ReplicatedEntityTCK.scala
+
+syntax = "proto3";
+
+package akkaserverless.tck.model.replicatedentity;
+
+option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/replicatedentity;replicatedentity";
+option java_package = "com.akkaserverless.tck.model";
+
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+
+//
+// The `ReplicatedEntityTckModel` service should be implemented in the following ways:
+//
+// - The type of Replicated Data is determined by the prefix of the entity id, separated with a hyphen, which will be one of:
+//     `ReplicatedCounter`, `ReplicatedSet`, `ReplicatedRegister`, `ReplicatedMap`, or `Vote`.
+// - For ReplicatedSet, or ReplicatedRegister replicated entities, the values are expected to be strings.
+// - For ReplicatedMap replicated entities, the keys are expected to be strings, and the values are based on the key.
+//   The type of Replicated Data for ReplicatedMap values is determined by the prefix of the key, in the same way as with entity ids,
+//   so that processing for ReplicatedMaps is effectively a nested version of the processing for other Replicated Entity types.
+// - The `Process` method receives a `Request` message with actions to take.
+// - Request actions must be processed in order, and can require updating state, forwarding, side effects, or failing.
+// - The `Process` method must return the updated state in a `Response`, unless forwarding or failing.
+// - Forwarding and side effects must always be made to the second service `ReplicatedEntityTwo`.
+service ReplicatedEntityTckModel {
+  rpc Process(Request) returns (Response) {
+    option (google.api.http) = {
+      post: "/tck/model/replicatedentity/{id}"
+      body: "*"
+    };
+  }
+}
+
+//
+// The `ReplicatedEntityTwo` service is only for verifying forwards and side effects.
+// The only action the `Call` method is expected to handle is a delete action, and otherwise
+// the `Call` method is not required to do anything, and must return an empty `Response` message.
+//
+service ReplicatedEntityTwo {
+  rpc Call(Request) returns (Response);
+}
+
+//
+// The `ReplicatedEntityConfigured` service is for testing entity configuration from the language support:
+//
+// - The passivation strategy must be set with a timeout of 100 millis.
+// - The `Call` method is not required to do anything, and must return an empty `Response` message.
+//
+service ReplicatedEntityConfigured {
+  rpc Call(Request) returns (Response);
+}
+
+//
+// A `Request` message contains any actions that the entity should process.
+// Actions must be processed in order. Any actions after a `Fail` may be ignored.
+//
+message Request {
+  string id = 1 [(akkaserverless.field).entity_key = true];
+  repeated RequestAction actions = 2;
+}
+
+//
+// Each `RequestAction` is one of:
+//
+// - Update: update the Replicated Entity and return the updated state in the `Response`.
+// - Forward: forward to another service, in place of replying with a `Response`.
+// - Fail: fail the current `Process` command by sending a failure.
+// - Effect: add a side effect to the current reply, forward, or failure.
+// - Delete: request for the Replicated Entity to be deleted.
+//
+message RequestAction {
+  oneof action {
+    Update update = 1;
+    Delete delete = 2;
+    Forward forward = 3;
+    Fail fail = 4;
+    Effect effect = 5;
+  }
+}
+
+//
+// Update the Replicated Entity, with specific update values for particular Replicated Data types.
+//
+message Update {
+  oneof update {
+    ReplicatedCounterUpdate counter = 1;
+    ReplicatedSetUpdate replicated_set = 2;
+    ReplicatedRegisterUpdate register = 3;
+    ReplicatedMapUpdate replicated_map = 4;
+    ReplicatedCounterMapUpdate replicated_counter_map = 5;
+    ReplicatedRegisterMapUpdate replicated_register_map = 6;
+    ReplicatedMultiMapUpdate replicated_multi_map = 7;
+    VoteUpdate vote = 8;
+  }
+}
+
+//
+// Update a ReplicatedCounter with a change.
+//
+message ReplicatedCounterUpdate {
+  sint64 change = 1;
+}
+
+//
+// Update a ReplicatedSet by adding or removing elements, or clearing the set.
+//
+message ReplicatedSetUpdate {
+  oneof action {
+    string add = 1;
+    string remove = 2;
+    bool clear = 3;
+  }
+}
+
+//
+// Update a ReplicatedRegister with a new value.
+//
+message ReplicatedRegisterUpdate {
+  string value = 1;
+  ReplicatedRegisterClock clock = 2;
+}
+
+//
+// Clock for ReplicatedRegister updates.
+//
+message ReplicatedRegisterClock {
+  ReplicatedRegisterClockType clock_type = 1;
+  int64 custom_clock_value = 2;
+}
+
+//
+// Type of clock for ReplicatedRegister updates.
+//
+enum ReplicatedRegisterClockType {
+  REPLICATED_REGISTER_CLOCK_TYPE_DEFAULT_UNSPECIFIED = 0;
+  REPLICATED_REGISTER_CLOCK_TYPE_REVERSE = 1;
+  REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM = 2;
+  REPLICATED_REGISTER_CLOCK_TYPE_CUSTOM_AUTO_INCREMENT = 3;
+}
+
+//
+// Update a ReplicatedMap by adding, updating, or removing entries, or clearing the map.
+// Value types are determined by the prefix of the key.
+//
+message ReplicatedMapUpdate {
+  oneof action {
+    string add = 1;
+    ReplicatedMapEntryUpdate update = 2;
+    string remove = 3;
+    bool clear = 4;
+  }
+}
+
+//
+// Update for an ReplicatedMap entry.
+//
+message ReplicatedMapEntryUpdate {
+  string key = 1;
+  Update update = 2;
+}
+
+//
+// Update a ReplicatedCounterMap adding, updating, or removing entries, or clearing the map.
+//
+message ReplicatedCounterMapUpdate {
+  oneof action {
+    string add = 1;
+    ReplicatedCounterMapEntryUpdate update = 2;
+    string remove = 3;
+    bool clear = 4;
+  }
+}
+
+//
+// Update for a ReplicatedCounterMap entry.
+//
+message ReplicatedCounterMapEntryUpdate {
+  string key = 1;
+  sint64 change = 2;
+}
+
+//
+// Update a ReplicatedRegisterMap adding, updating, or removing entries, or clearing the map.
+//
+message ReplicatedRegisterMapUpdate {
+  oneof action {
+    string add = 1;
+    ReplicatedRegisterMapEntryUpdate update = 2;
+    string remove = 3;
+    bool clear = 4;
+  }
+}
+
+//
+// Update for a ReplicatedRegisterMap entry.
+//
+message ReplicatedRegisterMapEntryUpdate {
+  string key = 1;
+  string value = 2;
+  ReplicatedRegisterClock clock = 3;
+}
+
+//
+// Update a ReplicatedMultiMap adding, updating, or removing entries, or clearing the map.
+//
+message ReplicatedMultiMapUpdate {
+  oneof action {
+    ReplicatedMultiMapEntryUpdate update = 1;
+    string remove = 2;
+    bool clear = 3;
+  }
+}
+
+//
+// Update for a ReplicatedMultiMap entry.
+//
+message ReplicatedMultiMapEntryUpdate {
+  string key = 1;
+  ReplicatedSetUpdate update = 2;
+}
+
+//
+// Update a Vote Replicated Data's self vote.
+//
+message VoteUpdate {
+  bool self_vote = 1;
+}
+
+//
+// Delete the Replicated Entity.
+//
+message Delete {}
+
+//
+// Replace the response with a forward to `akkaserverless.tck.model.ReplicatedEntityTwo/Call`.
+// The payload must be an `OtherRequest` message with the given `id`.
+//
+message Forward {
+  string id = 1;
+}
+
+//
+// Fail the current command with the given description `message`.
+//
+message Fail {
+  string message = 1;
+}
+
+//
+// Add a side effect to the reply, to `akkaserverless.tck.model.ReplicatedEntityTwo/Call`.
+// The payload must be an `OtherRequest` message with the given `id`.
+// The side effect should be marked synchronous based on the given `synchronous` value.
+//
+message Effect {
+  string id = 1;
+  bool synchronous = 2;
+}
+
+//
+// The `Response` message must contain the updated state of the Replicated Entity.
+//
+message Response {
+  State state = 1;
+}
+
+//
+// Current state of a Replicated Entity, with specific values for particular Replicated Data types.
+//
+message State {
+  oneof value {
+    ReplicatedCounterValue counter = 1;
+    ReplicatedSetValue replicated_set = 2;
+    ReplicatedRegisterValue register = 3;
+    ReplicatedMapValue replicated_map = 4;
+    ReplicatedCounterMapValue replicated_counter_map = 5;
+    ReplicatedRegisterMapValue replicated_register_map = 6;
+    ReplicatedMultiMapValue replicated_multi_map = 7;
+    VoteValue vote = 8;
+  }
+}
+
+//
+// The current state of a ReplicatedCounter.
+//
+message ReplicatedCounterValue {
+  int64 value = 1;
+}
+
+//
+// The current state of a ReplicatedSet.
+// Elements should be sorted, for testing of responses.
+//
+message ReplicatedSetValue {
+  repeated string elements = 1;
+}
+
+//
+// The current state of a ReplicatedRegister.
+// Always a string in the TCK model tests.
+//
+message ReplicatedRegisterValue {
+  string value = 1;
+}
+
+//
+// The current state of a ReplicatedMap.
+// Entries should be sorted by key, for testing of responses.
+//
+message ReplicatedMapValue {
+  repeated ReplicatedMapEntryValue entries = 1;
+}
+
+//
+// The current state of an ReplicatedMap entry.
+//
+message ReplicatedMapEntryValue {
+  string key = 1;
+  State value = 2;
+}
+
+//
+// The current state of a ReplicatedCounterMap.
+// Entries should be sorted by key, for testing of responses.
+//
+message ReplicatedCounterMapValue {
+  repeated ReplicatedCounterMapEntryValue entries = 1;
+}
+
+//
+// The current state of an ReplicatedCounterMap entry.
+//
+message ReplicatedCounterMapEntryValue {
+  string key = 1;
+  int64 value = 2;
+}
+
+//
+// The current state of a ReplicatedRegisterMap.
+// Entries should be sorted by key, for testing of responses.
+//
+message ReplicatedRegisterMapValue {
+  repeated ReplicatedRegisterMapEntryValue entries = 1;
+}
+
+//
+// The current state of an ReplicatedRegisterMap entry.
+//
+message ReplicatedRegisterMapEntryValue {
+  string key = 1;
+  string value = 2;
+}
+
+//
+// The current state of a ReplicatedMultiMap.
+// Entries should be sorted by key, for testing of responses.
+//
+message ReplicatedMultiMapValue {
+  repeated ReplicatedMultiMapEntryValue entries = 1;
+}
+
+//
+// The current state of an ReplicatedMultiMap entry.
+//
+message ReplicatedMultiMapEntryValue {
+  string key = 1;
+  ReplicatedSetValue value = 2;
+}
+
+//
+// The current state of a Vote Replicated Data.
+//
+message VoteValue {
+  bool self_vote = 1;
+  int32 votes_for = 2;
+  int32 total_voters = 3;
+}

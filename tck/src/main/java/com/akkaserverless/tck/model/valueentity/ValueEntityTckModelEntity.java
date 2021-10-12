@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.valueentity;
+package com.akkaserverless.tck.model.valueentity;
 
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.ValueEntity.Persisted;
-import com.akkaserverless.tck.model.ValueEntity.Request;
-import com.akkaserverless.tck.model.ValueEntity.RequestAction;
-import com.akkaserverless.tck.model.ValueEntity.Response;
+import com.akkaserverless.tck.model.valueentity.ValueEntityApi.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueEntityTckModelEntity extends ValueEntity<Persisted> {
+public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity {
 
   private final ServiceCallRef<Request> serviceTwoCall;
 
@@ -64,7 +60,7 @@ public class ValueEntityTckModelEntity extends ValueEntity<Persisted> {
           }
           break;
         case EFFECT:
-          com.akkaserverless.tck.model.ValueEntity.Effect effect = action.getEffect();
+          ValueEntityApi.Effect effect = action.getEffect();
           e.add(SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
         case FAIL:

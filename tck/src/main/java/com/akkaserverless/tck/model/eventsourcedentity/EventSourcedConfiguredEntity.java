@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.eventsourcedentity;
+package com.akkaserverless.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.tck.model.EventSourcedEntity.Persisted;
-import com.akkaserverless.tck.model.EventSourcedEntity.Request;
-import com.akkaserverless.tck.model.EventSourcedEntity.Response;
+import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
 
-public class EventSourcedTwoEntity extends EventSourcedEntity<Persisted> {
+public class EventSourcedConfiguredEntity extends AbstractEventSourcedConfiguredEntity {
 
-  public EventSourcedTwoEntity(EventSourcedEntityContext context) {}
+  public EventSourcedConfiguredEntity(EventSourcedEntityContext context) {}
 
   @Override
   public Persisted emptyState() {
@@ -33,5 +31,10 @@ public class EventSourcedTwoEntity extends EventSourcedEntity<Persisted> {
 
   public EventSourcedEntity.Effect<Response> call(Persisted currentState, Request request) {
     return effects().reply(Response.getDefaultInstance());
+  }
+
+  @Override
+  public Persisted persisted(Persisted currentState, Persisted persisted) {
+    return currentState;
   }
 }

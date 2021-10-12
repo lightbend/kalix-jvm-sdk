@@ -112,8 +112,12 @@ object Dependencies {
   val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided")
 
   val tck = deps ++= Seq(
-    akkaslsTckProtocol % "protobuf-src",
-    "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+    // FIXME: For now TCK protos have been copied and adapted into this project.
+    //        Running the TCK is still meaningful as it runs the TCK check against the defined framework version.
+    //        Eventually, the final form of protos from should be backported to the framework.
+    //        See https://github.com/lightbend/akkaserverless-java-sdk/issues/605
+    //  akkaslsTckProtocol % "protobuf-src",
+    //  "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
   val codegenCore = deps ++= Seq(

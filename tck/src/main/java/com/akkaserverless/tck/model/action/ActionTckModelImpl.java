@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.action;
+package com.akkaserverless.tck.model.action;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
@@ -24,18 +24,16 @@ import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.*;
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
-import com.akkaserverless.tck.model.Action.*;
-import com.akkaserverless.tck.model.ActionTwo;
+import com.akkaserverless.tck.model.action.Action.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-public class ActionTckModelBehavior extends Action {
+public class ActionTckModelImpl extends AbstractActionTckModelAction {
 
-  public ActionTckModelBehavior(ActionCreationContext creationContext) {}
+  public ActionTckModelImpl(ActionCreationContext creationContext) {}
 
   public Effect<Response> processUnary(Request request) {
     // Multiple request steps should be combined to give just one response, with subsequent steps
@@ -98,7 +96,7 @@ public class ActionTckModelBehavior extends Action {
             }
             break;
           case EFFECT:
-            com.akkaserverless.tck.model.Action.SideEffect sideEffect = step.getEffect();
+            Action.SideEffect sideEffect = step.getEffect();
             sideEffects.add(
                 com.akkaserverless.javasdk.SideEffect.of(
                     serviceTwoRequest(sideEffect.getId()), sideEffect.getSynchronous()));
