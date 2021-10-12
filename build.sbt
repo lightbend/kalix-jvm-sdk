@@ -175,6 +175,7 @@ lazy val tck = project
   .settings(
     name := "akkaserverless-tck-java-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
+    ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
@@ -223,7 +224,9 @@ lazy val codegenJavaCompilationTest = project
     (publish / skip) := true,
     name := "akkaserverless-codegen-java-compilation-tests",
     Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"))
+    ReflectiveCodeGen.copyUnmanagedSources := false,
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11")
+  )
 
 lazy val javaValueentityCustomerRegistry = project
   .in(file("samples/java-valueentity-customer-registry"))
