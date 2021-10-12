@@ -20,7 +20,7 @@ The generated project also contains configuration for packaging and deploying th
 
 Before running the code generation tools, make sure you have the following:
 
-* JDK {minimum-java-version} or higher (JDK {recommended-java-version} is recommended)
+* JDK {java-version} or later
 * [.group-java]#Apache Maven 3.6 or later# [.group-scala]#sbt 1.3.6 or later#
 * Docker {minimum_docker_version} or higher (to run locally)
 
@@ -229,7 +229,7 @@ mvn verify -Pit
 
 The project is configured to package your service into a Docker image which can be deployed to Akka Serverless. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
 
-The recommended version is JDK {recommended-java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
+This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
 
 [.tabset]
 Java::

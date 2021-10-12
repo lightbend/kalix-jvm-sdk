@@ -18,7 +18,7 @@ To save the work of starting from scratch, the Java xref:java:quickstart-templat
 
 The following are required to develop services in Java:
 
-Java:: Akka Serverless requires at least Java {minimum-java-version}, though we recommend using Java {recommended-java-version}, which has better support for running in containers.
+Java:: Akka Serverless requires Java {java-version} or later.
 
 [.group-java]
 Apache Maven:: For Java-based services, Akka Serverless relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. The Akka Serverless Maven plugin creates initial Java code for your components and the required surrounding code.
