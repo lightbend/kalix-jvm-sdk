@@ -21,7 +21,7 @@ public class CustomerEntityIntegrationTest {
      * The test kit starts both the service container and the Akka Serverless proxy.
      */
     @ClassRule
-    public static final AkkaServerlessTestKitResource testkit =
+    public static final AkkaServerlessTestKitResource testKit =
             new AkkaServerlessTestKitResource(Main.createAkkaServerless());
     
     /**
@@ -30,7 +30,7 @@ public class CustomerEntityIntegrationTest {
     private final CustomerService client;
     
     public CustomerEntityIntegrationTest() {
-        client = testkit.getGrpcClient(CustomerService.class, "CustomerService");
+        client = testKit.getGrpcClient(CustomerService.class, "CustomerService");
     }
     
     @Test

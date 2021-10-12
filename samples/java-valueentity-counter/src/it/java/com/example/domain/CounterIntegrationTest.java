@@ -24,7 +24,7 @@ public class CounterIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
           new AkkaServerlessTestKitResource(Main.createAkkaServerless());
   
   /**
@@ -33,7 +33,7 @@ public class CounterIntegrationTest {
   private final CounterService client;
   
   public CounterIntegrationTest() {
-      client = testkit.getGrpcClient(CounterService.class, "CounterService");
+      client = testKit.getGrpcClient(CounterService.class, "CounterService");
   }
   
   @Test

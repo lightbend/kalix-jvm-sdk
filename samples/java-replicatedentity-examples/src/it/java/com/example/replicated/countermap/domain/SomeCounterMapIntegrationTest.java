@@ -20,14 +20,14 @@ public class SomeCounterMapIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final CounterMapService client;
 
   public SomeCounterMapIntegrationTest() {
-    client = testkit.getGrpcClient(CounterMapService.class, "CounterMapService");
+    client = testKit.getGrpcClient(CounterMapService.class, "CounterMapService");
   }
 
   public void increase(String counterMapId, String key, int value) throws Exception {

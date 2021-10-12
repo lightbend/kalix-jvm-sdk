@@ -22,7 +22,7 @@ public class ShoppingCartEntityIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
     new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
@@ -31,7 +31,7 @@ public class ShoppingCartEntityIntegrationTest {
   private final ShoppingCart client;
 
   public ShoppingCartEntityIntegrationTest() {
-    client = testkit.getGrpcClient(ShoppingCart.class, "ShoppingCart");
+    client = testKit.getGrpcClient(ShoppingCart.class, "ShoppingCart");
   }
 
   @Test

@@ -316,7 +316,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |  private final MyService client;
         |
         |  public MyServiceEntityIntegrationTest() {
-        |    client = testkit.getGrpcClient(MyService.class, "MyService");
+        |    client = testKit.getGrpcClient(MyService.class, "MyService");
         |  }
         |
         |  @Test

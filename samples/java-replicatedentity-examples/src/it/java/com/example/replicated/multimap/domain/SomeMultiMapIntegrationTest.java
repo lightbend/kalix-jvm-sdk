@@ -24,14 +24,14 @@ public class SomeMultiMapIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final MultiMapService client;
 
   public SomeMultiMapIntegrationTest() {
-    client = testkit.getGrpcClient(MultiMapService.class, "MultiMapService");
+    client = testKit.getGrpcClient(MultiMapService.class, "MultiMapService");
   }
 
   public void put(String multiMapId, String key, double value) throws Exception {

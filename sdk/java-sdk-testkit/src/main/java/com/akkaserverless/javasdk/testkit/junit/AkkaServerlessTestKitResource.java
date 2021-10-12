@@ -33,7 +33,7 @@ import org.junit.rules.ExternalResource;
  */
 public final class AkkaServerlessTestKitResource extends ExternalResource {
 
-  private final AkkaServerlessTestKit testkit;
+  private final AkkaServerlessTestKit testKit;
 
   public AkkaServerlessTestKitResource(AkkaServerless akkaServerless) {
     this(akkaServerless, AkkaServerlessTestKit.Settings.DEFAULT);
@@ -41,12 +41,12 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
 
   public AkkaServerlessTestKitResource(
       AkkaServerless akkaServerless, AkkaServerlessTestKit.Settings settings) {
-    this.testkit = new AkkaServerlessTestKit(akkaServerless, settings);
+    this.testKit = new AkkaServerlessTestKit(akkaServerless, settings);
   }
 
   @Override
   protected void before() {
-    testkit.start();
+    testKit.start();
   }
 
   /**
@@ -56,7 +56,7 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    * @return Akka Serverless host
    */
   public String getHost() {
-    return testkit.getHost();
+    return testKit.getHost();
   }
 
   /**
@@ -65,7 +65,7 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    * @return local Akka Serverless port
    */
   public int getPort() {
-    return testkit.getPort();
+    return testKit.getPort();
   }
 
   /**
@@ -80,7 +80,7 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    *     `akka.grpc.client.[service-name]` in `application.conf`.
    */
   public <T> T getGrpcClient(Class<T> clientClass, String service) {
-    return testkit.getGrpcClient(clientClass, service);
+    return testKit.getGrpcClient(clientClass, service);
   }
 
   /**
@@ -89,7 +89,7 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    * has been consumed.
    */
   public Materializer getMaterializer() {
-    return testkit.getMaterializer();
+    return testKit.getMaterializer();
   }
 
   /**
@@ -98,7 +98,7 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    * @return test actor system
    */
   public ActorSystem getActorSystem() {
-    return testkit.getActorSystem();
+    return testKit.getActorSystem();
   }
 
   /**
@@ -109,11 +109,11 @@ public final class AkkaServerlessTestKitResource extends ExternalResource {
    */
   @Deprecated(since = "0.8.1", forRemoval = true)
   public GrpcClientSettings getGrpcClientSettings() {
-    return testkit.getGrpcClientSettings();
+    return testKit.getGrpcClientSettings();
   }
 
   @Override
   protected void after() {
-    testkit.stop();
+    testKit.stop();
   }
 }

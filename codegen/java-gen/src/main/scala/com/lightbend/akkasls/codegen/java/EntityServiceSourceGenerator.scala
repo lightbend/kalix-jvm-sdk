@@ -532,7 +532,7 @@ object EntityServiceSourceGenerator {
       |  private final $serviceName client;
       |
       |  public $testClassName() {
-      |    client = testkit.getGrpcClient($serviceName.class, "$serviceName");
+      |    client = testKit.getGrpcClient($serviceName.class, "$serviceName");
       |  }
       |
       |  ${Format.indent(testCases, num = 2)}

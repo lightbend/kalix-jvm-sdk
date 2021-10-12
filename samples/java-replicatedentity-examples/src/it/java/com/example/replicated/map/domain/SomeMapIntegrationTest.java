@@ -17,14 +17,14 @@ public class SomeMapIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final MapService client;
 
   public SomeMapIntegrationTest() {
-    client = testkit.getGrpcClient(MapService.class, "MapService");
+    client = testKit.getGrpcClient(MapService.class, "MapService");
   }
 
   public void increaseFoo(String mapId, int value) throws Exception {
