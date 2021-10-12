@@ -18,10 +18,10 @@ public class FibonacciActionIntegrationTest {
   public static final AkkaServerlessTestKitResource testkit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
-  private final FibonacciClient client;
+  private final Fibonacci client;
 
   public FibonacciActionIntegrationTest() {
-    this.client = FibonacciClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    this.client = testkit.getGrpcClient(Fibonacci.class, "Fibonacci");
   }
 
   @Test

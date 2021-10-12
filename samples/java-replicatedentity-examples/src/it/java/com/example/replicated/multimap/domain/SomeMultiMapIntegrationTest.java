@@ -2,7 +2,7 @@ package com.example.replicated.multimap.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.multimap.MultiMapServiceClient;
+import com.example.replicated.multimap.MultiMapService;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,11 +28,10 @@ public class SomeMultiMapIntegrationTest {
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final MultiMapServiceClient client;
+  private final MultiMapService client;
 
   public SomeMultiMapIntegrationTest() {
-    client =
-        MultiMapServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(MultiMapService.class, "MultiMapService");
   }
 
   public void put(String multiMapId, String key, double value) throws Exception {

@@ -18,7 +18,7 @@ package com.example.shoppingcart.domain;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.ShoppingCartServiceClient;
+import com.example.shoppingcart.ShoppingCartService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -37,10 +37,10 @@ public class ShoppingCartIntegrationTest {
   public static final AkkaServerlessTestKitResource testkit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
-  private final ShoppingCartServiceClient client;
+  private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    this.client = ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    this.client = testkit.getGrpcClient(ShoppingCartService.class, "ShoppingCartService");
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {

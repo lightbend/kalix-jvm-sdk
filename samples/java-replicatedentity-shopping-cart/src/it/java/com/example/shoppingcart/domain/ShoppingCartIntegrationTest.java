@@ -7,7 +7,7 @@ package com.example.shoppingcart.domain;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.ShoppingCartServiceClient;
+import com.example.shoppingcart.ShoppingCartService;
 import io.grpc.StatusRuntimeException;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -30,11 +30,10 @@ public class ShoppingCartIntegrationTest {
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final ShoppingCartServiceClient client;
+  private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    client =
-        ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(ShoppingCartService.class, "ShoppingCartService");
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {

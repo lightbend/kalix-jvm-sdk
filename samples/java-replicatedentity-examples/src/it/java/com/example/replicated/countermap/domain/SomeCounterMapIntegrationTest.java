@@ -2,7 +2,7 @@ package com.example.replicated.countermap.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.countermap.CounterMapServiceClient;
+import com.example.replicated.countermap.CounterMapService;
 import com.example.replicated.countermap.SomeCounterMapApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -24,11 +24,10 @@ public class SomeCounterMapIntegrationTest {
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final CounterMapServiceClient client;
+  private final CounterMapService client;
 
   public SomeCounterMapIntegrationTest() {
-    client =
-        CounterMapServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(CounterMapService.class, "CounterMapService");
   }
 
   public void increase(String counterMapId, String key, int value) throws Exception {

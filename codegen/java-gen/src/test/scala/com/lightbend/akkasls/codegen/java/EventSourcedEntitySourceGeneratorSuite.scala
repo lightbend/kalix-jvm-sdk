@@ -313,10 +313,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |  /**
         |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
         |   */
-        |  private final MyServiceClient client;
+        |  private final MyService client;
         |
         |  public MyServiceEntityIntegrationTest() {
-        |    client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+        |    client = testkit.getGrpcClient(MyService.class, "MyService");
         |  }
         |
         |  @Test

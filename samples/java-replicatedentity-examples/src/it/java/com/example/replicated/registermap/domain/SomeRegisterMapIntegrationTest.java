@@ -2,7 +2,7 @@ package com.example.replicated.registermap.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.registermap.RegisterMapServiceClient;
+import com.example.replicated.registermap.RegisterMapService;
 import com.example.replicated.registermap.SomeRegisterMapApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -25,11 +25,10 @@ public class SomeRegisterMapIntegrationTest {
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final RegisterMapServiceClient client;
+  private final RegisterMapService client;
 
   public SomeRegisterMapIntegrationTest() {
-    client =
-        RegisterMapServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(RegisterMapService.class, "RegisterMapService");
   }
 
   public void set(String registerMapId, String key, String value) throws Exception {

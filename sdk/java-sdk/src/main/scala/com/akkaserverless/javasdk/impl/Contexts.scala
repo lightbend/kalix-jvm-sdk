@@ -18,6 +18,7 @@ package com.akkaserverless.javasdk.impl
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import akka.stream.SystemMaterializer
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.ServiceCallFactory
 
@@ -40,5 +41,6 @@ private[javasdk] abstract class AbstractContext(
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     GrpcClients(system).getGrpcClient(clientClass, service)
 
-  override def materializer(): Materializer = Materializer(system)
+  override def materializer(): Materializer =
+    SystemMaterializer(system).materializer
 }

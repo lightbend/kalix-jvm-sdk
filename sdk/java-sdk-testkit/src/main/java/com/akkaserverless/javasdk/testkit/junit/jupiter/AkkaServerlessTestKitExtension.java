@@ -16,9 +16,6 @@
 
 package com.akkaserverless.javasdk.testkit.junit.jupiter;
 
-import akka.actor.ClassicActorSystemProvider;
-import akka.grpc.GrpcClientSettings;
-import akka.grpc.javadsl.AkkaGrpcClient;
 import com.akkaserverless.javasdk.AkkaServerless;
 import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.jupiter.api.extension.*;
@@ -84,7 +81,7 @@ class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterReso
   @Override
   public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext context) {
     Class<?> type = parameterContext.getParameter().getType();
-    return (type == AkkaServerlessTestKit.class) || AkkaGrpcClient.class.isAssignableFrom(type);
+    return type == AkkaServerlessTestKit.class;
   }
 
   @Override
@@ -94,24 +91,6 @@ class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterReso
     AkkaServerlessTestKit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
     if (type == AkkaServerlessTestKit.class) {
       return testkit;
-    } else if (AkkaGrpcClient.class.isAssignableFrom(type)) {
-      return store
-          .getOrComputeIfAbsent(
-              type,
-              key -> {
-                Method createMethod =
-                    ReflectionUtils.getRequiredMethod(
-                        type, "create", GrpcClientSettings.class, ClassicActorSystemProvider.class);
-                return new StoredGrpcClient(
-                    (AkkaGrpcClient)
-                        ReflectionUtils.invokeMethod(
-                            createMethod,
-                            null,
-                            testkit.getGrpcClientSettings(),
-                            testkit.getActorSystem()));
-              },
-              StoredGrpcClient.class)
-          .getClient();
     } else {
       throw new ParameterResolutionException("Unexpected parameter type " + type);
     }
@@ -132,24 +111,6 @@ class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterReso
     @Override
     public void close() {
       testkit.stop();
-    }
-  }
-
-  // Wrap clients in CloseableResource, auto-closed when test finishes (extension store is closed)
-  private static class StoredGrpcClient implements Store.CloseableResource {
-    private final AkkaGrpcClient client;
-
-    private StoredGrpcClient(AkkaGrpcClient client) {
-      this.client = client;
-    }
-
-    public AkkaGrpcClient getClient() {
-      return client;
-    }
-
-    @Override
-    public void close() {
-      client.close();
     }
   }
 }

@@ -2,7 +2,7 @@ package com.example.replicated.set.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.set.SetServiceClient;
+import com.example.replicated.set.SetService;
 import com.example.replicated.set.SomeSetApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -23,10 +23,10 @@ public class SomeSetIntegrationTest {
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final SetServiceClient client;
+  private final SetService client;
 
   public SomeSetIntegrationTest() {
-    client = SetServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(SetService.class, "SetService");
   }
 
   public void add(String setId, String value) throws Exception {

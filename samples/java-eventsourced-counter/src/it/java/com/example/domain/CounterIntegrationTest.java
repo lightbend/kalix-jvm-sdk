@@ -6,7 +6,7 @@ package com.example.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.CounterApi;
-import com.example.CounterServiceClient;
+import com.example.CounterService;
 import com.example.Main;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -30,10 +30,10 @@ public class CounterIntegrationTest {
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
-  private final CounterServiceClient client;
+  private final CounterService client;
 
   public CounterIntegrationTest() {
-    client = CounterServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testkit.getGrpcClient(CounterService.class, "CounterService");
   }
 
   private CounterApi.IncreaseValue newIncreaseMessage(String id, int value) {
