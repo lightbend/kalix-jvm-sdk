@@ -1,6 +1,4 @@
-# Quickstart project: Customer Registry
-
-# TODO update for quickstart instructions
+# Quickstart project: Customer Registry with Views
 
 ## Designing
 
