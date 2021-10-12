@@ -63,10 +63,10 @@ commands:
       - restore_cache:
           key: deps-cache-01
 
-  set-sdk-version: 
+  set-sdk-version:
     description: "Grab current SDK version"
-    steps: 
-      - run: 
+    steps:
+      - run:
           name: "Set SDK version"
           command: |
             if [ -e workspace/published-version ]; then
@@ -184,8 +184,8 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - run:
-          name: Run TCK tests
-          command: sbt tck/Test/run
+          name: Run Java TCK tests
+          command: sbt tckJava/Test/run
       - save_deps_cache
 
   # by setting a snapshot version with set-sdk-version we publish the deps so that
@@ -218,7 +218,7 @@ jobs:
             mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype -DarchetypeVersion=$SDK_VERSION
             cd counter-value-entity
             mvn -B compile
-      - run: 
+      - run:
           name: Run integration tests for Event Sourced Entity Archetype
           command: |
             cd maven-java
@@ -678,11 +678,11 @@ workflows:
           requires:
             - checks
       - tests:
-          requires: 
+          requires:
             - checks
 
       - tck-tests:
-          requires: 
+          requires:
             - checks
 
 
