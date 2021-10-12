@@ -62,9 +62,9 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
     Compile / PB.targets +=
       gen(
-        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value / "akkaserverless",
-    Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
-    Test / temporaryUnmanagedDirectory := (Test / baseDirectory).value / "target" / "akkaserverless-unmanaged-test",
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
+    Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
+    Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
     // and the Akka Serverless 'handler'. For now working around it by only generating
     // the client, but we should probably resolve this before the first public release.
@@ -76,7 +76,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
       genTests(
-        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value / "akkaserverless",
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
