@@ -18,7 +18,6 @@ package com.akkaserverless.javasdk.testkit;
 
 import java.util.concurrent.CompletionStage;
 import java.util.List;
-import com.akkaserverless.javasdk.SideEffect;
 
 /**
  * Represents the result of an Action handling a command when run in through the testkit.

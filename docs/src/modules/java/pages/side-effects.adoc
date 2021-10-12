@@ -41,3 +41,19 @@ include::example$java-valueentity-counter/src/main/java/com/example/actions/Doub
 
 Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
 the `Counter` entity fails, the `Action` reply will succeed.
+
+== Testing the side effects 
+=== Unit tests
+
+The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.
+
+[source,java,indent=0]
+.src/test/java/com/example/actions/DoubleCounterActionTest.java
+----
+include::example$java-valueentity-counter/src/test/java/com/example/actions/DoubleCounterActionTest.java[tag=side-effect-test]
+----
+<1> executing the `DoubleCounterAction.increase` RPC call through the test kit
+<2> retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `ServiceCall` objects that represent Akka Serverless RPC services. `ServiceCallDetails` is the representation of a `ServiceCall` on the Akka Serverless test kit framework.
+<3> retrieving and asserting the name of the service
+<4> retrieving and asserting the RPC's name of the service
+<5> retrieving and asserting the RPC's input
