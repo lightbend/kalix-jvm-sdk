@@ -18,13 +18,13 @@ object ReflectiveCodeGen extends AutoPlugin {
   override def trigger = noTrigger
 
   val copyUnmanagedSources =
-    settingKey[Boolean]("Flag to determine if code generation should copy generated unmanaged resources to the sourceDirectory directory if missing")
+    settingKey[Boolean](
+      "Flag to determine if code generation should copy generated unmanaged resources to the sourceDirectory directory if missing")
 
   override def projectSettings =
     Seq(
       Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
       Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-      Compile / javacOptions ++= Seq("-encoding", "UTF-8", "-source", "11", "-target", "11"),
       Compile / sourceGenerators += runCodeGenTask.taskValue) ++ attachProtobufDescriptorSets
 
   def runAkkaServerlessCodegen(

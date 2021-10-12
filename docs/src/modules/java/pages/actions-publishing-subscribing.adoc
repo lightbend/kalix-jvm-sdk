@@ -39,15 +39,20 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
+<1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
+<4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
 
 The class `CounterJournalToTopicAction` gets generated for us based on the proto file defined above.
 
 [.tabset]
 Java::
 +
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
@@ -57,11 +62,12 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 
 Scala::
 +
-[source,proto,indent=0]
-.src/main/proto/customer/domain/customer_domain.proto
+[source,scala,indent=0]
+.src/main/scala/com/example/actions/CounterJournalToTopicAction.scala
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic]
 ----
+<1> We convert the incoming domain event `CounterDomain.ValueIncreased` to the outgoing topic API `CounterTopicApi.Increased` and return that as a reply.
 
 == Subscribing to state changes from a Value Entity
 
@@ -101,7 +107,7 @@ For illustration purpose, we can add a second Action that consumes from the Pub 
 [.tabset]
 Java::
 +
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/proto/com/example/actions/counter_topic_sub.proto
 ----
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
@@ -112,18 +118,21 @@ include::example$java-eventsourced-counter/src/main/proto/com/example/actions/co
 
 Scala::
 +
-[source,proto,indent=0]
+[source,scala,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
+<1> Import the Counter Topic types from previous example.
+<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
 
 [.tabset]
 Java::
 +
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tag=counter-topic-sub]
@@ -131,10 +140,10 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 
 Scala::
 +
-[source,proto,indent=0]
-.src/main/proto/customer/domain/customer_domain.proto
+[source,scala,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterTopicSubscriptionAction.scala[tag=counter-topic-sub]
 ----
 
 The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it, 
@@ -154,14 +163,14 @@ For that purpose, it's enough to add the `(akkaserverless.method).eventing.in` a
 
 == Accessing the Entity ID
 
-For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. 
-
-You can access the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
-
 [.tabset]
 Java::
 +
-[source,protobuf,indent=0]
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. 
++
+You can access the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
++
+[source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic-event-subject]
@@ -169,10 +178,14 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 
 Scala::
 +
-[source,proto,indent=0]
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
++
+You can access the link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext`.
++
+[source,scala,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic-event-subject]
 ----
 
 == Ignoring events
@@ -195,15 +208,16 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
+<1> We must annotate it with a `(akkaserverless.method).eventing.in`
 
 The corresponding implementation must exist in the component.
 
 [.tabset]
 Java::
 +
-[source,protobuf,indent=0]
+[source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-ignore]
@@ -212,8 +226,9 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 
 Scala::
 +
-[source,proto,indent=0]
-.src/main/proto/customer/domain/customer_domain.proto
+[source,scala,indent=0]
+.src/main/scala/com/example/actions/CounterJournalToTopicAction.scala
 ----
-TODO
+include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-ignore]
 ----
+<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects.noReply`.
