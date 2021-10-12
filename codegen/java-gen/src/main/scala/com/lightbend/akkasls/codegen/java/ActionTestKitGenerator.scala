@@ -170,10 +170,21 @@ object ActionTestKitGenerator {
       .map { command =>
         s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
-            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
+            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);\n""".stripMargin +
+        (if (command.isUnary || command.isStreamOut) {
+           s"""
             |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());
             |}
-            |""".stripMargin + "\n"
+            |
+            |""".stripMargin
+         } else {
+           s"""
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(
+             command.name)}(Source.single(${selectInput(command)}.newBuilder()...build()));
+            |}
+            |
+            |""".stripMargin
+         })
       }
       .mkString("")
   }

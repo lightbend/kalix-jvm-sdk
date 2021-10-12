@@ -28,6 +28,10 @@ service Fibonacci {
   };
 
   rpc NextNumber(Number) returns (Number) {}
-  
+  // end::actions[]
+  rpc NextNumbers(Number) returns (stream Number) {}
+  rpc NextNumberOfSum(stream Number) returns (Number) {}
+  rpc NextNumberOfEach(stream Number) returns (stream Number) {}
+  // tag::actions[]
 }
 // end::actions[]

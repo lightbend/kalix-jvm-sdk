@@ -81,7 +81,12 @@ object ActionTestKitGenerator {
           | */
           |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName) {
           |
-          |  private def newActionInstance() = actionFactory(new TestKitActionContext)
+          |  private def newActionInstance() = {
+          |    val context = new TestKitActionContext
+          |    val action = actionFactory(context)
+          |    action._internalSetActionContext(Some(context))
+          |    action
+          |  }
           |
           |  ${Format.indent(methods, 2)}
           |}
