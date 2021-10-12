@@ -55,14 +55,14 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
 
   override def entityType(): String = scalaSdkProvider.entityType
 
-  override def newHandler(context: javasdk.valueentity.ValueEntityContext)
-      : javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]] = {
+  override def newRouter(context: javasdk.valueentity.ValueEntityContext)
+      : javasdk.impl.valueentity.ValueEntityRouter[S, javasdk.valueentity.ValueEntity[S]] = {
 
     val scalaSdkHandler = scalaSdkProvider
-      .newHandler(new ScalaValueEntityContextAdapter(context))
-      .asInstanceOf[ValueEntityHandler[S, ValueEntity[S]]]
+      .newRouter(new ScalaValueEntityContextAdapter(context))
+      .asInstanceOf[ValueEntityRouter[S, ValueEntity[S]]]
 
-    new JavaValueEntityHandlerAdapter[S](new JavaValueEntityAdapter[S](scalaSdkHandler.entity), scalaSdkHandler)
+    new JavaValueEntityRouterAdapter[S](new JavaValueEntityAdapter[S](scalaSdkHandler.entity), scalaSdkHandler)
   }
 
   override def options(): javasdk.valueentity.ValueEntityOptions = new JavaValueEntityOptionsAdapter(
@@ -71,10 +71,10 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
   override def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
 }
 
-private[scalasdk] final class JavaValueEntityHandlerAdapter[S](
+private[scalasdk] final class JavaValueEntityRouterAdapter[S](
     javaSdkValueEntity: javasdk.valueentity.ValueEntity[S],
-    scalaSdkHandler: ValueEntityHandler[S, ValueEntity[S]])
-    extends javasdk.impl.valueentity.ValueEntityHandler[S, javasdk.valueentity.ValueEntity[S]](javaSdkValueEntity) {
+    scalaSdkHandler: ValueEntityRouter[S, ValueEntity[S]])
+    extends javasdk.impl.valueentity.ValueEntityRouter[S, javasdk.valueentity.ValueEntity[S]](javaSdkValueEntity) {
 
   override def handleCommand(
       commandName: String,

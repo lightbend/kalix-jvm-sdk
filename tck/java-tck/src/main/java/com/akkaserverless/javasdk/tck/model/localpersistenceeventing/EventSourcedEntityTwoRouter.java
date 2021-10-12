@@ -19,15 +19,15 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Any;
 
 /** An event sourced entity handler */
-public class EventSourcedEntityTwoHandler
-    extends EventSourcedEntityHandler<String, EventSourcedEntityTwo> {
+public class EventSourcedEntityTwoRouter
+    extends EventSourcedEntityRouter<String, EventSourcedEntityTwo> {
 
-  public EventSourcedEntityTwoHandler(EventSourcedEntityTwo entity) {
+  public EventSourcedEntityTwoRouter(EventSourcedEntityTwo entity) {
     super(entity);
   }
 
@@ -37,7 +37,7 @@ public class EventSourcedEntityTwoHandler
     if (event instanceof Any) {
       return entity().handle(state, JsonSupport.decodeJson(JsonMessage.class, (Any) event));
     } else {
-      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+      throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
     }
   }
 
@@ -49,7 +49,7 @@ public class EventSourcedEntityTwoHandler
         return entity().emitJsonEvent(state, (LocalPersistenceEventing.JsonEvent) command);
 
       default:
-        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
+        throw new EventSourcedEntityRouter.CommandHandlerNotFound(commandName);
     }
   }
 }

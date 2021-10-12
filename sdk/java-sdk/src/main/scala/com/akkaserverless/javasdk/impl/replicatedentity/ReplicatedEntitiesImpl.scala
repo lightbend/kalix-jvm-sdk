@@ -22,7 +22,7 @@ import akka.stream.scaladsl.{ Flow, Source }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandResult
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import com.akkaserverless.javasdk.replicatedentity._
 import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
 import com.akkaserverless.protocol.entity.Command

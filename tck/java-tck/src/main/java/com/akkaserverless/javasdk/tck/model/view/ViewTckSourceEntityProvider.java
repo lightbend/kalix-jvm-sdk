@@ -64,8 +64,8 @@ public class ViewTckSourceEntityProvider
   }
 
   @Override
-  public final ViewTckSourceEntityHandler newHandler(ValueEntityContext context) {
-    return new ViewTckSourceEntityHandler(entityFactory.apply(context));
+  public final ViewTckSourceEntityRouter newRouter(ValueEntityContext context) {
+    return new ViewTckSourceEntityRouter(entityFactory.apply(context));
   }
 
   @Override

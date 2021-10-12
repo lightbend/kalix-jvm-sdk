@@ -202,7 +202,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.actionHandler(service)
+      ActionServiceSourceGenerator.actionRouter(service)
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
@@ -211,16 +211,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action.Effect;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
-        |import com.akkaserverless.javasdk.impl.action.ActionHandler;
+        |import com.akkaserverless.javasdk.impl.action.ActionRouter;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
         |// It will be re-generated to reflect any changes to your protobuf definitions.
         |// DO NOT EDIT
         |
-        |public class MyServiceActionHandler extends ActionHandler<MyServiceAction> {
+        |public class MyServiceActionRouter extends ActionRouter<MyServiceAction> {
         |
-        |  public MyServiceActionHandler(MyServiceAction actionBehavior) {
+        |  public MyServiceActionRouter(MyServiceAction actionBehavior) {
         |    super(actionBehavior);
         |  }
         |
@@ -231,7 +231,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return action()
         |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -243,7 +243,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return (Source<Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -254,7 +254,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return action()
         |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -266,7 +266,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return (Source<Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -279,7 +279,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
-      ActionServiceSourceGenerator.actionHandler(service)
+      ActionServiceSourceGenerator.actionRouter(service)
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
@@ -288,16 +288,16 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import akka.stream.javadsl.Source;
         |import com.akkaserverless.javasdk.action.Action.Effect;
         |import com.akkaserverless.javasdk.action.MessageEnvelope;
-        |import com.akkaserverless.javasdk.impl.action.ActionHandler;
+        |import com.akkaserverless.javasdk.impl.action.ActionRouter;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
         |// It will be re-generated to reflect any changes to your protobuf definitions.
         |// DO NOT EDIT
         |
-        |public class MyServiceActionHandler extends ActionHandler<MyServiceActionImpl> {
+        |public class MyServiceActionRouter extends ActionRouter<MyServiceActionImpl> {
         |
-        |  public MyServiceActionHandler(MyServiceActionImpl actionBehavior) {
+        |  public MyServiceActionRouter(MyServiceActionImpl actionBehavior) {
         |    super(actionBehavior);
         |  }
         |
@@ -308,7 +308,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return action()
         |                 .simpleMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -320,7 +320,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return (Source<Effect<?>, NotUsed>)(Object) action()
         |                 .streamedOutputMethod((ServiceOuterClass.MyRequest) message.payload());
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -331,7 +331,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return action()
         |                 .streamedInputMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -343,7 +343,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |        return (Source<Effect<?>, NotUsed>)(Object) action()
         |                 .fullStreamedMethod(stream.map(el -> (ServiceOuterClass.MyRequest) el.payload()));
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -362,7 +362,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
-        |import com.akkaserverless.javasdk.impl.action.ActionHandler;
+        |import com.akkaserverless.javasdk.impl.action.ActionRouter;
         |import com.external.Empty;
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;
@@ -408,8 +408,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public final MyServiceActionHandler newHandler(ActionCreationContext context) {
-        |    return new MyServiceActionHandler(actionFactory.apply(context));
+        |  public final MyServiceActionRouter newRouter(ActionCreationContext context) {
+        |    return new MyServiceActionRouter(actionFactory.apply(context));
         |  }
         |
         |  @Override
@@ -438,7 +438,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.action.ActionCreationContext;
         |import com.akkaserverless.javasdk.action.ActionOptions;
         |import com.akkaserverless.javasdk.action.ActionProvider;
-        |import com.akkaserverless.javasdk.impl.action.ActionHandler;
+        |import com.akkaserverless.javasdk.impl.action.ActionRouter;
         |import com.external.Empty;
         |import com.external.ExternalDomain;
         |import com.google.protobuf.Descriptors;
@@ -484,8 +484,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public final MyServiceActionHandler newHandler(ActionCreationContext context) {
-        |    return new MyServiceActionHandler(actionFactory.apply(context));
+        |  public final MyServiceActionRouter newRouter(ActionCreationContext context) {
+        |    return new MyServiceActionRouter(actionFactory.apply(context));
         |  }
         |
         |  @Override

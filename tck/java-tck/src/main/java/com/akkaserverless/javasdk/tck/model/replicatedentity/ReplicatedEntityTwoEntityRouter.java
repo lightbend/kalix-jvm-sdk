@@ -16,16 +16,16 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
 import com.akkaserverless.javasdk.replicatedentity.CommandContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.tck.model.ReplicatedEntity.Request;
 
-public class ReplicatedEntityConfiguredEntityHandler
-    extends ReplicatedEntityHandler<ReplicatedCounter, ReplicatedEntityConfiguredEntity> {
+public class ReplicatedEntityTwoEntityRouter
+    extends ReplicatedEntityRouter<ReplicatedCounter, ReplicatedEntityTwoEntity> {
 
-  public ReplicatedEntityConfiguredEntityHandler(ReplicatedEntityConfiguredEntity entity) {
+  public ReplicatedEntityTwoEntityRouter(ReplicatedEntityTwoEntity entity) {
     super(entity);
   }
 

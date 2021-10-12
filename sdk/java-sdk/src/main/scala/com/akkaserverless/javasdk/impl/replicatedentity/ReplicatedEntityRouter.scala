@@ -25,7 +25,7 @@ import com.akkaserverless.javasdk.impl.{ AnySupport, EntityExceptions }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.replicatedentity.ReplicatedData
 
-object ReplicatedEntityHandler {
+object ReplicatedEntityRouter {
   final case class CommandResult(effect: ReplicatedEntity.Effect[_])
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
@@ -37,10 +37,10 @@ object ReplicatedEntityHandler {
  *
  * <p>Not for manual user extension or interaction.
  *
- * <p>The concrete <code>ReplicatedEntityHandler</code> is generated for the specific entities defined in Protobuf.
+ * <p>The concrete <code>ReplicatedEntityRouter</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntity[D]](protected val entity: E) {
-  import ReplicatedEntityHandler._
+abstract class ReplicatedEntityRouter[D <: ReplicatedData, E <: ReplicatedEntity[D]](protected val entity: E) {
+  import ReplicatedEntityRouter._
 
   private var data: D = _
 

@@ -300,16 +300,16 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     "ReplicatedSetEntity[ByteString]",
     "ReplicatedSet[ByteString]")
 
-  def testEntityHandler(replicatedData: ReplicatedData, specificImports: Set[String], expectedDataType: String): Unit =
+  def testEntityRouter(replicatedData: ReplicatedData, specificImports: Set[String], expectedDataType: String): Unit =
     test(s"Generated replicated entity handler - ${replicatedData.name}") {
 
       val fixedImports =
         Set(
           "import com.example.service",
-          "import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandHandlerNotFound",
+          "import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
           "import com.akkaserverless.replicatedentity.ReplicatedData",
           "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-          "import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityHandler",
+          "import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
           "import com.akkaserverless.scalasdk.replicatedentity.CommandContext")
 
       val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
@@ -330,8 +330,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
            | * A replicated entity handler that is the glue between the Protobuf service `MyService`
            | * and the command handler methods in the `MyReplicatedEntity` class.
            | */
-           |class MyReplicatedEntityHandler(entity: MyReplicatedEntity)
-           |  extends ReplicatedEntityHandler[$expectedDataType, MyReplicatedEntity](entity) {
+           |class MyReplicatedEntityRouter(entity: MyReplicatedEntity)
+           |  extends ReplicatedEntityRouter[$expectedDataType, MyReplicatedEntity](entity) {
            |
            |  override def handleCommand(
            |      commandName: String,
@@ -355,48 +355,48 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
            |""".stripMargin)
     }
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedCounter,
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
     "ReplicatedCounter")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedRegister(domainType("SomeValue")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
     "ReplicatedRegister[SomeValue]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedSet(domainType("SomeElement")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[SomeElement]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedMap(domainType("SomeKey")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedCounterMap(domainType("SomeKey")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[SomeKey]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[SomeKey, SomeValue]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[SomeKey, SomeValue]")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedVote,
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
     "ReplicatedVote")
 
   // test for scalar types, using ByteString because of extra import
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedSet(domainType("bytes")),
     Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "import com.google.protobuf.ByteString"),
     "ReplicatedSet[ByteString]")
@@ -454,8 +454,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
            |
            |  override def entityType: String = "MyReplicatedEntity"
            |
-           |  override def newHandler(context: ReplicatedEntityContext): MyReplicatedEntityHandler =
-           |    new MyReplicatedEntityHandler(entityFactory(context))
+           |  override def newRouter(context: ReplicatedEntityContext): MyReplicatedEntityRouter =
+           |    new MyReplicatedEntityRouter(entityFactory(context))
            |
            |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
            |    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")

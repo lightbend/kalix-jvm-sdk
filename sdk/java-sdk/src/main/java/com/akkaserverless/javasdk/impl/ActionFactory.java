@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.impl;
 
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.javasdk.impl.action.ActionRouter;
 
 /**
  * Low level interface to implement {@link Action} components.
@@ -27,5 +27,5 @@ import com.akkaserverless.javasdk.impl.action.ActionHandler;
  * Action} should be used.
  */
 public interface ActionFactory {
-  ActionHandler<?> create(ActionCreationContext context);
+  ActionRouter<?> create(ActionCreationContext context);
 }

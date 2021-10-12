@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
 import akka.stream.Materializer
 import com.akkaserverless.javasdk
-import javasdk.impl.eventsourcedentity.{ EventSourcedEntityHandler => JavaSdkEventSourcedEntityHandler }
+import javasdk.impl.eventsourcedentity.{ EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter }
 import javasdk.eventsourcedentity.{
   CommandContext => JavaSdkCommandContext,
   EventContext => JavaSdkEventContext,
@@ -68,14 +68,14 @@ private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: Even
 
   def entityType(): String = scalasdkProvider.entityType
 
-  def newHandler(
-      context: JavaSdkEventSourcedEntityContext): JavaSdkEventSourcedEntityHandler[S, JavaSdkEventSourcedEntity[S]] = {
-    val scaladslHandler = scalasdkProvider
-      .newHandler(new ScalaEventSourcedEntityContextAdapter(context))
-      .asInstanceOf[EventSourcedEntityHandler[S, EventSourcedEntity[S]]]
-    new JavaEventSourcedEntityHandlerAdapter[S](
-      new JavaEventSourcedEntityAdapter[S](scaladslHandler.entity),
-      scaladslHandler)
+  def newRouter(
+      context: JavaSdkEventSourcedEntityContext): JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]] = {
+    val scaladslRouter = scalasdkProvider
+      .newRouter(new ScalaEventSourcedEntityContextAdapter(context))
+      .asInstanceOf[EventSourcedEntityRouter[S, EventSourcedEntity[S]]]
+    new JavaEventSourcedEntityRouterAdapter[S](
+      new JavaEventSourcedEntityAdapter[S](scaladslRouter.entity),
+      scaladslRouter)
   }
 
   def options(): JavaSdkEventSourcedEntityOptions = new JavaEventSourcedEntityOptionsAdapter(scalasdkProvider.options)
@@ -106,13 +106,13 @@ private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
         PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
-private[scalasdk] final class JavaEventSourcedEntityHandlerAdapter[S](
+private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
     javasdkEventSourcedEntity: JavaSdkEventSourcedEntity[S],
-    scalasdkHandler: EventSourcedEntityHandler[S, EventSourcedEntity[S]])
-    extends JavaSdkEventSourcedEntityHandler[S, JavaSdkEventSourcedEntity[S]](javasdkEventSourcedEntity) {
+    scalasdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
+    extends JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]](javasdkEventSourcedEntity) {
 
   override def handleEvent(state: S, event: Any): S = {
-    scalasdkHandler.handleEvent(state, event)
+    scalasdkRouter.handleEvent(state, event)
   }
 
   override def handleCommand(
@@ -120,7 +120,7 @@ private[scalasdk] final class JavaEventSourcedEntityHandlerAdapter[S](
       state: S,
       command: Any,
       context: JavaSdkCommandContext): JavaSdkEventSourcedEntity.Effect[_] = {
-    scalasdkHandler.handleCommand(commandName, state, command, new JavaCommandContextAdapter(context)) match {
+    scalasdkRouter.handleCommand(commandName, state, command, new JavaCommandContextAdapter(context)) match {
       case EventSourcedEntityEffectImpl(javasdkEffectImpl) => javasdkEffectImpl
     }
   }

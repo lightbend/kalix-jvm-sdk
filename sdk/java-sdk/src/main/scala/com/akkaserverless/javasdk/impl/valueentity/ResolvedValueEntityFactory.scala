@@ -27,6 +27,6 @@ class ResolvedValueEntityFactory(
     extends ValueEntityFactory
     with ResolvedEntityFactory {
 
-  override def create(context: ValueEntityContext): ValueEntityHandler[_, _] =
+  override def create(context: ValueEntityContext): ValueEntityRouter[_, _] =
     delegate.create(context)
 }

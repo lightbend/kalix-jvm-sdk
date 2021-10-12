@@ -53,7 +53,7 @@ final class ActionService(
 
   @volatile var actionClass: Option[Class[_]] = None
 
-  def createAction(context: ActionCreationContext): ActionHandler[_] = {
+  def createAction(context: ActionCreationContext): ActionRouter[_] = {
     val handler = factory.create(context)
     actionClass = Some(handler.actionClass())
     handler

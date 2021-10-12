@@ -53,9 +53,9 @@ object ActionServiceSourceGenerator {
     interfaceSourcePath.getParent.toFile.mkdirs()
     Files.write(interfaceSourcePath, abstractActionSource(service).getBytes(Charsets.UTF_8))
 
-    val handlerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.handlerName + ".java"))
-    handlerSourcePath.getParent.toFile.mkdirs()
-    Files.write(handlerSourcePath, actionHandler(service).getBytes(Charsets.UTF_8))
+    val routerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.routerName + ".java"))
+    routerSourcePath.getParent.toFile.mkdirs()
+    Files.write(routerSourcePath, actionRouter(service).getBytes(Charsets.UTF_8))
 
     val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
     providerSourcePath.getParent.toFile.mkdirs()
@@ -70,7 +70,7 @@ object ActionServiceSourceGenerator {
     // otherwise the incremental compiler can't seem to find it. I'm not entirely confident
     // this is the right way to fix that, but it seems to work. Let's revisit when we find a
     // problem with this approach.
-    List(implSourcePath, interfaceSourcePath, providerSourcePath, handlerSourcePath)
+    List(implSourcePath, interfaceSourcePath, providerSourcePath, routerSourcePath)
   }
 
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
@@ -198,7 +198,7 @@ object ActionServiceSourceGenerator {
         |}""".stripMargin
   }
 
-  private[codegen] def actionHandler(service: ModelBuilder.ActionService): String = {
+  private[codegen] def actionRouter(service: ModelBuilder.ActionService): String = {
 
     val className = service.className
     val packageName = service.fqn.parent.javaPackage
@@ -251,7 +251,7 @@ object ActionServiceSourceGenerator {
         "akka.stream.javadsl.Source",
         "com.akkaserverless.javasdk.action.Action.Effect",
         "com.akkaserverless.javasdk.action.MessageEnvelope",
-        "com.akkaserverless.javasdk.impl.action.ActionHandler"))
+        "com.akkaserverless.javasdk.impl.action.ActionRouter"))
 
     s"""package $packageName;
         |
@@ -259,9 +259,9 @@ object ActionServiceSourceGenerator {
         |
         |$managedComment
         |
-        |public class ${service.handlerName} extends ActionHandler<$className> {
+        |public class ${service.routerName} extends ActionRouter<$className> {
         |
-        |  public ${service.handlerName}($className actionBehavior) {
+        |  public ${service.routerName}($className actionBehavior) {
         |    super(actionBehavior);
         |  }
         |
@@ -270,7 +270,7 @@ object ActionServiceSourceGenerator {
         |    switch (commandName) {
         |      ${Format.indent(unaryCases, 6)}
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -280,7 +280,7 @@ object ActionServiceSourceGenerator {
         |    switch (commandName) {
         |      ${Format.indent(streamOutCases, 6)}
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -289,7 +289,7 @@ object ActionServiceSourceGenerator {
         |    switch (commandName) {
         |      ${Format.indent(streamInCases, 6)}
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |
@@ -299,7 +299,7 @@ object ActionServiceSourceGenerator {
         |    switch (commandName) {
         |      ${Format.indent(streamInOutCases, 6)}
         |      default:
-        |        throw new ActionHandler.HandlerNotFound(commandName);
+        |        throw new ActionRouter.HandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -324,7 +324,7 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.action.ActionProvider",
         "com.akkaserverless.javasdk.action.ActionOptions",
-        "com.akkaserverless.javasdk.impl.action.ActionHandler",
+        "com.akkaserverless.javasdk.impl.action.ActionRouter",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
@@ -370,8 +370,8 @@ object ActionServiceSourceGenerator {
       |  }
       |
       |  @Override
-      |  public final ${service.handlerName} newHandler(ActionCreationContext context) {
-      |    return new ${service.handlerName}(actionFactory.apply(context));
+      |  public final ${service.routerName} newRouter(ActionCreationContext context) {
+      |    return new ${service.routerName}(actionFactory.apply(context));
       |  }
       |
       |  @Override

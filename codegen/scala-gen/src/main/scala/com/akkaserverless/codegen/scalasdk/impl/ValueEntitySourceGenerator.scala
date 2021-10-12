@@ -88,8 +88,8 @@ object ValueEntitySourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.CommandContext",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler",
-          "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound"),
+          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter",
+          "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val commandCases = service.commands
@@ -103,7 +103,7 @@ object ValueEntitySourceGenerator {
 
     File(
       packageName,
-      valueEntity.handlerName,
+      valueEntity.routerName,
       s"""|package $packageName
         |
         |${writeImports(imports)}
@@ -114,7 +114,7 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
         | * and the command handler methods in the <code>Counter</code> class.
         | */
-        |class ${valueEntityName}Handler(entity: ${valueEntityName}) extends ValueEntityHandler[$stateType, ${valueEntityName}](entity) {
+        |class ${valueEntityName}Router(entity: ${valueEntityName}) extends ValueEntityRouter[$stateType, ${valueEntityName}](entity) {
         |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
         |    commandName match {
         |      ${Format.indent(commandCases, 6)}
@@ -169,8 +169,8 @@ object ValueEntitySourceGenerator {
          |
          |  override final val entityType = "${entity.entityType}"
          |
-         |  override final def newHandler(context: ValueEntityContext): ${entity.handlerName} =
-         |    new ${entity.handlerName}(entityFactory(context))
+         |  override final def newRouter(context: ValueEntityContext): ${entity.routerName} =
+         |    new ${entity.routerName}(entityFactory(context))
          |
          |  override final val additionalDescriptors =
          |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil

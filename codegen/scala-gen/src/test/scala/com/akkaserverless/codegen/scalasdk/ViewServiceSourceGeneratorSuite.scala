@@ -138,14 +138,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("handler source") {
     val service = testData.simpleViewService()
 
-    val generatedSrc = ViewServiceSourceGenerator.viewHandler(service).content
+    val generatedSrc = ViewServiceSourceGenerator.viewRouter(service).content
 
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
          |
          |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound
-         |import com.akkaserverless.scalasdk.impl.view.ViewHandler
+         |import com.akkaserverless.scalasdk.impl.view.ViewRouter
          |import com.akkaserverless.scalasdk.view.View
          |import com.example.service.domain.EntityCreated
          |import com.example.service.domain.EntityUpdated
@@ -155,8 +155,8 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |// DO NOT EDIT
          |
          |/** A view handler */
-         |class MyServiceViewHandler(view: MyServiceViewImpl)
-         |  extends ViewHandler[ViewState, MyServiceViewImpl](view) {
+         |class MyServiceViewRouter(view: MyServiceViewImpl)
+         |  extends ViewRouter[ViewState, MyServiceViewImpl](view) {
          |
          |  override def handleUpdate(
          |      eventName: String,
@@ -193,7 +193,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """|package com.example.service
          |
          |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound
-         |import com.akkaserverless.scalasdk.impl.view.ViewHandler
+         |import com.akkaserverless.scalasdk.impl.view.ViewRouter
          |import com.akkaserverless.scalasdk.view.View
          |import com.akkaserverless.scalasdk.view.ViewCreationContext
          |import com.akkaserverless.scalasdk.view.ViewOptions
@@ -230,8 +230,8 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
          |    MyServiceProto.javaDescriptor.findServiceByName("MyService")
          |
-         |  override final def newHandler(context: ViewCreationContext): MyServiceViewHandler =
-         |    new MyServiceViewHandler(viewFactory(context))
+         |  override final def newRouter(context: ViewCreationContext): MyServiceViewRouter =
+         |    new MyServiceViewRouter(viewFactory(context))
          |
          |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
          |    MyServiceProto.javaDescriptor ::

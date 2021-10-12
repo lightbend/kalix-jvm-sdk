@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk.eventsourcedentity
 
 import scala.collection.immutable
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityHandler
+import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import com.google.protobuf.Descriptors
 
 /**
@@ -32,7 +32,7 @@ trait EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]] {
 
   def entityType: String
 
-  def newHandler(context: EventSourcedEntityContext): EventSourcedEntityHandler[S, E]
+  def newRouter(context: EventSourcedEntityContext): EventSourcedEntityRouter[S, E]
 
   def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }

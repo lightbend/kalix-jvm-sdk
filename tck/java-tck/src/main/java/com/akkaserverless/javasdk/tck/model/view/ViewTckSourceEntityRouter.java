@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package com.akkaserverless.javasdk.tck.model.view;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 /** A value entity handler */
-public class ValueEntityOneHandler extends ValueEntityHandler<Object, ValueEntityOne> {
+public class ViewTckSourceEntityRouter extends ValueEntityRouter<String, ViewTckSourceEntity> {
 
-  public ValueEntityOneHandler(ValueEntityOne entity) {
+  public ViewTckSourceEntityRouter(ViewTckSourceEntity entity) {
     super(entity);
   }
 
   @Override
   public ValueEntity.Effect<?> handleCommand(
-      String commandName, Object state, Object command, CommandContext context) {
+      String commandName, String state, Object command, CommandContext context) {
     switch (commandName) {
-      case "UpdateValue":
-        return entity().updateValue(state, (LocalPersistenceEventing.UpdateValueRequest) command);
       default:
         throw new CommandHandlerNotFound(commandName);
     }

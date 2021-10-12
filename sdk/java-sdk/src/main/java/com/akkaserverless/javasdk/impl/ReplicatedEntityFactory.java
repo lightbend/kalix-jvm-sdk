@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 
@@ -33,5 +33,5 @@ public interface ReplicatedEntityFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ReplicatedEntityHandler<?, ?> create(ReplicatedEntityContext context);
+  ReplicatedEntityRouter<?, ?> create(ReplicatedEntityContext context);
 }

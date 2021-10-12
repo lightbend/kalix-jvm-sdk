@@ -66,8 +66,8 @@ public class ReplicatedEntityConfiguredEntityProvider
   }
 
   @Override
-  public final ReplicatedEntityConfiguredEntityHandler newHandler(ReplicatedEntityContext context) {
-    return new ReplicatedEntityConfiguredEntityHandler(entityFactory.apply(context));
+  public final ReplicatedEntityConfiguredEntityRouter newRouter(ReplicatedEntityContext context) {
+    return new ReplicatedEntityConfiguredEntityRouter(entityFactory.apply(context));
   }
 
   @Override

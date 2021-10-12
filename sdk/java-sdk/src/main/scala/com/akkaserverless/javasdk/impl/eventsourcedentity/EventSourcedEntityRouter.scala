@@ -26,7 +26,7 @@ import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 
-object EventSourcedEntityHandler {
+object EventSourcedEntityRouter {
   final case class CommandResult(
       events: Vector[Any],
       secondaryEffect: SecondaryEffectImpl,
@@ -42,10 +42,10 @@ object EventSourcedEntityHandler {
  * @tparam S
  *   the type of the managed state for the entity Not for manual user extension or interaction
  *
- * The concrete <code>EventSourcedEntityHandler</code> is generated for the specific entities defined in Protobuf.
+ * The concrete <code>EventSourcedEntityRouter</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](protected val entity: E) {
-  import EventSourcedEntityHandler._
+abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected val entity: E) {
+  import EventSourcedEntityRouter._
 
   private var state: Option[S] = None
 

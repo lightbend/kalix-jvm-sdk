@@ -38,7 +38,7 @@ object ActionServiceSourceGenerator {
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
   def generateManaged(service: ModelBuilder.ActionService): Seq[File] =
-    Seq(abstractAction(service), actionHandler(service), actionProvider(service))
+    Seq(abstractAction(service), actionRouter(service), actionProvider(service))
 
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
     if (commands.exists(_.hasStream))
@@ -169,13 +169,13 @@ object ActionServiceSourceGenerator {
         |""".stripMargin)
   }
 
-  private[codegen] def actionHandler(service: ModelBuilder.ActionService): File = {
+  private[codegen] def actionRouter(service: ModelBuilder.ActionService): File = {
     implicit val imports = generateImports(
       commandTypes(service.commands),
       service.fqn.parent.scalaPackage,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.action.ActionHandler",
+        "com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound",
+        "com.akkaserverless.scalasdk.impl.action.ActionRouter",
         "com.akkaserverless.scalasdk.action.Action",
         "com.akkaserverless.scalasdk.action.MessageEnvelope",
         "akka.NotUsed",
@@ -219,7 +219,7 @@ object ActionServiceSourceGenerator {
 
     File(
       service.fqn.parent.scalaPackage,
-      service.handlerName,
+      service.routerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
         |${writeImports(imports)}
@@ -227,7 +227,7 @@ object ActionServiceSourceGenerator {
         |$managedComment
         |
         |/** A Action handler */
-        |class ${service.handlerName}(action: ${service.className}) extends ActionHandler[${service.className}](action) {
+        |class ${service.routerName}(action: ${service.className}) extends ActionRouter[${service.className}](action) {
         |
         |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
         |    commandName match {
@@ -299,8 +299,8 @@ object ActionServiceSourceGenerator {
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
         |
-        |  override final def newHandler(context: ActionCreationContext): ${service.handlerName} =
-        |    new ${service.handlerName}(actionFactory(context))
+        |  override final def newRouter(context: ActionCreationContext): ${service.routerName} =
+        |    new ${service.routerName}(actionFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::

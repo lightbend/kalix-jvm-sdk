@@ -21,14 +21,14 @@ import akka.stream.javadsl.Source
 import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.action.ActionContext
 import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
+import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
 
 import java.util.Optional
 
-object ActionHandler {
+object ActionRouter {
   case class HandlerNotFound(commandName: String) extends RuntimeException
 }
-abstract class ActionHandler[A <: Action](protected val action: A) {
+abstract class ActionRouter[A <: Action](protected val action: A) {
 
   /**
    * Handle a unary call.

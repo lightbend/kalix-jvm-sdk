@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.impl.eventsourcedentity
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
-abstract class EventSourcedEntityHandler[S, E <: EventSourcedEntity[S]](val entity: E) {
+abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](val entity: E) {
   def handleEvent(state: S, event: Any): S
 
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): EventSourcedEntity.Effect[_]

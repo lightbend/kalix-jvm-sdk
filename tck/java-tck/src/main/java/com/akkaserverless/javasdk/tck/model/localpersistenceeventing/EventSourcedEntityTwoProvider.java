@@ -65,8 +65,8 @@ public class EventSourcedEntityTwoProvider
   }
 
   @Override
-  public final EventSourcedEntityTwoHandler newHandler(EventSourcedEntityContext context) {
-    return new EventSourcedEntityTwoHandler(entityFactory.apply(context));
+  public final EventSourcedEntityTwoRouter newRouter(EventSourcedEntityContext context) {
+    return new EventSourcedEntityTwoRouter(entityFactory.apply(context));
   }
 
   @Override

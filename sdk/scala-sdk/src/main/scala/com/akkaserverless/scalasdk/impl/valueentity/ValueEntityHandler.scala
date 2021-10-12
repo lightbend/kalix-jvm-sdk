@@ -22,6 +22,6 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntity
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ValueEntityHandler[S, E <: ValueEntity[S]](val entity: E) {
+abstract class ValueEntityRouter[S, E <: ValueEntity[S]](val entity: E) {
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): ValueEntity.Effect[_]
 }

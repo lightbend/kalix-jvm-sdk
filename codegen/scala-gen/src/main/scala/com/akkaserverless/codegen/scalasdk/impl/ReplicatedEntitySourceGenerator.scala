@@ -148,14 +148,14 @@ object ReplicatedEntitySourceGenerator {
   private[codegen] def handler(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): File = {
 
     val packageName = entity.fqn.parent.scalaPackage
-    val handlerName = entity.handlerName
+    val routerName = entity.routerName
 
     implicit val imports: Imports = generateImports(
       service.commands.map(_.inputType),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler.CommandHandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityHandler",
+        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
+        "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
         "com.akkaserverless.scalasdk.replicatedentity.CommandContext",
         "com.akkaserverless.replicatedentity.ReplicatedData",
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
@@ -177,7 +177,7 @@ object ReplicatedEntitySourceGenerator {
 
     File(
       packageName,
-      handlerName,
+      routerName,
       s"""|package $packageName
           |
           |${writeImports(imports)}
@@ -188,8 +188,8 @@ object ReplicatedEntitySourceGenerator {
           | * A replicated entity handler that is the glue between the Protobuf service `${service.fqn.name}`
           | * and the command handler methods in the `${entity.fqn.name}` class.
           | */
-          |class ${handlerName}(entity: ${entity.fqn.name})
-          |  extends ReplicatedEntityHandler[$parameterizedDataType, ${entity.fqn.name}](entity) {
+          |class ${routerName}(entity: ${entity.fqn.name})
+          |  extends ReplicatedEntityRouter[$parameterizedDataType, ${entity.fqn.name}](entity) {
           |
           |  override def handleCommand(
           |      commandName: String,
@@ -277,8 +277,8 @@ object ReplicatedEntitySourceGenerator {
          |
          |  override def entityType: String = "${entity.entityType}"
          |
-         |  override def newHandler(context: ReplicatedEntityContext): ${entity.handlerName} =
-         |    new ${entity.handlerName}(entityFactory(context))
+         |  override def newRouter(context: ReplicatedEntityContext): ${entity.routerName} =
+         |    new ${entity.routerName}(entityFactory(context))
          |
          |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
          |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
