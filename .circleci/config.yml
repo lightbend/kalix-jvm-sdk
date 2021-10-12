@@ -171,6 +171,7 @@ jobs:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
+      - setup_remote_docker
       - run:
           name: Run tests
           command: sbt test codegenCore/publishLocal codegenScala/publishLocal sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkJavaTestKit/publishLocal sdkScalaTestKit/publishLocal scripted
