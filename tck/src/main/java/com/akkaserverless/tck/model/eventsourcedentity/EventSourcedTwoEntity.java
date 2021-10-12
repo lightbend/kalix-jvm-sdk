@@ -36,6 +36,5 @@ public class EventSourcedTwoEntity extends AbstractEventSourcedTwoEntity {
   @Override
   public Persisted persisted(Persisted currentState, Persisted persisted) {
     return currentState;
-    // throw new RuntimeException("The event handler for `Persisted` is not implemented, yet");
   }
 }
