@@ -18,7 +18,17 @@ package com.lightbend.akkasls.codegen
 
 class Imports(val currentPackage: String, _imports: Seq[String]) {
 
-  val imports: Seq[String] = _imports.filterNot(isInCurrentPackage)
+  val imports: Seq[String] =
+    _imports
+      .filterNot(isInCurrentPackage)
+      .filterNot(i => clashingNames.contains(i.split("\\.").last))
+
+  lazy val clashingNames: Set[String] =
+    _imports
+      .map(_.split("\\.").last)
+      .groupBy(identity)
+      .filter(_._2.size > 1)
+      .keySet
 
   private def isInCurrentPackage(imp: String): Boolean = {
     val i = imp.lastIndexOf('.')

@@ -20,7 +20,7 @@ import "akkaserverless/annotations.proto";
 
 package com.example.state_in_different_proto;
 
-option java_outer_classname = "UserrApi";
+option java_outer_classname = "UserApi";
 
 message CreateUser {
   string user_id = 1 [(akkaserverless.field).entity_key = true];
@@ -39,7 +39,7 @@ message CurrentUser {
 service UserService {
   option (akkaserverless.service) = {
     type : SERVICE_TYPE_ENTITY
-    component : "com.example.state_in_different_proto.domain.Userr"
+    component : "com.example.state_in_different_proto.domain.User"
   };
 
   rpc Create (CreateUser) returns (google.protobuf.Empty);

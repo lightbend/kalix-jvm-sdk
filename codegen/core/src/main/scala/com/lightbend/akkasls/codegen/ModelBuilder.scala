@@ -58,6 +58,8 @@ object ModelBuilder {
     val abstractEntityName = "Abstract" + fqn.name
     val routerName = fqn.name + "Router"
     val providerName = fqn.name + "Provider"
+    val provider = fqn.deriveName(_ + "Provider")
+    val impl = fqn.deriveName(identity)
   }
 
   /**
@@ -203,9 +205,11 @@ object ModelBuilder {
     val className =
       if (fqn.name.contains("Action")) fqn.name + "Impl"
       else fqn.name + "Action"
+    val impl = fqn.deriveName(_ => className)
     val abstractActionName = "Abstract" + baseClassName
     val routerName = baseClassName + "Router"
     val providerName = baseClassName + "Provider"
+    val provider = fqn.deriveName(_ => baseClassName + "Provider")
 
     val classNameQualified = s"${fqn.parent.javaPackage}.$className"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
@@ -233,9 +237,11 @@ object ModelBuilder {
     val className =
       if (fqn.name.contains("View")) fqn.name + "Impl"
       else fqn.name + "View"
+    val impl = fqn.deriveName(_ => className)
     val abstractViewName = "Abstract" + baseClassName
     val routerName = baseClassName + "Router"
     val providerName = baseClassName + "Provider"
+    val provider = fqn.deriveName(_ => baseClassName + "Provider")
 
     val classNameQualified = s"${fqn.parent.javaPackage}.$className"
     val providerNameQualified = s"${fqn.parent.javaPackage}.$providerName"
@@ -459,7 +465,7 @@ object ModelBuilder {
 
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       EventSourcedEntity(
-        FullyQualifiedName(name, name, protoReference, fullQualifiedDescriptor),
+        FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
         rawEntity.getEntityType,
         State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, additionalDescriptors)),
         rawEntity.getEventsList.asScala
@@ -549,7 +555,7 @@ object ModelBuilder {
       }
       dataType.map { data =>
         ReplicatedEntity(
-          FullyQualifiedName(name, name, protoReference, fullQualifiedDescriptor),
+          FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
           rawEntity.getEntityType,
           data)
       }

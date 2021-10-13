@@ -56,6 +56,17 @@ case class FullyQualifiedName(
   def fileBasename =
     parent.javaPackage.replace('.', '/') + "/" + name
 
+  /**
+   * Create a 'derived' name based on a name, such as 'FooProvider' based on 'Foo'.
+   *
+   * Notably also removes any outer class name from the parent, since 'derived' classes are always outside of the outer
+   * class.
+   *
+   * @param derive
+   * @return
+   */
+  def deriveName(derive: String => String): FullyQualifiedName =
+    copy(name = derive(name), parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
 }
 
 object FullyQualifiedName {
