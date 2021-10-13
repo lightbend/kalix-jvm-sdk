@@ -119,27 +119,6 @@ object MainSourceGenerator {
 
   private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model): File = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
-    val registrations = model.services.values
-      .flatMap {
-        case service: ModelBuilder.EntityService =>
-          model.entities.get(service.componentFullName).toSeq.map {
-            case entity: ModelBuilder.EventSourcedEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ValueEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ReplicatedEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-          }
-
-        case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}(create${service.className}))")
-
-        case service: ModelBuilder.ActionService =>
-          List(s".register(${service.providerName}(create${service.className}))")
-
-      }
-      .toList
-      .sorted
 
     val entityImports = model.entities.values.flatMap { ety =>
       val imp =
@@ -184,28 +163,55 @@ object MainSourceGenerator {
     val allImports = (entityImports ++ serviceImports ++ entityContextImports ++ serviceContextImports ++
       List("com.akkaserverless.scalasdk.AkkaServerless")).toList
 
-    val imports =
+    implicit val imports =
       generateImports(Iterable.empty, packageName, allImports)
+
+    def creator(fqn: FullyQualifiedName): String = {
+      if (imports.clashingNames.contains(fqn.name)) s"create${dotsToCamelCase(typeName(fqn))}"
+      else s"create${fqn.name}"
+    }
+
+    val registrations = model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName).toSeq.map {
+            case entity: ModelBuilder.EventSourcedEntity =>
+              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+            case entity: ModelBuilder.ValueEntity =>
+              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+            case entity: ModelBuilder.ReplicatedEntity =>
+              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+          }
+
+        case service: ModelBuilder.ViewService =>
+          List(s".register(${service.providerName}(${creator(service.impl)}))")
+
+        case service: ModelBuilder.ActionService =>
+          List(s".register(${service.providerName}(${creator(service.impl)}))")
+
+      }
+      .toList
+      .sorted
 
     val entityCreators =
       model.entities.values.toList
         .sortBy(_.fqn.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>
-            s"create${entity.fqn.name}: EventSourcedEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: EventSourcedEntityContext => ${typeName(entity.fqn)}"
           case entity: ModelBuilder.ValueEntity =>
-            s"create${entity.fqn.name}: ValueEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: ValueEntityContext => ${typeName(entity.fqn)}"
           case entity: ModelBuilder.ReplicatedEntity =>
-            s"create${entity.fqn.name}: ReplicatedEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: ReplicatedEntityContext => ${typeName(entity.fqn)}"
         }
 
     val serviceCreators = model.services.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case service: ModelBuilder.ActionService =>
-          s"create${service.className}: ActionCreationContext => ${service.className}"
+          s"${creator(service.impl)}: ActionCreationContext => ${typeName(service.impl)}"
         case view: ModelBuilder.ViewService =>
-          s"create${view.className}: ViewCreationContext => ${view.className}"
+          s"${creator(view.impl)}: ViewCreationContext => ${typeName(view.impl)}"
       }
 
     val creatorParameters = entityCreators ::: serviceCreators

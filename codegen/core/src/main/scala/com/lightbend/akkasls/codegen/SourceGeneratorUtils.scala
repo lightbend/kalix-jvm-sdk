@@ -173,4 +173,11 @@ object SourceGeneratorUtils {
     }
   }
 
+  @tailrec
+  def dotsToCamelCase(s: String, resultSoFar: String = "", capitalizeNext: Boolean = true): String = {
+    if (s.isEmpty) resultSoFar
+    else if (s.head == '.' || s.head == '_' || s.head == '-') dotsToCamelCase(s.tail, resultSoFar, true)
+    else if (capitalizeNext) dotsToCamelCase(s.tail, resultSoFar :+ s.head.toUpper, false)
+    else dotsToCamelCase(s.tail, resultSoFar :+ s.head, false)
+  }
 }
