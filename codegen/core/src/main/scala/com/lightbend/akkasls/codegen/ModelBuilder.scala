@@ -97,6 +97,7 @@ object ModelBuilder {
     def this(shortName: String, typeArguments: TypeArgument*) = this(shortName, typeArguments)
 
     val name: String = "Replicated" + shortName
+    val baseClass: String = name + "Entity"
   }
 
   case object ReplicatedCounter extends ReplicatedData("Counter")
@@ -122,9 +123,9 @@ object ModelBuilder {
   sealed trait TypeArgument
 
   object TypeArgument {
-    def apply(name: String, proto: PackageNaming): TypeArgument = {
+    def apply(name: String, proto: PackageNaming, descriptorObject: Option[FullyQualifiedName]): TypeArgument = {
       if (name.nonEmpty && name.charAt(0).isLower) ScalarTypeArgument(ScalarType(name))
-      else MessageTypeArgument(FullyQualifiedName(name, proto))
+      else MessageTypeArgument(FullyQualifiedName(name, name, proto, descriptorObject))
     }
   }
 
@@ -409,22 +410,18 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getEventSourcedEntity
 
-    val protoReference = PackageNaming.from(descriptor)
+    val protoReference = fqnExtractor.packageName(descriptor)
+    val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))
 
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       EventSourcedEntity(
-        FullyQualifiedName(name, name, protoReference, Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
+        FullyQualifiedName(name, name, protoReference, fullQualifiedDescriptor),
         rawEntity.getEntityType,
         // FIXME this assumes the state is defined in the same proto file as the
         // entity, which I don't think is necessarily true.
-        State(
-          FullyQualifiedName(
-            rawEntity.getState,
-            rawEntity.getState,
-            protoReference,
-            Some(fqnExtractor.fileDescriptorObject(descriptor.getFile)))),
+        State(FullyQualifiedName(rawEntity.getState, rawEntity.getState, protoReference, fullQualifiedDescriptor)),
         rawEntity.getEventsList.asScala
-          .map(event => Event(FullyQualifiedName(event, protoReference))))
+          .map(event => Event(FullyQualifiedName(event, event, protoReference, fullQualifiedDescriptor))))
     }
   }
 
@@ -467,7 +464,8 @@ object ModelBuilder {
    *   the file descriptor to extract from
    */
   private def extractReplicatedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
-      log: Log): Option[ReplicatedEntity] = {
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Option[ReplicatedEntity] = {
     import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
 
     val rawEntity =
@@ -475,40 +473,44 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getReplicatedEntity
 
-    val protoReference = PackageNaming.from(descriptor)
+    val protoReference = fqnExtractor.packageName(descriptor)
+    val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))
 
     Option(rawEntity.getName).filter(_.nonEmpty).flatMap { name =>
+
       val dataType = rawEntity.getReplicatedDataCase match {
         case ReplicatedDataCase.REPLICATED_COUNTER =>
           Some(ReplicatedCounter)
         case ReplicatedDataCase.REPLICATED_REGISTER =>
-          val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference)
+          val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedRegister(value))
         case ReplicatedDataCase.REPLICATED_SET =>
-          val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference)
+          val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedSet(element))
         case ReplicatedDataCase.REPLICATED_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference)
+          val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedMap(key))
         case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference)
+          val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedCounterMap(key))
         case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference)
-          val value = TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference)
+          val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference, fullQualifiedDescriptor)
+          val value = TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedRegisterMap(key, value))
         case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference)
-          val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference)
+          val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference, fullQualifiedDescriptor)
+          val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference, fullQualifiedDescriptor)
           Some(ReplicatedMultiMap(key, value))
         case ReplicatedDataCase.REPLICATED_VOTE =>
           Some(ReplicatedVote)
         case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
           None
       }
-
       dataType.map { data =>
-        ReplicatedEntity(FullyQualifiedName(name, protoReference), rawEntity.getEntityType, data)
+        ReplicatedEntity(
+          FullyQualifiedName(name, name, protoReference, fullQualifiedDescriptor),
+          rawEntity.getEntityType,
+          data)
       }
     }
   }

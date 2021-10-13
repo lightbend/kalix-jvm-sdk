@@ -16,15 +16,10 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import _root_.java.io.File
 import _root_.java.nio.file.Files
 import _root_.java.nio.file.Path
 
-import scala.collection.immutable
-
 import com.google.common.base.Charsets
-import com.lightbend.akkasls.codegen.DescriptorSet
-import com.lightbend.akkasls.codegen.Log
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Entity
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
@@ -105,7 +100,7 @@ object MainSourceGenerator {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
-        |${componentImports}
+        |${writeImports(componentImports, isScala = false)}
         |
         |$unmanagedComment
         |

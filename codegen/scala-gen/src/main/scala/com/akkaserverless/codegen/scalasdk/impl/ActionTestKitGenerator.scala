@@ -17,7 +17,8 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ActionTestKitGenerator {
 
@@ -30,7 +31,7 @@ object ActionTestKitGenerator {
     Seq(testkit(service))
 
   private[codegen] def testkit(service: ModelBuilder.ActionService): File = {
-    implicit val imports: Imports =
+    implicit val imports =
       generateImports(
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
@@ -39,8 +40,7 @@ object ActionTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
           "com.akkaserverless.scalasdk.action.ActionCreationContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext"),
-        semi = false)
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext"))
 
     val actionClassName = service.className
 
@@ -56,7 +56,7 @@ object ActionTestKitGenerator {
       s"${actionClassName}TestKit",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports, isScala = true)}
           |
           |$managedComment
           |
@@ -87,7 +87,7 @@ object ActionTestKitGenerator {
 
   def test(service: ModelBuilder.ActionService): File = {
 
-    implicit val imports: Imports =
+    implicit val imports =
       generateImports(
         service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
         service.fqn.parent.scalaPackage,
@@ -95,8 +95,7 @@ object ActionTestKitGenerator {
           "com.akkaserverless.scalasdk.action.Action",
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "org.scalatest.matchers.should.Matchers",
-          "org.scalatest.wordspec.AnyWordSpec"),
-        semi = false)
+          "org.scalatest.wordspec.AnyWordSpec"))
 
     val actionClassName = service.className
 
@@ -114,7 +113,7 @@ object ActionTestKitGenerator {
       actionClassName + "Spec",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports, isScala = true)}
           |
           |$unmanagedComment
           |

@@ -47,8 +47,7 @@ object ViewServiceSourceGenerator {
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
           "com.akkaserverless.scalasdk.impl.view.ViewHandler",
           "com.akkaserverless.scalasdk.view.View"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val cases = view.transformedUpdates
       .map { cmd =>
@@ -65,7 +64,7 @@ object ViewServiceSourceGenerator {
       view.handlerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -106,15 +105,14 @@ object ViewServiceSourceGenerator {
           "com.google.protobuf.Descriptors",
           "com.google.protobuf.EmptyProto",
           "scala.collection.immutable"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     File(
       view.fqn.parent.scalaPackage,
       view.providerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -159,8 +157,7 @@ object ViewServiceSourceGenerator {
         view.fqn.parent.scalaPackage,
         otherImports =
           Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
@@ -183,7 +180,7 @@ object ViewServiceSourceGenerator {
       view.className,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$unmanagedComment
         |
@@ -201,8 +198,7 @@ object ViewServiceSourceGenerator {
         Seq(view.state.fqn) ++ view.commandTypes,
         view.fqn.parent.scalaPackage,
         otherImports = Seq("com.akkaserverless.scalasdk.view.View"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
@@ -225,7 +221,7 @@ object ViewServiceSourceGenerator {
       view.abstractViewName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |

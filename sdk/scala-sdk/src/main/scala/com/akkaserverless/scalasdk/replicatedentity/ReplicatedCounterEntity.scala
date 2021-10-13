@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-private[scalasdk] class ReplicatedCounterEntity extends ReplicatedEntity[ReplicatedCounter] {
+class ReplicatedCounterEntity extends ReplicatedEntity[ReplicatedCounter] {
 
   /**
    * Implement by returning the initial empty replicated data object. This object will be passed into the command
@@ -29,6 +29,6 @@ private[scalasdk] class ReplicatedCounterEntity extends ReplicatedEntity[Replica
    * @param factory
    *   the factory to create the initial empty replicated data object
    */
-  override def emptyData(factory: ReplicatedDataFactory): ReplicatedCounter =
+  override final def emptyData(factory: ReplicatedDataFactory): ReplicatedCounter =
     factory.newCounter
 }

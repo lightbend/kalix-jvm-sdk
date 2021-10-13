@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.register;
 
-option java_outer_classname = "SomeRegisterApi";
-
 message SetValue {
   string register_id = 1 [(akkaserverless.field).entity_key = true];
   string value = 2;

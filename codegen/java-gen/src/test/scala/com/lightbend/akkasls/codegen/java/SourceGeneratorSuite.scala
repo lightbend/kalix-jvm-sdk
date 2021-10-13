@@ -33,7 +33,10 @@ class SourceGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.javaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
-    ModelBuilder.TypeArgument(name, testData.domainProto())
+    ModelBuilder.TypeArgument(
+      name,
+      testData.domainProto(),
+      TestData.guessDescriptor(testData.domainProto().name, testData.domainProto()))
 
   test("generate") {
     val sourceDirectory = Files.createTempDirectory("source-generator-test")

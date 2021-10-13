@@ -19,8 +19,6 @@ import "akkaserverless/annotations.proto";
 
 package com.example.replicated.counter;
 
-option java_outer_classname = "SomeCounterApi";
-
 message IncreaseValue {
   string counter_id = 1 [(akkaserverless.field).entity_key = true];
   int32 value = 2;

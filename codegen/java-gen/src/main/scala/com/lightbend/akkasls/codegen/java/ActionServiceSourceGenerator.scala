@@ -26,7 +26,6 @@ import com.google.common.base.Charsets
  * Responsible for generating Java source from an entity model
  */
 object ActionServiceSourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
@@ -139,7 +138,7 @@ object ActionServiceSourceGenerator {
 
     s"""|package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$unmanagedComment
         |
@@ -187,7 +186,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -255,7 +254,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -330,7 +329,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports, isScala = false)}
       |
       |$managedComment
       |

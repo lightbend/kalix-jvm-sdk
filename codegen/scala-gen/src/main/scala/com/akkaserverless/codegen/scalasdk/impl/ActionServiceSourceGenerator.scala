@@ -17,6 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
 
@@ -54,8 +55,7 @@ object ActionServiceSourceGenerator {
       service.fqn.parent.scalaPackage,
       otherImports = Seq(
         "com.akkaserverless.scalasdk.action.Action",
-        "com.akkaserverless.scalasdk.action.ActionCreationContext") ++ streamImports(service.commands),
-      semi = false)
+        "com.akkaserverless.scalasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -105,7 +105,7 @@ object ActionServiceSourceGenerator {
       className,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$unmanagedComment
         |
@@ -122,8 +122,7 @@ object ActionServiceSourceGenerator {
     implicit val imports = generateImports(
       service.commandTypes,
       service.fqn.parent.scalaPackage,
-      otherImports = Seq("com.akkaserverless.scalasdk.action.Action") ++ streamImports(service.commands),
-      semi = false)
+      otherImports = Seq("com.akkaserverless.scalasdk.action.Action") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -157,7 +156,7 @@ object ActionServiceSourceGenerator {
       service.abstractActionName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -179,8 +178,7 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.scalasdk.action.Action",
         "com.akkaserverless.scalasdk.action.MessageEnvelope",
         "akka.NotUsed",
-        "akka.stream.scaladsl.Source"),
-      semi = false)
+        "akka.stream.scaladsl.Source"))
 
     val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
@@ -223,7 +221,7 @@ object ActionServiceSourceGenerator {
       service.handlerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |
@@ -274,15 +272,14 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.scalasdk.action.ActionCreationContext",
         "com.akkaserverless.scalasdk.action.ActionOptions",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable"),
-      semi = false)
+        "scala.collection.immutable"))
 
     File(
       service.fqn.parent.scalaPackage,
       service.providerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |

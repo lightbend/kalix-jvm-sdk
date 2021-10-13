@@ -17,7 +17,8 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, FullyQualifiedName, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
@@ -48,8 +49,7 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventHandlers = entity.events.map { event =>
       s"""|case e: ${typeName(event.fqn)} =>
@@ -68,7 +68,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "TestKit.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
        |
-       |$imports
+       |${writeImports(imports, isScala = true)}
        |
        |$managedComment
        |
@@ -124,8 +124,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
         "org.scalatest.matchers.should.Matchers",
         "org.scalatest.wordspec.AnyWordSpec"),
-      packageImports = Seq(service.fqn.parent.scalaPackage),
-      semi = false)
+      packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val testKitClassName = s"${entity.fqn.name}TestKit"
 
@@ -142,7 +141,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "Spec.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
          |
-         |$imports
+         |${writeImports(imports, isScala = true)}
          |
          |$unmanagedComment
          |

@@ -29,40 +29,16 @@ object MainSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  // FIXME
-  def excludedUntilImplemented(model: ModelBuilder.Model): ModelBuilder.Model = {
-    val filteredServices = model.services.flatMap {
-      case (name, service: ModelBuilder.EntityService) =>
-        model.lookupEntity(service) match {
-          case _: ModelBuilder.ValueEntity        => List(name -> service)
-          case _: ModelBuilder.EventSourcedEntity => List(name -> service)
-          case _: ModelBuilder.ReplicatedEntity =>
-            Nil
-        }
-      case (name, service: ModelBuilder.ViewService)   => List(name -> service)
-      case (name, service: ModelBuilder.ActionService) => List(name -> service)
-    }
-
-    val filteredEntities = model.entities.filter {
-      case (_, _: ModelBuilder.ValueEntity)        => true
-      case (_, _: ModelBuilder.EventSourcedEntity) => true
-      case (_, _: ModelBuilder.ReplicatedEntity)   => false
-    }
-
-    ModelBuilder.Model(filteredServices, filteredEntities)
-  }
-
   def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
-    Seq(mainSource(excludedUntilImplemented(model)))
+    Seq(mainSource(model))
 
   def generateManaged(model: ModelBuilder.Model): Iterable[File] =
-    // FIXME remove filtering
-    Seq(akkaServerlessFactorySource(excludedUntilImplemented(model)))
+    Seq(akkaServerlessFactorySource(model))
 
   def mainClassName(model: ModelBuilder.Model): FullyQualifiedName = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
     val className = "Main"
-    FullyQualifiedName(
+    FullyQualifiedName.noDescriptor(
       className,
       new PackageNaming(
         protoFileName = "",
@@ -91,7 +67,7 @@ object MainSourceGenerator {
       List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
     val imports =
-      generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports, semi = false)
+      generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
 
     val entityRegistrationParameters = model.entities.values.toList
       .sortBy(_.fqn.name)
@@ -115,7 +91,7 @@ object MainSourceGenerator {
       mainClass.name,
       s"""|package ${mainClass.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$unmanagedComment
         |
@@ -208,7 +184,7 @@ object MainSourceGenerator {
       List("com.akkaserverless.scalasdk.AkkaServerless")).toList
 
     val imports =
-      generateImports(Iterable.empty, packageName, allImports, semi = false)
+      generateImports(Iterable.empty, packageName, allImports)
 
     val entityCreators =
       model.entities.values.toList
@@ -238,7 +214,7 @@ object MainSourceGenerator {
       "AkkaServerlessFactory",
       s"""|package $packageName
         |
-        |$imports
+        |${writeImports(imports, isScala = true)}
         |
         |$managedComment
         |

@@ -17,7 +17,10 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, FullyQualifiedName, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.Imports
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
@@ -44,8 +47,7 @@ object ValueEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val entityClassName = valueEntity.fqn.name
 
@@ -62,7 +64,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "TestKit.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports, isScala = true)}
           |
           |$managedComment
           |
@@ -122,8 +124,7 @@ object ValueEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val entityClassName = valueEntity.fqn.name
 
@@ -139,7 +140,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "Spec.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports, isScala = true)}
           |
           |class ${entityClassName}Spec
           |    extends AnyWordSpec
@@ -171,7 +172,7 @@ object ValueEntityTestKitGenerator {
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
 
-    val client = FullyQualifiedName(service.fqn.name + "Client", service.fqn.parent)
+    val client = FullyQualifiedName.noDescriptor(service.fqn.name + "Client", service.fqn.parent)
 
     implicit val imports: Imports =
       generateImports(
@@ -191,8 +192,7 @@ object ValueEntityTestKitGenerator {
           "org.scalatest.time.Span",
           "org.scalatest.time.Seconds",
           "org.scalatest.time.Millis"),
-        packageImports = Seq(valueEntity.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(valueEntity.fqn.parent.scalaPackage))
 
     val entityClassName = service.fqn.name
 
@@ -200,7 +200,7 @@ object ValueEntityTestKitGenerator {
       service.fqn.fileBasename + "IntegrationSpec.scala",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports, isScala = true)}
           |
           |$unmanagedComment
           |

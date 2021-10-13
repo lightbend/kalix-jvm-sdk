@@ -20,7 +20,8 @@ import com.akkaserverless.replicatedentity.ReplicatedData;
 import java.util.Set;
 
 /**
- * A Map of counters. Uses {@link ReplicatedCounter}'s as values.
+ * A Map of counters. Uses {@link com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter}'s
+ * as values.
  *
  * @param <K> The type for keys.
  */

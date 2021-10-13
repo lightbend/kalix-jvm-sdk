@@ -71,7 +71,6 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
     val generatedSrc =
       ActionTestKitGenerator.generateUnmanagedTest(service).head.content
 
-    println(generatedSrc)
     assertNoDiff(
       generatedSrc,
       """package com.example.service

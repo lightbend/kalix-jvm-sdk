@@ -75,7 +75,10 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |""".stripMargin)
     }
 
-  def domainType(name: String): TypeArgument = TypeArgument(name, testData.domainProto())
+  def domainType(name: String): TypeArgument = TypeArgument(
+    name,
+    testData.domainProto(),
+    TestData.guessDescriptor(testData.domainProto().name, testData.domainProto()))
 
   testEntityServiceImplementation(
     "ReplicatedCounter",
@@ -246,7 +249,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |// DO NOT EDIT
             |
             |/** A replicated entity. */
-            |public abstract class AbstractMyService extends $expectedBaseClass {
+            |public abstract class AbstractMyReplicatedEntity extends $expectedBaseClass {
             |
             |  /** Command handler for "Set". */
             |  public abstract Effect<Empty> set($expectedDataType currentData, ServiceOuterClass.SetValue setValue);

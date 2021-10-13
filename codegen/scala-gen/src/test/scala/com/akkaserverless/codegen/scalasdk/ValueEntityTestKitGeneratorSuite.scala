@@ -17,10 +17,10 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.ValueEntityTestKitGenerator
-import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
 import com.lightbend.akkasls.codegen.TestData
+import com.lightbend.akkasls.codegen.TestData.fullyQualifiedName
 
 class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.scalaStyle
@@ -167,7 +167,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
   test("it can generate an specific integration test stub for the entity") {
     val entity = createShoppingCartEntity()
     val service = createShoppingCartService(entity)
-    val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
+    val main = fullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
 
     assertEquals(
       ValueEntityTestKitGenerator.integrationTest(main, entity, service).content,
@@ -237,9 +237,9 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     ModelBuilder.ValueEntity(
       domainProto.protoPackage + ".ShoppingCart",
-      FullyQualifiedName("ShoppingCart", domainProto),
+      fullyQualifiedName("ShoppingCart", domainProto),
       "shopping-cart",
-      ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
+      ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
   }
 
   /**
@@ -260,20 +260,20 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         Some("EmptyProto"),
         javaMultipleFiles = true)
     ModelBuilder.EntityService(
-      FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+      fullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
         testData.command(
           "AddItem",
-          FullyQualifiedName("AddLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("AddLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "RemoveItem",
-          FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("RemoveLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "GetCart",
-          FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-          FullyQualifiedName("Cart", shoppingCartProto))),
+          fullyQualifiedName("GetShoppingCart", shoppingCartProto),
+          fullyQualifiedName("Cart", shoppingCartProto))),
       entity.fqn.fullName)
   }
 

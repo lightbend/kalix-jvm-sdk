@@ -30,7 +30,6 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
  * Responsible for generating Java source from an entity model
  */
 object EntityServiceSourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
@@ -59,7 +58,7 @@ object EntityServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = "Abstract" + className
+    val interfaceClassName = entity.abstractEntityName
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -75,7 +74,7 @@ object EntityServiceSourceGenerator {
           Charsets.UTF_8))
     }
 
-    val handlerClassName = className + "Handler"
+    val handlerClassName = entity.handlerName
     val handlerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
       path.getParent.toFile.mkdirs()
@@ -83,7 +82,7 @@ object EntityServiceSourceGenerator {
       path
     }
 
-    val providerClassName = className + "Provider"
+    val providerClassName = entity.providerName
     val providerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
       path.getParent.toFile.mkdirs()
@@ -182,7 +181,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -245,7 +244,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -351,7 +350,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${writeImports(imports, isScala = false)}
        |
        |$unmanagedComment
        |
@@ -449,7 +448,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -482,7 +481,7 @@ object EntityServiceSourceGenerator {
 
     val extraImports = entity match {
       case ModelBuilder.ReplicatedEntity(_, _, data) =>
-        ReplicatedEntitySourceGenerator.extraImports(data) ++ extraTypeImports(data.typeArguments)
+        extraReplicatedImports(data) ++ extraTypeImports(data.typeArguments)
       case _ => Seq.empty
     }
 
@@ -509,7 +508,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports, isScala = false)}
       |
       |import static java.util.concurrent.TimeUnit.*;
       |

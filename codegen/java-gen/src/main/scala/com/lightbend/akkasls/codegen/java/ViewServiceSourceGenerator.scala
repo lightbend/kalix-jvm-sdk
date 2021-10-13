@@ -17,9 +17,10 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.google.common.base.Charsets
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
 
-import _root_.java.nio.file.{ Files, Path }
+import com.google.common.base.Charsets
 
 /**
  * Responsible for generating Java sources for a view
@@ -96,7 +97,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -144,7 +145,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports, isScala = false)}
         |
         |$managedComment
         |
@@ -235,7 +236,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${writeImports(imports, isScala = false)}
        |
        |$unmanagedComment
        |
@@ -271,7 +272,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports, isScala = false)}
       |
       |$managedComment
       |

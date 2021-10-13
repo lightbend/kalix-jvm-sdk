@@ -39,6 +39,27 @@ object TestData {
       case None        => Some(FullyQualifiedName(protoName + "Proto", protoName + "Proto", proto, None))
     }
 
+  def fullyQualifiedName(name: String, parent: PackageNaming): FullyQualifiedName = {
+    FullyQualifiedName(
+      name,
+      name,
+      parent,
+      parent.javaOuterClassnameOption match {
+        case Some(outer) =>
+          Some(FullyQualifiedName(outer, outer, parent, None))
+        case None =>
+          def capitalize(s: String, capitalizeNext: Boolean = true): String =
+            s.headOption match {
+              case None      => ""
+              case Some('_') => capitalize(s.tail, true)
+              case Some(c) =>
+                if (capitalizeNext) c.toUpper + capitalize(s.tail, false)
+                else c + capitalize(s.tail, false)
+            }
+          val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
+          Some(FullyQualifiedName(protoClassName, protoClassName, parent, None))
+      })
+  }
 }
 
 /**
@@ -93,31 +114,31 @@ class TestData(val packageNamingTemplate: PackageNaming) {
 
   def simpleEntityService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.EntityService =
     ModelBuilder.EntityService(
-      FullyQualifiedName(s"MyService$suffix", proto),
+      fullyQualifiedName(s"MyService$suffix", proto),
       List(
-        command("Set", FullyQualifiedName("SetValue", proto), FullyQualifiedName("Empty", externalProto)),
-        command("Get", FullyQualifiedName("GetValue", proto), FullyQualifiedName("MyState", proto))),
+        command("Set", fullyQualifiedName("SetValue", proto), fullyQualifiedName("Empty", externalProto)),
+        command("Get", fullyQualifiedName("GetValue", proto), fullyQualifiedName("MyState", proto))),
       s"com.example.Entity$suffix")
 
   def simpleActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
     ModelBuilder.ActionService(
       FullyQualifiedName(proto.name, proto.name, proto, guessDescriptor(proto.name, proto)),
       List(
-        command("SimpleMethod", FullyQualifiedName("MyRequest", proto), FullyQualifiedName("Empty", externalProto)),
+        command("SimpleMethod", fullyQualifiedName("MyRequest", proto), fullyQualifiedName("Empty", externalProto)),
         command(
           "StreamedOutputMethod",
-          FullyQualifiedName("MyRequest", proto),
-          FullyQualifiedName("Empty", externalProto),
+          fullyQualifiedName("MyRequest", proto),
+          fullyQualifiedName("Empty", externalProto),
           streamedOutput = true),
         command(
           "StreamedInputMethod",
-          FullyQualifiedName("MyRequest", proto),
-          FullyQualifiedName("Empty", externalProto),
+          fullyQualifiedName("MyRequest", proto),
+          fullyQualifiedName("Empty", externalProto),
           streamedInput = true),
         command(
           "FullStreamedMethod",
-          FullyQualifiedName("MyRequest", proto),
-          FullyQualifiedName("Empty", externalProto),
+          fullyQualifiedName("MyRequest", proto),
+          fullyQualifiedName("Empty", externalProto),
           streamedInput = true,
           streamedOutput = true)))
   }
@@ -128,13 +149,13 @@ class TestData(val packageNamingTemplate: PackageNaming) {
       List(
         command(
           "InFromTopic",
-          FullyQualifiedName("Any", googleProto),
-          FullyQualifiedName("Empty", googleProto),
+          fullyQualifiedName("Any", googleProto),
+          fullyQualifiedName("Empty", googleProto),
           inFromTopic = true),
         command(
           "OutToTopic",
-          FullyQualifiedName("EntityUpdated", domainProto()),
-          FullyQualifiedName("Any", googleProto),
+          fullyQualifiedName("EntityUpdated", domainProto()),
+          fullyQualifiedName("Any", googleProto),
           outToTopic = true)))
   }
 
@@ -142,12 +163,12 @@ class TestData(val packageNamingTemplate: PackageNaming) {
     val updates = List(
       command(
         "Created",
-        FullyQualifiedName("EntityCreated", domainProto(suffix)),
-        FullyQualifiedName("ViewState", proto)),
+        fullyQualifiedName("EntityCreated", domainProto(suffix)),
+        fullyQualifiedName("ViewState", proto)),
       command(
         "Updated",
-        FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-        FullyQualifiedName("ViewState", proto)))
+        fullyQualifiedName("EntityUpdated", domainProto(suffix)),
+        fullyQualifiedName("ViewState", proto)))
     ModelBuilder.ViewService(
       FullyQualifiedName(
         s"MyService${suffix}",
@@ -157,12 +178,12 @@ class TestData(val packageNamingTemplate: PackageNaming) {
       List(
         command(
           "Created",
-          FullyQualifiedName("EntityCreated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto)),
+          fullyQualifiedName("EntityCreated", domainProto(suffix)),
+          fullyQualifiedName("ViewState", proto)),
         command(
           "Updated",
-          FullyQualifiedName("EntityUpdated", domainProto(suffix)),
-          FullyQualifiedName("ViewState", proto))),
+          fullyQualifiedName("EntityUpdated", domainProto(suffix)),
+          fullyQualifiedName("ViewState", proto))),
       s"MyService$suffix",
       updates,
       updates)
@@ -170,10 +191,10 @@ class TestData(val packageNamingTemplate: PackageNaming) {
 
   def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
     ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
+      fullyQualifiedName(s"MyEntity$suffix", domainProto(suffix)),
       s"MyEntity$suffix",
-      ModelBuilder.State(FullyQualifiedName("MyState", domainProto(suffix))),
-      List(ModelBuilder.Event(FullyQualifiedName("SetEvent", domainProto(suffix)))))
+      ModelBuilder.State(fullyQualifiedName("MyState", domainProto(suffix))),
+      List(ModelBuilder.Event(fullyQualifiedName("SetEvent", domainProto(suffix)))))
 
   def valueEntity(): ModelBuilder.ValueEntity = valueEntity("")
   def valueEntity(suffix: String): ModelBuilder.ValueEntity =
@@ -181,13 +202,13 @@ class TestData(val packageNamingTemplate: PackageNaming) {
   def valueEntity(parent: PackageNaming, suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
       parent.protoPackage + s".MyValueEntity$suffix",
-      FullyQualifiedName(s"MyValueEntity$suffix", parent),
+      fullyQualifiedName(s"MyValueEntity$suffix", parent),
       s"MyValueEntity$suffix",
-      ModelBuilder.State(FullyQualifiedName("MyState", parent)))
+      ModelBuilder.State(fullyQualifiedName("MyState", parent)))
 
   def replicatedEntity(data: ModelBuilder.ReplicatedData, suffix: String = ""): ModelBuilder.ReplicatedEntity =
     ModelBuilder.ReplicatedEntity(
-      FullyQualifiedName(s"MyReplicatedEntity$suffix", domainProto(suffix)),
+      fullyQualifiedName(s"MyReplicatedEntity$suffix", domainProto(suffix)),
       s"MyReplicatedEntity$suffix",
       data)
 }
