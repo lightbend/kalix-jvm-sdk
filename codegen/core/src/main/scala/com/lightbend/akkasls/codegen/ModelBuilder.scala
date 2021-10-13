@@ -374,33 +374,46 @@ object ModelBuilder {
           existingEntities ++
           extractEventSourcedEntityDefinition(descriptor, descriptorSeq).map(entity =>
             entity.fqn.fullQualifiedName -> entity) ++
-          extractValueEntityDefinition(descriptor).map(entity => entity.componentFullName -> entity) ++
+          extractValueEntityDefinition(descriptor, descriptorSeq).map(entity => entity.componentFullName -> entity) ++
           extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
     }
   }
 
+  /**
+   * @return
+   *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
+   */
   private def resolveFullyQualifiedMessageType(
       name: String,
       descriptor: Descriptors.FileDescriptor,
       descriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): FullyQualifiedName = {
-    val fullName = resolveFullName(name, descriptor.getPackage)
-    val protoPackage = fullName.split("\\.").init.mkString(".")
-    val protoName = fullName.split("\\.").last
-    descriptors
-      .filter(_.getPackage == protoPackage)
-      .flatMap(_.getMessageTypes.asScala)
-      .filter(_.getName == protoName) match {
-      case Nil =>
-        throw new IllegalStateException(
-          s"No descriptor found for [$fullName] (searched: [${descriptors.map(_.getFile.getName).mkString(", ")}])")
-      case Seq(descriptor) =>
-        fqnExtractor.apply(descriptor)
-      case matchingDescriptors =>
-        throw new IllegalStateException(s"Multiple matching descriptors found for [$fullName] (searched: [${descriptors
-          .map(_.getFile.getName)
-          .mkString(", ")}], found in: ${matchingDescriptors.map(_.getFile.getName).mkString(", ")})")
+    // TODO this is used in the java tck as ValueEntity state type - I'm not sure we want to
+    // support this? In that case we should probably support all primitives?
+    if (name == "String")
+      FullyQualifiedName.noDescriptor("String", PackageNaming("", "", "", javaMultipleFiles = true))
+    else {
+      val fullName = resolveFullName(name, descriptor.getPackage)
+      val protoPackage = fullName.split("\\.").init.mkString(".")
+      val protoName = fullName.split("\\.").last
+      // TODO we could also look at the imports in the proto file to support
+      // importing names from outside this file without using their fully qualified name.
+      descriptors
+        .filter(_.getPackage == protoPackage)
+        .flatMap(_.getMessageTypes.asScala)
+        .filter(_.getName == protoName) match {
+        case Nil =>
+          throw new IllegalStateException(
+            s"No descriptor found for [$fullName] (searched: [${descriptors.map(_.getFile.getName).mkString(", ")}])")
+        case Seq(descriptor) =>
+          fqnExtractor.apply(descriptor)
+        case matchingDescriptors =>
+          throw new IllegalStateException(
+            s"Multiple matching descriptors found for [$fullName] (searched: [${descriptors
+              .map(_.getFile.getName)
+              .mkString(", ")}], found in: ${matchingDescriptors.map(_.getFile.getName).mkString(", ")})")
+      }
     }
   }
 
@@ -462,7 +475,9 @@ object ModelBuilder {
    * @param descriptor
    *   the file descriptor to extract from
    */
-  private def extractValueEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
+  private def extractValueEntityDefinition(
+      descriptor: Descriptors.FileDescriptor,
+      descriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Option[ValueEntity] = {
     val rawEntity =
@@ -470,21 +485,16 @@ object ModelBuilder {
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
 
-    val protoReference = fqnExtractor.packageName(descriptor)
-
     Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
       ValueEntity(
         descriptor.getFile.getPackage + "." + name,
-        FullyQualifiedName(name, name, protoReference, Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
+        FullyQualifiedName(
+          name,
+          name,
+          fqnExtractor.packageName(descriptor),
+          Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
         rawEntity.getEntityType,
-        // FIXME this assumes the state is defined in the same proto file as the
-        // entity, which I don't think is necessarily true.
-        State(
-          FullyQualifiedName(
-            rawEntity.getState,
-            rawEntity.getState,
-            protoReference,
-            Some(fqnExtractor.fileDescriptorObject(descriptor.getFile)))))
+        State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, descriptors)))
     }
   }
 

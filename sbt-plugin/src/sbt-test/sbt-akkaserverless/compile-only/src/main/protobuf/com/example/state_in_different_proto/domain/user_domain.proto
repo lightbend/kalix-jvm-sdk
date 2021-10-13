@@ -18,10 +18,10 @@ package com.example.state_in_different_proto.domain;
 
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "UserDomain";
+option java_outer_classname = "UserrDomain";
 
 option (akkaserverless.file).value_entity = {
-    name: "User"
+    name: "Userr"
     entity_type: "user"
-    state: "../state/UserState"
+    state: "com.example.state_in_different_proto.state.UserState"
 };

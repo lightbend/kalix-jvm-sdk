@@ -26,7 +26,8 @@ object JavaGeneratorUtils {
       else
         s"${fqn.parent.javaPackage}.${fqn.parent.javaOuterClassname}"
 
-    if (imports.contains(fqn.fullQualifiedName)) fqn.name
+    if (fqn.parent.javaPackage.isEmpty) fqn.name
+    else if (imports.contains(fqn.fullQualifiedName)) fqn.name
     else if (imports.currentPackage == directParent) fqn.name
     else if (imports.contains(directParent) || imports.currentPackage == fqn.parent.javaPackage)
       directParent.split("\\.").last + "." + fqn.name
