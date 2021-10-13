@@ -152,16 +152,16 @@ object ActionTestKitGenerator {
           |""".stripMargin)
   }
 
-  def selectOutputResult(command: ModelBuilder.Command): String = {
+  def selectOutputResult(command: ModelBuilder.Command)(implicit imports: Imports): String = {
     if (command.streamedOutput)
-      s"Source[ActionResult[${command.outputType.name}], akka.NotUsed]"
-    else s"ActionResult[${command.outputType.name}]"
+      s"Source[ActionResult[${typeName(command.outputType)}], akka.NotUsed]"
+    else s"ActionResult[${typeName(command.outputType)}]"
   }
 
-  def selectOutputEffect(command: ModelBuilder.Command): String = {
+  def selectOutputEffect(command: ModelBuilder.Command)(implicit imports: Imports): String = {
     if (command.streamedOutput)
-      s"Source[Effect[${command.outputType.name}], akka.NotUsed]"
-    else s"Effect[${command.outputType.name}]"
+      s"Source[Effect[${typeName(command.outputType)}], akka.NotUsed]"
+    else s"Effect[${typeName(command.outputType)}]"
   }
 
   def selectOutputReturn(command: ModelBuilder.Command): String = {
@@ -169,9 +169,9 @@ object ActionTestKitGenerator {
     else "interpretEffects(effect);"
   }
 
-  def selectInput(command: ModelBuilder.Command): String = {
-    if (command.streamedInput) s"Source[${command.inputType.name}, akka.NotUsed]"
-    else command.inputType.name
+  def selectInput(command: ModelBuilder.Command)(implicit imports: Imports): String = {
+    if (command.streamedInput) s"Source[${typeName(command.inputType)}, akka.NotUsed]"
+    else typeName(command.inputType)
   }
 
   def commandStreamedTypes(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
