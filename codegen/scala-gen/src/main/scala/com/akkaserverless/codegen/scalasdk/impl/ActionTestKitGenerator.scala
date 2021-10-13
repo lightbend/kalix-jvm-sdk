@@ -18,6 +18,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ActionTestKitGenerator {
@@ -32,7 +33,7 @@ object ActionTestKitGenerator {
     Seq(testkit(service))
 
   private[codegen] def testkit(service: ModelBuilder.ActionService): File = {
-    implicit val imports =
+    implicit val imports: Imports =
       generateImports(
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
@@ -95,7 +96,7 @@ object ActionTestKitGenerator {
 
   def test(service: ModelBuilder.ActionService): File = {
 
-    implicit val imports =
+    implicit val imports: Imports =
       generateImports(
         service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
         service.fqn.parent.scalaPackage,
