@@ -40,7 +40,7 @@ public class ShoppingCartIntegrationTest {
   private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    this.client = testKit.getGrpcClient(ShoppingCartService.class, "ShoppingCartService");
+    this.client = testKit.getGrpcClient(ShoppingCartService.class);
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {

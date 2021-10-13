@@ -31,7 +31,7 @@ public class SomeMultiMapIntegrationTest {
   private final MultiMapService client;
 
   public SomeMultiMapIntegrationTest() {
-    client = testKit.getGrpcClient(MultiMapService.class, "MultiMapService");
+    client = testKit.getGrpcClient(MultiMapService.class);
   }
 
   public void put(String multiMapId, String key, double value) throws Exception {

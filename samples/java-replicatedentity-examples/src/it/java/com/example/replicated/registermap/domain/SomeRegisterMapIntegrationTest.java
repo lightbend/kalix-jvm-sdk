@@ -28,7 +28,7 @@ public class SomeRegisterMapIntegrationTest {
   private final RegisterMapService client;
 
   public SomeRegisterMapIntegrationTest() {
-    client = testKit.getGrpcClient(RegisterMapService.class, "RegisterMapService");
+    client = testKit.getGrpcClient(RegisterMapService.class);
   }
 
   public void set(String registerMapId, String key, String value) throws Exception {

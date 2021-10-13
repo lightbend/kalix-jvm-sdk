@@ -26,7 +26,7 @@ public class SomeSetIntegrationTest {
   private final SetService client;
 
   public SomeSetIntegrationTest() {
-    client = testKit.getGrpcClient(SetService.class, "SetService");
+    client = testKit.getGrpcClient(SetService.class);
   }
 
   public void add(String setId, String value) throws Exception {

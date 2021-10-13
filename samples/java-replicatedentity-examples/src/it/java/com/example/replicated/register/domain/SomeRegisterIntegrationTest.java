@@ -22,7 +22,7 @@ public class SomeRegisterIntegrationTest {
   private final RegisterService client;
 
   public SomeRegisterIntegrationTest() {
-    client = testKit.getGrpcClient(RegisterService.class, "RegisterService");
+    client = testKit.getGrpcClient(RegisterService.class);
   }
 
   public void set(String registerId, String value) throws Exception {

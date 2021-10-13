@@ -21,7 +21,7 @@ public class FibonacciActionIntegrationTest {
   private final Fibonacci client;
 
   public FibonacciActionIntegrationTest() {
-    this.client = testKit.getGrpcClient(Fibonacci.class, "Fibonacci");
+    this.client = testKit.getGrpcClient(Fibonacci.class);
   }
 
   @Test

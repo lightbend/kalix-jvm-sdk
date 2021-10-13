@@ -27,7 +27,7 @@ public class SomeCounterMapIntegrationTest {
   private final CounterMapService client;
 
   public SomeCounterMapIntegrationTest() {
-    client = testKit.getGrpcClient(CounterMapService.class, "CounterMapService");
+    client = testKit.getGrpcClient(CounterMapService.class);
   }
 
   public void increase(String counterMapId, String key, int value) throws Exception {

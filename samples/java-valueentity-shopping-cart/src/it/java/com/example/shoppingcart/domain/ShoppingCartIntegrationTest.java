@@ -44,7 +44,7 @@ public class ShoppingCartIntegrationTest {
   private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    client = testKit.getGrpcClient(ShoppingCartService.class, "ShoppingCartService");
+    client = testKit.getGrpcClient(ShoppingCartService.class);
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {

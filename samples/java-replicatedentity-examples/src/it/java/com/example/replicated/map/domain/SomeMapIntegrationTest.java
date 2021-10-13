@@ -24,7 +24,7 @@ public class SomeMapIntegrationTest {
   private final MapService client;
 
   public SomeMapIntegrationTest() {
-    client = testKit.getGrpcClient(MapService.class, "MapService");
+    client = testKit.getGrpcClient(MapService.class);
   }
 
   public void increaseFoo(String mapId, int value) throws Exception {

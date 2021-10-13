@@ -22,7 +22,7 @@ public class SomeCounterIntegrationTest {
   private final CounterService client;
 
   public SomeCounterIntegrationTest() {
-    client = testKit.getGrpcClient(CounterService.class, "CounterService");
+    client = testKit.getGrpcClient(CounterService.class);
   }
 
   public void increase(String counterId, int value) throws Exception {

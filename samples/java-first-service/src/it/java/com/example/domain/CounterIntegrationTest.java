@@ -31,7 +31,7 @@ public class CounterIntegrationTest {
   private final CounterService client;
 
   public CounterIntegrationTest() {
-    client = testKit.getGrpcClient(CounterService.class, "CounterService");
+    client = testKit.getGrpcClient(CounterService.class);
   }
 
   @Test

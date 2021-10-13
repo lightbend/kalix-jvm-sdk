@@ -30,7 +30,7 @@ object ValueEntityTestKitGenerator {
       main: FullyQualifiedName,
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): Seq[File] =
-    Seq(test(valueEntity, service), integrationTest(main, valueEntity, service))
+    Seq(test(valueEntity, service), integrationTest(main, service))
 
   def generateManagedTest(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(testkit(valueEntity, service))
@@ -168,23 +168,16 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin)
   }
 
-  def integrationTest(
-      main: FullyQualifiedName,
-      valueEntity: ModelBuilder.ValueEntity,
-      service: ModelBuilder.EntityService): File = {
-
-    val client = FullyQualifiedName.noDescriptor(service.fqn.name + "Client", service.fqn.parent)
+  def integrationTest(main: FullyQualifiedName, service: ModelBuilder.EntityService): File = {
 
     implicit val imports: Imports =
       generateImports(
-        Seq(main, valueEntity.state.fqn, client) ++
+        Seq(main) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
         service.fqn.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
@@ -193,7 +186,7 @@ object ValueEntityTestKitGenerator {
           "org.scalatest.time.Span",
           "org.scalatest.time.Seconds",
           "org.scalatest.time.Millis"),
-        packageImports = Seq(valueEntity.fqn.parent.scalaPackage))
+        packageImports = Nil)
 
     val entityClassName = service.fqn.name
 
@@ -211,16 +204,14 @@ object ValueEntityTestKitGenerator {
           |    with BeforeAndAfterAll
           |    with ScalaFutures {
           |
-          |  implicit val patience: PatienceConfig =
+          |  implicit private val patience: PatienceConfig =
           |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
           |
-          |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-          |  testKit.start()
-          |  implicit val system: ActorSystem = testKit.system
+          |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+          |
+          |  private val client = testKit.getGrpcClient(classOf[${typeName(service.fqn)}])
           |
           |  "${entityClassName}" must {
-          |    val client: ${typeName(client)} =
-          |      ${typeName(client)}(testKit.grpcClientSettings)
           |
           |    "have example test that can be removed" in {
           |      // use the gRPC client to send requests to the
@@ -229,7 +220,7 @@ object ValueEntityTestKitGenerator {
           |
           |  }
           |
-          |  override def afterAll() = {
+          |  override def afterAll(): Unit = {
           |    testKit.stop()
           |    super.afterAll()
           |  }

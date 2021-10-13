@@ -31,7 +31,7 @@ public class ShoppingCartEntityIntegrationTest {
   private final ShoppingCart client;
 
   public ShoppingCartEntityIntegrationTest() {
-    client = testKit.getGrpcClient(ShoppingCart.class, "ShoppingCart");
+    client = testKit.getGrpcClient(ShoppingCart.class);
   }
 
   @Test
