@@ -163,13 +163,13 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |  @Test
         |  public void streamedInputMethodTest() {
         |    MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
-        |    // ActionResult<Empty> result = testKit.streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed>.newBuilder()...build());
+        |    // ActionResult<Empty> result = testKit.streamedInputMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));
         |  }
         |
         |  @Test
         |  public void fullStreamedMethodTest() {
         |    MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
-        |    // Source<ActionResult<Empty>, akka.NotUsed> result = testKit.fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed>.newBuilder()...build());
+        |    // Source<ActionResult<Empty>, akka.NotUsed> result = testKit.fullStreamedMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));
         |  }
         |
         |}""".stripMargin

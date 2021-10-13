@@ -61,7 +61,12 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         | */
         |final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction) {
         |
-        |  private def newActionInstance() = actionFactory(new TestKitActionContext)
+        |  private def newActionInstance() = {
+        |    val context = new TestKitActionContext
+        |    val action = actionFactory(context)
+        |    action._internalSetActionContext(Some(context))
+        |    action
+        |  }
         |
         |  def simpleMethod(command: MyRequest): ActionResult[Empty] =
         |    new ActionResultImpl(newActionInstance().simpleMethod(command))

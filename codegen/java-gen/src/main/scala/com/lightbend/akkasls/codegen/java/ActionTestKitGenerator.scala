@@ -118,6 +118,7 @@ object ActionTestKitGenerator {
       otherImports = Seq(
         s"$packageName.$className",
         s"${packageName}.${className}TestKit",
+        "akka.stream.javadsl.Source",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "org.junit.Test",
         "static org.junit.Assert.*")
@@ -154,7 +155,7 @@ object ActionTestKitGenerator {
 
     service.commands
       .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
+        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}) {
           |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
@@ -170,17 +171,16 @@ object ActionTestKitGenerator {
       .map { command =>
         s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
-            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);\n""".stripMargin +
+            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);""".stripMargin +
         (if (command.isUnary || command.isStreamOut) {
            s"""
-            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${command.inputType.fullName}.newBuilder()...build());
             |}
             |
             |""".stripMargin
          } else {
            s"""
-            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(
-             command.name)}(Source.single(${selectInput(command)}.newBuilder()...build()));
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(Source.single(${command.inputType.fullName}.newBuilder()...build()));
             |}
             |
             |""".stripMargin
@@ -206,7 +206,7 @@ object ActionTestKitGenerator {
     else "interpretEffects(effect);"
   }
 
-  def selectInput(command: ModelBuilder.Command): String = {
+  def selectInputType(command: ModelBuilder.Command): String = {
     if (command.streamedInput) s"Source<${command.inputType.fullName}, akka.NotUsed>"
     else command.inputType.fullName
   }

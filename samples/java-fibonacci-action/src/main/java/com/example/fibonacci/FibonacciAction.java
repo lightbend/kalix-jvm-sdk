@@ -5,8 +5,13 @@
 
 package com.example.fibonacci;
 
+import akka.NotUsed;
+import akka.japi.Pair;
+import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 
 /** An action. */
@@ -46,4 +51,48 @@ public class FibonacciAction extends AbstractFibonacciAction { // <1>
     }
   }
   // end::implemented-action[]
+
+
+  @Override
+  public Source<Effect<FibonacciApi.Number>, NotUsed> nextNumbers(FibonacciApi.Number number) {
+    long num = number.getValue();
+    if (!isFibonacci(num)) {
+      return Source.single(effects().error("Input number is not a Fibonacci number, received '" + num + "'"));
+    } else {
+      return Source.unfold(num, previous -> {
+        long next = nextFib(previous);
+        Effect<FibonacciApi.Number> nextEffect =
+            effects().reply(FibonacciApi.Number.newBuilder().setValue(next).build());
+        return Optional.of(Pair.create(next, nextEffect));
+      });
+    }
+  }
+
+  @Override
+  public Effect<FibonacciApi.Number> nextNumberOfSum(Source<FibonacciApi.Number, NotUsed> numberSrc) {
+    // contrived but just to stay in fibonacci land with a streamed in call
+    CompletionStage<Effect<FibonacciApi.Number>> effect = numberSrc.runFold(0L, (acc, number) -> acc + number.getValue(), actionContext().materializer())
+        .thenApply(sum -> {
+          if (isFibonacci(sum)) {
+            return effects().reply(FibonacciApi.Number.newBuilder().setValue(nextFib(sum)).build());
+          } else {
+            return effects().error("Input sum is not a Fibonacci number, received '" + sum + "'");
+          }
+        });
+
+    return effects().asyncEffect(effect);
+  }
+
+  @Override
+  public Source<Effect<FibonacciApi.Number>, NotUsed> nextNumberOfEach(Source<FibonacciApi.Number, NotUsed> numberSrc) {
+    return numberSrc.map(number -> {
+      long num = number.getValue();
+      if (!isFibonacci(num)) {
+        return effects()
+            .error("Input number is not a Fibonacci number, received '" + num + "'");
+      } else {
+        return effects().reply(FibonacciApi.Number.newBuilder().setValue(nextFib(num)).build());
+      }
+    });
+  }
 }
