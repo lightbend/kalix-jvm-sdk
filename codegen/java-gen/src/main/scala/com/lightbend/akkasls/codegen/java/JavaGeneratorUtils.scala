@@ -20,11 +20,17 @@ import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder
 
 object JavaGeneratorUtils {
   def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
+    val directParent =
+      if (fqn.parent.javaMultipleFiles)
+        fqn.parent.javaPackage
+      else
+        s"${fqn.parent.javaPackage}.${fqn.parent.javaOuterClassname}"
+
     if (imports.contains(fqn.fullQualifiedName)) fqn.name
-    else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
-    else if (imports.contains(fqn.parent.javaPackage))
-      fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
-    else fqn.fullQualifiedName
+    else if (imports.currentPackage == directParent) fqn.name
+    else if (imports.contains(directParent) || imports.currentPackage == fqn.parent.javaPackage)
+      directParent.split("\\.").last + "." + fqn.name
+    else directParent + s".${fqn.name}"
   }
 
   def writeImports(imports: Imports): String = {

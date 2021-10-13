@@ -32,7 +32,14 @@ case class FullyQualifiedName(
     parent: PackageNaming,
     descriptorObject: Option[FullyQualifiedName]) {
 
-  lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
+  /**
+   * This is the fully qualified type name of the proto type. This should rarely be used during codegen, since there
+   * language-specific changes might have to be applied, and imports taken into account. In that case use the
+   * language-specific `typeName` utility function instead.
+   *
+   * FIXME we should probably rename this to 'fullyQualifiedProtoName', and review each use of this field.
+   */
+  lazy val fullQualifiedName = s"${parent.protoPackage}.$name"
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
     else s"${parent.javaOuterClassname}.$name"
@@ -63,9 +70,9 @@ case class PackageNaming(
     protoFileName: String,
     name: String,
     protoPackage: String,
-    javaPackageOption: Option[String],
-    javaOuterClassnameOption: Option[String],
-    javaMultipleFiles: Boolean) {
+    javaPackageOption: Option[String] = None,
+    javaOuterClassnameOption: Option[String] = None,
+    javaMultipleFiles: Boolean = false) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(protoPackage)
   def scalaPackage: String = javaPackage
   def javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)

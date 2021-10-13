@@ -35,8 +35,16 @@ object TestData {
 
   def guessDescriptor(protoName: String, proto: PackageNaming): Option[FullyQualifiedName] =
     proto.javaOuterClassnameOption match {
-      case Some(outer) => Some(FullyQualifiedName(outer, outer, proto, None))
-      case None        => Some(FullyQualifiedName(protoName + "Proto", protoName + "Proto", proto, None))
+      case Some(outer) =>
+        Some(
+          FullyQualifiedName(outer, outer, proto.copy(javaOuterClassnameOption = None, javaMultipleFiles = true), None))
+      case None =>
+        Some(
+          FullyQualifiedName(
+            protoName + "Proto",
+            protoName + "Proto",
+            proto.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
+            None))
     }
 
   def fullyQualifiedName(name: String, parent: PackageNaming): FullyQualifiedName = {
@@ -46,7 +54,12 @@ object TestData {
       parent,
       parent.javaOuterClassnameOption match {
         case Some(outer) =>
-          Some(FullyQualifiedName(outer, outer, parent, None))
+          Some(
+            FullyQualifiedName(
+              outer,
+              outer,
+              parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
+              None))
         case None =>
           def capitalize(s: String, capitalizeNext: Boolean = true): String =
             s.headOption match {
@@ -57,7 +70,12 @@ object TestData {
                 else c + capitalize(s.tail, false)
             }
           val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
-          Some(FullyQualifiedName(protoClassName, protoClassName, parent, None))
+          Some(
+            FullyQualifiedName(
+              protoClassName,
+              protoClassName,
+              parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
+              None))
       })
   }
 }
