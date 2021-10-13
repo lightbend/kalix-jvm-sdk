@@ -47,7 +47,7 @@ object ModelBuilder {
         service.componentFullName,
         throw new IllegalArgumentException(
           "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
-          "], but no entity configuration is found for that component name"))
+          s"], but no entity configuration is found for that component name. Entities: [${entities.keySet.mkString(", ")}]"))
     }
   }
 

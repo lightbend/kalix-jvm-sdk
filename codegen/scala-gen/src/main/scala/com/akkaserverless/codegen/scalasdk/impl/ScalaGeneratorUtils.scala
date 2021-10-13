@@ -25,7 +25,8 @@ object ScalaGeneratorUtils {
     else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
     else if (imports.contains(fqn.parent.javaPackage))
       fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
-    else fqn.fullQualifiedName
+    else
+      s"${fqn.parent.javaPackage}.${fqn.name}"
   }
 
   def writeImports(imports: Imports): String = {

@@ -230,9 +230,9 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val stateType = entity.state.fqn.fullName
+    val stateType = entity.state.fqn
 
-    val imports = generateCommandImports(
+    implicit val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -242,12 +242,9 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.name
 
-        val inputType = cmd.inputType.fullName
-        val outputType = qualifiedType(cmd.outputType)
-
         s"""|/** Command handler for "${cmd.name}". */
-            |public abstract Effect<$outputType> ${lowerFirst(
-          methodName)}($stateType currentState, $inputType ${lowerFirst(cmd.inputType.name)});
+            |public abstract Effect<${typeName(cmd.outputType)}> ${lowerFirst(methodName)}(${typeName(
+          stateType)} currentState, ${typeName(cmd.inputType)} ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
       }
@@ -259,7 +256,7 @@ object ValueEntitySourceGenerator {
         |$managedComment
         |
         |/** A value entity. */
-        |public abstract class Abstract$className extends ValueEntity<$stateType> {
+        |public abstract class Abstract$className extends ValueEntity<${typeName(stateType)}> {
         |
         |  ${Format.indent(methods, 2)}
         |
