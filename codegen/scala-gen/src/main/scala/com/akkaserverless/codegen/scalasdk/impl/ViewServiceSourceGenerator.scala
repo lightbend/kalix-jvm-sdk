@@ -25,6 +25,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
  */
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   /**
    * Generate Scala sources the user view source file.
@@ -64,7 +65,7 @@ object ViewServiceSourceGenerator {
       view.handlerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -112,7 +113,7 @@ object ViewServiceSourceGenerator {
       view.providerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -180,7 +181,7 @@ object ViewServiceSourceGenerator {
       view.className,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -221,7 +222,7 @@ object ViewServiceSourceGenerator {
       view.abstractViewName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |

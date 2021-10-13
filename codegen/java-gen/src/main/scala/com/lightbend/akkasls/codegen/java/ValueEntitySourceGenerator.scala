@@ -21,6 +21,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
@@ -51,7 +52,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -102,7 +103,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -161,7 +162,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -253,7 +254,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |

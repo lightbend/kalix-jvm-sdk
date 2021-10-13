@@ -24,6 +24,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanagedTest(
       main: FullyQualifiedName,
@@ -64,7 +65,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "TestKit.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -140,7 +141,7 @@ object ValueEntityTestKitGenerator {
       valueEntity.fqn.fileBasename + "Spec.scala",
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |class ${entityClassName}Spec
           |    extends AnyWordSpec
@@ -200,7 +201,7 @@ object ValueEntityTestKitGenerator {
       service.fqn.fileBasename + "IntegrationSpec.scala",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$unmanagedComment
           |

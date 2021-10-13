@@ -27,6 +27,7 @@ import com.google.common.base.Charsets
  */
 object ActionServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   /**
    * Generate Java source from views where the target source and test source directories have no existing source.
@@ -138,7 +139,7 @@ object ActionServiceSourceGenerator {
 
     s"""|package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -186,7 +187,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -254,7 +255,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -329,7 +330,7 @@ object ActionServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |${writeImports(imports, isScala = false)}
+      |${writeImports(imports)}
       |
       |$managedComment
       |

@@ -27,6 +27,7 @@ import com.google.common.base.Charsets
  */
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   /**
    * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
@@ -97,7 +98,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -145,7 +146,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -236,7 +237,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |${writeImports(imports, isScala = false)}
+       |${writeImports(imports)}
        |
        |$unmanagedComment
        |
@@ -272,7 +273,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |${writeImports(imports, isScala = false)}
+      |${writeImports(imports)}
       |
       |$managedComment
       |

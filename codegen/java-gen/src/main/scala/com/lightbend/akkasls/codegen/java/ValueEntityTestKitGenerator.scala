@@ -25,6 +25,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       entity: ModelBuilder.ValueEntity,
@@ -80,7 +81,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |${writeImports(imports, isScala = false)}
+       |${writeImports(imports)}
        |
        |$managedComment
        |
@@ -191,7 +192,7 @@ object ValueEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
        |
-       |${writeImports(imports, isScala = false)}
+       |${writeImports(imports)}
        |
        |import static org.junit.Assert.*;
        |
