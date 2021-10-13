@@ -21,6 +21,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ReplicatedEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   private[codegen] def replicatedEntitySource(
       service: ModelBuilder.EntityService,
@@ -36,13 +37,13 @@ object ReplicatedEntitySourceGenerator {
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext") ++ extraReplicatedImports(entity.data))
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data, isScala = false)
+    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val emptyValue = entity.data match {
       case ModelBuilder.ReplicatedRegister(valueType) =>
         s"""|
             |  @Override
-            |  public ${dataType(valueType, isScala = false)} emptyValue() {
+            |  public ${dataType(valueType)} emptyValue() {
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value");
             |  }
             |""".stripMargin
@@ -63,7 +64,7 @@ object ReplicatedEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -97,7 +98,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity",
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data))
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data, isScala = false)
+    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val commandCases = service.commands
       .map { cmd =>
@@ -110,7 +111,7 @@ object ReplicatedEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -166,7 +167,7 @@ object ReplicatedEntitySourceGenerator {
         "java.util.function.Function")
         ++ extraReplicatedImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data, isScala = false)
+    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
@@ -175,7 +176,7 @@ object ReplicatedEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -254,7 +255,7 @@ object ReplicatedEntitySourceGenerator {
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
         s"com.akkaserverless.javasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data))
 
-    val typeArguments = parameterizeDataType(entity.data, isScala = false)
+    val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
 
     val methods = service.commands
@@ -271,7 +272,7 @@ object ReplicatedEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |

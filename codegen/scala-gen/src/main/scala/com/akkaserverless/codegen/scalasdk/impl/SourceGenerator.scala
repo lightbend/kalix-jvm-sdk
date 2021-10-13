@@ -20,7 +20,6 @@ import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object SourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio

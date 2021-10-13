@@ -24,6 +24,7 @@ import com.google.common.base.Charsets
 
 object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       service: ModelBuilder.ActionService,
@@ -76,7 +77,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -126,7 +127,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |${writeImports(imports, isScala = false)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |

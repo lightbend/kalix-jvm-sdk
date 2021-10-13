@@ -24,6 +24,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 object ReplicatedEntitySourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanaged(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(entity, service))
@@ -49,7 +50,7 @@ object ReplicatedEntitySourceGenerator {
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    val typeArguments = parameterizeDataType(entity.data, isScala = true)
+    val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
 
     val methods = service.commands
@@ -67,7 +68,7 @@ object ReplicatedEntitySourceGenerator {
 
     val emptyValue = entity.data match {
       case ModelBuilder.ReplicatedRegister(valueType) =>
-        s"""|  override def emptyValue: ${dataType(valueType, isScala = true)} =
+        s"""|  override def emptyValue: ${dataType(valueType)} =
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value")
             |
             |""".stripMargin
@@ -79,7 +80,7 @@ object ReplicatedEntitySourceGenerator {
       className,
       s"""|package $packageName
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$unmanagedComment
           |
@@ -111,7 +112,7 @@ object ReplicatedEntitySourceGenerator {
         s"com.akkaserverless.scalasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    val typeArguments = parameterizeDataType(entity.data, isScala = true)
+    val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
 
     val methods = service.commands
@@ -131,7 +132,7 @@ object ReplicatedEntitySourceGenerator {
       abstractEntityName,
       s"""|package $packageName
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -163,7 +164,7 @@ object ReplicatedEntitySourceGenerator {
         extraTypeImports(entity.data.typeArguments),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data, isScala = true)
+    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val commandCases = service.commands
       .map { cmd =>
@@ -179,7 +180,7 @@ object ReplicatedEntitySourceGenerator {
       handlerName,
       s"""|package $packageName
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -235,7 +236,7 @@ object ReplicatedEntitySourceGenerator {
         extraTypeImports(entity.data.typeArguments),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data, isScala = true)
+    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val relevantTypesToImport = collectRelevantTypes(relevantTypes, service.fqn)
     val descriptors =
@@ -250,7 +251,7 @@ object ReplicatedEntitySourceGenerator {
       s"""
          |package $packageName
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$managedComment
          |

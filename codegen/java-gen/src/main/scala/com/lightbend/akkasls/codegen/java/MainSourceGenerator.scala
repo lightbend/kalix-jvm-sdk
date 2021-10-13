@@ -30,6 +30,7 @@ import com.lightbend.akkasls.codegen._
  */
 object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       model: ModelBuilder.Model,
@@ -100,7 +101,7 @@ object MainSourceGenerator {
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import org.slf4j.Logger;
         |import org.slf4j.LoggerFactory;
-        |${writeImports(componentImports, isScala = false)}
+        |${writeImports(componentImports)}
         |
         |$unmanagedComment
         |

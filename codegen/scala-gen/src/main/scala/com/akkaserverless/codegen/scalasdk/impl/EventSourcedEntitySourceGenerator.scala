@@ -23,6 +23,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanaged(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
@@ -78,7 +79,7 @@ object EventSourcedEntitySourceGenerator {
       abstractEntityName,
       s"""|package ${eventSourcedEntity.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -132,7 +133,7 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.handlerName,
       s"""|package $packageName
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -183,7 +184,7 @@ object EventSourcedEntitySourceGenerator {
       s"""
          |package $packageName
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$managedComment
          |
@@ -247,7 +248,7 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.fqn.fileBasename + ".scala",
       s"""package ${eventSourcedEntity.fqn.parent.scalaPackage}
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$unmanagedComment
          |

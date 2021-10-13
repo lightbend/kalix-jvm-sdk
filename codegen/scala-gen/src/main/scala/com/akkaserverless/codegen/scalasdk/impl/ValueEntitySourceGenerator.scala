@@ -23,6 +23,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
@@ -63,7 +64,7 @@ object ValueEntitySourceGenerator {
       abstractEntityName,
       s"""|package ${valueEntity.fqn.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -105,7 +106,7 @@ object ValueEntitySourceGenerator {
       valueEntity.handlerName,
       s"""|package $packageName
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -149,7 +150,7 @@ object ValueEntitySourceGenerator {
       s"""
          |package $packageName
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$managedComment
          |
@@ -203,7 +204,7 @@ object ValueEntitySourceGenerator {
       s"""
          |package ${valueEntity.fqn.parent.scalaPackage}
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$unmanagedComment
          |

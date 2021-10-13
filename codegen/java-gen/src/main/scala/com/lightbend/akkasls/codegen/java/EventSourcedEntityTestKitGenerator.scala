@@ -24,6 +24,7 @@ import com.google.common.base.Charsets
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       entity: ModelBuilder.EventSourcedEntity,
@@ -81,7 +82,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
           |
-          |${writeImports(imports, isScala = false)}
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -228,7 +229,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package $packageName;
       |
-      |${writeImports(imports, isScala = false)}
+      |${writeImports(imports)}
       |
       |import static org.junit.Assert.*;
       |

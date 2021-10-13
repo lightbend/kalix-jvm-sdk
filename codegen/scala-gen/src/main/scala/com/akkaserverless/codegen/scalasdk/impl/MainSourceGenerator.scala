@@ -28,6 +28,7 @@ import com.lightbend.akkasls.codegen._
 object MainSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
     Seq(mainSource(model))
@@ -91,7 +92,7 @@ object MainSourceGenerator {
       mainClass.name,
       s"""|package ${mainClass.parent.scalaPackage}
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -214,7 +215,7 @@ object MainSourceGenerator {
       "AkkaServerlessFactory",
       s"""|package $packageName
         |
-        |${writeImports(imports, isScala = true)}
+        |${writeImports(imports)}
         |
         |$managedComment
         |

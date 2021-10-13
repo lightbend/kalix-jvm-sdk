@@ -17,7 +17,8 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.EventSourcedEntityTestKitGenerator
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, PackageNaming, TestData }
+import com.lightbend.akkasls.codegen.TestData
+import com.lightbend.akkasls.codegen.TestData._
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.scalaStyle
@@ -131,7 +132,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   }
 
   test("it can generate an specific integration test stub for the entity") {
-    val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example"))
+    val main = fullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example"))
 
     assertEquals(
       EventSourcedEntityTestKitGenerator

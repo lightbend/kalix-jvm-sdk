@@ -18,10 +18,13 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanagedTest(
       main: FullyQualifiedName,
@@ -68,7 +71,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "TestKit.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
        |
-       |${writeImports(imports, isScala = true)}
+       |${writeImports(imports)}
        |
        |$managedComment
        |
@@ -141,7 +144,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "Spec.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
          |
-         |${writeImports(imports, isScala = true)}
+         |${writeImports(imports)}
          |
          |$unmanagedComment
          |
@@ -172,7 +175,7 @@ object EventSourcedEntityTestKitGenerator {
       valueEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
 
-    val client = FullyQualifiedName(service.fqn.name + "Client", service.fqn.parent)
+    val client = FullyQualifiedName.noDescriptor(service.fqn.name + "Client", service.fqn.parent)
 
     implicit val imports: Imports =
       generateImports(
@@ -192,8 +195,7 @@ object EventSourcedEntityTestKitGenerator {
           "org.scalatest.time.Span",
           "org.scalatest.time.Seconds",
           "org.scalatest.time.Millis"),
-        packageImports = Seq(valueEntity.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Seq(valueEntity.fqn.parent.scalaPackage))
 
     val entityClassName = service.fqn.name
 
@@ -201,7 +203,7 @@ object EventSourcedEntityTestKitGenerator {
       service.fqn.fileBasename + "IntegrationSpec.scala",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports)}
           |
           |$unmanagedComment
           |

@@ -23,6 +23,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 object ActionTestKitGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanagedTest(service: ModelBuilder.ActionService): Seq[File] =
     Seq(test(service))
@@ -56,7 +57,7 @@ object ActionTestKitGenerator {
       s"${actionClassName}TestKit",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -113,7 +114,7 @@ object ActionTestKitGenerator {
       actionClassName + "Spec",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |${writeImports(imports, isScala = true)}
+          |${writeImports(imports)}
           |
           |$unmanagedComment
           |

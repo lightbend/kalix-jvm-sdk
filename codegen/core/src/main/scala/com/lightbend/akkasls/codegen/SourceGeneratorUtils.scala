@@ -144,27 +144,6 @@ object SourceGeneratorUtils {
   def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 
-  def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
-    if (fqn.fullQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
-    else if (imports.contains(fqn.fullQualifiedName)) fqn.name
-    else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
-    else if (imports.contains(fqn.parent.javaPackage))
-      fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
-    else fqn.fullQualifiedName
-  }
-
-  def writeImports(imports: Imports, isScala: Boolean): String = {
-    val suffix = if (isScala) "" else ";"
-    imports.imports
-      .map { imported =>
-        if (imported == "com.google.protobuf.any.Any") {
-          s"import com.google.protobuf.any.{ Any => ScalaPbAny }${suffix}"
-        } else
-          s"import $imported${suffix}"
-      }
-      .mkString("\n")
-  }
-
   def collectRelevantTypes(
       fullQualifiedNames: Iterable[FullyQualifiedName],
       service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
@@ -190,45 +169,5 @@ object SourceGeneratorUtils {
       case _                             => Seq.empty
     }
   }
-
-  def dataType(typeArgument: ModelBuilder.TypeArgument, isScala: Boolean)(implicit imports: Imports): String =
-    typeArgument match {
-      case ModelBuilder.MessageTypeArgument(fqn) =>
-        // FIXME: there is a bug here the full name is EntityOuterClass.SomeValue
-        //  and the fullQualifiedName is com.example.service.domain.SomeValue (missing EntityOuterClass)
-        if (isScala) typeName(fqn)
-        else fqn.fullName
-      case ModelBuilder.ScalarTypeArgument(scalar) =>
-        scalar match {
-          case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
-              ModelBuilder.ScalarType.Fixed32 | ModelBuilder.ScalarType.SFixed32 =>
-            if (isScala) "Int" else "Integer"
-          case ModelBuilder.ScalarType.Int64 | ModelBuilder.ScalarType.UInt64 | ModelBuilder.ScalarType.SInt64 |
-              ModelBuilder.ScalarType.Fixed64 | ModelBuilder.ScalarType.SFixed64 =>
-            "Long"
-          case ModelBuilder.ScalarType.Double => "Double"
-          case ModelBuilder.ScalarType.Float  => "Float"
-          case ModelBuilder.ScalarType.Bool   => "Boolean"
-          case ModelBuilder.ScalarType.String => "String"
-          case ModelBuilder.ScalarType.Bytes  => "ByteString"
-          case _                              => if (isScala) "_" else "?"
-        }
-    }
-
-  def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData, isScala: Boolean)(implicit
-      imports: Imports): String = {
-    val typeArguments =
-      replicatedData match {
-        // special case ReplicatedMap as heterogeneous with ReplicatedData values
-        case ModelBuilder.ReplicatedMap(key) => Seq(dataType(key, isScala), "ReplicatedData")
-        case data                            => data.typeArguments.map(typ => dataType(typ, isScala))
-      }
-    parameterizeTypes(typeArguments, isScala)
-  }
-
-  def parameterizeTypes(types: Iterable[String], isScala: Boolean): String =
-    if (types.isEmpty) ""
-    else if (isScala) types.mkString("[", ", ", "]")
-    else types.mkString("<", ", ", ">")
 
 }
