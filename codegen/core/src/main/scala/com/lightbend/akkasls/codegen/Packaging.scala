@@ -37,9 +37,7 @@ case class FullyQualifiedName(
    * there language-specific changes might have to be applied, and imports taken into account. In that case use the
    * language-specific `typeName` utility function instead.
    *
-   * FIXME we should probably:
-   * * rename this to 'fullyQualifiedProtoName'
-   * * use 'protoPackage' rather than 'javaPackage'
+   * FIXME we should probably: * rename this to 'fullyQualifiedProtoName' * use 'protoPackage' rather than 'javaPackage'
    * * and review each use of this field.
    */
   lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
