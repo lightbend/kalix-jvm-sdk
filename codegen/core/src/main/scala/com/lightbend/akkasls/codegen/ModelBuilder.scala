@@ -314,66 +314,95 @@ object ModelBuilder {
    */
   def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit
       log: Log,
-      fqnExtractor: FullyQualifiedNameExtractor): Model =
-    descriptors.foldLeft(Model(Map.empty, Map.empty)) { case (Model(existingServices, existingEntities), descriptor) =>
-      log.debug("Looking at descriptor " + descriptor.getName)
-      val services = for {
-        serviceDescriptor <- descriptor.getServices.asScala
-        options = serviceDescriptor
-          .getOptions()
-          .getExtension(com.akkaserverless.Annotations.service)
-        serviceType <- Option(options.getType())
-        serviceName = fqnExtractor(serviceDescriptor)
+      fqnExtractor: FullyQualifiedNameExtractor): Model = {
+    val descriptorSeq = descriptors.toSeq
+    descriptorSeq.foldLeft(Model(Map.empty, Map.empty)) {
+      case (Model(existingServices, existingEntities), descriptor) =>
+        log.debug("Looking at descriptor " + descriptor.getName)
+        val services = for {
+          serviceDescriptor <- descriptor.getServices.asScala
+          options = serviceDescriptor
+            .getOptions()
+            .getExtension(com.akkaserverless.Annotations.service)
+          serviceType <- Option(options.getType())
+          serviceName = fqnExtractor(serviceDescriptor)
 
-        methods = serviceDescriptor.getMethods.asScala
-        commands = methods.map(Command.from)
+          methods = serviceDescriptor.getMethods.asScala
+          commands = methods.map(Command.from)
 
-        service <- serviceType match {
-          case ServiceType.SERVICE_TYPE_ENTITY =>
-            Option(options.getComponent())
-              .filter(_.nonEmpty)
-              .map[Service] { componentName =>
-                val componentFullName =
-                  resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+          service <- serviceType match {
+            case ServiceType.SERVICE_TYPE_ENTITY =>
+              Option(options.getComponent())
+                .filter(_.nonEmpty)
+                .map[Service] { componentName =>
+                  val componentFullName =
+                    resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
 
-                EntityService(serviceName, commands, componentFullName)
+                  EntityService(serviceName, commands, componentFullName)
+                }
+            case ServiceType.SERVICE_TYPE_ACTION =>
+              Some(ActionService(serviceName, commands))
+            case ServiceType.SERVICE_TYPE_VIEW =>
+              val methodDetails = methods.flatMap { method =>
+                Option(method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()).map(
+                  viewOptions => (method, viewOptions))
               }
-          case ServiceType.SERVICE_TYPE_ACTION =>
-            Some(ActionService(serviceName, commands))
-          case ServiceType.SERVICE_TYPE_VIEW =>
-            val methodDetails = methods.flatMap { method =>
-              Option(method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()).map(
-                viewOptions => (method, viewOptions))
-            }
-            val updates = methodDetails.collect {
-              case (method, viewOptions) if viewOptions.hasUpdate =>
-                Command.from(method)
-            }
-            Some(
-              ViewService(
-                serviceName,
-                commands,
-                viewId = serviceDescriptor.getName(),
-                updates = updates,
-                transformedUpdates = methodDetails
-                  .collect {
-                    case (method, viewOptions)
-                        if viewOptions.hasUpdate && viewOptions
-                          .getUpdate()
-                          .getTransformUpdates() =>
-                      Command.from(method)
-                  }))
-          case _ => None
-        }
-      } yield serviceName.fullQualifiedName -> service
+              val updates = methodDetails.collect {
+                case (method, viewOptions) if viewOptions.hasUpdate =>
+                  Command.from(method)
+              }
+              Some(
+                ViewService(
+                  serviceName,
+                  commands,
+                  viewId = serviceDescriptor.getName(),
+                  updates = updates,
+                  transformedUpdates = methodDetails
+                    .collect {
+                      case (method, viewOptions)
+                          if viewOptions.hasUpdate && viewOptions
+                            .getUpdate()
+                            .getTransformUpdates() =>
+                        Command.from(method)
+                    }))
+            case _ => None
+          }
+        } yield serviceName.fullQualifiedName -> service
 
-      Model(
-        existingServices ++ services,
-        existingEntities ++
-        extractEventSourcedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity) ++
-        extractValueEntityDefinition(descriptor).map(entity => entity.componentFullName -> entity) ++
-        extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
+        Model(
+          existingServices ++ services,
+          existingEntities ++
+          extractEventSourcedEntityDefinition(descriptor, descriptorSeq).map(entity =>
+            entity.fqn.fullQualifiedName -> entity) ++
+          extractValueEntityDefinition(descriptor).map(entity => entity.componentFullName -> entity) ++
+          extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
     }
+  }
+
+  private def resolveFullyQualifiedMessageType(
+      name: String,
+      descriptor: Descriptors.FileDescriptor,
+      descriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): FullyQualifiedName = {
+    val fullName = resolveFullName(name, descriptor.getPackage)
+    val protoPackage = fullName.split("\\.").init.mkString(".")
+    val protoName = fullName.split("\\.").last
+    descriptors
+      .filter(_.getPackage == protoPackage)
+      .flatMap(_.getMessageTypes.asScala)
+      .filter(_.getName == protoName) match {
+      case Nil =>
+        throw new IllegalStateException(
+          s"No descriptor found for [$fullName] (searched: [${descriptors.map(_.getFile.getName).mkString(", ")}])")
+      case Seq(descriptor) =>
+        fqnExtractor.apply(descriptor)
+      case matchingDescriptors =>
+        throw new IllegalStateException(s"Multiple matching descriptors found for [$fullName] (searched: [${descriptors
+          .map(_.getFile.getName)
+          .mkString(", ")}], found in: ${matchingDescriptors.map(_.getFile.getName).mkString(", ")})")
+    }
+  }
 
   /**
    * Resolves the provided name relative to the provided package
@@ -402,7 +431,9 @@ object ModelBuilder {
    * @return
    *   the event sourced entity
    */
-  private def extractEventSourcedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
+  private def extractEventSourcedEntityDefinition(
+      descriptor: Descriptors.FileDescriptor,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Option[EventSourcedEntity] = {
     val rawEntity =
@@ -417,10 +448,10 @@ object ModelBuilder {
       EventSourcedEntity(
         FullyQualifiedName(name, name, protoReference, fullQualifiedDescriptor),
         rawEntity.getEntityType,
-        // FIXME this assumes the state is defined in the same proto file as the
-        // entity, which I don't think is necessarily true.
-        State(FullyQualifiedName(rawEntity.getState, rawEntity.getState, protoReference, fullQualifiedDescriptor)),
+        State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, additionalDescriptors)),
         rawEntity.getEventsList.asScala
+          // TODO this assumes events are defined in the same proto as the entity. To lift this restriction,
+          // use something like resolveFullyQualifiedMessageType above
           .map(event => Event(FullyQualifiedName(event, event, protoReference, fullQualifiedDescriptor))))
     }
   }

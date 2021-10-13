@@ -23,5 +23,5 @@ option java_outer_classname = "UserDomain";
 option (akkaserverless.file).value_entity = {
     name: "User"
     entity_type: "user"
-    state: "com.example.state_in_different_proto.state.UserState"
+    state: "../state/UserState"
 };
