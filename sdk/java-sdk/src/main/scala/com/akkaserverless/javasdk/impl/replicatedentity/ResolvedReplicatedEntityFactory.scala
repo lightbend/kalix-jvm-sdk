@@ -27,6 +27,6 @@ class ResolvedReplicatedEntityFactory(
     extends ReplicatedEntityFactory
     with ResolvedEntityFactory {
 
-  override def create(context: ReplicatedEntityContext): ReplicatedEntityHandler[_, _] =
+  override def create(context: ReplicatedEntityContext): ReplicatedEntityRouter[_, _] =
     delegate.create(context)
 }

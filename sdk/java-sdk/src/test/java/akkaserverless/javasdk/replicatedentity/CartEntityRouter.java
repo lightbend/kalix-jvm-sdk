@@ -16,15 +16,15 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
 import com.example.replicatedentity.shoppingcart.ShoppingCartApi;
 import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;
 
-public class CartEntityHandler
-    extends ReplicatedEntityHandler<
+public class CartEntityRouter
+    extends ReplicatedEntityRouter<
         ReplicatedRegisterMap<String, ShoppingCartDomain.LineItem>, CartEntity> {
 
-  public CartEntityHandler(CartEntity entity) {
+  public CartEntityRouter(CartEntity entity) {
     super(entity);
   }
 
@@ -44,7 +44,7 @@ public class CartEntityHandler
       case "RemoveCart":
         return entity().removeCart(data, (ShoppingCartApi.RemoveShoppingCart) command);
       default:
-        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
+        throw new ReplicatedEntityRouter.CommandHandlerNotFound(commandName);
     }
   }
 }

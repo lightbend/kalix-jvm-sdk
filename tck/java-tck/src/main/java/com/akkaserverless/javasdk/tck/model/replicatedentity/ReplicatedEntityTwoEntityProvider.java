@@ -64,8 +64,8 @@ public class ReplicatedEntityTwoEntityProvider
   }
 
   @Override
-  public final ReplicatedEntityTwoEntityHandler newHandler(ReplicatedEntityContext context) {
-    return new ReplicatedEntityTwoEntityHandler(entityFactory.apply(context));
+  public final ReplicatedEntityTwoEntityRouter newRouter(ReplicatedEntityContext context) {
+    return new ReplicatedEntityTwoEntityRouter(entityFactory.apply(context));
   }
 
   @Override

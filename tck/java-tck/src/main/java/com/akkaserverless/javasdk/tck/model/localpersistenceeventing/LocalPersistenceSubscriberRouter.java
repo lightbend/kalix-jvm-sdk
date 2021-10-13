@@ -20,13 +20,13 @@ import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.MessageEnvelope;
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.javasdk.impl.action.ActionRouter;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Any;
 
-public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersistenceSubscriber> {
+public class LocalPersistenceSubscriberRouter extends ActionRouter<LocalPersistenceSubscriber> {
 
-  public LocalPersistenceSubscriberHandler(LocalPersistenceSubscriber actionBehavior) {
+  public LocalPersistenceSubscriberRouter(LocalPersistenceSubscriber actionBehavior) {
     super(actionBehavior);
   }
 
@@ -49,7 +49,7 @@ public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersis
         return action().effect((LocalPersistenceEventing.EffectRequest) message.payload());
 
       default:
-        throw new ActionHandler.HandlerNotFound(commandName);
+        throw new ActionRouter.HandlerNotFound(commandName);
     }
   }
 
@@ -68,19 +68,19 @@ public class LocalPersistenceSubscriberHandler extends ActionHandler<LocalPersis
                 action().processValueTwo((LocalPersistenceEventing.ValueTwo) message.payload());
 
       default:
-        throw new ActionHandler.HandlerNotFound(commandName);
+        throw new ActionRouter.HandlerNotFound(commandName);
     }
   }
 
   @Override
   public Action.Effect<?> handleStreamedIn(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
-    throw new ActionHandler.HandlerNotFound(commandName);
+    throw new ActionRouter.HandlerNotFound(commandName);
   }
 
   @Override
   public Source<Action.Effect<?>, NotUsed> handleStreamed(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
-    throw new ActionHandler.HandlerNotFound(commandName);
+    throw new ActionRouter.HandlerNotFound(commandName);
   }
 }

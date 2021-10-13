@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
@@ -32,7 +32,7 @@ public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
 
   String entityType();
 
-  ValueEntityHandler<S, E> newHandler(ValueEntityContext context);
+  ValueEntityRouter<S, E> newRouter(ValueEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

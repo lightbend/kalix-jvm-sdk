@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk.replicatedentity
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntityHandler => JavaSdkReplicatedEntityHandler }
+import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntityRouter => JavaSdkReplicatedEntityRouter }
 import com.akkaserverless.javasdk.impl.{ ComponentOptions => JavaSdkComponentOptions }
 import com.akkaserverless.javasdk.replicatedentity.{
   CommandContext => JavaSdkCommandContext,
@@ -44,7 +44,7 @@ import com.akkaserverless.scalasdk.impl.{
   PassivationStrategyConverters,
   ScalaServiceCallFactoryAdapter
 }
-import com.akkaserverless.scalasdk.impl.replicatedentity.{ ReplicatedEntityEffectImpl, ReplicatedEntityHandler }
+import com.akkaserverless.scalasdk.impl.replicatedentity.{ ReplicatedEntityEffectImpl, ReplicatedEntityRouter }
 import com.google.protobuf.Descriptors
 
 import java.util
@@ -65,22 +65,22 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
 
   override def entityType(): String = scalaSdkProvider.entityType
 
-  override def newHandler(
-      context: JavaSdkReplicatedEntityContext): JavaSdkReplicatedEntityHandler[D, JavaSdkReplicatedEntity[D]] = {
+  override def newRouter(
+      context: JavaSdkReplicatedEntityContext): JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]] = {
 
-    val scalaSdkHandler = scalaSdkProvider.newHandler(ScalaReplicatedEntityContextAdapter(context))
+    val scalaSdkHandler = scalaSdkProvider.newRouter(ScalaReplicatedEntityContextAdapter(context))
 
-    JavaReplicatedEntityHandlerAdapter(JavaReplicatedEntityAdapter(scalaSdkHandler.entity), scalaSdkHandler)
+    JavaReplicatedEntityRouterAdapter(JavaReplicatedEntityAdapter(scalaSdkHandler.entity), scalaSdkHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] final case class JavaReplicatedEntityHandlerAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
+private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     javaSdkReplicatedEntity: JavaSdkReplicatedEntity[D],
-    scalaSdkHandler: ReplicatedEntityHandler[D, E])
-    extends JavaSdkReplicatedEntityHandler[D, JavaSdkReplicatedEntity[D]](javaSdkReplicatedEntity) {
+    scalaSdkHandler: ReplicatedEntityRouter[D, E])
+    extends JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]](javaSdkReplicatedEntity) {
 
   override protected def handleCommand(
       commandName: String,

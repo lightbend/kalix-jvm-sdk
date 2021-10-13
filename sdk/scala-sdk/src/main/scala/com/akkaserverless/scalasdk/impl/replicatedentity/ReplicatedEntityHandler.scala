@@ -23,7 +23,7 @@ import com.akkaserverless.scalasdk.replicatedentity.CommandContext
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ReplicatedEntityHandler[D <: ReplicatedData, E <: ReplicatedEntity[D]](val entity: E) {
+abstract class ReplicatedEntityRouter[D <: ReplicatedData, E <: ReplicatedEntity[D]](val entity: E) {
 
   def handleCommand(
       commandName: String,

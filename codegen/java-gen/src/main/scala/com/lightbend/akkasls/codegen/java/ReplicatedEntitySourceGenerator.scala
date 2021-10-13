@@ -82,7 +82,7 @@ object ReplicatedEntitySourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def replicatedEntityHandler(
+  private[codegen] def replicatedEntityRouter(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
@@ -93,7 +93,7 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler",
+        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter",
         "com.akkaserverless.javasdk.replicatedentity.CommandContext",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity",
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data))
@@ -119,9 +119,9 @@ object ReplicatedEntitySourceGenerator {
         | * A replicated entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends ReplicatedEntityHandler<$parameterizedDataType, ${entity.fqn.name}> {
+        |public class ${className}Router extends ReplicatedEntityRouter<$parameterizedDataType, ${entity.fqn.name}> {
         |
-        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.fqn.name} entity) {
         |    super(entity);
         |  }
         |
@@ -133,7 +133,7 @@ object ReplicatedEntitySourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      default:
-        |        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
+        |        throw new ReplicatedEntityRouter.CommandHandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -223,8 +223,8 @@ object ReplicatedEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${className}Handler newHandler(ReplicatedEntityContext context) {
-        |    return new ${className}Handler(entityFactory.apply(context));
+        |  public final ${className}Router newRouter(ReplicatedEntityContext context) {
+        |    return new ${className}Router(entityFactory.apply(context));
         |  }
         |
         |  @Override

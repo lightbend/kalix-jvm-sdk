@@ -27,7 +27,7 @@ import com.akkaserverless.javasdk.impl.effect.EffectSupport
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandResult
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
@@ -139,7 +139,7 @@ final class EventSourcedEntitiesImpl(
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler = service.factory
       .create(new EventSourcedEntityContextImpl(init.entityId))
-      .asInstanceOf[EventSourcedEntityHandler[Any, EventSourcedEntity[Any]]]
+      .asInstanceOf[EventSourcedEntityRouter[Any, EventSourcedEntity[Any]]]
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {

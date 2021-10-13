@@ -283,7 +283,7 @@ public final class AkkaServerless {
   public <D extends ReplicatedData, E extends ReplicatedEntity<D>> AkkaServerless register(
       ReplicatedEntityProvider<D, E> provider) {
     return lowLevel.registerReplicatedEntity(
-        provider::newHandler,
+        provider::newRouter,
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
@@ -301,7 +301,7 @@ public final class AkkaServerless {
    */
   public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
     return lowLevel.registerValueEntity(
-        provider::newHandler,
+        provider::newRouter,
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
@@ -322,7 +322,7 @@ public final class AkkaServerless {
   public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
       EventSourcedEntityProvider<S, E> provider) {
     return lowLevel.registerEventSourcedEntity(
-        provider::newHandler,
+        provider::newRouter,
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
@@ -338,7 +338,7 @@ public final class AkkaServerless {
    */
   public AkkaServerless register(ViewProvider provider) {
     return lowLevel.registerView(
-        provider::newHandler,
+        provider::newRouter,
         provider.serviceDescriptor(),
         provider.viewId(),
         provider.additionalDescriptors());
@@ -353,7 +353,7 @@ public final class AkkaServerless {
    */
   public AkkaServerless register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newHandler, provider.serviceDescriptor(), provider.additionalDescriptors());
+        provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
   }
 
   /**

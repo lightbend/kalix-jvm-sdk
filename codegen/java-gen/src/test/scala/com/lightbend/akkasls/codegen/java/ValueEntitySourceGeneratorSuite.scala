@@ -114,13 +114,13 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyService"
 
     val generatedSrc =
-      ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className)
+      ValueEntitySourceGenerator.valueEntityRouter(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
          |
-         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+         |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
          |import com.akkaserverless.javasdk.valueentity.CommandContext;
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
          |import com.example.service.domain.EntityOuterClass;
@@ -134,9 +134,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          | * A value entity handler that is the glue between the Protobuf service <code>MyService</code>
          | * and the command handler methods in the <code>MyValueEntity</code> class.
          | */
-         |public class MyServiceHandler extends ValueEntityHandler<EntityOuterClass.MyState, MyValueEntity> {
+         |public class MyServiceRouter extends ValueEntityRouter<EntityOuterClass.MyState, MyValueEntity> {
          |
-         |  public MyServiceHandler(MyValueEntity entity) {
+         |  public MyServiceRouter(MyValueEntity entity) {
          |    super(entity);
          |  }
          |
@@ -152,7 +152,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |        return entity().get(state, (ServiceOuterClass.GetValue) command);
          |
          |      default:
-         |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
+         |        throw new ValueEntityRouter.CommandHandlerNotFound(commandName);
          |    }
          |  }
          |}
@@ -229,8 +229,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  }
          |
          |  @Override
-         |  public final MyServiceHandler newHandler(ValueEntityContext context) {
-         |    return new MyServiceHandler(entityFactory.apply(context));
+         |  public final MyServiceRouter newRouter(ValueEntityContext context) {
+         |    return new MyServiceRouter(entityFactory.apply(context));
          |  }
          |
          |  @Override

@@ -67,8 +67,8 @@ public class ViewTckModelBehaviorProvider
   }
 
   @Override
-  public final ViewTckModelBehaviorHandler newHandler(ViewCreationContext context) {
-    return new ViewTckModelBehaviorHandler(viewFactory.apply(context));
+  public final ViewTckModelBehaviorRouter newRouter(ViewCreationContext context) {
+    return new ViewTckModelBehaviorRouter(viewFactory.apply(context));
   }
 
   @Override

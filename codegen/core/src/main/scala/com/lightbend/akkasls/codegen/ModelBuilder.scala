@@ -56,7 +56,7 @@ object ModelBuilder {
    */
   sealed abstract class Entity(val fqn: FullyQualifiedName, val entityType: String) {
     val abstractEntityName = "Abstract" + fqn.name
-    val handlerName = fqn.name + "Handler"
+    val routerName = fqn.name + "Router"
     val providerName = fqn.name + "Provider"
   }
 
@@ -204,7 +204,7 @@ object ModelBuilder {
       if (fqn.name.contains("Action")) fqn.name + "Impl"
       else fqn.name + "Action"
     val abstractActionName = "Abstract" + baseClassName
-    val handlerName = baseClassName + "Handler"
+    val routerName = baseClassName + "Router"
     val providerName = baseClassName + "Provider"
 
     val classNameQualified = s"${fqn.parent.javaPackage}.$className"
@@ -234,7 +234,7 @@ object ModelBuilder {
       if (fqn.name.contains("View")) fqn.name + "Impl"
       else fqn.name + "View"
     val abstractViewName = "Abstract" + baseClassName
-    val handlerName = baseClassName + "Handler"
+    val routerName = baseClassName + "Router"
     val providerName = baseClassName + "Provider"
 
     val classNameQualified = s"${fqn.parent.javaPackage}.$className"

@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.view
 import com.google.protobuf.Descriptors
 import scala.collection.immutable
 
-import com.akkaserverless.scalasdk.impl.view.ViewHandler
+import com.akkaserverless.scalasdk.impl.view.ViewRouter
 
 trait ViewProvider[S, V <: View[S]] {
   def serviceDescriptor: Descriptors.ServiceDescriptor
@@ -28,7 +28,7 @@ trait ViewProvider[S, V <: View[S]] {
 
   def options: ViewOptions
 
-  def newHandler(context: ViewCreationContext): ViewHandler[S, V]
+  def newRouter(context: ViewCreationContext): ViewRouter[S, V]
 
   def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.view.ViewHandler;
+import com.akkaserverless.javasdk.impl.view.ViewRouter;
 import com.akkaserverless.javasdk.view.ViewCreationContext;
 
 /**
@@ -32,5 +32,5 @@ public interface ViewFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ViewHandler<?, ?> create(ViewCreationContext context);
+  ViewRouter<?, ?> create(ViewCreationContext context);
 }

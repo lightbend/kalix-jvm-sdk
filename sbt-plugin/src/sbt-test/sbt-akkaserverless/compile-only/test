@@ -7,53 +7,53 @@ $ exists target/scala-2.13/src_managed/main/com/example/AkkaServerlessFactory.sc
 $ exists src/main/scala/com/example/EchoActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/AbstractEchoAction.scala
 $ exists target/scala-2.13/src_managed/main/com/example/EchoActionProvider.scala
-$ exists target/scala-2.13/src_managed/main/com/example/EchoActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/EchoActionRouter.scala
 
 # com/example/action/all_commands_api.proto
 $ exists src/main/scala/com/example/action/AllCommandsActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action/AbstractAllCommandsAction.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action/AllCommandsActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action/AllCommandsActionRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action/AllCommandsActionProvider.scala
 
 # com/example/action1/simple_action.proto
 $ exists src/main/scala/com/example/action1/SimpleActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action1/AbstractSimpleAction.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action1/SimpleActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action1/SimpleActionRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action1/SimpleActionProvider.scala
 
 # com/example/action2/simple_action_api.proto
 $ exists src/main/scala/com/example/action2/AnotherSimpleActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action2/AbstractAnotherSimpleAction.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action2/AnotherSimpleActionProvider.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action2/AnotherSimpleActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action2/AnotherSimpleActionRouter.scala
 
 # com/example/action3/some_action.proto
 $ exists src/main/scala/com/example/action3/SomeActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action3/AbstractSomeAction.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action3/SomeActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action3/SomeActionRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action3/SomeActionProvider.scala
 
 # com/example/action4/some_other_action_api.proto
 $ exists src/main/scala/com/example/action4/SomeOtherActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action4/AbstractSomeOtherAction.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action4/SomeOtherActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action4/SomeOtherActionRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action4/SomeOtherActionProvider.scala
 
 # com/example/action5/yet_another_action.proto
 $ exists src/main/scala/com/example/action5/YetAnotherActionImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action5/AbstractYetAnotherAction.scala
-$ exists target/scala-2.13/src_managed/main/com/example/action5/YetAnotherActionHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action5/YetAnotherActionRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/action5/YetAnotherActionProvider.scala
 
 # com/example/view/user_view.proto
 $ exists src/main/scala/com/example/view/UserByNameView.scala
 $ exists target/scala-2.13/src_managed/main/com/example/view/AbstractUserByNameView.scala
-$ exists target/scala-2.13/src_managed/main/com/example/view/UserByNameViewHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/UserByNameViewRouter.scala
 $ exists target/scala-2.13/src_managed/main/com/example/view/UserByNameViewProvider.scala
 $ exists src/main/scala/com/example/view/AdditionalViewImpl.scala
 $ exists target/scala-2.13/src_managed/main/com/example/view/AbstractAdditionalView.scala
 $ exists target/scala-2.13/src_managed/main/com/example/view/AdditionalViewProvider.scala
-$ exists target/scala-2.13/src_managed/main/com/example/view/AdditionalViewHandler.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/AdditionalViewRouter.scala
 
 # com/example/valueentity/some_value_entity_api.proto
 # com/example/valueentity/domain/some_value_entity_domain.proto

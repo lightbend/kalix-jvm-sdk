@@ -27,7 +27,7 @@ class ResolvedEventSourcedEntityFactory(
     extends EventSourcedEntityFactory
     with ResolvedEntityFactory {
 
-  override def create(context: EventSourcedEntityContext): EventSourcedEntityHandler[_, _] =
+  override def create(context: EventSourcedEntityContext): EventSourcedEntityRouter[_, _] =
     delegate.create(context)
 
 }

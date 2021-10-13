@@ -88,8 +88,8 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       str,
       s"""package com.example.service.domain
           |
-          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandHandlerNotFound
-          |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
+          |import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound
+          |import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter
           |import com.akkaserverless.scalasdk.valueentity.CommandContext
           |import com.akkaserverless.scalasdk.valueentity.ValueEntity
           |import com.example.service
@@ -102,7 +102,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
           | * and the command handler methods in the <code>Counter</code> class.
           | */
-          |class MyValueEntityHandler(entity: MyValueEntity) extends ValueEntityHandler[MyState, MyValueEntity](entity) {
+          |class MyValueEntityRouter(entity: MyValueEntity) extends ValueEntityRouter[MyState, MyValueEntity](entity) {
           |  def handleCommand(commandName: String, state: MyState, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
           |    commandName match {
           |      case "Set" =>
@@ -152,8 +152,8 @@ class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValue
 
   override final val entityType = "MyValueEntity"
 
-  override final def newHandler(context: ValueEntityContext): MyValueEntityHandler =
-    new MyValueEntityHandler(entityFactory(context))
+  override final def newRouter(context: ValueEntityContext): MyValueEntityRouter =
+    new MyValueEntityRouter(entityFactory(context))
 
   override final val additionalDescriptors =
     DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil

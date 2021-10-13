@@ -107,9 +107,9 @@ object EventSourcedEntitySourceGenerator {
         otherImports = Seq(
           "com.akkaserverless.scalasdk.eventsourcedentity.CommandContext",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-          "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityHandler",
-          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandHandlerNotFound",
-          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.EventHandlerNotFound"),
+          "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter",
+          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound",
+          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventCases = eventSourcedEntity.events.map { evt =>
@@ -130,7 +130,7 @@ object EventSourcedEntitySourceGenerator {
 
     File(
       packageName,
-      eventSourcedEntity.handlerName,
+      eventSourcedEntity.routerName,
       s"""|package $packageName
         |
         |${writeImports(imports)}
@@ -141,7 +141,7 @@ object EventSourcedEntitySourceGenerator {
         | * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
         | * and the command handler methods in the <code>Counter</code> class.
         | */
-        |class ${eventSourcedEntityName}Handler(entity: ${eventSourcedEntityName}) extends EventSourcedEntityHandler[$stateType, ${eventSourcedEntityName}](entity) {
+        |class ${eventSourcedEntityName}Router(entity: ${eventSourcedEntityName}) extends EventSourcedEntityRouter[$stateType, ${eventSourcedEntityName}](entity) {
         |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
         |    commandName match {
         |      ${Format.indent(commandCases, 6)}
@@ -203,8 +203,8 @@ object EventSourcedEntitySourceGenerator {
          |
          |  override final val entityType = "${entity.entityType}"
          |
-         |  override final def newHandler(context: EventSourcedEntityContext): ${entity.handlerName} =
-         |    new ${entity.handlerName}(entityFactory(context))
+         |  override final def newRouter(context: EventSourcedEntityContext): ${entity.routerName} =
+         |    new ${entity.routerName}(entityFactory(context))
          |
          |  override final val additionalDescriptors =
          |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil

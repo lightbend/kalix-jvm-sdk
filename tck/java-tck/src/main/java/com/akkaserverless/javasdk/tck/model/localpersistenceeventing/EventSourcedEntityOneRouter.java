@@ -18,14 +18,14 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 /** An event sourced entity handler */
-public class EventSourcedEntityOneHandler
-    extends EventSourcedEntityHandler<String, EventSourcedEntityOne> {
+public class EventSourcedEntityOneRouter
+    extends EventSourcedEntityRouter<String, EventSourcedEntityOne> {
 
-  public EventSourcedEntityOneHandler(EventSourcedEntityOne entity) {
+  public EventSourcedEntityOneRouter(EventSourcedEntityOne entity) {
     super(entity);
   }
 
@@ -36,7 +36,7 @@ public class EventSourcedEntityOneHandler
     } else if (event instanceof LocalPersistenceEventing.EventTwo) {
       return entity().handle(state, (LocalPersistenceEventing.EventTwo) event);
     } else {
-      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+      throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
     }
   }
 
@@ -48,7 +48,7 @@ public class EventSourcedEntityOneHandler
         return entity().emitEvent(state, (LocalPersistenceEventing.EmitEventRequest) command);
 
       default:
-        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
+        throw new EventSourcedEntityRouter.CommandHandlerNotFound(commandName);
     }
   }
 }

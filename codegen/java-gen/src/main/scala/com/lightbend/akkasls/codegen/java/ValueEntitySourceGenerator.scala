@@ -75,7 +75,7 @@ object ValueEntitySourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def valueEntityHandler(
+  private[codegen] def valueEntityRouter(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
@@ -88,7 +88,7 @@ object ValueEntitySourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"))
+        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter"))
 
     val stateType = entity.state.fqn.fullName
 
@@ -111,9 +111,9 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends ValueEntityHandler<$stateType, ${entity.fqn.name}> {
+        |public class ${className}Router extends ValueEntityRouter<$stateType, ${entity.fqn.name}> {
         |
-        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.fqn.name} entity) {
         |    super(entity);
         |  }
         |
@@ -125,7 +125,7 @@ object ValueEntitySourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      default:
-        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
+        |        throw new ValueEntityRouter.CommandHandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -209,8 +209,8 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${className}Handler newHandler(ValueEntityContext context) {
-        |    return new ${className}Handler(entityFactory.apply(context));
+        |  public final ${className}Router newRouter(ValueEntityContext context) {
+        |    return new ${className}Router(entityFactory.apply(context));
         |  }
         |
         |  @Override

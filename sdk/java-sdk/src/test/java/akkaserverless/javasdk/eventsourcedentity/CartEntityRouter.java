@@ -16,15 +16,14 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 
 /** Generated, does the routing from command name to concrete method */
-final class CartEntityHandler
-    extends EventSourcedEntityHandler<ShoppingCartDomain.Cart, CartEntity> {
+final class CartEntityRouter extends EventSourcedEntityRouter<ShoppingCartDomain.Cart, CartEntity> {
 
-  public CartEntityHandler(CartEntity entity) {
+  public CartEntityRouter(CartEntity entity) {
     super(entity);
   }
 
@@ -35,7 +34,7 @@ final class CartEntityHandler
     } else if (event instanceof ShoppingCartDomain.ItemRemoved) {
       return entity().itemRemoved(state, (ShoppingCartDomain.ItemRemoved) event);
     } else {
-      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+      throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
     }
   }
 
@@ -52,7 +51,7 @@ final class CartEntityHandler
       case "GetCart":
         return entity().getCart(state, (ShoppingCartApi.GetShoppingCart) command);
       default:
-        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
+        throw new EventSourcedEntityRouter.CommandHandlerNotFound(commandName);
     }
   }
 }

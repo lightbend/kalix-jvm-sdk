@@ -20,7 +20,7 @@ import com.akkaserverless.javasdk.view.{ UpdateContext, View }
 
 import java.util.Optional
 
-abstract class ViewHandler[S, V <: View[S]](protected val view: V) {
+abstract class ViewRouter[S, V <: View[S]](protected val view: V) {
 
   /** INTERNAL API */
   final def _internalHandleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_] = {

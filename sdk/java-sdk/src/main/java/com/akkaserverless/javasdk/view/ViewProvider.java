@@ -16,8 +16,7 @@
 
 package com.akkaserverless.javasdk.view;
 
-import com.akkaserverless.javasdk.impl.view.ViewHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.impl.view.ViewRouter;
 import com.google.protobuf.Descriptors;
 
 public interface ViewProvider<S, V extends View<S>> {
@@ -28,7 +27,7 @@ public interface ViewProvider<S, V extends View<S>> {
 
   ViewOptions options();
 
-  ViewHandler<S, V> newHandler(ViewCreationContext context);
+  ViewRouter<S, V> newRouter(ViewCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

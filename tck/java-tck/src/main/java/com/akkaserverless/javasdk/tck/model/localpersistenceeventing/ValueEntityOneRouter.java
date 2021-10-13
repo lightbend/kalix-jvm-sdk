@@ -16,15 +16,15 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 
 /** A value entity handler */
-public class ValueEntityTwoHandler extends ValueEntityHandler<Object, ValueEntityTwo> {
+public class ValueEntityOneRouter extends ValueEntityRouter<Object, ValueEntityOne> {
 
-  public ValueEntityTwoHandler(ValueEntityTwo entity) {
+  public ValueEntityOneRouter(ValueEntityOne entity) {
     super(entity);
   }
 
@@ -32,8 +32,8 @@ public class ValueEntityTwoHandler extends ValueEntityHandler<Object, ValueEntit
   public ValueEntity.Effect<?> handleCommand(
       String commandName, Object state, Object command, CommandContext context) {
     switch (commandName) {
-      case "UpdateJsonValue":
-        return entity().updateJsonValue(state, (LocalPersistenceEventing.JsonValue) command);
+      case "UpdateValue":
+        return entity().updateValue(state, (LocalPersistenceEventing.UpdateValueRequest) command);
       default:
         throw new CommandHandlerNotFound(commandName);
     }

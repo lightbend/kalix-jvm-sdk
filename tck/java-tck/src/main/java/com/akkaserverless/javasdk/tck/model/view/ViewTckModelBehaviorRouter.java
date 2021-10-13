@@ -17,14 +17,14 @@
 package com.akkaserverless.javasdk.tck.model.view;
 
 import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
-import com.akkaserverless.javasdk.impl.view.ViewHandler;
+import com.akkaserverless.javasdk.impl.view.ViewRouter;
 import com.akkaserverless.javasdk.view.View;
 
 // FIXME handwritten version for now (awaiting codegen)
-public class ViewTckModelBehaviorHandler
-    extends ViewHandler<com.akkaserverless.tck.model.View.ViewState, ViewTckModelBehavior> {
+public class ViewTckModelBehaviorRouter
+    extends ViewRouter<com.akkaserverless.tck.model.View.ViewState, ViewTckModelBehavior> {
 
-  public ViewTckModelBehaviorHandler(ViewTckModelBehavior view) {
+  public ViewTckModelBehaviorRouter(ViewTckModelBehavior view) {
     super(view);
   }
 

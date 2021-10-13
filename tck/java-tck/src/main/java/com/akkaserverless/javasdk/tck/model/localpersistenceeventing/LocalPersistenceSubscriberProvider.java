@@ -58,8 +58,8 @@ public class LocalPersistenceSubscriberProvider
   }
 
   @Override
-  public LocalPersistenceSubscriberHandler newHandler(ActionCreationContext context) {
-    return new LocalPersistenceSubscriberHandler(actionFactory.apply(context));
+  public LocalPersistenceSubscriberRouter newRouter(ActionCreationContext context) {
+    return new LocalPersistenceSubscriberRouter(actionFactory.apply(context));
   }
 
   @Override

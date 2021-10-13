@@ -16,14 +16,14 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.example.valueentity.shoppingcart.ShoppingCartApi;
 import com.example.valueentity.shoppingcart.domain.ShoppingCartDomain;
 
 /** A value entity handler */
-public class CartEntityHandler extends ValueEntityHandler<ShoppingCartDomain.Cart, CartEntity> {
+public class CartEntityRouter extends ValueEntityRouter<ShoppingCartDomain.Cart, CartEntity> {
 
-  public CartEntityHandler(CartEntity entity) {
+  public CartEntityRouter(CartEntity entity) {
     super(entity);
   }
 
@@ -40,7 +40,7 @@ public class CartEntityHandler extends ValueEntityHandler<ShoppingCartDomain.Car
       case "RemoveCart":
         return entity().removeCart(state, (ShoppingCartApi.RemoveShoppingCart) command);
       default:
-        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
+        throw new ValueEntityRouter.CommandHandlerNotFound(commandName);
     }
   }
 }

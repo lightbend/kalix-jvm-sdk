@@ -65,8 +65,8 @@ public class ReplicatedEntityTckModelEntityProvider
   }
 
   @Override
-  public final ReplicatedEntityTckModelEntityHandler newHandler(ReplicatedEntityContext context) {
-    return new ReplicatedEntityTckModelEntityHandler(entityFactory.apply(context));
+  public final ReplicatedEntityTckModelEntityRouter newRouter(ReplicatedEntityContext context) {
+    return new ReplicatedEntityTckModelEntityRouter(entityFactory.apply(context));
   }
 
   @Override

@@ -24,7 +24,7 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteS
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import com.akkaserverless.javasdk.valueentity.ValueEntity
 
-object ValueEntityHandler {
+object ValueEntityRouter {
   final case class CommandResult(effect: ValueEntity.Effect[_])
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
@@ -35,10 +35,10 @@ object ValueEntityHandler {
  * @tparam S
  *   the type of the managed state for the entity Not for manual user extension or interaction
  *
- * The concrete <code>ValueEntityHandler</code> is generated for the specific entities defined in Protobuf.
+ * The concrete <code>ValueEntityRouter</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class ValueEntityHandler[S, E <: ValueEntity[S]](protected val entity: E) {
-  import ValueEntityHandler._
+abstract class ValueEntityRouter[S, E <: ValueEntity[S]](protected val entity: E) {
+  import ValueEntityRouter._
 
   private var state: Option[S] = None
 
