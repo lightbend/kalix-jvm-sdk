@@ -30,7 +30,7 @@ public class CustomerValueEntityIntegrationTest {
     private final CustomerService client;
     
     public CustomerValueEntityIntegrationTest() {
-        client = testKit.getGrpcClient(CustomerService.class, "CustomerService");
+        client = testKit.getGrpcClient(CustomerService.class);
     }
     
     @Test
