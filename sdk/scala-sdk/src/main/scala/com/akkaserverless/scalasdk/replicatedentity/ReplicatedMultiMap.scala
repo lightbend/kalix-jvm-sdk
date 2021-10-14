@@ -16,11 +16,10 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedMultiMap => JavaSdkReplicatedMultiMap }
+import scala.collection.immutable.Set
 
-import scala.collection.immutable
-import scala.jdk.CollectionConverters.{ IterableHasAsJava, SetHasAsScala }
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 /**
  * A replicated map that maps keys to values, where each key may be associated with multiple values. Effectively a
@@ -31,7 +30,7 @@ import scala.jdk.CollectionConverters.{ IterableHasAsJava, SetHasAsScala }
  * @tparam V
  *   The type for values.
  */
-class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSdkReplicatedMultiMap[K, V])
+class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: ReplicatedMultiMapImpl[K, V])
     extends ReplicatedData {
 
   /**
@@ -42,8 +41,8 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    * @return
    *   the current values at the given key, or an empty Set
    */
-  def get(key: K): immutable.Set[V] =
-    _internal.get(key).asScala.toSet
+  def get(key: K): Set[V] =
+    _internal.getValuesSet(key)
 
   /**
    * Store a key-value pair, if not already present.
@@ -69,7 +68,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    *   a new multi-map with the additional values, or this unchanged multi-map
    */
   def putAll(key: K, values: Iterable[V]): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.putAll(key, values.asJavaCollection))
+    new ReplicatedMultiMap(_internal.putAll(key, values))
 
   /**
    * Remove a single key-value pair for the given key and value, if present.
@@ -113,7 +112,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    * @return
    *   the number of key-value pairs stored in this multi-map
    */
-  def size: Int = _internal.size()
+  def size: Int = _internal.size
 
   /**
    * Check whether this multi-map is empty.
@@ -131,7 +130,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    * @return
    *   `true` if there is at least one key-value pair for the key
    */
-  def containsKey(key: K): Boolean = _internal.containsKey(key)
+  def contains(key: K): Boolean = _internal.containsKey(key)
 
   /**
    * Check whether this multi-map contains the given value associated with the given key.
@@ -143,7 +142,8 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    * @return
    *   `true` if the key-value pair is in this multi-map
    */
-  def containsValue(key: K, value: V): Boolean = _internal.containsValue(key, value)
+  def containsValue(key: K, value: V): Boolean =
+    _internal.containsValue(key, value)
 
   /**
    * Return the keys contained in this multi-map.
@@ -153,6 +153,5 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: JavaSd
    * @return
    *   the set of keys in this multi-map
    */
-  def keySet: immutable.Set[K] =
-    _internal.keySet().asScala.toSet
+  def keySet: Set[K] = _internal.keys
 }

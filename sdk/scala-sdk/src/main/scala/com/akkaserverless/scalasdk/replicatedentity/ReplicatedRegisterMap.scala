@@ -16,13 +16,11 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegisterMap => JavaSdkReplicatedRegisterMap }
-import com.akkaserverless.replicatedentity.ReplicatedData
+import scala.collection.immutable.Set
 
-import scala.collection.immutable
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters.RichOptional
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
+import com.akkaserverless.replicatedentity.ReplicatedData
 
 /**
  * A Map of registers. Uses [[ReplicatedRegister]] 's as values.
@@ -32,18 +30,30 @@ import scala.jdk.OptionConverters.RichOptional
  * @tparam V
  *   The type for values.
  */
-class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: JavaSdkReplicatedRegisterMap[K, V])
+class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: ReplicatedRegisterMapImpl[K, V])
     extends ReplicatedData {
 
   /**
-   * Get the current value of the register at the given key.
+   * Optionally returns the current value of the register at the given key.
    *
    * @param key
    *   the key for the register
    * @return
    *   the current value of the register, if it exists (as an Option)
    */
-  def getValue(key: K): Option[V] = _internal.getValue(key).toScala
+  def get(key: K): Option[V] = _internal.getValueOption(key)
+
+  /**
+   * Get the register value for the given key.
+   *
+   * @param key
+   *   the key for the register
+   * @return
+   *   the register value for the key
+   * @throws NoSuchElementException
+   *   if the key is not preset in the map
+   */
+  def apply(key: K): V = get(key).get
 
   /**
    * Set the current value of the register at the given key, using the default clock.
@@ -113,7 +123,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Jav
    * @return
    *   the number of key-register mappings in this register map
    */
-  def size: Int = _internal.size()
+  def size: Int = _internal.size
 
   /**
    * Check whether this register map is empty.
@@ -134,11 +144,10 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Jav
   def containsKey(key: K): Boolean = _internal.containsKey(key)
 
   /**
-   * Get a [[immutable.Set]] view of the keys contained in this register map.
+   * Get a [[Set]] view of the keys contained in this register map.
    *
    * @return
    *   the keys contained in this register map
    */
-  def keySet: immutable.Set[K] =
-    _internal.keySet().asScala.toSet
+  def keySet: Set[K] = _internal.keys
 }
