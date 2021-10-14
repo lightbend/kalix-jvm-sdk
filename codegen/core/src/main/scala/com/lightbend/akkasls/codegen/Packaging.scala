@@ -76,6 +76,12 @@ object FullyQualifiedName {
    */
   def noDescriptor(name: String, parent: PackageNaming) =
     FullyQualifiedName(name, name, parent, None)
+
+  /**
+   * Creates a FullyQualifiedName without a descriptor.
+   */
+  def noDescriptor(name: String, parent: String) =
+    FullyQualifiedName(name, name, PackageNaming.noDescriptor(parent), None)
 }
 
 case class PackageNaming(
@@ -91,6 +97,12 @@ case class PackageNaming(
 }
 
 object PackageNaming {
+
+  /**
+   * Package for classes that aren't derived from a .proto
+   */
+  def noDescriptor(parent: String): PackageNaming =
+    PackageNaming("", "", "", Some(parent), None, javaMultipleFiles = true)
 
   def from(descriptor: Descriptors.FileDescriptor): PackageNaming = {
     val name =

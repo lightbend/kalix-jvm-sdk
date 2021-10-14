@@ -180,4 +180,39 @@ object SourceGeneratorUtils {
     else if (capitalizeNext) dotsToCamelCase(s.tail, resultSoFar + s.head.toUpper, false)
     else dotsToCamelCase(s.tail, resultSoFar + s.head, false)
   }
+
+  class CodeBlock(val code: Seq[Any]) {
+    code.foreach(validateType)
+
+    private def validateType(seq: Any): Unit = seq match {
+      case _: String             => ()
+      case _: FullyQualifiedName => ()
+      case block: CodeBlock      => block.code.foreach(validateType)
+      case s: Seq[_]             => s.foreach(validateType)
+      case other =>
+        throw new IllegalArgumentException(s"Unexpected value of type [${other.getClass}] in block: [$other]")
+    }
+
+    /** All classes used in this code block */
+    def fqns: Seq[FullyQualifiedName] = code.flatMap {
+      case name: FullyQualifiedName => Seq(name)
+      case block: CodeBlock         => block.fqns
+      case seq: Seq[_]              => new CodeBlock(seq).fqns
+      case _                        => Seq.empty
+    }
+  }
+
+  implicit class CodeBlockHelper(val sc: StringContext) extends AnyVal {
+    def c(args: Any*): CodeBlock = {
+      new CodeBlock(interleave(sc.parts.map(_.stripMargin), args))
+    }
+
+    private def interleave(strings: Seq[String], values: Seq[Any]): Seq[Any] =
+      values.headOption match {
+        case Some(value) => Seq(strings.head, value) ++ interleave(strings.tail, values.tail)
+        case None =>
+          require(strings.size == 1)
+          strings
+      }
+  }
 }
