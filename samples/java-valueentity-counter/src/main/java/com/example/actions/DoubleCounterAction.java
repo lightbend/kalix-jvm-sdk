@@ -8,8 +8,11 @@ package com.example.actions;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.example.Components;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
+
+import java.util.concurrent.CompletionStage;
 
 // tag::controller-forward[]
 // tag::controller-side-effect[]
@@ -19,6 +22,7 @@ import com.google.protobuf.Empty;
 public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
   private final ServiceCallRef<CounterApi.IncreaseValue> increaseCallRef;
+  private final Components components;
 
   public DoubleCounterAction(ActionCreationContext creationContext) {
     this.increaseCallRef =
@@ -27,6 +31,8 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
                 "com.example.CounterService",
                 "Increase",
                 CounterApi.IncreaseValue.class);
+    // FIXME where do we get the components impl from?
+    components = null;
   }
 // end::controller-side-effect[]
 // tag::controller-side-effect[]
@@ -64,8 +70,46 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
             .addSideEffect( // <4>
                 SideEffect.of(increaseCallRef.createCall(increaseValueDoubled)));
   }
-  // tag::controller-forward[]
+  // end::controller-side-effect[]
 
+  // almost like forward, we could potentially detect no map and turn this into a forward effect
+  public Effect<Empty> forwardWithGrpcApi(CounterApi.IncreaseValue increaseValue) {
+    int doubled = increaseValue.getValue() * 2;
+    CounterApi.IncreaseValue increaseValueDoubled =
+        increaseValue.toBuilder().setValue(doubled).build();
+    return effects().asyncReply(components.counter().increase(increaseValueDoubled));
+  }
+
+  // regular async sequence of operations
+  public Effect<CounterApi.CurrentCounter> sequentialComposition(CounterApi.IncreaseValue increaseValue) {
+    int doubled = increaseValue.getValue() * 2;
+    CounterApi.IncreaseValue increaseValueDoubled =
+        increaseValue.toBuilder().setValue(doubled).build();
+    CompletionStage<CounterApi.CurrentCounter> increaseAndValueAfter =
+        components.counter().increase(increaseValueDoubled)
+        .thenCompose(empty ->
+            components.counter().getCurrentCounter(
+                CounterApi.GetCounter.newBuilder().setCounterId(increaseValue.getCounterId()).build())
+        );
+    return effects().asyncReply(increaseAndValueAfter);
+  }
+
+  // Maybe this is not something we should show in docs, happens in parallel (right now)
+  public Effect<CounterApi.CurrentCounter> sumOfMy3FavouriteCounterValues(Empty empty) {
+    CompletionStage<CounterApi.CurrentCounter> counter1 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-1").build());
+    CompletionStage<CounterApi.CurrentCounter> counter2 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-2").build());
+    CompletionStage<CounterApi.CurrentCounter> counter3 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-3").build());
+
+    CompletionStage<CounterApi.CurrentCounter> sumOfAllThree = counter1.thenCombine(counter2, (currentCounter1, currentCounter2) ->
+        currentCounter1.getValue() + currentCounter2.getValue()
+    ).thenCombine(counter3, (sumOf1And2, currentCounter3) ->
+        CounterApi.CurrentCounter.newBuilder().setValue(sumOf1And2 + currentCounter3.getValue()).build()
+    );
+
+    return effects().asyncReply(sumOfAllThree);
+  }
+  // tag::controller-side-effect[]
+  // tag::controller-forward[]
 }
 // end::controller-forward[]
 // end::controller-side-effect[]
