@@ -61,9 +61,6 @@ case class FullyQualifiedName(
    *
    * Notably also removes any outer class name from the parent, since 'derived' classes are always outside of the outer
    * class.
-   *
-   * @param derive
-   * @return
    */
   def deriveName(derive: String => String): FullyQualifiedName =
     copy(name = derive(name), parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
