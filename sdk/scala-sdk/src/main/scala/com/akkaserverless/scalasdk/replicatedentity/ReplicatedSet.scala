@@ -113,8 +113,6 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
   /**
    * Tests whether a predicate holds for all elements of this ReplicatedSet.
    *
-   * $mayNotTerminateInf
-   *
    * @param predicate
    *   the predicate used to test elements.
    * @return

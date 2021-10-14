@@ -130,8 +130,6 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
   /**
    * Tests whether a predicate holds for all elements of this ReplicatedCounterMap.
    *
-   * $mayNotTerminateInf
-   *
    * @param predicate
    *   the predicate used to test elements.
    * @return
