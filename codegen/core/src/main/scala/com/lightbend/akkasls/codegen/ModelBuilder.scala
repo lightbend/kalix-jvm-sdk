@@ -46,7 +46,7 @@ object ModelBuilder {
       entities.getOrElse(
         service.componentFullName,
         throw new IllegalArgumentException(
-          "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
+          "Service [" + service.fqn.fullyQualifiedProtoName + "] refers to entity [" + service.componentFullName +
           s"], but no entity configuration is found for that component name. Entities: [${entities.keySet.mkString(", ")}]"))
     }
   }
@@ -373,15 +373,17 @@ object ModelBuilder {
                     }))
             case _ => None
           }
-        } yield serviceName.fullQualifiedName -> service
+        } yield serviceName.fullyQualifiedProtoName -> service
 
         Model(
           existingServices ++ services,
           existingEntities ++
-          extractEventSourcedEntityDefinition(descriptor, descriptorSeq).map(entity =>
-            entity.fqn.fullQualifiedName -> entity) ++
-          extractValueEntityDefinition(descriptor, descriptorSeq).map(entity => entity.componentFullName -> entity) ++
-          extractReplicatedEntityDefinition(descriptor).map(entity => entity.fqn.fullQualifiedName -> entity))
+          extractEventSourcedEntityDefinition(descriptor, descriptorSeq)
+            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity) ++
+          extractValueEntityDefinition(descriptor, descriptorSeq)
+            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity) ++
+          extractReplicatedEntityDefinition(descriptor)
+            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity))
     }
   }
 

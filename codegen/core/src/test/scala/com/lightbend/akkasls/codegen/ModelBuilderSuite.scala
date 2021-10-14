@@ -104,7 +104,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainProto)),
             ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainProto))))
 
-      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
 
       assertEquals(
         model.services,
@@ -125,7 +125,7 @@ class ModelBuilderSuite extends munit.FunSuite {
                 "GetCart",
                 fullyQualifiedName("GetShoppingCart", shoppingCartProto),
                 fullyQualifiedName("Cart", shoppingCartProto))),
-            entity.fqn.fullQualifiedName)))
+            entity.fqn.fullyQualifiedProtoName)))
     }.get
   }
 
@@ -178,7 +178,7 @@ class ModelBuilderSuite extends munit.FunSuite {
         "shopping-cart",
         ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
 
-      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
 
       assertEquals(
         model.services,
@@ -203,7 +203,7 @@ class ModelBuilderSuite extends munit.FunSuite {
                 "RemoveCart",
                 fullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
                 fullyQualifiedName("Empty", googleEmptyProto))),
-            entity.fqn.fullQualifiedName)))
+            entity.fqn.fullyQualifiedProtoName)))
     }.get
   }
 
@@ -260,7 +260,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder
             .TypeArgument("Product", domainProto, TestData.guessDescriptor(domainProto.name, domainProto))))
 
-      assertEquals(model.entities, Map(entity.fqn.fullQualifiedName -> entity))
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
 
       assertEquals(
         model.services,
@@ -285,7 +285,7 @@ class ModelBuilderSuite extends munit.FunSuite {
                 "RemoveCart",
                 fullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
                 fullyQualifiedName("Empty", googleEmptyProto))),
-            entity.fqn.fullQualifiedName)))
+            entity.fqn.fullyQualifiedProtoName)))
     }.get
   }
 

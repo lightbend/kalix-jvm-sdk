@@ -116,7 +116,6 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
   test("it can generate an specific Test stub for the entity") {
 
     val sourceCode = ActionTestKitGenerator.generateTestSourceCode(service)
-    println(sourceCode)
 
     val expected =
       """package com.example.service;

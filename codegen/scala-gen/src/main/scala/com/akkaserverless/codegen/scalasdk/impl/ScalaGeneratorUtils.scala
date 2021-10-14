@@ -20,8 +20,8 @@ import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder
 
 object ScalaGeneratorUtils {
   def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
-    if (fqn.fullQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
-    else if (imports.contains(fqn.fullQualifiedName)) fqn.name
+    if (fqn.fullyQualifiedProtoName == "com.google.protobuf.any.Any") "ScalaPbAny"
+    else if (imports.contains(fqn.fullyQualifiedJavaName)) fqn.name
     else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
     else if (imports.contains(fqn.parent.javaPackage))
       fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
