@@ -106,6 +106,9 @@ object SourceGeneratorUtils {
         typ.parent.javaPackage == packageName
       }
       .filterNot { typ =>
+        typ.parent.javaPackage.isEmpty
+      }
+      .filterNot { typ =>
         packageImports.contains(typ.parent.javaPackage)
       }
       .map(typeImport)

@@ -146,7 +146,7 @@ object ValueEntitySourceGenerator {
     }
 
     implicit val imports = generateImports(
-      relevantTypes ++ relevantTypes.map(_.descriptorImport),
+      relevantTypes ++ relevantTypes.flatMap(_.descriptorObject),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
@@ -157,8 +157,9 @@ object ValueEntitySourceGenerator {
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
+        .flatMap(_.descriptorObject)
         .map(d =>
-          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+          s"${d.name}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
         |
