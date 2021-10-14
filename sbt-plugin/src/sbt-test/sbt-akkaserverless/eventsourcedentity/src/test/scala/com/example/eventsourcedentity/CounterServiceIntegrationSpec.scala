@@ -1,7 +1,6 @@
 package com.example.eventsourcedentity
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -34,12 +33,16 @@ class CounterServiceIntegrationSpec
     "Increase and decrease a counter" in {
       val counterId = "42"
 
-      client.increase(IncreaseValue(counterId, 42)).flatMap { _ =>
-        client.decrease(DecreaseValue(counterId, 32))
-      }.futureValue
+      val updateResult =
+        for {
+          _ <- client.increase(IncreaseValue(counterId, 42))
+          done <- client.decrease(DecreaseValue(counterId, 32))
+        } yield done
 
-      val result = client.getCurrentCounter(GetCounter(counterId)).futureValue
-      result.value shouldBe(42-32)
+      updateResult.futureValue
+
+      val getResult = client.getCurrentCounter(GetCounter(counterId))
+      getResult.futureValue.value shouldBe(42-32)
     }
 
   }

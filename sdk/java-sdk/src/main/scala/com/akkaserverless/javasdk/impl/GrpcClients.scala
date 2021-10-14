@@ -35,14 +35,11 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
 
 import akka.actor.ActorSystem
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
 
 /**
  * INTERNAL API
  */
 object GrpcClients extends ExtensionId[GrpcClients] with ExtensionIdProvider {
-
   override def get(system: ActorSystem): GrpcClients = super.get(system)
 
   override def get(system: ClassicActorSystemProvider): GrpcClients = super.get(system)
@@ -51,7 +48,7 @@ object GrpcClients extends ExtensionId[GrpcClients] with ExtensionIdProvider {
     new GrpcClients(system)
   override def lookup: ExtensionId[_ <: Extension] = this
 
-  final private case class Key(serviceClass: Class[_], service: String)
+  final private case class Key(serviceClass: Class[_], service: String, port: Int)
 }
 
 /**
@@ -73,41 +70,24 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       .map(_ => Done))
 
   def getGrpcClient[T](serviceClass: Class[T], service: String): T =
-    getGrpcClient(serviceClass, service, ConfigFactory.empty)
+    getGrpcClient(serviceClass, service, port = 80)
 
-  /**
-   * `additionalConfig` is layered between the `akka.grpc.client.<key.service>` and the default `akka.grpc.client.*`.
-   * The purpose of `additionalConfig` is to be able to include some dynamic (decided at runtime) config. It is used by
-   * the `AkkaServerlessTestKit`.
-   */
-  def getGrpcClient[T](serviceClass: Class[T], service: String, additionalConfig: Config): T =
-    clients.computeIfAbsent(Key(serviceClass, service), createClient(_, additionalConfig)).asInstanceOf[T]
+  def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int): T =
+    clients.computeIfAbsent(Key(serviceClass, service, port), createClient(_)).asInstanceOf[T]
 
-  private def createClient(key: Key, additionalConfig: Config): AnyRef = {
-    val settings =
-      if (additionalConfig.isEmpty && !system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
-        // "service" is not present in the config, treat it as an Akka gRPC inter-service call
-        log.debug("Creating gRPC client for Akka Serverless service [{}]", key.service)
-        GrpcClientSettings
-          .connectToServiceAt(key.service, 80)(system)
-          // (TLS is handled for us by Akka Serverless infra)
-          .withTls(false)
-      } else {
-        log.debug("Creating gRPC client for external service [{}]", key.service)
-        // external service, defined in config
-        val akkaGrpcClientConfig = system.settings.config.getConfig("akka.grpc.client")
-        // akka-grpc is using config named "*" by default, same here
-        val defaultClientConfig = akkaGrpcClientConfig.getConfig("\"*\"")
-        val clientConfig =
-          if (akkaGrpcClientConfig.hasPath(s""""${key.service}""""))
-            akkaGrpcClientConfig
-              .getConfig(s""""${key.service}"""")
-              .withFallback(additionalConfig)
-              .withFallback(defaultClientConfig)
-          else
-            additionalConfig.withFallback(defaultClientConfig)
-        GrpcClientSettings.fromConfig(clientConfig)(system)
-      }
+  private def createClient(key: Key): AnyRef = {
+    val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
+      // "service" is not present in the config, treat it as an Akka gRPC inter-service call
+      log.debug("Creating gRPC client for Akka Serverless service [{}]", key.service)
+      GrpcClientSettings
+        .connectToServiceAt(key.service, key.port)(system)
+        // (TLS is handled for us by Akka Serverless infra)
+        .withTls(false)
+    } else {
+      log.debug("Creating gRPC client for external service [{}]", key.service)
+      // external service, defined in config
+      GrpcClientSettings.fromConfig(key.service)(system)
+    }
 
     // expected to have a ServiceNameClient generated in the same package, so look that up through reflection
     val clientClass = system.dynamicAccess.getClassFor[AnyRef](key.serviceClass.getName + "Client").get
