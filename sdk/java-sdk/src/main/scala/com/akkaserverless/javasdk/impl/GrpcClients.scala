@@ -78,7 +78,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private def createClient(key: Key): AnyRef = {
     val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
       // "service" is not present in the config, treat it as an Akka gRPC inter-service call
-      log.debug("Creating gRPC client for Akka Serverless service [{}]", key.service)
+      log.debug("Creating gRPC client for Akka Serverless service [{}:{}]", key.service, key.port)
       GrpcClientSettings
         .connectToServiceAt(key.service, key.port)(system)
         // (TLS is handled for us by Akka Serverless infra)
@@ -102,12 +102,15 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         val create =
           companion.getClass.getMethod("apply", classOf[GrpcClientSettings], classOf[ClassicActorSystemProvider])
         create.invoke(companion, settings, system)
+      } else {
+        throw new IllegalArgumentException(s"Expected an AkkaGrpcClient but was [${clientClass.getName}]")
       }
 
     val closeDone = client match {
       case javaClient: AkkaGrpcJavaClient =>
         javaClient.closed().asScala
-      case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
+      case scalaClient: AkkaGrpcScalaClient =>
+        scalaClient.closed
     }
     closeDone.foreach { _ =>
       // if the client is closed, remove it from the pool
