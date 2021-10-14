@@ -6,6 +6,7 @@
 package com.example.actions;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.example.Components;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 
@@ -13,6 +14,11 @@ import com.google.protobuf.Empty;
 public class CounterStateSubscriptionAction extends AbstractCounterStateSubscriptionAction {
 
   public CounterStateSubscriptionAction(ActionCreationContext creationContext) {}
+
+  // FIXME generated method in AbstractCounterStateSubscriptionAction
+  protected final Components components() {
+    return null; // ComponentsImpl(actionContext())
+  }
 
   /** Handler for "OnUpdateState". */
   @Override

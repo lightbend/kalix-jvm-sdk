@@ -22,7 +22,6 @@ import java.util.concurrent.CompletionStage;
 public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
   private final ServiceCallRef<CounterApi.IncreaseValue> increaseCallRef;
-  private final Components components;
 
   public DoubleCounterAction(ActionCreationContext creationContext) {
     this.increaseCallRef =
@@ -31,8 +30,11 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
                 "com.example.CounterService",
                 "Increase",
                 CounterApi.IncreaseValue.class);
-    // FIXME where do we get the components impl from?
-    components = null;
+  }
+
+  // FIXME generated method in AbstractDoubleCounterAction
+  protected final Components components() {
+    return null; // new ComponentsImpl(actionContext())
   }
 // end::controller-side-effect[]
 // tag::controller-side-effect[]
@@ -77,7 +79,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build();
-    return effects().asyncReply(components.counter().increase(increaseValueDoubled));
+    return effects().asyncReply(components().counter().increase(increaseValueDoubled));
   }
 
   // regular async sequence of operations
@@ -86,9 +88,9 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build();
     CompletionStage<CounterApi.CurrentCounter> increaseAndValueAfter =
-        components.counter().increase(increaseValueDoubled)
+        components().counter().increase(increaseValueDoubled)
         .thenCompose(empty ->
-            components.counter().getCurrentCounter(
+            components().counter().getCurrentCounter(
                 CounterApi.GetCounter.newBuilder().setCounterId(increaseValue.getCounterId()).build())
         );
     return effects().asyncReply(increaseAndValueAfter);
@@ -96,9 +98,9 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
   // Maybe this is not something we should show in docs, happens in parallel (right now)
   public Effect<CounterApi.CurrentCounter> sumOfMy3FavouriteCounterValues(Empty empty) {
-    CompletionStage<CounterApi.CurrentCounter> counter1 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-1").build());
-    CompletionStage<CounterApi.CurrentCounter> counter2 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-2").build());
-    CompletionStage<CounterApi.CurrentCounter> counter3 = components.counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-3").build());
+    CompletionStage<CounterApi.CurrentCounter> counter1 = components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-1").build());
+    CompletionStage<CounterApi.CurrentCounter> counter2 = components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-2").build());
+    CompletionStage<CounterApi.CurrentCounter> counter3 = components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-3").build());
 
     CompletionStage<CounterApi.CurrentCounter> sumOfAllThree = counter1.thenCombine(counter2, (currentCounter1, currentCounter2) ->
         currentCounter1.getValue() + currentCounter2.getValue()
