@@ -14,17 +14,21 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeSet(context: ReplicatedEntityContext) extends AbstractSomeSet {
 
-
   /** Command handler for "Add". */
-  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Add` is not implemented, yet")
+  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] = 
+    effects
+      .update(currentData.add(addElement.element))
+      .thenReply(Empty.defaultInstance)
+  
 
   /** Command handler for "Remove". */
   def remove(currentData: ReplicatedSet[String], removeElement: set.RemoveElement): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Remove` is not implemented, yet")
+    effects
+      .update(currentData.remove(removeElement.element))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Get". */
   def get(currentData: ReplicatedSet[String], getElements: set.GetElements): ReplicatedEntity.Effect[set.CurrentElements] =
-    effects.error("The command handler for `Get` is not implemented, yet")
+    effects.reply(set.CurrentElements(currentData.elements.toSeq))
 
 }

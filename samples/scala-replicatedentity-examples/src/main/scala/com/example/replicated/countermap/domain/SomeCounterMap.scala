@@ -14,25 +14,33 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeCounterMap(context: ReplicatedEntityContext) extends AbstractSomeCounterMap {
 
-
   /** Command handler for "Increase". */
   def increase(currentData: ReplicatedCounterMap[String], increaseValue: countermap.IncreaseValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Increase` is not implemented, yet")
+    effects
+      .update(currentData.increment(increaseValue.key, increaseValue.value))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Decrease". */
   def decrease(currentData: ReplicatedCounterMap[String], decreaseValue: countermap.DecreaseValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Decrease` is not implemented, yet")
+    effects
+      .update(currentData.decrement(decreaseValue.key, decreaseValue.value))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Remove". */
   def remove(currentData: ReplicatedCounterMap[String], removeValue: countermap.RemoveValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Remove` is not implemented, yet")
+    effects
+      .update(currentData.remove(removeValue.key))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Get". */
   def get(currentData: ReplicatedCounterMap[String], getValue: countermap.GetValue): ReplicatedEntity.Effect[countermap.CurrentValue] =
-    effects.error("The command handler for `Get` is not implemented, yet")
+    effects
+      .reply(countermap.CurrentValue(currentData(getValue.key)))
 
   /** Command handler for "GetAll". */
-  def getAll(currentData: ReplicatedCounterMap[String], getAllValues: countermap.GetAllValues): ReplicatedEntity.Effect[countermap.CurrentValues] =
-    effects.error("The command handler for `GetAll` is not implemented, yet")
+  def getAll(currentData: ReplicatedCounterMap[String], getAllValues: countermap.GetAllValues): ReplicatedEntity.Effect[countermap.CurrentValues] = {
+    val keyValues = currentData.keySet.map { key => key -> currentData(key) }.toMap
+    effects.reply(countermap.CurrentValues(keyValues))
+  }
 
 }
