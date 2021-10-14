@@ -16,10 +16,10 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
 
-private[replicatedentity] trait InternalReplicatedData extends ReplicatedData {
+private[akkaserverless] trait InternalReplicatedData extends ReplicatedData {
   type Self <: InternalReplicatedData
   def name: String
   def hasDelta: Boolean

@@ -16,11 +16,11 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
 import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedCounter => JavaSdkReplicatedCounter }
 
 /** A counter that can be incremented and decremented. */
-class ReplicatedCounter private[scalasdk] (override val _internal: JavaSdkReplicatedCounter) extends ReplicatedData {
+class ReplicatedCounter private[scalasdk] (override val _internal: ReplicatedCounterImpl) extends ReplicatedData {
 
   /**
    * Get the current value of the counter.

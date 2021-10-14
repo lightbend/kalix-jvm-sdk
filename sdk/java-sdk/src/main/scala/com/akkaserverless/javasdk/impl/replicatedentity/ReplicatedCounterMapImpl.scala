@@ -16,18 +16,16 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap
-import com.akkaserverless.protocol.replicated_entity.{
-  ReplicatedCounterMapDelta,
-  ReplicatedCounterMapEntryDelta,
-  ReplicatedEntityDelta
-}
-import com.akkaserverless.replicatedentity.ReplicatedData
-
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] final class ReplicatedCounterMapImpl[K](
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap
+import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapEntryDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
+
+private[akkaserverless] final class ReplicatedCounterMapImpl[K](
     anySupport: AnySupport,
     counters: Map[K, ReplicatedCounterImpl] = Map.empty[K, ReplicatedCounterImpl],
     removed: Set[K] = Set.empty[K],
@@ -38,7 +36,12 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
   override type Self = ReplicatedCounterMapImpl[K]
   override val name = "ReplicatedCounterMap"
 
-  override def get(key: K): Long = counters.get(key).fold(0L)(_.getValue)
+  /** for Scala SDK */
+  private[akkaserverless] def getOption(key: K): Option[Long] =
+    counters.get(key).map(_.getValue)
+
+  override def get(key: K): Long =
+    counters.get(key).fold(0L)(_.getValue)
 
   override def increment(key: K, amount: Long): ReplicatedCounterMapImpl[K] = {
     val counter = counters.getOrElse(key, new ReplicatedCounterImpl)
@@ -63,9 +66,16 @@ private[replicatedentity] final class ReplicatedCounterMapImpl[K](
 
   override def isEmpty: Boolean = counters.isEmpty
 
+  /** for Scala SDK */
+  private[akkaserverless] def forall(predicate: ((K, Long)) => Boolean): Boolean =
+    counters.view.mapValues(_.getValue).forall(predicate)
+
   override def containsKey(key: K): Boolean = counters.contains(key)
 
   override def keySet: java.util.Set[K] = counters.keySet.asJava
+
+  /** for Scala SDK */
+  private[akkaserverless] def keys: Set[K] = counters.keySet
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || counters.values.exists(_.hasDelta)
 

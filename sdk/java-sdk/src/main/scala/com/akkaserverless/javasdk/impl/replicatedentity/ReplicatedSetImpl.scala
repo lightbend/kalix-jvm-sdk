@@ -16,16 +16,17 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
-import com.akkaserverless.protocol.replicated_entity.{ ReplicatedEntityDelta, ReplicatedSetDelta }
-import com.akkaserverless.replicatedentity.ReplicatedData
-
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] class ReplicatedSetImpl[E](
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedSetDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
+
+private[akkaserverless] class ReplicatedSetImpl[E](
     anySupport: AnySupport,
-    value: Set[E] = Set.empty[E],
+    values: Set[E] = Set.empty[E],
     added: Set[E] = Set.empty[E],
     removed: Set[E] = Set.empty[E],
     cleared: Boolean = false)
@@ -35,52 +36,76 @@ private[replicatedentity] class ReplicatedSetImpl[E](
   override type Self = ReplicatedSetImpl[E]
   override val name = "ReplicatedSet"
 
-  override def size: Int = value.size
+  override def size: Int = values.size
 
-  override def isEmpty: Boolean = value.isEmpty
+  override def isEmpty: Boolean = values.isEmpty
 
-  override def elements: java.util.Set[E] = value.asJava
+  override def elements: java.util.Set[E] = values.asJava
 
-  override def iterator(): java.util.Iterator[E] = value.iterator.asJava
+  /** for Scala SDK */
+  private[akkaserverless] def elementsSet: Set[E] = values
 
-  override def contains(element: E): Boolean = value.contains(element)
+  override def iterator(): java.util.Iterator[E] = values.iterator.asJava
+
+  override def contains(element: E): Boolean = values.contains(element)
 
   override def add(element: E): ReplicatedSetImpl[E] =
-    if (value.contains(element)) {
+    if (values.contains(element)) {
       this
     } else {
       if (removed.contains(element)) {
-        new ReplicatedSetImpl(anySupport, value + element, added, removed - element, cleared)
+        new ReplicatedSetImpl(anySupport, values + element, added, removed - element, cleared)
       } else {
-        new ReplicatedSetImpl(anySupport, value + element, added + element, removed, cleared)
+        new ReplicatedSetImpl(anySupport, values + element, added + element, removed, cleared)
       }
     }
 
   override def remove(element: E): ReplicatedSetImpl[E] =
-    if (!value.contains(element)) {
+    if (!values.contains(element)) {
       this
     } else {
-      if (value.size == 1) { // just the to-be-removed element
+      if (values.size == 1) { // just the to-be-removed element
         clear()
       } else {
         if (added.contains(element)) {
-          new ReplicatedSetImpl(anySupport, value - element, added - element, removed, cleared)
+          new ReplicatedSetImpl(anySupport, values - element, added - element, removed, cleared)
         } else {
-          new ReplicatedSetImpl(anySupport, value - element, added, removed + element, cleared)
+          new ReplicatedSetImpl(anySupport, values - element, added, removed + element, cleared)
         }
       }
     }
 
-  override def containsAll(elements: java.util.Collection[E]): Boolean = elements.asScala.forall(value.contains)
+  /** for Scala SDK */
+  private[akkaserverless] def forall(predicate: E => Boolean): Boolean =
+    values.forall(predicate)
+
+  /** for Scala SDK */
+  private[akkaserverless] def containsAll(elements: Iterable[E]): Boolean =
+    elements.forall(values.contains)
+
+  override def containsAll(elements: java.util.Collection[E]): Boolean =
+    containsAll(elements.asScala)
+
+  /** for Scala SDK */
+  private[akkaserverless] def addAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+    elements.foldLeft(this) { case (set, element) => set.add(element) }
 
   override def addAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
-    elements.asScala.foldLeft(this) { case (set, element) => set.add(element) }
+    addAll(elements.asScala)
+
+  /** for Scala SDK */
+  private[akkaserverless] def retainAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+    retainAll(elements.asJavaCollection)
 
   override def retainAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
-    value.foldLeft(this) { case (set, element) => if (!elements.contains(element)) set.remove(element) else set }
+    values.foldLeft(this) { case (set, element) => if (!elements.contains(element)) set.remove(element) else set }
+
+  /** for Scala SDK */
+  private[akkaserverless] def removeAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+    elements.foldLeft(this) { case (set, element) => set.remove(element) }
 
   override def removeAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
-    elements.asScala.foldLeft(this) { case (set, element) => set.remove(element) }
+    removeAll(elements.asScala)
 
   override def clear(): ReplicatedSetImpl[E] =
     new ReplicatedSetImpl[E](anySupport, cleared = true)
@@ -95,18 +120,18 @@ private[replicatedentity] class ReplicatedSetImpl[E](
         added = added.map(anySupport.encodeScala).toSeq))
 
   override def resetDelta(): ReplicatedSetImpl[E] =
-    if (hasDelta) new ReplicatedSetImpl(anySupport, value) else this
+    if (hasDelta) new ReplicatedSetImpl(anySupport, values) else this
 
   override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSetImpl[E]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedSet(ReplicatedSetDelta(cleared, removed, added, _)) =>
       val updatedValue = {
-        (if (cleared) Set.empty[E] else value -- removed.map(element => anySupport.decode(element).asInstanceOf[E])) ++
+        (if (cleared) Set.empty[E] else values -- removed.map(element => anySupport.decode(element).asInstanceOf[E])) ++
         added.map(element => anySupport.decode(element).asInstanceOf[E])
       }
       new ReplicatedSetImpl(anySupport, updatedValue)
   }
 
-  override def toString = s"ReplicatedSet(${value.mkString(",")})"
+  override def toString = s"ReplicatedSet(${values.mkString(",")})"
 
   override def _internal(): ReplicatedData = this
 }

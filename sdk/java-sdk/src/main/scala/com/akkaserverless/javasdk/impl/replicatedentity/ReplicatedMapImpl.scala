@@ -16,24 +16,24 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedDataFactory, ReplicatedMap }
+import java.util.function
+
+import scala.jdk.CollectionConverters._
+
 import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.protocol.replicated_entity.{
-  ReplicatedEntityDelta,
-  ReplicatedMapDelta,
-  ReplicatedMapEntryDelta
-}
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedMapDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedMapEntryDelta
 import com.akkaserverless.replicatedentity.ReplicatedData
 import org.slf4j.LoggerFactory
-
-import java.util.function
-import scala.jdk.CollectionConverters._
 
 private object ReplicatedMapImpl {
   private val log = LoggerFactory.getLogger(classOf[ReplicatedMapImpl[_, _]])
 }
 
-private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicatedData](
+private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
     anySupport: AnySupport,
     entries: Map[K, V] = Map.empty[K, V],
     added: Set[K] = Set.empty[K],
@@ -46,6 +46,12 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
 
   override type Self = ReplicatedMapImpl[K, V]
   override val name = "ReplicatedMap"
+
+  /** for Scala SDK */
+  private[akkaserverless] def apply(key: K): V = entries(key)
+
+  /** for Scala SDK */
+  private[akkaserverless] def getOption(key: K): Option[V] = entries.get(key)
 
   override def get(key: K): V = entries(key)
 
@@ -64,7 +70,7 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
         data
       })
 
-  override def update(key: K, value: V): ReplicatedMap[K, V] =
+  override def update(key: K, value: V): ReplicatedMapImpl[K, V] =
     new ReplicatedMapImpl(
       anySupport,
       entries.updated(key, value),
@@ -97,23 +103,30 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
 
   override def containsKey(key: K): Boolean = entries.contains(key)
 
-  override def keySet: java.util.Set[K] = entries.keySet.asJava
+  /** for Scala SDK */
+  private[akkaserverless] def keys: Set[K] = entries.keySet
+
+  override def keySet: java.util.Set[K] = keys.asJava
 
   override def hasDelta: Boolean =
     if (cleared || added.nonEmpty || removed.nonEmpty) {
       true
     } else {
-      entries.values.exists(_.hasDelta)
+      entries.values.exists(_.asInstanceOf[InternalReplicatedData].hasDelta)
     }
 
   override def getDelta: ReplicatedEntityDelta.Delta = {
     val updatedEntries = (entries -- added).collect {
-      case (key, changed) if changed.hasDelta =>
-        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(changed.getDelta)))
+      case (key, changed) if changed.asInstanceOf[InternalReplicatedData].hasDelta =>
+        ReplicatedMapEntryDelta(
+          Some(anySupport.encodeScala(key)),
+          Some(ReplicatedEntityDelta(changed.asInstanceOf[InternalReplicatedData].getDelta)))
     }
     val addedEntries = added.flatMap { key =>
       entries.get(key).map { value =>
-        ReplicatedMapEntryDelta(Some(anySupport.encodeScala(key)), Some(ReplicatedEntityDelta(value.getDelta)))
+        ReplicatedMapEntryDelta(
+          Some(anySupport.encodeScala(key)),
+          Some(ReplicatedEntityDelta(value.asInstanceOf[InternalReplicatedData].getDelta)))
       }
     }
     ReplicatedEntityDelta.Delta.ReplicatedMap(
@@ -126,7 +139,10 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
 
   override def resetDelta(): ReplicatedMapImpl[K, V] =
     if (!hasDelta) this
-    else new ReplicatedMapImpl(anySupport, entries.view.mapValues(_.resetDelta().asInstanceOf[V]).toMap)
+    else
+      new ReplicatedMapImpl(
+        anySupport,
+        entries.view.mapValues(_.asInstanceOf[InternalReplicatedData].resetDelta().asInstanceOf[V]).toMap)
 
   override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMapImpl[K, V]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedMap(ReplicatedMapDelta(cleared, removed, updated, added, _)) =>
@@ -137,8 +153,9 @@ private[replicatedentity] final class ReplicatedMapImpl[K, V <: InternalReplicat
         case (map, ReplicatedMapEntryDelta(Some(encodedKey), Some(ReplicatedEntityDelta(delta, _)), _)) =>
           val key = anySupport.decode(encodedKey).asInstanceOf[K]
           map.get(key) match {
-            case Some(value) => map.updated(key, value.applyDelta(delta).asInstanceOf[V])
-            case _           => log.warn("ReplicatedMap entry to update with key [{}] not found in map", key); map
+            case Some(value) =>
+              map.updated(key, value.asInstanceOf[InternalReplicatedData].applyDelta(delta).asInstanceOf[V])
+            case _ => log.warn("ReplicatedMap entry to update with key [{}] not found in map", key); map
           }
         case (map, _) => map
       }
