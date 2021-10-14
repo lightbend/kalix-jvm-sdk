@@ -48,10 +48,10 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
   override val name = "ReplicatedMap"
 
   /** for Scala SDK */
-  private[akkaserverless] def apply(key: K): V = entries(key)
+  def apply(key: K): V = entries(key)
 
   /** for Scala SDK */
-  private[akkaserverless] def getOption(key: K): Option[V] = entries.get(key)
+  def getOption(key: K): Option[V] = entries.get(key)
 
   override def get(key: K): V = entries(key)
 
@@ -104,7 +104,7 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
   override def containsKey(key: K): Boolean = entries.contains(key)
 
   /** for Scala SDK */
-  private[akkaserverless] def keys: Set[K] = entries.keySet
+  def keys: Set[K] = entries.keySet
 
   override def keySet: java.util.Set[K] = keys.asJava
 

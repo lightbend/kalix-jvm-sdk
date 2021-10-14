@@ -43,7 +43,7 @@ private[akkaserverless] class ReplicatedSetImpl[E](
   override def elements: java.util.Set[E] = values.asJava
 
   /** for Scala SDK */
-  private[akkaserverless] def elementsSet: Set[E] = values
+  def elementsSet: Set[E] = values
 
   override def iterator(): java.util.Iterator[E] = values.iterator.asJava
 
@@ -76,32 +76,32 @@ private[akkaserverless] class ReplicatedSetImpl[E](
     }
 
   /** for Scala SDK */
-  private[akkaserverless] def forall(predicate: E => Boolean): Boolean =
+  def forall(predicate: E => Boolean): Boolean =
     values.forall(predicate)
 
   /** for Scala SDK */
-  private[akkaserverless] def containsAll(elements: Iterable[E]): Boolean =
+  def containsAll(elements: Iterable[E]): Boolean =
     elements.forall(values.contains)
 
   override def containsAll(elements: java.util.Collection[E]): Boolean =
     containsAll(elements.asScala)
 
   /** for Scala SDK */
-  private[akkaserverless] def addAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+  def addAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
     elements.foldLeft(this) { case (set, element) => set.add(element) }
 
   override def addAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
     addAll(elements.asScala)
 
   /** for Scala SDK */
-  private[akkaserverless] def retainAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+  def retainAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
     retainAll(elements.asJavaCollection)
 
   override def retainAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =
     values.foldLeft(this) { case (set, element) => if (!elements.contains(element)) set.remove(element) else set }
 
   /** for Scala SDK */
-  private[akkaserverless] def removeAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
+  def removeAll(elements: Iterable[E]): ReplicatedSetImpl[E] =
     elements.foldLeft(this) { case (set, element) => set.remove(element) }
 
   override def removeAll(elements: java.util.Collection[E]): ReplicatedSetImpl[E] =

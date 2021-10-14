@@ -39,7 +39,7 @@ private[akkaserverless] final class ReplicatedRegisterMapImpl[K, V](
   override val name = "ReplicatedRegisterMap"
 
   /** for Scala SDK */
-  private[akkaserverless] def getValueOption(key: K): Option[V] =
+  def getValueOption(key: K): Option[V] =
     registers.get(key).map(_.get())
 
   override def getValue(key: K): java.util.Optional[V] =
@@ -73,7 +73,7 @@ private[akkaserverless] final class ReplicatedRegisterMapImpl[K, V](
   override def containsKey(key: K): Boolean = registers.contains(key)
 
   /** for Scala SDK */
-  private[akkaserverless] def keys: Set[K] = registers.keySet
+  def keys: Set[K] = registers.keySet
 
   override def keySet: java.util.Set[K] = keys.asJava
 

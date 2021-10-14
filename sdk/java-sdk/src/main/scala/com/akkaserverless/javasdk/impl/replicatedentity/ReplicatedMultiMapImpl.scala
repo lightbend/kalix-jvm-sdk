@@ -41,7 +41,7 @@ private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
   override val name = "ReplicatedMultiMap"
 
   /** for Scala SDK */
-  private[akkaserverless] def getValuesSet(key: K): Set[V] =
+  def getValuesSet(key: K): Set[V] =
     entries.get(key).map(_.elementsSet).getOrElse(Set.empty[V])
 
   override def get(key: K): JSet[V] = entries.get(key).fold(JCollections.emptySet[V])(_.elements)
@@ -53,7 +53,7 @@ private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
   }
 
   /** for Scala SDK */
-  private[akkaserverless] def putAll(key: K, values: Iterable[V]): ReplicatedMultiMapImpl[K, V] =
+  def putAll(key: K, values: Iterable[V]): ReplicatedMultiMapImpl[K, V] =
     values.foldLeft(this) { case (map, value) => map.put(key, value) }
 
   override def putAll(key: K, values: JCollection[V]): ReplicatedMultiMapImpl[K, V] =
@@ -88,7 +88,7 @@ private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
     entries.get(key).fold(false)(_.contains(value))
 
   /** for Scala SDK */
-  private[akkaserverless] def keys: Set[K] = entries.keySet
+  def keys: Set[K] = entries.keySet
 
   override def keySet: JSet[K] = entries.keySet.asJava
 

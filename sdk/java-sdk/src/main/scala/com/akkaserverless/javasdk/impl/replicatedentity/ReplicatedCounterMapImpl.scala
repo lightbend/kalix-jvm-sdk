@@ -37,7 +37,7 @@ private[akkaserverless] final class ReplicatedCounterMapImpl[K](
   override val name = "ReplicatedCounterMap"
 
   /** for Scala SDK */
-  private[akkaserverless] def getOption(key: K): Option[Long] =
+  def getOption(key: K): Option[Long] =
     counters.get(key).map(_.getValue)
 
   override def get(key: K): Long =
@@ -67,7 +67,7 @@ private[akkaserverless] final class ReplicatedCounterMapImpl[K](
   override def isEmpty: Boolean = counters.isEmpty
 
   /** for Scala SDK */
-  private[akkaserverless] def forall(predicate: ((K, Long)) => Boolean): Boolean =
+  def forall(predicate: ((K, Long)) => Boolean): Boolean =
     counters.view.mapValues(_.getValue).forall(predicate)
 
   override def containsKey(key: K): Boolean = counters.contains(key)
@@ -75,7 +75,7 @@ private[akkaserverless] final class ReplicatedCounterMapImpl[K](
   override def keySet: java.util.Set[K] = counters.keySet.asJava
 
   /** for Scala SDK */
-  private[akkaserverless] def keys: Set[K] = counters.keySet
+  def keys: Set[K] = counters.keySet
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || counters.values.exists(_.hasDelta)
 
