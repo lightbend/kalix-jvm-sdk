@@ -49,4 +49,25 @@ class JavaGeneratorUtilsSuite extends munit.FunSuite {
     // It's not imported, so we should use the full name, including outer class:
     assertEquals(typeName(fqn), "Outer.Test")
   }
+
+  test("refer to a class with its FQN when there would be clashing imports") {
+    implicit val imports = new Imports("com.example", Seq("com.example.bar.Foo", "com.example.baz.Foo"))
+    val bar =
+      PackageNaming(protoFileName = "test.proto", name = "", protoPackage = "com.example.bar", javaMultipleFiles = true)
+    val fqn = FullyQualifiedName.noDescriptor("Foo", bar)
+
+    assertEquals(typeName(fqn), "com.example.bar.Foo")
+    assert(!writeImports(imports).contains("com.example.bar.Foo"))
+    assert(!writeImports(imports).contains("com.example.bar.Bar"))
+  }
+
+  test("refer to a class with its FQN when there would be a clashing import") {
+    implicit val imports = new Imports("com.example", Seq("com.example.bar.Foo", "com.example.Foo"))
+    val bar =
+      PackageNaming(protoFileName = "test.proto", name = "", protoPackage = "com.example.bar", javaMultipleFiles = true)
+    val fqn = FullyQualifiedName.noDescriptor("Foo", bar)
+
+    assertEquals(typeName(fqn), "com.example.bar.Foo")
+    assert(!writeImports(imports).contains("com.example.bar.Foo"))
+  }
 }

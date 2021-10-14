@@ -84,6 +84,8 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
+      val derivedPackage = domainProto.copy(javaMultipleFiles = true)
+
       val googleEmptyProto =
         PackageNaming(
           "Empty",
@@ -95,7 +97,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val entity =
         ModelBuilder.EventSourcedEntity(
-          fullyQualifiedName("ShoppingCart", domainProto),
+          fullyQualifiedName("ShoppingCart", derivedPackage),
           "eventsourced-shopping-cart",
           ModelBuilder.State(fullyQualifiedName("Cart", domainProto)),
           List(
@@ -240,6 +242,8 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
+      val derivedPackage = domainProto.copy(javaMultipleFiles = true)
+
       val googleEmptyProto =
         PackageNaming(
           "Empty",
@@ -250,7 +254,7 @@ class ModelBuilderSuite extends munit.FunSuite {
           javaMultipleFiles = true)
 
       val entity = ModelBuilder.ReplicatedEntity(
-        fullyQualifiedName("ShoppingCart", domainProto),
+        fullyQualifiedName("ShoppingCart", derivedPackage),
         "shopping-cart",
         ModelBuilder.ReplicatedCounterMap(
           ModelBuilder

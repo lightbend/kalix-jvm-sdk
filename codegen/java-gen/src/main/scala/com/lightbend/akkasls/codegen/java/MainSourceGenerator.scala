@@ -18,12 +18,13 @@ package com.lightbend.akkasls.codegen.java
 
 import _root_.java.nio.file.Files
 import _root_.java.nio.file.Path
-
 import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.Entity
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen._
+
+import scala.annotation.tailrec
 
 /**
  * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
@@ -69,39 +70,41 @@ object MainSourceGenerator {
       services: Map[String, Service]): String = {
 
     val entityImports = entities.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ValueEntity        => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.EventSourcedEntity => entity.impl
+      case entity: ModelBuilder.ValueEntity        => entity.impl
+      case entity: ModelBuilder.ReplicatedEntity   => entity.impl
     }.toSeq
 
     val serviceImports = services.values.collect {
-      case service: ModelBuilder.ActionService => service.classNameQualified
-      case view: ModelBuilder.ViewService      => view.classNameQualified
+      case service: ModelBuilder.ActionService => service.impl
+      case view: ModelBuilder.ViewService      => view.impl
     }.toSeq
 
-    val componentImports = generateImports(Iterable.empty, mainClassPackageName, entityImports ++ serviceImports)
+    implicit val imports: Imports =
+      generateImports(
+        entityImports ++ serviceImports,
+        mainClassPackageName,
+        Seq("com.akkaserverless.javasdk.AkkaServerless", "org.slf4j.Logger", "org.slf4j.LoggerFactory"))
+
     val entityRegistrationParameters = entities.values.toList
       .sortBy(_.fqn.name)
       .collect {
-        case entity: ModelBuilder.EventSourcedEntity => s"${entity.fqn.name}::new"
-        case entity: ModelBuilder.ValueEntity        => s"${entity.fqn.name}::new"
-        case entity: ModelBuilder.ReplicatedEntity   => s"${entity.fqn.name}::new"
+        case entity: ModelBuilder.EventSourcedEntity => s"${typeName(entity.impl)}::new"
+        case entity: ModelBuilder.ValueEntity        => s"${typeName(entity.impl)}::new"
+        case entity: ModelBuilder.ReplicatedEntity   => s"${typeName(entity.impl)}::new"
       }
 
     val serviceRegistrationParameters = services.values.toList
       .sortBy(_.fqn.name)
       .collect {
-        case service: ModelBuilder.ActionService => s"${service.className}::new"
-        case view: ModelBuilder.ViewService      => s"${view.className}::new"
+        case service: ModelBuilder.ActionService => s"${typeName(service.impl)}::new"
+        case view: ModelBuilder.ViewService      => s"${typeName(view.impl)}::new"
       }
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
     s"""package $mainClassPackageName;
         |
-        |import com.akkaserverless.javasdk.AkkaServerless;
-        |import org.slf4j.Logger;
-        |import org.slf4j.LoggerFactory;
-        |${writeImports(componentImports)}
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -128,66 +131,19 @@ object MainSourceGenerator {
   }
 
   private[codegen] def akkaServerlessFactorySource(mainClassPackageName: String, model: ModelBuilder.Model): String = {
-    val registrations = model.services.values
-      .flatMap {
-        case service: ModelBuilder.EntityService =>
-          model.entities.get(service.componentFullName).toSeq.map {
-            case entity: ModelBuilder.EventSourcedEntity =>
-              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ValueEntity =>
-              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ReplicatedEntity =>
-              s".register(${entity.fqn.name}Provider.of(create${entity.fqn.name}))"
-          }
-
-        case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}.of(create${service.className}))")
-
-        case service: ModelBuilder.ActionService =>
-          List(s".register(${service.providerName}.of(create${service.className}))")
-
-      }
-      .toList
-      .sorted
-
     val entityImports = model.entities.values.flatMap { ety =>
-      if (ety.fqn.parent.javaPackage != mainClassPackageName) {
-        val imports =
-          ety.fqn.fullQualifiedName ::
-          s"${ety.fqn.parent.javaPackage}.${ety.fqn.parent.javaOuterClassname}" ::
-          Nil
-        ety match {
-          case _: ModelBuilder.EventSourcedEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _: ModelBuilder.ValueEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _: ModelBuilder.ReplicatedEntity =>
-            s"${ety.fqn.fullQualifiedName}Provider" :: imports
-          case _ => imports
-        }
-      } else List.empty
+      Seq(ety.impl, ety.provider)
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      if (serv.fqn.parent.javaPackage != mainClassPackageName) {
-        val outerClass = s"${serv.fqn.parent.javaPackage}.${serv.fqn.parent.javaOuterClassname}"
-        serv match {
-          case actionServ: ModelBuilder.ActionService =>
-            List(actionServ.classNameQualified, actionServ.providerNameQualified, outerClass)
-          case view: ModelBuilder.ViewService =>
-            List(view.classNameQualified, view.providerNameQualified, outerClass)
-          case _ => List(outerClass)
-        }
-      } else List.empty
-    }
-
-    val otherImports = model.services.values.flatMap { serv =>
-      val types = serv.commands.flatMap { cmd =>
-        cmd.inputType :: cmd.outputType :: Nil
-      }
-      collectRelevantTypes(types, serv.fqn).map { typ =>
-        s"${typ.parent.javaPackage}.${typ.parent.javaOuterClassname}"
-      }
+      serv.fqn.descriptorObject ++
+      (serv match {
+        case actionServ: ModelBuilder.ActionService =>
+          List(actionServ.impl, actionServ.provider)
+        case view: ModelBuilder.ViewService =>
+          List(view.impl, view.provider)
+        case _ => Nil
+      })
     }
 
     val entityContextImports = model.entities.values.collect {
@@ -205,39 +161,67 @@ object MainSourceGenerator {
       case _: ModelBuilder.ViewService =>
         List("com.akkaserverless.javasdk.view.ViewCreationContext", "java.util.function.Function")
     }.flatten
-    val contextImports = (entityContextImports ++ serviceContextImports).toSet
+    val contextImports = (entityContextImports ++ serviceContextImports).toSeq
+
+    implicit val imports =
+      generateImports(
+        entityImports ++ serviceImports,
+        mainClassPackageName,
+        "com.akkaserverless.javasdk.AkkaServerless" +: contextImports)
+
+    def creator(fqn: FullyQualifiedName): String = {
+      if (imports.clashingNames.contains(fqn.name)) s"create${dotsToCamelCase(typeName(fqn))}"
+      else s"create${fqn.name}"
+    }
+
+    val registrations = model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName).toSeq.map {
+            case entity: ModelBuilder.EventSourcedEntity =>
+              s".register(${typeName(entity.provider)}.of(${creator(entity.impl)}))"
+            case entity: ModelBuilder.ValueEntity =>
+              s".register(${typeName(entity.provider)}.of(${creator(entity.impl)}))"
+            case entity: ModelBuilder.ReplicatedEntity =>
+              s".register(${typeName(entity.provider)}.of(${creator(entity.impl)}))"
+          }
+
+        case service: ModelBuilder.ViewService =>
+          List(s".register(${typeName(service.provider)}.of(${creator(service.impl)}))")
+
+        case service: ModelBuilder.ActionService =>
+          List(s".register(${typeName(service.provider)}.of(${creator(service.impl)}))")
+
+      }
+      .toList
+      .sorted
 
     val entityCreators =
       model.entities.values.toList
         .sortBy(_.fqn.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>
-            s"Function<EventSourcedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+            s"Function<EventSourcedEntityContext, ${typeName(entity.impl)}> ${creator(entity.impl)}"
           case entity: ModelBuilder.ValueEntity =>
-            s"Function<ValueEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+            s"Function<ValueEntityContext, ${typeName(entity.impl)}> ${creator(entity.impl)}"
           case entity: ModelBuilder.ReplicatedEntity =>
-            s"Function<ReplicatedEntityContext, ${entity.fqn.name}> create${entity.fqn.name}"
+            s"Function<ReplicatedEntityContext, ${typeName(entity.impl)}> ${creator(entity.impl)}"
         }
 
     val serviceCreators = model.services.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case service: ModelBuilder.ActionService =>
-          s"Function<ActionCreationContext, ${service.className}> create${service.className}"
+          s"Function<ActionCreationContext, ${typeName(service.impl)}> ${creator(service.impl)}"
         case view: ModelBuilder.ViewService =>
-          s"Function<ViewCreationContext, ${view.className}> create${view.className}"
+          s"Function<ViewCreationContext, ${typeName(view.impl)}> ${creator(view.impl)}"
       }
 
     val creatorParameters = entityCreators ::: serviceCreators
-    val imports =
-      (List(
-        "com.akkaserverless.javasdk.AkkaServerless") ++ entityImports ++ serviceImports ++ otherImports ++ contextImports).distinct.sorted
-        .map(pkg => s"import $pkg;")
-        .mkString("\n")
 
     s"""package $mainClassPackageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -252,5 +236,4 @@ object MainSourceGenerator {
         |}
         |""".stripMargin
   }
-
 }
