@@ -35,7 +35,7 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
   private def extractServices(sideEffects: Seq[SideEffect]): Seq[ServiceCallDetails[T]] =
     sideEffects.map(_.serviceCall.asInstanceOf[ServiceCallDetails[T]])
 
-  override def getSideEffects(): Seq[ServiceCallDetails[T]] = effect match {
+  override def sideEffects(): Seq[ServiceCallDetails[T]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
