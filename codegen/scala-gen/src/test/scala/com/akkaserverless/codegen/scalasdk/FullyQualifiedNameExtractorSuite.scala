@@ -62,7 +62,7 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
     assertNoDiff(fqn.name, "Cart")
     assertNoDiff(fqn.parent.scalaPackage, "com.example.shoppingcart.domain.shoppingcart_domain")
     assertNoDiff(
-      fqn.descriptorImport.fullQualifiedName,
+      fqn.descriptorImport.fullyQualifiedProtoName,
       "com.example.shoppingcart.domain.shoppingcart_domain.ShoppingcartDomainProto")
   }
 
@@ -78,6 +78,6 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
     val fileDescriptorObject = fqnExtractor.fileDescriptorObject(api)
     assertNoDiff(
       "com.example.shoppingcart.shoppingcart_api.ShoppingcartApiProto",
-      fileDescriptorObject.fullQualifiedName)
+      fileDescriptorObject.fullyQualifiedProtoName)
   }
 }

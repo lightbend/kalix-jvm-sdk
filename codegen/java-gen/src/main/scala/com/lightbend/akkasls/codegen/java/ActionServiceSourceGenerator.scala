@@ -99,10 +99,10 @@ object ActionServiceSourceGenerator {
       if (cmd.isUnary) {
         val jsonTopicHint = {
           // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
-          if (cmd.inFromTopic && cmd.inputType.fullQualifiedName == "com.google.protobuf.Any")
+          if (cmd.inFromTopic && cmd.inputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
             """|// JSON input from a topic can be decoded using JsonSupport.decodeJson(MyClass.class, any)
                |  """.stripMargin
-          else if (cmd.outToTopic && cmd.outputType.fullQualifiedName == "com.google.protobuf.Any")
+          else if (cmd.outToTopic && cmd.outputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
             """|// JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
                |  """.stripMargin
           else ""

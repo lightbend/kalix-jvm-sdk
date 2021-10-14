@@ -33,14 +33,17 @@ case class FullyQualifiedName(
     descriptorObject: Option[FullyQualifiedName]) {
 
   /**
-   * This should be the fully qualified type name of the proto type. This should rarely be used during codegen, since
-   * there language-specific changes might have to be applied, and imports taken into account. In that case use the
-   * language-specific `typeName` utility function instead.
-   *
-   * FIXME we should probably: * rename this to 'fullyQualifiedProtoName' * use 'protoPackage' rather than 'javaPackage'
-   * * and review each use of this field.
+   * The fully qualified type name of the proto type. This should rarely be used during codegen, since language-specific
+   * changes might have to be applied, and imports taken into account. In that case use the language-specific `typeName`
+   * utility function instead.
    */
-  lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
+  lazy val fullyQualifiedProtoName = s"${parent.protoPackage}.$name"
+
+  /**
+   * The fully qualified type name as seen in generated Java code.
+   */
+  lazy val fullyQualifiedJavaName = s"${parent.javaPackage}.$name"
+
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
     else s"${parent.javaOuterClassname}.$name"

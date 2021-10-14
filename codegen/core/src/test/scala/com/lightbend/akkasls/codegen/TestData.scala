@@ -91,7 +91,7 @@ class TestData(val packageNamingTemplate: PackageNaming) {
     val entity = valueEntity()
     ModelBuilder.Model(
       services = Map(service.componentFullName -> service),
-      entities = Map(entity.fqn.fullQualifiedName -> entity))
+      entities = Map(entity.fqn.fullyQualifiedProtoName -> entity))
   }
 
   def serviceProto(suffix: String = ""): PackageNaming =

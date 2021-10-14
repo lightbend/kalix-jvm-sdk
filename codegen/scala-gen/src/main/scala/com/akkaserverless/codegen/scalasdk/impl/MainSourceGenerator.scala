@@ -54,9 +54,9 @@ object MainSourceGenerator {
     val mainClass = mainClassName(model)
 
     val entityImports = model.entities.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ValueEntity        => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullyQualifiedJavaName
+      case entity: ModelBuilder.ValueEntity        => entity.fqn.fullyQualifiedJavaName
+      case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullyQualifiedJavaName
     }.toSeq
 
     val serviceImports = model.services.values.collect {
