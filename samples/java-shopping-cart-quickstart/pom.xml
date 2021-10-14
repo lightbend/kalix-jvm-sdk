@@ -70,7 +70,7 @@
               <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.18.1:exe:${os.detected.classifier}</protocArtifact>
             </configuration>
           </execution>
           <execution>
@@ -85,7 +85,7 @@
               <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
               <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.18.1:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
