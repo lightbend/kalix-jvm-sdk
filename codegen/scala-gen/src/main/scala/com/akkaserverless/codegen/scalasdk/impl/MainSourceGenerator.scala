@@ -67,15 +67,15 @@ object MainSourceGenerator {
     val allImports = entityImports ++ serviceImports ++
       List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
-    val imports =
+    implicit val imports: Imports =
       generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
 
     val entityRegistrationParameters = model.entities.values.toList
       .sortBy(_.fqn.name)
       .collect {
-        case entity: ModelBuilder.EventSourcedEntity => s"new ${entity.fqn.name}(_)"
-        case entity: ModelBuilder.ValueEntity        => s"new ${entity.fqn.name}(_)"
-        case entity: ModelBuilder.ReplicatedEntity   => s"new ${entity.fqn.name}(_)"
+        case entity: ModelBuilder.EventSourcedEntity => s"new ${typeName(entity.fqn)}(_)"
+        case entity: ModelBuilder.ValueEntity        => s"new ${typeName(entity.fqn)}(_)"
+        case entity: ModelBuilder.ReplicatedEntity   => s"new ${typeName(entity.fqn)}(_)"
       }
 
     val serviceRegistrationParameters = model.services.values.toList
@@ -122,14 +122,14 @@ object MainSourceGenerator {
 
     val entityImports = model.entities.values.flatMap { ety =>
       val imp =
-        ety.fqn.fullQualifiedName :: Nil
+        ety.fqn :: Nil
       ety match {
         case _: ModelBuilder.EventSourcedEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _: ModelBuilder.ValueEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _: ModelBuilder.ReplicatedEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _ => imp
       }
     }
@@ -160,11 +160,11 @@ object MainSourceGenerator {
         List("com.akkaserverless.scalasdk.view.ViewCreationContext")
     }.flatten
 
-    val allImports = (entityImports ++ serviceImports ++ entityContextImports ++ serviceContextImports ++
-      List("com.akkaserverless.scalasdk.AkkaServerless")).toList
-
-    implicit val imports =
-      generateImports(Iterable.empty, packageName, allImports)
+    implicit val imports: Imports =
+      generateImports(
+        entityImports,
+        packageName,
+        Seq("com.akkaserverless.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
 
     def creator(fqn: FullyQualifiedName): String = {
       if (imports.clashingNames.contains(fqn.name)) s"create${dotsToCamelCase(typeName(fqn))}"
@@ -176,11 +176,11 @@ object MainSourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.entities.get(service.componentFullName).toSeq.map {
             case entity: ModelBuilder.EventSourcedEntity =>
-              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
             case entity: ModelBuilder.ValueEntity =>
-              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
             case entity: ModelBuilder.ReplicatedEntity =>
-              s".register(${entity.fqn.name}Provider(${creator(entity.fqn)}))"
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
           }
 
         case service: ModelBuilder.ViewService =>
