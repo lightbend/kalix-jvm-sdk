@@ -101,24 +101,22 @@ object ScalaGeneratorUtils {
          |${writeImports(imports)}
          |
          |${writeBlock(block.code, imports)}
-         |""".stripMargin)
+         |""".stripMargin.replaceAll("[ \t]+\n", "\n"))
   }
 
-  private val lastIndentRegex = "\\s*$".r
+  private val lastIndentRegex = "[ \t]*$".r
 
-  private def writeBlock(code: Seq[Any], imports: Imports): String =
+  private def writeBlock(code: Seq[Any], imports: Imports, resultSoFar: String = ""): String =
     code.foldLeft("")((acc, o) =>
       o match {
         case s: String =>
           acc ++ s
         case block: CodeBlock =>
-          // TODO fix indentation, taking into account strip margin
           val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
           acc ++ writeBlock(block.code, imports).replaceAll("\n", "\n" + currentIndent)
         case seq: Seq[_] =>
-          // TODO fix indentation, taking into account strip margin
           val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
-          acc ++ writeBlock(seq, imports).replaceAll("\n", "\n" + currentIndent)
+          acc ++ seq.map(e => writeBlock(Seq(e), imports)).mkString("\n").replaceAll("\n", "\n" + currentIndent)
         case fqn: FullyQualifiedName =>
           acc ++ typeName(fqn)(imports)
       })

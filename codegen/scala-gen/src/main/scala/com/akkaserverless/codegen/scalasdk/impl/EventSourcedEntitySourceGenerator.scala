@@ -44,14 +44,6 @@ object EventSourcedEntitySourceGenerator {
 
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
-//    implicit val imports =
-//      generateImports(
-//        Seq(eventSourcedEntity.state.fqn) ++
-//        service.commands.map(_.inputType) ++
-//        service.commands.map(_.outputType),
-//        eventSourcedEntity.fqn.parent.scalaPackage,
-//        otherImports = Seq("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity"),
-//        packageImports = Seq(service.fqn.parent.scalaPackage))
     val stateType = eventSourcedEntity.state.fqn
     val commandHandlers = service.commands
       .map { cmd =>
@@ -81,7 +73,6 @@ object EventSourcedEntitySourceGenerator {
         |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
         |
         |  $commandHandlers
-        |
         |  $eventHandlers
         |}
         |""",
