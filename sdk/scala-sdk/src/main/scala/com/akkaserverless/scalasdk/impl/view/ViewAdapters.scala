@@ -27,7 +27,6 @@ import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
@@ -85,9 +84,6 @@ private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: ja
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
-
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
@@ -107,9 +103,6 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
 
   override def viewId: String =
     javaSdkContext.viewId()
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

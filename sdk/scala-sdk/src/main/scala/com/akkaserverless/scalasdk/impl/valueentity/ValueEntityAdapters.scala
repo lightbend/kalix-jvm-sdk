@@ -27,7 +27,6 @@ import akka.stream.Materializer
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
@@ -112,9 +111,6 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
-
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
@@ -130,9 +126,6 @@ private[scalasdk] final class ScalaValueEntityContextAdapter(javaSdkContext: jav
     extends ValueEntityContext {
 
   def entityId: String = javaSdkContext.entityId()
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
