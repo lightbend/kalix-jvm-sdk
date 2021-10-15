@@ -462,6 +462,19 @@ Java::
 include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
 ----
 <1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/set/domain/SomeSet.scala
+----
+include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=update]
+----
+<1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+
+[.tabset]
+Java::
 +
 The `elements` method for Replicated Set returns a regular `java.util.Set` that can be used to iterate over the current elements:
 +
@@ -473,13 +486,6 @@ include::example$java-replicatedentity-examples/src/main/java/com/example/replic
 <1> Iterate over the current elements of a Replicated Set.
 
 Scala::
-+
-[source,scala,indent=0]
-.src/main/scala/com/example/replicated/set/domain/SomeSet.scala
-----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=update]
-----
-<1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
 +
 The `elements` method for Replicated Set returns a regular Scala `Set` that contains the current elements:
 +
