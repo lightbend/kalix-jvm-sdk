@@ -85,7 +85,7 @@ Scala::
 ----
 include::example$scala-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
-<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
+<1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart`.
 <2> Import the Akka Serverless protobuf annotations, or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
