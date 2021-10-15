@@ -44,11 +44,10 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   }
 
   // end::controller-forward[]
-  // uncomment @Override below, change method name to 'increase' 
-  // and comment method 'increase' above to run test
-  // DoubleCounterActionTest.increasewithSideEffectTest
-  // @Override 
-  public Effect<Empty> increaseWithSideEffect(CounterApi.IncreaseValue increaseValue) {
+  //FIX modify DoubleCounterAction and the .proto so it has a method
+  // we can call to test sideEffects
+  //@Override 
+  public Effect<Empty> increase(CounterApi.IncreaseValue increaseValue) {
   // tag::controller-side-effect[]
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =

@@ -29,8 +29,8 @@ public class DoubleCounterActionTest {
   }
 
 
-  // To run this test follow comments on 
-  // DoubleCounterAction.increaseWithSideEffects 
+  //FIX modify DoubleCounterAction and the .proto so it has a method
+  // we can call to test sideEffects 
   @Ignore
 // tag::side-effect-test[]
   public void increaseWithSideEffectTest() {

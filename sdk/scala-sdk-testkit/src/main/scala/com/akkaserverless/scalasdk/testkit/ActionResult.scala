@@ -17,6 +17,7 @@
 package com.akkaserverless.scalasdk.testkit
 
 import scala.concurrent.Future
+import scala.collection.immutable
 
 /**
  * Represents the result of an Action handling a command when run in through the testkit.
@@ -68,5 +69,5 @@ trait ActionResult[T] {
   def isNoReply: Boolean
 
   /** @return The list of side effects */
-  def sideEffects(): Seq[ServiceCallDetails[T]];
+  def sideEffects(): immutable.Seq[ServiceCallDetails[T]];
 }
