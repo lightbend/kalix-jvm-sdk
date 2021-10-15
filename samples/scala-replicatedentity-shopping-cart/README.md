@@ -41,22 +41,32 @@ sbt run
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
-```
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/$package$.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
-The command handler for `GetCurrentCounter` is not implemented, yet
-```
-
-For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+* Send an AddItem command:
 
 ```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 $package$.CounterService/GetCurrentCounter 
-ERROR:
-  Code: Unknown
-  Message: The command handler for `GetCurrentCounter` is not implemented, yet
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
-> your entity.
+For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
+
+* Send an AddItem command:
+
+```shell
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  com.example.shoppingcart.ShoppingCartService/AddItem
+```
+
+* Send a GetCart command:
+
+```shell
+grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  com.example.shoppingcart.ShoppingCartService/GetCart
+```
+
+* Send a RemoveItem command:
+
+```shell
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
+```
+
 
 ## Deploying
 
