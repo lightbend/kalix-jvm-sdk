@@ -20,7 +20,7 @@ class ShoppingCartSpec extends AnyWordSpec with Matchers {
       testKit.addItem(bananas) // <3>
 
       addingApplesResult.events should have size 1 // <4>
-      // FIXME missing testkit method: testKit.allEvents should have size 2 // <5>
+      testKit.allEvents should have size 2 // <5>
 
       val addedApples = addingApplesResult.nextEvent[ItemAdded] // <6>
       addedApples.getItem.name shouldBe "apples"
@@ -33,7 +33,7 @@ class ShoppingCartSpec extends AnyWordSpec with Matchers {
         LineItem(productId = "idA", name = "apples", quantity = 1),
         LineItem(productId = "idB", name = "bananas", quantity = 2)
       ))
-      // FIXME missing state access!? testKit.state shouldBe expectedState // <9>
+      testKit.currentState shouldBe expectedState // <9>
     }
   }
 }

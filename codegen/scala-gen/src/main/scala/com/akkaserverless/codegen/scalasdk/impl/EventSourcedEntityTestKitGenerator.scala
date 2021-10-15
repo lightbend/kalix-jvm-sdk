@@ -51,7 +51,8 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext"),
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
+          "scala.collection.immutable"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventHandlers = entity.events.map { event =>
@@ -63,7 +64,7 @@ object EventSourcedEntityTestKitGenerator {
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
         cmd.outputType)}] =
-          |  interpretEffects(entity.${lowerFirst(cmd.name)}(state, command))
+          |  interpretEffects(entity.${lowerFirst(cmd.name)}(_state, command))
          |""".stripMargin
     }
 
@@ -95,8 +96,14 @@ object EventSourcedEntityTestKitGenerator {
        |    new ${entity.fqn.name}TestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
        |}
        |final class $className private(entity: ${typeName(entity.fqn)}) {
-       |  private var state: ${typeName(entity.state.fqn)} = entity.emptyState
+       |  private var _state: ${typeName(entity.state.fqn)} = entity.emptyState
        |  private var events: Seq[Any] = Nil
+       |
+       |  /** @return The current state of the entity */
+       |  def currentState: ${typeName(entity.state.fqn)} = _state
+       |
+       |  /** @return All events emitted by command handlers of this entity up to now */
+       |  def allEvents: immutable.Seq[Any] = events
        |
        |  private def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
        |   event match {
@@ -106,8 +113,8 @@ object EventSourcedEntityTestKitGenerator {
        |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
        |    val events = EventSourcedResultImpl.eventsOf(effect)
        |    this.events ++= events
-       |    this.state = events.foldLeft(this.state)(handleEvent)
-       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, state)
+       |    this._state = events.foldLeft(this._state)(handleEvent)
+       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, _state)
        |  }
        |
        |  ${Format.indent(methods, 2)}

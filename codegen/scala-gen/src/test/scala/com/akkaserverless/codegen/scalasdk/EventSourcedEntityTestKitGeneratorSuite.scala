@@ -36,6 +36,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
          |import com.example.service
          |import com.external.Empty
+         |import scala.collection.immutable
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -59,8 +60,14 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    new MyEntityTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
          |}
          |final class MyEntityTestKit private(entity: MyEntity) {
-         |  private var state: MyState = entity.emptyState
+         |  private var _state: MyState = entity.emptyState
          |  private var events: Seq[Any] = Nil
+         |
+         |  /** @return The current state of the entity */
+         |  def currentState: MyState = _state
+         |
+         |  /** @return All events emitted by command handlers of this entity up to now */
+         |  def allEvents: immutable.Seq[Any] = events
          |
          |  private def handleEvent(state: MyState, event: Any): MyState =
          |   event match {
@@ -71,15 +78,15 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
          |    val events = EventSourcedResultImpl.eventsOf(effect)
          |    this.events ++= events
-         |    this.state = events.foldLeft(this.state)(handleEvent)
-         |    new EventSourcedResultImpl[R, MyState](effect, state)
+         |    this._state = events.foldLeft(this._state)(handleEvent)
+         |    new EventSourcedResultImpl[R, MyState](effect, _state)
          |  }
          |
          |  def set(command: service.SetValue): EventSourcedResult[Empty] =
-         |    interpretEffects(entity.set(state, command))
+         |    interpretEffects(entity.set(_state, command))
          |
          |  def get(command: service.GetValue): EventSourcedResult[service.MyState] =
-         |    interpretEffects(entity.get(state, command))
+         |    interpretEffects(entity.get(_state, command))
          |}
          |""".stripMargin)
   }

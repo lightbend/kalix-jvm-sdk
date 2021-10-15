@@ -5,11 +5,13 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.example.shoppingcart
 import com.google.protobuf.empty.Empty
+import scala.annotation.nowarn
 // end::imports[]
 
 // tag::class[]
 class ShoppingCart(context: EventSourcedEntityContext) extends AbstractShoppingCart { // <1>
 
+  @nowarn("msg=unused")
   private val entityId = context.entityId
 
   override def emptyState: Cart = Cart.defaultInstance // <2>
@@ -37,7 +39,8 @@ class ShoppingCart(context: EventSourcedEntityContext) extends AbstractShoppingC
       effects.error(s"Cannot remove item ${removeLineItem.productId} because it is not in the cart.")
     } else {
       val event = ItemRemoved(removeLineItem.productId)
-      effects.emitEvent(event).thenReply(_ => Empty.defaultInstance)
+      effects.emitEvent(event)
+        .thenReply(_ => Empty.defaultInstance)
     }
   // end::removeItem[]
 
