@@ -282,8 +282,19 @@ Java::
 ----
 include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
 ----
-+
 <1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
+----
+include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=update]
+----
+<1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+[.tabset]
+Java::
 +
 The current value of a Replicated Counter can be retrieved using `getValue`:
 +
@@ -295,14 +306,6 @@ include::example$java-replicatedentity-examples/src/main/java/com/example/replic
 <1> Get the current value of a Replicated Counter using `getValue`.
 
 Scala::
-+
-[source,scala,indent=0]
-.src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
-----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=update]
-----
-+
-<1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects.update`.
 +
 The current value of a Replicated Counter can be retrieved using `value`:
 +
