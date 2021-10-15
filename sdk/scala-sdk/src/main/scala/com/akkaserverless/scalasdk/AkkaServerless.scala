@@ -28,8 +28,8 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.JavaEventSourcedEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
+import com.akkaserverless.scalasdk.impl.replicatedentity.JavaReplicatedEntityProviderAdapter
 import com.akkaserverless.scalasdk.impl.view.JavaViewProviderAdapter
-import com.akkaserverless.scalasdk.replicatedentity.JavaReplicatedEntityProviderAdapter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -124,8 +124,8 @@ class AkkaServerless private (private[akkaserverless] val delegate: javasdk.Akka
    * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
    * is generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * [[com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the `
-   * EventSourcedEntityProvider`.
+   * [[com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the
+   * `EventSourcedEntityProvider`.
    *
    * @return
    *   This stateful service builder.

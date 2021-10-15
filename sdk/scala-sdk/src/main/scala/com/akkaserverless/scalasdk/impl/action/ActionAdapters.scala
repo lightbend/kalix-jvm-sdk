@@ -53,8 +53,8 @@ private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaS
 
   override def newRouter(
       javaSdkContext: javasdk.action.ActionCreationContext): javasdk.impl.action.ActionRouter[javasdk.action.Action] = {
-    val scalaSdkHandler = scalaSdkProvider.newRouter(ScalaActionCreationContextAdapter(javaSdkContext))
-    JavaActionRouterAdapter(JavaActionAdapter(scalaSdkHandler.action), scalaSdkHandler)
+    val scalaSdkRouter = scalaSdkProvider.newRouter(ScalaActionCreationContextAdapter(javaSdkContext))
+    JavaActionRouterAdapter(JavaActionAdapter(scalaSdkRouter.action), scalaSdkRouter)
   }
 
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
@@ -66,7 +66,7 @@ private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaS
 
 private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
     javaSdkAction: javasdk.action.Action,
-    scalaSdkHandler: ActionRouter[A])
+    scalaSdkRouter: ActionRouter[A])
     extends javasdk.impl.action.ActionRouter[javasdk.action.Action](javaSdkAction) {
 
   override def handleUnary(
@@ -74,7 +74,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
       message: javasdk.action.MessageEnvelope[Any]): javasdk.action.Action.Effect[_] = {
 
     val messageEnvelopeAdapted = ScalaMessageEnvelopeAdapter(message)
-    scalaSdkHandler.handleUnary(commandName, messageEnvelopeAdapted) match {
+    scalaSdkRouter.handleUnary(commandName, messageEnvelopeAdapted) match {
       case eff: ActionEffectImpl.PrimaryEffect[_] => eff.toJavaSdk
     }
   }
@@ -83,7 +83,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
       message: javasdk.action.MessageEnvelope[Any]): Source[javasdk.action.Action.Effect[_], NotUsed] = {
 
     val messageEnvelopeAdapted = ScalaMessageEnvelopeAdapter(message)
-    val src = scalaSdkHandler.handleStreamedOut(commandName, messageEnvelopeAdapted)
+    val src = scalaSdkRouter.handleStreamedOut(commandName, messageEnvelopeAdapted)
 
     src.map { case eff: ActionEffectImpl.PrimaryEffect[_] =>
       eff.toJavaSdk
@@ -99,7 +99,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
         .map(el => ScalaMessageEnvelopeAdapter(el))
         .asScala
 
-    scalaSdkHandler.handleStreamedIn(commandName, convertedStream) match {
+    scalaSdkRouter.handleStreamedIn(commandName, convertedStream) match {
       case eff: ActionEffectImpl.PrimaryEffect[_] => eff.toJavaSdk
     }
   }
@@ -112,7 +112,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
         .map(el => ScalaMessageEnvelopeAdapter(el).asInstanceOf[MessageEnvelope[Any]])
         .asScala
 
-    scalaSdkHandler
+    scalaSdkRouter
       .handleStreamed(commandName, convertedStream)
       .map { case eff: ActionEffectImpl.PrimaryEffect[_] =>
         eff.toJavaSdk

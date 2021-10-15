@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package com.akkaserverless.scalasdk.impl.replicatedentity
 
 import java.util
 import java.util.Optional
@@ -49,8 +49,21 @@ import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
-import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityEffectImpl
-import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
+import com.akkaserverless.scalasdk.replicatedentity.CommandContext
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedDataFactory
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
+import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote
+import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
 import com.google.protobuf.Descriptors
 
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
@@ -68,9 +81,9 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
   override def newRouter(
       context: JavaSdkReplicatedEntityContext): JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]] = {
 
-    val scalaSdkHandler = scalaSdkProvider.newRouter(ScalaReplicatedEntityContextAdapter(context))
+    val scalaSdkRouter = scalaSdkProvider.newRouter(ScalaReplicatedEntityContextAdapter(context))
 
-    JavaReplicatedEntityRouterAdapter(JavaReplicatedEntityAdapter(scalaSdkHandler.entity), scalaSdkHandler)
+    JavaReplicatedEntityRouterAdapter(JavaReplicatedEntityAdapter(scalaSdkRouter.entity), scalaSdkRouter)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
@@ -79,7 +92,7 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
 
 private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     javaSdkReplicatedEntity: JavaSdkReplicatedEntity[D],
-    scalaSdkHandler: ReplicatedEntityRouter[D, E])
+    scalaSdkRouter: ReplicatedEntityRouter[D, E])
     extends JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]](javaSdkReplicatedEntity) {
 
   override protected def handleCommand(
@@ -89,7 +102,7 @@ private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: Replic
       context: JavaSdkCommandContext): JavaSdkReplicatedEntity.Effect[_] = {
 
     val scalaData = ReplicatedDataConverter.toScala(data)
-    scalaSdkHandler.handleCommand(commandName, scalaData, command, ScalaCommandContextAdapter(context)) match {
+    scalaSdkRouter.handleCommand(commandName, scalaData, command, ScalaCommandContextAdapter(context)) match {
       case ReplicatedEntityEffectImpl(javaSdkEffect) => javaSdkEffect
     }
   }
