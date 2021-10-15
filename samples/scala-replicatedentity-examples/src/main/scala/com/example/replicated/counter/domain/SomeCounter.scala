@@ -17,14 +17,20 @@ class SomeCounter(context: ReplicatedEntityContext) extends AbstractSomeCounter 
 
   /** Command handler for "Increase". */
   def increase(currentData: ReplicatedCounter, increaseValue: counter.IncreaseValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Increase` is not implemented, yet")
+    effects
+      .update(currentData.increment(increaseValue.value))
+      .thenReply(Empty.defaultInstance)
+
 
   /** Command handler for "Decrease". */
   def decrease(currentData: ReplicatedCounter, decreaseValue: counter.DecreaseValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Decrease` is not implemented, yet")
+    effects
+      .update(currentData.decrement(decreaseValue.value))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Get". */
   def get(currentData: ReplicatedCounter, getValue: counter.GetValue): ReplicatedEntity.Effect[counter.CurrentValue] =
-    effects.error("The command handler for `Get` is not implemented, yet")
+    effects
+      .reply(counter.CurrentValue(currentData.value))
 
 }

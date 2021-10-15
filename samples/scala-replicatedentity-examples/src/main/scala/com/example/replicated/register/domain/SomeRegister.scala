@@ -13,17 +13,19 @@ import com.google.protobuf.empty.Empty
 
 /** A replicated entity. */
 class SomeRegister(context: ReplicatedEntityContext) extends AbstractSomeRegister {
-
-  override def emptyValue: SomeValue =
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value")
-
+  
+  override def emptyValue: SomeValue = SomeValue.defaultInstance
 
   /** Command handler for "Set". */
-  def set(currentData: ReplicatedRegister[SomeValue], setValue: register.SetValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Set` is not implemented, yet")
+  def set(currentData: ReplicatedRegister[SomeValue], setValue: register.SetValue): ReplicatedEntity.Effect[Empty] = {
+    val someValue = SomeValue(setValue.value)
+    effects
+    .update(currentData.set(someValue))
+    .thenReply(Empty.defaultInstance)
+  }
 
   /** Command handler for "Get". */
-  def get(currentData: ReplicatedRegister[SomeValue], getValue: register.GetValue): ReplicatedEntity.Effect[register.CurrentValue] =
-    effects.error("The command handler for `Get` is not implemented, yet")
-
+  def get(currentData: ReplicatedRegister[SomeValue], getValue: register.GetValue): ReplicatedEntity.Effect[register.CurrentValue] = 
+    effects.reply(register.CurrentValue(currentData().someField))
+    
 }

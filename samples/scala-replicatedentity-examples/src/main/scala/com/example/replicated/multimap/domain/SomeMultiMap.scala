@@ -14,29 +14,46 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMap {
 
-
   /** Command handler for "Put". */
-  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Put` is not implemented, yet")
+  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] = 
+    effects
+      .update(currentData.put(putValue.key, putValue.value))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "PutAll". */
   def putAll(currentData: ReplicatedMultiMap[String, Double], putAllValues: multimap.PutAllValues): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `PutAll` is not implemented, yet")
+    effects
+      .update(currentData.putAll(putAllValues.key, putAllValues.values))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Remove". */
   def remove(currentData: ReplicatedMultiMap[String, Double], removeValue: multimap.RemoveValue): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `Remove` is not implemented, yet")
+    effects
+      .update(currentData.remove(removeValue.key, removeValue.value))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "RemoveAll". */
   def removeAll(currentData: ReplicatedMultiMap[String, Double], removeAllValues: multimap.RemoveAllValues): ReplicatedEntity.Effect[Empty] =
-    effects.error("The command handler for `RemoveAll` is not implemented, yet")
+    effects
+      .update(currentData.removeAll(removeAllValues.key))
+      .thenReply(Empty.defaultInstance)
 
   /** Command handler for "Get". */
-  def get(currentData: ReplicatedMultiMap[String, Double], getValues: multimap.GetValues): ReplicatedEntity.Effect[multimap.CurrentValues] =
-    effects.error("The command handler for `Get` is not implemented, yet")
-
+  def get(currentData: ReplicatedMultiMap[String, Double], getValues: multimap.GetValues): ReplicatedEntity.Effect[multimap.CurrentValues] = {
+    val values = currentData.get(getValues.key)
+    effects
+      .reply(multimap.CurrentValues(getValues.key, values.toSeq))
+  }
+    
   /** Command handler for "GetAll". */
-  def getAll(currentData: ReplicatedMultiMap[String, Double], getAllValues: multimap.GetAllValues): ReplicatedEntity.Effect[multimap.AllCurrentValues] =
-    effects.error("The command handler for `GetAll` is not implemented, yet")
+  def getAll(currentData: ReplicatedMultiMap[String, Double], getAllValues: multimap.GetAllValues): ReplicatedEntity.Effect[multimap.AllCurrentValues] = {
+    val currentValues = 
+      currentData.keySet.map { key => 
+        val values = currentData.get(key)
+        multimap.CurrentValues(key, values.toSeq)
+      }
 
+    effects.reply(multimap.AllCurrentValues(currentValues.toSeq))
+  }
+    
 }
