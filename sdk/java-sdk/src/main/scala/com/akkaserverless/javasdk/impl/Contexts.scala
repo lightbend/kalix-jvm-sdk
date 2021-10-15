@@ -38,8 +38,6 @@ private[javasdk] abstract class AbstractContext(
     override val serviceCallFactory: ServiceCallFactory,
     system: ActorSystem)
     extends Context {
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    GrpcClients(system).getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer =
     SystemMaterializer(system).materializer

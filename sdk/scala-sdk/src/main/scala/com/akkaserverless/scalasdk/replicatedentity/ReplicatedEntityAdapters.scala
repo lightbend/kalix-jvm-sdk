@@ -141,9 +141,6 @@ private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandCont
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkCommandContext.serviceCallFactory())
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkCommandContext.getGrpcClient(clientClass, service)
-
   override def materializer(): Materializer =
     javaSdkCommandContext.materializer()
 
@@ -156,9 +153,6 @@ private[scalasdk] final case class ScalaReplicatedEntityContextAdapter(javaSdkCo
 
   override def serviceCallFactory: ServiceCallFactory = ScalaServiceCallFactoryAdapter(
     javaSdkContext.serviceCallFactory())
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer =
     javaSdkContext.materializer()
