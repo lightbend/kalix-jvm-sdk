@@ -14,23 +14,21 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeCounter(context: ReplicatedEntityContext) extends AbstractSomeCounter {
 
-
-  /** Command handler for "Increase". */
+  // tag::update[]
   def increase(currentData: ReplicatedCounter, increaseValue: counter.IncreaseValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.increment(increaseValue.value))
+      .update(currentData.increment(increaseValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
 
-
-  /** Command handler for "Decrease". */
   def decrease(currentData: ReplicatedCounter, decreaseValue: counter.DecreaseValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.decrement(decreaseValue.value))
+      .update(currentData.decrement(decreaseValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
+  // end::update[]
 
-  /** Command handler for "Get". */
+  // tag::get[]
   def get(currentData: ReplicatedCounter, getValue: counter.GetValue): ReplicatedEntity.Effect[counter.CurrentValue] =
     effects
-      .reply(counter.CurrentValue(currentData.value))
-
+      .reply(counter.CurrentValue(currentData.value)) // <1>
+  // end::get[]
 }
