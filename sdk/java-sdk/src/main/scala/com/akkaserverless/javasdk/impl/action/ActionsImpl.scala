@@ -272,7 +272,7 @@ private[javasdk] final class ActionsImpl(
    * containing either a direct reply, a forward or a failure, and each may contain many side effects. The semantics of
    * stream closure in this protocol map 1:1 with the semantics of gRPC stream closure, that is, when the client closes
    * the stream, the stream is considered half closed, and the server should eventually, but not necessarily
-   * immediately, close the streamage with a status code and trailers. If however the server closes the stream with a
+   * immediately, close the stream with a status code and trailers. If however the server closes the stream with a
    * status code and trailers, the stream is immediately considered completely closed, and no further messages sent by
    * the client will be handled by the server. Either the client or the server may cancel the stream at any time,
    * cancellation is indicated through an HTTP2 stream RST message.
