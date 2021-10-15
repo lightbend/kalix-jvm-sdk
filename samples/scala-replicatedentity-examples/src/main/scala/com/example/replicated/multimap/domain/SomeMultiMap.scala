@@ -14,33 +14,31 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMap {
 
-  /** Command handler for "Put". */
+  // tag::update[]
   def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] = 
     effects
-      .update(currentData.put(putValue.key, putValue.value))
+      .update(currentData.put(putValue.key, putValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
 
-  /** Command handler for "PutAll". */
   def putAll(currentData: ReplicatedMultiMap[String, Double], putAllValues: multimap.PutAllValues): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.putAll(putAllValues.key, putAllValues.values))
+      .update(currentData.putAll(putAllValues.key, putAllValues.values)) // <1>
       .thenReply(Empty.defaultInstance)
 
-  /** Command handler for "Remove". */
   def remove(currentData: ReplicatedMultiMap[String, Double], removeValue: multimap.RemoveValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.remove(removeValue.key, removeValue.value))
+      .update(currentData.remove(removeValue.key, removeValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
 
-  /** Command handler for "RemoveAll". */
   def removeAll(currentData: ReplicatedMultiMap[String, Double], removeAllValues: multimap.RemoveAllValues): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.removeAll(removeAllValues.key))
+      .update(currentData.removeAll(removeAllValues.key)) // <1>
       .thenReply(Empty.defaultInstance)
+  // end::update[]
 
-  /** Command handler for "Get". */
+  // tag::get[]
   def get(currentData: ReplicatedMultiMap[String, Double], getValues: multimap.GetValues): ReplicatedEntity.Effect[multimap.CurrentValues] = {
-    val values = currentData.get(getValues.key)
+    val values = currentData.get(getValues.key) // <1>
     effects
       .reply(multimap.CurrentValues(getValues.key, values.toSeq))
   }
@@ -48,12 +46,13 @@ class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMa
   /** Command handler for "GetAll". */
   def getAll(currentData: ReplicatedMultiMap[String, Double], getAllValues: multimap.GetAllValues): ReplicatedEntity.Effect[multimap.AllCurrentValues] = {
     val currentValues = 
-      currentData.keySet.map { key => 
+      currentData.keySet.map { key => // <2>
         val values = currentData.get(key)
         multimap.CurrentValues(key, values.toSeq)
       }
 
     effects.reply(multimap.AllCurrentValues(currentValues.toSeq))
   }
+  // end::get[]
     
 }

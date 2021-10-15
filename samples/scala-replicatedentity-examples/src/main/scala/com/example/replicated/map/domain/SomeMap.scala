@@ -22,23 +22,21 @@ class SomeMap(context: ReplicatedEntityContext) extends AbstractSomeMap {
   private val BarKey = SomeKey("bar")
   private val BazKey = SomeKey("baz")
 
-  /** Command handler for "IncreaseFoo". */
+  // tag::update[]
   def increaseFoo(currentData: ReplicatedMap[SomeKey, ReplicatedData], increaseFooValue: map.IncreaseFooValue): ReplicatedEntity.Effect[Empty] = {
-    val foo = currentData.getReplicatedCounter(FooKey)
+    val foo = currentData.getReplicatedCounter(FooKey) // <1>
     effects
-      .update(currentData.update(FooKey, foo.increment(increaseFooValue.value)))
+      .update(currentData.update(FooKey, foo.increment(increaseFooValue.value)))// <2> <3>
       .thenReply(Empty.defaultInstance)
   }
 
-  /** Command handler for "DecreaseFoo". */
   def decreaseFoo(currentData: ReplicatedMap[SomeKey, ReplicatedData], decreaseFooValue: map.DecreaseFooValue): ReplicatedEntity.Effect[Empty] = {
-    val foo = currentData.getReplicatedCounter(FooKey)
+    val foo = currentData.getReplicatedCounter(FooKey) // <1>
     effects
-      .update(currentData.update(FooKey, foo.decrement(decreaseFooValue.value)))
+      .update(currentData.update(FooKey, foo.decrement(decreaseFooValue.value))) // <2> <3>
       .thenReply(Empty.defaultInstance)
   }
 
-  /** Command handler for "SetBar". */
   def setBar(currentData: ReplicatedMap[SomeKey, ReplicatedData], setBarValue: map.SetBarValue): ReplicatedEntity.Effect[Empty] = {
     val bar: ReplicatedRegister[String] = currentData.getReplicatedRegister(BarKey)
     effects
@@ -46,31 +44,30 @@ class SomeMap(context: ReplicatedEntityContext) extends AbstractSomeMap {
       .thenReply(Empty.defaultInstance)
   }
 
-  /** Command handler for "AddBaz". */
   def addBaz(currentData: ReplicatedMap[SomeKey, ReplicatedData], addBazValue: map.AddBazValue): ReplicatedEntity.Effect[Empty] = {
-    val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey)
+    val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
     effects
-      .update(currentData.update(BarKey, baz.add(addBazValue.value)))
+      .update(currentData.update(BarKey, baz.add(addBazValue.value))) // <2> <3>
       .thenReply(Empty.defaultInstance)
   }
 
-  /** Command handler for "RemoveBaz". */
   def removeBaz(currentData: ReplicatedMap[SomeKey, ReplicatedData], removeBazValue: map.RemoveBazValue): ReplicatedEntity.Effect[Empty] = {
-val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey)
+val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
     effects
-      .update(currentData.update(BarKey, baz.remove(removeBazValue.value)))
+      .update(currentData.update(BarKey, baz.remove(removeBazValue.value))) // <2> <3>
       .thenReply(Empty.defaultInstance)
   }
+  // end::update[]
 
-  /** Command handler for "Get". */
+  // tag::get[]
   def get(currentData: ReplicatedMap[SomeKey, ReplicatedData], getValues: map.GetValues): ReplicatedEntity.Effect[map.CurrentValues] = {
 
-    val foo = currentData.getReplicatedCounter(FooKey)
-    val bar: ReplicatedRegister[String] = currentData.getReplicatedRegister(BarKey, () => "")
-    val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey)
+    val foo = currentData.getReplicatedCounter(FooKey) // <1>
+    val bar: ReplicatedRegister[String] = currentData.getReplicatedRegister(BarKey, () => "") // <1>
+    val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
 
     val resp = map.CurrentValues(foo.value, bar(), baz.elements.toSeq)
     effects.reply(resp)
   }
-    
+  // end::get[]
 }

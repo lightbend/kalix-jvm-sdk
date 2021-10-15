@@ -14,33 +14,32 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeCounterMap(context: ReplicatedEntityContext) extends AbstractSomeCounterMap {
 
-  /** Command handler for "Increase". */
+  // tag::update[]
   def increase(currentData: ReplicatedCounterMap[String], increaseValue: countermap.IncreaseValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.increment(increaseValue.key, increaseValue.value))
+      .update(currentData.increment(increaseValue.key, increaseValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
 
-  /** Command handler for "Decrease". */
   def decrease(currentData: ReplicatedCounterMap[String], decreaseValue: countermap.DecreaseValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.decrement(decreaseValue.key, decreaseValue.value))
+      .update(currentData.decrement(decreaseValue.key, decreaseValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
 
-  /** Command handler for "Remove". */
   def remove(currentData: ReplicatedCounterMap[String], removeValue: countermap.RemoveValue): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.remove(removeValue.key))
+      .update(currentData.remove(removeValue.key)) // <1>
       .thenReply(Empty.defaultInstance)
+  // end::update[]
 
-  /** Command handler for "Get". */
-  def get(currentData: ReplicatedCounterMap[String], getValue: countermap.GetValue): ReplicatedEntity.Effect[countermap.CurrentValue] =
-    effects
-      .reply(countermap.CurrentValue(currentData(getValue.key)))
-
-  /** Command handler for "GetAll". */
-  def getAll(currentData: ReplicatedCounterMap[String], getAllValues: countermap.GetAllValues): ReplicatedEntity.Effect[countermap.CurrentValues] = {
-    val keyValues = currentData.keySet.map { key => key -> currentData(key) }.toMap
-    effects.reply(countermap.CurrentValues(keyValues))
+  // tag::get[]
+  def get(currentData: ReplicatedCounterMap[String], getValue: countermap.GetValue): ReplicatedEntity.Effect[countermap.CurrentValue] = {
+    val value = currentData(getValue.key) // <1>
+    effects.reply(countermap.CurrentValue(value))
   }
 
+  def getAll(currentData: ReplicatedCounterMap[String], getAllValues: countermap.GetAllValues): ReplicatedEntity.Effect[countermap.CurrentValues] = {
+    val keyValues = currentData.keySet.map { key => key -> currentData(key) }.toMap // <2>
+    effects.reply(countermap.CurrentValues(keyValues))
+  }
+  // end::get[]
 }
