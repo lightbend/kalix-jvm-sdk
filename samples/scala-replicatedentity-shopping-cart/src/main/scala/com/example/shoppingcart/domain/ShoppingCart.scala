@@ -41,7 +41,7 @@ class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCar
     val product = Product(removeLineItem.productId, removeLineItem.name) // <2>
 
     if (!cart.contains(product)) {
-      effects.error("Item to remove is not in the cart: " + removeLineItem.productId)
+      effects.error(s"Item to remove is not in the cart: ${removeLineItem.productId}")
     } else {
       effects
         .update(cart.remove(product))
@@ -66,7 +66,6 @@ class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCar
 
     val apiCart = shoppingcart.Cart(allItems) // <2>
     effects.reply(apiCart)
-
   }
   // end::getCart[]
 
