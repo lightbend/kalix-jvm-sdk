@@ -32,7 +32,7 @@ include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fib
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Akka Serverless protobuf annotations or options.
-<3> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
