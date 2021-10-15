@@ -66,7 +66,7 @@ You will need to set your `docker.username` as a system property:
 sbt -Ddocker.username=mary docker:publish
 ```
 
-Fefer to [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
+Refer to [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
 for more information on how to make your docker image available to Akka Serverless.
 
 Finally you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
