@@ -13,7 +13,7 @@ import com.google.protobuf.empty.Empty
 
 /** A replicated entity. */
 // tag::class[]
-class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCart {
+class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCart { // <1>
   // end::class[]
 
   /** Command handler for "AddItem". */
