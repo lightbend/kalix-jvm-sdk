@@ -15,13 +15,13 @@ public class FibonacciActionIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
-  private final FibonacciClient client;
+  private final Fibonacci client;
 
   public FibonacciActionIntegrationTest() {
-    this.client = FibonacciClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    this.client = testKit.getGrpcClient(Fibonacci.class);
   }
 
   @Test

@@ -47,7 +47,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/domain/cou
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.domain`.
 <2> Import the Akka Serverless protobuf annotations, or options.
-<3> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<3> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless sbt plugin.
 <4> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <5> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
 <6> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless.
@@ -263,4 +263,3 @@ include::example$scala-valueentity-counter/src/test/scala/com/example/CounterSer
 ----
 
 Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also mean they take a bit more time to execute compared to the unit tests which are completely local and does not involve networking.
-

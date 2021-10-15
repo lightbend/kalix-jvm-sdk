@@ -1,0 +1,21 @@
+// The messages and data that will be replicated for the shopping cart.
+
+syntax = "proto3";
+
+package com.example.shoppingcart.domain; // <1>
+
+import "akkaserverless/annotations.proto"; // <2>
+
+// Describes how this domain relates to a replicated entity
+option (akkaserverless.file).replicated_entity = { // <3>
+  name: "ShoppingCart" // <4>
+  entity_type: "shopping-cart" // <5>
+  replicated_counter_map: { // <6>
+    key: "Product" // <7>
+  }
+};
+
+message Product {
+  string id = 1;
+  string name = 2;
+}

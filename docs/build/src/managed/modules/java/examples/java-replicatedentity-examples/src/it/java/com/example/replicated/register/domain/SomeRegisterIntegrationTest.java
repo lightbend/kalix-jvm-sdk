@@ -2,7 +2,7 @@ package com.example.replicated.register.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.register.RegisterServiceClient;
+import com.example.replicated.register.RegisterService;
 import com.example.replicated.register.SomeRegisterApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,15 +15,14 @@ public class SomeRegisterIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final RegisterServiceClient client;
+  private final RegisterService client;
 
   public SomeRegisterIntegrationTest() {
-    client =
-        RegisterServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testKit.getGrpcClient(RegisterService.class);
   }
 
   public void set(String registerId, String value) throws Exception {
