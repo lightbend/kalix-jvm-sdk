@@ -6,10 +6,7 @@
 package com.example.actions;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.SideEffect;
 import com.example.domain.CounterDomain;
-import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Any;
 
@@ -20,13 +17,7 @@ import java.util.Optional;
 // tag::counter-ignore[]
 public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAction {
 // end::counter-ignore[]
-  private final ServiceCallRef<CounterApi.GetCounter> getterCallRef;
-  public CounterJournalToTopicAction(ActionCreationContext creationContext) {
-     this.getterCallRef =  creationContext.serviceCallFactory().lookup(
-      "com.example.CounterService",
-      "GetCurrentCounter",
-      CounterApi.GetCounter.class);
-  }
+  public CounterJournalToTopicAction(ActionCreationContext creationContext) {}
 
   /** Handler for "Increase". */
   // tag::counter-topic-event-subject[]
@@ -46,12 +37,7 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
         .setValue(valueIncreased.getValue())
         .build(); 
 
-    CounterApi.GetCounter getCounter = 
-      CounterApi.GetCounter.newBuilder()
-        .setCounterId(counterId.get())
-        .build();
-
-    return effects().reply(increased).addSideEffect(SideEffect.of(getterCallRef.createCall(getCounter))); // <2>
+    return effects().reply(increased); // <2>
   // tag::counter-topic-event-subject[]
   }
   // end::counter-topic-event-subject[]

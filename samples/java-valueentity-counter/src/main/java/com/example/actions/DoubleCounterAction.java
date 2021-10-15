@@ -28,13 +28,18 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
                 "Increase",
                 CounterApi.IncreaseValue.class);
   }
+// end::controller-side-effect[]
+// tag::controller-side-effect[]
+  
+  // Handler for "Increase" not shown in this snippet
+
+// end::controller-side-effect[]
 
   /**
    * Handler for "Increase".
    */
   @Override
   public Effect<Empty> increase(CounterApi.IncreaseValue increaseValue) {
-  // end::controller-side-effect[]
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build(); // <2>
@@ -44,11 +49,12 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   }
 
   // end::controller-forward[]
-  //FIX modify DoubleCounterAction and the .proto so it has a method
-  // we can call to test sideEffects
-  //@Override 
-  public Effect<Empty> increase(CounterApi.IncreaseValue increaseValue) {
   // tag::controller-side-effect[]
+  /**
+   * Handler for "IncreaseWithSideEffect".
+   */
+  @Override 
+  public Effect<Empty> increaseWithSideEffect(CounterApi.IncreaseValue increaseValue) {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build(); // <2>

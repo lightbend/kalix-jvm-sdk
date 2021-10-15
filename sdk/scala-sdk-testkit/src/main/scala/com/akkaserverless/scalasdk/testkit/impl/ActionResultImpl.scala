@@ -37,12 +37,13 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
 
   private def extractServices(sideEffects: immutable.Seq[SideEffect]): immutable.Seq[ServiceCallDetails[T]] = {
     sideEffects.map { sideEffect =>
-      sideEffect.serviceCall
-        .asInstanceOf[ScalaServiceCallAdapter]
-        .javasdkServiceCall
-        .asInstanceOf[JavaServiceCallAdapter]
-        .scalaSdkServiceCall
-        .asInstanceOf[ServiceCallDetails[T]]
+      sideEffect.serviceCall match {
+        case ScalaServiceCallAdapter(javasdkServiceCall) =>
+          javasdkServiceCall match {
+            case JavaServiceCallAdapter(scalaSdkServiceCall) =>
+              scalaSdkServiceCall.asInstanceOf[ServiceCallDetails[T]]
+          }
+      }
     }
   }
 

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+// tag::whole-double-action-proto[]
 // tag::double-action-proto[]
 syntax = "proto3";
 package com.example.actions;
@@ -26,6 +27,11 @@ service DoubleCounter {
   };
   
   rpc Increase (com.example.IncreaseValue) returns (google.protobuf.Empty); // <3>
+// end::double-action-proto[]
 
+  rpc IncreaseWithSideEffect (com.example.IncreaseValue) returns (google.protobuf.Empty); // <4>
+
+// tag::double-action-proto[]
 }
 // end::double-action-proto[]
+// end::whole-double-action-proto[]
