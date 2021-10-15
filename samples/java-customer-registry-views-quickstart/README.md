@@ -1,4 +1,4 @@
-# Quickstart project: Customer Registry
+# Quickstart project: Customer Registry with Views
 
 ## Designing
 
@@ -48,6 +48,14 @@ With both the proxy and your application running, any defined endpoints should b
 * Retrieve the customer:
   ```
   grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
+  ```
+* Query by email:
+  ```
+  grpcurl --plaintext -d '{"email": "wip@example.com"}' localhost:9000 customer.view.CustomerByEmail/GetCustomer
+  ```
+* Query by name:
+  ```
+  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
   ```
 * Change name:
   ```

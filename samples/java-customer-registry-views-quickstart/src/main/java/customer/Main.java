@@ -9,6 +9,8 @@ import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import customer.domain.Customer;
+import customer.view.CustomerByEmailView;
+import customer.view.CustomerByNameView;
 
 public final class Main {
 
@@ -20,7 +22,9 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
-      Customer::new);
+      Customer::new,
+      CustomerByEmailView::new,
+      CustomerByNameView::new);
   }
 
   public static void main(String[] args) throws Exception {

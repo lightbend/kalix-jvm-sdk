@@ -1,7 +1,5 @@
 # Quickstart project: Shopping Cart
 
-# TODO update for quickstart instructions
-
 ## Designing
 
 To understand the Akka Serverless concepts that are the basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html) in the documentation.

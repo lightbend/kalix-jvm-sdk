@@ -30,6 +30,31 @@ import org.junit.rules.ExternalResource;
  *
  * <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
  * but must be added explicitly to your project.
+ *
+ * <p>Example:
+ *
+ * <pre>
+ * import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+ *
+ * public class MyAkkaServerlessIntegrationTest {
+ *
+ *   private static final AkkaServerless MY_AKKA_SERVERLESS = new AkkaServerless(); // with registered services
+ *
+ *   &#64;ClassRule
+ *   public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(MY_AKKA_SERVERLESS);
+ *
+ *   private final MyServiceClient client; // generated Akka gRPC client
+ *
+ *   public MyAkkaServerlessIntegrationTest() {
+ *     this.client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+ *   }
+ *
+ *   &#64;Test
+ *   public void test() {
+ *     // use client to test service
+ *   }
+ * }
+ * </pre>
  */
 public final class AkkaServerlessTestKitResource extends ExternalResource {
 
