@@ -2,7 +2,7 @@ package com.example.replicated.map.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.map.MapServiceClient;
+import com.example.replicated.map.MapService;
 import com.example.replicated.map.SomeMapApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -17,14 +17,14 @@ public class SomeMapIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final MapServiceClient client;
+  private final MapService client;
 
   public SomeMapIntegrationTest() {
-    client = MapServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testKit.getGrpcClient(MapService.class);
   }
 
   public void increaseFoo(String mapId, int value) throws Exception {

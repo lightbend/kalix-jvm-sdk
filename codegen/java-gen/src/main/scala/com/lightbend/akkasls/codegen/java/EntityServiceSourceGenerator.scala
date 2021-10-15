@@ -489,7 +489,7 @@ object EntityServiceSourceGenerator {
     val imports = generateImports(
       importTypes,
       packageName,
-      List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
+      List(service.fqn.parent.javaPackage + "." + serviceName) ++
       Seq(
         "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource",
         "org.junit.ClassRule",
@@ -529,10 +529,10 @@ object EntityServiceSourceGenerator {
       |  /**
       |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
       |   */
-      |  private final ${serviceName}Client client;
+      |  private final $serviceName client;
       |
-      |  public ${testClassName}() {
-      |    client = ${serviceName}Client.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+      |  public $testClassName() {
+      |    client = testKit.getGrpcClient($serviceName.class);
       |  }
       |
       |  ${Format.indent(testCases, num = 2)}

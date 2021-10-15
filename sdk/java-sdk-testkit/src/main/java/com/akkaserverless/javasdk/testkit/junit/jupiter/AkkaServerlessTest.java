@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 
 /**
  * {@code @AkkaServerlessTest} registers a JUnit Jupiter extension to automatically manage the
- * lifecycle of {@link AkkaServerlessTestKit} and Akka gRPC clients.
+ * lifecycle of {@link AkkaServerlessTestKit}.
  *
  * <p><b>Note</b>: JUnit Jupiter is not provided as a transitive dependency of the Java SDK testkit
  * module but must be added explicitly to your project.
@@ -36,34 +36,7 @@ import java.lang.annotation.Target;
  * AkkaServerlessDescriptor} and creates a testkit for this annotated {@code AkkaServerless}.
  *
  * <p>The testkit can be injected into constructors or test methods, by specifying an {@code
- * AkkaServerlessTestkit} parameter. To create an {@code AkkaGrpcClient}, add a parameter with the
- * generated client type to a constructor or {@code @Test} method.
- *
- * <p>Example:
- *
- * <pre>
- * import com.akkaserverless.javasdk.AkkaServerless;
- * import com.akkaserverless.javasdk.testkit.junit.jupiter.AkkaServerlessDescriptor;
- * import com.akkaserverless.javasdk.testkit.junit.jupiter.AkkaServerlessTest;
- *
- * &#64;AkkaServerlessTest
- * class MyAkkaServerlessIntegrationTest {
- *
- *   &#64;AkkaServerlessDescriptor
- *   private static final AkkaServerless MY_AKKA_SERVERLESS = new AkkaServerless(); // with registered services
- *
- *   private final MyServiceClient client; // generated Akka gRPC client
- *
- *   public MyAkkaServerlessIntegrationTest(MyServiceClient client) {
- *     this.client = client;
- *   }
- *
- *   &#64;Test
- *   void test() {
- *     // use client to test service
- *   }
- * }
- * </pre>
+ * AkkaServerlessTestkit} parameter.
  *
  * @see AkkaServerlessDescriptor
  */

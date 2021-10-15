@@ -1,10 +1,6 @@
 package com.example
 
-import akka.actor.ActorSystem
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -24,25 +20,34 @@ class CounterServiceIntegrationSpec
     with BeforeAndAfterAll
     with ScalaFutures {
 
-  implicit val patience: PatienceConfig =
+  implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-  testKit.start()
-  implicit val system: ActorSystem = testKit.system
+  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  import testKit.executionContext
+
+  private val client = testKit.getGrpcClient(classOf[CounterService])
 
   "CounterService" must {
-    val client: CounterServiceClient =
-      CounterServiceClient(testKit.grpcClientSettings)
 
-    "have example test that can be removed" in {
-      // use the gRPC client to send requests to the
-      // proxy and verify the results
+    "Increase and decrease a counter" in {
+      val counterId = "42"
+
+      val updateResult =
+        for {
+          _ <- client.increase(IncreaseValue(counterId, 42))
+          done <- client.decrease(DecreaseValue(counterId, 32))
+        } yield done
+
+      updateResult.futureValue
+
+      val getResult = client.getCurrentCounter(GetCounter(counterId))
+      getResult.futureValue.value shouldBe(42-32)
     }
 
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     testKit.stop()
     super.afterAll()
   }

@@ -143,14 +143,12 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     assertEquals(
       EventSourcedEntityTestKitGenerator
-        .integrationTest(main, testData.eventSourcedEntity(), testData.simpleEntityService())
+        .integrationTest(main, testData.simpleEntityService())
         .content,
       s"""package com.example.service
          |
          |import akka.actor.ActorSystem
-         |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
          |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-         |import com.akkaserverless.scalasdk.testkit.EventSourcedResult
          |import com.example.Main
          |import com.external.Empty
          |import org.scalatest.BeforeAndAfterAll
@@ -172,16 +170,14 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    with BeforeAndAfterAll
          |    with ScalaFutures {
          |
-         |  implicit val patience: PatienceConfig =
+         |  implicit private val patience: PatienceConfig =
          |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
          |
-         |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-         |  testKit.start()
-         |  implicit val system: ActorSystem = testKit.system
+         |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+         |
+         |  private val client = testKit.getGrpcClient(classOf[MyService])
          |
          |  "MyService" must {
-         |    val client: MyServiceClient =
-         |      MyServiceClient(testKit.grpcClientSettings)
          |
          |    "have example test that can be removed" in {
          |      // use the gRPC client to send requests to the
@@ -190,7 +186,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |
          |  }
          |
-         |  override def afterAll() = {
+         |  override def afterAll(): Unit = {
          |    testKit.stop()
          |    super.afterAll()
          |  }
