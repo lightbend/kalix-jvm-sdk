@@ -8,6 +8,7 @@ import com.example.actions.DoubleCounterActionTestKit;
 import com.google.protobuf.Empty;
 import org.junit.Test;
 import org.junit.Ignore;
+
 import static org.junit.Assert.*;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -16,7 +17,7 @@ import static org.junit.Assert.*;
 // or delete it so it is regenerated as needed.
 
 public class DoubleCounterActionTest {
-  
+
   @Test
   public void exampleTest() {
     DoubleCounterActionTestKit testKit = DoubleCounterActionTestKit.of(DoubleCounterAction::new);
@@ -47,4 +48,11 @@ public class DoubleCounterActionTest {
   }
   // end::side-effect-test[]
 
+  @Test
+  public void increaseTest() {
+    DoubleCounterActionTestKit testKit = DoubleCounterActionTestKit.of(DoubleCounterAction::new);
+    // ActionResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder()...build());
+  }
+// tag::side-effect-test[]
 }
+// end::side-effect-test[]

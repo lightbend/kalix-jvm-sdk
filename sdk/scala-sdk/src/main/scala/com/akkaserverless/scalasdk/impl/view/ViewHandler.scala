@@ -21,6 +21,6 @@ import com.akkaserverless.scalasdk.view.View
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ViewHandler[S, V <: View[S]](val view: V) {
+abstract class ViewRouter[S, V <: View[S]](val view: V) {
   def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
 }

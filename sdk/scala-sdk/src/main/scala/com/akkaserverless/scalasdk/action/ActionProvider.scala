@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.action
 
 import scala.collection.immutable
 
-import com.akkaserverless.scalasdk.impl.action.ActionHandler
+import com.akkaserverless.scalasdk.impl.action.ActionRouter
 import com.google.protobuf.Descriptors
 
 trait ActionProvider[A <: Action] {
@@ -26,7 +26,7 @@ trait ActionProvider[A <: Action] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  def newHandler(context: ActionCreationContext): ActionHandler[A]
+  def newRouter(context: ActionCreationContext): ActionRouter[A]
 
   def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }

@@ -17,6 +17,8 @@
 package com.lightbend.akkasls.codegen
 package java
 
+import com.lightbend.akkasls.codegen.TestData.fullyQualifiedName
+
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.javaStyle
 
@@ -229,12 +231,12 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         javaMultipleFiles = false)
 
     ModelBuilder.EventSourcedEntity(
-      FullyQualifiedName("ShoppingCart", domainProto),
+      fullyQualifiedName("ShoppingCart", domainProto),
       "eventsourced-shopping-cart",
-      ModelBuilder.State(FullyQualifiedName("Cart", domainProto)),
+      ModelBuilder.State(fullyQualifiedName("Cart", domainProto)),
       List(
-        ModelBuilder.Event(FullyQualifiedName("ItemAdded", domainProto)),
-        ModelBuilder.Event(FullyQualifiedName("ItemRemoved", domainProto))))
+        ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainProto)),
+        ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainProto))))
   }
 
   /**
@@ -261,20 +263,20 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         Some("EmptyProto"),
         javaMultipleFiles = true)
     ModelBuilder.EntityService(
-      FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+      fullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
         testData.command(
           "AddItem",
-          FullyQualifiedName("AddLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("AddLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "RemoveItem",
-          FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("RemoveLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "GetCart",
-          FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-          FullyQualifiedName("Cart", shoppingCartProto))),
+          fullyQualifiedName("GetShoppingCart", shoppingCartProto),
+          fullyQualifiedName("Cart", shoppingCartProto))),
       entity.fqn.fullName)
   }
 

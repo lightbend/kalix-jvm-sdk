@@ -30,8 +30,8 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ValueEntity
  * Responsible for generating Java source from an entity model
  */
 object EntityServiceSourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   /**
    * Generate Java source from entities where the target source and test source directories have no existing source.
@@ -59,7 +59,7 @@ object EntityServiceSourceGenerator {
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
 
-    val interfaceClassName = "Abstract" + className
+    val interfaceClassName = entity.abstractEntityName
     val interfaceSourcePath =
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
@@ -75,15 +75,15 @@ object EntityServiceSourceGenerator {
           Charsets.UTF_8))
     }
 
-    val handlerClassName = className + "Handler"
-    val handlerSourcePath = {
-      val path = generatedSourceDirectory.resolve(packagePath.resolve(handlerClassName + ".java"))
+    val routerClassName = entity.routerName
+    val routerSourcePath = {
+      val path = generatedSourceDirectory.resolve(packagePath.resolve(routerClassName + ".java"))
       path.getParent.toFile.mkdirs()
-      Files.write(path, handlerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
+      Files.write(path, routerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
       path
     }
 
-    val providerClassName = className + "Provider"
+    val providerClassName = entity.providerName
     val providerSourcePath = {
       val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
       path.getParent.toFile.mkdirs()
@@ -120,7 +120,7 @@ object EntityServiceSourceGenerator {
       integrationTestSourcePath,
       interfaceSourcePath,
       providerSourcePath,
-      handlerSourcePath) ++ testSourceFiles
+      routerSourcePath) ++ testSourceFiles
   }
 
   private[codegen] def source(
@@ -140,7 +140,7 @@ object EntityServiceSourceGenerator {
     }
   }
 
-  private[codegen] def eventSourcedEntityHandler(
+  private[codegen] def eventSourcedEntityRouter(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
@@ -153,13 +153,13 @@ object EntityServiceSourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler"))
+        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))
 
     val stateType = entity.state.fqn.fullName
 
     val eventCases = {
       if (entity.events.isEmpty)
-        List(s"throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());")
+        List(s"throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());")
       else
         entity.events.zipWithIndex.map { case (evt, i) =>
           val eventType = evt.fqn.fullName
@@ -167,7 +167,7 @@ object EntityServiceSourceGenerator {
               |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
         }.toSeq :+
         s"""|} else {
-          |  throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+          |  throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
           |}""".stripMargin
     }
 
@@ -182,7 +182,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -190,9 +190,9 @@ object EntityServiceSourceGenerator {
         | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command and event handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends EventSourcedEntityHandler<$stateType, ${entity.fqn.name}> {
+        |public class ${className}Router extends EventSourcedEntityRouter<$stateType, ${entity.fqn.name}> {
         |
-        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.fqn.name} entity) {
         |    super(entity);
         |  }
         |
@@ -209,7 +209,7 @@ object EntityServiceSourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      default:
-        |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
+        |        throw new EventSourcedEntityRouter.CommandHandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -245,7 +245,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -292,8 +292,8 @@ object EntityServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${className}Handler newHandler(EventSourcedEntityContext context) {
-        |    return new ${className}Handler(entityFactory.apply(context));
+        |  public final ${className}Router newRouter(EventSourcedEntityContext context) {
+        |    return new ${className}Router(entityFactory.apply(context));
         |  }
         |
         |  @Override
@@ -351,7 +351,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${writeImports(imports)}
        |
        |$unmanagedComment
        |
@@ -392,18 +392,18 @@ object EntityServiceSourceGenerator {
         ReplicatedEntitySourceGenerator.abstractReplicatedEntity(service, replicatedEntity, packageName, className)
     }
 
-  private[codegen] def handlerSource(
+  private[codegen] def routerSource(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
       className: String): String = {
     entity match {
       case entity: ModelBuilder.EventSourcedEntity =>
-        EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
+        EntityServiceSourceGenerator.eventSourcedEntityRouter(service, entity, packageName, className)
       case entity: ValueEntity =>
-        ValueEntitySourceGenerator.valueEntityHandler(service, entity, packageName, className)
+        ValueEntitySourceGenerator.valueEntityRouter(service, entity, packageName, className)
       case entity: ReplicatedEntity =>
-        ReplicatedEntitySourceGenerator.replicatedEntityHandler(service, entity, packageName, className)
+        ReplicatedEntitySourceGenerator.replicatedEntityRouter(service, entity, packageName, className)
     }
   }
 
@@ -449,7 +449,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -482,14 +482,14 @@ object EntityServiceSourceGenerator {
 
     val extraImports = entity match {
       case ModelBuilder.ReplicatedEntity(_, _, data) =>
-        ReplicatedEntitySourceGenerator.extraImports(data) ++ extraTypeImports(data.typeArguments)
+        extraReplicatedImports(data) ++ extraTypeImports(data.typeArguments)
       case _ => Seq.empty
     }
 
     val imports = generateImports(
       importTypes,
       packageName,
-      List(service.fqn.parent.javaPackage + "." + serviceName + "Client") ++
+      List(service.fqn.parent.javaPackage + "." + serviceName) ++
       Seq(
         "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource",
         "org.junit.ClassRule",
@@ -509,7 +509,7 @@ object EntityServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports)}
       |
       |import static java.util.concurrent.TimeUnit.*;
       |
@@ -529,10 +529,10 @@ object EntityServiceSourceGenerator {
       |  /**
       |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
       |   */
-      |  private final ${serviceName}Client client;
+      |  private final $serviceName client;
       |
-      |  public ${testClassName}() {
-      |    client = ${serviceName}Client.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+      |  public $testClassName() {
+      |    client = testKit.getGrpcClient($serviceName.class);
       |  }
       |
       |  ${Format.indent(testCases, num = 2)}

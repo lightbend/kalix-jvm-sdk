@@ -20,7 +20,6 @@ import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object SourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
@@ -36,7 +35,7 @@ object SourceGenerator {
             case entity: ModelBuilder.EventSourcedEntity =>
               EventSourcedEntitySourceGenerator.generateManaged(entity, service)
             case entity: ModelBuilder.ReplicatedEntity =>
-              Nil // FIXME
+              ReplicatedEntitySourceGenerator.generateManaged(entity, service)
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateManaged(service)
@@ -81,7 +80,7 @@ object SourceGenerator {
             case entity: ModelBuilder.EventSourcedEntity =>
               EventSourcedEntitySourceGenerator.generateUnmanaged(entity, service)
             case entity: ModelBuilder.ReplicatedEntity =>
-              Nil // FIXME
+              ReplicatedEntitySourceGenerator.generateUnmanaged(entity, service)
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateUnmanaged(service)

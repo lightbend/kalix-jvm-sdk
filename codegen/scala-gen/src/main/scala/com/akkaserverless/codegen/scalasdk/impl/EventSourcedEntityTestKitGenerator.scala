@@ -17,16 +17,20 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.{ Format, FullyQualifiedName, ModelBuilder }
+import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.Imports
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   def generateUnmanagedTest(
       main: FullyQualifiedName,
       entity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): Seq[File] =
-    Seq(test(entity, service), integrationTest(main, entity, service))
+    Seq(test(entity, service), integrationTest(main, service))
 
   def generateManagedTest(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
@@ -47,9 +51,9 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage),
-        semi = false)
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
+          "scala.collection.immutable"),
+        packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventHandlers = entity.events.map { event =>
       s"""|case e: ${typeName(event.fqn)} =>
@@ -60,7 +64,7 @@ object EventSourcedEntityTestKitGenerator {
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
         cmd.outputType)}] =
-          |  interpretEffects(entity.${lowerFirst(cmd.name)}(state, command))
+          |  interpretEffects(entity.${lowerFirst(cmd.name)}(_state, command))
          |""".stripMargin
     }
 
@@ -68,7 +72,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "TestKit.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
        |
-       |$imports
+       |${writeImports(imports)}
        |
        |$managedComment
        |
@@ -92,8 +96,14 @@ object EventSourcedEntityTestKitGenerator {
        |    new ${entity.fqn.name}TestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
        |}
        |final class $className private(entity: ${typeName(entity.fqn)}) {
-       |  private var state: ${typeName(entity.state.fqn)} = entity.emptyState
+       |  private var _state: ${typeName(entity.state.fqn)} = entity.emptyState
        |  private var events: Seq[Any] = Nil
+       |
+       |  /** @return The current state of the entity */
+       |  def currentState: ${typeName(entity.state.fqn)} = _state
+       |
+       |  /** @return All events emitted by command handlers of this entity up to now */
+       |  def allEvents: immutable.Seq[Any] = events
        |
        |  private def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
        |   event match {
@@ -103,8 +113,8 @@ object EventSourcedEntityTestKitGenerator {
        |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
        |    val events = EventSourcedResultImpl.eventsOf(effect)
        |    this.events ++= events
-       |    this.state = events.foldLeft(this.state)(handleEvent)
-       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, state)
+       |    this._state = events.foldLeft(this._state)(handleEvent)
+       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, _state)
        |  }
        |
        |  ${Format.indent(methods, 2)}
@@ -124,8 +134,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
         "org.scalatest.matchers.should.Matchers",
         "org.scalatest.wordspec.AnyWordSpec"),
-      packageImports = Seq(service.fqn.parent.scalaPackage),
-      semi = false)
+      packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val testKitClassName = s"${entity.fqn.name}TestKit"
 
@@ -142,7 +151,7 @@ object EventSourcedEntityTestKitGenerator {
       entity.fqn.fileBasename + "Spec.scala",
       s"""package ${entity.fqn.parent.scalaPackage}
          |
-         |$imports
+         |${writeImports(imports)}
          |
          |$unmanagedComment
          |
@@ -168,23 +177,16 @@ object EventSourcedEntityTestKitGenerator {
          |""".stripMargin)
   }
 
-  def integrationTest(
-      main: FullyQualifiedName,
-      valueEntity: ModelBuilder.EventSourcedEntity,
-      service: ModelBuilder.EntityService): File = {
-
-    val client = FullyQualifiedName(service.fqn.name + "Client", service.fqn.parent)
+  def integrationTest(main: FullyQualifiedName, service: ModelBuilder.EntityService): File = {
 
     implicit val imports: Imports =
       generateImports(
-        Seq(main, valueEntity.state.fqn, client) ++
+        Seq(main) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
         service.fqn.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-          "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
           "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
@@ -193,8 +195,7 @@ object EventSourcedEntityTestKitGenerator {
           "org.scalatest.time.Span",
           "org.scalatest.time.Seconds",
           "org.scalatest.time.Millis"),
-        packageImports = Seq(valueEntity.fqn.parent.scalaPackage),
-        semi = false)
+        packageImports = Nil)
 
     val entityClassName = service.fqn.name
 
@@ -202,7 +203,7 @@ object EventSourcedEntityTestKitGenerator {
       service.fqn.fileBasename + "IntegrationSpec.scala",
       s"""|package ${service.fqn.parent.scalaPackage}
           |
-          |$imports
+          |${writeImports(imports)}
           |
           |$unmanagedComment
           |
@@ -212,16 +213,14 @@ object EventSourcedEntityTestKitGenerator {
           |    with BeforeAndAfterAll
           |    with ScalaFutures {
           |
-          |  implicit val patience: PatienceConfig =
+          |  implicit private val patience: PatienceConfig =
           |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
           |
-          |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-          |  testKit.start()
-          |  implicit val system: ActorSystem = testKit.system
+          |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+          |
+          |  private val client = testKit.getGrpcClient(classOf[${typeName(service.fqn)}])
           |
           |  "${entityClassName}" must {
-          |    val client: ${typeName(client)} =
-          |      ${typeName(client)}(testKit.grpcClientSettings)
           |
           |    "have example test that can be removed" in {
           |      // use the gRPC client to send requests to the
@@ -230,7 +229,7 @@ object EventSourcedEntityTestKitGenerator {
           |
           |  }
           |
-          |  override def afterAll() = {
+          |  override def afterAll(): Unit = {
           |    testKit.stop()
           |    super.afterAll()
           |  }

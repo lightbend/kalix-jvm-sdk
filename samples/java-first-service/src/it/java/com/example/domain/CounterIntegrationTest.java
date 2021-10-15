@@ -6,7 +6,7 @@ package com.example.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.CounterApi;
-import com.example.CounterServiceClient;
+import com.example.CounterService;
 import com.example.Main;
 import com.google.protobuf.Empty;
 import org.junit.ClassRule;
@@ -22,16 +22,16 @@ public class CounterIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
     new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
-  private final CounterServiceClient client;
+  private final CounterService client;
 
   public CounterIntegrationTest() {
-    client = CounterServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testKit.getGrpcClient(CounterService.class);
   }
 
   @Test

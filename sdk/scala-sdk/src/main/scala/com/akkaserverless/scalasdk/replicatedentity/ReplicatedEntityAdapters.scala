@@ -16,42 +16,42 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-import akka.stream.Materializer
-import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntityHandler => JavaSdkReplicatedEntityHandler }
-import com.akkaserverless.javasdk.impl.{ ComponentOptions => JavaSdkComponentOptions }
-import com.akkaserverless.javasdk.replicatedentity.{
-  CommandContext => JavaSdkCommandContext,
-  ReplicatedCounter => JavaSdkReplicatedCounter,
-  ReplicatedCounterMap => JavaSdkReplicatedCounterMap,
-  ReplicatedDataFactory => JavaSdkReplicatedDataFactory,
-  ReplicatedEntity => JavaSdkReplicatedEntity,
-  ReplicatedEntityContext => JavaSdkReplicatedEntityContext,
-  ReplicatedEntityOptions => JavaSdkReplicatedEntityOptions,
-  ReplicatedEntityProvider => JavaSdkReplicatedEntityProvider,
-  ReplicatedMap => JavaSdkReplicatedMap,
-  ReplicatedMultiMap => JavaSdkReplicatedMultiMap,
-  ReplicatedRegister => JavaSdkReplicatedRegister,
-  ReplicatedRegisterMap => JavaSdkReplicatedRegisterMap,
-  ReplicatedSet => JavaSdkReplicatedSet,
-  ReplicatedVote => JavaSdkReplicatedVote,
-  WriteConsistency => JavaSdkWriteConsistency
-}
-import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.{ Metadata, ServiceCallFactory }
-import com.akkaserverless.scalasdk.impl.{
-  MetadataConverters,
-  PassivationStrategyConverters,
-  ScalaServiceCallFactoryAdapter
-}
-import com.akkaserverless.scalasdk.impl.replicatedentity.{ ReplicatedEntityEffectImpl, ReplicatedEntityHandler }
-import com.google.protobuf.Descriptors
-
 import java.util
 import java.util.Optional
+
 import scala.collection.immutable
-import scala.jdk.CollectionConverters.{ SetHasAsJava, SetHasAsScala }
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
+
+import akka.stream.Materializer
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedSetImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedVoteImpl
+import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntityRouter => JavaSdkReplicatedEntityRouter }
+import com.akkaserverless.javasdk.impl.{ ComponentOptions => JavaSdkComponentOptions }
+import com.akkaserverless.javasdk.replicatedentity.{ CommandContext => JavaSdkCommandContext }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedDataFactory => JavaSdkReplicatedDataFactory }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntity => JavaSdkReplicatedEntity }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityContext => JavaSdkReplicatedEntityContext }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions => JavaSdkReplicatedEntityOptions }
+import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityProvider => JavaSdkReplicatedEntityProvider }
+import com.akkaserverless.javasdk.replicatedentity.{ WriteConsistency => JavaSdkWriteConsistency }
+import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
+import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.impl.MetadataConverters
+import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
+import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
+import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityEffectImpl
+import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
+import com.google.protobuf.Descriptors
 
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     scalaSdkProvider: ReplicatedEntityProvider[D, E])
@@ -65,22 +65,22 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
 
   override def entityType(): String = scalaSdkProvider.entityType
 
-  override def newHandler(
-      context: JavaSdkReplicatedEntityContext): JavaSdkReplicatedEntityHandler[D, JavaSdkReplicatedEntity[D]] = {
+  override def newRouter(
+      context: JavaSdkReplicatedEntityContext): JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]] = {
 
-    val scalaSdkHandler = scalaSdkProvider.newHandler(ScalaReplicatedEntityContextAdapter(context))
+    val scalaSdkHandler = scalaSdkProvider.newRouter(ScalaReplicatedEntityContextAdapter(context))
 
-    JavaReplicatedEntityHandlerAdapter(JavaReplicatedEntityAdapter(scalaSdkHandler.entity), scalaSdkHandler)
+    JavaReplicatedEntityRouterAdapter(JavaReplicatedEntityAdapter(scalaSdkHandler.entity), scalaSdkHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] final case class JavaReplicatedEntityHandlerAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
+private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     javaSdkReplicatedEntity: JavaSdkReplicatedEntity[D],
-    scalaSdkHandler: ReplicatedEntityHandler[D, E])
-    extends JavaSdkReplicatedEntityHandler[D, JavaSdkReplicatedEntity[D]](javaSdkReplicatedEntity) {
+    scalaSdkHandler: ReplicatedEntityRouter[D, E])
+    extends JavaSdkReplicatedEntityRouter[D, JavaSdkReplicatedEntity[D]](javaSdkReplicatedEntity) {
 
   override protected def handleCommand(
       commandName: String,
@@ -141,9 +141,6 @@ private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandCont
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkCommandContext.serviceCallFactory())
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkCommandContext.getGrpcClient(clientClass, service)
-
   override def materializer(): Materializer =
     javaSdkCommandContext.materializer()
 
@@ -156,9 +153,6 @@ private[scalasdk] final case class ScalaReplicatedEntityContextAdapter(javaSdkCo
 
   override def serviceCallFactory: ServiceCallFactory = ScalaServiceCallFactoryAdapter(
     javaSdkContext.serviceCallFactory())
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer =
     javaSdkContext.materializer()
@@ -181,48 +175,48 @@ private[scalasdk] final case class ScalaReplicatedDataFactoryAdapter(factory: Ja
 
   /** Create a new counter. */
   override def newCounter: ReplicatedCounter =
-    new ReplicatedCounter(factory.newCounter())
+    new ReplicatedCounter(factory.newCounter().asInstanceOf[ReplicatedCounterImpl])
 
   /** Create a new map of counters. */
   override def newReplicatedCounterMap[K]: ReplicatedCounterMap[K] =
-    new ReplicatedCounterMap[K](factory.newReplicatedCounterMap())
+    new ReplicatedCounterMap[K](factory.newReplicatedCounterMap().asInstanceOf[ReplicatedCounterMapImpl[K]])
 
   /** Create a new ReplicatedSet. */
   override def newReplicatedSet[E]: ReplicatedSet[E] =
-    new ReplicatedSet[E](factory.newReplicatedSet())
+    new ReplicatedSet[E](factory.newReplicatedSet().asInstanceOf[ReplicatedSetImpl[E]])
 
   /** Create a new multimap (map of sets). */
   override def newReplicatedMultiMap[K, V]: ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(factory.newReplicatedMultiMap())
+    new ReplicatedMultiMap(factory.newReplicatedMultiMap().asInstanceOf[ReplicatedMultiMapImpl[K, V]])
 
   /** Create a new ReplicatedRegister. */
   override def newRegister[T](value: T): ReplicatedRegister[T] =
-    new ReplicatedRegister(factory.newRegister(value))
+    new ReplicatedRegister(factory.newRegister(value).asInstanceOf[ReplicatedRegisterImpl[T]])
 
   /** Create a new map of registers. */
   override def newReplicatedRegisterMap[K, V]: ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(factory.newReplicatedRegisterMap())
+    new ReplicatedRegisterMap(factory.newReplicatedRegisterMap().asInstanceOf[ReplicatedRegisterMapImpl[K, V]])
 
   /** Create a new ReplicatedMap. */
   override def newReplicatedMap[K, V <: ReplicatedData]: ReplicatedMap[K, V] =
-    new ReplicatedMap(factory.newReplicatedMap())
+    new ReplicatedMap(factory.newReplicatedMap().asInstanceOf[ReplicatedMapImpl[K, V]])
 
   /** Create a new Vote. */
   override def newVote: ReplicatedVote =
-    new ReplicatedVote(factory.newVote())
+    new ReplicatedVote(factory.newVote().asInstanceOf[ReplicatedVoteImpl])
 }
 
 private[scalasdk] object ReplicatedDataConverter {
   def toScala[D <: ReplicatedData](data: D): ReplicatedData = {
     data match {
-      case d: JavaSdkReplicatedCounter           => new ReplicatedCounter(d)
-      case d: JavaSdkReplicatedCounterMap[_]     => new ReplicatedCounterMap(d)
-      case d: JavaSdkReplicatedSet[_]            => new ReplicatedSet(d)
-      case d: JavaSdkReplicatedMultiMap[_, _]    => new ReplicatedMultiMap(d)
-      case d: JavaSdkReplicatedRegister[_]       => new ReplicatedRegister(d)
-      case d: JavaSdkReplicatedRegisterMap[_, _] => new ReplicatedRegisterMap(d)
-      case d: JavaSdkReplicatedMap[_, _]         => new ReplicatedMap(d)
-      case d: JavaSdkReplicatedVote              => new ReplicatedVote(d)
+      case d: ReplicatedCounterImpl           => new ReplicatedCounter(d)
+      case d: ReplicatedCounterMapImpl[_]     => new ReplicatedCounterMap(d)
+      case d: ReplicatedSetImpl[_]            => new ReplicatedSet(d)
+      case d: ReplicatedMultiMapImpl[_, _]    => new ReplicatedMultiMap(d)
+      case d: ReplicatedRegisterImpl[_]       => new ReplicatedRegister(d)
+      case d: ReplicatedRegisterMapImpl[_, _] => new ReplicatedRegisterMap(d)
+      case d: ReplicatedMapImpl[_, _]         => new ReplicatedMap(d)
+      case d: ReplicatedVoteImpl              => new ReplicatedVote(d)
     }
   }
 }

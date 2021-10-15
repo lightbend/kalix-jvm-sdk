@@ -17,6 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
 
@@ -26,6 +27,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
 object ActionServiceSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   /**
    * Generate Scala sources the user view source file.
@@ -36,7 +38,7 @@ object ActionServiceSourceGenerator {
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
   def generateManaged(service: ModelBuilder.ActionService): Seq[File] =
-    Seq(abstractAction(service), actionHandler(service), actionProvider(service))
+    Seq(abstractAction(service), actionRouter(service), actionProvider(service))
 
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
     if (commands.exists(_.hasStream))
@@ -54,8 +56,7 @@ object ActionServiceSourceGenerator {
       service.fqn.parent.scalaPackage,
       otherImports = Seq(
         "com.akkaserverless.scalasdk.action.Action",
-        "com.akkaserverless.scalasdk.action.ActionCreationContext") ++ streamImports(service.commands),
-      semi = false)
+        "com.akkaserverless.scalasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -66,10 +67,10 @@ object ActionServiceSourceGenerator {
       if (cmd.isUnary) {
         val jsonTopicHint = {
           // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
-          if (cmd.inFromTopic && cmd.inputType.fullQualifiedName == "com.google.protobuf.Any")
+          if (cmd.inFromTopic && cmd.inputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
             """|// JSON input from a topic can be decoded using JsonSupport.decodeJson(classOf[MyClass], any)
                |  """.stripMargin
-          else if (cmd.outToTopic && cmd.outputType.fullQualifiedName == "com.google.protobuf.Any")
+          else if (cmd.outToTopic && cmd.outputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
             """|// JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
                |  """.stripMargin
           else ""
@@ -105,7 +106,7 @@ object ActionServiceSourceGenerator {
       className,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -122,8 +123,7 @@ object ActionServiceSourceGenerator {
     implicit val imports = generateImports(
       service.commandTypes,
       service.fqn.parent.scalaPackage,
-      otherImports = Seq("com.akkaserverless.scalasdk.action.Action") ++ streamImports(service.commands),
-      semi = false)
+      otherImports = Seq("com.akkaserverless.scalasdk.action.Action") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -157,7 +157,7 @@ object ActionServiceSourceGenerator {
       service.abstractActionName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -169,18 +169,17 @@ object ActionServiceSourceGenerator {
         |""".stripMargin)
   }
 
-  private[codegen] def actionHandler(service: ModelBuilder.ActionService): File = {
+  private[codegen] def actionRouter(service: ModelBuilder.ActionService): File = {
     implicit val imports = generateImports(
       commandTypes(service.commands),
       service.fqn.parent.scalaPackage,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.action.ActionHandler",
+        "com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound",
+        "com.akkaserverless.scalasdk.impl.action.ActionRouter",
         "com.akkaserverless.scalasdk.action.Action",
         "com.akkaserverless.scalasdk.action.MessageEnvelope",
         "akka.NotUsed",
-        "akka.stream.scaladsl.Source"),
-      semi = false)
+        "akka.stream.scaladsl.Source"))
 
     val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
@@ -220,15 +219,15 @@ object ActionServiceSourceGenerator {
 
     File(
       service.fqn.parent.scalaPackage,
-      service.handlerName,
+      service.routerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
         |/** A Action handler */
-        |class ${service.handlerName}(action: ${service.className}) extends ActionHandler[${service.className}](action) {
+        |class ${service.routerName}(action: ${service.className}) extends ActionRouter[${service.className}](action) {
         |
         |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
         |    commandName match {
@@ -274,15 +273,14 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.scalasdk.action.ActionCreationContext",
         "com.akkaserverless.scalasdk.action.ActionOptions",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable"),
-      semi = false)
+        "scala.collection.immutable"))
 
     File(
       service.fqn.parent.scalaPackage,
       service.providerName,
       s"""|package ${service.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -301,8 +299,8 @@ object ActionServiceSourceGenerator {
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
         |
-        |  override final def newHandler(context: ActionCreationContext): ${service.handlerName} =
-        |    new ${service.handlerName}(actionFactory(context))
+        |  override final def newRouter(context: ActionCreationContext): ${service.routerName} =
+        |    new ${service.routerName}(actionFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::

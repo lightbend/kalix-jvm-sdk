@@ -1,0 +1,18 @@
+# https://github.com/marketplace/actions/labeler
+
+as-framework:
+  - '**/*'
+
+java-sdk:
+  - sdk/java/**/*
+  - maven-java/**/*
+  - codegen/java-gen/**/*
+  - codegen/java-gen-compilation-tests/**/*
+
+scala-sdk:
+  - sdk/scala/**/*
+  - sbt-plugin/**/*
+  - codegen/scala-gen/**/*
+
+Documentation:
+  - docs/**/*

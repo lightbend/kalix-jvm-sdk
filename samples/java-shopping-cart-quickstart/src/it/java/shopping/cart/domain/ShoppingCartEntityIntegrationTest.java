@@ -10,7 +10,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import shopping.cart.Main;
 import shopping.cart.api.ShoppingCartApi;
-import shopping.cart.api.ShoppingCartClient;
+import shopping.cart.api.ShoppingCart;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -22,16 +22,16 @@ public class ShoppingCartEntityIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
     new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
-  private final ShoppingCartClient client;
+  private final ShoppingCart client;
 
   public ShoppingCartEntityIntegrationTest() {
-    client = ShoppingCartClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testKit.getGrpcClient(ShoppingCart.class);
   }
 
   @Test

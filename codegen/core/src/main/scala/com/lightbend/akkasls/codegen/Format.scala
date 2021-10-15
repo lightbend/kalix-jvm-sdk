@@ -29,7 +29,7 @@ object Format {
    *
    * Empty lines are not indented either.
    */
-  def indent(str: String, num: Int): String =
+  def indent(str: String, num: Int): String = {
     str
       .split(break)
       .zipWithIndex
@@ -39,5 +39,6 @@ object Format {
         case (line, _)                                    => (" " * num) + line
       }
       .mkString(break)
+  }
 
 }

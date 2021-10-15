@@ -17,7 +17,8 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.EventSourcedEntityTestKitGenerator
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, PackageNaming, TestData }
+import com.lightbend.akkasls.codegen.TestData
+import com.lightbend.akkasls.codegen.TestData._
 
 class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.scalaStyle
@@ -35,6 +36,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
          |import com.example.service
          |import com.external.Empty
+         |import scala.collection.immutable
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -58,8 +60,14 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    new MyEntityTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
          |}
          |final class MyEntityTestKit private(entity: MyEntity) {
-         |  private var state: MyState = entity.emptyState
+         |  private var _state: MyState = entity.emptyState
          |  private var events: Seq[Any] = Nil
+         |
+         |  /** @return The current state of the entity */
+         |  def currentState: MyState = _state
+         |
+         |  /** @return All events emitted by command handlers of this entity up to now */
+         |  def allEvents: immutable.Seq[Any] = events
          |
          |  private def handleEvent(state: MyState, event: Any): MyState =
          |   event match {
@@ -70,15 +78,15 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
          |    val events = EventSourcedResultImpl.eventsOf(effect)
          |    this.events ++= events
-         |    this.state = events.foldLeft(this.state)(handleEvent)
-         |    new EventSourcedResultImpl[R, MyState](effect, state)
+         |    this._state = events.foldLeft(this._state)(handleEvent)
+         |    new EventSourcedResultImpl[R, MyState](effect, _state)
          |  }
          |
          |  def set(command: service.SetValue): EventSourcedResult[Empty] =
-         |    interpretEffects(entity.set(state, command))
+         |    interpretEffects(entity.set(_state, command))
          |
          |  def get(command: service.GetValue): EventSourcedResult[service.MyState] =
-         |    interpretEffects(entity.get(state, command))
+         |    interpretEffects(entity.get(_state, command))
          |}
          |""".stripMargin)
   }
@@ -131,18 +139,16 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
   }
 
   test("it can generate an specific integration test stub for the entity") {
-    val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example"))
+    val main = fullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example"))
 
     assertEquals(
       EventSourcedEntityTestKitGenerator
-        .integrationTest(main, testData.eventSourcedEntity(), testData.simpleEntityService())
+        .integrationTest(main, testData.simpleEntityService())
         .content,
       s"""package com.example.service
          |
          |import akka.actor.ActorSystem
-         |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
          |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-         |import com.akkaserverless.scalasdk.testkit.EventSourcedResult
          |import com.example.Main
          |import com.external.Empty
          |import org.scalatest.BeforeAndAfterAll
@@ -164,16 +170,14 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    with BeforeAndAfterAll
          |    with ScalaFutures {
          |
-         |  implicit val patience: PatienceConfig =
+         |  implicit private val patience: PatienceConfig =
          |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
          |
-         |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-         |  testKit.start()
-         |  implicit val system: ActorSystem = testKit.system
+         |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+         |
+         |  private val client = testKit.getGrpcClient(classOf[MyService])
          |
          |  "MyService" must {
-         |    val client: MyServiceClient =
-         |      MyServiceClient(testKit.grpcClientSettings)
          |
          |    "have example test that can be removed" in {
          |      // use the gRPC client to send requests to the
@@ -182,7 +186,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |
          |  }
          |
-         |  override def afterAll() = {
+         |  override def afterAll(): Unit = {
          |    testKit.stop()
          |    super.afterAll()
          |  }

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler;
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 
 /**
@@ -32,5 +32,5 @@ public interface ValueEntityFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ValueEntityHandler<?, ?> create(ValueEntityContext context);
+  ValueEntityRouter<?, ?> create(ValueEntityContext context);
 }

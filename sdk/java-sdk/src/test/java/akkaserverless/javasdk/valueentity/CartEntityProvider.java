@@ -61,8 +61,8 @@ public class CartEntityProvider
   }
 
   @Override
-  public final CartEntityHandler newHandler(ValueEntityContext context) {
-    return new CartEntityHandler(entityFactory.apply(context));
+  public final CartEntityRouter newRouter(ValueEntityContext context) {
+    return new CartEntityRouter(entityFactory.apply(context));
   }
 
   @Override

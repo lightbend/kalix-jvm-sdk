@@ -17,11 +17,14 @@
 package com.lightbend.akkasls.codegen
 package java
 
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
+
 import com.google.common.base.Charsets
-import _root_.java.nio.file.{ Files, Path }
 
 object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       service: ModelBuilder.ActionService,
@@ -74,7 +77,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -115,6 +118,7 @@ object ActionTestKitGenerator {
       otherImports = Seq(
         s"$packageName.$className",
         s"${packageName}.${className}TestKit",
+        "akka.stream.javadsl.Source",
         "com.akkaserverless.javasdk.testkit.ActionResult",
         "org.junit.Test",
         "static org.junit.Assert.*")
@@ -124,7 +128,7 @@ object ActionTestKitGenerator {
 
     s"""package ${service.fqn.parent.javaPackage};
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -150,29 +154,37 @@ object ActionTestKitGenerator {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
 
     service.commands
-      .collect {
-        case command if command.isUnary =>
-          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInput(command)} ${lowerFirst(
-            command.inputType.protoName)}) {
-            |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
-            command.inputType.protoName)});
-            |  return ${selectOutputReturn(command)}
-            |}
-            |""".stripMargin + "\n"
+      .map { command =>
+        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
+          command.inputType.protoName)}) {
+          |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
+          command.inputType.protoName)});
+          |  return ${selectOutputReturn(command)}
+          |}
+          |""".stripMargin + "\n"
       }
       .mkString("")
   }
 
   def generateTestingServices(service: ModelBuilder.ActionService): String = {
     service.commands
-      .collect {
-        case command if command.isUnary =>
-          s"""|@Test
+      .map { command =>
+        s"""|@Test
             |public void ${lowerFirst(command.name)}Test() {
-            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);
-            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${selectInput(command)}.newBuilder()...build());
+            |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);""".stripMargin +
+        (if (command.isUnary || command.isStreamOut) {
+           s"""
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${command.inputType.fullName}.newBuilder()...build());
             |}
-            |""".stripMargin + "\n"
+            |
+            |""".stripMargin
+         } else {
+           s"""
+            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(Source.single(${command.inputType.fullName}.newBuilder()...build()));
+            |}
+            |
+            |""".stripMargin
+         })
       }
       .mkString("")
   }
@@ -194,7 +206,7 @@ object ActionTestKitGenerator {
     else "interpretEffects(effect);"
   }
 
-  def selectInput(command: ModelBuilder.Command): String = {
+  def selectInputType(command: ModelBuilder.Command): String = {
     if (command.streamedInput) s"Source<${command.inputType.fullName}, akka.NotUsed>"
     else command.inputType.fullName
   }

@@ -28,41 +28,18 @@ import com.lightbend.akkasls.codegen._
 object MainSourceGenerator {
 
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-
-  // FIXME
-  def excludedUntilImplemented(model: ModelBuilder.Model): ModelBuilder.Model = {
-    val filteredServices = model.services.flatMap {
-      case (name, service: ModelBuilder.EntityService) =>
-        model.lookupEntity(service) match {
-          case _: ModelBuilder.ValueEntity        => List(name -> service)
-          case _: ModelBuilder.EventSourcedEntity => List(name -> service)
-          case _: ModelBuilder.ReplicatedEntity =>
-            Nil
-        }
-      case (name, service: ModelBuilder.ViewService)   => List(name -> service)
-      case (name, service: ModelBuilder.ActionService) => List(name -> service)
-    }
-
-    val filteredEntities = model.entities.filter {
-      case (_, _: ModelBuilder.ValueEntity)        => true
-      case (_, _: ModelBuilder.EventSourcedEntity) => true
-      case (_, _: ModelBuilder.ReplicatedEntity)   => false
-    }
-
-    ModelBuilder.Model(filteredServices, filteredEntities)
-  }
+  import ScalaGeneratorUtils._
 
   def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
-    Seq(mainSource(excludedUntilImplemented(model)))
+    Seq(mainSource(model))
 
   def generateManaged(model: ModelBuilder.Model): Iterable[File] =
-    // FIXME remove filtering
-    Seq(akkaServerlessFactorySource(excludedUntilImplemented(model)))
+    Seq(akkaServerlessFactorySource(model))
 
   def mainClassName(model: ModelBuilder.Model): FullyQualifiedName = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
     val className = "Main"
-    FullyQualifiedName(
+    FullyQualifiedName.noDescriptor(
       className,
       new PackageNaming(
         protoFileName = "",
@@ -77,9 +54,9 @@ object MainSourceGenerator {
     val mainClass = mainClassName(model)
 
     val entityImports = model.entities.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ValueEntity        => entity.fqn.fullQualifiedName
-      case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullQualifiedName
+      case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullyQualifiedJavaName
+      case entity: ModelBuilder.ValueEntity        => entity.fqn.fullyQualifiedJavaName
+      case entity: ModelBuilder.ReplicatedEntity   => entity.fqn.fullyQualifiedJavaName
     }.toSeq
 
     val serviceImports = model.services.values.collect {
@@ -90,15 +67,15 @@ object MainSourceGenerator {
     val allImports = entityImports ++ serviceImports ++
       List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
-    val imports =
-      generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports, semi = false)
+    implicit val imports: Imports =
+      generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
 
     val entityRegistrationParameters = model.entities.values.toList
       .sortBy(_.fqn.name)
       .collect {
-        case entity: ModelBuilder.EventSourcedEntity => s"new ${entity.fqn.name}(_)"
-        case entity: ModelBuilder.ValueEntity        => s"new ${entity.fqn.name}(_)"
-        case entity: ModelBuilder.ReplicatedEntity   => s"new ${entity.fqn.name}(_)"
+        case entity: ModelBuilder.EventSourcedEntity => s"new ${typeName(entity.fqn)}(_)"
+        case entity: ModelBuilder.ValueEntity        => s"new ${typeName(entity.fqn)}(_)"
+        case entity: ModelBuilder.ReplicatedEntity   => s"new ${typeName(entity.fqn)}(_)"
       }
 
     val serviceRegistrationParameters = model.services.values.toList
@@ -115,7 +92,7 @@ object MainSourceGenerator {
       mainClass.name,
       s"""|package ${mainClass.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -142,38 +119,17 @@ object MainSourceGenerator {
 
   private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model): File = {
     val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
-    val registrations = model.services.values
-      .flatMap {
-        case service: ModelBuilder.EntityService =>
-          model.entities.get(service.componentFullName).toSeq.map {
-            case entity: ModelBuilder.EventSourcedEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ValueEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-            case entity: ModelBuilder.ReplicatedEntity =>
-              s".register(${entity.fqn.name}Provider(create${entity.fqn.name}))"
-          }
-
-        case service: ModelBuilder.ViewService =>
-          List(s".register(${service.providerName}(create${service.className}))")
-
-        case service: ModelBuilder.ActionService =>
-          List(s".register(${service.providerName}(create${service.className}))")
-
-      }
-      .toList
-      .sorted
 
     val entityImports = model.entities.values.flatMap { ety =>
       val imp =
-        ety.fqn.fullQualifiedName :: Nil
+        ety.fqn :: Nil
       ety match {
         case _: ModelBuilder.EventSourcedEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _: ModelBuilder.ValueEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _: ModelBuilder.ReplicatedEntity =>
-          s"${ety.fqn.fullQualifiedName}Provider" :: imp
+          ety.provider :: imp
         case _ => imp
       }
     }
@@ -204,31 +160,58 @@ object MainSourceGenerator {
         List("com.akkaserverless.scalasdk.view.ViewCreationContext")
     }.flatten
 
-    val allImports = (entityImports ++ serviceImports ++ entityContextImports ++ serviceContextImports ++
-      List("com.akkaserverless.scalasdk.AkkaServerless")).toList
+    implicit val imports: Imports =
+      generateImports(
+        entityImports,
+        packageName,
+        Seq("com.akkaserverless.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
 
-    val imports =
-      generateImports(Iterable.empty, packageName, allImports, semi = false)
+    def creator(fqn: FullyQualifiedName): String = {
+      if (imports.clashingNames.contains(fqn.name)) s"create${dotsToCamelCase(typeName(fqn))}"
+      else s"create${fqn.name}"
+    }
+
+    val registrations = model.services.values
+      .flatMap {
+        case service: ModelBuilder.EntityService =>
+          model.entities.get(service.componentFullName).toSeq.map {
+            case entity: ModelBuilder.EventSourcedEntity =>
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
+            case entity: ModelBuilder.ValueEntity =>
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
+            case entity: ModelBuilder.ReplicatedEntity =>
+              s".register(${typeName(entity.provider)}(${creator(entity.fqn)}))"
+          }
+
+        case service: ModelBuilder.ViewService =>
+          List(s".register(${service.providerName}(${creator(service.impl)}))")
+
+        case service: ModelBuilder.ActionService =>
+          List(s".register(${service.providerName}(${creator(service.impl)}))")
+
+      }
+      .toList
+      .sorted
 
     val entityCreators =
       model.entities.values.toList
         .sortBy(_.fqn.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>
-            s"create${entity.fqn.name}: EventSourcedEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: EventSourcedEntityContext => ${typeName(entity.fqn)}"
           case entity: ModelBuilder.ValueEntity =>
-            s"create${entity.fqn.name}: ValueEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: ValueEntityContext => ${typeName(entity.fqn)}"
           case entity: ModelBuilder.ReplicatedEntity =>
-            s"create${entity.fqn.name}: ReplicatedEntityContext => ${entity.fqn.name}"
+            s"${creator(entity.fqn)}: ReplicatedEntityContext => ${typeName(entity.fqn)}"
         }
 
     val serviceCreators = model.services.values.toList
       .sortBy(_.fqn.name)
       .collect {
         case service: ModelBuilder.ActionService =>
-          s"create${service.className}: ActionCreationContext => ${service.className}"
+          s"${creator(service.impl)}: ActionCreationContext => ${typeName(service.impl)}"
         case view: ModelBuilder.ViewService =>
-          s"create${view.className}: ViewCreationContext => ${view.className}"
+          s"${creator(view.impl)}: ViewCreationContext => ${typeName(view.impl)}"
       }
 
     val creatorParameters = entityCreators ::: serviceCreators
@@ -238,7 +221,7 @@ object MainSourceGenerator {
       "AkkaServerlessFactory",
       s"""|package $packageName
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |

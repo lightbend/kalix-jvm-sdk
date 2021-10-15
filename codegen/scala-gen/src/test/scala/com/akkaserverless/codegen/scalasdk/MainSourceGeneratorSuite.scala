@@ -24,7 +24,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.scalaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
-    ModelBuilder.TypeArgument(name, testData.domainProto())
+    ModelBuilder.TypeArgument(
+      name,
+      testData.domainProto(),
+      TestData.guessDescriptor(testData.domainProto().name, testData.domainProto()))
 
   test("main source") {
     val entities = Map(

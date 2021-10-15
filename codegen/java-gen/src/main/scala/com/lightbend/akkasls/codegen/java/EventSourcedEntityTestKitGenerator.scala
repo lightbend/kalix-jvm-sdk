@@ -17,11 +17,14 @@
 package com.lightbend.akkasls.codegen
 package java
 
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
+
 import com.google.common.base.Charsets
-import _root_.java.nio.file.{ Files, Path }
 
 object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   def generate(
       entity: ModelBuilder.EventSourcedEntity,
@@ -79,7 +82,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package ${entity.fqn.parent.javaPackage};
           |
-          |$imports
+          |${writeImports(imports)}
           |
           |$managedComment
           |
@@ -226,7 +229,7 @@ object EventSourcedEntityTestKitGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports)}
       |
       |import static org.junit.Assert.*;
       |

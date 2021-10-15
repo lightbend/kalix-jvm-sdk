@@ -75,7 +75,10 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |""".stripMargin)
     }
 
-  def domainType(name: String): TypeArgument = TypeArgument(name, testData.domainProto())
+  def domainType(name: String): TypeArgument = TypeArgument(
+    name,
+    testData.domainProto(),
+    TestData.guessDescriptor(testData.domainProto().name, testData.domainProto()))
 
   testEntityServiceImplementation(
     "ReplicatedCounter",
@@ -246,7 +249,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |// DO NOT EDIT
             |
             |/** A replicated entity. */
-            |public abstract class AbstractMyService extends $expectedBaseClass {
+            |public abstract class AbstractMyReplicatedEntity extends $expectedBaseClass {
             |
             |  /** Command handler for "Set". */
             |  public abstract Effect<Empty> set($expectedDataType currentData, ServiceOuterClass.SetValue setValue);
@@ -329,17 +332,17 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     "ReplicatedVoteEntity",
     "ReplicatedVote")
 
-  def testEntityHandler(replicatedData: ReplicatedData, expectedImports: String, expectedDataType: String): Unit =
+  def testEntityRouter(replicatedData: ReplicatedData, expectedImports: String, expectedDataType: String): Unit =
     test(s"Generated replicated entity handler - ${replicatedData.name}") {
       assertNoDiff(
-        ReplicatedEntitySourceGenerator.replicatedEntityHandler(
+        ReplicatedEntitySourceGenerator.replicatedEntityRouter(
           service = testData.simpleEntityService(),
           entity = testData.replicatedEntity(replicatedData),
           packageName = "com.example.service",
           className = "MyService"),
         s"""package com.example.service;
             |
-            |import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityHandler;
+            |import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
             |import com.akkaserverless.javasdk.replicatedentity.CommandContext;
             |$expectedImports
             |import com.external.Empty;
@@ -352,9 +355,9 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             | * A replicated entity handler that is the glue between the Protobuf service <code>MyService</code>
             | * and the command handler methods in the <code>MyReplicatedEntity</code> class.
             | */
-            |public class MyServiceHandler extends ReplicatedEntityHandler<$expectedDataType, MyReplicatedEntity> {
+            |public class MyServiceRouter extends ReplicatedEntityRouter<$expectedDataType, MyReplicatedEntity> {
             |
-            |  public MyServiceHandler(MyReplicatedEntity entity) {
+            |  public MyServiceRouter(MyReplicatedEntity entity) {
             |    super(entity);
             |  }
             |
@@ -370,21 +373,21 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |        return entity().get(data, (ServiceOuterClass.GetValue) command);
             |
             |      default:
-            |        throw new ReplicatedEntityHandler.CommandHandlerNotFound(commandName);
+            |        throw new ReplicatedEntityRouter.CommandHandlerNotFound(commandName);
             |    }
             |  }
             |}
             |""".stripMargin)
     }
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedCounter,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |""".stripMargin.trim,
     "ReplicatedCounter")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedRegister(domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
@@ -392,7 +395,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedRegister<EntityOuterClass.SomeValue>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedSet(domainType("SomeElement")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
@@ -400,7 +403,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedSet<EntityOuterClass.SomeElement>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedMap(domainType("SomeKey")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
@@ -409,7 +412,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedMap<EntityOuterClass.SomeKey, ReplicatedData>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedCounterMap(domainType("SomeKey")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
@@ -417,7 +420,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedCounterMap<EntityOuterClass.SomeKey>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
@@ -425,7 +428,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedRegisterMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
@@ -433,7 +436,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
        |""".stripMargin.trim,
     "ReplicatedMultiMap<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>")
 
-  testEntityHandler(
+  testEntityRouter(
     ReplicatedVote,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote;
@@ -507,8 +510,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |  }
             |
             |  @Override
-            |  public final MyServiceHandler newHandler(ReplicatedEntityContext context) {
-            |    return new MyServiceHandler(entityFactory.apply(context));
+            |  public final MyServiceRouter newRouter(ReplicatedEntityContext context) {
+            |    return new MyServiceRouter(entityFactory.apply(context));
             |  }
             |
             |  @Override

@@ -63,8 +63,8 @@ public class ValueEntityOneProvider implements ValueEntityProvider<Object, Value
   }
 
   @Override
-  public final ValueEntityOneHandler newHandler(ValueEntityContext context) {
-    return new ValueEntityOneHandler(entityFactory.apply(context));
+  public final ValueEntityOneRouter newRouter(ValueEntityContext context) {
+    return new ValueEntityOneRouter(entityFactory.apply(context));
   }
 
   @Override

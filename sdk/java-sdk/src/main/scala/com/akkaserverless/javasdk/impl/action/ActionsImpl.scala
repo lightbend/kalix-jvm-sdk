@@ -53,7 +53,7 @@ final class ActionService(
 
   @volatile var actionClass: Option[Class[_]] = None
 
-  def createAction(context: ActionCreationContext): ActionHandler[_] = {
+  def createAction(context: ActionCreationContext): ActionRouter[_] = {
     val handler = factory.create(context)
     actionClass = Some(handler.actionClass())
     handler
@@ -101,7 +101,10 @@ private[javasdk] final class ActionsImpl(
 
   private object creationContext
       extends AbstractContext(rootContext.serviceCallFactory(), system)
-      with ActionCreationContext
+      with ActionCreationContext {
+    override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+      GrpcClients(system).getGrpcClient(clientClass, service)
+  }
 
   private def toJavaPbAny(any: Option[ScalaPbAny]) =
     any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
@@ -329,7 +332,11 @@ private[javasdk] final class ActionsImpl(
         metadata.asCloudEvent().subject()
       else
         Optional.empty()
+
+    override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+      GrpcClients(system).getGrpcClient(clientClass, service)
   }
+
 }
 
 case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]

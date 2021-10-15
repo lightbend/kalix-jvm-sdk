@@ -21,12 +21,12 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
+import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
 
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ActionHandler[A <: Action](val action: A) {
+abstract class ActionRouter[A <: Action](val action: A) {
 
   /**
    * Handle a unary call.

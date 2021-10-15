@@ -96,50 +96,24 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
-  class Imports(val currentPackage: String, _imports: Seq[String], val semi: Boolean) {
-
-    val imports: Seq[String] = _imports.filterNot(isInCurrentPackage)
-
-    private def isInCurrentPackage(imp: String): Boolean = {
-      val i = imp.lastIndexOf('.')
-      if (i == -1)
-        currentPackage == ""
-      else
-        currentPackage == imp.substring(0, i)
-    }
-
-    def contains(imp: String): Boolean = imports.contains(imp)
-
-    override def toString: String = {
-      val suffix = if (semi) ";" else ""
-      imports
-        .map { imported =>
-          if (imported == "com.google.protobuf.any.Any") {
-            s"import com.google.protobuf.any.{ Any => ScalaPbAny }$suffix"
-          } else
-            s"import $imported$suffix"
-        }
-        .mkString("\n")
-    }
-
-  }
-
   def generateImports(
       types: Iterable[FullyQualifiedName],
       packageName: String,
       otherImports: Seq[String],
-      packageImports: Seq[String] = Seq.empty,
-      semi: Boolean = true): Imports = {
+      packageImports: Seq[String] = Seq.empty): Imports = {
     val messageTypeImports = types
       .filterNot { typ =>
         typ.parent.javaPackage == packageName
+      }
+      .filterNot { typ =>
+        typ.parent.javaPackage.isEmpty
       }
       .filterNot { typ =>
         packageImports.contains(typ.parent.javaPackage)
       }
       .map(typeImport)
 
-    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted, semi)
+    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
   }
 
   def generateCommandImports(
@@ -147,9 +121,9 @@ object SourceGeneratorUtils {
       state: State,
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): Imports = {
+      packageImports: Seq[String] = Seq.empty): Imports = {
     val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports, Seq.empty, semi)
+    generateImports(types, packageName, otherImports, packageImports)
   }
 
   def generateCommandAndTypeArgumentImports(
@@ -157,11 +131,12 @@ object SourceGeneratorUtils {
       typeArguments: Iterable[TypeArgument],
       packageName: String,
       otherImports: Seq[String],
-      semi: Boolean = true): Imports = {
-    val types = commandTypes(commands) ++ typeArguments.collect { case MessageTypeArgument(fqn) =>
-      fqn
-    }
-    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), Seq.empty, semi)
+      packageImports: Seq[String] = Seq.empty): Imports = {
+
+    val types = commandTypes(commands) ++
+      typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
+
+    generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
 
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
@@ -171,15 +146,6 @@ object SourceGeneratorUtils {
 
   def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
-
-  def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
-    if (fqn.fullQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
-    else if (imports.contains(fqn.fullQualifiedName)) fqn.name
-    else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
-    else if (imports.contains(fqn.parent.javaPackage))
-      fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
-    else fqn.fullQualifiedName
-  }
 
   def collectRelevantTypes(
       fullQualifiedNames: Iterable[FullyQualifiedName],
@@ -197,5 +163,21 @@ object SourceGeneratorUtils {
       .distinct
       .sorted
       .mkString(",\n")
+  }
+
+  def extraReplicatedImports(replicatedData: ModelBuilder.ReplicatedData): Seq[String] = {
+    replicatedData match {
+      // special case ReplicatedMap as heterogeneous with ReplicatedData values
+      case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.replicatedentity.ReplicatedData")
+      case _                             => Seq.empty
+    }
+  }
+
+  @tailrec
+  def dotsToCamelCase(s: String, resultSoFar: String = "", capitalizeNext: Boolean = true): String = {
+    if (s.isEmpty) resultSoFar
+    else if (s.head == '.' || s.head == '_' || s.head == '-') dotsToCamelCase(s.tail, resultSoFar, true)
+    else if (capitalizeNext) dotsToCamelCase(s.tail, resultSoFar + s.head.toUpper, false)
+    else dotsToCamelCase(s.tail, resultSoFar + s.head, false)
   }
 }

@@ -39,7 +39,7 @@ import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler.CommandResult
+import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }

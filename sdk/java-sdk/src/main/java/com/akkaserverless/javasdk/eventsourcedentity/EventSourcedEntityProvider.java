@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
@@ -33,7 +33,7 @@ public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> 
 
   String entityType();
 
-  EventSourcedEntityHandler<S, E> newHandler(EventSourcedEntityContext context);
+  EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

@@ -16,19 +16,18 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister, ReplicatedRegisterMap }
-import com.akkaserverless.protocol.replicated_entity.{
-  ReplicatedEntityDelta,
-  ReplicatedRegisterMapDelta,
-  ReplicatedRegisterMapEntryDelta
-}
-import com.akkaserverless.replicatedentity.ReplicatedData
-
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
-private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapEntryDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
+
+private[akkaserverless] final class ReplicatedRegisterMapImpl[K, V](
     anySupport: AnySupport,
     registers: Map[K, ReplicatedRegisterImpl[V]] = Map.empty[K, ReplicatedRegisterImpl[V]],
     removed: Set[K] = Set.empty[K],
@@ -39,7 +38,12 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
   override type Self = ReplicatedRegisterMapImpl[K, V]
   override val name = "ReplicatedRegisterMap"
 
-  override def getValue(key: K): java.util.Optional[V] = registers.get(key).map(_.get()).toJava
+  /** for Scala SDK */
+  def getValueOption(key: K): Option[V] =
+    registers.get(key).map(_.get())
+
+  override def getValue(key: K): java.util.Optional[V] =
+    getValueOption(key).toJava
 
   override def setValue(
       key: K,
@@ -68,7 +72,10 @@ private[replicatedentity] final class ReplicatedRegisterMapImpl[K, V](
 
   override def containsKey(key: K): Boolean = registers.contains(key)
 
-  override def keySet: java.util.Set[K] = registers.keySet.asJava
+  /** for Scala SDK */
+  def keys: Set[K] = registers.keySet
+
+  override def keySet: java.util.Set[K] = keys.asJava
 
   override def hasDelta: Boolean = cleared || removed.nonEmpty || registers.values.exists(_.hasDelta)
 

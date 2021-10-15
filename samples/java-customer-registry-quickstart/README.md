@@ -1,7 +1,5 @@
 # Quickstart project: Customer Registry
 
-# TODO update for quickstart instructions
-
 ## Designing
 
 To understand the Akka Serverless concepts that are the basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html) in the documentation.
@@ -50,10 +48,6 @@ With both the proxy and your application running, any defined endpoints should b
 * Retrieve the customer:
   ```
   grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
-  ```
-* Query by name:
-  ```
-  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
   ```
 * Change name:
   ```

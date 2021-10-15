@@ -1,12 +1,6 @@
 package com.example.eventsourcedentity
 
-import scala.concurrent.{ ExecutionContext, Future }
-
-import akka.actor.ActorSystem
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
-import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -26,31 +20,34 @@ class CounterServiceIntegrationSpec
     with BeforeAndAfterAll
     with ScalaFutures {
 
-  implicit val patience: PatienceConfig =
+  implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-  testKit.start()
-  implicit val system: ActorSystem = testKit.system
-  implicit val ec: ExecutionContext = system.dispatcher
+  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  import testKit.executionContext
+
+  private val client = testKit.getGrpcClient(classOf[CounterService])
 
   "CounterService" must {
-    val client: CounterServiceClient =
-      CounterServiceClient(testKit.grpcClientSettings)
 
-    "Increase and decrease a timer" in {
+    "Increase and decrease a counter" in {
       val counterId = "42"
-      Future.sequence(Seq(
-        client.increase(IncreaseValue(counterId, 42)),
-        client.decrease(DecreaseValue(counterId, 32))
-      )).futureValue
-      val result = client.getCurrentCounter(GetCounter(counterId)).futureValue
-      result.value shouldBe(42-32)
+
+      val updateResult =
+        for {
+          _ <- client.increase(IncreaseValue(counterId, 42))
+          done <- client.decrease(DecreaseValue(counterId, 32))
+        } yield done
+
+      updateResult.futureValue
+
+      val getResult = client.getCurrentCounter(GetCounter(counterId))
+      getResult.futureValue.value shouldBe(42-32)
     }
 
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     testKit.stop()
     super.afterAll()
   }

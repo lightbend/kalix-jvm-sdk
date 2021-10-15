@@ -6,7 +6,7 @@
 package customer.domain;
 
 import customer.Main;
-import customer.api.CustomerServiceClient;
+import customer.api.CustomerService;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -21,16 +21,16 @@ public class CustomerEntityIntegrationTest {
      * The test kit starts both the service container and the Akka Serverless proxy.
      */
     @ClassRule
-    public static final AkkaServerlessTestKitResource testkit =
+    public static final AkkaServerlessTestKitResource testKit =
             new AkkaServerlessTestKitResource(Main.createAkkaServerless());
     
     /**
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
      */
-    private final CustomerServiceClient client;
+    private final CustomerService client;
     
     public CustomerEntityIntegrationTest() {
-        client = CustomerServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        client = testKit.getGrpcClient(CustomerService.class);
     }
     
     @Test

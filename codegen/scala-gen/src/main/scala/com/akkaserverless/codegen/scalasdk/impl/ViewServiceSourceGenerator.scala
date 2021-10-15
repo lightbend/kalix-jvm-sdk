@@ -25,6 +25,7 @@ import com.lightbend.akkasls.codegen.ModelBuilder
  */
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import ScalaGeneratorUtils._
 
   /**
    * Generate Scala sources the user view source file.
@@ -36,19 +37,18 @@ object ViewServiceSourceGenerator {
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
   def generateManaged(service: ModelBuilder.ViewService): Seq[File] =
-    Seq(abstractView(service), viewHandler(service), viewProvider(service))
+    Seq(abstractView(service), viewRouter(service), viewProvider(service))
 
-  private[codegen] def viewHandler(view: ModelBuilder.ViewService): File = {
+  private[codegen] def viewRouter(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
         Seq(view.state.fqn) ++ view.commandTypes,
         view.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-          "com.akkaserverless.scalasdk.impl.view.ViewHandler",
+          "com.akkaserverless.scalasdk.impl.view.ViewRouter",
           "com.akkaserverless.scalasdk.view.View"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val cases = view.transformedUpdates
       .map { cmd =>
@@ -62,16 +62,16 @@ object ViewServiceSourceGenerator {
 
     File(
       view.fqn.parent.scalaPackage,
-      view.handlerName,
+      view.routerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
         |/** A view handler */
-        |class ${view.handlerName}(view: ${view.className})
-        |  extends ViewHandler[${typeName(view.state.fqn)}, ${view.className}](view) {
+        |class ${view.routerName}(view: ${view.className})
+        |  extends ViewRouter[${typeName(view.state.fqn)}, ${view.className}](view) {
         |
         |  override def handleUpdate(
         |      eventName: String,
@@ -97,7 +97,7 @@ object ViewServiceSourceGenerator {
         view.fqn.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-          "com.akkaserverless.scalasdk.impl.view.ViewHandler",
+          "com.akkaserverless.scalasdk.impl.view.ViewRouter",
           "com.akkaserverless.scalasdk.view.ViewOptions",
           "com.akkaserverless.scalasdk.view.ViewProvider",
           "com.akkaserverless.scalasdk.view.ViewCreationContext",
@@ -106,15 +106,14 @@ object ViewServiceSourceGenerator {
           "com.google.protobuf.Descriptors",
           "com.google.protobuf.EmptyProto",
           "scala.collection.immutable"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     File(
       view.fqn.parent.scalaPackage,
       view.providerName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -142,8 +141,8 @@ object ViewServiceSourceGenerator {
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
         |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
         |
-        |  override final def newHandler(context: ViewCreationContext): ${view.handlerName} =
-        |    new ${view.handlerName}(viewFactory(context))
+        |  override final def newRouter(context: ViewCreationContext): ${view.routerName} =
+        |    new ${view.routerName}(viewFactory(context))
         |
         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
         |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor ::
@@ -159,8 +158,7 @@ object ViewServiceSourceGenerator {
         view.fqn.parent.scalaPackage,
         otherImports =
           Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
@@ -183,7 +181,7 @@ object ViewServiceSourceGenerator {
       view.className,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -201,8 +199,7 @@ object ViewServiceSourceGenerator {
         Seq(view.state.fqn) ++ view.commandTypes,
         view.fqn.parent.scalaPackage,
         otherImports = Seq("com.akkaserverless.scalasdk.view.View"),
-        packageImports = Nil,
-        semi = false)
+        packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
@@ -225,7 +222,7 @@ object ViewServiceSourceGenerator {
       view.abstractViewName,
       s"""|package ${view.fqn.parent.scalaPackage}
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |

@@ -27,7 +27,6 @@ import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
@@ -53,22 +52,22 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
   override def options(): ViewOptions =
     javasdk.impl.view.ViewOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
-  override def newHandler(
-      context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]] = {
+  override def newRouter(
+      context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]] = {
     val scalaSdkHandler = scalaSdkProvider
-      .newHandler(new ScalaViewCreationContextAdapter(context))
-      .asInstanceOf[ViewHandler[S, View[S]]]
-    new JavaViewHandlerAdapter[S](new JavaViewAdapter[S](scalaSdkHandler.view), scalaSdkHandler)
+      .newRouter(new ScalaViewCreationContextAdapter(context))
+      .asInstanceOf[ViewRouter[S, View[S]]]
+    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](scalaSdkHandler.view), scalaSdkHandler)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] class JavaViewHandlerAdapter[S](
+private[scalasdk] class JavaViewRouterAdapter[S](
     javaSdkView: javasdk.view.View[S],
-    scalaSdkHandler: ViewHandler[S, View[S]])
-    extends javasdk.impl.view.ViewHandler[S, javasdk.view.View[S]](javaSdkView) {
+    scalaSdkHandler: ViewRouter[S, View[S]])
+    extends javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]](javaSdkView) {
 
   override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
     scalaSdkHandler.handleUpdate(commandName, state, event) match {
@@ -84,9 +83,6 @@ private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: ja
 
   override def serviceCallFactory: ServiceCallFactory =
     ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
@@ -107,9 +103,6 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
 
   override def viewId: String =
     javaSdkContext.viewId()
-
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

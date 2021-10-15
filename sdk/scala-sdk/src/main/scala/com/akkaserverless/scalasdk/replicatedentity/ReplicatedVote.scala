@@ -16,15 +16,15 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedVoteImpl
 import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedVote => JavaSdkReplicatedVote }
 
 /**
  * A Vote replicated data type.
  *
  * This replicated data type is used to allow all the nodes in a cluster to vote on a condition.
  */
-class ReplicatedVote private[scalasdk] (override val _internal: JavaSdkReplicatedVote) extends ReplicatedData {
+class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteImpl) extends ReplicatedData {
 
   /**
    * Get the current value for this node's vote.

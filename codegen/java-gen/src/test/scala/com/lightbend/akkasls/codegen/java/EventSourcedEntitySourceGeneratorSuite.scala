@@ -124,7 +124,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyServiceEntity"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.eventSourcedEntityHandler(service, entity, packageName, className)
+      EntityServiceSourceGenerator.eventSourcedEntityRouter(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
@@ -132,7 +132,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
          |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-         |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler;
+         |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |
@@ -144,9 +144,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          | * An event sourced entity handler that is the glue between the Protobuf service <code>MyService</code>
          | * and the command and event handler methods in the <code>MyEntity</code> class.
          | */
-         |public class MyServiceEntityHandler extends EventSourcedEntityHandler<EntityOuterClass.MyState, MyEntity> {
+         |public class MyServiceEntityRouter extends EventSourcedEntityRouter<EntityOuterClass.MyState, MyEntity> {
          |
-         |  public MyServiceEntityHandler(MyEntity entity) {
+         |  public MyServiceEntityRouter(MyEntity entity) {
          |    super(entity);
          |  }
          |
@@ -155,7 +155,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |    if (event instanceof EntityOuterClass.SetEvent) {
          |      return entity().setEvent(state, (EntityOuterClass.SetEvent) event);
          |    } else {
-         |      throw new EventSourcedEntityHandler.EventHandlerNotFound(event.getClass());
+         |      throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
          |    }
          |  }
          |
@@ -171,7 +171,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |        return entity().get(state, (ServiceOuterClass.GetValue) command);
          |
          |      default:
-         |        throw new EventSourcedEntityHandler.CommandHandlerNotFound(commandName);
+         |        throw new EventSourcedEntityRouter.CommandHandlerNotFound(commandName);
          |    }
          |  }
          |}
@@ -248,8 +248,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |  }
          |
          |  @Override
-         |  public final MyServiceHandler newHandler(EventSourcedEntityContext context) {
-         |    return new MyServiceHandler(entityFactory.apply(context));
+         |  public final MyServiceRouter newRouter(EventSourcedEntityContext context) {
+         |    return new MyServiceRouter(entityFactory.apply(context));
          |  }
          |
          |  @Override
@@ -313,10 +313,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
         |  /**
         |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
         |   */
-        |  private final MyServiceClient client;
+        |  private final MyService client;
         |
         |  public MyServiceEntityIntegrationTest() {
-        |    client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+        |    client = testKit.getGrpcClient(MyService.class);
         |  }
         |
         |  @Test

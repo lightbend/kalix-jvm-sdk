@@ -63,8 +63,8 @@ public class ValueEntityTwoProvider implements ValueEntityProvider<Object, Value
   }
 
   @Override
-  public final ValueEntityTwoHandler newHandler(ValueEntityContext context) {
-    return new ValueEntityTwoHandler(entityFactory.apply(context));
+  public final ValueEntityTwoRouter newRouter(ValueEntityContext context) {
+    return new ValueEntityTwoRouter(entityFactory.apply(context));
   }
 
   @Override

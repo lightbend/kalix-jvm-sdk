@@ -16,6 +16,7 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
+import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
 import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
 import com.akkaserverless.replicatedentity.ReplicatedData
 
@@ -39,16 +40,28 @@ object ReplicatedRegister {
  *
  * @tparam T
  */
-class ReplicatedRegister[T] private[scalasdk] (override val _internal: JavaSdkReplicatedRegister[T])
+class ReplicatedRegister[T] private[scalasdk] (override val _internal: ReplicatedRegisterImpl[T])
     extends ReplicatedData {
+
+  /**
+   * Optionally returns the current value of the register.
+   *
+   * @return
+   *   an option value containing the current value of the register if initialize, or `None`.
+   */
+  def get: Option[T] = Option(_internal.get())
 
   /**
    * Get the current value of the register.
    *
+   * @param key
+   *   the key of the mapping
    * @return
    *   the current value of the register
+   * @throws NoSuchElementException
+   *   if value not defined
    */
-  def get: T = _internal.get()
+  def apply(): T = get.getOrElse(throw new NoSuchElementException("Register value not defined"))
 
   /**
    * Set the value of the register, using the default clock.

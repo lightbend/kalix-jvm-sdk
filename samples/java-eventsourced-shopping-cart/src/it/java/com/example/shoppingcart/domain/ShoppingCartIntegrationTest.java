@@ -18,7 +18,7 @@ package com.example.shoppingcart.domain;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.ShoppingCartServiceClient;
+import com.example.shoppingcart.ShoppingCartService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -34,13 +34,13 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
-  private final ShoppingCartServiceClient client;
+  private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    this.client = ShoppingCartServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    this.client = testKit.getGrpcClient(ShoppingCartService.class);
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {

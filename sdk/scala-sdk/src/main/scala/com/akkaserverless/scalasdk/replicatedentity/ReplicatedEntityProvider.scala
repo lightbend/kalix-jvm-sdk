@@ -19,14 +19,14 @@ package com.akkaserverless.scalasdk.replicatedentity
 import scala.collection.immutable
 
 import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityHandler
+import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import com.google.protobuf.Descriptors
 
 trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
 
   def entityType: String
   def options: ReplicatedEntityOptions
-  def newHandler(context: ReplicatedEntityContext): ReplicatedEntityHandler[D, E]
+  def newRouter(context: ReplicatedEntityContext): ReplicatedEntityRouter[D, E]
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
   def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]

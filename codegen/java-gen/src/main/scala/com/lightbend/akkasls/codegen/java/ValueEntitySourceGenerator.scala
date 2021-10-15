@@ -16,12 +16,12 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.ModelBuilder
 
 object ValueEntitySourceGenerator {
-  import SourceGenerator._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
@@ -52,7 +52,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$unmanagedComment
         |
@@ -75,7 +75,7 @@ object ValueEntitySourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def valueEntityHandler(
+  private[codegen] def valueEntityRouter(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
@@ -88,7 +88,7 @@ object ValueEntitySourceGenerator {
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityHandler"))
+        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter"))
 
     val stateType = entity.state.fqn.fullName
 
@@ -103,7 +103,7 @@ object ValueEntitySourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -111,9 +111,9 @@ object ValueEntitySourceGenerator {
         | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
         | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
         | */
-        |public class ${className}Handler extends ValueEntityHandler<$stateType, ${entity.fqn.name}> {
+        |public class ${className}Router extends ValueEntityRouter<$stateType, ${entity.fqn.name}> {
         |
-        |  public ${className}Handler(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.fqn.name} entity) {
         |    super(entity);
         |  }
         |
@@ -125,7 +125,7 @@ object ValueEntitySourceGenerator {
         |      ${Format.indent(commandCases, 6)}
         |
         |      default:
-        |        throw new ValueEntityHandler.CommandHandlerNotFound(commandName);
+        |        throw new ValueEntityRouter.CommandHandlerNotFound(commandName);
         |    }
         |  }
         |}
@@ -145,8 +145,8 @@ object ValueEntitySourceGenerator {
       }
     }
 
-    implicit val imports: Imports = generateImports(
-      relevantTypes ++ relevantTypes.map(_.descriptorImport),
+    implicit val imports = generateImports(
+      relevantTypes ++ relevantTypes.flatMap(_.descriptorObject),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
@@ -157,12 +157,13 @@ object ValueEntitySourceGenerator {
 
     val descriptors =
       (collectRelevantTypes(relevantTypes, service.fqn)
+        .flatMap(_.descriptorObject)
         .map(d =>
-          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+          s"${d.name}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -209,8 +210,8 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${className}Handler newHandler(ValueEntityContext context) {
-        |    return new ${className}Handler(entityFactory.apply(context));
+        |  public final ${className}Router newRouter(ValueEntityContext context) {
+        |    return new ${className}Router(entityFactory.apply(context));
         |  }
         |
         |  @Override
@@ -230,9 +231,9 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val stateType = entity.state.fqn.fullName
+    val stateType = entity.state.fqn
 
-    val imports = generateCommandImports(
+    implicit val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
@@ -242,24 +243,21 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.name
 
-        val inputType = cmd.inputType.fullName
-        val outputType = qualifiedType(cmd.outputType)
-
         s"""|/** Command handler for "${cmd.name}". */
-            |public abstract Effect<$outputType> ${lowerFirst(
-          methodName)}($stateType currentState, $inputType ${lowerFirst(cmd.inputType.name)});
+            |public abstract Effect<${typeName(cmd.outputType)}> ${lowerFirst(methodName)}(${typeName(
+          stateType)} currentState, ${typeName(cmd.inputType)} ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
       }
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
         |/** A value entity. */
-        |public abstract class Abstract$className extends ValueEntity<$stateType> {
+        |public abstract class Abstract$className extends ValueEntity<${typeName(stateType)}> {
         |
         |  ${Format.indent(methods, 2)}
         |

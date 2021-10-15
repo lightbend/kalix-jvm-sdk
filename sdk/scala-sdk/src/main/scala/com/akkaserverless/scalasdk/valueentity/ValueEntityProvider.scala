@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk.valueentity
 
 import scala.collection.immutable
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityHandler
+import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter
 import com.google.protobuf.Descriptors
 
 /**
@@ -32,7 +32,7 @@ trait ValueEntityProvider[S, E <: ValueEntity[S]] {
 
   def entityType: String
 
-  def newHandler(context: ValueEntityContext): ValueEntityHandler[S, E]
+  def newRouter(context: ValueEntityContext): ValueEntityRouter[S, E]
 
   def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
 }

@@ -149,14 +149,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
     val packageName = "com.example.service"
 
     val generatedSrc =
-      ViewServiceSourceGenerator.viewHandler(service, packageName)
+      ViewServiceSourceGenerator.viewRouter(service, packageName)
 
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
-        |import com.akkaserverless.javasdk.impl.view.ViewHandler;
+        |import com.akkaserverless.javasdk.impl.view.ViewRouter;
         |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
         |
@@ -165,9 +165,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |// DO NOT EDIT
         |
         |/** A view handler */
-        |public class MyServiceViewHandler extends ViewHandler<ServiceOuterClass.ViewState, MyServiceViewImpl> {
+        |public class MyServiceViewRouter extends ViewRouter<ServiceOuterClass.ViewState, MyServiceViewImpl> {
         |
-        |  public MyServiceViewHandler(MyServiceViewImpl view) {
+        |  public MyServiceViewRouter(MyServiceViewImpl view) {
         |    super(view);
         |  }
         |
@@ -209,7 +209,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
        |
        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
-       |import com.akkaserverless.javasdk.impl.view.ViewHandler;
+       |import com.akkaserverless.javasdk.impl.view.ViewRouter;
        |import com.akkaserverless.javasdk.view.View;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewOptions;
@@ -271,8 +271,8 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
        |  }
        |
        |  @Override
-       |  public final MyServiceViewHandler newHandler(ViewCreationContext context) {
-       |    return new MyServiceViewHandler(viewFactory.apply(context));
+       |  public final MyServiceViewRouter newRouter(ViewCreationContext context) {
+       |    return new MyServiceViewRouter(viewFactory.apply(context));
        |  }
        |
        |  @Override

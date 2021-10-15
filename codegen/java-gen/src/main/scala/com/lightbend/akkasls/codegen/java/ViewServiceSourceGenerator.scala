@@ -17,15 +17,17 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import com.google.common.base.Charsets
+import _root_.java.nio.file.Files
+import _root_.java.nio.file.Path
 
-import _root_.java.nio.file.{ Files, Path }
+import com.google.common.base.Charsets
 
 /**
  * Responsible for generating Java sources for a view
  */
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import JavaGeneratorUtils._
 
   /**
    * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
@@ -62,9 +64,9 @@ object ViewServiceSourceGenerator {
     }
     generatedSources += implSourcePath
 
-    val handlerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.handlerName + ".java"))
-    Files.write(handlerSourcePath, viewHandler(service, packageName).getBytes(Charsets.UTF_8))
-    generatedSources += handlerSourcePath
+    val routerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.routerName + ".java"))
+    Files.write(routerSourcePath, viewRouter(service, packageName).getBytes(Charsets.UTF_8))
+    generatedSources += routerSourcePath
 
     val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
     Files.write(providerSourcePath, viewProvider(service, packageName).getBytes(Charsets.UTF_8))
@@ -73,14 +75,14 @@ object ViewServiceSourceGenerator {
     generatedSources.result()
   }
 
-  private[codegen] def viewHandler(view: ModelBuilder.ViewService, packageName: String): String = {
+  private[codegen] def viewRouter(view: ModelBuilder.ViewService, packageName: String): String = {
     val imports = generateCommandImports(
       view.commands,
       view.state,
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.javasdk.impl.view.ViewHandler",
+        "com.akkaserverless.javasdk.impl.view.ViewRouter",
         "com.akkaserverless.javasdk.view.View"))
 
     val cases = view.transformedUpdates
@@ -96,14 +98,14 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
         |/** A view handler */
-        |public class ${view.handlerName} extends ViewHandler<${qualifiedType(view.state.fqn)}, ${view.className}> {
+        |public class ${view.routerName} extends ViewRouter<${qualifiedType(view.state.fqn)}, ${view.className}> {
         |
-        |  public ${view.handlerName}(${view.className} view) {
+        |  public ${view.routerName}(${view.className} view) {
         |    super(view);
         |  }
         |
@@ -132,7 +134,7 @@ object ViewServiceSourceGenerator {
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.javasdk.impl.view.ViewHandler",
+        "com.akkaserverless.javasdk.impl.view.ViewRouter",
         "com.akkaserverless.javasdk.view.ViewProvider",
         "com.akkaserverless.javasdk.view.ViewCreationContext",
         "com.akkaserverless.javasdk.view.View",
@@ -144,7 +146,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
         |
-        |$imports
+        |${writeImports(imports)}
         |
         |$managedComment
         |
@@ -197,8 +199,8 @@ object ViewServiceSourceGenerator {
         |  }
         |
         |  @Override
-        |  public final ${view.handlerName} newHandler(ViewCreationContext context) {
-        |    return new ${view.handlerName}(viewFactory.apply(context));
+        |  public final ${view.routerName} newRouter(ViewCreationContext context) {
+        |    return new ${view.routerName}(viewFactory.apply(context));
         |  }
         |
         |  @Override
@@ -235,7 +237,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
        |
-       |$imports
+       |${writeImports(imports)}
        |
        |$unmanagedComment
        |
@@ -271,7 +273,7 @@ object ViewServiceSourceGenerator {
 
     s"""package $packageName;
       |
-      |$imports
+      |${writeImports(imports)}
       |
       |$managedComment
       |

@@ -108,7 +108,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.actionHandler(service).content
+      ActionServiceSourceGenerator.actionRouter(service).content
 
     assertNoDiff(
       generatedSrc,
@@ -116,10 +116,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |
          |import akka.NotUsed
          |import akka.stream.scaladsl.Source
-         |import com.akkaserverless.javasdk.impl.action.ActionHandler.HandlerNotFound
+         |import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
          |import com.akkaserverless.scalasdk.action.Action
          |import com.akkaserverless.scalasdk.action.MessageEnvelope
-         |import com.akkaserverless.scalasdk.impl.action.ActionHandler
+         |import com.akkaserverless.scalasdk.impl.action.ActionRouter
          |import com.external.Empty
          |
          |// This code is managed by Akka Serverless tooling.
@@ -127,7 +127,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |// DO NOT EDIT
          |
          |/** A Action handler */
-         |class MyServiceActionHandler(action: MyServiceAction) extends ActionHandler[MyServiceAction](action) {
+         |class MyServiceActionRouter(action: MyServiceAction) extends ActionRouter[MyServiceAction](action) {
          |
          |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
          |    commandName match {
@@ -204,8 +204,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
          |    MyServiceProto.javaDescriptor.findServiceByName("MyService")
          |
-         |  override final def newHandler(context: ActionCreationContext): MyServiceActionHandler =
-         |    new MyServiceActionHandler(actionFactory(context))
+         |  override final def newRouter(context: ActionCreationContext): MyServiceActionRouter =
+         |    new MyServiceActionRouter(actionFactory(context))
          |
          |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
          |    MyServiceProto.javaDescriptor ::

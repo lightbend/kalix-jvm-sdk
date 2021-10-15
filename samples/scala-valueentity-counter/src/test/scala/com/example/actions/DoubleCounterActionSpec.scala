@@ -6,7 +6,6 @@ import com.example.IncreaseValue
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import com.akkaserverless.scalasdk.testkit.ServiceCallDetails
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //
@@ -32,4 +31,10 @@ class DoubleCounterActionSpec
     }
   }
   // end::side-effect-test[]
+    "handle command Increase" in {
+      val testKit = DoubleCounterActionTestKit(new DoubleCounterAction(_))
+      // val result = testKit.increase(IncreaseValue(...))
+    }
+// tag::side-effect-test[]
 }
+// end::side-effect-test[]

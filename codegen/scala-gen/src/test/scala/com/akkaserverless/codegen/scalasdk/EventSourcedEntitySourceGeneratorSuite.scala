@@ -92,11 +92,11 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       str,
       s"""|package com.example.service.domain
           |
-          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.CommandHandlerNotFound
-          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityHandler.EventHandlerNotFound
+          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound
+          |import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound
           |import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
           |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-          |import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityHandler
+          |import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
           |import com.example.service
           |
           |// This code is managed by Akka Serverless tooling.
@@ -107,7 +107,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           | * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
           | * and the command handler methods in the <code>Counter</code> class.
           | */
-          |class MyEntityHandler(entity: MyEntity) extends EventSourcedEntityHandler[MyState, MyEntity](entity) {
+          |class MyEntityRouter(entity: MyEntity) extends EventSourcedEntityRouter[MyState, MyEntity](entity) {
           |  def handleCommand(commandName: String, state: MyState, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
           |    commandName match {
           |      case "Set" =>
@@ -167,8 +167,8 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |
           |  override final val entityType = "MyEntity"
           |
-          |  override final def newHandler(context: EventSourcedEntityContext): MyEntityHandler =
-          |    new MyEntityHandler(entityFactory(context))
+          |  override final def newRouter(context: EventSourcedEntityContext): MyEntityRouter =
+          |    new MyEntityRouter(entityFactory(context))
           |
           |  override final val additionalDescriptors =
           |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil

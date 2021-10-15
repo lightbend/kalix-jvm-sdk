@@ -21,7 +21,10 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.javaStyle
 
   def domainType(name: String): ModelBuilder.TypeArgument =
-    ModelBuilder.TypeArgument(name, testData.domainProto())
+    ModelBuilder.TypeArgument(
+      name,
+      testData.domainProto(),
+      TestData.guessDescriptor(testData.domainProto().name, testData.domainProto()))
 
   test("main source") {
     val mainPackageName = "com.example.service"
@@ -43,12 +46,12 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
          |
          |import com.akkaserverless.javasdk.AkkaServerless;
-         |import org.slf4j.Logger;
-         |import org.slf4j.LoggerFactory;
          |import com.example.service.domain.MyEntity1;
          |import com.example.service.domain.MyEntity3;
          |import com.example.service.domain.MyReplicatedEntity6;
          |import com.example.service.domain.MyValueEntity2;
+         |import org.slf4j.Logger;
+         |import org.slf4j.LoggerFactory;
          |
          |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
          |//
@@ -105,7 +108,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         suffix = "6"))
 
     val mainPackageName = "com.example.service"
-    val mainClassName = "SomeMain"
 
     val generatedSrc =
       MainSourceGenerator.akkaServerlessFactorySource(mainPackageName, ModelBuilder.Model(services, entities))
@@ -119,11 +121,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.akkaserverless.javasdk.view.ViewCreationContext;
-        |import com.example.service.domain.EntityOuterClass1;
-        |import com.example.service.domain.EntityOuterClass2;
-        |import com.example.service.domain.EntityOuterClass3;
-        |import com.example.service.domain.EntityOuterClass4;
-        |import com.example.service.domain.EntityOuterClass6;
         |import com.example.service.domain.MyEntity1;
         |import com.example.service.domain.MyEntity1Provider;
         |import com.example.service.domain.MyEntity3;
@@ -136,7 +133,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.view.MyService4ViewImpl;
         |import com.example.service.view.MyService4ViewProvider;
         |import com.example.service.view.ServiceOuterClass4;
-        |import com.external.ExternalDomain;
         |import java.util.function.Function;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -183,7 +179,6 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |
         |import com.akkaserverless.javasdk.AkkaServerless;
         |import com.akkaserverless.javasdk.view.ViewCreationContext;
-        |import com.example.service.domain.EntityOuterClass;
         |import com.example.service.view.MyServiceViewImpl;
         |import com.example.service.view.MyServiceViewProvider;
         |import com.example.service.view.ServiceOuterClass;

@@ -16,19 +16,20 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap
-import com.akkaserverless.protocol.replicated_entity.{
-  ReplicatedEntityDelta,
-  ReplicatedMultiMapDelta,
-  ReplicatedMultiMapEntryDelta
-}
-import com.akkaserverless.replicatedentity.ReplicatedData
+import java.util.{ Set => JSet }
+import java.util.{ Collection => JCollection }
+import java.util.{ Collections => JCollections }
 
-import java.util.{ Collection => JCollection, Collections => JCollections, Set => JSet }
 import scala.jdk.CollectionConverters._
 
-private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapDelta
+import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapEntryDelta
+import com.akkaserverless.replicatedentity.ReplicatedData
+
+private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
     anySupport: AnySupport,
     entries: Map[K, ReplicatedSetImpl[V]] = Map.empty[K, ReplicatedSetImpl[V]],
     removed: Set[K] = Set.empty[K],
@@ -39,6 +40,10 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
   override type Self = ReplicatedMultiMapImpl[K, V]
   override val name = "ReplicatedMultiMap"
 
+  /** for Scala SDK */
+  def getValuesSet(key: K): Set[V] =
+    entries.get(key).map(_.elementsSet).getOrElse(Set.empty[V])
+
   override def get(key: K): JSet[V] = entries.get(key).fold(JCollections.emptySet[V])(_.elements)
 
   override def put(key: K, value: V): ReplicatedMultiMapImpl[K, V] = {
@@ -47,8 +52,12 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
     new ReplicatedMultiMapImpl(anySupport, entries.updated(key, updated), removed, cleared)
   }
 
+  /** for Scala SDK */
+  def putAll(key: K, values: Iterable[V]): ReplicatedMultiMapImpl[K, V] =
+    values.foldLeft(this) { case (map, value) => map.put(key, value) }
+
   override def putAll(key: K, values: JCollection[V]): ReplicatedMultiMapImpl[K, V] =
-    values.asScala.foldLeft(this) { case (map, value) => map.put(key, value) }
+    putAll(key, values.asScala)
 
   override def remove(key: K, value: V): ReplicatedMultiMapImpl[K, V] = {
     entries.get(key).fold(this) { values =>
@@ -75,7 +84,11 @@ private[replicatedentity] final class ReplicatedMultiMapImpl[K, V](
 
   override def containsKey(key: K): Boolean = entries.contains(key)
 
-  override def containsValue(key: K, value: V): Boolean = entries.get(key).fold(false)(_.contains(value))
+  override def containsValue(key: K, value: V): Boolean =
+    entries.get(key).fold(false)(_.contains(value))
+
+  /** for Scala SDK */
+  def keys: Set[K] = entries.keySet
 
   override def keySet: JSet[K] = entries.keySet.asJava
 

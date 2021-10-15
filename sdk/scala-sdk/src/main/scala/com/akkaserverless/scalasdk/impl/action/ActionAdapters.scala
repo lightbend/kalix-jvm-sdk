@@ -51,10 +51,10 @@ private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaS
   override def options(): javasdk.action.ActionOptions =
     ActionOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
-  override def newHandler(javaSdkContext: javasdk.action.ActionCreationContext)
-      : javasdk.impl.action.ActionHandler[javasdk.action.Action] = {
-    val scalaSdkHandler = scalaSdkProvider.newHandler(ScalaActionCreationContextAdapter(javaSdkContext))
-    JavaActionHandlerAdapter(JavaActionAdapter(scalaSdkHandler.action), scalaSdkHandler)
+  override def newRouter(
+      javaSdkContext: javasdk.action.ActionCreationContext): javasdk.impl.action.ActionRouter[javasdk.action.Action] = {
+    val scalaSdkHandler = scalaSdkProvider.newRouter(ScalaActionCreationContextAdapter(javaSdkContext))
+    JavaActionRouterAdapter(JavaActionAdapter(scalaSdkHandler.action), scalaSdkHandler)
   }
 
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
@@ -64,10 +64,10 @@ private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaS
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] final case class JavaActionHandlerAdapter[A <: Action](
+private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
     javaSdkAction: javasdk.action.Action,
-    scalaSdkHandler: ActionHandler[A])
-    extends javasdk.impl.action.ActionHandler[javasdk.action.Action](javaSdkAction) {
+    scalaSdkHandler: ActionRouter[A])
+    extends javasdk.impl.action.ActionRouter[javasdk.action.Action](javaSdkAction) {
 
   override def handleUnary(
       commandName: String,

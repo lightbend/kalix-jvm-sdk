@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.action;
 
-import com.akkaserverless.javasdk.impl.action.ActionHandler;
+import com.akkaserverless.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
 
 /**
@@ -30,7 +30,7 @@ public interface ActionProvider<A extends Action> {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  ActionHandler<A> newHandler(ActionCreationContext context);
+  ActionRouter<A> newRouter(ActionCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 }

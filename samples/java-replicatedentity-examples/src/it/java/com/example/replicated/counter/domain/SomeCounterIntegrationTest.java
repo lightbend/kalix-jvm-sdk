@@ -2,7 +2,7 @@ package com.example.replicated.counter.domain;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
-import com.example.replicated.counter.CounterServiceClient;
+import com.example.replicated.counter.CounterService;
 import com.example.replicated.counter.SomeCounterApi;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,14 +15,14 @@ public class SomeCounterIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
+  public static final AkkaServerlessTestKitResource testKit =
       new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
-  private final CounterServiceClient client;
+  private final CounterService client;
 
   public SomeCounterIntegrationTest() {
-    client = CounterServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    client = testKit.getGrpcClient(CounterService.class);
   }
 
   public void increase(String counterId, int value) throws Exception {

@@ -17,10 +17,10 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.ValueEntityTestKitGenerator
-import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
 import com.lightbend.akkasls.codegen.TestData
+import com.lightbend.akkasls.codegen.TestData.fullyQualifiedName
 
 class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
   private val testData = TestData.scalaStyle
@@ -167,18 +167,15 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
   test("it can generate an specific integration test stub for the entity") {
     val entity = createShoppingCartEntity()
     val service = createShoppingCartService(entity)
-    val main = FullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
+    val main = fullyQualifiedName("Main", packageNaming.copy(protoPackage = "com.example.shoppingcart"))
 
     assertEquals(
-      ValueEntityTestKitGenerator.integrationTest(main, entity, service).content,
+      ValueEntityTestKitGenerator.integrationTest(main, service).content,
       """package com.example.shoppingcart.api
         |
         |import akka.actor.ActorSystem
         |import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-        |import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-        |import com.akkaserverless.scalasdk.valueentity.ValueEntity
         |import com.example.shoppingcart.Main
-        |import com.example.shoppingcart.domain
         |import com.google.protobuf.Empty
         |import org.scalatest.BeforeAndAfterAll
         |import org.scalatest.concurrent.ScalaFutures
@@ -199,16 +196,14 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |    with BeforeAndAfterAll
         |    with ScalaFutures {
         |
-        |  implicit val patience: PatienceConfig =
+        |  implicit private val patience: PatienceConfig =
         |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
         |
-        |  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
-        |  testKit.start()
-        |  implicit val system: ActorSystem = testKit.system
+        |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+        |
+        |  private val client = testKit.getGrpcClient(classOf[ShoppingCartService])
         |
         |  "ShoppingCartService" must {
-        |    val client: ShoppingCartServiceClient =
-        |      ShoppingCartServiceClient(testKit.grpcClientSettings)
         |
         |    "have example test that can be removed" in {
         |      // use the gRPC client to send requests to the
@@ -217,7 +212,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |
         |  }
         |
-        |  override def afterAll() = {
+        |  override def afterAll(): Unit = {
         |    testKit.stop()
         |    super.afterAll()
         |  }
@@ -237,9 +232,9 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
 
     ModelBuilder.ValueEntity(
       domainProto.protoPackage + ".ShoppingCart",
-      FullyQualifiedName("ShoppingCart", domainProto),
+      fullyQualifiedName("ShoppingCart", domainProto),
       "shopping-cart",
-      ModelBuilder.State(FullyQualifiedName("Cart", domainProto)))
+      ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
   }
 
   /**
@@ -260,20 +255,20 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         Some("EmptyProto"),
         javaMultipleFiles = true)
     ModelBuilder.EntityService(
-      FullyQualifiedName("ShoppingCartService", shoppingCartProto),
+      fullyQualifiedName("ShoppingCartService", shoppingCartProto),
       List(
         testData.command(
           "AddItem",
-          FullyQualifiedName("AddLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("AddLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "RemoveItem",
-          FullyQualifiedName("RemoveLineItem", shoppingCartProto),
-          FullyQualifiedName("Empty", googleEmptyProto)),
+          fullyQualifiedName("RemoveLineItem", shoppingCartProto),
+          fullyQualifiedName("Empty", googleEmptyProto)),
         testData.command(
           "GetCart",
-          FullyQualifiedName("GetShoppingCart", shoppingCartProto),
-          FullyQualifiedName("Cart", shoppingCartProto))),
+          fullyQualifiedName("GetShoppingCart", shoppingCartProto),
+          fullyQualifiedName("Cart", shoppingCartProto))),
       entity.fqn.fullName)
   }
 

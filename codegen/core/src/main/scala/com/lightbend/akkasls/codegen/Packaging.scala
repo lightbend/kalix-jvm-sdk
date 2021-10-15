@@ -32,7 +32,18 @@ case class FullyQualifiedName(
     parent: PackageNaming,
     descriptorObject: Option[FullyQualifiedName]) {
 
-  lazy val fullQualifiedName = s"${parent.javaPackage}.$name"
+  /**
+   * The fully qualified type name of the proto type. This should rarely be used during codegen, since language-specific
+   * changes might have to be applied, and imports taken into account. In that case use the language-specific `typeName`
+   * utility function instead.
+   */
+  lazy val fullyQualifiedProtoName = s"${parent.protoPackage}.$name"
+
+  /**
+   * The fully qualified type name as seen in generated Java code.
+   */
+  lazy val fullyQualifiedJavaName = s"${parent.javaPackage}.$name"
+
   lazy val fullName = {
     if (parent.javaMultipleFiles) name
     else s"${parent.javaOuterClassname}.$name"
@@ -48,40 +59,32 @@ case class FullyQualifiedName(
   def fileBasename =
     parent.javaPackage.replace('.', '/') + "/" + name
 
+  /**
+   * Create a 'derived' name based on a name, such as 'FooProvider' based on 'Foo'.
+   *
+   * Notably also removes any outer class name from the parent, since 'derived' classes are always outside of the outer
+   * class.
+   */
+  def deriveName(derive: String => String): FullyQualifiedName =
+    copy(name = derive(name), parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
 }
 
 object FullyQualifiedName {
-  // FIXME should only be used for testing, move there
-  def apply(name: String, parent: PackageNaming): FullyQualifiedName = {
-    FullyQualifiedName(
-      name,
-      name,
-      parent,
-      parent.javaOuterClassnameOption match {
-        case Some(outer) =>
-          Some(FullyQualifiedName(outer, outer, parent, None))
-        case None =>
-          def capitalize(s: String, capitalizeNext: Boolean = true): String =
-            s.headOption match {
-              case None      => ""
-              case Some('_') => capitalize(s.tail, true)
-              case Some(c) =>
-                if (capitalizeNext) c.toUpper + capitalize(s.tail, false)
-                else c + capitalize(s.tail, false)
-            }
-          val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
-          Some(FullyQualifiedName(protoClassName, protoClassName, parent, None))
-      })
-  }
+
+  /**
+   * Creates a FullyQualifiedName without a descriptor.
+   */
+  def noDescriptor(name: String, parent: PackageNaming) =
+    FullyQualifiedName(name, name, parent, None)
 }
 
 case class PackageNaming(
     protoFileName: String,
     name: String,
     protoPackage: String,
-    javaPackageOption: Option[String],
-    javaOuterClassnameOption: Option[String],
-    javaMultipleFiles: Boolean) {
+    javaPackageOption: Option[String] = None,
+    javaOuterClassnameOption: Option[String] = None,
+    javaMultipleFiles: Boolean = false) {
   lazy val javaPackage: String = javaPackageOption.getOrElse(protoPackage)
   def scalaPackage: String = javaPackage
   def javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)

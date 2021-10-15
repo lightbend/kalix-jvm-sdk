@@ -26,7 +26,7 @@ class ResolvedActionFactory(
     override val resolvedMethods: Map[String, ResolvedServiceMethod[_, _]])
     extends ActionFactory
     with ResolvedEntityFactory {
-  override def create(context: ActionCreationContext): ActionHandler[_] =
+  override def create(context: ActionCreationContext): ActionRouter[_] =
     delegate.create(context)
 
 }

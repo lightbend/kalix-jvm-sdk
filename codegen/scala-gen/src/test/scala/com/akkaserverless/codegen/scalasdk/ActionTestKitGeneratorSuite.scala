@@ -31,6 +31,8 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service
         |
+        |import akka.NotUsed
+        |import akka.stream.scaladsl.Source
         |import com.akkaserverless.scalasdk.action.ActionCreationContext
         |import com.akkaserverless.scalasdk.testkit.ActionResult
         |import com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl
@@ -59,10 +61,24 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         | */
         |final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction) {
         |
-        |  private def newActionInstance() = actionFactory(new TestKitActionContext)
+        |  private def newActionInstance() = {
+        |    val context = new TestKitActionContext
+        |    val action = actionFactory(context)
+        |    action._internalSetActionContext(Some(context))
+        |    action
+        |  }
         |
         |  def simpleMethod(command: MyRequest): ActionResult[Empty] =
         |    new ActionResultImpl(newActionInstance().simpleMethod(command))
+        |
+        |  def streamedOutputMethod(command: MyRequest): Source[ActionResult[Empty], akka.NotUsed] =
+        |    newActionInstance().streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
+        |
+        |  def streamedInputMethod(command: Source[MyRequest, akka.NotUsed]): ActionResult[Empty] =
+        |    new ActionResultImpl(newActionInstance().streamedInputMethod(command))
+        |
+        |  def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed]): Source[ActionResult[Empty], akka.NotUsed] =
+        |    newActionInstance().fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
         |}""".stripMargin)
   }
 
@@ -71,11 +87,12 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
     val generatedSrc =
       ActionTestKitGenerator.generateUnmanagedTest(service).head.content
 
-    println(generatedSrc)
     assertNoDiff(
       generatedSrc,
       """package com.example.service
         |
+        |import akka.NotUsed
+        |import akka.stream.scaladsl.Source
         |import com.akkaserverless.scalasdk.action.Action
         |import com.akkaserverless.scalasdk.testkit.ActionResult
         |import com.external.Empty
@@ -105,6 +122,21 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |    "handle command SimpleMethod" in {
         |      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
         |      // val result = testKit.simpleMethod(MyRequest(...))
+        |    }
+        |
+        |    "handle command StreamedOutputMethod" in {
+        |      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
+        |      // val result = testKit.streamedOutputMethod(MyRequest(...))
+        |    }
+        |
+        |    "handle command StreamedInputMethod" in {
+        |      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
+        |      // val result = testKit.streamedInputMethod(Source.single(MyRequest(...)))
+        |    }
+        |
+        |    "handle command FullStreamedMethod" in {
+        |      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
+        |      // val result = testKit.fullStreamedMethod(Source.single(MyRequest(...)))
         |    }
         |
         |  }

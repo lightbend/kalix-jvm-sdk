@@ -28,7 +28,11 @@ object TestFullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameEx
 
   override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
     val parent = packageName(descriptor)
-    FullyQualifiedName(parent.javaOuterClassname, parent.javaOuterClassname, parent, None)
+    FullyQualifiedName(
+      parent.javaOuterClassname,
+      parent.javaOuterClassname,
+      parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
+      None)
   }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {

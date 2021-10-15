@@ -64,35 +64,25 @@ object SourceGenerator {
 
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
-        model.entities.get(service.componentFullName) match {
-          case None =>
-            throw new IllegalStateException(
-              "Service [" + service.fqn.fullQualifiedName + "] refers to entity [" + service.componentFullName +
-              "], but no entity configuration is found for that component name")
-          case Some(entity) =>
-            EntityServiceSourceGenerator.generate(
-              entity,
-              service,
-              sourceDirectory,
-              testSourceDirectory,
-              integrationTestSourceDirectory,
-              generatedSourceDirectory,
-              mainClassPackageName,
-              mainClassName) ++
-              (entity match {
-                case ese: ModelBuilder.EventSourcedEntity =>
-                  EventSourcedEntityTestKitGenerator.generate(
-                    ese,
-                    service,
-                    testSourceDirectory,
-                    generatedTestSourceDirectory)
-                case ve: ModelBuilder.ValueEntity =>
-                  ValueEntityTestKitGenerator.generate(ve, service, testSourceDirectory, generatedTestSourceDirectory)
-                case re: ModelBuilder.ReplicatedEntity =>
-                  // FIXME implement for replicated entity
-                  Nil
-              })
-        }
+        val entity = model.lookupEntity(service)
+        EntityServiceSourceGenerator.generate(
+          entity,
+          service,
+          sourceDirectory,
+          testSourceDirectory,
+          integrationTestSourceDirectory,
+          generatedSourceDirectory,
+          mainClassPackageName,
+          mainClassName) ++
+        (entity match {
+          case ese: ModelBuilder.EventSourcedEntity =>
+            EventSourcedEntityTestKitGenerator.generate(ese, service, testSourceDirectory, generatedTestSourceDirectory)
+          case ve: ModelBuilder.ValueEntity =>
+            ValueEntityTestKitGenerator.generate(ve, service, testSourceDirectory, generatedTestSourceDirectory)
+          case re: ModelBuilder.ReplicatedEntity =>
+            // FIXME implement for replicated entity
+            Nil
+        })
       case service: ModelBuilder.ViewService =>
         ViewServiceSourceGenerator.generate(
           service,
