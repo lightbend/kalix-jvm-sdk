@@ -57,11 +57,11 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
   override def newRouter(context: javasdk.valueentity.ValueEntityContext)
       : javasdk.impl.valueentity.ValueEntityRouter[S, javasdk.valueentity.ValueEntity[S]] = {
 
-    val scalaSdkHandler = scalaSdkProvider
+    val scalaSdkRouter = scalaSdkProvider
       .newRouter(new ScalaValueEntityContextAdapter(context))
       .asInstanceOf[ValueEntityRouter[S, ValueEntity[S]]]
 
-    new JavaValueEntityRouterAdapter[S](new JavaValueEntityAdapter[S](scalaSdkHandler.entity), scalaSdkHandler)
+    new JavaValueEntityRouterAdapter[S](new JavaValueEntityAdapter[S](scalaSdkRouter.entity), scalaSdkRouter)
   }
 
   override def options(): javasdk.valueentity.ValueEntityOptions = new JavaValueEntityOptionsAdapter(
@@ -72,7 +72,7 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
 
 private[scalasdk] final class JavaValueEntityRouterAdapter[S](
     javaSdkValueEntity: javasdk.valueentity.ValueEntity[S],
-    scalaSdkHandler: ValueEntityRouter[S, ValueEntity[S]])
+    scalaSdkRouter: ValueEntityRouter[S, ValueEntity[S]])
     extends javasdk.impl.valueentity.ValueEntityRouter[S, javasdk.valueentity.ValueEntity[S]](javaSdkValueEntity) {
 
   override def handleCommand(
@@ -80,7 +80,7 @@ private[scalasdk] final class JavaValueEntityRouterAdapter[S](
       state: S,
       command: Any,
       context: javasdk.valueentity.CommandContext): javasdk.valueentity.ValueEntity.Effect[_] = {
-    scalaSdkHandler.handleCommand(commandName, state, command, new ScalaCommandContextAdapter(context)) match {
+    scalaSdkRouter.handleCommand(commandName, state, command, new ScalaCommandContextAdapter(context)) match {
       case ValueEntityEffectImpl(javaSdkEffectImpl) => javaSdkEffectImpl
     }
   }

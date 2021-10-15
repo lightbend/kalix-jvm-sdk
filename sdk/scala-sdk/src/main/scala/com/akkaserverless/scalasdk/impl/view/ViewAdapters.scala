@@ -54,10 +54,10 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
 
   override def newRouter(
       context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]] = {
-    val scalaSdkHandler = scalaSdkProvider
+    val scalaSdkRouter = scalaSdkProvider
       .newRouter(new ScalaViewCreationContextAdapter(context))
       .asInstanceOf[ViewRouter[S, View[S]]]
-    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](scalaSdkHandler.view), scalaSdkHandler)
+    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](scalaSdkRouter.view), scalaSdkRouter)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =

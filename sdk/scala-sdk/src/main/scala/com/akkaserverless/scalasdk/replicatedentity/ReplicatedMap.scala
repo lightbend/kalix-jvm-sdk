@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
 import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 
 /**
  * A Replicated Map that allows both the addition and removal of [[ReplicatedData]] objects.

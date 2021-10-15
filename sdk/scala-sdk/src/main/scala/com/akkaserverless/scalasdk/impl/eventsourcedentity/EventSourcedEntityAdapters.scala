@@ -44,30 +44,30 @@ import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.google.protobuf.Descriptors
 
-private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalasdkEventSourcedEntity: EventSourcedEntity[S])
+private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
     extends JavaSdkEventSourcedEntity[S] {
 
-  override def emptyState(): S = scalasdkEventSourcedEntity.emptyState
+  override def emptyState(): S = scalaSdkEventSourcedEntity.emptyState
 
   override def _internalSetEventContext(context: Optional[JavaSdkEventContext]): Unit =
-    scalasdkEventSourcedEntity._internalSetEventContext(context.map(new JavaEventContextAdapter(_)).toScala)
+    scalaSdkEventSourcedEntity._internalSetEventContext(context.map(new JavaEventContextAdapter(_)).toScala)
 
   override def _internalSetCommandContext(context: Optional[JavaSdkCommandContext]): Unit =
-    scalasdkEventSourcedEntity._internalSetCommandContext(context.map(new JavaCommandContextAdapter(_)).toScala)
+    scalaSdkEventSourcedEntity._internalSetCommandContext(context.map(new JavaCommandContextAdapter(_)).toScala)
 
 }
 
 private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: EventSourcedEntity[S]](
-    scalasdkProvider: EventSourcedEntityProvider[S, E])
+    scalaSdkProvider: EventSourcedEntityProvider[S, E])
     extends JavaSdkEventSourcedEntityProvider[S, JavaSdkEventSourcedEntity[S]] {
 
-  def additionalDescriptors(): Array[Descriptors.FileDescriptor] = scalasdkProvider.additionalDescriptors.toArray
+  def additionalDescriptors(): Array[Descriptors.FileDescriptor] = scalaSdkProvider.additionalDescriptors.toArray
 
-  def entityType(): String = scalasdkProvider.entityType
+  def entityType(): String = scalaSdkProvider.entityType
 
   def newRouter(
       context: JavaSdkEventSourcedEntityContext): JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]] = {
-    val scaladslRouter = scalasdkProvider
+    val scaladslRouter = scalaSdkProvider
       .newRouter(new ScalaEventSourcedEntityContextAdapter(context))
       .asInstanceOf[EventSourcedEntityRouter[S, EventSourcedEntity[S]]]
     new JavaEventSourcedEntityRouterAdapter[S](
@@ -75,41 +75,41 @@ private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: Even
       scaladslRouter)
   }
 
-  def options(): JavaSdkEventSourcedEntityOptions = new JavaEventSourcedEntityOptionsAdapter(scalasdkProvider.options)
-  def serviceDescriptor(): Descriptors.ServiceDescriptor = scalasdkProvider.serviceDescriptor
+  def options(): JavaSdkEventSourcedEntityOptions = new JavaEventSourcedEntityOptionsAdapter(scalaSdkProvider.options)
+  def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
 }
 
 private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
-    scalasdkEventSourcedEntityOptions: EventSourcedEntityOptions)
+    scalaSdkEventSourcedEntityOptions: EventSourcedEntityOptions)
     extends JavaSdkEventSourcedEntityOptions {
 
-  def forwardHeaders(): java.util.Set[String] = scalasdkEventSourcedEntityOptions.forwardHeaders.asJava
+  def forwardHeaders(): java.util.Set[String] = scalaSdkEventSourcedEntityOptions.forwardHeaders.asJava
 
-  def snapshotEvery(): Int = scalasdkEventSourcedEntityOptions.snapshotEvery
+  def snapshotEvery(): Int = scalaSdkEventSourcedEntityOptions.snapshotEvery
 
   def withSnapshotEvery(numberOfEvents: Int) = new JavaEventSourcedEntityOptionsAdapter(
-    scalasdkEventSourcedEntityOptions.withSnapshotEvery(numberOfEvents))
+    scalaSdkEventSourcedEntityOptions.withSnapshotEvery(numberOfEvents))
 
   def withForwardHeaders(headers: java.util.Set[String]): JavaSdkEventSourcedEntityOptions =
     new JavaEventSourcedEntityOptionsAdapter(
-      scalasdkEventSourcedEntityOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
+      scalaSdkEventSourcedEntityOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
 
   def passivationStrategy(): javasdk.PassivationStrategy =
-    PassivationStrategyConverters.toJava(scalasdkEventSourcedEntityOptions.passivationStrategy)
+    PassivationStrategyConverters.toJava(scalaSdkEventSourcedEntityOptions.passivationStrategy)
 
   def withPassivationStrategy(passivationStrategy: javasdk.PassivationStrategy): JavaSdkEventSourcedEntityOptions =
     new JavaEventSourcedEntityOptionsAdapter(
-      scalasdkEventSourcedEntityOptions.withPassivationStrategy(
+      scalaSdkEventSourcedEntityOptions.withPassivationStrategy(
         PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
 private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
-    javasdkEventSourcedEntity: JavaSdkEventSourcedEntity[S],
-    scalasdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
-    extends JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]](javasdkEventSourcedEntity) {
+    javaSdkEventSourcedEntity: JavaSdkEventSourcedEntity[S],
+    scalaSdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
+    extends JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]](javaSdkEventSourcedEntity) {
 
   override def handleEvent(state: S, event: Any): S = {
-    scalasdkRouter.handleEvent(state, event)
+    scalaSdkRouter.handleEvent(state, event)
   }
 
   override def handleCommand(
@@ -117,41 +117,41 @@ private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
       state: S,
       command: Any,
       context: JavaSdkCommandContext): JavaSdkEventSourcedEntity.Effect[_] = {
-    scalasdkRouter.handleCommand(commandName, state, command, new JavaCommandContextAdapter(context)) match {
+    scalaSdkRouter.handleCommand(commandName, state, command, new JavaCommandContextAdapter(context)) match {
       case EventSourcedEntityEffectImpl(javasdkEffectImpl) => javasdkEffectImpl
     }
   }
 }
 
-private[scalasdk] final class ScalaEventSourcedEntityContextAdapter(javasdkContext: JavaSdkEventSourcedEntityContext)
+private[scalasdk] final class ScalaEventSourcedEntityContextAdapter(javaSdkContext: JavaSdkEventSourcedEntityContext)
     extends EventSourcedEntityContext {
 
-  def entityId: String = javasdkContext.entityId()
+  def entityId: String = javaSdkContext.entityId()
 
   override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
+    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
-  override def materializer(): Materializer = javasdkContext.materializer()
+  override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
-private[scalasdk] final class JavaCommandContextAdapter(val javasdkContext: JavaSdkCommandContext)
+private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: JavaSdkCommandContext)
     extends CommandContext {
 
-  override def sequenceNumber: Long = javasdkContext.sequenceNumber()
+  override def sequenceNumber: Long = javaSdkContext.sequenceNumber()
 
-  override def commandName: String = javasdkContext.commandName()
+  override def commandName: String = javaSdkContext.commandName()
 
-  override def commandId: Long = javasdkContext.commandId()
+  override def commandId: Long = javaSdkContext.commandId()
 
   override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
+    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
-  override def entityId: String = javasdkContext.entityId()
+  override def entityId: String = javaSdkContext.entityId()
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
-    MetadataConverters.toScala(javasdkContext.metadata())
+    MetadataConverters.toScala(javaSdkContext.metadata())
 
-  override def materializer(): Materializer = javasdkContext.materializer()
+  override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
 private[scalasdk] final class JavaEventContextAdapter(val javasdkContext: JavaSdkEventContext) extends EventContext {
