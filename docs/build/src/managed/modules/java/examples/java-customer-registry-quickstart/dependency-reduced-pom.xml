@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
-  <artifactId>valueentity-shoppingcart</artifactId>
-  <name>Shopping Cart as Value Entity</name>
-  <version>0.0.2-SNAPSHOT</version>
+  <groupId>customer</groupId>
+  <artifactId>customer-registry</artifactId>
+  <name>Customer Registry (Quickstart)</name>
+  <version>1.0-SNAPSHOT</version>
   <build>
     <extensions>
       <extension>
@@ -28,6 +28,9 @@
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
@@ -45,21 +48,7 @@
               <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
-            </configuration>
-          </execution>
-          <execution>
-            <id>grpc-client</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
-              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.11.4:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
@@ -98,7 +87,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.26.1</version>
+        <version>0.36.0</version>
         <executions>
           <execution>
             <id>build-docker-image</id>
@@ -147,13 +136,54 @@
         <executions>
           <execution>
             <goals>
-              <goal>java</goal>
+              <goal>exec</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <mainClass>${mainClass}</mainClass>
+          <executable>java</executable>
+          <arguments>
+            <argument>-classpath</argument>
+            <classpath />
+            <argument>${mainClass}</argument>
+          </arguments>
+          <environmentVariables>
+            <HOST>0.0.0.0</HOST>
+          </environmentVariables>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>add-integration-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/it/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-integration-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/it/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -197,39 +227,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-              <execution>
-                <id>add-integration-test-source</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>src/it/java</source>
-                  </sources>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-integration-test-resource</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>add-test-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <directory>src/it/resources</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>2.22.2</version>
             <executions>
@@ -248,18 +245,28 @@
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <os.detected.arch>x86_64</os.detected.arch>
+        <os.detected.bitness>64</os.detected.bitness>
+        <os.detected.name>osx</os.detected.name>
+        <os.detected.classifier>osx-x86_64</os.detected.classifier>
+      </properties>
     </profile>
   </profiles>
   <dependencies>
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk-testkit</artifactId>
-      <version>0.7.0-beta.18</version>
+      <version>0.8.0-60-501b1962-dev-SNAPSHOT</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>testcontainers</artifactId>
           <groupId>org.testcontainers</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-compress</artifactId>
+          <groupId>org.apache.commons</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -275,33 +282,13 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>3.7.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>byte-buddy</artifactId>
-          <groupId>net.bytebuddy</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>byte-buddy-agent</artifactId>
-          <groupId>net.bytebuddy</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>objenesis</artifactId>
-          <groupId>org.objenesis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
   <properties>
     <jdk.target>11</jdk.target>
-    <dockerImage>gcr.io/akkaserverless-public/samples-java-value-entity-shopping-cart</dockerImage>
-    <mainClass>com.example.shoppingcart.Main</mainClass>
-    <akkaserverless-sdk.version>0.7.0-beta.18</akkaserverless-sdk.version>
-    <akka-grpc.version>1.1.1</akka-grpc.version>
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <mainClass>customer.Main</mainClass>
+    <akkaserverless-sdk.version>0.9.0</akkaserverless-sdk.version>
+    <akka-grpc.version>2.1.0</akka-grpc.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <dockerTag>${project.version}</dockerTag>
   </properties>

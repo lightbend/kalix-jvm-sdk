@@ -28,6 +28,9 @@
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
@@ -248,13 +251,19 @@
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <os.detected.arch>x86_64</os.detected.arch>
+        <os.detected.bitness>64</os.detected.bitness>
+        <os.detected.name>osx</os.detected.name>
+        <os.detected.classifier>osx-x86_64</os.detected.classifier>
+      </properties>
     </profile>
   </profiles>
   <dependencies>
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk-testkit</artifactId>
-      <version>0.7.0-beta.18</version>
+      <version>0.7.1-108-31b7ac10-dev-SNAPSHOT</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -300,8 +309,8 @@
     <jdk.target>11</jdk.target>
     <dockerImage>gcr.io/akkaserverless-public/samples-java-event-sourced-shopping-cart</dockerImage>
     <mainClass>com.example.shoppingcart.Main</mainClass>
-    <akkaserverless-sdk.version>0.7.0-beta.18</akkaserverless-sdk.version>
-    <akka-grpc.version>1.1.1</akka-grpc.version>
+    <akkaserverless-sdk.version>0.7.2</akkaserverless-sdk.version>
+    <akka-grpc.version>2.1.0</akka-grpc.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <dockerTag>${project.version}</dockerTag>
   </properties>

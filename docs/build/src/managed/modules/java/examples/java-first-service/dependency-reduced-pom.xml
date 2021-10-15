@@ -4,7 +4,7 @@
   <groupId>com.example</groupId>
   <artifactId>first-service</artifactId>
   <name>first-service</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1</version>
   <build>
     <extensions>
       <extension>
@@ -28,6 +28,9 @@
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
@@ -44,20 +47,6 @@
               <writeDescriptorSet>true</writeDescriptorSet>
               <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
-            </configuration>
-          </execution>
-          <execution>
-            <id>grpc-client</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
-              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
               <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
@@ -147,13 +136,54 @@
         <executions>
           <execution>
             <goals>
-              <goal>java</goal>
+              <goal>exec</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <mainClass>${mainClass}</mainClass>
+          <executable>java</executable>
+          <arguments>
+            <argument>-classpath</argument>
+            <classpath />
+            <argument>${mainClass}</argument>
+          </arguments>
+          <environmentVariables>
+            <HOST>0.0.0.0</HOST>
+          </environmentVariables>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>add-integration-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/it/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-integration-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/it/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -197,39 +227,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-              <execution>
-                <id>add-integration-test-source</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>src/it/java</source>
-                  </sources>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-integration-test-resource</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>add-test-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <directory>src/it/resources</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>2.22.2</version>
             <executions>
@@ -254,7 +251,7 @@
     <dependency>
       <groupId>com.akkaserverless</groupId>
       <artifactId>akkaserverless-java-sdk-testkit</artifactId>
-      <version>0.7.0-beta.19</version>
+      <version>0.7.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -275,47 +272,14 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>3.7.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>byte-buddy</artifactId>
-          <groupId>net.bytebuddy</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>byte-buddy-agent</artifactId>
-          <groupId>net.bytebuddy</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>objenesis</artifactId>
-          <groupId>org.objenesis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.typesafe.akka</groupId>
-        <artifactId>akka-bom_${scala.binary.version}</artifactId>
-        <version>${akka-streams.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <properties>
-    <scala.binary.version>2.13</scala.binary.version>
     <jdk.target>11</jdk.target>
     <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <mainClass>com.example.Main</mainClass>
-    <akkaserverless-sdk.version>0.7.0-beta.19</akkaserverless-sdk.version>
-    <akka-grpc.version>1.1.1</akka-grpc.version>
+    <akkaserverless-sdk.version>0.7.2</akkaserverless-sdk.version>
+    <akka-grpc.version>2.1.0</akka-grpc.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <akka-streams.version>2.6.14</akka-streams.version>
     <dockerTag>${project.version}</dockerTag>
   </properties>
 </project>

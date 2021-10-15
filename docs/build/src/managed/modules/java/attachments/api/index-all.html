@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -732,7 +731,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The binary value for the metadata entry.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Context.html#getGrpcClient(java.lang.Class,java.lang.String)">getGrpcClient(Class&lt;T&gt;, String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Context.html" title="interface in com.akkaserverless.javasdk">Context</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionContext.html#getGrpcClient(java.lang.Class,java.lang.String)">getGrpcClient(Class&lt;T&gt;, String)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a></dt>
+<dd>
+<div class="block">Get an Akka gRPC client for the given service name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionCreationContext.html#getGrpcClient(java.lang.Class,java.lang.String)">getGrpcClient(Class&lt;T&gt;, String)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionCreationContext.html" title="interface in com.akkaserverless.javasdk.action">ActionCreationContext</a></dt>
 <dd>
 <div class="block">Get an Akka gRPC client for the given service name.</div>
 </dd>
@@ -1004,16 +1007,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a new counter.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionProvider.html#newHandler(com.akkaserverless.javasdk.action.ActionCreationContext)">newHandler(ActionCreationContext)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html#newHandler(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext)">newHandler(EventSourcedEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html#newHandler(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext)">newHandler(ReplicatedEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html#newHandler(com.akkaserverless.javasdk.valueentity.ValueEntityContext)">newHandler(ValueEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewProvider.html#newHandler(com.akkaserverless.javasdk.view.ViewCreationContext)">newHandler(ViewCreationContext)</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html#newRegister(T)">newRegister(T)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a></dt>
 <dd>
 <div class="block">Create a new ReplicatedRegister.</div>
@@ -1038,6 +1031,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a new ReplicatedSet.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionProvider.html#newRouter(com.akkaserverless.javasdk.action.ActionCreationContext)">newRouter(ActionCreationContext)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html#newRouter(com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext)">newRouter(EventSourcedEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html#newRouter(com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext)">newRouter(ReplicatedEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html#newRouter(com.akkaserverless.javasdk.valueentity.ValueEntityContext)">newRouter(ValueEntityContext)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/view/ViewProvider.html#newRouter(com.akkaserverless.javasdk.view.ViewCreationContext)">newRouter(ViewCreationContext)</a></span> - Method in interface com.akkaserverless.javasdk.view.<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html#newVote()">newVote()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a></dt>
 <dd>
 <div class="block">Create a new Vote.</div>
