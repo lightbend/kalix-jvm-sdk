@@ -7,7 +7,7 @@ package customer.view;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
-import customer.api.CustomerServiceClient;
+import customer.api.CustomerService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -25,19 +25,18 @@ public class CustomerByEmailIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testKit =
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
-  private final CustomerServiceClient apiClient;
-
-  private final CustomerByEmailClient viewClient;
+  private final CustomerService apiClient;
+  private final CustomerByEmail viewClient;
 
   public CustomerByEmailIntegrationTest() {
-    apiClient = CustomerServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
-    viewClient = CustomerByEmailClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    apiClient = testKit.getGrpcClient(CustomerService.class);
+    viewClient = testKit.getGrpcClient(CustomerByEmail.class);
   }
 
   @Test

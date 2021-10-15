@@ -8,7 +8,7 @@ import akka.stream.javadsl.Sink;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
-import customer.api.CustomerServiceClient;
+import customer.api.CustomerService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -29,19 +29,18 @@ public class CustomerByNameIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testkit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testKit =
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
-  private final CustomerServiceClient apiClient;
-
-  private final CustomerByNameClient viewClient;
+  private final CustomerService apiClient;
+  private final CustomerByName viewClient;
 
   public CustomerByNameIntegrationTest() {
-    apiClient = CustomerServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
-    viewClient = CustomerByNameClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+    apiClient = testKit.getGrpcClient(CustomerService.class);
+    viewClient = testKit.getGrpcClient(CustomerByName.class);
   }
 
   @Test
@@ -68,10 +67,10 @@ public class CustomerByNameIntegrationTest {
         CustomerViewModel.ByNameRequest.newBuilder().setCustomerName("Johanna").build();
 
     // the view is eventually updated
-    await().atMost(10, SECONDS).until(() -> viewClient.getCustomers(req).runWith(Sink.seq(), testkit.getActorSystem()).toCompletableFuture()
+    await().atMost(10, SECONDS).until(() -> viewClient.getCustomers(req).runWith(Sink.seq(), testKit.getActorSystem()).toCompletableFuture()
         .get(3, SECONDS).size() == 2);
 
-    List<CustomerViewModel.CustomerViewState> result = viewClient.getCustomers(req).runWith(Sink.seq(), testkit.getActorSystem()).toCompletableFuture()
+    List<CustomerViewModel.CustomerViewState> result = viewClient.getCustomers(req).runWith(Sink.seq(), testKit.getActorSystem()).toCompletableFuture()
         .get(5, SECONDS);
     assertEquals(2, result.size());
 
