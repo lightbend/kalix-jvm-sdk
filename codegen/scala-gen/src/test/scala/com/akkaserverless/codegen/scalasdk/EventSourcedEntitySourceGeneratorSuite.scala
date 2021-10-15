@@ -147,6 +147,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |import com.example.service
           |import com.external.ExternalDomainProto
           |import com.google.protobuf.Descriptors
+          |import scala.collection.immutable
           |
           |// This code is managed by Akka Serverless tooling.
           |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -170,7 +171,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |  override final def newRouter(context: EventSourcedEntityContext): MyEntityRouter =
           |    new MyEntityRouter(entityFactory(context))
           |
-          |  override final val additionalDescriptors =
+          |  override final val additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
           |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
           |}
           |""".stripMargin)
