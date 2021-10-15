@@ -13,19 +13,24 @@ import com.google.protobuf.empty.Empty
 
 /** A replicated entity. */
 class SomeRegister(context: ReplicatedEntityContext) extends AbstractSomeRegister {
-  
-  override def emptyValue: SomeValue = SomeValue.defaultInstance
 
-  /** Command handler for "Set". */
+  // tag::emptyValue[]
+  override def emptyValue: SomeValue = SomeValue.defaultInstance
+  // end::emptyValue[]
+
+  // tag::update[]
   def set(currentData: ReplicatedRegister[SomeValue], setValue: register.SetValue): ReplicatedEntity.Effect[Empty] = {
-    val someValue = SomeValue(setValue.value)
+    val someValue = SomeValue(setValue.value) // <1>
     effects
-    .update(currentData.set(someValue))
+    .update(currentData.set(someValue)) // <2>
     .thenReply(Empty.defaultInstance)
   }
+  // end::update[]
 
-  /** Command handler for "Get". */
-  def get(currentData: ReplicatedRegister[SomeValue], getValue: register.GetValue): ReplicatedEntity.Effect[register.CurrentValue] = 
-    effects.reply(register.CurrentValue(currentData().someField))
-    
+  // tag::get[]
+  def get(currentData: ReplicatedRegister[SomeValue], getValue: register.GetValue): ReplicatedEntity.Effect[register.CurrentValue] = {
+    val someValue = currentData() // <1>
+    effects.reply(register.CurrentValue(someValue.someField)) // <2>
+  }
+  // end::get[]
 }

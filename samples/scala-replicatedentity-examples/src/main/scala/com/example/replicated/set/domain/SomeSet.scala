@@ -14,21 +14,20 @@ import com.google.protobuf.empty.Empty
 /** A replicated entity. */
 class SomeSet(context: ReplicatedEntityContext) extends AbstractSomeSet {
 
-  /** Command handler for "Add". */
+  // tag::update[]
   def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] = 
     effects
-      .update(currentData.add(addElement.element))
+      .update(currentData.add(addElement.element)) // <1>
       .thenReply(Empty.defaultInstance)
-  
 
-  /** Command handler for "Remove". */
   def remove(currentData: ReplicatedSet[String], removeElement: set.RemoveElement): ReplicatedEntity.Effect[Empty] =
     effects
-      .update(currentData.remove(removeElement.element))
+      .update(currentData.remove(removeElement.element)) // <1>
       .thenReply(Empty.defaultInstance)
+  // end::update[]
 
-  /** Command handler for "Get". */
+  // tag::get[]
   def get(currentData: ReplicatedSet[String], getElements: set.GetElements): ReplicatedEntity.Effect[set.CurrentElements] =
-    effects.reply(set.CurrentElements(currentData.elements.toSeq))
-
+    effects.reply(set.CurrentElements(currentData.elements.toSeq)) // <1>
+  // end::get[]
 }
