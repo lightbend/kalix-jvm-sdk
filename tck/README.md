@@ -3,5 +3,5 @@
 Run the TCK (against the Akka Serverless TCK docker image):
 
 ```
-sbt tck/Test/run
+sbt tckJava/Test/run
 ```

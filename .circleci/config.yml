@@ -689,7 +689,7 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
-      - run: sbt tck/Docker/publish
+      - run: sbt tckJava/Docker/publish
       - save_deps_cache
 
   publish-docs:
