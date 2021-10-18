@@ -248,7 +248,7 @@ class AnySupport(
       }
     } catch {
       case cnfe: ClassNotFoundException =>
-        log.debug("Failed to load class", cnfe)
+        log.debug("Failed to load class [{}] because: {}", className, cnfe.getMessage)
         None
       case nsme: NoSuchElementException =>
         throw SerializationException(
@@ -305,7 +305,7 @@ class AnySupport(
         }
       } catch {
         case cnfe: ClassNotFoundException =>
-          log.debug("Failed to load class", cnfe)
+          log.debug("Failed to load class [{}] because: {}", className, cnfe.getMessage)
           None
       }
     })
