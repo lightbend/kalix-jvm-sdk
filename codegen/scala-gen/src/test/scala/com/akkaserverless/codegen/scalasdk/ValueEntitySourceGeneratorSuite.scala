@@ -124,39 +124,41 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
       provider(testData.valueEntity(), testData.simpleEntityService())
     assertNoDiff(
       file.content,
-      """package com.example.service.domain
-
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
-import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
-import com.example.service
-import com.external.ExternalDomainProto
-import com.google.protobuf.Descriptors
-
-// This code is managed by Akka Serverless tooling.
-// It will be re-generated to reflect any changes to your protobuf definitions.
-// DO NOT EDIT
-
-object MyValueEntityProvider {
-  def apply(entityFactory: ValueEntityContext => MyValueEntity): MyValueEntityProvider =
-    new MyValueEntityProvider(entityFactory, ValueEntityOptions.defaults)
-}
-class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValueEntity, override val options: ValueEntityOptions)
-  extends ValueEntityProvider[MyState, MyValueEntity] {
-
-  def withOptions(newOptions: ValueEntityOptions): MyValueEntityProvider =
-    new MyValueEntityProvider(entityFactory, newOptions)
-
-  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
-
-  override final val entityType = "MyValueEntity"
-
-  override final def newRouter(context: ValueEntityContext): MyValueEntityRouter =
-    new MyValueEntityRouter(entityFactory(context))
-
-  override final val additionalDescriptors =
-    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
-}""")
+      """|package com.example.service.domain
+         |
+         |import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+         |import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
+         |import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
+         |import com.example.service
+         |import com.external.ExternalDomainProto
+         |import com.google.protobuf.Descriptors
+         |import scala.collection.immutable.Seq
+         |
+         |// This code is managed by Akka Serverless tooling.
+         |// It will be re-generated to reflect any changes to your protobuf definitions.
+         |// DO NOT EDIT
+         |
+         |object MyValueEntityProvider {
+         |  def apply(entityFactory: ValueEntityContext => MyValueEntity): MyValueEntityProvider =
+         |    new MyValueEntityProvider(entityFactory, ValueEntityOptions.defaults)
+         |}
+         |class MyValueEntityProvider private(entityFactory: ValueEntityContext => MyValueEntity, override val options: ValueEntityOptions)
+         |  extends ValueEntityProvider[MyState, MyValueEntity] {
+         |
+         |  def withOptions(newOptions: ValueEntityOptions): MyValueEntityProvider =
+         |    new MyValueEntityProvider(entityFactory, newOptions)
+         |
+         |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
+         |    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
+         |
+         |  override final val entityType = "MyValueEntity"
+         |
+         |  override final def newRouter(context: ValueEntityContext): MyValueEntityRouter =
+         |    new MyValueEntityRouter(entityFactory(context))
+         |
+         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
+         |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
+         |}
+         |""".stripMargin)
   }
 }

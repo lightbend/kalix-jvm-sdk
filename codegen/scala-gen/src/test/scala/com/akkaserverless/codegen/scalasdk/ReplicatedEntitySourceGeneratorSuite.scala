@@ -413,7 +413,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           "import com.example.service",
           "import com.external.ExternalDomainProto",
           "import com.google.protobuf.Descriptors",
-          "import scala.collection.immutable",
+          "import scala.collection.immutable.Seq",
           "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
           "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
           "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider")
@@ -460,7 +460,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
            |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
            |    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
            |
-           |  override def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+           |  override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
            |    $expectedDescriptors :: Nil
            |}
            |""".stripMargin)

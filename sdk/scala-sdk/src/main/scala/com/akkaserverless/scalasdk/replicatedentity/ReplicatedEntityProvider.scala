@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.replicatedentity
 
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
@@ -29,5 +29,5 @@ trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
   def newRouter(context: ReplicatedEntityContext): ReplicatedEntityRouter[D, E]
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
-  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
+  def additionalDescriptors: Seq[Descriptors.FileDescriptor]
 }

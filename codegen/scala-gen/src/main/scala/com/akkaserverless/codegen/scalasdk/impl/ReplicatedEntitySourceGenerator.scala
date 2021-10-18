@@ -231,7 +231,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable") ++
+        "scala.collection.immutable.Seq") ++
         extraReplicatedImports(entity.data) ++
         extraTypeImports(entity.data.typeArguments),
       packageImports = Seq(service.fqn.parent.scalaPackage))
@@ -283,7 +283,7 @@ object ReplicatedEntitySourceGenerator {
          |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
          |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
          |
-         |  override def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    ${descriptors.map(d => d + ".javaDescriptor :: ").toList.distinct.mkString}Nil
          |}
          |""".stripMargin)

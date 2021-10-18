@@ -27,10 +27,10 @@ import java.time.format.DateTimeFormatter
 import java.util
 import java.util.{ Objects, Optional }
 import scala.jdk.CollectionConverters._
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import scala.compat.java8.OptionConverters._
 
-private[akkaserverless] class MetadataImpl(val entries: immutable.Seq[MetadataEntry]) extends Metadata with CloudEvent {
+private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
   override def has(key: String): Boolean = entries.exists(_.key.equalsIgnoreCase(key))
 

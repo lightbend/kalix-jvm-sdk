@@ -105,7 +105,7 @@ object ViewServiceSourceGenerator {
           view.classNameQualified,
           "com.google.protobuf.Descriptors",
           "com.google.protobuf.EmptyProto",
-          "scala.collection.immutable"),
+          "scala.collection.immutable.Seq"),
         packageImports = Nil)
 
     File(
@@ -144,7 +144,7 @@ object ViewServiceSourceGenerator {
         |  override final def newRouter(context: ViewCreationContext): ${view.routerName} =
         |    new ${view.routerName}(viewFactory(context))
         |
-        |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+        |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
         |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |}

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.impl
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 
 private[scalasdk] trait ComponentOptions {
 
@@ -24,11 +24,11 @@ private[scalasdk] trait ComponentOptions {
    * @return
    *   the headers requested to be forwarded as metadata (cannot be mutated, use withForwardHeaders)
    */
-  def forwardHeaders: immutable.Set[String]
+  def forwardHeaders: Set[String]
 
   /**
    * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming
    * commands. By default no headers except "X-Server-Timing" are forwarded.
    */
-  def withForwardHeaders(headers: immutable.Set[String]): ComponentOptions
+  def withForwardHeaders(headers: Set[String]): ComponentOptions
 }

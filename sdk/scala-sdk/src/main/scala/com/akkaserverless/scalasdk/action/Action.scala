@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.action
 
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import scala.concurrent.Future
 
 import com.akkaserverless.scalasdk.Metadata
@@ -44,7 +44,7 @@ object Action {
      */
     def addSideEffect(sideEffects: SideEffect*): Action.Effect[T]
 
-    def addSideEffects(sideEffects: immutable.Seq[SideEffect]): Action.Effect[T]
+    def addSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
 
   /**

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.action
 
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 
 import com.akkaserverless.scalasdk.impl.action.ActionRouter
 import com.google.protobuf.Descriptors
@@ -28,5 +28,5 @@ trait ActionProvider[A <: Action] {
 
   def newRouter(context: ActionCreationContext): ActionRouter[A]
 
-  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
+  def additionalDescriptors: Seq[Descriptors.FileDescriptor]
 }

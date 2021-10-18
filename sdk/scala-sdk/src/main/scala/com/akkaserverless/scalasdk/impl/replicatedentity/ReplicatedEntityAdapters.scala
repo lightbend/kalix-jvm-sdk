@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.impl.replicatedentity
 import java.util
 import java.util.Optional
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
@@ -140,7 +140,7 @@ private[scalasdk] final case class JavaReplicatedEntityOptionsAdapter(scalaSdkOp
     scalaSdkOptions.forwardHeaders.asJava
 
   override def withForwardHeaders(headers: util.Set[String]): JavaSdkComponentOptions =
-    JavaReplicatedEntityOptionsAdapter(scalaSdkOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
+    JavaReplicatedEntityOptionsAdapter(scalaSdkOptions.withForwardHeaders(Set.from(headers.asScala)))
 }
 
 private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandContext: JavaSdkCommandContext)

@@ -36,7 +36,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
          |import com.example.service
          |import com.external.Empty
-         |import scala.collection.immutable
+         |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -67,7 +67,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  def currentState: MyState = _state
          |
          |  /** @return All events emitted by command handlers of this entity up to now */
-         |  def allEvents: immutable.Seq[Any] = events
+         |  def allEvents: Seq[Any] = events
          |
          |  private def handleEvent(state: MyState, event: Any): MyState =
          |   event match {
