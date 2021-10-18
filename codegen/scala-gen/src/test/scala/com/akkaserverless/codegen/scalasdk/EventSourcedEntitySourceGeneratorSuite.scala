@@ -56,6 +56,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |  override def setEvent(currentState: MyState, setEvent: SetEvent): MyState =
          |    throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet")
+         |
          |}
          |""".stripMargin)
   }

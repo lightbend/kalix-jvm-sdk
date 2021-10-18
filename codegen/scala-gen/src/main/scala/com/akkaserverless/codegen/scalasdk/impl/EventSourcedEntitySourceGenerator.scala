@@ -169,52 +169,37 @@ object EventSourcedEntitySourceGenerator {
   def generateImplementationSkeleton(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    implicit val imports: Imports =
-      generateImports(
-        Seq(eventSourcedEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
-        eventSourcedEntity.fqn.parent.scalaPackage,
-        otherImports = Seq(
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+    import Types._
+
     val eventHandlers =
-      eventSourcedEntity match {
-        case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
-          events.map { event =>
-            s"""|override def ${lowerFirst(event.fqn.name)}(currentState: ${typeName(
-              eventSourcedEntity.state.fqn)}, ${lowerFirst(event.fqn.name)}: ${typeName(event.fqn)}): ${typeName(
-              eventSourcedEntity.state.fqn)} =
-                |  throw new RuntimeException("The event handler for `${event.fqn.name}` is not implemented, yet")
-                |""".stripMargin
-          }
+      eventSourcedEntity.events.map { event =>
+        c"""|override def ${lowerFirst(event.fqn.name)}(currentState: ${eventSourcedEntity.state.fqn}, ${lowerFirst(
+          event.fqn.name)}: ${event.fqn}): ${eventSourcedEntity.state.fqn} =
+            |  throw new RuntimeException("The event handler for `${event.fqn.name}` is not implemented, yet")
+            |"""
       }
 
-    val commandHandlers = service.commands.map { cmd =>
-      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(eventSourcedEntity.state.fqn)}, ${lowerFirst(
-        cmd.inputType.name)}: ${typeName(cmd.inputType)}): EventSourcedEntity.Effect[${typeName(cmd.outputType)}] =
-          |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
-          |""".stripMargin
-    }
+    val commandHandlers =
+      service.commands.map { cmd =>
+        c"""|override def ${lowerFirst(cmd.name)}(currentState: ${eventSourcedEntity.state.fqn}, ${lowerFirst(
+          cmd.inputType.name)}: ${cmd.inputType}): $EventSourcedEntity.Effect[${cmd.outputType}] =
+            |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
+            |"""
+      }
 
-    File(
-      eventSourcedEntity.fqn.fileBasename + ".scala",
-      s"""package ${eventSourcedEntity.fqn.parent.scalaPackage}
-         |
-         |${writeImports(imports)}
-         |
-         |$unmanagedComment
-         |
-         |/** An event sourced entity. */
-         |class ${eventSourcedEntity.fqn.name}(context: EventSourcedEntityContext) extends ${eventSourcedEntity.abstractEntityName} {
-         |  override def emptyState: ${typeName(eventSourcedEntity.state.fqn)} =
-         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
-         |
-         |  ${Format.indent(commandHandlers, 2)}
-         |
-         |  ${Format.indent(eventHandlers, 2)}
-         |}
-         |""".stripMargin)
+    generate(
+      eventSourcedEntity.fqn.parent,
+      eventSourcedEntity.fqn.name,
+      c"""|$unmanagedComment
+          |
+          |/** An event sourced entity. */
+          |class ${eventSourcedEntity.fqn.name}(context: $EventSourcedEntityContext) extends ${eventSourcedEntity.abstractEntityName} {
+          |  override def emptyState: ${eventSourcedEntity.state.fqn} =
+          |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+          |
+          |  $commandHandlers
+          |  $eventHandlers
+          |}""",
+      packageImports = Seq(service.fqn.parent))
   }
 }
