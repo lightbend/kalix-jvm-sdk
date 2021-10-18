@@ -31,9 +31,6 @@ import scala.concurrent.ExecutionContext
 
 final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T] {
 
-  //because I have the effect => ActionEffectImpl then I can have their msg, for
-  // example. See line 41.
-
   implicit val ec = ExecutionContext.Implicits.global
 
   /** @return true if the call had an effect with a reply, false if not */
