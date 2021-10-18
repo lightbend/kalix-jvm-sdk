@@ -40,5 +40,5 @@
 
 - [ ] Announce in [the forum](https://discuss.lightbend.com/c/akka-serverless/40)
     - tag with Akka Serverless, releases and announcement
-- [ ] Inform Lightbend marketing if it's a noteworthy release
+- [ ] Inform Lightbend marketing and engineering if it's a noteworthy release
 - [ ] Close this issue
