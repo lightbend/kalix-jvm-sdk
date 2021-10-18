@@ -68,84 +68,65 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.fqn.parent,
       abstractEntityName,
       c"""|$managedComment
-        |
-        |/** An event sourced entity. */
-        |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
-        |
-        |  $commandHandlers
-        |  $eventHandlers
-        |}
-        |""",
+          |
+          |/** An event sourced entity. */
+          |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
+          |
+          |  $commandHandlers
+          |  $eventHandlers
+          |}
+          |""",
       packageImports = Seq(service.fqn.parent))
   }
 
   private[codegen] def handler(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    val stateType = eventSourcedEntity.state.fqn.name
-    val packageName = eventSourcedEntity.fqn.parent.scalaPackage
-    val eventSourcedEntityName = eventSourcedEntity.fqn.name
-    implicit val imports =
-      generateImports(
-        Seq(eventSourcedEntity.state.fqn) ++
-        service.commands.map(_.inputType),
-        eventSourcedEntity.fqn.parent.scalaPackage,
-        otherImports = Seq(
-          "com.akkaserverless.scalasdk.eventsourcedentity.CommandContext",
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-          "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter",
-          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound",
-          "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+    import Types._
+
+    val stateType = eventSourcedEntity.state.fqn
+    val eventSourcedEntityName = eventSourcedEntity.fqn
 
     val eventCases = eventSourcedEntity.events.map { evt =>
-      val eventType = typeName(evt.fqn)
-      s"""|case evt: $eventType =>
-              |  entity.${lowerFirst(evt.fqn.name)}(state, evt)
-              |""".stripMargin
+      c"""|case evt: ${evt.fqn} =>
+          |  entity.${lowerFirst(evt.fqn.name)}(state, evt)
+          |"""
     }
 
     val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.name
-        val inputType = typeName(cmd.inputType)
-        s"""|case "$methodName" =>
-            |  entity.${lowerFirst(methodName)}(state, command.asInstanceOf[$inputType])
-            |""".stripMargin
+        c"""|case "$methodName" =>
+            |  entity.${lowerFirst(methodName)}(state, command.asInstanceOf[${cmd.inputType}])
+            |"""
       }
-
-    File(
-      packageName,
+    generate(
+      eventSourcedEntity.fqn.parent,
       eventSourcedEntity.routerName,
-      s"""|package $packageName
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/**
-        | * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
-        | * and the command handler methods in the <code>Counter</code> class.
-        | */
-        |class ${eventSourcedEntityName}Router(entity: ${eventSourcedEntityName}) extends EventSourcedEntityRouter[$stateType, ${eventSourcedEntityName}](entity) {
-        |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
-        |    commandName match {
-        |      ${Format.indent(commandCases, 6)}
-        |
-        |      case _ =>
-        |        throw new CommandHandlerNotFound(commandName)
-        |    }
-        |  }
-        |  def handleEvent(state: $stateType, event: Any): $stateType = {
-        |    event match {
-        |      ${Format.indent(eventCases, 6)}
-        |
-        |      case _ =>
-        |        throw new EventHandlerNotFound(event.getClass)
-        |    }
-        |  }
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |/**
+          | * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
+          | * and the command handler methods in the <code>Counter</code> class.
+          | */
+          |class ${eventSourcedEntityName}Router(entity: ${eventSourcedEntityName}) extends $EventSourcedEntityRouter[$stateType, $eventSourcedEntityName](entity) {
+          |  def handleCommand(commandName: String, state: $stateType, command: Any, context: $CommandContext): $EventSourcedEntity.Effect[_] = {
+          |    commandName match {
+          |      $commandCases
+          |      case _ =>
+          |        throw new $CommandHandlerNotFound(commandName)
+          |    }
+          |  }
+          |  def handleEvent(state: $stateType, event: Any): $stateType = {
+          |    event match {
+          |      $eventCases
+          |      case _ =>
+          |        throw new $EventHandlerNotFound(event.getClass)
+          |    }
+          |  }
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {

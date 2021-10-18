@@ -21,4 +21,19 @@ import com.lightbend.akkasls.codegen.FullyQualifiedName
 object Types {
   val EventSourcedEntity =
     FullyQualifiedName.noDescriptor("EventSourcedEntity", "com.akkaserverless.scalasdk.eventsourcedentity")
+
+  val CommandContext =
+    FullyQualifiedName.noDescriptor("CommandContext", "com.akkaserverless.scalasdk.eventsourcedentity")
+
+  val EventSourcedEntityRouter =
+    FullyQualifiedName.noDescriptor("EventSourcedEntityRouter", "com.akkaserverless.scalasdk.impl.eventsourcedentity")
+
+  val CommandHandlerNotFound =
+    FullyQualifiedName.noDescriptor(
+      "CommandHandlerNotFound",
+      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
+  val EventHandlerNotFound =
+    FullyQualifiedName.noDescriptor(
+      "EventHandlerNotFound",
+      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
 }
