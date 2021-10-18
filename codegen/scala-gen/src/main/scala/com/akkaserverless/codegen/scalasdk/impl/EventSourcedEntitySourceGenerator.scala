@@ -44,53 +44,39 @@ object EventSourcedEntitySourceGenerator {
 
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
-    implicit val imports =
-      generateImports(
-        Seq(eventSourcedEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
-        eventSourcedEntity.fqn.parent.scalaPackage,
-        otherImports = Seq("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
-    val stateType = typeName(eventSourcedEntity.state.fqn)
+    val stateType = eventSourcedEntity.state.fqn
     val commandHandlers = service.commands
       .map { cmd =>
         val methodName = cmd.name
 
-        val inputType = typeName(cmd.inputType)
-        val outputType = typeName(cmd.outputType)
-
-        s"""|def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): EventSourcedEntity.Effect[$outputType]
-            |""".stripMargin
-
+        c"""|def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: ${cmd.inputType}): EventSourcedEntity.Effect[${cmd.outputType}]
+            |"""
       }
 
     val eventHandlers =
       eventSourcedEntity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           events.map { event =>
-            s"""|def ${lowerFirst(event.fqn.name)}(currentState: $stateType, ${lowerFirst(event.fqn.name)}: ${typeName(
-              event.fqn)}): $stateType""".stripMargin
+            c"""|def ${lowerFirst(event.fqn.name)}(currentState: $stateType, ${lowerFirst(
+              event.fqn.name)}: ${event.fqn}): $stateType"""
           }
       }
 
-    File(
-      eventSourcedEntity.fqn.parent.scalaPackage,
+    import Types._
+
+    generate(
+      eventSourcedEntity.fqn.parent,
       abstractEntityName,
-      s"""|package ${eventSourcedEntity.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
+      c"""|$managedComment
         |
         |/** An event sourced entity. */
-        |abstract class $abstractEntityName extends EventSourcedEntity[$stateType] {
+        |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
         |
-        |  ${Format.indent(commandHandlers, 2)}
-        |
-        |  ${Format.indent(eventHandlers, 2)}
+        |  $commandHandlers
+        |  $eventHandlers
         |}
-        |""".stripMargin)
+        |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   private[codegen] def handler(
