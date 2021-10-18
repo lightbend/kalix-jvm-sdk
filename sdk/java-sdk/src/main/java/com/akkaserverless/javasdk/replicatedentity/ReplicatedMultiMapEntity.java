@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 public class ReplicatedMultiMapEntity<K, V> extends ReplicatedEntity<ReplicatedMultiMap<K, V>> {
   @Override
-  public ReplicatedMultiMap<K, V> emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedMultiMap<K, V> emptyData(ReplicatedDataFactory factory) {
     return factory.newReplicatedMultiMap();
   }
 }

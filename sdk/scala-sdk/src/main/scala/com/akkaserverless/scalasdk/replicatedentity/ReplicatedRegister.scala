@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
 import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 object ReplicatedRegister {
   sealed trait Clock
@@ -40,8 +40,8 @@ object ReplicatedRegister {
  *
  * @tparam T
  */
-class ReplicatedRegister[T] private[scalasdk] (override val _internal: ReplicatedRegisterImpl[T])
-    extends ReplicatedData {
+class ReplicatedRegister[T] private[scalasdk] (override val delegate: ReplicatedRegisterImpl[T])
+    extends InternalReplicatedData {
 
   /**
    * Optionally returns the current value of the register.
@@ -49,7 +49,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val _internal: Replicate
    * @return
    *   an option value containing the current value of the register if initialize, or `None`.
    */
-  def get: Option[T] = Option(_internal.get())
+  def get: Option[T] = Option(delegate.get())
 
   /**
    * Get the current value of the register.
@@ -72,7 +72,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val _internal: Replicate
    *   a new register with updated value
    */
   def set(value: T): ReplicatedRegister[T] =
-    new ReplicatedRegister(_internal.set(value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
+    new ReplicatedRegister(delegate.set(value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
 
   /**
    * Set the current value of the register, using the given custom clock and clock value if required.
@@ -94,7 +94,15 @@ class ReplicatedRegister[T] private[scalasdk] (override val _internal: Replicate
         case ReplicatedRegister.Custom              => JavaSdkReplicatedRegister.Clock.CUSTOM
         case ReplicatedRegister.CustomAutoIncrement => JavaSdkReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT
       }
-    new ReplicatedRegister(_internal.set(value, javaClock, customClockValue))
+    new ReplicatedRegister(delegate.set(value, javaClock, customClockValue))
   }
 
+  final override type Self = ReplicatedRegister[T]
+
+  final override def resetDelta(): ReplicatedRegister[T] =
+    new ReplicatedRegister(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegister[T]] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedRegister(delegate.applyDelta(delta))
+  }
 }

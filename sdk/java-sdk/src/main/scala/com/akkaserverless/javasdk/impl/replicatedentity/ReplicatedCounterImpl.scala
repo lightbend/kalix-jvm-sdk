@@ -50,5 +50,4 @@ private[akkaserverless] final class ReplicatedCounterImpl(value: Long = 0, delta
 
   override def toString = s"ReplicatedCounter($value)"
 
-  override def _internal(): ReplicatedData = this
 }

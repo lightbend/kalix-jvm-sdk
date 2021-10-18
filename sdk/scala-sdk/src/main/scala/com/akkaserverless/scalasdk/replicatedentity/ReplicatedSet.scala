@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedSetImpl
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Replicated Set that allows both the addition and removal of elements in a set.
@@ -39,7 +39,7 @@ import com.akkaserverless.replicatedentity.ReplicatedData
  * @tparam E
  *   The type of elements.
  */
-class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetImpl[E]) extends ReplicatedData {
+class ReplicatedSet[E] private[scalasdk] (override val delegate: ReplicatedSetImpl[E]) extends InternalReplicatedData {
 
   /**
    * Get the number of elements in this set (its cardinality).
@@ -47,7 +47,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    * @return
    *   the number of elements in the set
    */
-  def size: Int = _internal.size
+  def size: Int = delegate.size
 
   /**
    * Check whether this set is empty.
@@ -55,7 +55,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    * @return
    *   `true` if this set contains no elements
    */
-  def isEmpty: Boolean = _internal.isEmpty
+  def isEmpty: Boolean = delegate.isEmpty
 
   /**
    * Elements of this set as a regular [[Set]]
@@ -64,7 +64,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   elements as [[Set]]
    */
   def elements: Set[E] =
-    _internal.elementsSet
+    delegate.elementsSet
 
   /**
    * Check whether this set contains the given element.
@@ -75,7 +75,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   `true` if this set contains the specified element
    */
   def apply(element: E): Boolean =
-    _internal.contains(element)
+    delegate.contains(element)
 
   /**
    * Add an element to this set if it is not already present.
@@ -86,7 +86,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new set with the additional element, or this unchanged set
    */
   def add(element: E): ReplicatedSet[E] =
-    new ReplicatedSet(_internal.add(element))
+    new ReplicatedSet(delegate.add(element))
 
   /**
    * Remove an element from this set if it is present.
@@ -97,7 +97,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new set without the removed element, or this unchanged set
    */
   def remove(element: E): ReplicatedSet[E] =
-    new ReplicatedSet(_internal.remove(element))
+    new ReplicatedSet(delegate.remove(element))
 
   /**
    * Check whether this set contains all the given elements.
@@ -108,7 +108,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   `true` if this set contains all the given elements
    */
   def containsAll(elements: Iterable[E]): Boolean =
-    _internal.containsAll(elements)
+    delegate.containsAll(elements)
 
   /**
    * Tests whether a predicate holds for all elements of this ReplicatedSet.
@@ -120,7 +120,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   otherwise `false`.
    */
   def forall(predicate: E => Boolean): Boolean =
-    _internal.forall(predicate)
+    delegate.forall(predicate)
 
   /**
    * Add elements to this set if they're not already present.
@@ -133,7 +133,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new set with the additional elements, or this unchanged set
    */
   def addAll(elements: Iterable[E]): ReplicatedSet[E] = {
-    new ReplicatedSet(_internal.addAll(elements))
+    new ReplicatedSet(delegate.addAll(elements))
   }
 
   /**
@@ -147,7 +147,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new set with the retained elements, or this unchanged set
    */
   def retainAll(elements: Iterable[E]): ReplicatedSet[E] =
-    new ReplicatedSet(_internal.retainAll(elements))
+    new ReplicatedSet(delegate.retainAll(elements))
 
   /**
    * Remove elements from this set if they're present.
@@ -160,7 +160,7 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new set without the removed elements, or this unchanged set
    */
   def removeAll(elements: Iterable[E]): ReplicatedSet[E] =
-    new ReplicatedSet(_internal.removeAll(elements))
+    new ReplicatedSet(delegate.removeAll(elements))
 
   /**
    * Remove all elements from this set.
@@ -169,5 +169,13 @@ class ReplicatedSet[E] private[scalasdk] (override val _internal: ReplicatedSetI
    *   a new empty set
    */
   def clear(): ReplicatedSet[E] =
-    new ReplicatedSet(_internal.clear())
+    new ReplicatedSet(delegate.clear())
+
+  final override type Self = ReplicatedSet[E]
+
+  final override def resetDelta(): ReplicatedSet[E] = new ReplicatedSet(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSet[E]] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedSet(delegate.applyDelta(delta))
+  }
 }

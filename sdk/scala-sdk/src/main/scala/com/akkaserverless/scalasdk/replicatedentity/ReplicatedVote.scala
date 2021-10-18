@@ -17,14 +17,14 @@
 package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedVoteImpl
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Vote replicated data type.
  *
  * This replicated data type is used to allow all the nodes in a cluster to vote on a condition.
  */
-class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteImpl) extends ReplicatedData {
+class ReplicatedVote private[scalasdk] (override val delegate: ReplicatedVoteImpl) extends InternalReplicatedData {
 
   /**
    * Get the current value for this node's vote.
@@ -32,7 +32,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   this node's vote
    */
-  def selfVote: Boolean = _internal.getSelfVote
+  def selfVote: Boolean = delegate.getSelfVote
 
   /**
    * Get the number of voters participating in the vote (ie, the number of nodes in the cluster).
@@ -40,7 +40,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   the number of voters
    */
-  def voters: Int = _internal.getVoters
+  def voters: Int = delegate.getVoters
 
   /**
    * Get the number of votes for.
@@ -48,7 +48,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   the number of votes for
    */
-  def votesFor: Int = _internal.getVotesFor
+  def votesFor: Int = delegate.getVotesFor
 
   /**
    * Update this node's vote to the given value.
@@ -59,7 +59,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    *   a new vote, or this unchanged vote
    */
   def vote(vote: Boolean): ReplicatedVote =
-    new ReplicatedVote(_internal.vote(vote))
+    new ReplicatedVote(delegate.vote(vote))
 
   /**
    * Has at least one node voted true?
@@ -67,7 +67,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   `true` if at least one node has voted true
    */
-  def isAtLeastOne: Boolean = _internal.isAtLeastOne
+  def isAtLeastOne: Boolean = delegate.isAtLeastOne
 
   /**
    * Have a majority of nodes voted true?
@@ -75,7 +75,7 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   `true` if more than half of the nodes have voted true
    */
-  def isMajority: Boolean = _internal.isMajority
+  def isMajority: Boolean = delegate.isMajority
 
   /**
    * Is the vote unanimous?
@@ -83,5 +83,14 @@ class ReplicatedVote private[scalasdk] (override val _internal: ReplicatedVoteIm
    * @return
    *   `true` if all nodes have voted true
    */
-  def isUnanimous: Boolean = _internal.isUnanimous
+  def isUnanimous: Boolean = delegate.isUnanimous
+
+  final override type Self = ReplicatedVote
+
+  final override def resetDelta(): ReplicatedVote =
+    new ReplicatedVote(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedVote] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedVote(delegate.applyDelta(delta))
+  }
 }

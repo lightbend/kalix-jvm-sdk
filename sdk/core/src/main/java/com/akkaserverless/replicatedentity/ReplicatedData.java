@@ -16,17 +16,5 @@
 
 package com.akkaserverless.replicatedentity;
 
-import akka.annotation.InternalApi;
-
 /** Root interface for all data entries in Replicated Entities. */
-public interface ReplicatedData {
-
-  /**
-   * INTERNAL API This method is used internally to control if instances have been created by
-   * internal factory methods. Specially needed for the Scala SDK that wraps the Java
-   * implementation. In which case, _internal() will return the Java internal delegate. The Java
-   * implementations will return {@code this}.
-   */
-  @InternalApi
-  ReplicatedData _internal();
-}
+public interface ReplicatedData {}

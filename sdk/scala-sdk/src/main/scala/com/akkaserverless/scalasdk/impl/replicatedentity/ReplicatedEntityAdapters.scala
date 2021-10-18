@@ -101,8 +101,7 @@ private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: Replic
       command: Any,
       context: JavaSdkCommandContext): JavaSdkReplicatedEntity.Effect[_] = {
 
-    val scalaData = ReplicatedDataConverter.toScala(data)
-    scalaSdkRouter.handleCommand(commandName, scalaData, command, ScalaCommandContextAdapter(context)) match {
+    scalaSdkRouter.handleCommand(commandName, data, command, ScalaCommandContextAdapter(context)) match {
       case ReplicatedEntityEffectImpl(javaSdkEffect) => javaSdkEffect
     }
   }
@@ -217,19 +216,4 @@ private[scalasdk] final case class ScalaReplicatedDataFactoryAdapter(factory: Ja
   /** Create a new Vote. */
   override def newVote: ReplicatedVote =
     new ReplicatedVote(factory.newVote().asInstanceOf[ReplicatedVoteImpl])
-}
-
-private[scalasdk] object ReplicatedDataConverter {
-  def toScala[D <: ReplicatedData](data: D): ReplicatedData = {
-    data match {
-      case d: ReplicatedCounterImpl           => new ReplicatedCounter(d)
-      case d: ReplicatedCounterMapImpl[_]     => new ReplicatedCounterMap(d)
-      case d: ReplicatedSetImpl[_]            => new ReplicatedSet(d)
-      case d: ReplicatedMultiMapImpl[_, _]    => new ReplicatedMultiMap(d)
-      case d: ReplicatedRegisterImpl[_]       => new ReplicatedRegister(d)
-      case d: ReplicatedRegisterMapImpl[_, _] => new ReplicatedRegisterMap(d)
-      case d: ReplicatedMapImpl[_, _]         => new ReplicatedMap(d)
-      case d: ReplicatedVoteImpl              => new ReplicatedVote(d)
-    }
-  }
 }

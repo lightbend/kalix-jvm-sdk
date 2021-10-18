@@ -25,7 +25,7 @@ public abstract class ReplicatedRegisterEntity<T> extends ReplicatedEntity<Repli
   public abstract T emptyValue();
 
   @Override
-  public ReplicatedRegister<T> emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedRegister<T> emptyData(ReplicatedDataFactory factory) {
     return factory.newRegister(emptyValue());
   }
 }

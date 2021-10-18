@@ -25,9 +25,5 @@ import com.akkaserverless.scalasdk.replicatedentity.CommandContext
  */
 abstract class ReplicatedEntityRouter[D <: ReplicatedData, E <: ReplicatedEntity[D]](val entity: E) {
 
-  def handleCommand(
-      commandName: String,
-      data: ReplicatedData,
-      command: Any,
-      context: CommandContext): ReplicatedEntity.Effect[_]
+  def handleCommand(commandName: String, data: D, command: Any, context: CommandContext): ReplicatedEntity.Effect[_]
 }

@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 public class ReplicatedCounterEntity extends ReplicatedEntity<ReplicatedCounter> {
   @Override
-  public ReplicatedCounter emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedCounter emptyData(ReplicatedDataFactory factory) {
     return factory.newCounter();
   }
 }

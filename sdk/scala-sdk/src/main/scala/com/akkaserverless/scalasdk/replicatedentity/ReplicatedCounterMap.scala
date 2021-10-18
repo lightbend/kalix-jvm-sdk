@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Map of counters. Uses [[ReplicatedCounter]] 's as values.
@@ -27,8 +27,8 @@ import com.akkaserverless.replicatedentity.ReplicatedData
  * @tparam K
  *   The type for keys.
  */
-class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: ReplicatedCounterMapImpl[K])
-    extends ReplicatedData {
+class ReplicatedCounterMap[K] private[scalasdk] (override val delegate: ReplicatedCounterMapImpl[K])
+    extends InternalReplicatedData {
 
   /**
    * Optionally returns the value associated with a key.
@@ -39,7 +39,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   an option value containing the value associated with `key` in this map, or `None` if none exists.
    */
 
-  def get(key: K): Option[Long] = _internal.getOption(key)
+  def get(key: K): Option[Long] = delegate.getOption(key)
 
   /**
    * Get the counter value for the given key.
@@ -49,7 +49,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    * @return
    *   the current value of the counter at that key, or zero if no counter exists
    */
-  def apply(key: K): Long = _internal.get(key)
+  def apply(key: K): Long = delegate.get(key)
 
   /**
    * Increment the counter at the given key by the given amount.
@@ -64,7 +64,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   a new counter map with the incremented value
    */
   def increment(key: K, amount: Long): ReplicatedCounterMap[K] =
-    new ReplicatedCounterMap(_internal.increment(key, amount))
+    new ReplicatedCounterMap(delegate.increment(key, amount))
 
   /**
    * Decrement the counter at the given key by the given amount.
@@ -79,7 +79,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   a new counter map with the decremented value
    */
   def decrement(key: K, amount: Long): ReplicatedCounterMap[K] =
-    new ReplicatedCounterMap(_internal.decrement(key, amount))
+    new ReplicatedCounterMap(delegate.decrement(key, amount))
 
   /**
    * Remove the mapping for a key if it is present.
@@ -90,7 +90,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   a new counter map with the removed mapping
    */
   def remove(key: K): ReplicatedCounterMap[K] =
-    new ReplicatedCounterMap(_internal.remove(key))
+    new ReplicatedCounterMap(delegate.remove(key))
 
   /**
    * Remove all mappings from this counter map.
@@ -99,7 +99,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   a new empty counter map
    */
   def clear(): ReplicatedCounterMap[K] =
-    new ReplicatedCounterMap(_internal.clear())
+    new ReplicatedCounterMap(delegate.clear())
 
   /**
    * Get the number of key-counter mappings in this counter map.
@@ -107,7 +107,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    * @return
    *   the number of key-counter mappings in this counter map
    */
-  def size: Int = _internal.size
+  def size: Int = delegate.size
 
   /**
    * Check whether this counter map is empty.
@@ -115,7 +115,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    * @return
    *   `true` if this counter map contains no key-counter mappings
    */
-  def isEmpty: Boolean = _internal.isEmpty
+  def isEmpty: Boolean = delegate.isEmpty
 
   /**
    * Check whether this counter map contains a mapping for the given key.
@@ -125,7 +125,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    * @return
    *   `true` if this counter map contains a mapping for the given key
    */
-  def contains(key: K): Boolean = _internal.containsKey(key)
+  def contains(key: K): Boolean = delegate.containsKey(key)
 
   /**
    * Tests whether a predicate holds for all elements of this ReplicatedCounterMap.
@@ -137,7 +137,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    *   ReplicatedCounterMap, otherwise `false`.
    */
   def forall(predicate: ((K, Long)) => Boolean): Boolean =
-    _internal.forall(predicate)
+    delegate.forall(predicate)
 
   /**
    * Get a [[Set]] view of the keys contained in this counter map.
@@ -145,6 +145,14 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val _internal: Replica
    * @return
    *   the keys contained in this counter map
    */
-  def keySet: Set[K] = _internal.keys
+  def keySet: Set[K] = delegate.keys
 
+  final override type Self = ReplicatedCounterMap[K]
+
+  final override def resetDelta(): ReplicatedCounterMap[K] =
+    new ReplicatedCounterMap(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedCounterMap[K]] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedCounterMap(delegate.applyDelta(delta))
+  }
 }

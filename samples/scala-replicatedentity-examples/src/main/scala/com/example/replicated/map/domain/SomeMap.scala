@@ -47,14 +47,14 @@ class SomeMap(context: ReplicatedEntityContext) extends AbstractSomeMap {
   def addBaz(currentData: ReplicatedMap[SomeKey, ReplicatedData], addBazValue: map.AddBazValue): ReplicatedEntity.Effect[Empty] = {
     val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
     effects
-      .update(currentData.update(BarKey, baz.add(addBazValue.value))) // <2> <3>
+      .update(currentData.update(BazKey, baz.add(addBazValue.value))) // <2> <3>
       .thenReply(Empty.defaultInstance)
   }
 
   def removeBaz(currentData: ReplicatedMap[SomeKey, ReplicatedData], removeBazValue: map.RemoveBazValue): ReplicatedEntity.Effect[Empty] = {
-val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
+    val baz: ReplicatedSet[String] = currentData.getReplicatedSet(BazKey) // <1>
     effects
-      .update(currentData.update(BarKey, baz.remove(removeBazValue.value))) // <2> <3>
+      .update(currentData.update(BazKey, baz.remove(removeBazValue.value))) // <2> <3>
       .thenReply(Empty.defaultInstance)
   }
   // end::update[]

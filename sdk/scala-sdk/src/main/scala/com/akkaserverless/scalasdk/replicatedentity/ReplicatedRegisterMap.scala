@@ -20,7 +20,7 @@ import scala.collection.immutable.Set
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
 import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Map of registers. Uses [[ReplicatedRegister]] 's as values.
@@ -30,8 +30,8 @@ import com.akkaserverless.replicatedentity.ReplicatedData
  * @tparam V
  *   The type for values.
  */
-class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: ReplicatedRegisterMapImpl[K, V])
-    extends ReplicatedData {
+class ReplicatedRegisterMap[K, V] private[scalasdk] (override val delegate: ReplicatedRegisterMapImpl[K, V])
+    extends InternalReplicatedData {
 
   /**
    * Optionally returns the current value of the register at the given key.
@@ -41,7 +41,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    * @return
    *   the current value of the register, if it exists (as an Option)
    */
-  def get(key: K): Option[V] = _internal.getValueOption(key)
+  def get(key: K): Option[V] = delegate.getValueOption(key)
 
   /**
    * Get the register value for the given key.
@@ -66,7 +66,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    *   a new register map with the updated value
    */
   def setValue(key: K, value: V): ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(_internal.setValue(key, value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
+    new ReplicatedRegisterMap(delegate.setValue(key, value, JavaSdkReplicatedRegister.Clock.DEFAULT, 0))
 
   /**
    * Set the current value of the register at the given key, using the given clock and custom clock value if required.
@@ -94,7 +94,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
         case ReplicatedRegister.Custom              => JavaSdkReplicatedRegister.Clock.CUSTOM
         case ReplicatedRegister.CustomAutoIncrement => JavaSdkReplicatedRegister.Clock.CUSTOM_AUTO_INCREMENT
       }
-    new ReplicatedRegisterMap(_internal.setValue(key, value, javaClock, customClockValue))
+    new ReplicatedRegisterMap(delegate.setValue(key, value, javaClock, customClockValue))
   }
 
   /**
@@ -106,7 +106,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    *   a new register map with the removed mapping
    */
   def remove(key: K): ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(_internal.remove(key))
+    new ReplicatedRegisterMap(delegate.remove(key))
 
   /**
    * Remove all mappings from this register map.
@@ -115,7 +115,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    *   a new empty register map
    */
   def clear(): ReplicatedRegisterMap[K, V] =
-    new ReplicatedRegisterMap(_internal.clear())
+    new ReplicatedRegisterMap(delegate.clear())
 
   /**
    * Get the number of key-register mappings in this register map.
@@ -123,7 +123,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    * @return
    *   the number of key-register mappings in this register map
    */
-  def size: Int = _internal.size
+  def size: Int = delegate.size
 
   /**
    * Check whether this register map is empty.
@@ -131,7 +131,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    * @return
    *   `true` if this register map contains no key-register mappings
    */
-  def isEmpty: Boolean = _internal.isEmpty
+  def isEmpty: Boolean = delegate.isEmpty
 
   /**
    * Check whether this register map contains a mapping for the given key.
@@ -141,7 +141,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    * @return
    *   `true` if this register map contains a mapping for the given key
    */
-  def containsKey(key: K): Boolean = _internal.containsKey(key)
+  def containsKey(key: K): Boolean = delegate.containsKey(key)
 
   /**
    * Get a [[Set]] view of the keys contained in this register map.
@@ -149,5 +149,14 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val _internal: Rep
    * @return
    *   the keys contained in this register map
    */
-  def keySet: Set[K] = _internal.keys
+  def keySet: Set[K] = delegate.keys
+
+  final override type Self = ReplicatedRegisterMap[K, V]
+
+  final override def resetDelta(): ReplicatedRegisterMap[K, V] =
+    new ReplicatedRegisterMap(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegisterMap[K, V]] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedRegisterMap(delegate.applyDelta(delta))
+  }
 }

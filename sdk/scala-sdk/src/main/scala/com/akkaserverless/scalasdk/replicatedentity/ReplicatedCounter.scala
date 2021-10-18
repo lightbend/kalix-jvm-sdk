@@ -17,10 +17,11 @@
 package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /** A counter that can be incremented and decremented. */
-class ReplicatedCounter private[scalasdk] (override val _internal: ReplicatedCounterImpl) extends ReplicatedData {
+class ReplicatedCounter private[scalasdk] (override val delegate: ReplicatedCounterImpl)
+    extends InternalReplicatedData {
 
   /**
    * Get the current value of the counter.
@@ -28,7 +29,7 @@ class ReplicatedCounter private[scalasdk] (override val _internal: ReplicatedCou
    * @return
    *   the current value of the counter
    */
-  def value: Long = _internal.getValue
+  def value: Long = delegate.getValue
 
   /**
    * Increment the counter.
@@ -41,7 +42,7 @@ class ReplicatedCounter private[scalasdk] (override val _internal: ReplicatedCou
    *   a new counter with incremented value
    */
   def increment(amount: Long): ReplicatedCounter =
-    new ReplicatedCounter(_internal.increment(amount))
+    new ReplicatedCounter(delegate.increment(amount))
 
   /**
    * Decrement the counter.
@@ -54,6 +55,14 @@ class ReplicatedCounter private[scalasdk] (override val _internal: ReplicatedCou
    *   a new counter with decremented value
    */
   def decrement(amount: Long): ReplicatedCounter =
-    new ReplicatedCounter(_internal.decrement(amount))
+    new ReplicatedCounter(delegate.decrement(amount))
 
+  final override type Self = ReplicatedCounter
+
+  final override def resetDelta(): ReplicatedCounter =
+    new ReplicatedCounter(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedCounter] = {
+    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedCounter(delegate.applyDelta(delta))
+  }
 }

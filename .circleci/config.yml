@@ -626,6 +626,43 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
+  sample-scala-replicatedentity-shopping-cart:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Replicated Entity "Shopping Cart" sample
+          command: |
+            cd samples/scala-replicatedentity-shopping-cart
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+
+  sample-scala-replicatedentity-examples:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: depends on publish local as separate job before this
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Replicated Entity examples
+          command: |
+            cd samples/scala-replicatedentity-examples
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   publish:
     docker:

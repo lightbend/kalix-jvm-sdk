@@ -109,5 +109,4 @@ private[akkaserverless] final class ReplicatedCounterMapImpl[K](
 
   override def toString = s"ReplicatedCounterMap(${counters.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
-  override def _internal(): ReplicatedData = this
 }
