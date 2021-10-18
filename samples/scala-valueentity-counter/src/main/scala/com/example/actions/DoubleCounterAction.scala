@@ -31,8 +31,8 @@ class DoubleCounterAction(creationContext: ActionCreationContext) extends Abstra
   }
 
   // end::controller-forward[]
-  def increaseWithSideEffect(increaseValue: IncreaseValue): Action.Effect[Empty] = {
-    // tag::controller-side-effect[]
+  // tag::controller-side-effect[]
+  override def increaseWithSideEffect(increaseValue: IncreaseValue): Action.Effect[Empty] = {
     val doubled = increaseValue.value * 2
     val increaseValueDoubled = increaseValue.copy(value = doubled) // <2>
 

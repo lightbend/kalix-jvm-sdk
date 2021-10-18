@@ -16,10 +16,13 @@
 
 package com.akkaserverless.scalasdk.testkit.impl
 
+import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.ServiceCallDetails
+import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.ScalaServiceCallAdapter
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -29,6 +32,23 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
   override def reply: T = effect match {
     case e: ActionEffectImpl.ReplyEffect[T] => e.msg
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
+  }
+
+  private def extractServices(sideEffects: Seq[SideEffect]): Seq[ServiceCallDetails[T]] = {
+    sideEffects.map { sideEffect =>
+      sideEffect.serviceCall match {
+        case ScalaServiceCallAdapter(JavaServiceCallAdapter(scalaSdkServiceCall)) =>
+          scalaSdkServiceCall.asInstanceOf[ServiceCallDetails[T]]
+      }
+    }
+  }
+
+  override def sideEffects(): Seq[ServiceCallDetails[T]] = effect match {
+    case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
+    case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
+    case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
+    case ActionEffectImpl.ErrorEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
+    case ActionEffectImpl.NoReply(internalSideEffects)           => extractServices(internalSideEffects)
   }
 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]

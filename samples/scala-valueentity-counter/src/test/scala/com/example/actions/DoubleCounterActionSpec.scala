@@ -16,21 +16,25 @@ class DoubleCounterActionSpec
     extends AnyWordSpec
     with Matchers {
 
+  // tag::side-effect-test[]
   "DoubleCounterAction" must {
-
-    "have example test that can be removed" in {
+    "handle command IncreaseWithSideEffect" in {
       val testKit = DoubleCounterActionTestKit(new DoubleCounterAction(_))
-      // use the testkit to execute a command
-      // and verify final updated state:
-      // val result = testKit.someOperation(SomeRequest)
-      // verify the response
-      // result.reply shouldBe expectedReply
-    }
 
+      val result: ActionResult[Empty] = testKit.increaseWithSideEffect(IncreaseValue(value = 1))// <1>
+      result.reply shouldBe Empty.defaultInstance
+
+      val sideEffect = result.sideEffects.head // <2>
+      sideEffect.getServiceName shouldBe "com.example.CounterService" // <3>
+      sideEffect.getMethodName shouldBe "Increase" // <4>
+      sideEffect.getMessage shouldBe IncreaseValue(value = 2) // <5>
+    }
+  }
+  // end::side-effect-test[]
     "handle command Increase" in {
       val testKit = DoubleCounterActionTestKit(new DoubleCounterAction(_))
       // val result = testKit.increase(IncreaseValue(...))
     }
-
-  }
+// tag::side-effect-test[]
 }
+// end::side-effect-test[]
