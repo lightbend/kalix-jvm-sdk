@@ -1,10 +1,12 @@
 # Releasing Akka Serverless Java SDK
 
-1. Create a `vX.Y.Z` tag and release notes at https://github.com/lightbend/akkaserverless-java-sdk/releases
-2. CircleCI will automatically publish to Sonatype OSSRH (Maven Central) based on the tag.
-3. Update the `akkaserverless-sdk.version` in the `samples/*/pom.xml` files to the released version.
-4. Update the `akkaserverless-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files to the release version.
+Create a release issue (using the [GitHub CLI](https://cli.github.com/))
 
+```shell
+gh issue create --title 'Release Akka Serverless Java/Scala SDKs' --label as-framework --body-file docs/release-issue-template.md -w
+````
+
+and follow the instructions.
 
 ## Publishing documentation hotfixes
 
