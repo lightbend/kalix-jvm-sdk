@@ -143,7 +143,7 @@ object ValueEntitySourceGenerator {
         "com.akkaserverless.scalasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.scalasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable"),
+        "scala.collection.immutable.Seq"),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
     File(
@@ -173,7 +173,7 @@ object ValueEntitySourceGenerator {
          |  override final def newRouter(context: ValueEntityContext): ${entity.routerName} =
          |    new ${entity.routerName}(entityFactory(context))
          |
-         |  override final val additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
          |}
          |""".stripMargin)

@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.view
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 
 import com.akkaserverless.scalasdk.impl.ComponentOptions
 
@@ -24,13 +24,13 @@ object ViewOptions {
 
   def defaults: ViewOptions = ViewOptionsImpl(Set.empty)
 
-  private[akkaserverless] final case class ViewOptionsImpl(forwardHeaders: immutable.Set[String]) extends ViewOptions {
+  private[akkaserverless] final case class ViewOptionsImpl(forwardHeaders: Set[String]) extends ViewOptions {
 
     /**
      * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming
      * commands. By default no headers except "X-Server-Timing" are forwarded.
      */
-    override def withForwardHeaders(headers: immutable.Set[String]): ViewOptions =
+    override def withForwardHeaders(headers: Set[String]): ViewOptions =
       copy(forwardHeaders = headers)
   }
 }

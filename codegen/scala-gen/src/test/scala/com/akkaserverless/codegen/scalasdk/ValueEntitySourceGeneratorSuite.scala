@@ -132,7 +132,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.example.service
          |import com.external.ExternalDomainProto
          |import com.google.protobuf.Descriptors
-         |import scala.collection.immutable
+         |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -156,7 +156,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |  override final def newRouter(context: ValueEntityContext): MyValueEntityRouter =
          |    new MyValueEntityRouter(entityFactory(context))
          |
-         |  override final val additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
          |}
          |""".stripMargin)

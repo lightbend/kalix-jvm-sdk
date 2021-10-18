@@ -23,7 +23,7 @@ import com.akkaserverless.javasdk.action.Action
 
 import java.util
 import java.util.concurrent.CompletionStage
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -36,34 +36,33 @@ object ActionEffectImpl {
     override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects.asScala)
 
-    protected def internalSideEffects(): immutable.Seq[SideEffect]
-    protected def withSideEffects(sideEffects: immutable.Seq[SideEffect]): Action.Effect[T]
+    protected def internalSideEffects(): Seq[SideEffect]
+    protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
-  final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: immutable.Seq[SideEffect])
+  final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ReplyEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: immutable.Seq[SideEffect])
+  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: immutable.Seq[SideEffect])
+  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class ErrorEffect[T](description: String, internalSideEffects: immutable.Seq[SideEffect])
-      extends PrimaryEffect[T] {
+  final case class ErrorEffect[T](description: String, internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class NoReply[T](internalSideEffects: immutable.Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class NoReply[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
     def isEmpty: Boolean = true
     protected def withSideEffects(sideEffects: Seq[SideEffect]): NoReply[T] = copy(internalSideEffects = sideEffects)
   }

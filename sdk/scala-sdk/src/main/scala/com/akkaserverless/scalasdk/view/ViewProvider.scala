@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk.view
 
 import com.google.protobuf.Descriptors
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 
 import com.akkaserverless.scalasdk.impl.view.ViewRouter
 
@@ -30,5 +30,5 @@ trait ViewProvider[S, V <: View[S]] {
 
   def newRouter(context: ViewCreationContext): ViewRouter[S, V]
 
-  def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor]
+  def additionalDescriptors: Seq[Descriptors.FileDescriptor]
 }

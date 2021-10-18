@@ -273,7 +273,7 @@ object ActionServiceSourceGenerator {
         "com.akkaserverless.scalasdk.action.ActionCreationContext",
         "com.akkaserverless.scalasdk.action.ActionOptions",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable"))
+        "scala.collection.immutable.Seq"))
 
     File(
       service.fqn.parent.scalaPackage,
@@ -302,7 +302,7 @@ object ActionServiceSourceGenerator {
         |  override final def newRouter(context: ActionCreationContext): ${service.routerName} =
         |    new ${service.routerName}(actionFactory(context))
         |
-        |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+        |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::
         |    Nil
         |

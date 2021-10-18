@@ -52,7 +52,7 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
-          "scala.collection.immutable"),
+          "scala.collection.immutable.Seq"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
     val eventHandlers = entity.events.map { event =>
@@ -103,7 +103,7 @@ object EventSourcedEntityTestKitGenerator {
        |  def currentState: ${typeName(entity.state.fqn)} = _state
        |
        |  /** @return All events emitted by command handlers of this entity up to now */
-       |  def allEvents: immutable.Seq[Any] = events
+       |  def allEvents: Seq[Any] = events
        |
        |  private def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
        |   event match {

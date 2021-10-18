@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.impl.action
 
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -36,14 +36,14 @@ private[scalasdk] object ActionEffectImpl {
 
     override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects)
-    override def addSideEffects(sideEffects: immutable.Seq[SideEffect]): Action.Effect[T] =
+    override def addSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects)
 
-    protected def internalSideEffects(): immutable.Seq[SideEffect]
-    protected def withSideEffects(sideEffects: immutable.Seq[SideEffect]): Action.Effect[T]
+    protected def internalSideEffects(): Seq[SideEffect]
+    protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
 
-  final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: immutable.Seq[SideEffect])
+  final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -57,7 +57,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: immutable.Seq[SideEffect])
+  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -81,7 +81,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: immutable.Seq[SideEffect])
+  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -95,8 +95,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ErrorEffect[T](description: String, internalSideEffects: immutable.Seq[SideEffect])
-      extends PrimaryEffect[T] {
+  final case class ErrorEffect[T](description: String, internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
@@ -108,7 +107,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class NoReply[T](internalSideEffects: immutable.Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class NoReply[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = true
     protected def withSideEffects(sideEffects: Seq[SideEffect]): NoReply[T] =

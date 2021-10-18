@@ -17,7 +17,7 @@
 package com.akkaserverless.scalasdk.impl.eventsourcedentity
 
 import java.util.Optional
-import scala.collection.immutable
+import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
@@ -92,7 +92,7 @@ private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
 
   def withForwardHeaders(headers: java.util.Set[String]): JavaSdkEventSourcedEntityOptions =
     new JavaEventSourcedEntityOptionsAdapter(
-      scalaSdkEventSourcedEntityOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
+      scalaSdkEventSourcedEntityOptions.withForwardHeaders(Set.from(headers.asScala)))
 
   def passivationStrategy(): javasdk.PassivationStrategy =
     PassivationStrategyConverters.toJava(scalaSdkEventSourcedEntityOptions.passivationStrategy)

@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.impl.valueentity
 
 import java.util.Optional
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
@@ -92,8 +92,7 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
   def forwardHeaders(): java.util.Set[String] = scalaSdkValueEntityOptions.forwardHeaders.asJava
 
   def withForwardHeaders(headers: java.util.Set[String]): javasdk.valueentity.ValueEntityOptions =
-    new JavaValueEntityOptionsAdapter(
-      scalaSdkValueEntityOptions.withForwardHeaders(immutable.Set.from(headers.asScala)))
+    new JavaValueEntityOptionsAdapter(scalaSdkValueEntityOptions.withForwardHeaders(Set.from(headers.asScala)))
 
   def passivationStrategy(): javasdk.PassivationStrategy =
     PassivationStrategyConverters.toJava(scalaSdkValueEntityOptions.passivationStrategy)

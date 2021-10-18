@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 
 import com.akkaserverless.scalasdk.impl.ComponentOptions
 
@@ -40,11 +40,11 @@ trait EntityOptions extends ComponentOptions {
    * @return
    *   the headers requested to be forwarded as metadata (cannot be mutated, use withForwardHeaders)
    */
-  def forwardHeaders: immutable.Set[String]
+  def forwardHeaders: Set[String]
 
   /**
    * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming
    * commands. By default no headers except "X-Server-Timing" are forwarded.
    */
-  def withForwardHeaders(headers: immutable.Set[String]): EntityOptions
+  def withForwardHeaders(headers: Set[String]): EntityOptions
 }

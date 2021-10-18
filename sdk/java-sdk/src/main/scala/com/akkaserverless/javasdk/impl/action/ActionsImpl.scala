@@ -34,7 +34,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 
 import java.util.Optional
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
@@ -146,7 +146,7 @@ private[javasdk] final class ActionsImpl(
     }
   }
 
-  private def toProtocol(sideEffects: immutable.Seq[SideEffect]): Seq[component.SideEffect] =
+  private def toProtocol(sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map { sideEffect =>
       component.SideEffect(
         sideEffect.serviceCall().ref().method().getService.getFullName,

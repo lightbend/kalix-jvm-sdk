@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.eventsourcedentity
 
 import com.akkaserverless.scalasdk.EntityOptions
 import com.akkaserverless.scalasdk.PassivationStrategy
-import scala.collection.immutable
+import scala.collection.immutable.Set
 
 import java.util.Collections
 
@@ -37,7 +37,7 @@ trait EventSourcedEntityOptions extends EntityOptions {
   def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions
 
   override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions
-  override def withForwardHeaders(headers: immutable.Set[String]): EventSourcedEntityOptions
+  override def withForwardHeaders(headers: Set[String]): EventSourcedEntityOptions
 }
 
 object EventSourcedEntityOptions {
@@ -49,13 +49,13 @@ object EventSourcedEntityOptions {
    *   the entity option
    */
   def defaults: EventSourcedEntityOptions = {
-    EventSourcedEntityOptionsImpl(0, PassivationStrategy.defaultTimeout, immutable.Set())
+    EventSourcedEntityOptionsImpl(0, PassivationStrategy.defaultTimeout, Set.empty)
   }
 
   private[akkaserverless] final case class EventSourcedEntityOptionsImpl(
       override val snapshotEvery: Int,
       override val passivationStrategy: PassivationStrategy,
-      override val forwardHeaders: immutable.Set[String])
+      override val forwardHeaders: Set[String])
       extends EventSourcedEntityOptions {
 
     override def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions =
@@ -64,7 +64,7 @@ object EventSourcedEntityOptions {
     override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions =
       copy(passivationStrategy = strategy)
 
-    override def withForwardHeaders(headers: immutable.Set[String]): EventSourcedEntityOptions =
+    override def withForwardHeaders(headers: Set[String]): EventSourcedEntityOptions =
       copy(forwardHeaders = headers)
   }
 }

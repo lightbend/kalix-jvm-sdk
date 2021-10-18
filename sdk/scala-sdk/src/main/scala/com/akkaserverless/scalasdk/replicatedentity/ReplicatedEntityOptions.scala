@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 import com.akkaserverless.scalasdk
 import com.akkaserverless.scalasdk.EntityOptions
 import com.akkaserverless.scalasdk.PassivationStrategy
@@ -56,7 +56,7 @@ object ReplicatedEntityOptions {
       writeConsistency: WriteConsistency)
       extends ReplicatedEntityOptions {
 
-    override def withForwardHeaders(headers: immutable.Set[String]): ReplicatedEntityOptions =
+    override def withForwardHeaders(headers: Set[String]): ReplicatedEntityOptions =
       copy(forwardHeaders = headers)
 
     override def withPassivationStrategy(passivationStrategy: scalasdk.PassivationStrategy): ReplicatedEntityOptions =

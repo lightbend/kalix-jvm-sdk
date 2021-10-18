@@ -163,7 +163,7 @@ object EventSourcedEntitySourceGenerator {
         "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions",
         "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider",
         "com.google.protobuf.Descriptors",
-        "scala.collection.immutable"),
+        "scala.collection.immutable.Seq"),
       packageImports = Seq(service.fqn.parent.scalaPackage))
 
     File(
@@ -193,7 +193,7 @@ object EventSourcedEntitySourceGenerator {
          |  override final def newRouter(context: EventSourcedEntityContext): ${entity.routerName} =
          |    new ${entity.routerName}(entityFactory(context))
          |
-         |  override final val additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
          |}
          |""".stripMargin)

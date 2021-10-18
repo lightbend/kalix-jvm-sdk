@@ -16,7 +16,7 @@
 
 package com.akkaserverless.scalasdk.impl
 import java.nio.ByteBuffer
-import scala.collection.immutable
+import scala.collection.immutable.Seq
 import com.akkaserverless.javasdk.impl.{ MetadataImpl => Impl }
 import com.akkaserverless.scalasdk.CloudEvent
 import com.akkaserverless.scalasdk.Metadata
@@ -25,7 +25,7 @@ import com.akkaserverless.protocol.component.{ MetadataEntry => ProtocolMetadata
 
 private[akkaserverless] object MetadataImpl {
   def apply(impl: com.akkaserverless.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
-  def apply(entries: immutable.Seq[ProtocolMetadataEntry]): MetadataImpl = MetadataImpl(
+  def apply(entries: Seq[ProtocolMetadataEntry]): MetadataImpl = MetadataImpl(
     new com.akkaserverless.javasdk.impl.MetadataImpl(entries))
 }
 

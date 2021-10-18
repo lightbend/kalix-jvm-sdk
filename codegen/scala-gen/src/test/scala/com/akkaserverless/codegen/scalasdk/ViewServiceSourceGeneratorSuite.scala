@@ -200,7 +200,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.ViewProvider
          |import com.google.protobuf.Descriptors
          |import com.google.protobuf.EmptyProto
-         |import scala.collection.immutable
+         |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -233,7 +233,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |  override final def newRouter(context: ViewCreationContext): MyServiceViewRouter =
          |    new MyServiceViewRouter(viewFactory(context))
          |
-         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    MyServiceProto.javaDescriptor ::
          |    Nil
          |}

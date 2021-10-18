@@ -183,7 +183,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.ActionProvider
          |import com.external.Empty
          |import com.google.protobuf.Descriptors
-         |import scala.collection.immutable
+         |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -207,7 +207,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |  override final def newRouter(context: ActionCreationContext): MyServiceActionRouter =
          |    new MyServiceActionRouter(actionFactory(context))
          |
-         |  override final def additionalDescriptors: immutable.Seq[Descriptors.FileDescriptor] =
+         |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    MyServiceProto.javaDescriptor ::
          |    Nil
          |
