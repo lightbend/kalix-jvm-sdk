@@ -154,7 +154,7 @@ object EventSourcedEntitySourceGenerator {
           |  override final val serviceDescriptor: ${ref[Descriptors]}.ServiceDescriptor =
           |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
           |
-          |  override final val entityType = "${entity.entityType}"
+          |  override final val entityType: String = "${entity.entityType}"
           |
           |  override final def newRouter(context: $EventSourcedEntityContext): ${entity.routerName} =
           |    new ${entity.routerName}(entityFactory(context))

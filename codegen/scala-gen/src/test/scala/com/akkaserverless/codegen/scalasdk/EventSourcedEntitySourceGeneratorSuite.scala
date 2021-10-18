@@ -167,7 +167,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
           |    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
           |
-          |  override final val entityType = "MyEntity"
+          |  override final val entityType: String = "MyEntity"
           |
           |  override final def newRouter(context: EventSourcedEntityContext): MyEntityRouter =
           |    new MyEntityRouter(entityFactory(context))
