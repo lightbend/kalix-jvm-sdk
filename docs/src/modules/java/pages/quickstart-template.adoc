@@ -93,8 +93,8 @@ The template created the source files outlined in xref:developing:development-pr
 
 Akka Serverless uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity]. The entity descriptors include:
 
-- `src/main/proto/value-entities/counter_api.proto` the service API to be used by clients
-- `src/main/proto/value-entities/counter_domain.proto` the domain model of the Value Entity's state
+- `src/main/proto/com/example/counter_api.proto` the service API to be used by clients
+- `src/main/proto/com/example/counter_domain.proto` the domain model of the Value Entity's state
 
 [.tabset]
 Default API protobuf file::
