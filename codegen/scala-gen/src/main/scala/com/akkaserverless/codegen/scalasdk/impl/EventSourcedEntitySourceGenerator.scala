@@ -17,6 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
+import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
@@ -41,7 +42,7 @@ object EventSourcedEntitySourceGenerator {
   private[codegen] def abstractEntity(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-
+    import Types._
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
     val stateType = eventSourcedEntity.state.fqn
@@ -49,7 +50,7 @@ object EventSourcedEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.name
 
-        c"""|def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: ${cmd.inputType}): EventSourcedEntity.Effect[${cmd.outputType}]
+        c"""|def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: ${cmd.inputType}): $EventSourcedEntity.Effect[${cmd.outputType}]
             |"""
       }
 
@@ -61,8 +62,6 @@ object EventSourcedEntitySourceGenerator {
               event.fqn.name)}: ${event.fqn}): $stateType"""
           }
       }
-
-    import Types._
 
     generate(
       eventSourcedEntity.fqn.parent,
@@ -130,54 +129,41 @@ object EventSourcedEntitySourceGenerator {
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
-    val packageName = entity.fqn.parent.scalaPackage
+    import Types._
     val className = entity.providerName
 
     val descriptors =
       (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
         .map(_.descriptorImport)
-    implicit val imports: Imports = generateImports(
-      Seq(entity.state.fqn) ++ descriptors,
-      packageName,
-      Seq(
-        "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions",
-        "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider",
-        "com.google.protobuf.Descriptors",
-        "scala.collection.immutable.Seq"),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    File(
-      s"${packageAsPath(packageName)}/${className}.scala",
-      s"""
-         |package $packageName
-         |
-         |${writeImports(imports)}
-         |
-         |$managedComment
-         |
-         |object $className {
-         |  def apply(entityFactory: EventSourcedEntityContext => ${entity.fqn.name}): $className =
-         |    new $className(entityFactory, EventSourcedEntityOptions.defaults)
-         |}
-         |class $className private(entityFactory: EventSourcedEntityContext => ${entity.fqn.name}, override val options: EventSourcedEntityOptions)
-         |  extends EventSourcedEntityProvider[${typeName(entity.state.fqn)}, ${typeName(entity.fqn)}] {
-         |
-         |  def withOptions(newOptions: EventSourcedEntityOptions): $className =
-         |    new $className(entityFactory, newOptions)
-         |
-         |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
-         |
-         |  override final val entityType = "${entity.entityType}"
-         |
-         |  override final def newRouter(context: EventSourcedEntityContext): ${entity.routerName} =
-         |    new ${entity.routerName}(entityFactory(context))
-         |
-         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-         |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
-         |}
-         |""".stripMargin)
+    generate(
+      entity.fqn.parent,
+      entity.providerName,
+      c"""|$managedComment
+          |
+          |object $className {
+          |  def apply(entityFactory: $EventSourcedEntityContext => ${entity.fqn.name}): $className =
+          |    new $className(entityFactory, $EventSourcedEntityOptions.defaults)
+          |}
+          |class $className private(entityFactory: $EventSourcedEntityContext => ${entity.fqn.name}, override val options: $EventSourcedEntityOptions)
+          |  extends $EventSourcedEntityProvider[${entity.state.fqn}, ${entity.fqn}] {
+          |
+          |  def withOptions(newOptions: $EventSourcedEntityOptions): $className =
+          |    new $className(entityFactory, newOptions)
+          |
+          |  override final val serviceDescriptor: ${ref[Descriptors]}.ServiceDescriptor =
+          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |
+          |  override final val entityType = "${entity.entityType}"
+          |
+          |  override final def newRouter(context: $EventSourcedEntityContext): ${entity.routerName} =
+          |    new ${entity.routerName}(entityFactory(context))
+          |
+          |  override final val additionalDescriptors: ${ref[scala.collection.immutable.Seq[_]]}[${ref[Descriptors]}.FileDescriptor] =
+          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   def generateImplementationSkeleton(

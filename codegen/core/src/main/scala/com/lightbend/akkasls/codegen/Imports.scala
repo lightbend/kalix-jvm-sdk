@@ -16,15 +16,15 @@
 
 package com.lightbend.akkasls.codegen
 
-class Imports(val currentPackage: String, _imports: Seq[String]) {
+class Imports(val currentPackage: String, val _imports: Seq[String]) {
 
   val imports: Seq[String] =
-    _imports
+    _imports.distinct
       .filterNot(isInCurrentPackage)
       .filterNot(i => clashingNames.contains(i.split("\\.").last))
 
   lazy val clashingNames: Set[String] =
-    _imports
+    _imports.distinct
       .map(_.split("\\.").last)
       .groupBy(identity)
       .filter(_._2.size > 1)

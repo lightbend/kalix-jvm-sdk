@@ -172,7 +172,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |    new MyEntityRouter(entityFactory(context))
           |
           |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-          |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
+          |    DomainProto.javaDescriptor ::
+          |    service.MyServiceProto.javaDescriptor ::
+          |    ExternalDomainProto.javaDescriptor :: Nil
           |}
           |""".stripMargin)
   }
