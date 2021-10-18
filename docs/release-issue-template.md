@@ -19,6 +19,7 @@
 ### Fix and publish docs
 
 - [ ] Update the [supported version in the main docs](https://github.com/lightbend/akkaserverless-docs/blob/master/docs/modules/ROOT/partials/include.adoc#L21) if relevant (affects [Supported Versions](https://developer.lightbend.com/docs/akka-serverless/setting-up/index.html#_supported_languages))
+- [ ] Add an item to the [Release Notes](https://github.com/lightbend/akkaserverless-docs/blob/master/docs/modules/release-notes/pages/index.adoc) in the documentation
 - [ ] Release the Akka Serverless documentation to get the SDK docs updates published
 
 ### Update to the latest version
