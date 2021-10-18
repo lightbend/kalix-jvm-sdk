@@ -628,6 +628,7 @@ include::example$java-replicatedentity-examples/src/main/java/com/example/replic
 <3> Modify the values of the Replicated Register Map with `setValue`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
 Scala::
++
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
 ----
