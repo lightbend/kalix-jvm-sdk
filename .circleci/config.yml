@@ -847,6 +847,14 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-scala-replicatedentity-examples:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-replicatedentity-shopping-cart:
+          requires:
+            - checks
+            - publish-local
 
       - publish:
           filters: # version tags only
