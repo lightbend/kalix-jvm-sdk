@@ -39,7 +39,8 @@ object ActionServiceSourceGenerator {
     Seq(abstractAction(service), actionRouter(service), actionProvider(service))
 
   private[codegen] def actionSource(service: ModelBuilder.ActionService): File = {
-    import Types._
+    import Types.{ Source, NotUsed }
+    import Types.Action._
 
     val className = service.className
 
@@ -100,7 +101,8 @@ object ActionServiceSourceGenerator {
   }
 
   private[codegen] def abstractAction(service: ModelBuilder.ActionService): File = {
-    import Types._
+    import Types.{ Source, NotUsed }
+    import Types.Action._
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -141,7 +143,8 @@ object ActionServiceSourceGenerator {
   }
 
   private[codegen] def actionRouter(service: ModelBuilder.ActionService): File = {
-    import Types._
+    import Types.{ Source, NotUsed }
+    import Types.Action._
 
     val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
@@ -223,7 +226,8 @@ object ActionServiceSourceGenerator {
   }
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): File = {
-    import Types._
+    import Types.{ Descriptors, ImmutableSeq }
+    import Types.Action._
 
     generate(
       service.fqn.parent,

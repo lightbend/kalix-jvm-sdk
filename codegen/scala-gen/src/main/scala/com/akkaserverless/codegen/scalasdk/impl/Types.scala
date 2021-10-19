@@ -19,26 +19,41 @@ package com.akkaserverless.codegen.scalasdk.impl
 import com.lightbend.akkasls.codegen.FullyQualifiedName
 
 object Types {
-  val EventSourcedEntity = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
-  val EventSourcedEntityProvider = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
-  val EventSourcedEntityOptions = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
-  val EventSourcedEntityContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
+  object Action {
+    val Action = FQN("com.akkaserverless.scalasdk.action.Action")
+    val ActionCreationContext = FQN("com.akkaserverless.scalasdk.action.ActionCreationContext")
+    val ActionOptions = FQN("com.akkaserverless.scalasdk.action.ActionOptions")
+    val ActionProvider = FQN("com.akkaserverless.scalasdk.action.ActionProvider")
+    val MessageEnvelope = FQN("com.akkaserverless.scalasdk.action.MessageEnvelope")
+    val ActionRouter = FQN("com.akkaserverless.scalasdk.impl.action.ActionRouter")
+    val HandlerNotFound = FQN("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
+  }
 
-  val CommandContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
-  val EventSourcedEntityRouter = FQN("com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
+  object EventSourcedEntity {
+    val EventSourcedEntity = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
+    val EventSourcedEntityProvider = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
+    val EventSourcedEntityOptions = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
+    val EventSourcedEntityContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
 
-  val CommandHandlerNotFound = FQN(
-    "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
-  val EventHandlerNotFound = FQN(
-    "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
+    val CommandContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
+    val EventSourcedEntityRouter = FQN("com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
 
-  val Action = FQN("com.akkaserverless.scalasdk.action.Action")
-  val ActionCreationContext = FQN("com.akkaserverless.scalasdk.action.ActionCreationContext")
-  val ActionOptions = FQN("com.akkaserverless.scalasdk.action.ActionOptions")
-  val ActionProvider = FQN("com.akkaserverless.scalasdk.action.ActionProvider")
-  val MessageEnvelope = FQN("com.akkaserverless.scalasdk.action.MessageEnvelope")
-  val ActionRouter = FQN("com.akkaserverless.scalasdk.impl.action.ActionRouter")
-  val HandlerNotFound = FQN("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
+    val CommandHandlerNotFound = FQN(
+      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
+    val EventHandlerNotFound = FQN(
+      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
+  }
+
+  object ValueEntity {
+    val ValueEntity = FQN("com.akkaserverless.scalasdk.valueentity.ValueEntity")
+    val CommandContext = FQN("com.akkaserverless.scalasdk.valueentity.CommandContext")
+    val ValueEntityContext = FQN("com.akkaserverless.scalasdk.valueentity.ValueEntityContext")
+    val ValueEntityOptions = FQN("com.akkaserverless.scalasdk.valueentity.ValueEntityOptions")
+    val ValueEntityProvider = FQN("com.akkaserverless.scalasdk.valueentity.ValueEntityProvider")
+    val ValueEntityRouter = FQN("com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter")
+    val CommandHandlerNotFound = FQN(
+      "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
+  }
 
   val Source = FQN("akka.stream.scaladsl.Source")
   val NotUsed = FQN("akka.NotUsed")

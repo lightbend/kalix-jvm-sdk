@@ -53,6 +53,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |  override def get(currentState: MyState, getValue: service.GetValue): ValueEntity.Effect[service.MyState] =
          |    effects.error("The command handler for `Get` is not implemented, yet")
+         |
          |}
          |""".stripMargin)
   }
@@ -78,6 +79,7 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |
           |  /** Command handler for "Get". */
           |  def get(currentState: MyState, getValue: service.GetValue): ValueEntity.Effect[service.MyState]
+          |
           |}
           |""".stripMargin)
   }
@@ -157,7 +159,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |    new MyValueEntityRouter(entityFactory(context))
          |
          |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-         |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
+         |    DomainProto.javaDescriptor ::
+         |    service.MyServiceProto.javaDescriptor ::
+         |    ExternalDomainProto.javaDescriptor :: Nil
          |}
          |""".stripMargin)
   }
