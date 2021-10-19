@@ -74,14 +74,25 @@ object FullyQualifiedName {
   /**
    * Creates a FullyQualifiedName without a descriptor.
    */
-  def noDescriptor(name: String, parent: PackageNaming) =
+  def noDescriptor(name: String, parent: PackageNaming): FullyQualifiedName =
     FullyQualifiedName(name, name, parent, None)
 
   /**
    * Creates a FullyQualifiedName without a descriptor.
    */
-  def noDescriptor(name: String, parent: String) =
+  def noDescriptor(name: String, parent: String): FullyQualifiedName =
     FullyQualifiedName(name, name, PackageNaming.noDescriptor(parent), None)
+
+  /**
+   * Creates a FullyQualifiedName without a descriptor from a dotted fully-qualified name string.
+   */
+  def noDescriptor(fqn: String): FullyQualifiedName = {
+    val idx = fqn.lastIndexOf('.')
+    if (idx > 0)
+      noDescriptor(fqn.drop(idx + 1), fqn.take(idx))
+    else
+      throw new IllegalArgumentException(s"Expected fully-qualified name but got '$fqn'")
+  }
 }
 
 case class PackageNaming(

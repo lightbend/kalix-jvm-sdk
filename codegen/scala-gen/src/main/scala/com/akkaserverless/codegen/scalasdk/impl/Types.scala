@@ -21,35 +21,27 @@ import com.lightbend.akkasls.codegen.FullyQualifiedName
 import scala.reflect.{ classTag, ClassTag }
 
 object Types {
-  val EventSourcedEntity =
-    FullyQualifiedName.noDescriptor("EventSourcedEntity", "com.akkaserverless.scalasdk.eventsourcedentity")
+  val EventSourcedEntity = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
+  val EventSourcedEntityProvider = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
+  val EventSourcedEntityOptions = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
+  val EventSourcedEntityContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
 
-  val EventSourcedEntityProvider =
-    FullyQualifiedName.noDescriptor("EventSourcedEntityProvider", "com.akkaserverless.scalasdk.eventsourcedentity")
+  val CommandContext = FQN("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
+  val EventSourcedEntityRouter = FQN("com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
 
-  val EventSourcedEntityOptions =
-    FullyQualifiedName.noDescriptor("EventSourcedEntityOptions", "com.akkaserverless.scalasdk.eventsourcedentity")
+  val CommandHandlerNotFound = FQN(
+    "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
+  val EventHandlerNotFound = FQN(
+    "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
 
-  val EventSourcedEntityContext =
-    FullyQualifiedName.noDescriptor("EventSourcedEntityContext", "com.akkaserverless.scalasdk.eventsourcedentity")
-
-  val CommandContext =
-    FullyQualifiedName.noDescriptor("CommandContext", "com.akkaserverless.scalasdk.eventsourcedentity")
-
-  val EventSourcedEntityRouter =
-    FullyQualifiedName.noDescriptor("EventSourcedEntityRouter", "com.akkaserverless.scalasdk.impl.eventsourcedentity")
-
-  val CommandHandlerNotFound =
-    FullyQualifiedName.noDescriptor(
-      "CommandHandlerNotFound",
-      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
-  val EventHandlerNotFound =
-    FullyQualifiedName.noDescriptor(
-      "EventHandlerNotFound",
-      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
+  val Action = FQN("com.akkaserverless.scalasdk.action.Action")
+  val ActionCreationContext = FQN("com.akkaserverless.scalasdk.action.ActionCreationContext")
 
   def ref[T: ClassTag]: FullyQualifiedName = {
     val ct = classTag[T]
     FullyQualifiedName.noDescriptor(ct.runtimeClass.getSimpleName, ct.runtimeClass.getPackageName)
   }
+
+  private def FQN(fqn: String): FullyQualifiedName =
+    FullyQualifiedName.noDescriptor(fqn)
 }
