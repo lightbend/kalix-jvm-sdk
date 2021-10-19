@@ -102,7 +102,6 @@ class ReplicatedRegister[T] private[scalasdk] (override val delegate: Replicated
   final override def resetDelta(): ReplicatedRegister[T] =
     new ReplicatedRegister(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegister[T]] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedRegister(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegister[T]] =
+    delegate.applyDelta.andThen(new ReplicatedRegister(_))
 }

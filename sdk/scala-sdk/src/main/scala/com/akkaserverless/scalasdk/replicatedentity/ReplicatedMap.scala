@@ -288,7 +288,6 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
   final override def resetDelta(): ReplicatedMap[K, V] =
     new ReplicatedMap(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMap[K, V]] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedMap(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMap[K, V]] =
+    delegate.applyDelta.andThen(new ReplicatedMap(_))
 }

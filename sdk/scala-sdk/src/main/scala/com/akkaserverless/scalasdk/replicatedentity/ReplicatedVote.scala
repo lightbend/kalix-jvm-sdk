@@ -90,7 +90,6 @@ class ReplicatedVote private[scalasdk] (override val delegate: ReplicatedVoteImp
   final override def resetDelta(): ReplicatedVote =
     new ReplicatedVote(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedVote] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedVote(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedVote] =
+    delegate.applyDelta.andThen(new ReplicatedVote(_))
 }

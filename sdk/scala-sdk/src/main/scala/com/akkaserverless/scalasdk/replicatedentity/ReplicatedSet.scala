@@ -175,7 +175,6 @@ class ReplicatedSet[E] private[scalasdk] (override val delegate: ReplicatedSetIm
 
   final override def resetDelta(): ReplicatedSet[E] = new ReplicatedSet(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSet[E]] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedSet(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSet[E]] =
+    delegate.applyDelta.andThen(new ReplicatedSet(_))
 }

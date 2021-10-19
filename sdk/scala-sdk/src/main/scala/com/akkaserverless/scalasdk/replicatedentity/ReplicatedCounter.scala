@@ -62,7 +62,6 @@ class ReplicatedCounter private[scalasdk] (override val delegate: ReplicatedCoun
   final override def resetDelta(): ReplicatedCounter =
     new ReplicatedCounter(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedCounter] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedCounter(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedCounter] =
+    delegate.applyDelta.andThen(new ReplicatedCounter(_))
 }

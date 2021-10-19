@@ -160,7 +160,6 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val delegate: Replica
   final override def resetDelta(): ReplicatedMultiMap[K, V] =
     new ReplicatedMultiMap(delegate.resetDelta())
 
-  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMultiMap[K, V]] = {
-    case delta if delegate.applyDelta.isDefinedAt(delta) => new ReplicatedMultiMap(delegate.applyDelta(delta))
-  }
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMultiMap[K, V]] =
+    delegate.applyDelta.andThen(new ReplicatedMultiMap(_))
 }
