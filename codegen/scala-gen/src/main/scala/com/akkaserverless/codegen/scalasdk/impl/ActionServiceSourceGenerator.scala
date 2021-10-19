@@ -17,8 +17,6 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.lightbend.akkasls.codegen.Imports
-import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 /**
@@ -26,8 +24,8 @@ import com.lightbend.akkasls.codegen.ModelBuilder
  */
 object ActionServiceSourceGenerator {
 
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Scala sources the user view source file.
@@ -40,275 +38,223 @@ object ActionServiceSourceGenerator {
   def generateManaged(service: ModelBuilder.ActionService): Seq[File] =
     Seq(abstractAction(service), actionRouter(service), actionProvider(service))
 
-  private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {
-    if (commands.exists(_.hasStream))
-      "akka.NotUsed" :: "akka.stream.scaladsl.Source" :: Nil
-    else
-      Nil
-  }
-
   private[codegen] def actionSource(service: ModelBuilder.ActionService): File = {
+    import Types._
 
     val className = service.className
-
-    implicit val imports = generateImports(
-      service.commandTypes,
-      service.fqn.parent.scalaPackage,
-      otherImports = Seq(
-        "com.akkaserverless.scalasdk.action.Action",
-        "com.akkaserverless.scalasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
-      val inputType = typeName(cmd.inputType)
-      val outputType = typeName(cmd.outputType)
+      val inputType = cmd.inputType
+      val outputType = cmd.outputType
 
       if (cmd.isUnary) {
         val jsonTopicHint = {
           // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
           if (cmd.inFromTopic && cmd.inputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
-            """|// JSON input from a topic can be decoded using JsonSupport.decodeJson(classOf[MyClass], any)
-               |  """.stripMargin
+            c"""|// JSON input from a topic can be decoded using JsonSupport.decodeJson(classOf[MyClass], any)
+                |  """
           else if (cmd.outToTopic && cmd.outputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
-            """|// JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
-               |  """.stripMargin
+            c"""|// JSON output to emit to a topic can be encoded using JsonSupport.encodeJson(myPojo)
+                |  """
           else ""
         }
 
-        s"""|/** Handler for "$methodName". */
-            |override def ${lowerFirst(methodName)}($input: $inputType): Action.Effect[$outputType] = {
+        c"""|/** Handler for "$methodName". */
+            |override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
             |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
-            |}""".stripMargin
+            |}"""
       } else if (cmd.isStreamOut) {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
-           |override def ${lowerFirst(methodName)}($input: $inputType): Source[Action.Effect[$outputType], NotUsed] = {
+           |override def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
-           |}""".stripMargin
+           |}"""
       } else if (cmd.isStreamIn) {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
-           |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, NotUsed]): Action.Effect[$outputType] = {
+           |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, $NotUsed]): $Action.Effect[$outputType] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
-           |}""".stripMargin
+           |}"""
       } else {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
-           |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, NotUsed]): Source[Action.Effect[$outputType], NotUsed] = {
+           |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, $NotUsed]): $Source[$Action.Effect[$outputType], $NotUsed] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
-           |}""".stripMargin
+           |}"""
       }
     }
 
-    File(
-      service.fqn.parent.scalaPackage,
+    generate(
+      service.fqn.parent,
       className,
-      s"""|package ${service.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$unmanagedComment
-        |
-        |/** An action. */
-        |class $className(creationContext: ActionCreationContext) extends ${service.abstractActionName} {
-        |
-        |  ${Format.indent(methods, 2)}
-        |}
-        |""".stripMargin)
+      c"""|$unmanagedComment
+          |
+          |/** An action. */
+          |class $className(creationContext: $ActionCreationContext) extends ${service.abstractActionName} {
+          |
+          |  $methods
+          |}
+          |""")
   }
 
   private[codegen] def abstractAction(service: ModelBuilder.ActionService): File = {
-
-    implicit val imports = generateImports(
-      service.commandTypes,
-      service.fqn.parent.scalaPackage,
-      otherImports = Seq("com.akkaserverless.scalasdk.action.Action") ++ streamImports(service.commands))
+    import Types._
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
-      val inputType = typeName(cmd.inputType)
-      val outputType = typeName(cmd.outputType)
+      val inputType = cmd.inputType
+      val outputType = cmd.outputType
 
       if (cmd.isUnary) {
-        s"""|/** Handler for "$methodName". */
-            |def ${lowerFirst(methodName)}($input: $inputType): Action.Effect[$outputType]""".stripMargin
+        c"""|/** Handler for "$methodName". */
+            |def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
       } else if (cmd.isStreamOut) {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
-           |def ${lowerFirst(
-          methodName)}($input: $inputType): Source[Action.Effect[$outputType], NotUsed]""".stripMargin
+           |def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed]"""
       } else if (cmd.isStreamIn) {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
-           |def ${lowerFirst(
-          methodName)}(${input}Src: Source[$inputType, NotUsed]): Action.Effect[$outputType]""".stripMargin
+           |def ${lowerFirst(methodName)}(${input}Src: $Source[$inputType, $NotUsed]): $Action.Effect[$outputType]"""
       } else {
-        s"""
+        c"""
            |/** Handler for "$methodName". */
            |def ${lowerFirst(
-          methodName)}(${input}Src: Source[$inputType, NotUsed]): Source[Action.Effect[$outputType], NotUsed]""".stripMargin
+          methodName)}(${input}Src: $Source[$inputType, $NotUsed]): $Source[$Action.Effect[$outputType], $NotUsed]"""
       }
     }
 
-    File(
-      service.fqn.parent.scalaPackage,
+    generate(
+      service.fqn.parent,
       service.abstractActionName,
-      s"""|package ${service.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/** An action. */
-        |abstract class ${service.abstractActionName} extends Action {
-        |
-        |  ${Format.indent(methods, 2)}
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |/** An action. */
+          |abstract class ${service.abstractActionName} extends $Action {
+          |
+          |  $methods
+          |}
+          |""")
   }
 
   private[codegen] def actionRouter(service: ModelBuilder.ActionService): File = {
-    implicit val imports = generateImports(
-      commandTypes(service.commands),
-      service.fqn.parent.scalaPackage,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.action.ActionRouter",
-        "com.akkaserverless.scalasdk.action.Action",
-        "com.akkaserverless.scalasdk.action.MessageEnvelope",
-        "akka.NotUsed",
-        "akka.stream.scaladsl.Source"))
+    import Types._
 
     val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
-      val inputType = typeName(cmd.inputType)
+      val inputType = cmd.inputType
 
-      s"""|case "$methodName" =>
+      c"""|case "$methodName" =>
           |  action.${lowerFirst(methodName)}(message.payload.asInstanceOf[$inputType])
-          |""".stripMargin
+          |"""
     }
 
     val streamOutCases = service.commands.filter(_.isStreamOut).map { cmd =>
       val methodName = cmd.name
-      val inputType = typeName(cmd.inputType)
+      val inputType = cmd.inputType
 
-      s"""|case "$methodName" =>
+      c"""|case "$methodName" =>
           |  action.${lowerFirst(methodName)}(message.payload.asInstanceOf[$inputType])
-          |""".stripMargin
+          |"""
     }
 
     val streamInCases = service.commands.filter(_.isStreamIn).map { cmd =>
       val methodName = cmd.name
-      val inputType = typeName(cmd.inputType)
+      val inputType = cmd.inputType
 
-      s"""|case "$methodName" =>
+      c"""|case "$methodName" =>
           |  action.${lowerFirst(methodName)}(stream.map(el => el.payload.asInstanceOf[$inputType]))
-          |""".stripMargin
+          |"""
     }
 
     val streamInOutCases = service.commands.filter(_.isStreamInOut).map { cmd =>
       val methodName = cmd.name
-      val inputType = typeName(cmd.inputType)
+      val inputType = cmd.inputType
 
-      s"""|case "$methodName" =>
+      c"""|case "$methodName" =>
           |  action.${lowerFirst(methodName)}(stream.map(el => el.payload.asInstanceOf[$inputType]))
-          |""".stripMargin
+          |"""
     }
 
-    File(
-      service.fqn.parent.scalaPackage,
+    generate(
+      service.fqn.parent,
       service.routerName,
-      s"""|package ${service.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/** A Action handler */
-        |class ${service.routerName}(action: ${service.className}) extends ActionRouter[${service.className}](action) {
-        |
-        |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
-        |    commandName match {
-        |      ${Format.indent(unaryCases, 6)}
-        |      case _ =>
-        |        throw new HandlerNotFound(commandName)
-        |    }
-        |  }
-        |
-        |  override def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
-        |    commandName match {
-        |      ${Format.indent(streamOutCases, 6)}
-        |      case _ =>
-        |        throw new HandlerNotFound(commandName)
-        |    }
-        |  }
-        |
-        |  override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] = {
-        |    commandName match {
-        |      ${Format.indent(streamInCases, 6)}
-        |      case _ =>
-        |        throw new HandlerNotFound(commandName)
-        |    }
-        |  }
-        |
-        |  override def handleStreamed(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = {
-        |    commandName match {
-        |      ${Format.indent(streamInOutCases, 6)}
-        |      case _ =>
-        |        throw new HandlerNotFound(commandName)
-        |    }
-        |  }
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |/** An Action handler */
+          |class ${service.routerName}(action: ${service.className}) extends $ActionRouter[${service.className}](action) {
+          |
+          |  override def handleUnary(commandName: String, message: $MessageEnvelope[Any]):  $Action.Effect[_] = {
+          |    commandName match {
+          |      $unaryCases
+          |      case _ =>
+          |        throw new $HandlerNotFound(commandName)
+          |    }
+          |  }
+          |
+          |  override def handleStreamedOut(commandName: String, message: $MessageEnvelope[Any]): $Source[$Action.Effect[_], $NotUsed] = {
+          |    commandName match {
+          |      $streamOutCases
+          |      case _ =>
+          |        throw new $HandlerNotFound(commandName)
+          |    }
+          |  }
+          |
+          |  override def handleStreamedIn(commandName: String, stream: $Source[$MessageEnvelope[Any], $NotUsed]): $Action.Effect[_] = {
+          |    commandName match {
+          |      $streamInCases
+          |      case _ =>
+          |        throw new $HandlerNotFound(commandName)
+          |    }
+          |  }
+          |
+          |  override def handleStreamed(commandName: String, stream: $Source[$MessageEnvelope[Any], $NotUsed]): $Source[$Action.Effect[_], $NotUsed] = {
+          |    commandName match {
+          |      $streamInOutCases
+          |      case _ =>
+          |        throw new $HandlerNotFound(commandName)
+          |    }
+          |  }
+          |}
+          |""")
   }
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): File = {
-    implicit val imports: Imports = generateImports(
-      commandTypes(service.commands),
-      service.fqn.parent.scalaPackage,
-      otherImports = Seq(
-        "com.akkaserverless.scalasdk.action.ActionProvider",
-        "com.akkaserverless.scalasdk.action.ActionCreationContext",
-        "com.akkaserverless.scalasdk.action.ActionOptions",
-        "com.google.protobuf.Descriptors",
-        "scala.collection.immutable.Seq"))
+    import Types._
 
-    File(
-      service.fqn.parent.scalaPackage,
+    generate(
+      service.fqn.parent,
       service.providerName,
-      s"""|package ${service.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |object ${service.providerName} {
-        |  def apply(actionFactory: ActionCreationContext => ${service.className}): ${service.providerName} =
-        |    new ${service.providerName}(actionFactory, ActionOptions.defaults)
-        |
-        |  def apply(actionFactory: ActionCreationContext => ${service.className}, options: ActionOptions): ${service.providerName} =
-        |    new ${service.providerName}(actionFactory, options)
-        |}
-        |
-        |class ${service.providerName} private(actionFactory: ActionCreationContext => ${service.className},
-        |                                      override val options: ActionOptions)
-        |  extends ActionProvider[${service.className}] {
-        |
-        |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
-        |
-        |  override final def newRouter(context: ActionCreationContext): ${service.routerName} =
-        |    new ${service.routerName}(actionFactory(context))
-        |
-        |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor ::
-        |    Nil
-        |
-        |  def withOptions(options: ActionOptions): ${service.providerName} =
-        |    new ${service.providerName}(actionFactory, options)
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |object ${service.providerName} {
+          |  def apply(actionFactory: $ActionCreationContext => ${service.className}): ${service.providerName} =
+          |    new ${service.providerName}(actionFactory, $ActionOptions.defaults)
+          |
+          |  def apply(actionFactory: $ActionCreationContext => ${service.className}, options: $ActionOptions): ${service.providerName} =
+          |    new ${service.providerName}(actionFactory, options)
+          |}
+          |
+          |class ${service.providerName} private(actionFactory: $ActionCreationContext => ${service.className},
+          |                                      override val options: $ActionOptions)
+          |  extends $ActionProvider[${service.className}] {
+          |
+          |  override final def serviceDescriptor: $Descriptors.ServiceDescriptor =
+          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |
+          |  override final def newRouter(context: $ActionCreationContext): ${service.routerName} =
+          |    new ${service.routerName}(actionFactory(context))
+          |
+          |  override final def additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
+          |    ${service.fqn.descriptorImport}.javaDescriptor ::
+          |    Nil
+          |
+          |  def withOptions(options: $ActionOptions): ${service.providerName} =
+          |    new ${service.providerName}(actionFactory, options)
+          |}
+          |""")
   }
 }

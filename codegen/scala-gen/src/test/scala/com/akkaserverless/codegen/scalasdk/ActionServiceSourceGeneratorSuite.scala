@@ -120,19 +120,19 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.Action
          |import com.akkaserverless.scalasdk.action.MessageEnvelope
          |import com.akkaserverless.scalasdk.impl.action.ActionRouter
-         |import com.external.Empty
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
          |// DO NOT EDIT
          |
-         |/** A Action handler */
+         |/** An Action handler */
          |class MyServiceActionRouter(action: MyServiceAction) extends ActionRouter[MyServiceAction](action) {
          |
          |  override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {
          |    commandName match {
          |      case "SimpleMethod" =>
          |        action.simpleMethod(message.payload.asInstanceOf[MyRequest])
+         |
          |      case _ =>
          |        throw new HandlerNotFound(commandName)
          |    }
@@ -142,6 +142,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |    commandName match {
          |      case "StreamedOutputMethod" =>
          |        action.streamedOutputMethod(message.payload.asInstanceOf[MyRequest])
+         |
          |      case _ =>
          |        throw new HandlerNotFound(commandName)
          |    }
@@ -151,6 +152,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |    commandName match {
          |      case "StreamedInputMethod" =>
          |        action.streamedInputMethod(stream.map(el => el.payload.asInstanceOf[MyRequest]))
+         |
          |      case _ =>
          |        throw new HandlerNotFound(commandName)
          |    }
@@ -160,6 +162,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |    commandName match {
          |      case "FullStreamedMethod" =>
          |        action.fullStreamedMethod(stream.map(el => el.payload.asInstanceOf[MyRequest]))
+         |
          |      case _ =>
          |        throw new HandlerNotFound(commandName)
          |    }
@@ -181,7 +184,6 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.ActionCreationContext
          |import com.akkaserverless.scalasdk.action.ActionOptions
          |import com.akkaserverless.scalasdk.action.ActionProvider
-         |import com.external.Empty
          |import com.google.protobuf.Descriptors
          |import scala.collection.immutable.Seq
          |
