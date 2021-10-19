@@ -56,6 +56,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |  override def setEvent(currentState: MyState, setEvent: SetEvent): MyState =
          |    throw new RuntimeException("The event handler for `SetEvent` is not implemented, yet")
+         |
          |}
          |""".stripMargin)
   }
@@ -166,13 +167,15 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
           |    service.MyServiceProto.javaDescriptor.findServiceByName("MyService")
           |
-          |  override final val entityType = "MyEntity"
+          |  override final val entityType: String = "MyEntity"
           |
           |  override final def newRouter(context: EventSourcedEntityContext): MyEntityRouter =
           |    new MyEntityRouter(entityFactory(context))
           |
           |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-          |    DomainProto.javaDescriptor :: service.MyServiceProto.javaDescriptor :: ExternalDomainProto.javaDescriptor :: Nil
+          |    DomainProto.javaDescriptor ::
+          |    service.MyServiceProto.javaDescriptor ::
+          |    ExternalDomainProto.javaDescriptor :: Nil
           |}
           |""".stripMargin)
   }
