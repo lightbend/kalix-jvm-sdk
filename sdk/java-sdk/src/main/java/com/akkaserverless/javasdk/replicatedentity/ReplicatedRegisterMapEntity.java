@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 public class ReplicatedRegisterMapEntity<K, V>
     extends ReplicatedEntity<ReplicatedRegisterMap<K, V>> {
   @Override
-  public ReplicatedRegisterMap<K, V> emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedRegisterMap<K, V> emptyData(ReplicatedDataFactory factory) {
     return factory.newReplicatedRegisterMap();
   }
 }

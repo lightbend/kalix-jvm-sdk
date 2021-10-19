@@ -63,9 +63,6 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
         if (data eq null) {
           throw new IllegalArgumentException(
             "Replicated Map getOrElse creation function must return a Replicated Data object")
-        } else if (data ne dataFactory.internalData) {
-          throw new IllegalArgumentException(
-            "Replicated Data returned by getOrElse creation callback must have been created by the ReplicatedDataFactory passed to it")
         }
         data
       })
@@ -170,5 +167,4 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
 
   override def toString = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
-  override def _internal(): ReplicatedData = this
 }

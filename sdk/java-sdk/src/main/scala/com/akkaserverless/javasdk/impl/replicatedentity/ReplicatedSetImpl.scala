@@ -133,5 +133,4 @@ private[akkaserverless] class ReplicatedSetImpl[E](
 
   override def toString = s"ReplicatedSet(${values.mkString(",")})"
 
-  override def _internal(): ReplicatedData = this
 }

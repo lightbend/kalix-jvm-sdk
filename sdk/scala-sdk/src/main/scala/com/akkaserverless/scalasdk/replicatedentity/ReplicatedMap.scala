@@ -17,6 +17,7 @@
 package com.akkaserverless.scalasdk.replicatedentity
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 
@@ -56,8 +57,8 @@ import com.akkaserverless.scalasdk.impl.replicatedentity.ScalaReplicatedDataFact
  * @tparam V
  *   The replicated data type to be used for values.
  */
-class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _internal: ReplicatedMapImpl[K, V])
-    extends ReplicatedData {
+class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val delegate: ReplicatedMapImpl[K, V])
+    extends InternalReplicatedData {
 
   /**
    * Get the [[ReplicatedData]] value for the given key.
@@ -69,7 +70,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    * @throws NoSuchElementException
    *   if the key is not preset in the map
    */
-  def apply(key: K): V = _internal(key)
+  def apply(key: K): V = delegate(key)
 
   /**
    * Optionally returns the [[ReplicatedData]] value for the given key.
@@ -79,7 +80,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    * @return
    *   an option value containing the value associated with `key` in this [[ReplicatedMap]], or `None` if none exists.
    */
-  def get(key: K): Option[V] = _internal.getOption(key)
+  def get(key: K): Option[V] = delegate.getOption(key)
 
   /**
    * Get the [[ReplicatedData]] value for the given key. If the key is not present in the map, then a new value is
@@ -94,7 +95,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    *   the [[ReplicatedData]] for the key
    */
   def getOrElse[ValueT <: ReplicatedData](key: K, create: ReplicatedDataFactory => ValueT): ValueT =
-    _internal
+    delegate
       .getOrElse(key, factory => create(ScalaReplicatedDataFactoryAdapter(factory)).asInstanceOf[V])
       .asInstanceOf[ValueT]
 
@@ -109,7 +110,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    *   a new map with the updated value
    */
   def update(key: K, value: V): ReplicatedMap[K, V] =
-    new ReplicatedMap(_internal.update(key, value))
+    new ReplicatedMap(delegate.update(key, value))
 
   /**
    * Remove the mapping for a key if it is present.
@@ -120,7 +121,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    *   a new map with the removed mapping
    */
   def remove(key: K): ReplicatedMap[K, V] =
-    new ReplicatedMap(_internal.remove(key))
+    new ReplicatedMap(delegate.remove(key))
 
   /**
    * Remove all entries from this map.
@@ -129,7 +130,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    *   a new empty map
    */
   def clear(): ReplicatedMap[K, V] =
-    new ReplicatedMap(_internal.clear())
+    new ReplicatedMap(delegate.clear())
 
   /**
    * Get the number of key-value mappings in this map.
@@ -137,7 +138,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    * @return
    *   the number of key-value mappings in this map
    */
-  def size: Int = _internal.size
+  def size: Int = delegate.size
 
   /**
    * Check whether this map is empty.
@@ -145,7 +146,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    * @return
    *   `true` if this map contains no key-value mappings
    */
-  def isEmpty: Boolean = _internal.isEmpty
+  def isEmpty: Boolean = delegate.isEmpty
 
   /**
    * Check whether this map contains a mapping for the given key.
@@ -155,7 +156,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    * @return
    *   `true` if this map contains a mapping for the given key
    */
-  def contains(key: K): Boolean = _internal.containsKey(key)
+  def contains(key: K): Boolean = delegate.containsKey(key)
 
   /**
    * Get a [[Set]] view of the keys contained in this map.
@@ -164,7 +165,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
    *   the keys contained in this map
    */
   def keySet: Set[K] =
-    _internal.keys
+    delegate.keys
 
   /**
    * Get a [[ReplicatedCounter]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
@@ -282,4 +283,11 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val _int
   def getReplicatedMap[KeyT, ValueT <: ReplicatedData](key: K): ReplicatedMap[KeyT, ValueT] =
     getOrElse(key, factory => factory.newReplicatedMap)
 
+  final override type Self = ReplicatedMap[K, V]
+
+  final override def resetDelta(): ReplicatedMap[K, V] =
+    new ReplicatedMap(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMap[K, V]] =
+    delegate.applyDelta.andThen(new ReplicatedMap(_))
 }

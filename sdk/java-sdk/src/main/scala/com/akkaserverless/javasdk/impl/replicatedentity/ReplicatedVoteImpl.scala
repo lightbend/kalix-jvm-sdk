@@ -60,5 +60,4 @@ private[akkaserverless] final class ReplicatedVoteImpl(
 
   override def toString = s"Vote($selfVote)"
 
-  override def _internal(): ReplicatedData = this
 }

@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 public class ReplicatedCounterMapEntity<K> extends ReplicatedEntity<ReplicatedCounterMap<K>> {
   @Override
-  public ReplicatedCounterMap<K> emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedCounterMap<K> emptyData(ReplicatedDataFactory factory) {
     return factory.newReplicatedCounterMap();
   }
 }

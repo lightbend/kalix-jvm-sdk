@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 public class ReplicatedVoteEntity extends ReplicatedEntity<ReplicatedVote> {
   @Override
-  public ReplicatedVote emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedVote emptyData(ReplicatedDataFactory factory) {
     return factory.newVote();
   }
 }

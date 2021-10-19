@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
-import com.akkaserverless.replicatedentity.ReplicatedData
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A replicated map that maps keys to values, where each key may be associated with multiple values. Effectively a
@@ -30,8 +30,8 @@ import com.akkaserverless.replicatedentity.ReplicatedData
  * @tparam V
  *   The type for values.
  */
-class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: ReplicatedMultiMapImpl[K, V])
-    extends ReplicatedData {
+class ReplicatedMultiMap[K, V] private[scalasdk] (override val delegate: ReplicatedMultiMapImpl[K, V])
+    extends InternalReplicatedData {
 
   /**
    * Get the values for the given key.
@@ -42,7 +42,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   the current values at the given key, or an empty Set
    */
   def get(key: K): Set[V] =
-    _internal.getValuesSet(key)
+    delegate.getValuesSet(key)
 
   /**
    * Store a key-value pair, if not already present.
@@ -55,7 +55,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   a new multi-map with the additional value, or this unchanged multi-map
    */
   def put(key: K, value: V): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.put(key, value))
+    new ReplicatedMultiMap(delegate.put(key, value))
 
   /**
    * Store multiple values for a key.
@@ -68,7 +68,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   a new multi-map with the additional values, or this unchanged multi-map
    */
   def putAll(key: K, values: Iterable[V]): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.putAll(key, values))
+    new ReplicatedMultiMap(delegate.putAll(key, values))
 
   /**
    * Remove a single key-value pair for the given key and value, if present.
@@ -81,7 +81,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   a new multi-map with the removed value, or this unchanged multi-map
    */
   def remove(key: K, value: V): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.remove(key, value))
+    new ReplicatedMultiMap(delegate.remove(key, value))
 
   /**
    * Remove all values associated with the given key.
@@ -92,7 +92,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   a new multi-map with the removed mapping
    */
   def removeAll(key: K): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.removeAll(key))
+    new ReplicatedMultiMap(delegate.removeAll(key))
 
   /**
    * Remove all key-value pairs from the multi-map, leaving it empty.
@@ -101,7 +101,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   a new empty multi-map
    */
   def clear(): ReplicatedMultiMap[K, V] =
-    new ReplicatedMultiMap(_internal.clear())
+    new ReplicatedMultiMap(delegate.clear())
 
   /**
    * Return the number of key-value pairs in this multi-map.
@@ -112,7 +112,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    * @return
    *   the number of key-value pairs stored in this multi-map
    */
-  def size: Int = _internal.size
+  def size: Int = delegate.size
 
   /**
    * Check whether this multi-map is empty.
@@ -120,7 +120,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    * @return
    *   `true` if this multi-map contains no key-value pairs
    */
-  def isEmpty: Boolean = _internal.isEmpty
+  def isEmpty: Boolean = delegate.isEmpty
 
   /**
    * Check whether this multi-map contains at least one value for the given key.
@@ -130,7 +130,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    * @return
    *   `true` if there is at least one key-value pair for the key
    */
-  def contains(key: K): Boolean = _internal.containsKey(key)
+  def contains(key: K): Boolean = delegate.containsKey(key)
 
   /**
    * Check whether this multi-map contains the given value associated with the given key.
@@ -143,7 +143,7 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    *   `true` if the key-value pair is in this multi-map
    */
   def containsValue(key: K, value: V): Boolean =
-    _internal.containsValue(key, value)
+    delegate.containsValue(key, value)
 
   /**
    * Return the keys contained in this multi-map.
@@ -153,5 +153,13 @@ class ReplicatedMultiMap[K, V] private[scalasdk] (override val _internal: Replic
    * @return
    *   the set of keys in this multi-map
    */
-  def keySet: Set[K] = _internal.keys
+  def keySet: Set[K] = delegate.keys
+
+  final override type Self = ReplicatedMultiMap[K, V]
+
+  final override def resetDelta(): ReplicatedMultiMap[K, V] =
+    new ReplicatedMultiMap(delegate.resetDelta())
+
+  final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedMultiMap[K, V]] =
+    delegate.applyDelta.andThen(new ReplicatedMultiMap(_))
 }

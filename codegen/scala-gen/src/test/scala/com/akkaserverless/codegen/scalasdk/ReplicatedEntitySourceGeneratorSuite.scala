@@ -307,7 +307,6 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
         Set(
           "import com.example.service",
           "import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
-          "import com.akkaserverless.replicatedentity.ReplicatedData",
           "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
           "import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
           "import com.akkaserverless.scalasdk.replicatedentity.CommandContext")
@@ -335,17 +334,16 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
            |
            |  override def handleCommand(
            |      commandName: String,
-           |      data: ReplicatedData,
+           |      data: $expectedDataType,
            |      command: Any,
            |      context: CommandContext): ReplicatedEntity.Effect[_] = {
            |
-           |    val scalaData = data.asInstanceOf[$expectedDataType]
            |    commandName match {
            |      case "Set" =>
-           |        entity.set(scalaData, command.asInstanceOf[service.SetValue])
+           |        entity.set(data, command.asInstanceOf[service.SetValue])
            |
            |      case "Get" =>
-           |        entity.get(scalaData, command.asInstanceOf[service.GetValue])
+           |        entity.get(data, command.asInstanceOf[service.GetValue])
            |
            |      case _ =>
            |        throw new CommandHandlerNotFound(commandName)
@@ -372,7 +370,9 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   testEntityRouter(
     ReplicatedMap(domainType("SomeKey")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
+    Set(
+      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
+      "import com.akkaserverless.replicatedentity.ReplicatedData"),
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
   testEntityRouter(

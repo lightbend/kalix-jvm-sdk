@@ -124,5 +124,4 @@ private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
 
   override def toString = s"ReplicatedMultiMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
-  override def _internal(): ReplicatedData = this
 }

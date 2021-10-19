@@ -18,7 +18,7 @@ package com.akkaserverless.javasdk.replicatedentity;
 
 public class ReplicatedSetEntity<T> extends ReplicatedEntity<ReplicatedSet<T>> {
   @Override
-  public ReplicatedSet<T> emptyData(ReplicatedDataFactory factory) {
+  public final ReplicatedSet<T> emptyData(ReplicatedDataFactory factory) {
     return factory.newReplicatedSet();
   }
 }

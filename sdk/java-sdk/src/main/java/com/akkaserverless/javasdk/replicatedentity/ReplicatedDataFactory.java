@@ -22,7 +22,7 @@ import com.akkaserverless.replicatedentity.ReplicatedData;
  * Factory for creating Replicated Data objects.
  *
  * <p>This is used both by Replicated Entity contexts that allow creating Replicated Data objects,
- * as well as by Replicated Data objects that allow nesting other Replicated Data.
+ * and by Replicated Data objects that allow nesting other Replicated Data.
  *
  * <p>Replicated Data objects may only be created by a supplied Replicated Data factory. Replicated
  * Data objects created any other way will not be known by the library and so won't have their

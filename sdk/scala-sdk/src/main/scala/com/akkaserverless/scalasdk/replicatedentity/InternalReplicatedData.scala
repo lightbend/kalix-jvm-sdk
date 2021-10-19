@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package com.akkaserverless.scalasdk.replicatedentity
 
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import com.akkaserverless.javasdk.impl.replicatedentity.{ InternalReplicatedData => JavaSdkInternalReplicatedData }
+import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
-public class ReplicatedMapEntity<K, V extends ReplicatedData>
-    extends ReplicatedEntity<ReplicatedMap<K, V>> {
-  @Override
-  public final ReplicatedMap<K, V> emptyData(ReplicatedDataFactory factory) {
-    return factory.newReplicatedMap();
-  }
+trait InternalReplicatedData extends JavaSdkInternalReplicatedData {
+
+  def delegate: JavaSdkInternalReplicatedData
+
+  override def name: String = delegate.name
+
+  override def hasDelta: Boolean = delegate.hasDelta
+
+  override def getDelta: ReplicatedEntityDelta.Delta = delegate.getDelta
+
 }

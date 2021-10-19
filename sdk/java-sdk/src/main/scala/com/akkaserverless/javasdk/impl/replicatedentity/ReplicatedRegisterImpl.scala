@@ -72,5 +72,4 @@ private[akkaserverless] final class ReplicatedRegisterImpl[T](
 
   override def toString = s"ReplicatedRegister($value)"
 
-  override def _internal(): ReplicatedData = this
 }

@@ -157,7 +157,6 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
         "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
         "com.akkaserverless.scalasdk.replicatedentity.CommandContext",
-        "com.akkaserverless.replicatedentity.ReplicatedData",
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++
         extraReplicatedImports(entity.data) ++
@@ -171,7 +170,7 @@ object ReplicatedEntitySourceGenerator {
         val methodName = cmd.name
         val inputType = typeName(cmd.inputType)
         s"""|case "$methodName" =>
-            |  entity.${lowerFirst(methodName)}(scalaData, command.asInstanceOf[$inputType])
+            |  entity.${lowerFirst(methodName)}(data, command.asInstanceOf[$inputType])
             |""".stripMargin
       }
 
@@ -193,11 +192,10 @@ object ReplicatedEntitySourceGenerator {
           |
           |  override def handleCommand(
           |      commandName: String,
-          |      data: ReplicatedData,
+          |      data: $parameterizedDataType,
           |      command: Any,
           |      context: CommandContext): ReplicatedEntity.Effect[_] = {
           |
-          |    val scalaData = data.asInstanceOf[$parameterizedDataType]
           |    commandName match {
           |      ${Format.indent(commandCases, 6)}
           |
