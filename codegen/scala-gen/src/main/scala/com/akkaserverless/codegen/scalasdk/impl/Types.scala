@@ -18,8 +18,6 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.FullyQualifiedName
 
-import scala.reflect.{ classTag, ClassTag }
-
 object Types {
   val EventSourcedEntity = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
   val EventSourcedEntityProvider = FQN("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
@@ -36,11 +34,17 @@ object Types {
 
   val Action = FQN("com.akkaserverless.scalasdk.action.Action")
   val ActionCreationContext = FQN("com.akkaserverless.scalasdk.action.ActionCreationContext")
+  val ActionOptions = FQN("com.akkaserverless.scalasdk.action.ActionOptions")
+  val ActionProvider = FQN("com.akkaserverless.scalasdk.action.ActionProvider")
+  val MessageEnvelope = FQN("com.akkaserverless.scalasdk.action.MessageEnvelope")
+  val ActionRouter = FQN("com.akkaserverless.scalasdk.impl.action.ActionRouter")
+  val HandlerNotFound = FQN("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
 
-  def ref[T: ClassTag]: FullyQualifiedName = {
-    val ct = classTag[T]
-    FullyQualifiedName.noDescriptor(ct.runtimeClass.getSimpleName, ct.runtimeClass.getPackageName)
-  }
+  val Source = FQN("akka.stream.scaladsl.Source")
+  val NotUsed = FQN("akka.NotUsed")
+  val ImmutableSeq = FQN("scala.collection.immutable.Seq")
+
+  val Descriptors = FQN("com.google.protobuf.Descriptors")
 
   private def FQN(fqn: String): FullyQualifiedName =
     FullyQualifiedName.noDescriptor(fqn)

@@ -17,7 +17,6 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
-import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntitySourceGenerator {
@@ -149,7 +148,7 @@ object EventSourcedEntitySourceGenerator {
           |  def withOptions(newOptions: $EventSourcedEntityOptions): $className =
           |    new $className(entityFactory, newOptions)
           |
-          |  override final val serviceDescriptor: ${ref[Descriptors]}.ServiceDescriptor =
+          |  override final val serviceDescriptor: $Descriptors.ServiceDescriptor =
           |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
           |
           |  override final val entityType: String = "${entity.entityType}"
@@ -157,7 +156,7 @@ object EventSourcedEntitySourceGenerator {
           |  override final def newRouter(context: $EventSourcedEntityContext): ${entity.routerName} =
           |    new ${entity.routerName}(entityFactory(context))
           |
-          |  override final val additionalDescriptors: ${ref[scala.collection.immutable.Seq[_]]}[${ref[Descriptors]}.FileDescriptor] =
+          |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
           |    ${descriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
           |}
           |""",
