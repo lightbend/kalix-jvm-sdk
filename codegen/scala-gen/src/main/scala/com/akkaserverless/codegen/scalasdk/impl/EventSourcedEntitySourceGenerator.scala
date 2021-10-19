@@ -18,13 +18,11 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.google.protobuf.Descriptors
-import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 object EventSourcedEntitySourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generateUnmanaged(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,

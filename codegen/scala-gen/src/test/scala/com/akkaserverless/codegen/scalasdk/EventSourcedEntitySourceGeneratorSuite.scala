@@ -16,10 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import com.google.protobuf.compiler.PluginProtos.CodeGeneratorRequest
-import com.lightbend.akkasls.codegen.{ PackageNaming, TestData }
-import protocgen.CodeGenRequest
-import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
+import com.lightbend.akkasls.codegen.TestData
 
 class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
   import com.akkaserverless.codegen.scalasdk.impl.EventSourcedEntitySourceGenerator._
