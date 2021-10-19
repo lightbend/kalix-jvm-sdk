@@ -39,7 +39,7 @@ object EventSourcedEntitySourceGenerator {
   private[codegen] def abstractEntity(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    import Types._
+    import Types.EventSourcedEntity._
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
     val stateType = eventSourcedEntity.state.fqn
@@ -78,7 +78,7 @@ object EventSourcedEntitySourceGenerator {
   private[codegen] def handler(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    import Types._
+    import Types.EventSourcedEntity._
 
     val stateType = eventSourcedEntity.state.fqn
     val eventSourcedEntityName = eventSourcedEntity.fqn
@@ -126,7 +126,8 @@ object EventSourcedEntitySourceGenerator {
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
-    import Types._
+    import Types.{ ImmutableSeq, Descriptors }
+    import Types.EventSourcedEntity._
     val className = entity.providerName
 
     val descriptors =
@@ -166,7 +167,7 @@ object EventSourcedEntitySourceGenerator {
   def generateImplementationSkeleton(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
       service: ModelBuilder.EntityService): File = {
-    import Types._
+    import Types.EventSourcedEntity._
 
     val eventHandlers =
       eventSourcedEntity.events.map { event =>

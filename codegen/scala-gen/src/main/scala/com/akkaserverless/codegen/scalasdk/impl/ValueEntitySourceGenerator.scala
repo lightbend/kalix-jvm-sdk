@@ -34,188 +34,137 @@ object ValueEntitySourceGenerator {
   private[codegen] def abstractEntity(
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
-    val stateType = valueEntity.state.fqn.name
-    val abstractEntityName = valueEntity.abstractEntityName
+    import Types.ValueEntity._
 
-    implicit val imports =
-      generateImports(
-        Seq(valueEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
-        valueEntity.fqn.parent.scalaPackage,
-        otherImports = Seq("com.akkaserverless.scalasdk.valueentity.ValueEntity"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+    val stateType = valueEntity.state.fqn
+    val abstractEntityName = valueEntity.abstractEntityName
 
     val methods = service.commands
       .map { cmd =>
         val methodName = cmd.name
 
-        val inputType = typeName(cmd.inputType)
-        val outputType = typeName(cmd.outputType)
+        val inputType = cmd.inputType
+        val outputType = cmd.outputType
 
-        s"""|/** Command handler for "${cmd.name}". */
-            |def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): ValueEntity.Effect[$outputType]
-            |""".stripMargin
+        c"""|/** Command handler for "${cmd.name}". */
+            |def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): $ValueEntity.Effect[$outputType]
+            |"""
 
       }
 
-    File(
-      valueEntity.fqn.parent.scalaPackage,
+    generate(
+      valueEntity.fqn.parent,
       abstractEntityName,
-      s"""|package ${valueEntity.fqn.parent.scalaPackage}
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/** A value entity. */
-        |abstract class $abstractEntityName extends ValueEntity[$stateType] {
-        |
-        |  ${Format.indent(methods, 2)}
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |/** A value entity. */
+          |abstract class $abstractEntityName extends $ValueEntity[$stateType] {
+          |
+          |  $methods
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   private[codegen] def handler(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
-    val stateType = valueEntity.state.fqn.name
-    val packageName = valueEntity.fqn.parent.scalaPackage
-    val valueEntityName = valueEntity.fqn.name
-    implicit val imports =
-      generateImports(
-        Seq(valueEntity.state.fqn) ++
-        service.commands.map(_.inputType),
-        valueEntity.fqn.parent.scalaPackage,
-        otherImports = Seq(
-          "com.akkaserverless.scalasdk.valueentity.CommandContext",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter",
-          "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+    import Types.ValueEntity._
+    val stateType = valueEntity.state.fqn
+    val valueEntityName = valueEntity.fqn
 
     val commandCases = service.commands
       .map { cmd =>
         val methodName = cmd.name
-        val inputType = typeName(cmd.inputType)
-        s"""|case "$methodName" =>
+        val inputType = cmd.inputType
+        c"""|case "$methodName" =>
             |  entity.${lowerFirst(methodName)}(state, command.asInstanceOf[$inputType])
-            |""".stripMargin
+            |"""
       }
 
-    File(
-      packageName,
+    generate(
+      valueEntity.fqn.parent,
       valueEntity.routerName,
-      s"""|package $packageName
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/**
-        | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
-        | * and the command handler methods in the <code>Counter</code> class.
-        | */
-        |class ${valueEntityName}Router(entity: ${valueEntityName}) extends ValueEntityRouter[$stateType, ${valueEntityName}](entity) {
-        |  def handleCommand(commandName: String, state: $stateType, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
-        |    commandName match {
-        |      ${Format.indent(commandCases, 6)}
-        |
-        |      case _ =>
-        |        throw new CommandHandlerNotFound(commandName)
-        |    }
-        |  }
-        |}
-        |""".stripMargin)
+      c"""|$managedComment
+          |
+          |/**
+          | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
+          | * and the command handler methods in the <code>Counter</code> class.
+          | */
+          |class ${valueEntityName.name}Router(entity: $valueEntityName) extends $ValueEntityRouter[$stateType, $valueEntityName](entity) {
+          |  def handleCommand(commandName: String, state: $stateType, command: Any, context: $CommandContext): $ValueEntity.Effect[_] = {
+          |    commandName match {
+          |      $commandCases
+          |      case _ =>
+          |        throw new $CommandHandlerNotFound(commandName)
+          |    }
+          |  }
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
-    val packageName = entity.fqn.parent.scalaPackage
+    import Types.{ ImmutableSeq, Descriptors }
+    import Types.ValueEntity._
     val className = entity.providerName
 
     val descriptors =
       (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
         .map(_.descriptorImport)
 
-    implicit val imports: Imports = generateImports(
-      Seq(entity.state.fqn) ++ descriptors,
-      packageName,
-      Seq(
-        "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.scalasdk.valueentity.ValueEntityOptions",
-        "com.akkaserverless.scalasdk.valueentity.ValueEntityProvider",
-        "com.google.protobuf.Descriptors",
-        "scala.collection.immutable.Seq"),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
-
-    File(
-      s"${packageAsPath(packageName)}/${className}.scala",
-      s"""
-         |package $packageName
-         |
-         |${writeImports(imports)}
-         |
-         |$managedComment
-         |
-         |object $className {
-         |  def apply(entityFactory: ValueEntityContext => ${entity.fqn.name}): $className =
-         |    new $className(entityFactory, ValueEntityOptions.defaults)
-         |}
-         |class $className private(entityFactory: ValueEntityContext => ${entity.fqn.name}, override val options: ValueEntityOptions)
-         |  extends ValueEntityProvider[${typeName(entity.state.fqn)}, ${typeName(entity.fqn)}] {
-         |
-         |  def withOptions(newOptions: ValueEntityOptions): $className =
-         |    new $className(entityFactory, newOptions)
-         |
-         |  override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
-         |
-         |  override final val entityType = "${entity.entityType}"
-         |
-         |  override final def newRouter(context: ValueEntityContext): ${entity.routerName} =
-         |    new ${entity.routerName}(entityFactory(context))
-         |
-         |  override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-         |    ${descriptors.map(d => typeName(d) + ".javaDescriptor :: ").toList.distinct.mkString}Nil
-         |}
-         |""".stripMargin)
+    generate(
+      entity.fqn.parent,
+      className,
+      c"""|$managedComment
+          |
+          |object $className {
+          |  def apply(entityFactory: $ValueEntityContext => ${entity.fqn.name}): $className =
+          |    new $className(entityFactory, $ValueEntityOptions.defaults)
+          |}
+          |class $className private(entityFactory: $ValueEntityContext => ${entity.fqn.name}, override val options: $ValueEntityOptions)
+          |  extends $ValueEntityProvider[${entity.state.fqn}, ${entity.fqn}] {
+          |
+          |  def withOptions(newOptions: $ValueEntityOptions): $className =
+          |    new $className(entityFactory, newOptions)
+          |
+          |  override final val serviceDescriptor: $Descriptors.ServiceDescriptor =
+          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |
+          |  override final val entityType = "${entity.entityType}"
+          |
+          |  override final def newRouter(context: $ValueEntityContext): ${entity.routerName} =
+          |    new ${entity.routerName}(entityFactory(context))
+          |
+          |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
+          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor :: ")}Nil
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 
   def generateImplementationSkeleton(
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): File = {
-    implicit val imports: Imports =
-      generateImports(
-        Seq(valueEntity.state.fqn) ++
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
-        valueEntity.fqn.parent.scalaPackage,
-        otherImports = Seq(
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+    import Types.ValueEntity._
 
     val methods = service.commands.map { cmd =>
-      s"""|override def ${lowerFirst(cmd.name)}(currentState: ${typeName(valueEntity.state.fqn)}, ${lowerFirst(
-        cmd.inputType.name)}: ${typeName(cmd.inputType)}): ValueEntity.Effect[${typeName(cmd.outputType)}] =
+      c"""|override def ${lowerFirst(cmd.name)}(currentState: ${valueEntity.state.fqn}, ${lowerFirst(cmd.inputType.name)}: ${cmd.inputType}): $ValueEntity.Effect[${cmd.outputType}] =
           |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
-          |""".stripMargin
+          |"""
     }
 
-    File(
-      valueEntity.fqn.fileBasename + ".scala",
-      s"""
-         |package ${valueEntity.fqn.parent.scalaPackage}
-         |
-         |${writeImports(imports)}
-         |
-         |$unmanagedComment
-         |
-         |/** A value entity. */
-         |class ${valueEntity.fqn.name}(context: ValueEntityContext) extends ${valueEntity.abstractEntityName} {
-         |  override def emptyState: ${typeName(valueEntity.state.fqn)} =
-         |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
-         |
-         |  ${Format.indent(methods, 2)}
-         |}
-         |""".stripMargin)
+    generate(
+      valueEntity.fqn.parent,
+      valueEntity.fqn.name,
+      c"""|$unmanagedComment
+          |
+          |/** A value entity. */
+          |class ${valueEntity.fqn.name}(context: $ValueEntityContext) extends ${valueEntity.abstractEntityName} {
+          |  override def emptyState: ${valueEntity.state.fqn} =
+          |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+          |
+          |  $methods
+          |}
+          |""",
+      packageImports = Seq(service.fqn.parent))
   }
 }
