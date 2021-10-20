@@ -9,6 +9,7 @@ import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.example.Components;
+import com.example.ComponentsImpl;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -26,7 +27,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
   // FIXME generated method in AbstractDoubleCounterAction
   protected final Components components() {
-    return null; // new ComponentsImpl(actionContext())
+    return new ComponentsImpl(actionContext());
   }
 // end::controller-side-effect[]
 // tag::controller-side-effect[]
@@ -62,16 +63,22 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     return effects()
             .reply(Empty.getDefaultInstance()) // <3>
             .addSideEffect( // <4>
-                SideEffect.of(increaseCallRef.createCall(increaseValueDoubled)));
+                SideEffect.of(components().counter().increase(increaseValueDoubled)));
   }
   // end::controller-side-effect[]
 
-  // almost like forward, we could potentially detect no map and turn this into a forward effect
+  // almost like forward, but allows for transforming response
   public Effect<Empty> forwardWithGrpcApi(CounterApi.IncreaseValue increaseValue) {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build();
-    return effects().asyncReply(components().counter().increase(increaseValueDoubled));
+
+    CompletionStage<Empty> transformedResponse = components().counter().increase(increaseValueDoubled).execute()
+        .thenApply(empty -> {
+          // ridiculous but for now transforming by discarding and returning another empty will do
+          return Empty.getDefaultInstance();
+        });
+    return effects().asyncReply(transformedResponse);
   }
 
   // regular async sequence of operations
@@ -83,8 +90,10 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
         components().counter().increase(increaseValueDoubled)
         .execute()
         .thenCompose(empty ->
-            components().clients().counter().getCurrentCounter(
+            // important for docs to describe that the entity might change between the two commands
+            components().counter().getCurrentCounter(
                 CounterApi.GetCounter.newBuilder().setCounterId(increaseValue.getCounterId()).build())
+                .execute()
         );
     return effects().asyncReply(increaseAndValueAfter);
   }

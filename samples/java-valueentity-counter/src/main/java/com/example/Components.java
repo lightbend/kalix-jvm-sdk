@@ -26,8 +26,9 @@ public interface Components {
     // input typed so we can't call it with the wrong value
     // return typed with return value of call so we can match with effects().forward()
     // FIXME we don't really need both type parameters, only return value?
-    DeferredCall<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase);
-    // FIXME methods for all
+    DeferredCall<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increaseValue);
+    DeferredCall<CounterApi.DecreaseValue, Empty> decrease(CounterApi.DecreaseValue decreaseValue);
+    DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter getCounter);
   }
   interface DoubleCounterCalls {
   }
