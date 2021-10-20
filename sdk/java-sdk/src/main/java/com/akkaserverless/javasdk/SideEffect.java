@@ -22,7 +22,7 @@ import com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
 public interface SideEffect {
 
   /** The service call that is executed as this effect. */
-  ServiceCall serviceCall();
+  ServiceCall<?, ?> serviceCall();
 
   /** Whether this effect should be executed synchronously or not. */
   boolean synchronous();

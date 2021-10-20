@@ -36,7 +36,7 @@ object SideEffect {
    * @return
    *   The side effect.
    */
-  def apply(serviceCall: ServiceCall, synchronous: Boolean): SideEffect = ScalaSideEffectAdapter(
+  def apply[T, R](serviceCall: ServiceCall[T, R], synchronous: Boolean): SideEffect = ScalaSideEffectAdapter(
     javasdk.SideEffect.of(JavaServiceCallAdapter(serviceCall), synchronous))
 
   /**
@@ -47,37 +47,37 @@ object SideEffect {
    * @return
    *   The side effect.
    */
-  def apply(serviceCall: ServiceCall): SideEffect = ScalaSideEffectAdapter(
+  def apply[T, R](serviceCall: ServiceCall[T, R]): SideEffect = ScalaSideEffectAdapter(
     javasdk.SideEffect.of(JavaServiceCallAdapter(serviceCall)))
 }
 
 trait SideEffect {
 
   /** The service call that is executed as this effect. */
-  def serviceCall: ServiceCall
+  def serviceCall: ServiceCall[_ <: Any, _ <: Any]
 
   /** Whether this effect should be executed synchronously or not. */
   def synchronous: Boolean
 }
 
 private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
-  override def serviceCall: ServiceCall = ScalaServiceCallAdapter(javasdkSideEffect.serviceCall())
+  override def serviceCall: ServiceCall[_, _] = ScalaServiceCallAdapter(javasdkSideEffect.serviceCall())
   override def synchronous: Boolean = javasdkSideEffect.synchronous()
 }
 
-private[scalasdk] final case class ScalaServiceCallAdapter(javasdkServiceCall: javasdk.ServiceCall)
-    extends ServiceCall {
-  override def ref: ServiceCallRef[_] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
+private[scalasdk] final case class ScalaServiceCallAdapter[T, R](javasdkServiceCall: javasdk.ServiceCall[T, R])
+    extends ServiceCall[T, R] {
+  override def ref: ServiceCallRef[T, R] = ScalaServiceCallRefAdapter(javasdkServiceCall.ref)
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkServiceCall.message)
   override def metadata: Metadata =
     MetadataConverters.toScala(javasdkServiceCall.metadata())
 }
 
-private[scalasdk] final case class ScalaServiceCallRefAdapter[T](javasdkServiceCallRef: javasdk.ServiceCallRef[T])
-    extends ServiceCallRef[T] {
+private[scalasdk] final case class ScalaServiceCallRefAdapter[T, R](javasdkServiceCallRef: javasdk.ServiceCallRef[T, R])
+    extends ServiceCallRef[T, R] {
   def method: Descriptors.MethodDescriptor = javasdkServiceCallRef.method()
 
-  def createCall(message: T, metadata: Metadata): ServiceCall = {
+  def createCall(message: T, metadata: Metadata): ServiceCall[T, R] = {
     ScalaServiceCallAdapter(
       javasdkServiceCallRef
         .createCall(message, metadata.impl))

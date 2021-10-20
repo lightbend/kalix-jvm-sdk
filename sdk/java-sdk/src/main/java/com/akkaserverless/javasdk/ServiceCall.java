@@ -18,15 +18,20 @@ package com.akkaserverless.javasdk;
 
 import com.google.protobuf.Any;
 
-/** Represents a call to a service, performed either as a forward, or as an effect. */
-public interface ServiceCall {
+/**
+ * Represents a call to a service, performed either as a forward, or as an effect.
+ *
+ * @param <T> The type of message the call accepts
+ * @param <R> The type of message the call returns
+ */
+public interface ServiceCall<T, R> {
 
   /**
    * The reference to the call.
    *
    * @return The reference to the call.
    */
-  ServiceCallRef<?> ref();
+  ServiceCallRef<T, R> ref();
 
   /**
    * The message to pass to the call when the call is invoked.

@@ -51,7 +51,7 @@ object ActionEffectImpl {
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: Seq[SideEffect])
+  final case class ForwardEffect[T](serviceCall: ServiceCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
@@ -70,7 +70,7 @@ object ActionEffectImpl {
   object Builder extends Action.Effect.Builder {
     def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
-    def forward[S](serviceCall: ServiceCall): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
+    def forward[S](serviceCall: ServiceCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def noReply[S](): Action.Effect[S] = NoReply(Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =

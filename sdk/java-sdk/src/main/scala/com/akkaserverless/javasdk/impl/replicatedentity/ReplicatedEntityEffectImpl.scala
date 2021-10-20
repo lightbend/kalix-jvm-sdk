@@ -70,7 +70,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): ReplicatedEntityEffectImpl[D, T] = {
+  override def forward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
@@ -96,7 +96,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): ReplicatedEntityEffectImpl[D, T] = {
+  override def thenForward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }

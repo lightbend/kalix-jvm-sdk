@@ -31,7 +31,7 @@ import java.util.List;
 public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedData> {
 
   private final String entityId;
-  private final ServiceCallRef<Request> serviceTwo;
+  private final ServiceCallRef<Request, Response> serviceTwo;
 
   public ReplicatedEntityTckModelEntity(ReplicatedEntityContext context) {
     entityId = context.entityId();
@@ -355,7 +355,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     return builder.build();
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
+  private ServiceCall<Request, Response> serviceTwoRequest(String id) {
     return serviceTwo.createCall(Request.newBuilder().setId(id).build());
   }
 }

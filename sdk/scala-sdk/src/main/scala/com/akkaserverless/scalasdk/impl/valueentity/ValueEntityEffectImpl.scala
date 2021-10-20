@@ -36,7 +36,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
   def deleteState: ValueEntity.Effect.OnSuccessBuilder[S] = new ValueEntityEffectImpl(javasdkEffect.deleteState())
   def error[T](description: String): ValueEntity.Effect[T] = new ValueEntityEffectImpl(
     javasdkEffect.error[T](description))
-  def forward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall): ValueEntity.Effect[T] =
+  def forward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall[_, T]): ValueEntity.Effect[T] =
     new ValueEntityEffectImpl(javasdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
   def noReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.noReply[T]())
   def reply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =
@@ -46,7 +46,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
     javasdkEffect.updateState(newState))
   def addSideEffects(sideEffects: Seq[SideEffect]): ValueEntity.Effect[S] = new ValueEntityEffectImpl(javasdkEffect
     .addSideEffects(sideEffects.map(se => JavaSideEffectAdapter(se).asInstanceOf[javasdk.SideEffect]).asJavaCollection))
-  def thenForward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall): ValueEntity.Effect[T] =
+  def thenForward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall[_, T]): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.thenForward(JavaServiceCallAdapter(serviceCall)))
   def thenNoReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.thenNoReply())
   def thenReply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =

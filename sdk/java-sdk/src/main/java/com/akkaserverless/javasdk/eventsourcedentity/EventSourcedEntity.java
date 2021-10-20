@@ -122,7 +122,7 @@ public abstract class EventSourcedEntity<S> {
        * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> forward(ServiceCall serviceCall);
+      <T> Effect<T> forward(ServiceCall<? extends Object, T> serviceCall);
 
       /**
        * Create an error reply.
@@ -172,7 +172,7 @@ public abstract class EventSourcedEntity<S> {
        * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> thenForward(Function<S, ServiceCall> serviceCall);
+      <T> Effect<T> thenForward(Function<S, ServiceCall<? extends Object, T>> serviceCall);
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity {
 
-  private final ServiceCallRef<Request> serviceTwoCall;
+  private final ServiceCallRef<Request, Response> serviceTwoCall;
 
   public ValueEntityTckModelEntity(Context context) {
     serviceTwoCall =
@@ -78,7 +78,7 @@ public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity
     }
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
+  private ServiceCall<Request, Response> serviceTwoRequest(String id) {
     return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
   }
 

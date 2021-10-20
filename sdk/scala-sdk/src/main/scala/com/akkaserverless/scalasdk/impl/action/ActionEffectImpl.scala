@@ -81,7 +81,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ForwardEffect[T](serviceCall: ServiceCall, internalSideEffects: Seq[SideEffect])
+  final case class ForwardEffect[T](serviceCall: ServiceCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -120,14 +120,14 @@ private[scalasdk] object ActionEffectImpl {
   }
 
   object Builder extends Action.Effect.Builder {
-    def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
-    def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
-    def forward[S](serviceCall: ServiceCall): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
-    def noReply[S]: Action.Effect[S] = NoReply(Nil)
-    def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
-    def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
+    override def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
+    override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
+    override def forward[S](serviceCall: ServiceCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
+    override def noReply[S]: Action.Effect[S] = NoReply(Nil)
+    override def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
+    override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
-    def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
+    override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
   }
 

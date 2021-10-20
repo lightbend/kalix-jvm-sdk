@@ -81,7 +81,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): EventSourcedEntityEffectImpl[T] = {
+  override def forward[T](serviceCall: ServiceCall[_, T]): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
@@ -104,7 +104,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: JFunction[S, ServiceCall]): EventSourcedEntityEffectImpl[T] = {
+  override def thenForward[T](serviceCall: JFunction[S, ServiceCall[_, T]]): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }

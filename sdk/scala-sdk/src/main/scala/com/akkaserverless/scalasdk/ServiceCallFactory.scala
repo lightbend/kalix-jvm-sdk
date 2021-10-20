@@ -35,6 +35,8 @@ trait ServiceCallFactory {
    *   The expected type of the input message to the method.
    * @tparam T
    *   The type of the parameter that it accepts.
+   * @tparam R
+   *   The type of message it returns
    * @return
    *   A reference to the service call.
    * @throws java.util.NoSuchElementException
@@ -42,5 +44,6 @@ trait ServiceCallFactory {
    * @throws IllegalArgumentException
    *   if the accepted input type for the method doesn't match `messageType`.
    */
-  def lookup[T](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T]
+  // FIXME unsafe, deprecate or remove
+  def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T, R]
 }

@@ -90,7 +90,7 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def forward[S](serviceCall: ServiceCall): Action.Effect[S]
+      def forward[S](serviceCall: ServiceCall[_, S]): Action.Effect[S]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

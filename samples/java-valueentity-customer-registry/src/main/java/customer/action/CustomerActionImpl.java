@@ -26,7 +26,7 @@ public class CustomerActionImpl extends AbstractCustomerAction {
   @Override
   public Effect<Empty> create(CustomerApi.Customer customer) {
 
-    ServiceCallRef<CustomerApi.Customer> callRef =
+    ServiceCallRef<CustomerApi.Customer, Empty> callRef =
         creationContext.serviceCallFactory().lookup(
             "customer.api.CustomerService",
             "Create",

@@ -64,7 +64,7 @@ final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects
     copy(sideEffects = sideEffects ++ newSideEffects)
 }
 
-final case class ForwardReplyImpl[T](serviceCall: ServiceCall, sideEffects: Vector[SideEffect])
+final case class ForwardReplyImpl[T](serviceCall: ServiceCall[_, T], sideEffects: Vector[SideEffect])
     extends SecondaryEffectImpl {
 
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
@@ -86,4 +86,4 @@ object NoReply {
   def apply[T]: NoReply[T] = instance.asInstanceOf[NoReply[T]]
 }
 
-final case class SideEffectImpl(serviceCall: ServiceCall, synchronous: Boolean) extends SideEffect
+final case class SideEffectImpl(serviceCall: ServiceCall[_, _], synchronous: Boolean) extends SideEffect

@@ -22,8 +22,9 @@ import com.google.protobuf.Descriptors;
  * A reference to a call on a service.
  *
  * @param <T> The type of message the call accepts.
+ * @param <R> The type of message the call returns.
  */
-public interface ServiceCallRef<T> {
+public interface ServiceCallRef<T, R> {
   /**
    * The protobuf descriptor for the method.
    *
@@ -38,7 +39,7 @@ public interface ServiceCallRef<T> {
    * @param message The message to pass to the method.
    * @return A service call that can be used as a forward or effect.
    */
-  default ServiceCall createCall(T message) {
+  default ServiceCall<T, R> createCall(T message) {
     return createCall(message, Metadata.EMPTY);
   }
 
@@ -50,5 +51,5 @@ public interface ServiceCallRef<T> {
    * @param metadata The Metadata to send.
    * @return A service call that can be used as a forward or effect.
    */
-  ServiceCall createCall(T message, Metadata metadata);
+  ServiceCall<T, R> createCall(T message, Metadata metadata);
 }

@@ -53,7 +53,7 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   override def reply[T](message: T, metadata: Metadata): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.reply(message, MetadataConverters.toJava(metadata)))
 
-  override def forward[T](serviceCall: ServiceCall): ReplicatedEntity.Effect[T] =
+  override def forward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
 
   override def error[T](description: String): ReplicatedEntity.Effect[T] =
@@ -68,7 +68,7 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   override def thenReply[T](message: T, metadata: Metadata): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenReply(message, MetadataConverters.toJava(metadata)))
 
-  override def thenForward[T](serviceCall: ServiceCall): ReplicatedEntity.Effect[T] =
+  override def thenForward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenForward(JavaServiceCallAdapter(serviceCall)))
 
   override def thenNoReply[T]: ReplicatedEntity.Effect[T] =

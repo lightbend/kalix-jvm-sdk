@@ -62,7 +62,7 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def error[T](description: String): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.error(description))
 
-  def forward[T](serviceCall: ServiceCall): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
+  def forward[T](serviceCall: ServiceCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
 
   def noReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.noReply())
@@ -80,8 +80,8 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def thenAddSideEffect(sideEffect: S => SideEffect): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { s => JavaSideEffectAdapter(sideEffect(s)) })
 
-  def thenForward[T](serviceCall: S => ServiceCall): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.thenForward { s => JavaServiceCallAdapter(serviceCall(s)) })
+  def thenForward[T](serviceCall: S => ServiceCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
+    javasdkEffect.thenForward[T] { s => JavaServiceCallAdapter(serviceCall(s)) })
 
   def thenNoReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.thenNoReply())
 

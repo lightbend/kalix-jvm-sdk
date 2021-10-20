@@ -29,18 +29,18 @@ import com.google.protobuf.Descriptors
  */
 object TestKitServiceCallFactory extends ServiceCallFactory {
 
-  private class TestKitServiceCallRef[T](val serviceName: String, val methodName: String, messageType: Class[T])
-      extends ServiceCallRef[T] {
+  private class TestKitServiceCallRef[T, R](val serviceName: String, val methodName: String, messageType: Class[T])
+      extends ServiceCallRef[T, R] {
     // never expected to be called while unittesting
     override def method(): Descriptors.MethodDescriptor =
       throw new UnsupportedOperationException("Not supported by the testkit")
 
-    override def createCall(message: T, metadata: Metadata): ServiceCall =
-      new TestKitServiceCall[T](this, message, metadata)
+    override def createCall(message: T, metadata: Metadata): ServiceCall[T, R] =
+      new TestKitServiceCall[T, R](this, message, metadata)
   }
 
-  final class TestKitServiceCall[T](ref: TestKitServiceCallRef[T], message: T, metadata: Metadata)
-      extends ServiceCall
+  final class TestKitServiceCall[T, R](ref: TestKitServiceCallRef[T, R], message: T, metadata: Metadata)
+      extends ServiceCall[T, R]
       with ServiceCallDetails[T] {
 
     // public API for inspection
@@ -49,7 +49,7 @@ object TestKitServiceCallFactory extends ServiceCallFactory {
     override def getMessage: T = message
     override def getMetadata: Metadata = metadata
 
-    override def ref(): ServiceCallRef[_] = ref
+    override def ref(): ServiceCallRef[T, R] = ref
     // never expected to be called while unittesting
     override def message(): protobuf.Any =
       throw new UnsupportedOperationException("Not supported by the testkit")
@@ -58,7 +58,8 @@ object TestKitServiceCallFactory extends ServiceCallFactory {
       throw new UnsupportedOperationException("Not supported by the testkit")
   }
 
-  override def lookup[T](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T] =
-    new TestKitServiceCallRef[T](serviceName, methodName, messageType)
+  // FIXME unsafe, maybe make internal/deprecate?
+  override def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T, R] =
+    new TestKitServiceCallRef[T, R](serviceName, methodName, messageType)
 
 }

@@ -83,7 +83,7 @@ object ReplicatedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def forward[T](serviceCall: ServiceCall): ReplicatedEntity.Effect[T]
+      def forward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T]
 
       /**
        * Create an error reply.
@@ -148,7 +148,7 @@ object ReplicatedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def thenForward[T](serviceCall: ServiceCall): ReplicatedEntity.Effect[T]
+      def thenForward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

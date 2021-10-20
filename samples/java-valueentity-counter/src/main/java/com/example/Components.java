@@ -39,7 +39,8 @@ public interface Components {
     // input typed so we can't call it with the wrong value
     // return typed with return value of call so we can match with effects().forward()
     // FIXME rename `ServiceCallRef` to `DeferredCall`?
-    ServiceCallRef<Empty> increase(CounterApi.IncreaseValue increase);
+    // FIXME we don't really need both type parameters, only return value?
+    ServiceCallRef<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase);
     // FIXME methods for all
   }
   interface DoubleCounterCalls {

@@ -32,10 +32,12 @@ public interface ServiceCallFactory {
    * @param methodName The name of a method on the gRPC service.
    * @param messageType The expected type of the input message to the method.
    * @param <T> The type of the parameter that it accepts.
+   * @param <R> The type of the parameter that it returns
    * @return A reference to the service call.
    * @throws java.util.NoSuchElementException if the service or method is not found.
    * @throws IllegalArgumentException if the accepted input type for the method doesn't match <code>
    *     messageType</code>.
    */
-  <T> ServiceCallRef<T> lookup(String serviceName, String methodName, Class<T> messageType);
+  // FIXME unsafe, arbitrary return type, deprecate or remove
+  <T, R> ServiceCallRef<T, R> lookup(String serviceName, String methodName, Class<T> messageType);
 }

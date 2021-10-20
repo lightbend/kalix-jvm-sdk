@@ -34,14 +34,14 @@ final case class ResolvedServiceMethod[I, O](
     descriptor: Descriptors.MethodDescriptor,
     inputType: ResolvedType[I],
     outputType: ResolvedType[O])
-    extends ServiceCallRef[I] {
+    extends ServiceCallRef[I, O] {
 
   def outputStreamed: Boolean = descriptor.isServerStreaming
   def name: String = descriptor.getName
 
   override def method(): Descriptors.MethodDescriptor = descriptor
 
-  override def createCall(message: I, metadata: Metadata): ServiceCall =
+  override def createCall(message: I, metadata: Metadata): ServiceCall[I, O] =
     ResolvedServiceCall(
       this,
       JavaPbAny
@@ -52,7 +52,8 @@ final case class ResolvedServiceMethod[I, O](
       metadata)
 }
 
-final case class ResolvedServiceCall(ref: ServiceCallRef[_], message: JavaPbAny, metadata: Metadata) extends ServiceCall
+final case class ResolvedServiceCall[T, R](ref: ServiceCallRef[T, R], message: JavaPbAny, metadata: Metadata)
+    extends ServiceCall[T, R]
 
 /**
  * A resolved type

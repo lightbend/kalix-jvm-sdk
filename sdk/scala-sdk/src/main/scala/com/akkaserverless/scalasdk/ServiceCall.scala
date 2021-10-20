@@ -18,8 +18,12 @@ package com.akkaserverless.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-/** Represents a call to a service, performed either as a forward, or as an effect. */
-trait ServiceCall {
+/**
+ * Represents a call to a service, performed either as a forward, or as an effect.
+ * @tparam R
+ *   the type of value the call returns
+ */
+trait ServiceCall[T, R] {
 
   /**
    * The reference to the call.
@@ -27,7 +31,7 @@ trait ServiceCall {
    * @return
    *   The reference to the call.
    */
-  def ref: ServiceCallRef[_]
+  def ref: ServiceCallRef[T, R]
 
   /**
    * The message to pass to the call when the call is invoked.

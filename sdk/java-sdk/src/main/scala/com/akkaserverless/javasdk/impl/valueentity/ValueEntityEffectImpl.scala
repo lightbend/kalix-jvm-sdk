@@ -69,7 +69,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
+  override def forward[T](serviceCall: ServiceCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
@@ -95,7 +95,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
+  override def thenForward[T](serviceCall: ServiceCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }

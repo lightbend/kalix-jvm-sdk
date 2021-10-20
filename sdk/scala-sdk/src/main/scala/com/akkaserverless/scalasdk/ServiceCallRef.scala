@@ -21,10 +21,10 @@ import com.google.protobuf.Descriptors
 /**
  * A reference to a call on a service.
  *
- * @tparam T
- *   The type of message the call accepts.
+ * @tparam R
+ *   The type of message the call returns
  */
-trait ServiceCallRef[T] {
+trait ServiceCallRef[T, R] {
 
   /**
    * The protobuf descriptor for the method.
@@ -42,7 +42,7 @@ trait ServiceCallRef[T] {
    * @return
    *   A service call that can be used as a forward or effect.
    */
-  def createCall(message: T): ServiceCall =
+  def createCall(message: T): ServiceCall[T, R] =
     createCall(message, Metadata.empty)
 
   /**
@@ -55,5 +55,5 @@ trait ServiceCallRef[T] {
    * @return
    *   A service call that can be used as a forward or effect.
    */
-  def createCall(message: T, metadata: Metadata): ServiceCall
+  def createCall(message: T, metadata: Metadata): ServiceCall[T, R]
 }

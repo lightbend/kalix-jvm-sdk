@@ -59,7 +59,9 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
 
   def getForward(): ServiceCallDetails[T] =
     effect match {
-      case ActionEffectImpl.ForwardEffect(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked], _) =>
+      case ActionEffectImpl.ForwardEffect(
+            serviceCall: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked, _],
+            _) =>
         serviceCall
       case _ =>
         throw new IllegalStateException(

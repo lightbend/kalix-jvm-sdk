@@ -98,10 +98,11 @@ public class LocalPersistenceSubscriber extends Action {
           .forward(
               context
                   .serviceCallFactory()
-                  .lookup(
-                      LocalPersistenceSubscriberModel.name,
-                      "Effect",
-                      LocalPersistenceEventing.EffectRequest.class)
+                  .<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
+                      lookup(
+                          LocalPersistenceSubscriberModel.name,
+                          "Effect",
+                          LocalPersistenceEventing.EffectRequest.class)
                   .createCall(
                       LocalPersistenceEventing.EffectRequest.newBuilder()
                           .setId(id)

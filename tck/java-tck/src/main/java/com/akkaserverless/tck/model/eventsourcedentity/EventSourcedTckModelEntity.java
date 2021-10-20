@@ -28,7 +28,7 @@ import java.util.List;
 
 public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEntity {
 
-  private final ServiceCallRef<Request> serviceTwoCall;
+  private final ServiceCallRef<Request, Response> serviceTwoCall;
 
   @Override
   public Persisted emptyState() {
@@ -92,7 +92,7 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
     return effect.addSideEffects(e);
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
+  private ServiceCall<Request, Response> serviceTwoRequest(String id) {
     return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
   }
 }
