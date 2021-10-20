@@ -24,7 +24,7 @@ import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, M
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
+import com.akkaserverless.javasdk.{ Context, DeferredCallFactory, Metadata }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
@@ -226,7 +226,7 @@ object ReplicatedEntitiesImpl {
       override val entityId: String,
       rootContext: Context,
       system: ActorSystem)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(rootContext.callFactory(), system)
       with ReplicatedEntityContext
       with ActivatableContext
 
@@ -235,7 +235,7 @@ object ReplicatedEntitiesImpl {
       command: Command,
       rootContext: Context,
       system: ActorSystem)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(rootContext.callFactory(), system)
       with CommandContext
       with ActivatableContext {
 

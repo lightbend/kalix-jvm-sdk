@@ -17,31 +17,31 @@
 package com.akkaserverless.scalasdk.testkit.impl
 
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
-import com.akkaserverless.scalasdk.ServiceCallFactory
-import com.akkaserverless.scalasdk.ServiceCallRef
-import com.akkaserverless.scalasdk.testkit.ServiceCallDetails
+import com.akkaserverless.scalasdk.DeferredCall
+import com.akkaserverless.scalasdk.DeferredCallFactory
+import com.akkaserverless.scalasdk.DeferredCallRef
+import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 /**
  * INTERNAL API
  */
-private[testkit] object TestKitServiceCallFactory extends ServiceCallFactory {
+private[testkit] object TestKitDeferredCallFactory$ extends DeferredCallFactory {
 
   private class TestKitServiceCallRef[T, R](val serviceName: String, val methodName: String, messageType: Class[T])
-      extends ServiceCallRef[T, R] {
+      extends DeferredCallRef[T, R] {
     // never expected to be called while unittesting
     override def method: Descriptors.MethodDescriptor =
       throw new UnsupportedOperationException("Not supported by the testkit")
 
-    override def createCall(message: T, metadata: Metadata): ServiceCall[T, R] =
-      new TestKitServiceCall[T, R](this, message, metadata)
+    override def createCall(message: T, metadata: Metadata): DeferredCall[T, R] =
+      new TestKitDeferredCall[T, R](this, message, metadata)
   }
 
-  final class TestKitServiceCall[T, R](ref: TestKitServiceCallRef[T, R], message: T, override val metadata: Metadata)
-      extends ServiceCall[T, R]
-      with ServiceCallDetails[T] {
+  final class TestKitDeferredCall[T, R](ref: TestKitServiceCallRef[T, R], message: T, override val metadata: Metadata)
+      extends DeferredCall[T, R]
+      with DeferredCallDetails[T] {
 
     // public API for inspection
     override def getServiceName: String = ref.serviceName
@@ -49,13 +49,13 @@ private[testkit] object TestKitServiceCallFactory extends ServiceCallFactory {
     override def getMessage: T = message
     override def getMetadata: Metadata = metadata
 
-    override def ref: ServiceCallRef[T, R] = ref
+    override def ref: DeferredCallRef[T, R] = ref
     // never expected to be called while unittesting
     override def message: ScalaPbAny =
       throw new UnsupportedOperationException("Not supported by the testkit")
   }
 
-  override def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T, R] =
+  override def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): DeferredCallRef[T, R] =
     new TestKitServiceCallRef[T, R](serviceName, methodName, messageType)
 
 }

@@ -16,13 +16,14 @@
 
 package com.akkaserverless.javasdk.testkit.impl;
 
-import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.Metadata;
-import java.util.Optional;
-import com.akkaserverless.javasdk.ServiceCallFactory
+import com.akkaserverless.javasdk.action.ActionContext
+import com.akkaserverless.javasdk.Metadata
+
+import java.util.Optional
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 import com.akkaserverless.javasdk.action.ActionCreationContext
 import akka.stream.Materializer
+import com.akkaserverless.javasdk.DeferredCallFactory
 
 /**
  * INTERNAL API Used by the generated testkit
@@ -33,7 +34,7 @@ final class TestKitActionContext extends ActionContext with ActionCreationContex
 
   override def eventSubject() = Optional.of("test-subject-id")
 
-  override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
+  override def callFactory: DeferredCallFactory = TestKitDeferredCallFactory$
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")

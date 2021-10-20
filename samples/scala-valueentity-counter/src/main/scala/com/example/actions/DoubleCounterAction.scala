@@ -16,7 +16,7 @@ import com.google.protobuf.empty.Empty
 class DoubleCounterAction(creationContext: ActionCreationContext) extends AbstractDoubleCounterAction {
 
   private val increaseCallRef =
-    creationContext.serviceCallFactory.lookup[IncreaseValue, Empty]( // <1>
+    creationContext.callFactory.lookup[IncreaseValue, Empty]( // <1>
       "com.example.CounterService",
       "Increase",
       classOf[IncreaseValue])

@@ -16,8 +16,8 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.DeferredCall;
+import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.*;
@@ -31,13 +31,13 @@ import java.util.List;
 public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedData> {
 
   private final String entityId;
-  private final ServiceCallRef<Request, Response> serviceTwo;
+  private final DeferredCallRef<Request, Response> serviceTwo;
 
   public ReplicatedEntityTckModelEntity(ReplicatedEntityContext context) {
     entityId = context.entityId();
     serviceTwo =
         context
-            .serviceCallFactory()
+            .callFactory()
             .lookup(
                 "akkaserverless.tck.model.replicatedentity.ReplicatedEntityTwo",
                 "Call",
@@ -355,7 +355,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     return builder.build();
   }
 
-  private ServiceCall<Request, Response> serviceTwoRequest(String id) {
+  private DeferredCall<Request, Response> serviceTwoRequest(String id) {
     return serviceTwo.createCall(Request.newBuilder().setId(id).build());
   }
 }

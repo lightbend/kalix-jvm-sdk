@@ -248,12 +248,12 @@ final class EventSourcedEntitiesImpl(
       override val commandName: String,
       override val commandId: Long,
       override val metadata: Metadata)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(rootContext.callFactory(), system)
       with CommandContext
       with ActivatableContext
 
   private class EventSourcedEntityContextImpl(override final val entityId: String)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(rootContext.callFactory(), system)
       with EventSourcedEntityContext
   private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
       extends EventSourcedEntityContextImpl(entityId)

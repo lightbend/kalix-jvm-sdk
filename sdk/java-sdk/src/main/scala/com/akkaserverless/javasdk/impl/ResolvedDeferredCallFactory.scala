@@ -16,17 +16,17 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{ ServiceCallFactory, ServiceCallRef }
+import com.akkaserverless.javasdk.{ DeferredCallFactory, DeferredCallRef }
 
-class ResolvedServiceCallFactory(services: Map[String, Service]) extends ServiceCallFactory {
-  override def lookup[T, R](serviceName: String, methodName: String, methodType: Class[T]): ServiceCallRef[T, R] =
+class ResolvedDeferredCallFactory(services: Map[String, Service]) extends DeferredCallFactory {
+  override def lookup[T, R](serviceName: String, methodName: String, methodType: Class[T]): DeferredCallRef[T, R] =
     services.get(serviceName) match {
       case Some(service) =>
         service.resolvedMethods match {
           case Some(resolvedMethods) =>
             resolvedMethods.get(methodName) match {
               case Some(method) if method.inputType.typeClass.isAssignableFrom(methodType) =>
-                method.asInstanceOf[ServiceCallRef[T, R]]
+                method.asInstanceOf[DeferredCallRef[T, R]]
               case Some(badTypedMethod) =>
                 throw new IllegalArgumentException(
                   s"The input type ${badTypedMethod.inputType.typeClass.getName} of $serviceName.$methodName does not match the requested message type ${methodType.getName}")

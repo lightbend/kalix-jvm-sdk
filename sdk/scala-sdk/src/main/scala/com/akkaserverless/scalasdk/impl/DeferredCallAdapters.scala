@@ -17,57 +17,67 @@
 package com.akkaserverless.scalasdk.impl
 
 import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
-import com.akkaserverless.scalasdk.ServiceCallFactory
-import com.akkaserverless.scalasdk.ServiceCallRef
+import com.akkaserverless.scalasdk.DeferredCall
+import com.akkaserverless.scalasdk.DeferredCallFactory
+import com.akkaserverless.scalasdk.DeferredCallRef
 import com.akkaserverless.scalasdk.SideEffect
 import com.google.protobuf
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-private[scalasdk] final case class ScalaServiceCallFactoryAdapter(javaSdkServiceCallFactory: javasdk.ServiceCallFactory)
-    extends ServiceCallFactory {
+private[scalasdk] final case class ScalaDeferredCallFactoryAdapter(
+    javaSdkServiceCallFactory: javasdk.DeferredCallFactory)
+    extends DeferredCallFactory {
 
-  override def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T, R] =
+  override def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): DeferredCallRef[T, R] =
     ScalaServiceCallRefAdapter(javaSdkServiceCallFactory.lookup(serviceName, methodName, messageType))
 
 }
-private[scalasdk] final case class JavaServiceCallAdapter[T, R](scalaSdkServiceCall: ServiceCall[T, R])
-    extends javasdk.ServiceCall[T, R] {
-  override def ref(): javasdk.ServiceCallRef[T, R] = JavaServiceCallRefAdapter(scalaSdkServiceCall.ref)
+private[scalasdk] final case class JavaDeferredCallAdapter[T, R](scalaSdkServiceCall: DeferredCall[T, R])
+    extends javasdk.DeferredCall[T, R] {
+  override def ref(): javasdk.DeferredCallRef[T, R] = JavaDeferredCallRefAdapter(scalaSdkServiceCall.ref)
   override def message(): protobuf.Any = ScalaPbAny.toJavaProto(scalaSdkServiceCall.message)
   override def metadata(): javasdk.Metadata = scalaSdkServiceCall.metadata.asInstanceOf[MetadataImpl].impl
 }
 
-private[scalasdk] final case class ScalaServiceCallAdapter[T, R](javaSdkServiceCall: javasdk.ServiceCall[T, R])
-    extends ServiceCall[T, R] {
-  override def ref: ServiceCallRef[T, R] = ScalaServiceCallRefAdapter(javaSdkServiceCall.ref())
+private[scalasdk] final case class ScalaServiceCallAdapter[T, R](javaSdkServiceCall: javasdk.DeferredCall[T, R])
+    extends DeferredCall[T, R] {
+  override def ref: DeferredCallRef[T, R] = ScalaServiceCallRefAdapter(javaSdkServiceCall.ref())
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javaSdkServiceCall.message)
   override def metadata: Metadata =
     new MetadataImpl(javaSdkServiceCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 }
 
 private[scalasdk] final case class JavaSideEffectAdapter(scalaSdkSideEffect: SideEffect) extends javasdk.SideEffect {
-  override def serviceCall(): javasdk.ServiceCall[_, _] = JavaServiceCallAdapter(scalaSdkSideEffect.serviceCall)
+  override def call(): javasdk.DeferredCall[_, _] = JavaDeferredCallAdapter(scalaSdkSideEffect.serviceCall)
   override def synchronous(): Boolean = scalaSdkSideEffect.synchronous
 }
 
-private[scalasdk] final case class JavaServiceCallRefAdapter[T, R](scalaSdkServiceCallRef: ServiceCallRef[T, R])
-    extends javasdk.ServiceCallRef[T, R] {
+private[scalasdk] final case class JavaDeferredCallRefAdapter[T, R](scalaSdkServiceCallRef: DeferredCallRef[T, R])
+    extends javasdk.DeferredCallRef[T, R] {
   def method(): Descriptors.MethodDescriptor = scalaSdkServiceCallRef.method
 
-  def createCall(message: T, metadata: javasdk.Metadata): javasdk.ServiceCall[T, R] = {
-    JavaServiceCallAdapter(
+  def createCall(message: T, metadata: javasdk.Metadata): javasdk.DeferredCall[T, R] = {
+    JavaDeferredCallAdapter(
       scalaSdkServiceCallRef
         .createCall(message, new MetadataImpl(metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])))
   }
 }
 
-private[scalasdk] final case class ScalaServiceCallRefAdapter[T, R](javaSdkServiceCallRef: javasdk.ServiceCallRef[T, R])
-    extends ServiceCallRef[T, R] {
+private[scalasdk] final case class ScalaServiceCallRefAdapter[T, R](
+    javaSdkServiceCallRef: javasdk.DeferredCallRef[T, R])
+    extends DeferredCallRef[T, R] {
   override def method: Descriptors.MethodDescriptor = javaSdkServiceCallRef.method()
-  override def createCall(message: T, metadata: scalasdk.Metadata): ServiceCall[T, R] =
+  override def createCall(message: T, metadata: scalasdk.Metadata): DeferredCall[T, R] =
     ScalaServiceCallAdapter(javaSdkServiceCallRef.createCall(message, metadata.impl))
 }

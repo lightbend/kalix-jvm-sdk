@@ -38,10 +38,10 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.google.protobuf.Descriptors
 
 private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
@@ -128,8 +128,8 @@ private[scalasdk] final class ScalaEventSourcedEntityContextAdapter(javaSdkConte
 
   def entityId: String = javaSdkContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
@@ -143,8 +143,8 @@ private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: Java
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def entityId: String = javaSdkContext.entityId()
 
@@ -157,8 +157,8 @@ private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: Java
 private[scalasdk] final class JavaEventContextAdapter(val javasdkContext: JavaSdkEventContext) extends EventContext {
   override def sequenceNumber: Long = javasdkContext.sequenceNumber()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javasdkContext.callFactory())
 
   override def entityId: String = javasdkContext.entityId()
 

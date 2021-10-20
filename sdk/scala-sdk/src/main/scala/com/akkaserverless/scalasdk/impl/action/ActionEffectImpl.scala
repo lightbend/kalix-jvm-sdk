@@ -22,10 +22,10 @@ import scala.concurrent.Future
 
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
+import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 
 private[scalasdk] object ActionEffectImpl {
@@ -81,7 +81,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ForwardEffect[T](serviceCall: ServiceCall[_, T], internalSideEffects: Seq[SideEffect])
+  final case class ForwardEffect[T](serviceCall: DeferredCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -90,7 +90,7 @@ private[scalasdk] object ActionEffectImpl {
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
       val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
-      val javaServiceCall = JavaServiceCallAdapter(serviceCall)
+      val javaServiceCall = JavaDeferredCallAdapter(serviceCall)
       javasdk.impl.action.ActionEffectImpl.ForwardEffect(javaServiceCall, sideEffects)
     }
   }
@@ -122,7 +122,7 @@ private[scalasdk] object ActionEffectImpl {
   object Builder extends Action.Effect.Builder {
     override def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
-    override def forward[S](serviceCall: ServiceCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
+    override def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     override def noReply[S]: Action.Effect[S] = NoReply(Nil)
     override def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =

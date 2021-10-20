@@ -16,8 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.effect
 
+import com.akkaserverless.javasdk.DeferredCall
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect
 import com.akkaserverless.protocol.component.ClientAction
@@ -64,7 +64,7 @@ final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects
     copy(sideEffects = sideEffects ++ newSideEffects)
 }
 
-final case class ForwardReplyImpl[T](serviceCall: ServiceCall[_, T], sideEffects: Vector[SideEffect])
+final case class ForwardReplyImpl[T](serviceCall: DeferredCall[_, T], sideEffects: Vector[SideEffect])
     extends SecondaryEffectImpl {
 
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
@@ -86,4 +86,4 @@ object NoReply {
   def apply[T]: NoReply[T] = instance.asInstanceOf[NoReply[T]]
 }
 
-final case class SideEffectImpl(serviceCall: ServiceCall[_, _], synchronous: Boolean) extends SideEffect
+final case class SideEffectImpl(call: DeferredCall[_, _], synchronous: Boolean) extends SideEffect

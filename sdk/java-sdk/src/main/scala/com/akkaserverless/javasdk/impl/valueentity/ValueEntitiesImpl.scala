@@ -23,13 +23,13 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
+import com.akkaserverless.javasdk.DeferredCallFactory
 import com.akkaserverless.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.valueentity._
 
 import com.akkaserverless.javasdk.impl.ValueEntityFactory
@@ -123,7 +123,7 @@ final class ValueEntitiesImpl(
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler =
-      service.factory.create(new ValueEntityContextImpl(init.entityId, rootContext.serviceCallFactory(), system))
+      service.factory.create(new ValueEntityContextImpl(init.entityId, rootContext.callFactory(), system))
     val thisEntityId = init.entityId
 
     init.state match {
@@ -150,13 +150,8 @@ final class ValueEntitiesImpl(
           val cmd =
             service.anySupport.decode(
               ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
-          val context = new CommandContextImpl(
-            thisEntityId,
-            command.name,
-            command.id,
-            metadata,
-            rootContext.serviceCallFactory(),
-            system)
+          val context =
+            new CommandContextImpl(thisEntityId, command.name, command.id, metadata, rootContext.callFactory(), system)
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) =
             try {
@@ -223,7 +218,7 @@ private[akkaserverless] final class CommandContextImpl(
     override val commandName: String,
     override val commandId: Long,
     override val metadata: Metadata,
-    serviceCallFactory: ServiceCallFactory,
+    serviceCallFactory: DeferredCallFactory,
     system: ActorSystem)
     extends AbstractContext(serviceCallFactory, system)
     with CommandContext
@@ -231,7 +226,7 @@ private[akkaserverless] final class CommandContextImpl(
 
 private[akkaserverless] final class ValueEntityContextImpl(
     override val entityId: String,
-    serviceCallFactory: ServiceCallFactory,
+    serviceCallFactory: DeferredCallFactory,
     system: ActorSystem)
     extends AbstractContext(serviceCallFactory, system)
     with ValueEntityContext

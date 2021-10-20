@@ -97,7 +97,7 @@ public class LocalPersistenceSubscriber extends Action {
       return effects()
           .forward(
               context
-                  .serviceCallFactory()
+                  .callFactory()
                   .<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
                       lookup(
                           LocalPersistenceSubscriberModel.name,

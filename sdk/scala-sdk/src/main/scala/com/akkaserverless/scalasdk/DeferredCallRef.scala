@@ -24,7 +24,8 @@ import com.google.protobuf.Descriptors
  * @tparam R
  *   The type of message the call returns
  */
-trait ServiceCallRef[T, R] {
+// FIXME remove this once we have the component "registry"
+trait DeferredCallRef[T, R] {
 
   /**
    * The protobuf descriptor for the method.
@@ -42,7 +43,7 @@ trait ServiceCallRef[T, R] {
    * @return
    *   A service call that can be used as a forward or effect.
    */
-  def createCall(message: T): ServiceCall[T, R] =
+  def createCall(message: T): DeferredCall[T, R] =
     createCall(message, Metadata.empty)
 
   /**
@@ -55,5 +56,5 @@ trait ServiceCallRef[T, R] {
    * @return
    *   A service call that can be used as a forward or effect.
    */
-  def createCall(message: T, metadata: Metadata): ServiceCall[T, R]
+  def createCall(message: T, metadata: Metadata): DeferredCall[T, R]
 }

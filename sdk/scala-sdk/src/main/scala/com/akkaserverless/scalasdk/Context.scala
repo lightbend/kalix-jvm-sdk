@@ -21,7 +21,7 @@ import akka.stream.Materializer
 trait Context {
 
   /** Get the service call factory for this stateful service. */
-  def serviceCallFactory: ServiceCallFactory
+  def callFactory: DeferredCallFactory
 
   /**
    * An Akka Stream materializer to use for running streams. Needed for example in a command handler which accepts

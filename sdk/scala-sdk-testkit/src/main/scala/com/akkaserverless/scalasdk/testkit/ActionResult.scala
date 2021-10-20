@@ -44,7 +44,7 @@ trait ActionResult[T] {
    * @return
    *   An object with details about the forward. If the result was not a forward an exception is thrown.
    */
-  def forwardedTo: ServiceCallDetails[T]
+  def forwardedTo: DeferredCallDetails[T]
 
   /** @return true if the call was async, false if not */
   def isAsync: Boolean
@@ -68,5 +68,5 @@ trait ActionResult[T] {
   def isNoReply: Boolean
 
   /** @return The list of side effects */
-  def sideEffects: Seq[ServiceCallDetails[T]];
+  def sideEffects: Seq[DeferredCallDetails[T]];
 }

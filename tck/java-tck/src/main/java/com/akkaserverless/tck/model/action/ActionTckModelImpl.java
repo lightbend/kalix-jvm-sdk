@@ -17,11 +17,9 @@
 package com.akkaserverless.tck.model.action;
 
 import akka.NotUsed;
-import akka.actor.ActorSystem;
-import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.ServiceCall;
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.*;
 import com.akkaserverless.tck.model.action.Action.*;
@@ -113,9 +111,9 @@ public class ActionTckModelImpl extends AbstractActionTckModelAction {
     return effect.addSideEffects(sideEffects);
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
+  private DeferredCall serviceTwoRequest(String id) {
     return actionContext()
-        .serviceCallFactory()
+        .callFactory()
         .lookup(ActionTwo.name, "Call", OtherRequest.class)
         .createCall(OtherRequest.newBuilder().setId(id).build());
   }

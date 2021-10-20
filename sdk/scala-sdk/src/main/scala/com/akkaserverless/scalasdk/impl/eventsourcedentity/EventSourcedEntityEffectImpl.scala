@@ -36,9 +36,9 @@ import scala.jdk.CollectionConverters._
 import scala.compat.java8.FunctionConverters._
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
+import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
@@ -62,8 +62,8 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def error[T](description: String): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.error(description))
 
-  def forward[T](serviceCall: ServiceCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
+  def forward[T](serviceCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
+    javasdkEffect.forward(JavaDeferredCallAdapter(serviceCall)))
 
   def noReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.noReply())
 
@@ -80,8 +80,8 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def thenAddSideEffect(sideEffect: S => SideEffect): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { s => JavaSideEffectAdapter(sideEffect(s)) })
 
-  def thenForward[T](serviceCall: S => ServiceCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.thenForward[T] { s => JavaServiceCallAdapter(serviceCall(s)) })
+  def thenForward[T](serviceCall: S => DeferredCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
+    javasdkEffect.thenForward[T] { s => JavaDeferredCallAdapter(serviceCall(s)) })
 
   def thenNoReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.thenNoReply())
 

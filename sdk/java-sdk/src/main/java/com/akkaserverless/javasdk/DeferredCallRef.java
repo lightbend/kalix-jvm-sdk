@@ -19,12 +19,14 @@ package com.akkaserverless.javasdk;
 import com.google.protobuf.Descriptors;
 
 /**
- * A reference to a call on a service.
+ * Represents a call to a component service that has not yet happened, but will be handed to Akka
+ * Serverless for execution. Used with forwards and side effects.
  *
  * @param <T> The type of message the call accepts.
  * @param <R> The type of message the call returns.
  */
-public interface ServiceCallRef<T, R> {
+// FIXME remove this once we have the component "registry"
+public interface DeferredCallRef<T, R> {
   /**
    * The protobuf descriptor for the method.
    *
@@ -39,7 +41,7 @@ public interface ServiceCallRef<T, R> {
    * @param message The message to pass to the method.
    * @return A service call that can be used as a forward or effect.
    */
-  default ServiceCall<T, R> createCall(T message) {
+  default DeferredCall<T, R> createCall(T message) {
     return createCall(message, Metadata.EMPTY);
   }
 
@@ -51,5 +53,5 @@ public interface ServiceCallRef<T, R> {
    * @param metadata The Metadata to send.
    * @return A service call that can be used as a forward or effect.
    */
-  ServiceCall<T, R> createCall(T message, Metadata metadata);
+  DeferredCall<T, R> createCall(T message, Metadata metadata);
 }

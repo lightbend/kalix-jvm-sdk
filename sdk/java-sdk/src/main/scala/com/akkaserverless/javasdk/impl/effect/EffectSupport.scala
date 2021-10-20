@@ -45,11 +45,11 @@ object EffectSupport {
   def sideEffectsFrom(secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
     val encodedSideEffects = secondaryEffect.sideEffects.map { sideEffect =>
       component.SideEffect(
-        sideEffect.serviceCall().ref().method().getService.getFullName,
-        sideEffect.serviceCall().ref().method().getName,
-        Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
+        sideEffect.call().ref().method().getService.getFullName,
+        sideEffect.call().ref().method().getName,
+        Some(ScalaPbAny.fromJavaProto(sideEffect.call().message())),
         sideEffect.synchronous(),
-        asProtocol(sideEffect.serviceCall().metadata()))
+        asProtocol(sideEffect.call().metadata()))
     }
     encodedSideEffects
   }

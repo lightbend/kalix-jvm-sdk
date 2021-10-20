@@ -14,36 +14,44 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package com.akkaserverless.scalasdk
 
-import com.google.protobuf.Any;
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 /**
- * Represents a call to a service, performed either as a forward, or as an effect.
+ * Represents a call to a component service that has not yet happened, but will be handed to Akka Serverless for
+ * execution. Used with forwards and side effects.
  *
- * @param <T> The type of message the call accepts
- * @param <R> The type of message the call returns
+ * @tparam T
+ *   the message type of the parameter for the call
+ * @tparam R
+ *   the message type that the call returns
+ *
+ * Not for user extension.
  */
-public interface ServiceCall<T, R> {
+trait DeferredCall[T, R] {
 
   /**
    * The reference to the call.
    *
-   * @return The reference to the call.
+   * @return
+   *   The reference to the call.
    */
-  ServiceCallRef<T, R> ref();
+  def ref: DeferredCallRef[T, R]
 
   /**
    * The message to pass to the call when the call is invoked.
    *
-   * @return The message to pass to the call, serialized as an {@link Any}.
+   * @return
+   *   The message to pass to the call, serialized as an {{{ScalaPbAny}}}
    */
-  Any message();
+  def message: ScalaPbAny
 
   /**
    * The metadata to pass with the message when the call is invoked.
    *
-   * @return The metadata.
+   * @return
+   *   The metadata.
    */
-  Metadata metadata();
+  def metadata: Metadata
 }

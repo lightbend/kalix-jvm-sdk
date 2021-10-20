@@ -45,10 +45,10 @@ import com.akkaserverless.javasdk.replicatedentity.{ WriteConsistency => JavaSdk
 import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.akkaserverless.scalasdk.replicatedentity.CommandContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap
@@ -150,8 +150,8 @@ private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandCont
 
   override def entityId: String = javaSdkCommandContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkCommandContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkCommandContext.callFactory())
 
   override def materializer(): Materializer =
     javaSdkCommandContext.materializer()
@@ -163,8 +163,7 @@ private[scalasdk] final case class ScalaReplicatedEntityContextAdapter(javaSdkCo
 
   override def entityId: String = javaSdkContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory = ScalaServiceCallFactoryAdapter(
-    javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory = ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def materializer(): Materializer =
     javaSdkContext.materializer()

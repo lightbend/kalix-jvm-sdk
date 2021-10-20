@@ -29,7 +29,7 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.{ EventSourcedEntities
 import com.akkaserverless.javasdk.impl.{
   ComponentOptions,
   DiscoveryImpl,
-  ResolvedServiceCallFactory,
+  ResolvedDeferredCallFactory,
   ResolvedServiceMethod,
   Service
 }
@@ -117,7 +117,7 @@ final class AkkaServerlessRunner private[this] (
       services.asScala.toMap)
   }
 
-  private val rootContext: Context = new AbstractContext(new ResolvedServiceCallFactory(services), system) {}
+  private val rootContext: Context = new AbstractContext(new ResolvedDeferredCallFactory(services), system) {}
 
   private[this] def createRoutes(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
 

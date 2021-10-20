@@ -99,9 +99,7 @@ private[javasdk] final class ActionsImpl(
   import _system.dispatcher
   implicit val system: ActorSystem = _system
 
-  private object creationContext
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
-      with ActionCreationContext {
+  private object creationContext extends AbstractContext(rootContext.callFactory(), system) with ActionCreationContext {
     override def getGrpcClient[T](clientClass: Class[T], service: String): T =
       GrpcClients(system).getGrpcClient(clientClass, service)
   }
@@ -149,11 +147,11 @@ private[javasdk] final class ActionsImpl(
   private def toProtocol(sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map { sideEffect =>
       component.SideEffect(
-        sideEffect.serviceCall().ref().method().getService.getFullName,
-        sideEffect.serviceCall().ref().method().getName,
-        Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
+        sideEffect.call().ref().method().getService.getFullName,
+        sideEffect.call().ref().method().getName,
+        Some(ScalaPbAny.fromJavaProto(sideEffect.call().message())),
         sideEffect.synchronous(),
-        toProtocol(sideEffect.serviceCall().metadata()))
+        toProtocol(sideEffect.call().metadata()))
     }
 
   private def toProtocol(metadata: com.akkaserverless.javasdk.Metadata): Option[component.Metadata] =
@@ -324,7 +322,7 @@ private[javasdk] final class ActionsImpl(
   }
 
   class ActionContextImpl(override val metadata: Metadata)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(rootContext.callFactory(), system)
       with ActionContext {
 
     override def eventSubject(): Optional[String] =

@@ -25,9 +25,9 @@ import scala.jdk.OptionConverters._
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewCreationContext
@@ -81,8 +81,8 @@ private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: ja
   override def viewId: String =
     javaSdkContext.viewId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
@@ -95,8 +95,8 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
   override def eventName: String =
     javaSdkContext.eventName()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def metadata: Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())

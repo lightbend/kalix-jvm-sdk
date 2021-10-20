@@ -26,8 +26,8 @@ import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.testkit.EventSourcedResult
-import com.akkaserverless.javasdk.testkit.ServiceCallDetails
 import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
 
 import java.util.Collections
@@ -84,8 +84,9 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSo
 
   override def isForward: Boolean = appliedSecondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def getForward: ServiceCallDetails[R] = appliedSecondaryEffect match {
-    case ForwardReplyImpl(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[R @unchecked, _], _) => serviceCall
+  override def getForward: DeferredCallDetails[R] = appliedSecondaryEffect match {
+    case ForwardReplyImpl(serviceCall: TestKitDeferredCallFactory$.TestKitDeferredCall[R @unchecked, _], _) =>
+      serviceCall
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$secondaryEffectName]")
   }
 

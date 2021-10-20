@@ -22,7 +22,7 @@ package com.akkaserverless.scalasdk
  * <p>This is used to create {{{ServiceCall}}} 's that can be passed to `forward` of the entity
  * <code>Effect</code></code>.
  */
-trait ServiceCallFactory {
+trait DeferredCallFactory {
 
   /**
    * Lookup a reference to the service call with the given name and method.
@@ -45,5 +45,5 @@ trait ServiceCallFactory {
    *   if the accepted input type for the method doesn't match `messageType`.
    */
   // FIXME unsafe, deprecate or remove
-  def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): ServiceCallRef[T, R]
+  def lookup[T, R](serviceName: String, methodName: String, messageType: Class[T]): DeferredCallRef[T, R]
 }

@@ -16,8 +16,8 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
 
@@ -104,7 +104,7 @@ public abstract class ValueEntity<S> {
        * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> forward(ServiceCall<? extends Object, T> serviceCall);
+      <T> Effect<T> forward(DeferredCall<? extends Object, T> serviceCall);
 
       /**
        * Create an error reply.
@@ -154,7 +154,7 @@ public abstract class ValueEntity<S> {
        * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> thenForward(ServiceCall<? extends Object, T> serviceCall);
+      <T> Effect<T> thenForward(DeferredCall<? extends Object, T> serviceCall);
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

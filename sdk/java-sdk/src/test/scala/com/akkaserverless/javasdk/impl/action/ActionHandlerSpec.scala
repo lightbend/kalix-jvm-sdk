@@ -31,7 +31,7 @@ import com.akkaserverless.javasdk.impl.AbstractContext
 import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.javasdk.impl.ResolvedServiceCall
-import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
+import com.akkaserverless.javasdk.impl.ResolvedDeferredCallFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
@@ -72,7 +72,7 @@ class ActionRouterSpec
     val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
 
     val services = Map(serviceName -> service)
-    val scf = new ResolvedServiceCallFactory(services)
+    val scf = new ResolvedDeferredCallFactory(services)
 
     new ActionsImpl(classicSystem, services, new AbstractContext(scf, classicSystem) {})
   }

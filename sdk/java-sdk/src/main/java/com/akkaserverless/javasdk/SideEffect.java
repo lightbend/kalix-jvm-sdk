@@ -22,7 +22,7 @@ import com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
 public interface SideEffect {
 
   /** The service call that is executed as this effect. */
-  ServiceCall<?, ?> serviceCall();
+  DeferredCall<?, ?> call();
 
   /** Whether this effect should be executed synchronously or not. */
   boolean synchronous();
@@ -34,7 +34,7 @@ public interface SideEffect {
    * @param synchronous Whether this effect should be executed synchronously.
    * @return The side effect.
    */
-  static SideEffect of(ServiceCall serviceCall, boolean synchronous) {
+  static SideEffect of(DeferredCall serviceCall, boolean synchronous) {
     return new SideEffectImpl(serviceCall, synchronous);
   }
 
@@ -44,7 +44,7 @@ public interface SideEffect {
    * @param serviceCall The service call to effect.
    * @return The side effect.
    */
-  static SideEffect of(ServiceCall serviceCall) {
+  static SideEffect of(DeferredCall serviceCall) {
     return new SideEffectImpl(serviceCall, false);
   }
 }

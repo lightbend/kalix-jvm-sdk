@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package com.akkaserverless.javasdk.testkit;
 
-import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.javasdk.Metadata;
 
-trait ServiceCallDetails[T] {
-
+public interface DeferredCallDetails<T> {
   /** @return The forwarded message */
-  def getMessage: T
+  T getMessage();
 
   /** @return Any metadata attached to the call */
-  def getMetadata: Metadata
+  Metadata getMetadata();
 
   /** @return The name of the service being called */
-  def getServiceName: String
+  String getServiceName();
 
   /** @return The method name being called */
-  def getMethodName: String
+  String getMethodName();
 }

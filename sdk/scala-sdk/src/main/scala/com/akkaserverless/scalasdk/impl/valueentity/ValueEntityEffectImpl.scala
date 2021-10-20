@@ -18,7 +18,7 @@ package com.akkaserverless.scalasdk.impl.valueentity
 
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -36,8 +36,8 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
   def deleteState: ValueEntity.Effect.OnSuccessBuilder[S] = new ValueEntityEffectImpl(javasdkEffect.deleteState())
   def error[T](description: String): ValueEntity.Effect[T] = new ValueEntityEffectImpl(
     javasdkEffect.error[T](description))
-  def forward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall[_, T]): ValueEntity.Effect[T] =
-    new ValueEntityEffectImpl(javasdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
+  def forward[T](serviceCall: com.akkaserverless.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] =
+    new ValueEntityEffectImpl(javasdkEffect.forward(JavaDeferredCallAdapter(serviceCall)))
   def noReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.noReply[T]())
   def reply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.reply(message, metadata.impl))
@@ -46,8 +46,8 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
     javasdkEffect.updateState(newState))
   def addSideEffects(sideEffects: Seq[SideEffect]): ValueEntity.Effect[S] = new ValueEntityEffectImpl(javasdkEffect
     .addSideEffects(sideEffects.map(se => JavaSideEffectAdapter(se).asInstanceOf[javasdk.SideEffect]).asJavaCollection))
-  def thenForward[T](serviceCall: com.akkaserverless.scalasdk.ServiceCall[_, T]): ValueEntity.Effect[T] =
-    ValueEntityEffectImpl(javasdkEffect.thenForward(JavaServiceCallAdapter(serviceCall)))
+  def thenForward[T](serviceCall: com.akkaserverless.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] =
+    ValueEntityEffectImpl(javasdkEffect.thenForward(JavaDeferredCallAdapter(serviceCall)))
   def thenNoReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.thenNoReply())
   def thenReply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.thenReply(message, metadata.impl))

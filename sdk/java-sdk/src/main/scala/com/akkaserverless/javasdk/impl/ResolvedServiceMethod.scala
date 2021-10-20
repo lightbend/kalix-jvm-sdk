@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{ Metadata, ServiceCall, ServiceCallRef }
+import com.akkaserverless.javasdk.{ DeferredCall, DeferredCallRef, Metadata }
 import com.fasterxml.jackson.databind.{ ObjectReader, ObjectWriter }
 import com.google.protobuf.{
   Any => JavaPbAny,
@@ -34,14 +34,14 @@ final case class ResolvedServiceMethod[I, O](
     descriptor: Descriptors.MethodDescriptor,
     inputType: ResolvedType[I],
     outputType: ResolvedType[O])
-    extends ServiceCallRef[I, O] {
+    extends DeferredCallRef[I, O] {
 
   def outputStreamed: Boolean = descriptor.isServerStreaming
   def name: String = descriptor.getName
 
   override def method(): Descriptors.MethodDescriptor = descriptor
 
-  override def createCall(message: I, metadata: Metadata): ServiceCall[I, O] =
+  override def createCall(message: I, metadata: Metadata): DeferredCall[I, O] =
     ResolvedServiceCall(
       this,
       JavaPbAny
@@ -52,8 +52,8 @@ final case class ResolvedServiceMethod[I, O](
       metadata)
 }
 
-final case class ResolvedServiceCall[T, R](ref: ServiceCallRef[T, R], message: JavaPbAny, metadata: Metadata)
-    extends ServiceCall[T, R]
+final case class ResolvedServiceCall[T, R](ref: DeferredCallRef[T, R], message: JavaPbAny, metadata: Metadata)
+    extends DeferredCall[T, R]
 
 /**
  * A resolved type

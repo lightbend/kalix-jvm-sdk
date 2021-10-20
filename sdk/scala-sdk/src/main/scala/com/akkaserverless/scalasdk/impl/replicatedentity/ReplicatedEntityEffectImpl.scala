@@ -23,9 +23,9 @@ import com.akkaserverless.javasdk.impl.replicatedentity.{
 import com.akkaserverless.javasdk.{ SideEffect => JavaSdkSideEffect }
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
+import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
+import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
@@ -53,8 +53,8 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   override def reply[T](message: T, metadata: Metadata): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.reply(message, MetadataConverters.toJava(metadata)))
 
-  override def forward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.forward(JavaServiceCallAdapter(serviceCall)))
+  override def forward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.forward(JavaDeferredCallAdapter(serviceCall)))
 
   override def error[T](description: String): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.error(description))
@@ -68,8 +68,8 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   override def thenReply[T](message: T, metadata: Metadata): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenReply(message, MetadataConverters.toJava(metadata)))
 
-  override def thenForward[T](serviceCall: ServiceCall[_, T]): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.thenForward(JavaServiceCallAdapter(serviceCall)))
+  override def thenForward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.thenForward(JavaDeferredCallAdapter(serviceCall)))
 
   override def thenNoReply[T]: ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenNoReply())

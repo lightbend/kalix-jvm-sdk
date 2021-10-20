@@ -14,7 +14,7 @@ class CustomerActionImpl(creationContext: ActionCreationContext) extends Abstrac
 
   /** Handler for "Create". */
   override def create(customer: Customer): Action.Effect[Empty] = {
-     val callRef = creationContext.serviceCallFactory.lookup[Customer, Empty](
+     val callRef = creationContext.callFactory.lookup[Customer, Empty](
             "customer.api.CustomerService",
             "Create",
             classOf[Customer])

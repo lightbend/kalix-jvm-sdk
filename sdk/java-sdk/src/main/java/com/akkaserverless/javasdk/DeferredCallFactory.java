@@ -19,10 +19,10 @@ package com.akkaserverless.javasdk;
 /**
  * A service call factory.
  *
- * <p>This is used to create {@link ServiceCall}'s that can be passed to <code>forward</code> of the
- * entity <code>Effect</code></code>.
+ * <p>This is used to create {@link DeferredCall}'s that can be passed to <code>forward</code> of
+ * the entity <code>Effect</code></code>.
  */
-public interface ServiceCallFactory {
+public interface DeferredCallFactory {
 
   /**
    * Lookup a reference to the service call with the given name and method.
@@ -39,5 +39,5 @@ public interface ServiceCallFactory {
    *     messageType</code>.
    */
   // FIXME unsafe, arbitrary return type, deprecate or remove
-  <T, R> ServiceCallRef<T, R> lookup(String serviceName, String methodName, Class<T> messageType);
+  <T, R> DeferredCallRef<T, R> lookup(String serviceName, String methodName, Class<T> messageType);
 }

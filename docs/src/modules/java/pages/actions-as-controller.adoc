@@ -49,7 +49,7 @@ include::example$java-valueentity-counter/src/main/java/com/example/actions/Doub
 ----
 <1> In the constructor, we use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
 <2> On incoming requests, we double the value of `IncreaseValue`
-<3> We use the `increaseCallRef` to build a `ServiceCall` that is then passed to `effects().forward()` method.
+<3> We use the `increaseCallRef` to build a `DeferredCall` that is then passed to `effects().forward()` method.
 
 Scala::
 +
@@ -60,7 +60,7 @@ include::example$scala-valueentity-counter/src/main/scala/com/example/actions/Do
 ----
 <1> We use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
 <2> On incoming requests, we double the value of `IncreaseValue`
-<3> We use the `increaseCallRef` to build a `ServiceCall` that is then passed to `effects.forward()` method.
+<3> We use the `increaseCallRef` to build a `DeferredCall` that is then passed to `effects.forward()` method.
 
 == Registering the Action
 

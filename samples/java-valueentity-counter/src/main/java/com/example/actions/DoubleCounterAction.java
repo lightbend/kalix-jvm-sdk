@@ -5,7 +5,7 @@
 
 package com.example.actions;
 
-import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.example.Components;

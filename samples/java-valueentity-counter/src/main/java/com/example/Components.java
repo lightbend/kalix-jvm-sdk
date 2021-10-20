@@ -5,7 +5,7 @@ package com.example;
 
 // FIXME generate and make accessible in all actions
 
-import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.DeferredCall;
 import com.example.actions.CounterStateSubscription;
 import com.example.actions.DoubleCounter;
 import com.example.domain.Counter;
@@ -25,7 +25,7 @@ public interface Components {
     // deferred client calls, generated factories looking like service clients
     CounterStateSubscriptionCalls counterStateSubscription();
     DoubleCounterCalls doubleCounter();
-    CounterServiceCalls counter();
+    CounterCalls counter();
   }
 
   interface Clients {
@@ -35,12 +35,11 @@ public interface Components {
     CounterService counter();
   }
 
-  interface CounterServiceCalls {
+  interface CounterCalls {
     // input typed so we can't call it with the wrong value
     // return typed with return value of call so we can match with effects().forward()
-    // FIXME rename `ServiceCallRef` to `DeferredCall`?
     // FIXME we don't really need both type parameters, only return value?
-    ServiceCallRef<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase);
+    DeferredCall<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase);
     // FIXME methods for all
   }
   interface DoubleCounterCalls {

@@ -20,9 +20,9 @@ import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.scalasdk.testkit.ActionResult
-import com.akkaserverless.scalasdk.testkit.ServiceCallDetails
-import com.akkaserverless.scalasdk.impl.JavaServiceCallAdapter
-import com.akkaserverless.scalasdk.ScalaServiceCallAdapter
+import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
+import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
+import com.akkaserverless.scalasdk.ScalaDeferredCallAdapter
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -34,16 +34,16 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
   }
 
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[ServiceCallDetails[T]] = {
+  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[T]] = {
     sideEffects.map { sideEffect =>
       sideEffect.serviceCall match {
-        case ScalaServiceCallAdapter(JavaServiceCallAdapter(scalaSdkServiceCall)) =>
-          scalaSdkServiceCall.asInstanceOf[ServiceCallDetails[T]]
+        case ScalaDeferredCallAdapter(JavaDeferredCallAdapter(scalaSdkServiceCall)) =>
+          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[T]]
       }
     }
   }
 
-  override def sideEffects: Seq[ServiceCallDetails[T]] = effect match {
+  override def sideEffects: Seq[DeferredCallDetails[T]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
@@ -53,8 +53,8 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 
-  override def forwardedTo: ServiceCallDetails[T] = effect match {
-    case e: ActionEffectImpl.ForwardEffect[T] => e.serviceCall.asInstanceOf[ServiceCallDetails[T]]
+  override def forwardedTo: DeferredCallDetails[T] = effect match {
+    case e: ActionEffectImpl.ForwardEffect[T] => e.serviceCall.asInstanceOf[DeferredCallDetails[T]]
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$effectName]")
   }
 

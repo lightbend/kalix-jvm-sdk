@@ -20,7 +20,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
+import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 
@@ -90,7 +90,7 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def forward[S](serviceCall: ServiceCall[_, S]): Action.Effect[S]
+      def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

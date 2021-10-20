@@ -17,8 +17,8 @@
 package com.akkaserverless.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.DeferredCall;
+import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEntity {
 
-  private final ServiceCallRef<Request, Response> serviceTwoCall;
+  private final DeferredCallRef<Request, Response> serviceTwoCall;
 
   @Override
   public Persisted emptyState() {
@@ -37,7 +37,7 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
 
   public EventSourcedTckModelEntity(Context context) {
     serviceTwoCall =
-        context.serviceCallFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
+        context.callFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
   }
 
   public Persisted persisted(Persisted state, Persisted event) {
@@ -92,7 +92,7 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
     return effect.addSideEffects(e);
   }
 
-  private ServiceCall<Request, Response> serviceTwoRequest(String id) {
+  private DeferredCall<Request, Response> serviceTwoRequest(String id) {
     return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
   }
 }

@@ -25,10 +25,10 @@ import scala.jdk.OptionConverters._
 
 import akka.stream.Materializer
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
@@ -110,8 +110,8 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def entityId: String = javaSdkContext.entityId()
 
@@ -126,8 +126,8 @@ private[scalasdk] final class ScalaValueEntityContextAdapter(javaSdkContext: jav
 
   def entityId: String = javaSdkContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
+  override def callFactory: DeferredCallFactory =
+    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
