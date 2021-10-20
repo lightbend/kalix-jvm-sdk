@@ -45,7 +45,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
         increaseValue.toBuilder().setValue(doubled).build(); // <2>
 
     return effects()
-            .forward(components().calls().counter().increase(increaseValueDoubled)); // <3>
+            .forward(components().counter().increase(increaseValueDoubled)); // <3>
   }
 
   // end::controller-forward[]
@@ -71,7 +71,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build();
-    return effects().asyncReply(components().clients().counter().increase(increaseValueDoubled));
+    return effects().asyncReply(components().counter().increase(increaseValueDoubled));
   }
 
   // regular async sequence of operations
@@ -80,7 +80,8 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
     CounterApi.IncreaseValue increaseValueDoubled =
         increaseValue.toBuilder().setValue(doubled).build();
     CompletionStage<CounterApi.CurrentCounter> increaseAndValueAfter =
-        components().clients().counter().increase(increaseValueDoubled)
+        components().counter().increase(increaseValueDoubled)
+        .execute()
         .thenCompose(empty ->
             components().clients().counter().getCurrentCounter(
                 CounterApi.GetCounter.newBuilder().setCounterId(increaseValue.getCounterId()).build())
@@ -89,10 +90,17 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   }
 
   // Maybe this is not something we should show in docs, happens in parallel (right now)
+  // but could be good for something to describe that there is no consistency/transaction here
   public Effect<CounterApi.CurrentCounter> sumOfMy3FavouriteCounterValues(Empty empty) {
-    CompletionStage<CounterApi.CurrentCounter> counter1 = components().clients().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-1").build());
-    CompletionStage<CounterApi.CurrentCounter> counter2 = components().clients().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-2").build());
-    CompletionStage<CounterApi.CurrentCounter> counter3 = components().clients().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-3").build());
+    CompletionStage<CounterApi.CurrentCounter> counter1 =
+        components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-1").build())
+            .execute();
+    CompletionStage<CounterApi.CurrentCounter> counter2 =
+        components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-2").build())
+            .execute();
+    CompletionStage<CounterApi.CurrentCounter> counter3 =
+        components().counter().getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId("counter-3").build())
+            .execute();
 
     CompletionStage<CounterApi.CurrentCounter> sumOfAllThree = counter1.thenCombine(counter2, (currentCounter1, currentCounter2) ->
         currentCounter1.getValue() + currentCounter2.getValue()

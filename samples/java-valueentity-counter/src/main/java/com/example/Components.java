@@ -18,22 +18,9 @@ import com.google.protobuf.Empty;
  */
 public interface Components {
 
-  Clients clients();
-  Calls calls();
-
-  interface Calls {
-    // deferred client calls, generated factories looking like service clients
-    CounterStateSubscriptionCalls counterStateSubscription();
-    DoubleCounterCalls doubleCounter();
-    CounterCalls counter();
-  }
-
-  interface Clients {
-    // gRPC service interfaces
-    CounterStateSubscription counterStateSubscription();
-    DoubleCounter doubleCounter();
-    CounterService counter();
-  }
+  CounterStateSubscriptionCalls counterStateSubscription();
+  DoubleCounterCalls doubleCounter();
+  CounterCalls counter();
 
   interface CounterCalls {
     // input typed so we can't call it with the wrong value

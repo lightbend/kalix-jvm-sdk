@@ -55,7 +55,7 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
   override def getForward(): DeferredCallDetails[R] = effect.secondaryEffect match {
     case reply: ForwardReplyImpl[R @unchecked] =>
       reply.serviceCall match {
-        case t: TestKitDeferredCallFactory$.TestKitDeferredCall[R @unchecked, _] =>
+        case t: TestKitDeferredCallFactory.TestKitDeferredCall[R @unchecked, _] =>
           t
         case surprise =>
           throw new IllegalStateException(s"Unexpected type of service call in testkit: ${surprise.getClass.getName}")

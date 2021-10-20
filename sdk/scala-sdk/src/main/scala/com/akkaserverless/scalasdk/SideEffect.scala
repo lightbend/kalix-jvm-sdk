@@ -25,6 +25,9 @@ import com.akkaserverless.scalasdk.impl.MetadataImpl
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
+import scala.jdk.FutureConverters._
+import scala.concurrent.Future
+
 /* A side effect. */
 object SideEffect {
 
@@ -73,6 +76,8 @@ private[scalasdk] final case class ScalaDeferredCallAdapter[T, R](javasdkDeferre
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkDeferredCall.message)
   override def metadata: Metadata =
     MetadataConverters.toScala(javasdkDeferredCall.metadata())
+
+  def execute(): Future[R] = ???
 }
 
 private[scalasdk] final case class ScalaDeferredCallRefAdapter[T, R](

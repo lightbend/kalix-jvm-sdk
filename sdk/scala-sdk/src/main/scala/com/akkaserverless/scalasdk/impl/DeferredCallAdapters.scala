@@ -35,6 +35,9 @@ import com.google.protobuf
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
+import java.util.concurrent.CompletionStage
+import scala.concurrent.Future
+
 private[scalasdk] final case class ScalaDeferredCallFactoryAdapter(
     javaSdkServiceCallFactory: javasdk.DeferredCallFactory)
     extends DeferredCallFactory {
@@ -48,6 +51,8 @@ private[scalasdk] final case class JavaDeferredCallAdapter[T, R](scalaSdkService
   override def ref(): javasdk.DeferredCallRef[T, R] = JavaDeferredCallRefAdapter(scalaSdkServiceCall.ref)
   override def message(): protobuf.Any = ScalaPbAny.toJavaProto(scalaSdkServiceCall.message)
   override def metadata(): javasdk.Metadata = scalaSdkServiceCall.metadata.asInstanceOf[MetadataImpl].impl
+
+  def execute(): CompletionStage[R] = ???
 }
 
 private[scalasdk] final case class ScalaServiceCallAdapter[T, R](javaSdkServiceCall: javasdk.DeferredCall[T, R])
@@ -56,6 +61,8 @@ private[scalasdk] final case class ScalaServiceCallAdapter[T, R](javaSdkServiceC
   override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javaSdkServiceCall.message)
   override def metadata: Metadata =
     new MetadataImpl(javaSdkServiceCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+
+  def execute(): Future[R] = ???
 }
 
 private[scalasdk] final case class JavaSideEffectAdapter(scalaSdkSideEffect: SideEffect) extends javasdk.SideEffect {

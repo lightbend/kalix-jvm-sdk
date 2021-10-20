@@ -18,6 +18,8 @@ package com.akkaserverless.javasdk;
 
 import com.google.protobuf.Any;
 
+import java.util.concurrent.CompletionStage;
+
 /**
  * Represents a call to a service, performed either as a forward, or as an effect.
  *
@@ -48,4 +50,7 @@ public interface DeferredCall<T, R> {
    * @return The metadata.
    */
   Metadata metadata();
+
+  /** Execute this call right away and get the async result back for composition. */
+  CompletionStage<R> execute();
 }

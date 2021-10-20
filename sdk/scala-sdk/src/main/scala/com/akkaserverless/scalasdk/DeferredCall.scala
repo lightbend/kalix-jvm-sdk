@@ -18,6 +18,8 @@ package com.akkaserverless.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
+import scala.concurrent.Future
+
 /**
  * Represents a call to a component service that has not yet happened, but will be handed to Akka Serverless for
  * execution. Used with forwards and side effects.
@@ -54,4 +56,9 @@ trait DeferredCall[T, R] {
    *   The metadata.
    */
   def metadata: Metadata
+
+  /**
+   * Execute this call right away and get the async result back for composition.
+   */
+  def execute(): Future[R]
 }

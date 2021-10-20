@@ -27,6 +27,8 @@ import com.google.protobuf.{
   UnsafeByteOperations
 }
 
+import java.util.concurrent.CompletionStage
+
 /**
  * A resolved service method.
  */
@@ -53,7 +55,9 @@ final case class ResolvedServiceMethod[I, O](
 }
 
 final case class ResolvedServiceCall[T, R](ref: DeferredCallRef[T, R], message: JavaPbAny, metadata: Metadata)
-    extends DeferredCall[T, R]
+    extends DeferredCall[T, R] {
+  def execute(): CompletionStage[R] = ???
+}
 
 /**
  * A resolved type

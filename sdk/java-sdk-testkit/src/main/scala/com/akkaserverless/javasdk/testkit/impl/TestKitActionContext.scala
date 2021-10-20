@@ -34,7 +34,7 @@ final class TestKitActionContext extends ActionContext with ActionCreationContex
 
   override def eventSubject() = Optional.of("test-subject-id")
 
-  override def callFactory: DeferredCallFactory = TestKitDeferredCallFactory$
+  override def callFactory: DeferredCallFactory = TestKitDeferredCallFactory
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")

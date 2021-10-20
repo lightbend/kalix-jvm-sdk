@@ -21,7 +21,7 @@ import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
-import com.akkaserverless.javasdk.testkit.impl.TestKitDeferredCallFactory$
+import com.akkaserverless.javasdk.testkit.impl.TestKitDeferredCallFactory
 
 import java.util.concurrent.CompletionStage
 import java.util.{ List => JList }
@@ -61,7 +61,7 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   def getForward(): DeferredCallDetails[T] =
     effect match {
       case ActionEffectImpl.ForwardEffect(
-            serviceCall: TestKitDeferredCallFactory$.TestKitDeferredCall[T @unchecked, _],
+            serviceCall: TestKitDeferredCallFactory.TestKitDeferredCall[T @unchecked, _],
             _) =>
         serviceCall
       case _ =>

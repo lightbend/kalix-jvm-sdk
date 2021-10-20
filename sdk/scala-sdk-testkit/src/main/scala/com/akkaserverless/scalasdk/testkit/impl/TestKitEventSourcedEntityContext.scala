@@ -24,7 +24,7 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
  * INTERNAL API Used by the generated testkit
  */
 final class TestKitEventSourcedEntityContext(override val entityId: String) extends EventSourcedEntityContext {
-  override def callFactory: DeferredCallFactory = TestKitDeferredCallFactory$
+  override def callFactory: DeferredCallFactory = TestKitDeferredCallFactory
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 }

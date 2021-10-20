@@ -36,8 +36,7 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
   }
 
   public EventSourcedTckModelEntity(Context context) {
-    serviceTwoCall =
-        context.callFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
+    serviceTwoCall = context.callFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
   }
 
   public Persisted persisted(Persisted state, Persisted event) {
