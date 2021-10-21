@@ -5,6 +5,7 @@ import sbtprotoc.ProtocPlugin
 import ProtocPlugin.autoImport.PB
 import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport._
+import protocbridge.{ Artifact, SandboxedJvmGenerator }
 import sbt.internal.inc.classpath.ClasspathUtilities
 
 import java.nio.file.{ Files, Path, Paths }
@@ -23,9 +24,49 @@ object ReflectiveCodeGen extends AutoPlugin {
 
   override def projectSettings =
     Seq(
-      Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
+      Compile / akkaGrpcCodeGeneratorSettings += "flat_package",
       Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-      Compile / sourceGenerators += runCodeGenTask.taskValue) ++ attachProtobufDescriptorSets
+      // Java side directly calls generator reflectively
+      Compile / sourceGenerators ++= {
+        if ((Compile / akkaGrpcGeneratedLanguages).value contains AkkaGrpc.Java) Seq(runCodeGenTask.taskValue)
+        else Seq.empty
+      },
+      // Scala side registers protoc plugins for generation
+      Compile / PB.targets ++= {
+        if ((Compile / akkaGrpcGeneratedLanguages).value contains AkkaGrpc.Scala)
+          Seq(
+            gen(akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"), "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$") -> (Compile / sourceManaged).value,
+            gen(akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"), "com.akkaserverless.codegen.scalasdk.AkkaserverlessUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value
+          )
+        else Seq.empty
+      },
+      PB.artifactResolver := Def.taskDyn {
+        val cp = (ProjectRef(file("."), "codegenScala") / Compile / fullClasspath).value.map(_.data)
+        val oldResolver = PB.artifactResolver.value
+        Def.task { (artifact: Artifact) =>
+          artifact.groupId match {
+            case "com.akkaserverless.codegen.scalasdk.BuildInfo.organization" =>
+              cp
+            case _ =>
+              oldResolver(artifact)
+          }
+        }
+      }.value) ++ attachProtobufDescriptorSets
+
+  def gen(
+      options: Seq[String] = Seq.empty,
+      generatorClass: String)
+      : (SandboxedJvmGenerator, Seq[String]) =
+    (
+      SandboxedJvmGenerator.forModule(
+        "scala",
+        Artifact(
+          "com.akkaserverless.codegen.scalasdk.BuildInfo.organization",
+          "akkaserverless-codegen-scala_2.12",
+          "SNAPSHOT"),
+        generatorClass,
+        Nil),
+      options)
 
   def runAkkaServerlessCodegen(
       classpath: Classpath,
