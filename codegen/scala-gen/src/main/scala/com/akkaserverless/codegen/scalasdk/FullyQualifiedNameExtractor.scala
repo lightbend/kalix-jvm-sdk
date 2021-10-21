@@ -41,8 +41,8 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
     PackageNaming(
       descriptor.getFile.getName,
       descriptor.getName,
-      descriptor.getFile.scalaPackage.fullName,
-      None,
+      descriptor.getFile.getPackage,
+      Some(descriptor.getFile.scalaPackage.fullName),
       None,
       javaMultipleFiles = false)
 
