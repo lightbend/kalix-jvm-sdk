@@ -35,9 +35,12 @@ object ReflectiveCodeGen extends AutoPlugin {
       Compile / PB.targets ++= {
         if ((Compile / akkaGrpcGeneratedLanguages).value contains AkkaGrpc.Scala)
           Seq(
-            gen(akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"), "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$") -> (Compile / sourceManaged).value,
-            gen(akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"), "com.akkaserverless.codegen.scalasdk.AkkaserverlessUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value
-          )
+            gen(
+              akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
+              "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$") -> (Compile / sourceManaged).value,
+            gen(
+              akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
+              "com.akkaserverless.codegen.scalasdk.AkkaserverlessUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value)
         else Seq.empty
       },
       PB.artifactResolver := Def.taskDyn {
@@ -53,10 +56,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         }
       }.value) ++ attachProtobufDescriptorSets
 
-  def gen(
-      options: Seq[String] = Seq.empty,
-      generatorClass: String)
-      : (SandboxedJvmGenerator, Seq[String]) =
+  def gen(options: Seq[String] = Seq.empty, generatorClass: String): (SandboxedJvmGenerator, Seq[String]) =
     (
       SandboxedJvmGenerator.forModule(
         "scala",
