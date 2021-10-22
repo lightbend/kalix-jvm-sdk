@@ -62,7 +62,10 @@ object SourceGenerator {
 
     val (mainClassPackageName, mainClassName) = disassembleClassName(mainClass)
 
-    model.services.values.flatMap {
+    val componentSources =
+      ComponentsSourceGenerator.generate(generatedSourceDirectory, mainClassPackageName, model.services)
+
+    componentSources ++ model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
         val entity = model.lookupEntity(service)
         EntityServiceSourceGenerator.generate(

@@ -11,7 +11,6 @@ import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.example.actions.CounterStateSubscription;
 import com.example.actions.DoubleCounter;
-import com.example.domain.Counter;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
 
@@ -28,8 +27,8 @@ public final class ComponentsImpl implements Components {
     this.context = context;
   }
 
-  public CounterCalls counter() {
-    return new CounterCalls() {
+  public Components.CounterCalls counter() {
+    return new Components.CounterCalls() {
       @Override
       public DeferredCall<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase) {
         // FIXME make this all a single returned DeferredCall instance somehow rather than mixing two different ones
@@ -65,7 +64,6 @@ public final class ComponentsImpl implements Components {
         };
       }
 
-
       @Override
       public DeferredCall<CounterApi.DecreaseValue, Empty> decrease(CounterApi.DecreaseValue decreaseValue) {
         throw new UnsupportedOperationException("Placeholder call for now");
@@ -75,15 +73,20 @@ public final class ComponentsImpl implements Components {
       public DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter getCounter) {
         throw new UnsupportedOperationException("Placeholder call for now");
       }
+
+      @Override
+      public DeferredCall<CounterApi.ResetValue, Empty> reset(CounterApi.ResetValue resetValue) {
+        throw new UnsupportedOperationException("Placeholder call for now");
+      }
     };
   }
 
   @Override
-  public DoubleCounterCalls doubleCounter() {
+  public Components.DoubleCounterActionCalls doubleCounterAction() {
     throw new UnsupportedOperationException("Placeholder call for now");
   }
   @Override
-  public CounterStateSubscriptionCalls counterStateSubscription() {
+  public CounterStateSubscriptionActionCalls counterStateSubscriptionAction() {
     throw new UnsupportedOperationException("Placeholder call for now");
   }
 }
