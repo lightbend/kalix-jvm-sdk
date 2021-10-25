@@ -9,6 +9,7 @@ import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.action.ActionContext;
+import com.akkaserverless.javasdk.impl.action.ActionContextImpl;
 import com.example.actions.CounterStateSubscription;
 import com.example.actions.DoubleCounter;
 import com.google.protobuf.Any;
@@ -29,6 +30,11 @@ public final class ComponentsImpl implements Components {
 
   public Components.CounterCalls counter() {
     return new Components.CounterCalls() {
+
+      private CounterService grpcClient() {
+        return ((ActionContextImpl) context).getComponentGrpcClient(CounterService.class);
+      }
+
       @Override
       public DeferredCall<CounterApi.IncreaseValue, Empty> increase(CounterApi.IncreaseValue increase) {
         // FIXME make this all a single returned DeferredCall instance somehow rather than mixing two different ones
@@ -58,8 +64,41 @@ public final class ComponentsImpl implements Components {
 
           @Override
           public CompletionStage<Empty> execute() {
-            // FIXME how to actually connect to the service itself (localhost - does it even work, service name?)
-            return context.getGrpcClient(CounterService.class, "localhost").increase(increase);
+            return grpcClient().increase(increase);
+          }
+        };
+      }
+
+      // second used component method
+      @Override
+      public DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter getCounter) {
+        DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter> call =
+            context.callFactory().<CounterApi.GetCounter, CounterApi.CurrentCounter>lookup(
+                    "com.example.CounterService",
+                    "GetCurrentCounter",
+                    CounterApi.GetCounter.class)
+                .createCall(getCounter);
+
+        return new DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter>() {
+          @Override
+          public DeferredCallRef<CounterApi.GetCounter, CounterApi.CurrentCounter> ref() {
+            // note that we now _know_ the return type is ok even if the lookup doesn't prove that
+            return call.ref();
+          }
+
+          @Override
+          public Any message() {
+            return call.message();
+          }
+
+          @Override
+          public Metadata metadata() {
+            return call.metadata();
+          }
+
+          @Override
+          public CompletionStage<CounterApi.CurrentCounter> execute() {
+            return grpcClient().getCurrentCounter(getCounter);
           }
         };
       }
@@ -69,10 +108,6 @@ public final class ComponentsImpl implements Components {
         throw new UnsupportedOperationException("Placeholder call for now");
       }
 
-      @Override
-      public DeferredCall<CounterApi.GetCounter, CounterApi.CurrentCounter> getCurrentCounter(CounterApi.GetCounter getCounter) {
-        throw new UnsupportedOperationException("Placeholder call for now");
-      }
 
       @Override
       public DeferredCall<CounterApi.ResetValue, Empty> reset(CounterApi.ResetValue resetValue) {

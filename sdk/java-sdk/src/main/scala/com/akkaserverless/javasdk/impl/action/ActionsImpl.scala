@@ -318,23 +318,30 @@ private[javasdk] final class ActionsImpl(
 
   private def createContext(in: ActionCommand): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata)
-  }
-
-  class ActionContextImpl(override val metadata: Metadata)
-      extends AbstractContext(rootContext.callFactory(), system)
-      with ActionContext {
-
-    override def eventSubject(): Optional[String] =
-      if (metadata.isCloudEvent)
-        metadata.asCloudEvent().subject()
-      else
-        Optional.empty()
-
-    override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-      GrpcClients(system).getGrpcClient(clientClass, service)
+    new ActionContextImpl(metadata, system, rootContext.callFactory())
   }
 
 }
 
 case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
+
+/**
+ * INTERNAL API
+ */
+class ActionContextImpl(override val metadata: Metadata, val system: ActorSystem, callFactory: DeferredCallFactory)
+    extends AbstractContext(callFactory, system)
+    with ActionContext {
+
+  override def eventSubject(): Optional[String] =
+    if (metadata.isCloudEvent)
+      metadata.asCloudEvent().subject()
+    else
+      Optional.empty()
+
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    GrpcClients(system).getGrpcClient(clientClass, service)
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    GrpcClients(system).getComponentGrpcClient(serviceClass)
+
+}

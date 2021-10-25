@@ -80,15 +80,21 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
 
       log.info(
-        "Received discovery call from [{} {}] supporting Akka Serverless protocol {}.{}",
+        "Received discovery call from [{} {}]{} supporting Akka Serverless protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
+        if (in.deployedName.isEmpty) { "" }
+        else { s" at [${in.deployedName}]" }, // added in protocol 0.7.3
         in.protocolMajorVersion,
         in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
       val unsupportedServices = services.values.filterNot { service =>
         in.supportedEntityTypes.contains(service.componentType)
+      }
+
+      if (in.deployedName.nonEmpty) {
+        GrpcClients.get(system).setSelfServiceName(in.deployedName)
       }
 
       if (unsupportedServices.nonEmpty) {

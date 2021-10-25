@@ -68,5 +68,5 @@ public interface ActionResult<T> {
   boolean isNoReply();
 
   /** @return The list of side effects */
-  List<DeferredCallDetails<T>> getSideEffects();
+  List<DeferredCallDetails<?>> getSideEffects();
 }

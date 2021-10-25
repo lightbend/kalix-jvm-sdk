@@ -34,16 +34,16 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
   }
 
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[T]] = {
+  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[AnyRef]] = {
     sideEffects.map { sideEffect =>
       sideEffect.serviceCall match {
         case ScalaDeferredCallAdapter(JavaDeferredCallAdapter(scalaSdkServiceCall)) =>
-          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[T]]
+          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[AnyRef]]
       }
     }
   }
 
-  override def sideEffects: Seq[DeferredCallDetails[T]] = effect match {
+  override def sideEffects: Seq[DeferredCallDetails[AnyRef]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)

@@ -68,5 +68,5 @@ trait ActionResult[T] {
   def isNoReply: Boolean
 
   /** @return The list of side effects */
-  def sideEffects: Seq[DeferredCallDetails[T]];
+  def sideEffects: Seq[DeferredCallDetails[AnyRef]];
 }

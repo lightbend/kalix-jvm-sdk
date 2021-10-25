@@ -42,10 +42,10 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
     reply.msg
   }
 
-  private def extractServices(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[T]] =
-    sideEffects.map(_.call.asInstanceOf[DeferredCallDetails[T]]).asJava
+  private def extractServices(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_]] =
+    sideEffects.map(_.call.asInstanceOf[DeferredCallDetails[_]]).asJava
 
-  def getSideEffects(): JList[DeferredCallDetails[T]] = effect match {
+  def getSideEffects(): JList[DeferredCallDetails[_]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)

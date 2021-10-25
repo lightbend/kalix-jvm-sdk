@@ -38,7 +38,7 @@ public class DoubleCounterActionTest {
         .setValue(increase)
         .build();
     ActionResult<Empty> result1 = testKit.increaseWithSideEffect(increaseValueCommand);// <1>
-    DeferredCallDetails sideEffect = result1.getSideEffects().get(0);// <2>
+    DeferredCallDetails<?> sideEffect = result1.getSideEffects().get(0);// <2>
     assertEquals("com.example.CounterService", sideEffect.getServiceName());// <3>
     assertEquals("Increase", sideEffect.getMethodName());// <4>
     CounterApi.IncreaseValue doubledIncreased =  CounterApi.IncreaseValue.newBuilder()

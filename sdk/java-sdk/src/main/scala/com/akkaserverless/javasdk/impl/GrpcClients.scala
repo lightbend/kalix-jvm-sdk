@@ -58,6 +58,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   import GrpcClients._
   private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
+  @volatile private var selfServiceName: Option[String] = None
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AnyRef]()
 
@@ -68,6 +69,19 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
       }
       .map(_ => Done))
+
+  def setSelfServiceName(deployedName: String): Unit =
+    selfServiceName = Some(deployedName)
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
+    // FIXME something better for local proxy? Encode port in the string 'host:port'?
+    selfServiceName match {
+      case Some("localhost") => getGrpcClient(serviceClass, "localhost", 9000)
+      case Some(selfName)    => getGrpcClient(serviceClass, selfName)
+      case None =>
+        throw new IllegalStateException("Self service name not set by proxy at discovery, too old proxy version?")
+    }
+  }
 
   def getGrpcClient[T](serviceClass: Class[T], service: String): T =
     getGrpcClient(serviceClass, service, port = 80)
