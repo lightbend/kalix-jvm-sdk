@@ -47,7 +47,9 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "Generate \"unmanaged\" akkaserverless scaffolding code based on the available .proto definitions.\n" +
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
+    val generateTestUnmanaged = taskKey[Seq[File]](">..")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
+    val temporaryUnmanagedTestDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
   }
 
   object autoImport extends Keys
@@ -60,23 +62,23 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.1" % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
       "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
-    Compile / PB.targets +=
-      gen(
-        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
     Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
-    Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
+    Compile / temporaryUnmanagedTestDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged-test",
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
     // and the Akka Serverless 'handler'. For now working around it by only generating
     // the client, but we should probably resolve this before the first public release.
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    Compile / PB.protoSources ++= (Compile / PB.protoSources).value,
     Compile / PB.targets ++= Seq(genUnmanaged(
       akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedDirectory).value),
-    Test / PB.targets ++= Seq(genUnmanagedTest(
-      akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / temporaryUnmanagedDirectory).value),
-    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets +=
+    Compile / PB.targets ++= Seq(genUnmanagedTest(
+      akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedTestDirectory).value),
+    Compile / PB.targets +=
+      gen(
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
+    Compile / PB.targets +=
       genTests(
-        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value,
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
@@ -86,23 +88,23 @@ object AkkaserverlessPlugin extends AutoPlugin {
         Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
         Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
     },
-    Test / generateUnmanaged := {
-      Files.createDirectories(Paths.get((Test / temporaryUnmanagedDirectory).value.toURI))
+    Compile / generateTestUnmanaged := {
+      Files.createDirectories(Paths.get((Compile / temporaryUnmanagedTestDirectory).value.toURI))
       // Make sure generation has happened
-      val _ = (Test / PB.generate).value
+      val _ = (Compile / PB.generate).value
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
-        Paths.get((Test / temporaryUnmanagedDirectory).value.toURI),
+        Paths.get((Compile / temporaryUnmanagedTestDirectory).value.toURI),
         Paths.get((Test / sourceDirectory).value.toURI).resolve("scala"))
     },
     Compile / managedSources :=
-      (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
+      (Compile / managedSources).value
+        .filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value))
+        .filter(s => !isIn(s, (Compile / temporaryUnmanagedTestDirectory).value)),
     Compile / unmanagedSources :=
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value,
-    Test / managedSources :=
-      (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
-    Test / unmanagedSources :=
-      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value)
+      (Compile / unmanagedSources).value //why depends in itself?
+      ++ (Compile / generateUnmanaged).value
+      ++ (Compile / generateTestUnmanaged).value)
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
