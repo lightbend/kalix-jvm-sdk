@@ -78,7 +78,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
     Compile / PB.targets +=
       genTests(
-        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
+        akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened
@@ -101,8 +101,11 @@ object AkkaserverlessPlugin extends AutoPlugin {
       (Compile / managedSources).value
         .filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value))
         .filter(s => !isIn(s, (Compile / temporaryUnmanagedTestDirectory).value)),
+    Test / managedSources :=
+      (Compile / managedSources).value
+        .filter(s => !isIn(s, (Compile / temporaryUnmanagedTestDirectory).value)),
     Compile / unmanagedSources :=
-      (Compile / unmanagedSources).value //why depends in itself?
+      (Compile / unmanagedSources).value
       ++ (Compile / generateUnmanaged).value
       ++ (Compile / generateTestUnmanaged).value)
 
