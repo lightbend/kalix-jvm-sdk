@@ -61,7 +61,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
     libraryDependencies ++= Seq(
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.1" % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
-      "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
+      "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Compile),
     Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
     Compile / temporaryUnmanagedTestDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged-test",
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
