@@ -249,7 +249,7 @@ Java::
 [source,java]
 ./src/it/java/com/example/domain/CounterTest.java
 ----
-include::example$java-valueentity-counter/src/it/java/com/example/domain/CounterIntegrationTest.java[tag=sample-it-test]
+include::example$java-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
 ----
 +
 The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
