@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.shoppingcart.domain;
+package com.example.shoppingcart.api;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.Main;
+import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.ShoppingCartService;
 import org.junit.ClassRule;
@@ -25,9 +25,10 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static java.util.concurrent.TimeUnit.*;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
 public class ShoppingCartIntegrationTest {
 
   /**
@@ -35,12 +36,15 @@ public class ShoppingCartIntegrationTest {
    */
   @ClassRule
   public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
+  /**
+   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+   */
   private final ShoppingCartService client;
 
   public ShoppingCartIntegrationTest() {
-    this.client = testKit.getGrpcClient(ShoppingCartService.class);
+    client = testKit.getGrpcClient(ShoppingCartService.class);
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
@@ -74,6 +78,13 @@ public class ShoppingCartIntegrationTest {
         .get();
   }
 
+  void removeCart(String cartId) throws Exception {
+    client
+        .removeCart(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
+        .toCompletableFuture()
+        .get();
+  }
+
   ShoppingCartApi.LineItem item(String productId, String name, int quantity) {
     return ShoppingCartApi.LineItem.newBuilder()
         .setProductId(productId)
@@ -81,6 +92,7 @@ public class ShoppingCartIntegrationTest {
         .setQuantity(quantity)
         .build();
   }
+
 
   @Test
   public void emptyCartByDefault() throws Exception {
@@ -97,8 +109,7 @@ public class ShoppingCartIntegrationTest {
     assertEquals(
         "shopping cart should have expected items",
         cart.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3))
-    );
+        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)));
   }
 
   @Test
@@ -110,15 +121,26 @@ public class ShoppingCartIntegrationTest {
     assertEquals(
         "shopping cart should have expected items",
         cart1.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2))
-    );
+        List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
     removeItem("cart3", "a");
     ShoppingCartApi.Cart cart2 = getCart("cart3");
     assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
         cart2.getItemsList(),
-        List.of(item("b", "Banana", 2))
-    );
+        List.of(item("b", "Banana", 2)));
+  }
+
+  @Test
+  public void removeCart() throws Exception {
+    addItem("cart4", "a", "Apple", 42);
+    ShoppingCartApi.Cart cart1 = getCart("cart4");
+    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
+    assertEquals(
+        "shopping cart should have expected items",
+        cart1.getItemsList(),
+        List.of(item("a", "Apple", 42)));
+    removeCart("cart4");
+    assertEquals("shopping cart should be empty", 0, getCart("cart4").getItemsCount());
   }
 }

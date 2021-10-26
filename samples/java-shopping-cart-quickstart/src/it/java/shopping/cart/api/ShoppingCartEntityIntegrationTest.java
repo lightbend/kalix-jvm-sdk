@@ -2,7 +2,7 @@
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
-package shopping.cart.domain;
+package shopping.cart.api;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;

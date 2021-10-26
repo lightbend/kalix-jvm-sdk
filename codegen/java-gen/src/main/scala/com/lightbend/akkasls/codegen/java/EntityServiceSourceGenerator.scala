@@ -52,8 +52,10 @@ object EntityServiceSourceGenerator {
       mainClassPackageName: String,
       mainClassName: String): Iterable[Path] = {
     val packageName = entity.fqn.parent.javaPackage
+    val servicePackageName = service.fqn.parent.javaPackage
     val className = entity.fqn.name
     val packagePath = packageAsPath(packageName)
+    val servicePackagePath = packageAsPath(servicePackageName)
 
     val implClassName = className
     val implSourcePath =
@@ -101,7 +103,7 @@ object EntityServiceSourceGenerator {
     val integrationTestClassName = className + "IntegrationTest"
     val integrationTestSourcePath =
       integrationTestSourceDirectory
-        .resolve(packagePath.resolve(integrationTestClassName + ".java"))
+        .resolve(servicePackagePath.resolve(integrationTestClassName + ".java"))
     if (!integrationTestSourcePath.toFile.exists()) {
       integrationTestSourcePath.getParent.toFile.mkdirs()
       Files.write(
@@ -111,10 +113,9 @@ object EntityServiceSourceGenerator {
           mainClassName,
           service,
           entity,
-          packageName,
+          servicePackageName,
           integrationTestClassName).getBytes(Charsets.UTF_8))
     }
-
     Seq(
       implSourcePath,
       integrationTestSourcePath,

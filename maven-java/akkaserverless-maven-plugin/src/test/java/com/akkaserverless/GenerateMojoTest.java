@@ -42,7 +42,7 @@ public class GenerateMojoTest {
 // FIXME enable assert again when new unit tests are generated
 //        assertTrue(projectDirectory.resolve("src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java")
 //                .toFile().exists());
-        assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/domain/ShoppingCartIntegrationTest.java")
+        assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/ShoppingCartIntegrationTest.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("target/generated-sources/akkaserverless/java/com/lightbend/AkkaServerlessFactory.java")
                 .toFile().exists());

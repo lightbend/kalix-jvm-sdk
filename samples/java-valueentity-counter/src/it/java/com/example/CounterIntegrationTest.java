@@ -3,7 +3,7 @@
  * You are free to make changes to this file.
  */
 
-package com.example.domain;
+package com.example.api;
 
 import com.example.Main;
 import com.example.CounterApi;

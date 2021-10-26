@@ -1,4 +1,4 @@
-package customer.domain;
+package customer.api;
 
 import java.util.UUID;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;

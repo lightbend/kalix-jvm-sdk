@@ -124,18 +124,18 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 generatedSourceDirectory.resolve("com/example/service/domain/MyEntity1Provider.java"),
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity1TestKit.java"),
                 testSourceDirectory.resolve("com/example/service/domain/MyEntity1Test.java"),
-                integrationTestSourceDirectory.resolve("com/example/service/domain/MyEntity1IntegrationTest.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/MyEntity1IntegrationTest.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyEntity1.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyValueEntity2.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyValueEntity2.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Provider.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyValueEntity2Router.java"),
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2TestKit.java"),
-                integrationTestSourceDirectory.resolve("com/example/service/domain/MyValueEntity2IntegrationTest.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/MyValueEntity2IntegrationTest.java"),
                 sourceDirectory.resolve("com/example/service/domain/MyEntity3.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/AbstractMyEntity3.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Router.java"),
-                integrationTestSourceDirectory.resolve("com/example/service/domain/MyEntity3IntegrationTest.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/something/MyEntity3IntegrationTest.java"),
                 testSourceDirectory.resolve("com/example/service/domain/MyEntity3Test.java"),
                 generatedTestSourceDirectory.resolve("com/example/service/domain/MyEntity3TestKit.java"),
                 generatedSourceDirectory.resolve("com/example/service/domain/MyEntity3Provider.java"),
@@ -156,8 +156,7 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 /* generatedTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6TestKit.java"
                 ), */
-                integrationTestSourceDirectory.resolve(
-                  "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"),
+                integrationTestSourceDirectory.resolve("com/example/service/MyReplicatedEntity6IntegrationTest.java"),
                 generatedSourceDirectory.resolve("com/example/service/AkkaServerlessFactory.java"),
                 sourceDirectory.resolve("com/example/service/Main.java")))
 
