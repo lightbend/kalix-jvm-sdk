@@ -97,8 +97,10 @@ object AkkaserverlessPlugin extends AutoPlugin {
     },
     Compile / managedSources :=
       (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
-    Compile / unmanagedSources :=
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value,
+    Compile / unmanagedSources := {
+      val _ = (Test / unmanagedSources).value // touch unmanaged test sources, so that they are generated on `compile`
+      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
+    },
     Test / managedSources :=
       (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
     Test / unmanagedSources :=
