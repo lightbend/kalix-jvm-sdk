@@ -238,7 +238,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
           service = testData.simpleEntityService(),
           entity = testData.replicatedEntity(replicatedData),
           packageName = "com.example.service",
-          className = "MyService"),
+          className = "MyService",
+          mainPackageName = "com.example"),
         s"""package com.example.service;
             |
             |$expectedImports
@@ -250,6 +251,10 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
             |
             |/** A replicated entity. */
             |public abstract class AbstractMyReplicatedEntity extends $expectedBaseClass {
+            |
+            |  protected final Components components() {
+            |    return new ComponentsImpl(commandContext());
+            |  }
             |
             |  /** Command handler for "Set". */
             |  public abstract Effect<Empty> set($expectedDataType currentData, ServiceOuterClass.SetValue setValue);
@@ -265,6 +270,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedCounter,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |""".stripMargin.trim,
     "ReplicatedCounterEntity",
     "ReplicatedCounter")
@@ -273,6 +280,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedRegister(domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedRegisterEntity<EntityOuterClass.SomeValue>",
@@ -282,6 +291,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedSet(domainType("SomeElement")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedSetEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedSetEntity<EntityOuterClass.SomeElement>",
@@ -292,6 +303,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMapEntity;
        |import com.akkaserverless.replicatedentity.ReplicatedData;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedMapEntity<EntityOuterClass.SomeKey, ReplicatedData>",
@@ -301,6 +314,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedCounterMap(domainType("SomeKey")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMapEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedCounterMapEntity<EntityOuterClass.SomeKey>",
@@ -310,6 +325,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMapEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedRegisterMapEntity<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>",
@@ -319,6 +336,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMapEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |import com.example.service.domain.EntityOuterClass;
        |""".stripMargin.trim,
     "ReplicatedMultiMapEntity<EntityOuterClass.SomeKey, EntityOuterClass.SomeValue>",
@@ -328,6 +347,8 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     ReplicatedVote,
     """|import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote;
        |import com.akkaserverless.javasdk.replicatedentity.ReplicatedVoteEntity;
+       |import com.example.Components;
+       |import com.example.ComponentsImpl;
        |""".stripMargin.trim,
     "ReplicatedVoteEntity",
     "ReplicatedVote")

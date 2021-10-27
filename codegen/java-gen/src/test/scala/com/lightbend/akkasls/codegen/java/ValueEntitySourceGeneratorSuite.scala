@@ -81,12 +81,14 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyService"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
+      EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className, "com.example")
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
          |
          |import com.akkaserverless.javasdk.valueentity.ValueEntity;
+         |import com.example.Components;
+         |import com.example.ComponentsImpl;
          |import com.example.service.domain.EntityOuterClass;
          |import com.external.Empty;
          |
@@ -96,6 +98,10 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |
          |/** A value entity. */
          |public abstract class AbstractMyService extends ValueEntity<EntityOuterClass.MyState> {
+         |
+         |  protected final Components components() {
+         |    return new ComponentsImpl(commandContext());
+         |  }
          |
          |  /** Command handler for "Set". */
          |  public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);
