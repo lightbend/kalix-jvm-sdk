@@ -18,7 +18,6 @@ package com.akkaserverless.tck.model.eventsourcedentity;
 
 import com.akkaserverless.javasdk.Context;
 import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
@@ -28,16 +27,12 @@ import java.util.List;
 
 public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEntity {
 
-  private final DeferredCallRef<Request, Response> serviceTwoCall;
-
   @Override
   public Persisted emptyState() {
     return Persisted.getDefaultInstance();
   }
 
-  public EventSourcedTckModelEntity(Context context) {
-    serviceTwoCall = context.callFactory().lookup(EventSourcedTwo.name, "Call", Request.class);
-  }
+  public EventSourcedTckModelEntity(Context context) {}
 
   public Persisted persisted(Persisted state, Persisted event) {
     return Persisted.newBuilder().setValue(state.getValue() + event.getValue()).build();
@@ -64,10 +59,11 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
           break;
         case FORWARD:
           if (!failed) {
-            effect =
-                effects()
-                    .emitEvents(events)
-                    .thenForward(__ -> serviceTwoRequest(action.getForward().getId()));
+            // FIXME cannot be done in `thenForward` because components use command context and that
+            // is cleared by then
+            DeferredCall<Request, Response> forwardToServiceTwo =
+                serviceTwoRequest(action.getForward().getId());
+            effect = effects().emitEvents(events).thenForward(__ -> forwardToServiceTwo);
           }
           break;
         case EFFECT:
@@ -92,6 +88,6 @@ public class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEnti
   }
 
   private DeferredCall<Request, Response> serviceTwoRequest(String id) {
-    return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
+    return components().eventSourcedTwoEntity().call(Request.newBuilder().setId(id).build());
   }
 }

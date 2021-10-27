@@ -24,22 +24,14 @@ import scala.concurrent.Future
  * Represents a call to a component service that has not yet happened, but will be handed to Akka Serverless for
  * execution. Used with forwards and side effects.
  *
- * @tparam T
+ * @tparam I
  *   the message type of the parameter for the call
- * @tparam R
+ * @tparam O
  *   the message type that the call returns
  *
  * Not for user extension.
  */
-trait DeferredCall[T, R] {
-
-  /**
-   * The reference to the call.
-   *
-   * @return
-   *   The reference to the call.
-   */
-  def ref: DeferredCallRef[T, R]
+trait DeferredCall[I, O] {
 
   /**
    * The message to pass to the call when the call is invoked.
@@ -47,7 +39,7 @@ trait DeferredCall[T, R] {
    * @return
    *   The message to pass to the call, serialized as an {{{ScalaPbAny}}}
    */
-  def message: ScalaPbAny
+  def message: I
 
   /**
    * The metadata to pass with the message when the call is invoked.
@@ -60,5 +52,5 @@ trait DeferredCall[T, R] {
   /**
    * Execute this call right away and get the async result back for composition.
    */
-  def execute(): Future[R]
+  def execute(): Future[O]
 }

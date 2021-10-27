@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
@@ -52,11 +53,10 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   override def isForward(): Boolean = effect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def getForward(): DeferredCallDetails[R] = effect.secondaryEffect match {
+  override def getForward(): DeferredCallDetails[_, R] = effect.secondaryEffect match {
     case reply: ForwardReplyImpl[R @unchecked] =>
-      reply.serviceCall match {
-        case t: TestKitDeferredCallFactory.TestKitDeferredCall[R @unchecked, _] =>
-          t
+      reply.deferredCall match {
+        case t: DeferredCallImpl[_, R @unchecked] => TestKitDeferredCall(t)
         case surprise =>
           throw new IllegalStateException(s"Unexpected type of service call in testkit: ${surprise.getClass.getName}")
       }

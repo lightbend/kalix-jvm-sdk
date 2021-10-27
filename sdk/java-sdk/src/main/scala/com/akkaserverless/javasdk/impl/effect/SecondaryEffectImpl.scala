@@ -19,6 +19,8 @@ package com.akkaserverless.javasdk.impl.effect
 import com.akkaserverless.javasdk.DeferredCall
 import com.akkaserverless.javasdk.Metadata
 import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect
 import com.akkaserverless.protocol.component.ClientAction
 import com.google.protobuf.{ Any => JavaPbAny }
@@ -28,6 +30,7 @@ sealed trait SecondaryEffectImpl {
   def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl
 
   final def replyToClientAction(
+      anySupport: AnySupport,
       commandId: Long,
       allowNoReply: Boolean,
       restartOnFailure: Boolean): Option[ClientAction] = {
@@ -35,7 +38,7 @@ sealed trait SecondaryEffectImpl {
       case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
         Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
       case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
-        Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(forward))))
+        Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(anySupport, forward))))
       case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
         Some(
           ClientAction(ClientAction.Action
@@ -64,7 +67,7 @@ final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects
     copy(sideEffects = sideEffects ++ newSideEffects)
 }
 
-final case class ForwardReplyImpl[T](serviceCall: DeferredCall[_, T], sideEffects: Vector[SideEffect])
+final case class ForwardReplyImpl[T](deferredCall: DeferredCall[_, T], sideEffects: Vector[SideEffect])
     extends SecondaryEffectImpl {
 
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =

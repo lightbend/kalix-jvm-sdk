@@ -70,24 +70,11 @@ private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: jav
   override def synchronous: Boolean = javasdkSideEffect.synchronous()
 }
 
-private[scalasdk] final case class ScalaDeferredCallAdapter[T, R](javasdkDeferredCall: javasdk.DeferredCall[T, R])
-    extends DeferredCall[T, R] {
-  override def ref: DeferredCallRef[T, R] = ScalaDeferredCallRefAdapter(javasdkDeferredCall.ref)
-  override def message: ScalaPbAny = ScalaPbAny.fromJavaProto(javasdkDeferredCall.message)
+private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javasdkDeferredCall: javasdk.DeferredCall[I, O])
+    extends DeferredCall[I, O] {
+  override def message: I = javasdkDeferredCall.message
   override def metadata: Metadata =
     MetadataConverters.toScala(javasdkDeferredCall.metadata())
 
-  def execute(): Future[R] = ???
-}
-
-private[scalasdk] final case class ScalaDeferredCallRefAdapter[T, R](
-    javasdkDeferredCallRef: javasdk.DeferredCallRef[T, R])
-    extends DeferredCallRef[T, R] {
-  def method: Descriptors.MethodDescriptor = javasdkDeferredCallRef.method()
-
-  def createCall(message: T, metadata: Metadata): DeferredCall[T, R] = {
-    ScalaDeferredCallAdapter(
-      javasdkDeferredCallRef
-        .createCall(message, metadata.impl))
-  }
+  def execute(): Future[O] = javasdkDeferredCall.execute().asScala
 }

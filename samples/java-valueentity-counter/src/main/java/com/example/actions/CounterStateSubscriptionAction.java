@@ -15,11 +15,6 @@ public class CounterStateSubscriptionAction extends AbstractCounterStateSubscrip
 
   public CounterStateSubscriptionAction(ActionCreationContext creationContext) {}
 
-  // FIXME generated method in AbstractCounterStateSubscriptionAction
-  protected final Components components() {
-    return null; // ComponentsImpl(actionContext())
-  }
-
   /** Handler for "OnUpdateState". */
   @Override
   public Effect<Empty> onUpdateState(CounterDomain.CounterState counterState) {

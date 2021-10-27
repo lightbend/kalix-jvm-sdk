@@ -16,25 +16,22 @@
 
 package com.akkaserverless.scalasdk.impl.valueentity
 
-import java.util.Optional
-
-import scala.collection.immutable.Set
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters._
-
 import akka.stream.Materializer
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
+
+import java.util.Optional
+import scala.collection.immutable.Set
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaValueEntityAdapter[S](scalaSdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
@@ -110,9 +107,6 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def callFactory: DeferredCallFactory =
-    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
-
   override def entityId: String = javaSdkContext.entityId()
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
@@ -125,9 +119,6 @@ private[scalasdk] final class ScalaValueEntityContextAdapter(javaSdkContext: jav
     extends ValueEntityContext {
 
   def entityId: String = javaSdkContext.entityId()
-
-  override def callFactory: DeferredCallFactory =
-    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

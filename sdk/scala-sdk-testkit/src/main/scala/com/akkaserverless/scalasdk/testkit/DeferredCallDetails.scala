@@ -16,19 +16,13 @@
 
 package com.akkaserverless.scalasdk.testkit
 
-import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.DeferredCall
 
-trait DeferredCallDetails[T] {
-
-  /** @return The forwarded message */
-  def getMessage: T
-
-  /** @return Any metadata attached to the call */
-  def getMetadata: Metadata
+trait DeferredCallDetails[I, O] extends DeferredCall[I, O] {
 
   /** @return The name of the service being called */
-  def getServiceName: String
+  def serviceName: String
 
   /** @return The method name being called */
-  def getMethodName: String
+  def methodName: String
 }

@@ -5,7 +5,6 @@
 
 package customer.action;
 
-import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
@@ -13,22 +12,11 @@ import customer.api.CustomerApi;
 /** An action. */
 public class CustomerActionImpl extends AbstractCustomerAction {
 
-  private final ActionCreationContext creationContext;
-
-  public CustomerActionImpl(ActionCreationContext creationContext) {
-    this.creationContext = creationContext;
-  }
+  public CustomerActionImpl(ActionCreationContext creationContext) { }
 
   /** Handler for "Create". */
   @Override
   public Effect<Empty> create(CustomerApi.Customer customer) {
-
-    DeferredCallRef<CustomerApi.Customer, Empty> callRef =
-        creationContext.callFactory().lookup(
-            "customer.api.CustomerService",
-            "Create",
-            CustomerApi.Customer.class);
-
-    return effects().forward(callRef.createCall(customer));
+    return effects().forward(components().customerService().create(customer));
   }
 }

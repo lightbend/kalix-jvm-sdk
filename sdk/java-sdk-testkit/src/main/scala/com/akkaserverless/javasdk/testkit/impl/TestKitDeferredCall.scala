@@ -16,13 +16,14 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
-import akka.stream.Materializer
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import com.akkaserverless.javasdk.Metadata
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
+import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+final case class TestKitDeferredCall[I, O](deferredCall: DeferredCallImpl[I, O]) extends DeferredCallDetails[I, O] {
+  // public API for inspection
+  override def getServiceName: String = deferredCall.fullServiceName
+  override def getMethodName: String = deferredCall.methodName
+  override def getMessage: I = deferredCall.message
+  override def getMetadata: Metadata = deferredCall.metadata
 }

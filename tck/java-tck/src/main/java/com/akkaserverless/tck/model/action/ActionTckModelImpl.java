@@ -112,9 +112,6 @@ public class ActionTckModelImpl extends AbstractActionTckModelAction {
   }
 
   private DeferredCall serviceTwoRequest(String id) {
-    return actionContext()
-        .callFactory()
-        .lookup(ActionTwo.name, "Call", OtherRequest.class)
-        .createCall(OtherRequest.newBuilder().setId(id).build());
+    return components().actionTwoImpl().call(OtherRequest.newBuilder().setId(id).build());
   }
 }

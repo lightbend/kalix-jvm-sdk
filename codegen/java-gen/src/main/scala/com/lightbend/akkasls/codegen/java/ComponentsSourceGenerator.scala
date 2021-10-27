@@ -34,22 +34,14 @@ object ComponentsSourceGenerator {
   import JavaGeneratorUtils._
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generate(generatedSourceDirectory: Path, packageName: String, services: Map[String, Service]): Iterable[Path] = {
-    val packagePath = packageAsPath(packageName)
-    val componentsFile = generatedSourceDirectory.resolve(packagePath.resolve("Components.java"))
-    componentsFile.getParent.toFile.mkdirs()
-    Files.write(
-      componentsFile,
-      generateComponentsInterface(packageName, services.values.toSeq).getBytes(Charsets.UTF_8))
-
-    componentsFile :: Nil
-  }
-
-  private def generateComponentsInterface(packageName: String, services: Seq[Service]): String = {
-    val imports = generateImports(Nil, packageName, otherImports = Seq("com.akkaserverless.javasdk.DeferredCall"))
+  def generate(
+      generatedSourceDirectory: Path,
+      packageName: String,
+      serviceMap: Map[String, Service]): Iterable[Path] = {
 
     // since we want to flatten component names to as short as possible there may be duplicate
     // names, so for those we need to use a longer name
+    val services = serviceMap.values.toSeq
     val uniqueNamesAndComponents = services
       .filter(_.commands.exists(_.isUnary)) // only include if there is at least one unary
       .map { component =>
@@ -62,8 +54,28 @@ object ComponentsSourceGenerator {
           name -> component
         }
       }
+      .toMap
 
-    val componentCalls = uniqueNamesAndComponents.map { case (name, component) =>
+    val packagePath = packageAsPath(packageName)
+    val componentsFile = generatedSourceDirectory.resolve(packagePath.resolve("Components.java"))
+    componentsFile.getParent.toFile.mkdirs()
+    Files.write(
+      componentsFile,
+      generateComponentsInterface(packageName, uniqueNamesAndComponents).getBytes(Charsets.UTF_8))
+
+    val componentsImplFile = generatedSourceDirectory.resolve(packagePath.resolve("ComponentsImpl.java"))
+    componentsImplFile.getParent.toFile.mkdirs()
+    Files.write(
+      componentsImplFile,
+      generateComponentsImpl(packageName, uniqueNamesAndComponents).getBytes(Charsets.UTF_8))
+
+    componentsFile :: componentsImplFile :: Nil
+  }
+
+  private def generateComponentsInterface(packageName: String, services: Map[String, Service]): String = {
+    val imports = generateImports(Nil, packageName, otherImports = Seq("com.akkaserverless.javasdk.DeferredCall"))
+
+    val componentCalls = services.map { case (name, component) =>
       // FIXME only unary deferred calls supported for now, or could streamed out be supported if types align?
       // higher risk of name conflicts here where all components in the service meets up, so all
       // type names are fully qualified rather than imported
@@ -80,7 +92,7 @@ object ComponentsSourceGenerator {
          |}""".stripMargin
     }
 
-    val componentGetters = uniqueNamesAndComponents.map { case (name, _) =>
+    val componentGetters = services.map { case (name, _) =>
       s"${name}Calls ${lowerFirst(name)}();"
     }
 
@@ -96,6 +108,76 @@ object ComponentsSourceGenerator {
       |  ${Format.indent(componentCalls, 2)}
       |}
       |""".stripMargin
+  }
+
+  private def generateComponentsImpl(packageName: String, services: Map[String, Service]): String = {
+    val imports = generateImports(
+      Nil,
+      packageName,
+      otherImports = Seq(
+        "com.akkaserverless.javasdk.DeferredCall",
+        "com.akkaserverless.javasdk.Context",
+        "com.akkaserverless.javasdk.impl.DeferredCallImpl",
+        "com.akkaserverless.javasdk.impl.MetadataImpl",
+        "com.akkaserverless.javasdk.impl.AbstractContext"))
+
+    val componentGetters = services.map { case (name, _) =>
+      s"""@Override
+         |public Components.${name}Calls ${lowerFirst(name)}() {
+         |  return new ${name}CallsImpl();
+         |}""".stripMargin
+    }
+
+    val componentCallImpls = services.map { case (name, service) =>
+      val methods = service.commands
+        .filter(_.isUnary)
+        .map { command =>
+          val commandMethod = lowerFirst(command.name)
+          val paramName = lowerFirst(command.inputType.name)
+          s"""@Override
+             |public DeferredCall<${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}> $commandMethod(${command.inputType.fullyQualifiedJavaName} $paramName) {
+             |  return new DeferredCallImpl<>(
+             |    ${lowerFirst(command.inputType.name)},
+             |    MetadataImpl.Empty(),
+             |    "${service.fqn.fullyQualifiedProtoName}",
+             |    "${command.name}",
+             |    () -> getGrpcClient(${service.fqn.fullyQualifiedGrpcServiceInterfaceName}.class).$commandMethod($paramName)
+             |  );
+             |}""".stripMargin
+        }
+
+      s"""private final class ${name}CallsImpl implements Components.${name}Calls {
+         |   ${Format.indent(methods, 2)}
+         |}""".stripMargin
+
+    }
+
+    s"""package $packageName;
+       |
+       |${writeImports(imports)}
+       |
+       |$managedComment
+       |
+       |/**
+       | * Not intended for direct instantiation, called by generated code, use Action.components() to access
+       | */
+       |public final class ComponentsImpl implements Components {
+       |
+       |  private final AbstractContext context;
+       |
+       |  public ComponentsImpl(Context context) {
+       |    this.context = (AbstractContext) context;
+       |  }
+       |
+       |  private <T> T getGrpcClient(Class<T> serviceClass) {
+       |    return context.getComponentGrpcClient(serviceClass);
+       |  }
+       |
+       |  ${Format.indent(componentGetters, 2)}
+       |
+       |  ${Format.indent(componentCallImpls, 2)}
+       |}
+       |""".stripMargin
   }
 
   private def nameFor(component: Service): String = {

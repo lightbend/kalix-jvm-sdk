@@ -83,8 +83,8 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         "Received discovery call from [{} {}]{} supporting Akka Serverless protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
-        if (in.deployedName.isEmpty) { "" }
-        else { s" at [${in.deployedName}]" }, // added in protocol 0.7.3
+        if (in.deploymentName.isEmpty) { "" }
+        else { s" at [${in.deploymentName}]" }, // added in protocol 0.7.4
         in.protocolMajorVersion,
         in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
@@ -93,8 +93,9 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         in.supportedEntityTypes.contains(service.componentType)
       }
 
-      if (in.deployedName.nonEmpty) {
-        GrpcClients.get(system).setSelfServiceName(in.deployedName)
+      // pass the deployed name of the service on to GrpcClients for cross component calls
+      if (in.deploymentName.nonEmpty) {
+        GrpcClients.get(system).setSelfServiceName(in.deploymentName)
       }
 
       if (unsupportedServices.nonEmpty) {

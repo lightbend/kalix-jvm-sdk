@@ -18,17 +18,6 @@ import static org.junit.Assert.*;
 
 public class DoubleCounterActionTest {
 
-  @Test
-  public void exampleTest() {
-    DoubleCounterActionTestKit testKit = DoubleCounterActionTestKit.of(DoubleCounterAction::new);
-    // use the testkit to execute a command
-    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
-  }
-
-
   // tag::side-effect-test[]
   @Test
   public void increaseWithSideEffectTest() {
@@ -38,7 +27,7 @@ public class DoubleCounterActionTest {
         .setValue(increase)
         .build();
     ActionResult<Empty> result1 = testKit.increaseWithSideEffect(increaseValueCommand);// <1>
-    DeferredCallDetails<?> sideEffect = result1.getSideEffects().get(0);// <2>
+    DeferredCallDetails<?, ?> sideEffect = result1.getSideEffects().get(0);// <2>
     assertEquals("com.example.CounterService", sideEffect.getServiceName());// <3>
     assertEquals("Increase", sideEffect.getMethodName());// <4>
     CounterApi.IncreaseValue doubledIncreased =  CounterApi.IncreaseValue.newBuilder()
@@ -51,7 +40,12 @@ public class DoubleCounterActionTest {
   @Test
   public void increaseTest() {
     DoubleCounterActionTestKit testKit = DoubleCounterActionTestKit.of(DoubleCounterAction::new);
-    // ActionResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder()...build());
+    ActionResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(2).build());
+    assertTrue(result.isForward());
+    DeferredCallDetails<?, Empty> forward = result.getForward();
+    assertEquals(CounterApi.IncreaseValue.newBuilder().setValue(4).build(), forward.getMessage());
+    assertEquals("com.example.CounterService", forward.getServiceName());
+    assertEquals("Increase", forward.getMethodName());
   }
 // tag::side-effect-test[]
 }

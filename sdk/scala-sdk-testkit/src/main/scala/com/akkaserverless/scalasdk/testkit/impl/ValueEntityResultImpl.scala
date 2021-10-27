@@ -56,7 +56,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
   override def isForward: Boolean =
     effect.javasdkEffect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def forwardedTo: DeferredCallDetails[R] =
+  override def forwardedTo: DeferredCallDetails[_, R] =
     ??? // FIXME #587
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>

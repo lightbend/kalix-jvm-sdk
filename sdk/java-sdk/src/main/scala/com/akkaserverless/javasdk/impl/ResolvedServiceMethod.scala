@@ -16,7 +16,6 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{ DeferredCall, DeferredCallRef, Metadata }
 import com.fasterxml.jackson.databind.{ ObjectReader, ObjectWriter }
 import com.google.protobuf.{
   Any => JavaPbAny,
@@ -35,14 +34,14 @@ import java.util.concurrent.CompletionStage
 final case class ResolvedServiceMethod[I, O](
     descriptor: Descriptors.MethodDescriptor,
     inputType: ResolvedType[I],
-    outputType: ResolvedType[O])
-    extends DeferredCallRef[I, O] {
+    outputType: ResolvedType[O]) {
 
   def outputStreamed: Boolean = descriptor.isServerStreaming
   def name: String = descriptor.getName
 
-  override def method(): Descriptors.MethodDescriptor = descriptor
+  def method(): Descriptors.MethodDescriptor = descriptor
 
+  /*
   override def createCall(message: I, metadata: Metadata): DeferredCall[I, O] =
     ResolvedServiceCall(
       this,
@@ -52,11 +51,7 @@ final case class ResolvedServiceMethod[I, O](
         .setValue(inputType.toByteString(message))
         .build(),
       metadata)
-}
-
-final case class ResolvedServiceCall[T, R](ref: DeferredCallRef[T, R], message: JavaPbAny, metadata: Metadata)
-    extends DeferredCall[T, R] {
-  def execute(): CompletionStage[R] = ???
+   */
 }
 
 /**
@@ -106,6 +101,7 @@ private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](
 /**
  * Not a real protobuf parser, but is useful none the less.
  */
+// FIXME remove?
 private final class JacksonResolvedType[T](
     override val typeClass: Class[T],
     override val typeUrl: String,

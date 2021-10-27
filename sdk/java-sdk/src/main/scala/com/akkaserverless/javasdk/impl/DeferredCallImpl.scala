@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package com.akkaserverless.javasdk.impl
 
-import akka.stream.Materializer
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import com.akkaserverless.javasdk.DeferredCall
+import com.google.protobuf.Descriptors
+
+import java.util.concurrent.CompletionStage
 
 /**
- * INTERNAL API Used by the generated testkit
+ * INTERNAL API
  */
-final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+final case class DeferredCallImpl[I, O](
+    message: I,
+    metadata: MetadataImpl,
+    fullServiceName: String,
+    methodName: String,
+    asyncCall: () => CompletionStage[O])
+    extends DeferredCall[I, O] {
+  override def execute(): CompletionStage[O] = asyncCall()
 }

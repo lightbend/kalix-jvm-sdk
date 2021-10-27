@@ -44,7 +44,7 @@ public interface EventSourcedResult<R> {
    * An object with details about the forward. If the result was not a forward an exception is
    * thrown
    */
-  DeferredCallDetails<R> getForward();
+  DeferredCallDetails<?, R> getForward();
 
   /** @return true if the call was an error, false if not */
   boolean isError();

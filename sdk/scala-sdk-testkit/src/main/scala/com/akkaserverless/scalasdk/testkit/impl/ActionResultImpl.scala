@@ -34,16 +34,16 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
   }
 
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[AnyRef]] = {
+  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
     sideEffects.map { sideEffect =>
       sideEffect.serviceCall match {
         case ScalaDeferredCallAdapter(JavaDeferredCallAdapter(scalaSdkServiceCall)) =>
-          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[AnyRef]]
+          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[_, _]]
       }
     }
   }
 
-  override def sideEffects: Seq[DeferredCallDetails[AnyRef]] = effect match {
+  override def sideEffects: Seq[DeferredCallDetails[_, _]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
@@ -53,8 +53,8 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 
-  override def forwardedTo: DeferredCallDetails[T] = effect match {
-    case e: ActionEffectImpl.ForwardEffect[T] => e.serviceCall.asInstanceOf[DeferredCallDetails[T]]
+  override def forwardedTo: DeferredCallDetails[_, T] = effect match {
+    case e: ActionEffectImpl.ForwardEffect[T] => e.serviceCall.asInstanceOf[DeferredCallDetails[_, T]]
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$effectName]")
   }
 

@@ -17,22 +17,19 @@
 package com.akkaserverless.scalasdk.impl.view
 
 import akka.stream.Materializer
-import java.util.Optional
-
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.OptionConverters._
-
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.view.ViewOptions
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.DeferredCallFactory
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallFactoryAdapter
 import com.akkaserverless.scalasdk.view.UpdateContext
 import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewCreationContext
 import com.akkaserverless.scalasdk.view.ViewProvider
 import com.google.protobuf.Descriptors
+
+import java.util.Optional
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaViewAdapter[S](scalaSdkView: View[S]) extends javasdk.view.View[S] {
   override def emptyState(): S = scalaSdkView.emptyState
@@ -81,9 +78,6 @@ private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: ja
   override def viewId: String =
     javaSdkContext.viewId()
 
-  override def callFactory: DeferredCallFactory =
-    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
-
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
@@ -94,9 +88,6 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
 
   override def eventName: String =
     javaSdkContext.eventName()
-
-  override def callFactory: DeferredCallFactory =
-    ScalaDeferredCallFactoryAdapter(javaSdkContext.callFactory())
 
   override def metadata: Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())

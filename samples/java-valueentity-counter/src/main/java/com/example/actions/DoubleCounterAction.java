@@ -25,10 +25,6 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   public DoubleCounterAction(ActionCreationContext creationContext) {
   }
 
-  // FIXME generated method in AbstractDoubleCounterAction
-  protected final Components components() {
-    return new ComponentsImpl(actionContext());
-  }
 // end::controller-side-effect[]
 // tag::controller-side-effect[]
   

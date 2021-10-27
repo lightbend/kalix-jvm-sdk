@@ -16,8 +16,6 @@
 
 package com.akkaserverless.javasdk;
 
-import com.google.protobuf.Any;
-
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -25,24 +23,17 @@ import java.util.concurrent.CompletionStage;
  *
  * <p>Not for user extension.
  *
- * @param <T> The type of message the call accepts
- * @param <R> The type of message the call returns
+ * @param <I> The type of message the call accepts
+ * @param <O> The type of message the call returns
  */
-public interface DeferredCall<T, R> {
-
-  /**
-   * The reference to the call.
-   *
-   * @return The reference to the call.
-   */
-  DeferredCallRef<T, R> ref();
+public interface DeferredCall<I, O> {
 
   /**
    * The message to pass to the call when the call is invoked.
    *
-   * @return The message to pass to the call, serialized as an {@link Any}.
+   * @return The message to pass to the call
    */
-  Any message();
+  I message();
 
   /**
    * The metadata to pass with the message when the call is invoked.
@@ -52,5 +43,5 @@ public interface DeferredCall<T, R> {
   Metadata metadata();
 
   /** Execute this call right away and get the async result back for composition. */
-  CompletionStage<R> execute();
+  CompletionStage<O> execute();
 }

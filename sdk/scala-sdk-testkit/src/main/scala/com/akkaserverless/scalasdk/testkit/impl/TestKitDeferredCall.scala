@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package com.akkaserverless.scalasdk.testkit.impl
 
-import akka.stream.Materializer
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+import scala.concurrent.Future
+
+final case class TestKitDeferredCall[I, O](message: I, metadata: Metadata, serviceName: String, methodName: String)
+    extends DeferredCallDetails[I, O] {
+
+  def execute(): Future[O] =
+    throw new UnsupportedOperationException("Async calls to other components not supported by the testkit")
 }

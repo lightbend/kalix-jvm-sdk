@@ -20,7 +20,6 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.SystemMaterializer
 import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.DeferredCallFactory
 
 /**
  * INTERNAL API
@@ -34,9 +33,11 @@ private[impl] trait ActivatableContext extends Context {
 /**
  * INTERNAL API
  */
-private[javasdk] abstract class AbstractContext(override val callFactory: DeferredCallFactory, system: ActorSystem)
-    extends Context {
+private[javasdk] abstract class AbstractContext(system: ActorSystem) extends Context {
 
   override def materializer(): Materializer =
     SystemMaterializer(system).materializer
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    GrpcClients(system).getComponentGrpcClient(serviceClass)
 }

@@ -17,11 +17,12 @@
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
 import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.DeferredCallRef;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.*;
 import com.akkaserverless.tck.model.ReplicatedEntity.*;
+import com.example.Components;
+import com.example.ComponentsImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,17 +32,14 @@ import java.util.List;
 public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedData> {
 
   private final String entityId;
-  private final DeferredCallRef<Request, Response> serviceTwo;
 
   public ReplicatedEntityTckModelEntity(ReplicatedEntityContext context) {
     entityId = context.entityId();
-    serviceTwo =
-        context
-            .callFactory()
-            .lookup(
-                "akkaserverless.tck.model.replicatedentity.ReplicatedEntityTwo",
-                "Call",
-                Request.class);
+  }
+
+  // FIXME should come from generated Abstract base class
+  protected final Components components() {
+    return new ComponentsImpl(commandContext());
   }
 
   @Override
@@ -356,6 +354,6 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
   }
 
   private DeferredCall<Request, Response> serviceTwoRequest(String id) {
-    return serviceTwo.createCall(Request.newBuilder().setId(id).build());
+    return components().replicatedEntityTwoAction().call(Request.newBuilder().setId(id).build());
   }
 }

@@ -38,6 +38,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
+import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -99,7 +100,7 @@ private[javasdk] final class ActionsImpl(
   import _system.dispatcher
   implicit val system: ActorSystem = _system
 
-  private object creationContext extends AbstractContext(rootContext.callFactory(), system) with ActionCreationContext {
+  private object creationContext extends AbstractContext(system) with ActionCreationContext {
     override def getGrpcClient[T](clientClass: Class[T], service: String): T =
       GrpcClients(system).getGrpcClient(clientClass, service)
   }
@@ -117,14 +118,15 @@ private[javasdk] final class ActionsImpl(
       case ReplyEffect(message, metadata, sideEffects) =>
         val response =
           component.Reply(Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))), metadata.flatMap(toProtocol))
-        Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(sideEffects)))
-      case ForwardEffect(forward, sideEffects) =>
+        Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(anySupport, sideEffects)))
+      case ForwardEffect(forward: DeferredCallImpl[_, _], sideEffects) =>
         val response = component.Forward(
-          forward.ref().method().getService.getFullName,
-          forward.ref().method().getName,
-          Some(ScalaPbAny.fromJavaProto(forward.message())),
-          toProtocol(forward.metadata()))
-        Future.successful(ActionResponse(ActionResponse.Response.Forward(response), toProtocol(sideEffects)))
+          forward.fullServiceName,
+          forward.methodName,
+          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(forward.message))),
+          toProtocol(forward.metadata))
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(anySupport, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect
           .flatMap { effect =>
@@ -136,22 +138,24 @@ private[javasdk] final class ActionsImpl(
           }
       case ErrorEffect(description, sideEffects) =>
         Future.successful(
-          ActionResponse(ActionResponse.Response.Failure(Failure(description = description)), toProtocol(sideEffects)))
+          ActionResponse(
+            ActionResponse.Response.Failure(Failure(description = description)),
+            toProtocol(anySupport, sideEffects)))
       case NoReply(sideEffects) =>
-        Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(sideEffects)))
+        Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(anySupport, sideEffects)))
       case unknown =>
         throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
     }
   }
 
-  private def toProtocol(sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
-    sideEffects.map { sideEffect =>
+  private def toProtocol(anySupport: AnySupport, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
+    sideEffects.map { case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
       component.SideEffect(
-        sideEffect.call().ref().method().getService.getFullName,
-        sideEffect.call().ref().method().getName,
-        Some(ScalaPbAny.fromJavaProto(sideEffect.call().message())),
-        sideEffect.synchronous(),
-        toProtocol(sideEffect.call().metadata()))
+        deferred.fullServiceName,
+        deferred.methodName,
+        Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(deferred.message))),
+        synchronous,
+        toProtocol(deferred.metadata))
     }
 
   private def toProtocol(metadata: com.akkaserverless.javasdk.Metadata): Option[component.Metadata] =
@@ -318,7 +322,7 @@ private[javasdk] final class ActionsImpl(
 
   private def createContext(in: ActionCommand): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata, system, rootContext.callFactory())
+    new ActionContextImpl(metadata, system)
   }
 
 }
@@ -328,8 +332,8 @@ case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends Messag
 /**
  * INTERNAL API
  */
-class ActionContextImpl(override val metadata: Metadata, val system: ActorSystem, callFactory: DeferredCallFactory)
-    extends AbstractContext(callFactory, system)
+class ActionContextImpl(override val metadata: Metadata, val system: ActorSystem)
+    extends AbstractContext(system)
     with ActionContext {
 
   override def eventSubject(): Optional[String] =
@@ -340,8 +344,5 @@ class ActionContextImpl(override val metadata: Metadata, val system: ActorSystem
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     GrpcClients(system).getGrpcClient(clientClass, service)
-
-  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
-    GrpcClients(system).getComponentGrpcClient(serviceClass)
 
 }

@@ -24,9 +24,16 @@ import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import com.example.Components;
+import com.example.ComponentsImpl;
 import com.google.protobuf.Any;
 
 public class LocalPersistenceSubscriber extends Action {
+
+  // FIXME should come from generated Abstract base class
+  protected final Components components() {
+    return new ComponentsImpl(actionContext());
+  }
 
   public LocalPersistenceSubscriber(ActionCreationContext creationContext) {}
 
@@ -96,14 +103,9 @@ public class LocalPersistenceSubscriber extends Action {
     } else if (step.hasForward()) {
       return effects()
           .forward(
-              context
-                  .callFactory()
-                  .<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
-                      lookup(
-                          LocalPersistenceSubscriberModel.name,
-                          "Effect",
-                          LocalPersistenceEventing.EffectRequest.class)
-                  .createCall(
+              components()
+                  .localPersistenceSubscriberModelAction()
+                  .effect(
                       LocalPersistenceEventing.EffectRequest.newBuilder()
                           .setId(id)
                           .setMessage(step.getForward().getMessage())

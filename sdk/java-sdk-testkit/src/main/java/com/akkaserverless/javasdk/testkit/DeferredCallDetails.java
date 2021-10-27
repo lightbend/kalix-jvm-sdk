@@ -18,9 +18,9 @@ package com.akkaserverless.javasdk.testkit;
 
 import com.akkaserverless.javasdk.Metadata;
 
-public interface DeferredCallDetails<T> {
+public interface DeferredCallDetails<I, O> {
   /** @return The forwarded message */
-  T getMessage();
+  I getMessage();
 
   /** @return Any metadata attached to the call */
   Metadata getMetadata();
