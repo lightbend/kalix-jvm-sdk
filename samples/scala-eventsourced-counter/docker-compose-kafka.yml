@@ -1,0 +1,15 @@
+version: "3"
+services:
+  akka-serverless-proxy:
+    image: gcr.io/akkaserverless-public/akkaserverless-proxy:0.7.3-2-62d61975
+    command: -Dconfig.resource=dev-mode.conf -Dakkaserverless.proxy.eventing.support=kafka
+    ports:
+      - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
+      KAFKA_CONFIG_PROPERTIES: /conf/confluent.properties
+    volumes:
+      - .:/conf
