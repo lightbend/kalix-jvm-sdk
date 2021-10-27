@@ -14,6 +14,6 @@ class CustomerActionImpl(creationContext: ActionCreationContext) extends Abstrac
 
   /** Handler for "Create". */
   override def create(customer: Customer): Action.Effect[Empty] = {
-    effects.forward(components.customerService.create(customer))
+    effects.forward(components.customerValueEntity.create(customer))
   }
 }

@@ -17,6 +17,6 @@ public class CustomerActionImpl extends AbstractCustomerAction {
   /** Handler for "Create". */
   @Override
   public Effect<Empty> create(CustomerApi.Customer customer) {
-    return effects().forward(components().customerService().create(customer));
+    return effects().forward(components().customerValueEntity().create(customer));
   }
 }
