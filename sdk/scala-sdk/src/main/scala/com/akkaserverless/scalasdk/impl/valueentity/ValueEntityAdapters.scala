@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk.impl.valueentity
 
 import akka.stream.Materializer
 import com.akkaserverless.javasdk
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.valueentity.CommandContext
@@ -101,7 +102,8 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
 }
 
 private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: javasdk.valueentity.CommandContext)
-    extends CommandContext {
+    extends CommandContext
+    with InternalContext {
 
   override def commandName: String = javaSdkContext.commandName()
 
@@ -111,6 +113,10 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

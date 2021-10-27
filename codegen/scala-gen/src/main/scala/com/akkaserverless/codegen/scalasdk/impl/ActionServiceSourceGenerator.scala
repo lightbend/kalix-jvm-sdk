@@ -17,7 +17,9 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
 
 /**
  * Responsible for generating Scala sourced for Actions
@@ -30,13 +32,14 @@ object ActionServiceSourceGenerator {
   /**
    * Generate Scala sources the user view source file.
    */
-  def generateUnmanaged(service: ModelBuilder.ActionService): Seq[File] = Seq(actionSource(service))
+  def generateUnmanaged(service: ModelBuilder.ActionService): Seq[File] =
+    Seq(actionSource(service))
 
   /**
    * Generate Scala sources for provider, handler, abstract baseclass for a view.
    */
-  def generateManaged(service: ModelBuilder.ActionService): Seq[File] =
-    Seq(abstractAction(service), actionRouter(service), actionProvider(service))
+  def generateManaged(service: ModelBuilder.ActionService, mainPackageName: PackageNaming): Seq[File] =
+    Seq(abstractAction(service, mainPackageName), actionRouter(service), actionProvider(service))
 
   private[codegen] def actionSource(service: ModelBuilder.ActionService): File = {
     import Types.{ Source, NotUsed }
@@ -100,7 +103,7 @@ object ActionServiceSourceGenerator {
           |""")
   }
 
-  private[codegen] def abstractAction(service: ModelBuilder.ActionService): File = {
+  private[codegen] def abstractAction(service: ModelBuilder.ActionService, mainPackageName: PackageNaming): File = {
     import Types.{ Source, NotUsed }
     import Types.Action._
 
@@ -129,6 +132,9 @@ object ActionServiceSourceGenerator {
       }
     }
 
+    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+
     generate(
       service.fqn.parent,
       service.abstractActionName,
@@ -136,6 +142,9 @@ object ActionServiceSourceGenerator {
           |
           |/** An action. */
           |abstract class ${service.abstractActionName} extends $Action {
+          |
+          |  def components: $Components =
+          |    new ${ComponentsImpl}(actionContext)
           |
           |  $methods
           |}

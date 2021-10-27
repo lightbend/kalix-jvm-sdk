@@ -33,6 +33,7 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.google.protobuf.Descriptors
@@ -131,7 +132,8 @@ private[scalasdk] final class ScalaEventSourcedEntityContextAdapter(javaSdkConte
 }
 
 private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: JavaSdkCommandContext)
-    extends CommandContext {
+    extends CommandContext
+    with InternalContext {
 
   override def sequenceNumber: Long = javaSdkContext.sequenceNumber()
 
@@ -143,6 +145,10 @@ private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: Java
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

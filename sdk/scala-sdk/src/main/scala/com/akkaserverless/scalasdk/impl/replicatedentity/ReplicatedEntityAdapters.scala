@@ -17,6 +17,7 @@
 package com.akkaserverless.scalasdk.impl.replicatedentity
 
 import akka.stream.Materializer
+import com.akkaserverless.javasdk.impl.AbstractContext
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
@@ -37,6 +38,7 @@ import com.akkaserverless.javasdk.replicatedentity.{ WriteConsistency => JavaSdk
 import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.akkaserverless.scalasdk.replicatedentity.CommandContext
@@ -153,12 +155,18 @@ private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandCont
 }
 
 private[scalasdk] final case class ScalaReplicatedEntityContextAdapter(javaSdkContext: JavaSdkReplicatedEntityContext)
-    extends ReplicatedEntityContext {
+    extends ReplicatedEntityContext
+    with InternalContext {
 
   override def entityId: String = javaSdkContext.entityId()
 
   override def materializer(): Materializer =
     javaSdkContext.materializer()
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
+
 }
 
 private[scalasdk] final case class JavaReplicatedEntityAdapter[D <: ReplicatedData](

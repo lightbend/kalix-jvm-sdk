@@ -18,6 +18,7 @@ package com.lightbend.akkasls.codegen.java
 
 import com.google.common.base.Charsets
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
 import com.lightbend.akkasls.codegen.ModelBuilder.EntityService
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
@@ -81,12 +82,14 @@ object ComponentsSourceGenerator {
       // type names are fully qualified rather than imported
       val unaryCommands = component.commands.filter(_.isUnary)
       val methods = unaryCommands
-        .map(command =>
-          s"""DeferredCall<${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}> ${lowerFirst(
-            command.name)}(${command.inputType.fullyQualifiedJavaName} ${lowerFirst(command.inputType.name)});
-             |""".stripMargin)
+        .map { command =>
+          val inputType = fullyQualifiedMessage(command.inputType)
+          val outputType = fullyQualifiedMessage(command.outputType)
+          s"""DeferredCall<$inputType, $outputType> ${lowerFirst(command.name)}($inputType ${lowerFirst(
+            command.inputType.name)});
+             |""".stripMargin
+        }
 
-      // FIXME component name might not be unique across service?
       s"""interface ${name}Calls {
          |  ${Format.indent(methods, 2)}
          |}""".stripMargin
@@ -102,6 +105,9 @@ object ComponentsSourceGenerator {
       |
       |$managedComment
       |
+      |/**
+      | * Not intended for user extension, provided through generated implementation
+      | */
       |public interface Components {
       |  ${Format.indent(componentGetters, 2)}
       |
@@ -134,8 +140,10 @@ object ComponentsSourceGenerator {
         .map { command =>
           val commandMethod = lowerFirst(command.name)
           val paramName = lowerFirst(command.inputType.name)
+          val inputType = fullyQualifiedMessage(command.inputType)
+          val outputType = fullyQualifiedMessage(command.outputType)
           s"""@Override
-             |public DeferredCall<${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}> $commandMethod(${command.inputType.fullyQualifiedJavaName} $paramName) {
+             |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
              |  return new DeferredCallImpl<>(
              |    ${lowerFirst(command.inputType.name)},
              |    MetadataImpl.Empty(),
@@ -179,6 +187,9 @@ object ComponentsSourceGenerator {
        |}
        |""".stripMargin
   }
+
+  private def fullyQualifiedMessage(messageType: FullyQualifiedName): String =
+    s"${messageType.parent.javaPackage}.${messageType.fullName}"
 
   private def nameFor(component: Service): String = {
     component match {

@@ -27,6 +27,7 @@ import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.action.MessageEnvelope
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.google.protobuf.Descriptors
 
@@ -138,7 +139,8 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
 }
 
 private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: javasdk.action.ActionContext)
-    extends ActionContext {
+    extends ActionContext
+    with InternalContext {
 
   override def metadata: Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
@@ -148,6 +150,10 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javaSdkContext.getGrpcClient(clientClass, service)
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

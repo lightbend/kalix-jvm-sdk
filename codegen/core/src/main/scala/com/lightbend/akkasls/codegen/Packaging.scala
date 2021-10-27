@@ -47,7 +47,7 @@ case class FullyQualifiedName(
   /**
    * The fully qualified type name as seen in generated Java code.
    */
-  lazy val fullyQualifiedJavaName = s"${parent.javaPackage}.$fullName"
+  lazy val fullyQualifiedJavaName = s"${parent.javaPackage}.$name"
 
   lazy val fullName = {
     if (parent.javaMultipleFiles) name

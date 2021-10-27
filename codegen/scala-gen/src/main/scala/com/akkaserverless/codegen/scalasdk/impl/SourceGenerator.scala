@@ -18,6 +18,8 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils
 
 object SourceGenerator {
 
@@ -25,7 +27,10 @@ object SourceGenerator {
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
   def generateManaged(model: ModelBuilder.Model): Seq[File] = {
-    MainSourceGenerator.generateManaged(model).toSeq ++
+    val mainPackageName = nameForMainPackate(model)
+
+    MainSourceGenerator.generateManaged(model, mainPackageName).toSeq ++
+    ComponentSourceGenerator.generateManaged(model, mainPackageName) ++
     model.services.values
       .flatMap {
         case service: ModelBuilder.EntityService =>
@@ -40,7 +45,7 @@ object SourceGenerator {
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateManaged(service)
         case service: ModelBuilder.ActionService =>
-          ActionServiceSourceGenerator.generateManaged(service)
+          ActionServiceSourceGenerator.generateManaged(service, mainPackageName)
       }
   }
 
@@ -70,7 +75,9 @@ object SourceGenerator {
    * user.
    */
   def generateUnmanaged(model: ModelBuilder.Model): Seq[File] = {
-    MainSourceGenerator.generateUnmanaged(model).toSeq ++
+    val mainPackageName = nameForMainPackate(model)
+
+    MainSourceGenerator.generateUnmanaged(model, mainPackageName).toSeq ++
     model.services.values
       .flatMap {
         case service: ModelBuilder.EntityService =>
@@ -92,10 +99,12 @@ object SourceGenerator {
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the user
    */
-  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] =
+  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] = {
+    val mainPackageName = nameForMainPackate(model)
+
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
-        val main = MainSourceGenerator.mainClassName(model)
+        val main = MainSourceGenerator.mainClassName(model, mainPackageName)
         model.lookupEntity(service) match {
           case entity: ModelBuilder.ValueEntity =>
             ValueEntityTestKitGenerator.generateUnmanagedTest(main, entity, service)
@@ -109,4 +118,14 @@ object SourceGenerator {
       case service: ModelBuilder.ActionService =>
         ActionTestKitGenerator.generateUnmanagedTest(service)
     }.toList
+  }
+
+  private def nameForMainPackate(model: ModelBuilder.Model): PackageNaming =
+    new PackageNaming(
+      protoFileName = "",
+      name = "",
+      protoPackage = SourceGeneratorUtils.mainPackageName(model.services.keys ++ model.entities.keys).mkString("."),
+      javaPackageOption = None,
+      javaOuterClassnameOption = None,
+      javaMultipleFiles = false)
 }

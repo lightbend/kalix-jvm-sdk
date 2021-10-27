@@ -55,6 +55,12 @@ object Types {
       "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
   }
 
+  val DeferredCall = FQN("com.akkaserverless.scalasdk.DeferredCall")
+  val ScalaDeferredCallAdapter = FQN("com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter")
+  val InternalContext = FQN("com.akkaserverless.scalasdk.impl.InternalContext")
+  val Context = FQN("com.akkaserverless.scalasdk.Context")
+  val Metadata = FQN("com.akkaserverless.scalasdk.Metadata")
+
   val Source = FQN("akka.stream.scaladsl.Source")
   val NotUsed = FQN("akka.NotUsed")
   val ImmutableSeq = FQN("scala.collection.immutable.Seq")

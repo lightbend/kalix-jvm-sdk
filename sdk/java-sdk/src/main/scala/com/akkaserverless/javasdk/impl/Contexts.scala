@@ -33,7 +33,7 @@ private[impl] trait ActivatableContext extends Context {
 /**
  * INTERNAL API
  */
-private[javasdk] abstract class AbstractContext(system: ActorSystem) extends Context {
+abstract class AbstractContext(system: ActorSystem) extends Context {
 
   override def materializer(): Materializer =
     SystemMaterializer(system).materializer

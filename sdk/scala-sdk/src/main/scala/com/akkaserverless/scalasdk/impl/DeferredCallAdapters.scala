@@ -34,7 +34,23 @@ private[scalasdk] final case class JavaDeferredCallAdapter[I, O](scalaSdkService
   def execute(): CompletionStage[O] = scalaSdkServiceCall.execute().asJava
 }
 
-private[scalasdk] final case class ScalaServiceCallAdapter[I, O](javaSdkServiceCall: javasdk.DeferredCall[I, O])
+/**
+ * INTERNAL API
+ */
+// cannot be package private because used from generated code
+object ScalaDeferredCallAdapter {
+
+  def apply[I, O](
+      message: I,
+      metadata: Metadata,
+      fullServiceName: String,
+      methodName: String,
+      asyncCall: () => Future[O]): ScalaDeferredCallAdapter[I, O] = ScalaDeferredCallAdapter(
+    javasdk.impl.DeferredCallImpl(message, metadata.impl, fullServiceName, methodName, () => asyncCall().asJava))
+
+}
+
+private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkServiceCall: javasdk.DeferredCall[I, O])
     extends DeferredCall[I, O] {
   override def message: I = javaSdkServiceCall.message
   override def metadata: Metadata =
