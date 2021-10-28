@@ -39,10 +39,10 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   public Effect<Empty> increase(CounterApi.IncreaseValue increaseValue) {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
-        increaseValue.toBuilder().setValue(doubled).build(); // <2>
+        increaseValue.toBuilder().setValue(doubled).build(); // <1>
 
     return effects()
-            .forward(components().counter().increase(increaseValueDoubled)); // <3>
+            .forward(components().counter().increase(increaseValueDoubled)); // <2>
   }
 
   // end::controller-forward[]
@@ -54,11 +54,11 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   public Effect<Empty> increaseWithSideEffect(CounterApi.IncreaseValue increaseValue) {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
-        increaseValue.toBuilder().setValue(doubled).build(); // <2>
+        increaseValue.toBuilder().setValue(doubled).build(); // <1>
 
     return effects()
-            .reply(Empty.getDefaultInstance()) // <3>
-            .addSideEffect( // <4>
+            .reply(Empty.getDefaultInstance()) // <2>
+            .addSideEffect( // <3>
                 SideEffect.of(components().counter().increase(increaseValueDoubled)));
   }
   // end::controller-side-effect[]

@@ -32,8 +32,8 @@ class DoubleCounterAction(creationContext: ActionCreationContext) extends Abstra
     val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
 
     effects
-      .reply(Empty.defaultInstance) // <3>
-      .addSideEffect( // <4>
+      .reply(Empty.defaultInstance) // <2>
+      .addSideEffect( // <3>
         SideEffect(components.counter.increase(increaseValueDoubled)))
   }
   // tag::controller-forward[]

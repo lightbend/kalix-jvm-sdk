@@ -47,9 +47,8 @@ Java::
 ----
 include::example$java-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-forward]
 ----
-<1> In the constructor, we use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
-<2> On incoming requests, we double the value of `IncreaseValue`
-<3> We use the `increaseCallRef` to build a `DeferredCall` that is then passed to `effects().forward()` method.
+<1> On incoming requests, we double the value of `IncreaseValue`
+<2> We use `components().counter().increase()` to create a `DeferredCall` that is then passed to `effects().forward()` method.
 
 Scala::
 +
@@ -58,9 +57,8 @@ Scala::
 ----
 include::example$scala-valueentity-counter/src/main/scala/com/example/actions/DoubleCounterAction.scala[tag=controller-forward]
 ----
-<1> We use the `ActionCreationContext` to create a `increaseCallRef` pointing to the `Increase` method in the `Counter` entity.
-<2> On incoming requests, we double the value of `IncreaseValue`
-<3> We use the `increaseCallRef` to build a `DeferredCall` that is then passed to `effects.forward()` method.
+<1> On incoming requests, we double the value of `IncreaseValue`
+<2> We call `components.counter.increase()` to create a `DeferredCall` that is then passed to `effects.forward()` method.
 
 == Registering the Action
 
