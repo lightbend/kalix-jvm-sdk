@@ -16,8 +16,6 @@
 
 package com.akkaserverless.scalasdk
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-
 import scala.concurrent.Future
 
 /**
@@ -35,22 +33,17 @@ trait DeferredCall[I, O] {
 
   /**
    * The message to pass to the call when the call is invoked.
-   *
-   * @return
-   *   The message to pass to the call, serialized as an {{{ScalaPbAny}}}
    */
   def message: I
 
   /**
    * The metadata to pass with the message when the call is invoked.
-   *
-   * @return
-   *   The metadata.
    */
   def metadata: Metadata
 
   /**
-   * Execute this call right away and get the async result back for composition.
+   * Execute this call right away and get the async result back for composition. Can be used to create an
+   * async reply in an [[com.akkaserverless.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
    */
   def execute(): Future[O]
 }

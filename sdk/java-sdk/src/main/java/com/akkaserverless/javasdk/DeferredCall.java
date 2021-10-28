@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk;
 
+
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -30,18 +31,17 @@ public interface DeferredCall<I, O> {
 
   /**
    * The message to pass to the call when the call is invoked.
-   *
-   * @return The message to pass to the call
    */
   I message();
 
   /**
-   * The metadata to pass with the message when the call is invoked.
-   *
-   * @return The metadata.
+   * @return The metadata to pass with the message when the call is invoked.
    */
   Metadata metadata();
 
-  /** Execute this call right away and get the async result back for composition. */
+  /** Execute this call right away and get the async result back for composition.
+   * Can be used to create an async reply in an {@link com.akkaserverless.javasdk.action.Action} with
+   * {@code effects().asyncReply} and {@code effects().asyncEffect}
+   */
   CompletionStage<O> execute();
 }

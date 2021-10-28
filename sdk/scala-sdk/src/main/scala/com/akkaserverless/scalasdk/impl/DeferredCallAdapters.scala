@@ -28,8 +28,8 @@ import scala.concurrent.Future
 /**
  * INTERNAL API
  */
-// cannot be package private because used from generated code
 object ScalaDeferredCallAdapter {
+  // cannot be package private because used from generated code
 
   def apply[I, O](
       message: I,
