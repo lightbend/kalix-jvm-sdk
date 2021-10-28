@@ -19,7 +19,7 @@ package com.akkaserverless.javasdk;
 import java.util.concurrent.CompletionStage;
 
 /**
- * Represents a call to a service, performed either as a forward, or as an effect.
+ * Represents a call to another component, performed as a forward, a side effect, or a request-reply.
  *
  * <p>Not for user extension.
  *
