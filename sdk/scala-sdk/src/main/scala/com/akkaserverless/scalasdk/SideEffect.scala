@@ -16,17 +16,7 @@
 
 package com.akkaserverless.scalasdk
 
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.MetadataImpl
-import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-
-import scala.jdk.FutureConverters._
-import scala.concurrent.Future
+import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
 
 /* A side effect. */
 object SideEffect {
@@ -34,15 +24,15 @@ object SideEffect {
   /**
    * Create a side effect of the given service call.
    *
-   * @param serviceCall
+   * @param deferredCall
    *   The service call to effect.
    * @param synchronous
    *   Whether this effect should be executed synchronously.
    * @return
    *   The side effect.
    */
-  def apply[T, R](serviceCall: DeferredCall[T, R], synchronous: Boolean): SideEffect = ScalaSideEffectAdapter(
-    javasdk.SideEffect.of(JavaDeferredCallAdapter(serviceCall), synchronous))
+  def apply[T, R](deferredCall: DeferredCall[T, R], synchronous: Boolean): SideEffect =
+    ScalaSideEffectAdapter(deferredCall, synchronous)
 
   /**
    * Create a side effect of the given service call.
@@ -52,8 +42,8 @@ object SideEffect {
    * @return
    *   The side effect.
    */
-  def apply[T, R](serviceCall: DeferredCall[T, R]): SideEffect = ScalaSideEffectAdapter(
-    javasdk.SideEffect.of(JavaDeferredCallAdapter(serviceCall)))
+  def apply[T, R](deferredCall: DeferredCall[T, R]): SideEffect =
+    ScalaSideEffectAdapter(deferredCall)
 }
 
 trait SideEffect {
@@ -63,18 +53,4 @@ trait SideEffect {
 
   /** Whether this effect should be executed synchronously or not. */
   def synchronous: Boolean
-}
-
-private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
-  override def serviceCall: DeferredCall[_, _] = ScalaDeferredCallAdapter(javasdkSideEffect.call())
-  override def synchronous: Boolean = javasdkSideEffect.synchronous()
-}
-
-private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javasdkDeferredCall: javasdk.DeferredCall[I, O])
-    extends DeferredCall[I, O] {
-  override def message: I = javasdkDeferredCall.message
-  override def metadata: Metadata =
-    MetadataConverters.toScala(javasdkDeferredCall.metadata())
-
-  def execute(): Future[O] = javasdkDeferredCall.execute().asScala
 }

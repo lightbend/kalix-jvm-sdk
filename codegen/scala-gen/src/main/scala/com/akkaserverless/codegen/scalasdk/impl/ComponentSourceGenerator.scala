@@ -61,7 +61,7 @@ object ComponentSourceGenerator {
       val unaryCommands = component.commands.filter(_.isUnary)
       val methods = unaryCommands
         .map(command =>
-          c"""def ${lowerFirst(command.name)}(${lowerFirst(command.inputType.name)}: ${command.inputType.fullyQualifiedJavaName}): $DeferredCall[${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}]
+          c"""def ${lowerFirst(command.name)}(command: ${command.inputType.fullyQualifiedJavaName}): $DeferredCall[${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}]
              |""")
 
       c"""trait ${name}Calls {
@@ -70,7 +70,7 @@ object ComponentSourceGenerator {
     }
 
     val componentGetters = services.map { case (name, _) =>
-      c"def ${lowerFirst(name)}(): ${name}Calls"
+      c"def ${lowerFirst(name)}: ${name}Calls"
     }
 
     generate(
@@ -99,7 +99,7 @@ object ComponentSourceGenerator {
   private def generateComponentsImpl(services: Map[String, Service], mainPackageName: PackageNaming): File = {
     val componentGetters = services.map { case (name, _) =>
       c"""@Override
-         |override def ${lowerFirst(name)}(): Components.${name}Calls =
+         |override def ${lowerFirst(name)}: Components.${name}Calls =
          |  new ${name}CallsImpl();
          |"""
     }
@@ -109,16 +109,15 @@ object ComponentSourceGenerator {
         .filter(_.isUnary)
         .map { command =>
           val commandMethod = lowerFirst(command.name)
-          val paramName = lowerFirst(command.inputType.name)
           val inputType = fullyQualifiedMessage(command.inputType)
           val outputType = fullyQualifiedMessage(command.outputType)
-          c"""override def $commandMethod($paramName: $inputType): $DeferredCall[$inputType, $outputType] =
+          c"""override def $commandMethod(command: $inputType): $DeferredCall[$inputType, $outputType] =
              |  $ScalaDeferredCallAdapter(
-             |    ${lowerFirst(command.inputType.name)},
+             |    command,
              |    $Metadata.empty,
              |    "${service.fqn.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[${service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod($paramName)
+             |    () => getGrpcClient(classOf[${service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
              |  )"""
         }
 

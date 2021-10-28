@@ -33,7 +33,14 @@ private[impl] trait ActivatableContext extends Context {
 /**
  * INTERNAL API
  */
-abstract class AbstractContext(system: ActorSystem) extends Context {
+private[akkaserverless] trait InternalContext {
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T
+}
+
+/**
+ * INTERNAL API
+ */
+abstract class AbstractContext(system: ActorSystem) extends Context with InternalContext {
 
   override def materializer(): Materializer =
     SystemMaterializer(system).materializer

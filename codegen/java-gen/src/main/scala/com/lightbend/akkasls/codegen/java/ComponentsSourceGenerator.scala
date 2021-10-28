@@ -125,7 +125,7 @@ object ComponentsSourceGenerator {
         "com.akkaserverless.javasdk.Context",
         "com.akkaserverless.javasdk.impl.DeferredCallImpl",
         "com.akkaserverless.javasdk.impl.MetadataImpl",
-        "com.akkaserverless.javasdk.impl.AbstractContext"))
+        "com.akkaserverless.javasdk.impl.InternalContext"))
 
     val componentGetters = services.map { case (name, _) =>
       s"""@Override
@@ -171,10 +171,10 @@ object ComponentsSourceGenerator {
        | */
        |public final class ComponentsImpl implements Components {
        |
-       |  private final AbstractContext context;
+       |  private final InternalContext context;
        |
        |  public ComponentsImpl(Context context) {
-       |    this.context = (AbstractContext) context;
+       |    this.context = (InternalContext) context;
        |  }
        |
        |  private <T> T getGrpcClient(Class<T> serviceClass) {

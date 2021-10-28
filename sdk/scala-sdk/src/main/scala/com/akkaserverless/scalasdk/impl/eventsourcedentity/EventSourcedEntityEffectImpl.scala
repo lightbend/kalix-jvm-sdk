@@ -38,9 +38,9 @@ import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
+import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
@@ -62,8 +62,10 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def error[T](description: String): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.error(description))
 
-  def forward[T](serviceCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.forward(JavaDeferredCallAdapter(serviceCall)))
+  def forward[T](deferredCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] =
+    deferredCall match {
+      case ScalaDeferredCallAdapter(jdc) => EventSourcedEntityEffectImpl(javasdkEffect.forward(jdc))
+    }
 
   def noReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.noReply())
 
@@ -73,15 +75,20 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def reply[T](message: T): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.reply(message))
 
   def addSideEffects(sideEffects: Seq[SideEffect]): EventSourcedEntity.Effect[R] =
-    EventSourcedEntityEffectImpl(
-      javasdkEffect.addSideEffects(
-        sideEffects.map(se => JavaSideEffectAdapter(se).asInstanceOf[javasdk.SideEffect]).asJavaCollection))
+    EventSourcedEntityEffectImpl(javasdkEffect.addSideEffects(sideEffects.map { case ScalaSideEffectAdapter(se) =>
+      se
+    }.asJavaCollection))
 
   def thenAddSideEffect(sideEffect: S => SideEffect): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
-    EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { s => JavaSideEffectAdapter(sideEffect(s)) })
+    EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { case ScalaSideEffectAdapter(s) => s })
 
   def thenForward[T](serviceCall: S => DeferredCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.thenForward[T] { s => JavaDeferredCallAdapter(serviceCall(s)) })
+    javasdkEffect.thenForward[T] { s =>
+      val scalaDeferredCall = serviceCall(s)
+      scalaDeferredCall match {
+        case ScalaDeferredCallAdapter(javaSdkDeferredCall) => javaSdkDeferredCall
+      }
+    })
 
   def thenNoReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.thenNoReply())
 

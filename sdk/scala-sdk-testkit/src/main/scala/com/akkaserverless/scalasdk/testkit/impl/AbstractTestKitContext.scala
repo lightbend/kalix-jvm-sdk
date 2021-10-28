@@ -17,14 +17,12 @@
 package com.akkaserverless.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import com.akkaserverless.scalasdk.Context
+import com.akkaserverless.scalasdk.impl.InternalContext
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitEventSourcedEntityContext(override val entityId: String)
-    extends AbstractTestKitContext
-    with EventSourcedEntityContext {
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+class AbstractTestKitContext extends Context with InternalContext {
+  override def materializer(): Materializer =
+    throw new UnsupportedOperationException("Accessing the materializer from testkit not supported yet")
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    throw new UnsupportedOperationException("Async call testing is not possible with the testkit")
 }

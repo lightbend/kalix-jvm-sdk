@@ -16,14 +16,19 @@
 
 package com.akkaserverless.scalasdk.testkit.impl
 
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
 
 import scala.concurrent.Future
 
-final case class TestKitDeferredCall[I, O](message: I, metadata: Metadata, serviceName: String, methodName: String)
-    extends DeferredCallDetails[I, O] {
-
+final case class TestKitDeferredCall[I, O](deferredCall: DeferredCallImpl[I, O]) extends DeferredCallDetails[I, O] {
+  // public API for inspection
+  override def serviceName: String = deferredCall.fullServiceName
+  override def methodName: String = deferredCall.methodName
+  override def message: I = deferredCall.message
+  override def metadata: Metadata = MetadataConverters.toScala(deferredCall.metadata)
   def execute(): Future[O] =
     throw new UnsupportedOperationException("Async calls to other components not supported by the testkit")
 }

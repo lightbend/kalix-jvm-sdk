@@ -22,7 +22,9 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitValueEntityContext(override val entityId: String) extends ValueEntityContext {
+final class TestKitValueEntityContext(override val entityId: String)
+    extends AbstractTestKitContext
+    with ValueEntityContext {
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 }

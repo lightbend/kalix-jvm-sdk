@@ -16,13 +16,13 @@
 
 package com.akkaserverless.scalasdk.testkit.impl
 
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.action.Action
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
-import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
-import com.akkaserverless.scalasdk.ScalaDeferredCallAdapter
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -37,8 +37,8 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
   private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
     sideEffects.map { sideEffect =>
       sideEffect.serviceCall match {
-        case ScalaDeferredCallAdapter(JavaDeferredCallAdapter(scalaSdkServiceCall)) =>
-          scalaSdkServiceCall.asInstanceOf[DeferredCallDetails[_, _]]
+        case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
+          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[DeferredCallImpl[_, _]])
       }
     }
   }
@@ -54,7 +54,8 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 
   override def forwardedTo: DeferredCallDetails[_, T] = effect match {
-    case e: ActionEffectImpl.ForwardEffect[T] => e.serviceCall.asInstanceOf[DeferredCallDetails[_, T]]
+    case ActionEffectImpl.ForwardEffect(ScalaDeferredCallAdapter(deferredCall: DeferredCallImpl[_, T]), _) =>
+      TestKitDeferredCall(deferredCall)
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$effectName]")
   }
 

@@ -19,14 +19,13 @@ package com.akkaserverless.scalasdk.impl.action
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import com.akkaserverless.javasdk
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.impl.JavaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.JavaSideEffectAdapter
+import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
+import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
 
 private[scalasdk] object ActionEffectImpl {
 
@@ -52,7 +51,7 @@ private[scalasdk] object ActionEffectImpl {
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
       val metadataUnwrapped: Option[javasdk.Metadata] = metadata.map(_.impl)
-      val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(se) => se }
       javasdk.impl.action.ActionEffectImpl.ReplyEffect(msg, metadataUnwrapped, sideEffects)
     }
   }
@@ -75,7 +74,7 @@ private[scalasdk] object ActionEffectImpl {
     }
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(javasdkSideEffect) => javasdkSideEffect }
       val javaEffect = effect.flatMap(convertEffect)(ExecutionContext.parasitic)
       javasdk.impl.action.ActionEffectImpl.AsyncEffect(javaEffect, sideEffects)
     }
@@ -89,9 +88,11 @@ private[scalasdk] object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
-      val javaServiceCall = JavaDeferredCallAdapter(serviceCall)
-      javasdk.impl.action.ActionEffectImpl.ForwardEffect(javaServiceCall, sideEffects)
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(se) => se }
+      val javaDeferredCall = serviceCall match {
+        case ScalaDeferredCallAdapter(jdc) => jdc
+      }
+      javasdk.impl.action.ActionEffectImpl.ForwardEffect(javaDeferredCall, sideEffects)
     }
   }
 
@@ -102,7 +103,7 @@ private[scalasdk] object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(jse) => jse }
       javasdk.impl.action.ActionEffectImpl.ErrorEffect(description, sideEffects)
     }
   }
@@ -114,7 +115,7 @@ private[scalasdk] object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { se => JavaSideEffectAdapter(se) }
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(jse) => jse }
       javasdk.impl.action.ActionEffectImpl.NoReply(sideEffects)
     }
   }

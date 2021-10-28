@@ -22,7 +22,7 @@ class DoubleCounterAction(creationContext: ActionCreationContext) extends Abstra
     val doubled = increaseValue.value * 2
     val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
 
-    effects.forward(components.counterService.increase(increaseValueDoubled)) // <2>
+    effects.forward(components.counter.increase(increaseValueDoubled)) // <2>
   }
 
   // end::controller-forward[]
@@ -34,7 +34,7 @@ class DoubleCounterAction(creationContext: ActionCreationContext) extends Abstra
     effects
       .reply(Empty.defaultInstance) // <3>
       .addSideEffect( // <4>
-        SideEffect(components.counterService.increase(increaseValueDoubled)))
+        SideEffect(components.counter.increase(increaseValueDoubled)))
   }
   // tag::controller-forward[]
 

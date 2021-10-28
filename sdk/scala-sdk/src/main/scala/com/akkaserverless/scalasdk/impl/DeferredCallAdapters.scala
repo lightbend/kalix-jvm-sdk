@@ -25,15 +25,6 @@ import java.util.concurrent.CompletionStage
 import scala.jdk.FutureConverters._
 import scala.concurrent.Future
 
-// FIXME why are both these two adapters needed?
-private[scalasdk] final case class JavaDeferredCallAdapter[I, O](scalaSdkServiceCall: DeferredCall[I, O])
-    extends javasdk.DeferredCall[I, O] {
-  override def message(): I = scalaSdkServiceCall.message
-  override def metadata(): javasdk.Metadata = scalaSdkServiceCall.metadata.asInstanceOf[MetadataImpl].impl
-
-  def execute(): CompletionStage[O] = scalaSdkServiceCall.execute().asJava
-}
-
 /**
  * INTERNAL API
  */
@@ -50,16 +41,31 @@ object ScalaDeferredCallAdapter {
 
 }
 
-private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkServiceCall: javasdk.DeferredCall[I, O])
+private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkDeferredCall: javasdk.DeferredCall[I, O])
     extends DeferredCall[I, O] {
-  override def message: I = javaSdkServiceCall.message
+  override def message: I = javaSdkDeferredCall.message
   override def metadata: Metadata =
-    new MetadataImpl(javaSdkServiceCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
+    new MetadataImpl(javaSdkDeferredCall.metadata.asInstanceOf[com.akkaserverless.javasdk.impl.MetadataImpl])
 
-  def execute(): Future[O] = javaSdkServiceCall.execute().asScala
+  def execute(): Future[O] = javaSdkDeferredCall.execute().asScala
 }
 
-private[scalasdk] final case class JavaSideEffectAdapter(scalaSdkSideEffect: SideEffect) extends javasdk.SideEffect {
-  override def call(): javasdk.DeferredCall[_, _] = JavaDeferredCallAdapter(scalaSdkSideEffect.serviceCall)
-  override def synchronous(): Boolean = scalaSdkSideEffect.synchronous
+private[scalasdk] object ScalaSideEffectAdapter {
+  def apply(deferredCall: DeferredCall[_, _], synchronous: Boolean): ScalaSideEffectAdapter =
+    deferredCall match {
+      case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
+        ScalaSideEffectAdapter(javasdk.SideEffect.of(javaSdkDeferredCall, synchronous))
+    }
+
+  def apply(deferredCall: DeferredCall[_, _]): ScalaSideEffectAdapter =
+    deferredCall match {
+      case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
+        ScalaSideEffectAdapter(javasdk.SideEffect.of(javaSdkDeferredCall))
+    }
+
+}
+
+private[scalasdk] final case class ScalaSideEffectAdapter(javasdkSideEffect: javasdk.SideEffect) extends SideEffect {
+  override def serviceCall: DeferredCall[_, _] = ScalaDeferredCallAdapter(javasdkSideEffect.call())
+  override def synchronous: Boolean = javasdkSideEffect.synchronous()
 }
