@@ -373,7 +373,8 @@ class ModelBuilderSuite extends munit.FunSuite {
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
             transformedUpdates,
-            transformedUpdates)))
+            transformedUpdates,
+            queries)))
     }.get
   }
 

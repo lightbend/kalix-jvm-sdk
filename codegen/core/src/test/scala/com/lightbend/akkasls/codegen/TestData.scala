@@ -204,7 +204,12 @@ class TestData(val packageNamingTemplate: PackageNaming) {
           fullyQualifiedName("ViewState", proto))),
       s"MyService$suffix",
       updates,
-      updates)
+      updates,
+      List(
+        command(
+          "Query",
+          fullyQualifiedName("QueryRequest", domainProto(suffix)),
+          fullyQualifiedName("ViewState", proto))))
   }
 
   def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =

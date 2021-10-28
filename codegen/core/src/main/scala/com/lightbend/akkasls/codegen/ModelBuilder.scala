@@ -227,7 +227,8 @@ object ModelBuilder {
       viewId: String,
       /** all updates, also non-transformed */
       updates: Iterable[Command],
-      transformedUpdates: Iterable[Command])
+      transformedUpdates: Iterable[Command],
+      queries: Iterable[Command])
       extends Service(fqn, commands) {
 
     private val baseClassName =
@@ -370,7 +371,11 @@ object ModelBuilder {
                             .getUpdate()
                             .getTransformUpdates() =>
                         Command.from(method)
-                    }))
+                    },
+                  queries = methodDetails.collect {
+                    case (method, viewOptions) if viewOptions.hasQuery =>
+                      Command.from(method)
+                  }))
             case _ => None
           }
         } yield serviceName.fullyQualifiedProtoName -> service

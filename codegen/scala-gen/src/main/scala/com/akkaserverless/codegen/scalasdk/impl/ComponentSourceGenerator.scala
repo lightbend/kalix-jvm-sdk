@@ -18,6 +18,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
 import com.lightbend.akkasls.codegen.ModelBuilder.EntityService
 import com.lightbend.akkasls.codegen.ModelBuilder.Model
@@ -30,47 +31,55 @@ object ComponentSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import Types._
 
+  private final case class CallableComponent(
+      uniqueName: String,
+      service: ModelBuilder.Service,
+      callableCommands: Iterable[ModelBuilder.Command])
+
   def generateManaged(model: Model, mainPackageName: PackageNaming): Iterable[File] = {
     // since we want to flatten component names to as short as possible there may be duplicate
     // names, so for those we need to use a longer name
     val services = model.services.values.toSeq
     val uniqueNamesAndComponents = services
-      .filter(_.commands.exists(_.isUnary)) // only include if there is at least one unary
-      .map { component =>
-        val name = nameFor(component)
-        // FIXME component.fqn.name is the gRPC service name, not the component class which is what we want
-        if (services.exists(other => other != component && nameFor(other) == name)) {
-          // give it a longer unique name
-          component.fqn.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + component.fqn.name -> component
+      .flatMap { service =>
+        val callableCommands = callableCommandsFor(service)
+        if (callableCommands.nonEmpty) {
+          val name = nameFor(service)
+          // FIXME component.fqn.name is the gRPC service name, not the component class which is what we want
+          if (services.exists(other => other != service && nameFor(other) == name)) {
+            // give it a longer unique name
+            val uniqueName = service.fqn.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + service.fqn.name
+            Some(CallableComponent(uniqueName, service, callableCommands))
+          } else {
+            Some(CallableComponent(name, service, callableCommands))
+          }
         } else {
-          name -> component
+          None
         }
       }
-      .toMap
 
     generateComponentsTrait(uniqueNamesAndComponents, mainPackageName) :: generateComponentsImpl(
       uniqueNamesAndComponents,
       mainPackageName) :: Nil
   }
 
-  private def generateComponentsTrait(services: Map[String, Service], mainPackageName: PackageNaming): File = {
-    val componentCalls = services.map { case (name, component) =>
+  private def generateComponentsTrait(components: Seq[CallableComponent], mainPackageName: PackageNaming): File = {
+    val componentCalls = components.map { component =>
       // FIXME only unary deferred calls supported for now, or could streamed out be supported if types align?
       // higher risk of name conflicts here where all components in the service meets up, so all
       // type names are fully qualified rather than imported
-      val unaryCommands = component.commands.filter(_.isUnary)
-      val methods = unaryCommands
+      val methods = component.callableCommands
         .map(command =>
           c"""def ${lowerFirst(command.name)}(command: ${command.inputType.fullyQualifiedJavaName}): $DeferredCall[${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}]
              |""")
 
-      c"""trait ${name}Calls {
+      c"""trait ${component.uniqueName}Calls {
          |  $methods
          |}"""
     }
 
-    val componentGetters = services.map { case (name, _) =>
-      c"def ${lowerFirst(name)}: ${name}Calls"
+    val componentGetters = components.map { component =>
+      c"def ${lowerFirst(component.uniqueName)}: ${component.uniqueName}Calls"
     }
 
     generate(
@@ -96,17 +105,16 @@ object ComponentSourceGenerator {
          |}""")
   }
 
-  private def generateComponentsImpl(services: Map[String, Service], mainPackageName: PackageNaming): File = {
-    val componentGetters = services.map { case (name, _) =>
+  private def generateComponentsImpl(components: Seq[CallableComponent], mainPackageName: PackageNaming): File = {
+    val componentGetters = components.map { component =>
       c"""@Override
-         |override def ${lowerFirst(name)}: Components.${name}Calls =
-         |  new ${name}CallsImpl();
+         |override def ${lowerFirst(component.uniqueName)}: Components.${component.uniqueName}Calls =
+         |  new ${component.uniqueName}CallsImpl();
          |"""
     }
 
-    val componentCallImpls = services.map { case (name, service) =>
-      val methods = service.commands
-        .filter(_.isUnary)
+    val componentCallImpls = components.map { component =>
+      val methods = component.callableCommands
         .map { command =>
           val commandMethod = lowerFirst(command.name)
           val inputType = fullyQualifiedMessage(command.inputType)
@@ -115,13 +123,13 @@ object ComponentSourceGenerator {
              |  $ScalaDeferredCallAdapter(
              |    command,
              |    $Metadata.empty,
-             |    "${service.fqn.fullyQualifiedProtoName}",
+             |    "${component.service.fqn.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[${service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
+             |    () => getGrpcClient(classOf[${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
              |  )"""
         }
 
-      c"""private final class ${name}CallsImpl extends Components.${name}Calls {
+      c"""private final class ${component.uniqueName}CallsImpl extends Components.${component.uniqueName}Calls {
          |  $methods
          |}"""
 
@@ -150,8 +158,8 @@ object ComponentSourceGenerator {
          |}""")
   }
 
-  private def nameFor(component: Service): String =
-    component match {
+  private def nameFor(service: Service): String =
+    service match {
       case as: ActionService => as.className.split('.').last
       case es: EntityService => es.componentFullName.split('.').last
       case vs: ViewService   => vs.className.split('.').last
@@ -160,4 +168,13 @@ object ComponentSourceGenerator {
   private def fullyQualifiedMessage(messageType: FullyQualifiedName): String =
     s"${messageType.parent.javaPackage}.${messageType.name}"
 
+  private def callableCommandsFor(service: Service): Iterable[ModelBuilder.Command] =
+    service match {
+      case view: ViewService =>
+        // only queries, not update commands for views
+        view.queries.filter(_.isUnary)
+      case _ =>
+        // only unary commands for now
+        service.commands.filter(_.isUnary)
+    }
 }
