@@ -1,4 +1,4 @@
-package com.example.replicated.countermap.domain;
+package com.example.replicated.countermap;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
@@ -15,6 +15,12 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
+// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+//
+// As long as this file exists it will not be overwritten: you can maintain it yourself,
+// or delete it so it is regenerated as needed.
+
+// Example of an integration test calling our service via the Akka Serverless proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class SomeCounterMapIntegrationTest {
 
