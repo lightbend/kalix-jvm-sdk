@@ -42,8 +42,8 @@ trait DeferredCall[I, O] {
   def metadata: Metadata
 
   /**
-   * Execute this call right away and get the async result back for composition. Can be used to create an
-   * async reply in an [[com.akkaserverless.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
+   * Execute this call right away and get the async result back for composition. Can be used to create an async reply in
+   * an [[com.akkaserverless.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
    */
   def execute(): Future[O]
 }
