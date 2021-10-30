@@ -1,4 +1,4 @@
-package com.example.replicated.counter.domain
+package com.example.replicated.counter
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main

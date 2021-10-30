@@ -1,4 +1,4 @@
-package com.example.replicated.set.domain
+package com.example.replicated.set
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main

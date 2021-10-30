@@ -1,4 +1,4 @@
-package com.example.replicated.multimap.domain
+package com.example.replicated.multimap
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main

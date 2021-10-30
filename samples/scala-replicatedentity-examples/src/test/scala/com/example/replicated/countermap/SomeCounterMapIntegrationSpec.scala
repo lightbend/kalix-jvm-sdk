@@ -1,4 +1,4 @@
-package com.example.replicated.countermap.domain
+package com.example.replicated.countermap
 
 import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
