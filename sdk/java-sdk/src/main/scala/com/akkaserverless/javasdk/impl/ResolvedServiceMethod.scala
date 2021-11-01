@@ -16,14 +16,11 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.fasterxml.jackson.databind.{ ObjectReader, ObjectWriter }
 import com.google.protobuf.{
-  Any => JavaPbAny,
   ByteString,
   Descriptors,
   Message => JavaMessage,
-  Parser,
-  UnsafeByteOperations
+  Parser
 }
 
 import java.util.concurrent.CompletionStage
@@ -40,18 +37,6 @@ final case class ResolvedServiceMethod[I, O](
   def name: String = descriptor.getName
 
   def method(): Descriptors.MethodDescriptor = descriptor
-
-  /*
-  override def createCall(message: I, metadata: Metadata): DeferredCall[I, O] =
-    ResolvedServiceCall(
-      this,
-      JavaPbAny
-        .newBuilder()
-        .setTypeUrl(inputType.typeUrl)
-        .setValue(inputType.toByteString(message))
-        .build(),
-      metadata)
-   */
 }
 
 /**
@@ -96,20 +81,6 @@ private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](
     extends ResolvedType[T] {
   override def parseFrom(bytes: ByteString): T = companion.parseFrom(bytes.newCodedInput()).asInstanceOf[T]
   override def toByteString(value: T): ByteString = value.toByteString
-}
-
-/**
- * Not a real protobuf parser, but is useful none the less.
- */
-// FIXME remove?
-private final class JacksonResolvedType[T](
-    override val typeClass: Class[T],
-    override val typeUrl: String,
-    reader: ObjectReader,
-    writer: ObjectWriter)
-    extends ResolvedType[T] {
-  override def parseFrom(bytes: ByteString): T = reader.readValue(bytes.toByteArray)
-  override def toByteString(value: T): ByteString = UnsafeByteOperations.unsafeWrap(writer.writeValueAsBytes(value))
 }
 
 trait ResolvedEntityFactory {
