@@ -6,7 +6,6 @@
 package com.example.actions;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.example.Components;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 
