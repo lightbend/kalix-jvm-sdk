@@ -19,6 +19,7 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,18 @@ public class ShoppingCart extends AbstractShoppingCart {
     return ShoppingCartDomain.Cart.newBuilder().build();
   }
 
+  // tag::create[]
+  @Override
+  public Effect<Empty> create(ShoppingCartDomain.Cart currentState, ShoppingCartApi.CreateCart createCart) {
+    if (currentState.getCreationTimestamp() > 0L) {
+      return effects().error("Cart was already created");
+    } else {
+      return effects().updateState(currentState.toBuilder().setCreationTimestamp(Instant.now().toEpochMilli()).build())
+          .thenReply(Empty.getDefaultInstance());
+    }
+  }
+  // end::create[]
+
   // tag::add-item[]
   @Override
   public Effect<Empty> addItem(
@@ -56,7 +69,7 @@ public class ShoppingCart extends AbstractShoppingCart {
     lineItems.add(lineItem);
     lineItems.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     return effects()
-            .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build())
+            .updateState(currentState.toBuilder().clearItems().addAllItems(lineItems).build())
             .thenReply(Empty.getDefaultInstance());
   }
   // end::add-item[]
@@ -78,7 +91,7 @@ public class ShoppingCart extends AbstractShoppingCart {
             removeItemByProductId(currentState, removeLineItem.getProductId());
     items.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
     return effects()
-            .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(items).build())
+            .updateState(currentState.toBuilder().clearItems().addAllItems(items).build())
             .thenReply(Empty.getDefaultInstance());
   }
 

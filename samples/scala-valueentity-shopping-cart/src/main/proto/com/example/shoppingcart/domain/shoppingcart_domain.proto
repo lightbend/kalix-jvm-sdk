@@ -21,8 +21,6 @@ syntax = "proto3";
 
 package com.example.shoppingcart.domain;
 
-option java_outer_classname = "ShoppingCartDomain";
-
 // tag::proto_imports[]
 import "akkaserverless/annotations.proto";
 // end::proto_imports[]

@@ -23,8 +23,6 @@ syntax = "proto3";
 package com.example.shoppingcart;
 // end::proto_package[]
 
-option java_outer_classname = "ShoppingCartApi";
-
 // tag::proto_imports[]
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
@@ -32,9 +30,11 @@ import "google/api/annotations.proto";
 // end::proto_imports[]
 
 // tag::proto_messages[]
+// tag::create[]
 message CreateCart {
   string cart_id = 1 [(akkaserverless.field).entity_key = true];
 }
+// end::create[]
 
 message AddLineItem {
   string cart_id = 1 [(akkaserverless.field).entity_key = true];

@@ -15,10 +15,8 @@
  */
 package com.example.shoppingcart.api;
 
-import com.example.shoppingcart.Main;
+import com.example.shoppingcart.*;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
-import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.ShoppingCartService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -26,9 +24,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static java.util.concurrent.TimeUnit.*;
+import static org.junit.Assert.assertTrue;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
-// Run all test classes ending with "IntegrationTest" using `mvn verify -Pfailsafe`
+// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class ShoppingCartIntegrationTest {
 
   /**
@@ -42,9 +41,11 @@ public class ShoppingCartIntegrationTest {
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
    */
   private final ShoppingCartService client;
+  private final ShoppingCartAction actionClient;
 
   public ShoppingCartIntegrationTest() {
     client = testKit.getGrpcClient(ShoppingCartService.class);
+    actionClient = testKit.getGrpcClient(ShoppingCartAction.class);
   }
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
@@ -93,6 +94,11 @@ public class ShoppingCartIntegrationTest {
         .build();
   }
 
+  ShoppingCartController.NewCartCreated initializeCart() throws Exception {
+    return actionClient.initializeCart(ShoppingCartController.NewCart.getDefaultInstance())
+        .toCompletableFuture()
+        .get();
+  }
 
   @Test
   public void emptyCartByDefault() throws Exception {
@@ -143,4 +149,14 @@ public class ShoppingCartIntegrationTest {
     removeCart("cart4");
     assertEquals("shopping cart should be empty", 0, getCart("cart4").getItemsCount());
   }
+
+  @Test
+  public void createNewCart() throws Exception {
+    ShoppingCartController.NewCartCreated newCartCreated = initializeCart();
+    String cartId = newCartCreated.getCartId();
+
+    ShoppingCartApi.Cart cart = getCart(cartId);
+    assertTrue(cart.getCreationTimestamp() > 0L);
+  }
+
 }
