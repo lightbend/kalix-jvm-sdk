@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import com.akkaserverless.javasdk.impl.{ Service, ViewFactory }
-import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
+import com.akkaserverless.javasdk.{ Context, Metadata }
 import com.akkaserverless.javasdk.impl._
 import com.akkaserverless.javasdk.view.ViewCreationContext
 import com.akkaserverless.javasdk.view.{ UpdateContext, View, ViewContext }
@@ -147,7 +147,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
       override val viewId: String,
       override val eventName: String,
       override val metadata: Metadata)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(system)
       with UpdateContext {
 
     override def eventSubject(): Optional[String] =
@@ -158,7 +158,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
   }
 
   private final class ViewContextImpl(override val viewId: String)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(system)
       with ViewContext
       with ViewCreationContext
 

@@ -16,28 +16,27 @@
 
 package com.akkaserverless.javasdk.testkit.impl;
 
-import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.Metadata;
-import java.util.Optional;
-import com.akkaserverless.javasdk.ServiceCallFactory
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import com.akkaserverless.javasdk.action.ActionContext
+
+import java.util.Optional
 import com.akkaserverless.javasdk.action.ActionCreationContext
 import akka.stream.Materializer
+import com.akkaserverless.javasdk.impl.InternalContext
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext extends ActionContext with ActionCreationContext {
+final class TestKitActionContext
+    extends AbstractTestKitContext
+    with ActionContext
+    with ActionCreationContext
+    with InternalContext {
 
   override def metadata() = throw new UnsupportedOperationException("Accessing metadata from testkit not supported yet")
 
   override def eventSubject() = Optional.of("test-subject-id")
 
-  override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
-
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
 
 }

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory
 // FIXME these don't seem to be 'public API', more internals?
 import com.akkaserverless.javasdk.Context
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCallFactory
 import com.akkaserverless.javasdk.valueentity._
 
 import com.akkaserverless.javasdk.impl.ValueEntityFactory
@@ -50,7 +49,6 @@ import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{ R
 import com.akkaserverless.protocol.value_entity._
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.google.protobuf.{ Any => JavaPbAny }
 
 final class ValueEntityService(
     val factory: ValueEntityFactory,
@@ -79,11 +77,7 @@ final class ValueEntityService(
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ValueEntitiesImpl(
-    system: ActorSystem,
-    val services: Map[String, ValueEntityService],
-    rootContext: Context,
-    configuration: Configuration)
+final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, ValueEntityService])
     extends ValueEntities {
 
   import EntityExceptions._
@@ -123,7 +117,7 @@ final class ValueEntitiesImpl(
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val handler =
-      service.factory.create(new ValueEntityContextImpl(init.entityId, rootContext.serviceCallFactory(), system))
+      service.factory.create(new ValueEntityContextImpl(init.entityId, system))
     val thisEntityId = init.entityId
 
     init.state match {
@@ -150,13 +144,8 @@ final class ValueEntitiesImpl(
           val cmd =
             service.anySupport.decode(
               ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
-          val context = new CommandContextImpl(
-            thisEntityId,
-            command.name,
-            command.id,
-            metadata,
-            rootContext.serviceCallFactory(),
-            system)
+          val context =
+            new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) =
             try {
@@ -176,7 +165,11 @@ final class ValueEntitiesImpl(
           }
 
           val clientAction =
-            serializedSecondaryEffect.replyToClientAction(command.id, allowNoReply = false, restartOnFailure = false)
+            serializedSecondaryEffect.replyToClientAction(
+              service.anySupport,
+              command.id,
+              allowNoReply = false,
+              restartOnFailure = false)
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
@@ -198,7 +191,7 @@ final class ValueEntitiesImpl(
                   ValueEntityReply(
                     command.id,
                     clientAction,
-                    EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                    EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
                     action)))
           }
 
@@ -223,15 +216,11 @@ private[akkaserverless] final class CommandContextImpl(
     override val commandName: String,
     override val commandId: Long,
     override val metadata: Metadata,
-    serviceCallFactory: ServiceCallFactory,
     system: ActorSystem)
-    extends AbstractContext(serviceCallFactory, system)
+    extends AbstractContext(system)
     with CommandContext
     with ActivatableContext
 
-private[akkaserverless] final class ValueEntityContextImpl(
-    override val entityId: String,
-    serviceCallFactory: ServiceCallFactory,
-    system: ActorSystem)
-    extends AbstractContext(serviceCallFactory, system)
+private[akkaserverless] final class ValueEntityContextImpl(override val entityId: String, system: ActorSystem)
+    extends AbstractContext(system)
     with ValueEntityContext

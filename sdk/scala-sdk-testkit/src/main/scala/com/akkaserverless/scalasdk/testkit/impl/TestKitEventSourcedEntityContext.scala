@@ -17,14 +17,14 @@
 package com.akkaserverless.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitEventSourcedEntityContext(override val entityId: String) extends EventSourcedEntityContext {
-  override def serviceCallFactory: ServiceCallFactory = TestKitServiceCallFactory
+final class TestKitEventSourcedEntityContext(override val entityId: String)
+    extends AbstractTestKitContext
+    with EventSourcedEntityContext {
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 }

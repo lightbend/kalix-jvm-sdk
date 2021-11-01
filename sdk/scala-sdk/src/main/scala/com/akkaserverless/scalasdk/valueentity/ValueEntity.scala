@@ -19,7 +19,7 @@ package com.akkaserverless.scalasdk.valueentity
 import scala.jdk.CollectionConverters._
 import akka.actor.ActorSystem
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCall
+import com.akkaserverless.scalasdk.DeferredCall
 import com.akkaserverless.scalasdk.Context
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
@@ -76,7 +76,7 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def forward[T](serviceCall: ServiceCall): Effect[T]
+      def forward[T](serviceCall: DeferredCall[_, T]): Effect[T]
 
       /**
        * Create an error reply.
@@ -141,7 +141,7 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def thenForward[T](serviceCall: ServiceCall): Effect[T]
+      def thenForward[T](serviceCall: DeferredCall[_, T]): Effect[T]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

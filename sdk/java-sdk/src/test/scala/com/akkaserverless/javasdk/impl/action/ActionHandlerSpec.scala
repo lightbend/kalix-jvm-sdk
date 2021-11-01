@@ -29,9 +29,8 @@ import com.akkaserverless.javasdk.action.MessageEnvelope
 import com.akkaserverless.javasdk.actionspec.ActionspecApi
 import com.akkaserverless.javasdk.impl.AbstractContext
 import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.MetadataImpl
-import com.akkaserverless.javasdk.impl.ResolvedServiceCall
-import com.akkaserverless.javasdk.impl.ResolvedServiceCallFactory
 import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
 import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
@@ -72,9 +71,8 @@ class ActionRouterSpec
     val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
 
     val services = Map(serviceName -> service)
-    val scf = new ResolvedServiceCallFactory(services)
 
-    new ActionsImpl(classicSystem, services, new AbstractContext(scf, classicSystem) {})
+    new ActionsImpl(classicSystem, services, new AbstractContext(classicSystem) {})
   }
 
   "The action service" should {
@@ -253,11 +251,24 @@ class ActionRouterSpec
           createAsyncReplyEffect(Future {
             createReplyEffect("reply").addSideEffect(
               SideEffectImpl(
-                ResolvedServiceCall(dummyResolvedMethod, anySupport.encodeJava(message.payload()), MetadataImpl.Empty),
+                // Note that this is never constructed manually/dynamically in actual use
+                // but only by code generated based on the descriptors
+                DeferredCallImpl(
+                  message.payload(),
+                  MetadataImpl.Empty,
+                  serviceName,
+                  dummyResolvedMethod.method().getName,
+                  () => ???),
                 false))
-          }).addSideEffect(SideEffectImpl(
-            ResolvedServiceCall(dummyResolvedMethod, anySupport.encodeJava(message.payload()), MetadataImpl.Empty),
-            true))
+          }).addSideEffect(
+            SideEffectImpl(
+              DeferredCallImpl(
+                message.payload(),
+                MetadataImpl.Empty,
+                serviceName,
+                dummyResolvedMethod.descriptor.getName,
+                () => ???),
+              true))
         }
       })
 

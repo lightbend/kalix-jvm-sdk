@@ -19,13 +19,14 @@ package com.akkaserverless.javasdk.testkit.impl
 import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.testkit.ActionResult
-import com.akkaserverless.javasdk.testkit.ServiceCallDetails
-import com.akkaserverless.javasdk.testkit.impl.TestKitServiceCallFactory
-import java.util.concurrent.CompletionStage;
+import com.akkaserverless.javasdk.testkit.DeferredCallDetails
+
+import java.util.concurrent.CompletionStage
 import java.util.{ List => JList }
 import scala.collection.JavaConverters._
-import scala.concurrent.Future;
+import scala.concurrent.Future
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 
@@ -41,10 +42,12 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
     reply.msg
   }
 
-  private def extractServices(sideEffects: Seq[SideEffect]): JList[ServiceCallDetails[T]] =
-    sideEffects.map(_.serviceCall.asInstanceOf[ServiceCallDetails[T]]).asJava
+  private def extractServices(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_, _]] =
+    sideEffects
+      .map(s => TestKitDeferredCall(s.call.asInstanceOf[DeferredCallImpl[_, _]]): DeferredCallDetails[_, _])
+      .asJava
 
-  def getSideEffects(): JList[ServiceCallDetails[T]] = effect match {
+  def getSideEffects(): JList[DeferredCallDetails[_, _]] = effect match {
     case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
     case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
     case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
@@ -57,10 +60,10 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   /** @return true if the call was forwarded, false if not */
   def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
 
-  def getForward(): ServiceCallDetails[T] =
+  def getForward(): DeferredCallDetails[Any, T] =
     effect match {
-      case ActionEffectImpl.ForwardEffect(serviceCall: TestKitServiceCallFactory.TestKitServiceCall[T @unchecked], _) =>
-        serviceCall
+      case ActionEffectImpl.ForwardEffect(serviceCall: DeferredCallImpl[Any @unchecked, T @unchecked], _) =>
+        TestKitDeferredCall(serviceCall)
       case _ =>
         throw new IllegalStateException(
           "expected effect type [ActionEffectImpl.ForwardEffect] but found [" + effect.getClass.getName + "]")

@@ -16,8 +16,8 @@
 
 package com.akkaserverless.javasdk.action;
 
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
 
@@ -87,7 +87,7 @@ public abstract class Action {
        * @return A forward reply.
        * @param <S> The type of the message that must be returned by this call.
        */
-      <S> Effect<S> forward(ServiceCall serviceCall);
+      <S> Effect<S> forward(DeferredCall<? extends Object, S> serviceCall);
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

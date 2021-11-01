@@ -16,11 +16,12 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
+import com.akkaserverless.javasdk.DeferredCall
+
 import java.util
 import java.util.function.{ Function => JFunction }
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
@@ -81,7 +82,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): EventSourcedEntityEffectImpl[T] = {
+  override def forward[T](serviceCall: DeferredCall[_, T]): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
@@ -104,7 +105,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: JFunction[S, ServiceCall]): EventSourcedEntityEffectImpl[T] = {
+  override def thenForward[T](serviceCall: JFunction[S, DeferredCall[_, T]]): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }

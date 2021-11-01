@@ -17,6 +17,8 @@
 package com.example;
 
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.akkaserverless.tck.model.ReplicatedEntityTwoAction;
+import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModelAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.akkaserverless.tck.model.action.ActionTckModelImpl;
@@ -50,7 +52,9 @@ public final class Main {
         ValueEntityTckModelEntity::new,
         ValueEntityTwoEntity::new,
         ActionTckModelImpl::new,
-        ActionTwoImpl::new);
+        ActionTwoImpl::new,
+        LocalPersistenceSubscriberModelAction::new,
+        ReplicatedEntityTwoAction::new);
   }
 
   public static void main(String[] args) throws Exception {

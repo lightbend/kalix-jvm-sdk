@@ -23,7 +23,7 @@ import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
-import com.akkaserverless.scalasdk.testkit.ServiceCallDetails
+import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
 import com.akkaserverless.scalasdk.testkit.ValueEntityResult
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 
@@ -56,7 +56,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
   override def isForward: Boolean =
     effect.javasdkEffect.secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def forwardedTo: ServiceCallDetails[R] =
+  override def forwardedTo: DeferredCallDetails[_, R] =
     ??? // FIXME #587
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>

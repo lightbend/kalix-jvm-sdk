@@ -20,7 +20,6 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.SystemMaterializer
 import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.ServiceCallFactory
 
 /**
  * INTERNAL API
@@ -34,11 +33,18 @@ private[impl] trait ActivatableContext extends Context {
 /**
  * INTERNAL API
  */
-private[javasdk] abstract class AbstractContext(
-    override val serviceCallFactory: ServiceCallFactory,
-    system: ActorSystem)
-    extends Context {
+private[akkaserverless] trait InternalContext {
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T
+}
+
+/**
+ * INTERNAL API
+ */
+abstract class AbstractContext(system: ActorSystem) extends Context with InternalContext {
 
   override def materializer(): Materializer =
     SystemMaterializer(system).materializer
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    GrpcClients(system).getComponentGrpcClient(serviceClass)
 }

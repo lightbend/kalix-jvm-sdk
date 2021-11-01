@@ -18,6 +18,7 @@ package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.MainSourceGenerator
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
 import com.lightbend.akkasls.codegen.TestData
 
 class MainSourceGeneratorSuite extends munit.FunSuite {
@@ -40,7 +41,9 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
 
     val services = Map("com.example.Service1" -> testData.simpleActionService())
 
-    val generatedSrc = MainSourceGenerator.mainSource(ModelBuilder.Model(services, entities)).content
+    val generatedSrc = MainSourceGenerator
+      .mainSource(ModelBuilder.Model(services, entities), PackageNaming.noDescriptor("com.example"))
+      .content
     assertNoDiff(
       generatedSrc,
       """|package com.example
@@ -108,7 +111,9 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         suffix = "6"))
 
     val generatedSrc =
-      MainSourceGenerator.akkaServerlessFactorySource(ModelBuilder.Model(services, entities)).content
+      MainSourceGenerator
+        .akkaServerlessFactorySource(ModelBuilder.Model(services, entities), PackageNaming.noDescriptor("com.example"))
+        .content
     assertNoDiff(
       generatedSrc,
       """|package com.example
@@ -166,7 +171,9 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
     val entities = Map.empty[String, ModelBuilder.Entity]
 
     val generatedSrc =
-      MainSourceGenerator.akkaServerlessFactorySource(ModelBuilder.Model(services, entities)).content
+      MainSourceGenerator
+        .akkaServerlessFactorySource(ModelBuilder.Model(services, entities), PackageNaming.noDescriptor("com.example"))
+        .content
     assertNoDiff(
       generatedSrc,
       """|package com.example

@@ -16,33 +16,33 @@
 
 package com.akkaserverless.scalasdk.impl.eventsourcedentity
 
+import akka.stream.Materializer
+import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider }
+import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityContext => JavaSdkEventSourcedEntityContext }
+import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
+import com.akkaserverless.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
+import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions }
+import com.akkaserverless.javasdk.eventsourcedentity.{ CommandContext => JavaSdkCommandContext }
+import com.akkaserverless.javasdk.impl.eventsourcedentity.{
+  EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter
+}
+import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
+import com.akkaserverless.scalasdk.eventsourcedentity.EventContext
+import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
+import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import com.akkaserverless.scalasdk.impl.InternalContext
+import com.akkaserverless.scalasdk.impl.MetadataConverters
+import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
+import com.google.protobuf.Descriptors
+
 import java.util.Optional
 import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
-import akka.stream.Materializer
-import com.akkaserverless.javasdk
-import javasdk.impl.eventsourcedentity.{ EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter }
-import javasdk.eventsourcedentity.{
-  CommandContext => JavaSdkCommandContext,
-  EventContext => JavaSdkEventContext,
-  EventSourcedEntity => JavaSdkEventSourcedEntity,
-  EventSourcedEntityContext => JavaSdkEventSourcedEntityContext,
-  EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions,
-  EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider
-}
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
-import com.akkaserverless.scalasdk.ServiceCallFactory
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
-import com.google.protobuf.Descriptors
 
 private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
     extends JavaSdkEventSourcedEntity[S] {
@@ -128,14 +128,12 @@ private[scalasdk] final class ScalaEventSourcedEntityContextAdapter(javaSdkConte
 
   def entityId: String = javaSdkContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
-
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
 private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: JavaSdkCommandContext)
-    extends CommandContext {
+    extends CommandContext
+    with InternalContext {
 
   override def sequenceNumber: Long = javaSdkContext.sequenceNumber()
 
@@ -143,22 +141,20 @@ private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: Java
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
-
   override def entityId: String = javaSdkContext.entityId()
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
 
 private[scalasdk] final class JavaEventContextAdapter(val javasdkContext: JavaSdkEventContext) extends EventContext {
   override def sequenceNumber: Long = javasdkContext.sequenceNumber()
-
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javasdkContext.serviceCallFactory())
 
   override def entityId: String = javasdkContext.entityId()
 

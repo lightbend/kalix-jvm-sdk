@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package com.akkaserverless.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.Metadata;
+import akka.stream.Materializer
+import com.akkaserverless.javasdk.Context
+import com.akkaserverless.javasdk.impl.InternalContext
 
-public interface ServiceCallDetails<T> {
-  /** @return The forwarded message */
-  T getMessage();
+class AbstractTestKitContext extends Context with InternalContext {
 
-  /** @return Any metadata attached to the call */
-  Metadata getMetadata();
+  override def materializer(): Materializer = throw new UnsupportedOperationException(
+    "Accessing the materializer from testkit not supported yet")
 
-  /** @return The name of the service being called */
-  String getServiceName();
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    throw new UnsupportedOperationException("Async call testing is not possible with the testkit")
 
-  /** @return The method name being called */
-  String getMethodName();
 }

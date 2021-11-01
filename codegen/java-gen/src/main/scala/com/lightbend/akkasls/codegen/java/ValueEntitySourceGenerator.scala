@@ -229,7 +229,8 @@ object ValueEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String,
-      className: String): String = {
+      className: String,
+      mainPackageName: String): String = {
 
     val stateType = entity.state.fqn
 
@@ -237,7 +238,10 @@ object ValueEntitySourceGenerator {
       service.commands,
       entity.state,
       packageName,
-      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntity"))
+      otherImports = Seq(
+        "com.akkaserverless.javasdk.valueentity.ValueEntity",
+        s"$mainPackageName.Components",
+        s"$mainPackageName.ComponentsImpl"))
 
     val methods = service.commands
       .map { cmd =>
@@ -258,6 +262,10 @@ object ValueEntitySourceGenerator {
         |
         |/** A value entity. */
         |public abstract class Abstract$className extends ValueEntity<${typeName(stateType)}> {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(commandContext());
+        |  }
         |
         |  ${Format.indent(methods, 2)}
         |

@@ -129,13 +129,15 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.abstractActionSource(service)
+      ActionServiceSourceGenerator.abstractActionSource(service, "com.example")
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
+        |import com.example.Components;
+        |import com.example.ComponentsImpl;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -144,6 +146,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends com.akkaserverless.javasdk.action.Action {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(actionContext());
+        |  }
         |
         |  /** Handler for "SimpleMethod". */
         |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
@@ -167,13 +173,15 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService(packageNaming)
 
     val generatedSrc =
-      ActionServiceSourceGenerator.abstractActionSource(service)
+      ActionServiceSourceGenerator.abstractActionSource(service, "com.example")
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
         |
         |import akka.NotUsed;
         |import akka.stream.javadsl.Source;
+        |import com.example.Components;
+        |import com.example.ComponentsImpl;
         |import com.external.Empty;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -182,6 +190,10 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |/** An action. */
         |public abstract class AbstractMyServiceAction extends com.akkaserverless.javasdk.action.Action {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(actionContext());
+        |  }
         |
         |  /** Handler for "SimpleMethod". */
         |  public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);

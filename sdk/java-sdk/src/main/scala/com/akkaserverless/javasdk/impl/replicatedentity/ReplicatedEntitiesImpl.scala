@@ -24,7 +24,7 @@ import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, M
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.{ Context, Metadata, ServiceCallFactory }
+import com.akkaserverless.javasdk.{ Context, Metadata }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
@@ -63,10 +63,7 @@ final class ReplicatedEntityService(
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ReplicatedEntitiesImpl(
-    system: ActorSystem,
-    services: Map[String, ReplicatedEntityService],
-    rootContext: Context)
+final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, ReplicatedEntityService])
     extends ReplicatedEntities {
 
   import ReplicatedEntitiesImpl._
@@ -110,7 +107,7 @@ final class ReplicatedEntitiesImpl(
       ReplicatedEntityDeltaTransformer.create(delta, service.anySupport)
     }
 
-    val runner = new EntityRunner(service, init.entityId, initialData, rootContext, system)
+    val runner = new EntityRunner(service, init.entityId, initialData, system)
 
     Flow[ReplicatedEntityStreamIn]
       .mapConcat { in =>
@@ -145,11 +142,10 @@ object ReplicatedEntitiesImpl {
       service: ReplicatedEntityService,
       entityId: String,
       initialData: Option[InternalReplicatedData],
-      rootContext: Context,
       system: ActorSystem) {
 
     val handler = {
-      val context = new ReplicatedEntityCreationContext(entityId, rootContext, system)
+      val context = new ReplicatedEntityCreationContext(entityId, system)
       try {
         service.factory.create(context)
       } finally {
@@ -167,7 +163,7 @@ object ReplicatedEntitiesImpl {
       if (entityId != command.entityId)
         throw ProtocolException(command, "Entity is not the intended recipient of command")
 
-      val context = new ReplicatedEntityCommandContext(entityId, command, rootContext, system)
+      val context = new ReplicatedEntityCommandContext(entityId, command, system)
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
       val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
 
@@ -188,7 +184,11 @@ object ReplicatedEntitiesImpl {
       }
 
       val clientAction =
-        serializedSecondaryEffect.replyToClientAction(command.id, allowNoReply = false, restartOnFailure = false)
+        serializedSecondaryEffect.replyToClientAction(
+          service.anySupport,
+          command.id,
+          allowNoReply = false,
+          restartOnFailure = false)
 
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>
@@ -216,26 +216,22 @@ object ReplicatedEntitiesImpl {
               ReplicatedEntityReply(
                 command.id,
                 clientAction,
-                EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
                 stateAction)))
       }
     }
   }
 
-  private final class ReplicatedEntityCreationContext(
-      override val entityId: String,
-      rootContext: Context,
-      system: ActorSystem)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+  private final class ReplicatedEntityCreationContext(override val entityId: String, system: ActorSystem)
+      extends AbstractContext(system)
       with ReplicatedEntityContext
       with ActivatableContext
 
   private final class ReplicatedEntityCommandContext(
       override val entityId: String,
       command: Command,
-      rootContext: Context,
       system: ActorSystem)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(system)
       with CommandContext
       with ActivatableContext {
 

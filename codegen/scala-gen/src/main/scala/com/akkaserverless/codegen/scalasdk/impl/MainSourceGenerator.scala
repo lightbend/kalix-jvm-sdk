@@ -30,28 +30,17 @@ object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
 
-  def generateUnmanaged(model: ModelBuilder.Model): Iterable[File] =
-    Seq(mainSource(model))
+  def generateUnmanaged(model: ModelBuilder.Model, mainPackageName: PackageNaming): Iterable[File] =
+    Seq(mainSource(model, mainPackageName))
 
-  def generateManaged(model: ModelBuilder.Model): Iterable[File] =
-    Seq(akkaServerlessFactorySource(model))
+  def generateManaged(model: ModelBuilder.Model, mainPackageName: PackageNaming): Iterable[File] =
+    Seq(akkaServerlessFactorySource(model, mainPackageName))
 
-  def mainClassName(model: ModelBuilder.Model): FullyQualifiedName = {
-    val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
-    val className = "Main"
-    FullyQualifiedName.noDescriptor(
-      className,
-      new PackageNaming(
-        protoFileName = "",
-        name = "",
-        protoPackage = packageName,
-        javaPackageOption = None,
-        javaOuterClassnameOption = None,
-        javaMultipleFiles = false))
-  }
+  def mainClassName(model: ModelBuilder.Model, mainPackageName: PackageNaming): FullyQualifiedName =
+    FullyQualifiedName.noDescriptor("Main", mainPackageName)
 
-  private[codegen] def mainSource(model: ModelBuilder.Model): File = {
-    val mainClass = mainClassName(model)
+  private[codegen] def mainSource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
+    val mainClass = mainClassName(model, mainPackageName)
 
     val entityImports = model.entities.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => entity.fqn.fullyQualifiedJavaName
@@ -117,8 +106,7 @@ object MainSourceGenerator {
         |""".stripMargin)
   }
 
-  private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model): File = {
-    val packageName = mainPackageName(model.services.keys ++ model.entities.keys).mkString(".")
+  private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
 
     val entityImports = model.entities.values.flatMap { ety =>
       val imp =
@@ -163,7 +151,7 @@ object MainSourceGenerator {
     implicit val imports: Imports =
       generateImports(
         entityImports,
-        packageName,
+        mainPackageName.javaPackage,
         Seq("com.akkaserverless.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
 
     def creator(fqn: FullyQualifiedName): String = {
@@ -217,9 +205,9 @@ object MainSourceGenerator {
     val creatorParameters = entityCreators ::: serviceCreators
 
     File(
-      packageName,
+      mainPackageName.javaPackage,
       "AkkaServerlessFactory",
-      s"""|package $packageName
+      s"""|package ${mainPackageName.javaPackage}
         |
         |${writeImports(imports)}
         |

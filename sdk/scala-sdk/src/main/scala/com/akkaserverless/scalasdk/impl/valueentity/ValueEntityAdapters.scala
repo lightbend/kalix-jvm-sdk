@@ -16,25 +16,23 @@
 
 package com.akkaserverless.scalasdk.impl.valueentity
 
-import java.util.Optional
-
-import scala.collection.immutable.Set
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters._
-
 import akka.stream.Materializer
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
+
+import java.util.Optional
+import scala.collection.immutable.Set
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaValueEntityAdapter[S](scalaSdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
@@ -104,19 +102,21 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
 }
 
 private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: javasdk.valueentity.CommandContext)
-    extends CommandContext {
+    extends CommandContext
+    with InternalContext {
 
   override def commandName: String = javaSdkContext.commandName()
 
   override def commandId: Long = javaSdkContext.commandId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
-
   override def entityId: String = javaSdkContext.entityId()
 
   override def metadata: com.akkaserverless.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }
@@ -125,9 +125,6 @@ private[scalasdk] final class ScalaValueEntityContextAdapter(javaSdkContext: jav
     extends ValueEntityContext {
 
   def entityId: String = javaSdkContext.entityId()
-
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

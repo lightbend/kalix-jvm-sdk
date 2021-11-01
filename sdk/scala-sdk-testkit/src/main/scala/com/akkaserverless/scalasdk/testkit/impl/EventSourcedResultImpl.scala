@@ -20,7 +20,7 @@ import scala.collection.immutable.Seq
 import com.akkaserverless.javasdk.impl.effect._
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
-import com.akkaserverless.scalasdk.testkit.{ EventSourcedResult, ServiceCallDetails }
+import com.akkaserverless.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 
 import scala.reflect.ClassTag
@@ -60,7 +60,7 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
   override def isForward: Boolean =
     effect.javasdkEffect.secondaryEffect(state).isInstanceOf[ForwardReplyImpl[_]]
 
-  override def forwardedTo: ServiceCallDetails[R] =
+  override def forwardedTo: DeferredCallDetails[_, R] =
     ??? // FIXME #587
 //    effect.javasdkEffect.secondaryEffect match {
 //    case reply: ForwardReplyImpl[R @unchecked] =>

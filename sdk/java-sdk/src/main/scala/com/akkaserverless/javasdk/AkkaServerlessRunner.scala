@@ -26,13 +26,7 @@ import com.akkaserverless.javasdk.impl.action.{ ActionService, ActionsImpl }
 import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
 import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
 import com.akkaserverless.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import com.akkaserverless.javasdk.impl.{
-  ComponentOptions,
-  DiscoveryImpl,
-  ResolvedServiceCallFactory,
-  ResolvedServiceMethod,
-  Service
-}
+import com.akkaserverless.javasdk.impl.{ DiscoveryImpl, Service }
 import com.akkaserverless.protocol.action.ActionsHandler
 import com.akkaserverless.protocol.discovery.DiscoveryHandler
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
@@ -117,7 +111,7 @@ final class AkkaServerlessRunner private[this] (
       services.asScala.toMap)
   }
 
-  private val rootContext: Context = new AbstractContext(new ResolvedServiceCallFactory(services), system) {}
+  private val rootContext: Context = new AbstractContext(system) {}
 
   private[this] def createRoutes(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
 
@@ -126,12 +120,12 @@ final class AkkaServerlessRunner private[this] (
 
         case (route, (serviceClass, eventSourcedServices: Map[String, EventSourcedEntityService] @unchecked))
             if serviceClass == classOf[EventSourcedEntityService] =>
-          val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, rootContext, configuration)
+          val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, configuration)
           route.orElse(EventSourcedEntitiesHandler.partial(eventSourcedImpl))
 
         case (route, (serviceClass, services: Map[String, ReplicatedEntityService] @unchecked))
             if serviceClass == classOf[ReplicatedEntityService] =>
-          val replicatedEntitiesImpl = new ReplicatedEntitiesImpl(system, services, rootContext)
+          val replicatedEntitiesImpl = new ReplicatedEntitiesImpl(system, services)
           route.orElse(ReplicatedEntitiesHandler.partial(replicatedEntitiesImpl))
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
@@ -141,7 +135,7 @@ final class AkkaServerlessRunner private[this] (
 
         case (route, (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
             if serviceClass == classOf[ValueEntityService] =>
-          val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, rootContext, configuration)
+          val valueEntityImpl = new ValueEntitiesImpl(system, entityServices)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
 
         case (route, (serviceClass, viewServices: Map[String, ViewService] @unchecked))

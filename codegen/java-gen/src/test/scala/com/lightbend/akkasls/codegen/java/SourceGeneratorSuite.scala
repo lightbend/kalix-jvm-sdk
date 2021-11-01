@@ -159,6 +159,8 @@ class SourceGeneratorSuite extends munit.FunSuite {
                 integrationTestSourceDirectory.resolve(
                   "com/example/service/domain/MyReplicatedEntity6IntegrationTest.java"),
                 generatedSourceDirectory.resolve("com/example/service/AkkaServerlessFactory.java"),
+                generatedSourceDirectory.resolve("com/example/service/ComponentsImpl.java"),
+                generatedSourceDirectory.resolve("com/example/service/Components.java"),
                 sourceDirectory.resolve("com/example/service/Main.java")))
 
             // Test that the files were written to

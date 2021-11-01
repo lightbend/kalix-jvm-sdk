@@ -16,15 +16,8 @@
 
 package com.akkaserverless.scalasdk.impl.replicatedentity
 
-import java.util
-import java.util.Optional
-
-import scala.collection.immutable.Set
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters.RichOptional
-
 import akka.stream.Materializer
+import com.akkaserverless.javasdk.impl.AbstractContext
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
@@ -45,10 +38,9 @@ import com.akkaserverless.javasdk.replicatedentity.{ WriteConsistency => JavaSdk
 import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCallFactory
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.akkaserverless.scalasdk.replicatedentity.CommandContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap
@@ -65,6 +57,13 @@ import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote
 import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
 import com.google.protobuf.Descriptors
+
+import java.util
+import java.util.Optional
+import scala.collection.immutable.Set
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters.RichOptional
 
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     scalaSdkProvider: ReplicatedEntityProvider[D, E])
@@ -150,24 +149,24 @@ private[scalasdk] final case class ScalaCommandContextAdapter(javaSdkCommandCont
 
   override def entityId: String = javaSdkCommandContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkCommandContext.serviceCallFactory())
-
   override def materializer(): Materializer =
     javaSdkCommandContext.materializer()
 
 }
 
 private[scalasdk] final case class ScalaReplicatedEntityContextAdapter(javaSdkContext: JavaSdkReplicatedEntityContext)
-    extends ReplicatedEntityContext {
+    extends ReplicatedEntityContext
+    with InternalContext {
 
   override def entityId: String = javaSdkContext.entityId()
 
-  override def serviceCallFactory: ServiceCallFactory = ScalaServiceCallFactoryAdapter(
-    javaSdkContext.serviceCallFactory())
-
   override def materializer(): Materializer =
     javaSdkContext.materializer()
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
+
 }
 
 private[scalasdk] final case class JavaReplicatedEntityAdapter[D <: ReplicatedData](

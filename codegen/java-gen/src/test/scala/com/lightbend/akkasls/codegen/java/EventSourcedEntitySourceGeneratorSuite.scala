@@ -88,12 +88,14 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyServiceEntity"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className)
+      EntityServiceSourceGenerator.interfaceSource(service, entity, packageName, className, "com.example")
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
       |
       |import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+      |import com.example.Components;
+      |import com.example.ComponentsImpl;
       |import com.example.service.domain.EntityOuterClass;
       |import com.external.Empty;
       |
@@ -103,6 +105,10 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
       |
       |/** An event sourced entity. */
       |public abstract class AbstractMyServiceEntity extends EventSourcedEntity<EntityOuterClass.MyState> {
+      |
+      |  protected final Components components() {
+      |    return new ComponentsImpl(commandContext());
+      |  }
       |
       |  /** Command handler for "Set". */
       |  public abstract Effect<Empty> set(EntityOuterClass.MyState currentState, ServiceOuterClass.SetValue setValue);

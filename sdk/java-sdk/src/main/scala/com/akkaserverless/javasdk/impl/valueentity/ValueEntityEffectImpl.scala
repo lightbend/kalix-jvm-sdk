@@ -17,22 +17,19 @@
 package com.akkaserverless.javasdk.impl.valueentity
 
 import java.util
-
 import scala.jdk.CollectionConverters._
-
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
+import com.akkaserverless.javasdk.DeferredCall
 
 object ValueEntityEffectImpl {
   sealed trait PrimaryEffectImpl[+S]
@@ -69,7 +66,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
+  override def forward[T](serviceCall: DeferredCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
@@ -95,7 +92,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): ValueEntityEffectImpl[T] = {
+  override def thenForward[T](serviceCall: DeferredCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }

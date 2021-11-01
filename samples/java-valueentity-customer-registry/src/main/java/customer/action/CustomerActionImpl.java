@@ -5,33 +5,18 @@
 
 package customer.action;
 
-import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 /** An action. */
 public class CustomerActionImpl extends AbstractCustomerAction {
 
-  private final ActionCreationContext creationContext;
-
-  public CustomerActionImpl(ActionCreationContext creationContext) {
-    this.creationContext = creationContext;
-  }
+  public CustomerActionImpl(ActionCreationContext creationContext) { }
 
   /** Handler for "Create". */
   @Override
   public Effect<Empty> create(CustomerApi.Customer customer) {
-
-    ServiceCallRef<CustomerApi.Customer> callRef =
-        creationContext.serviceCallFactory().lookup(
-            "customer.api.CustomerService",
-            "Create",
-            CustomerApi.Customer.class);
-
-    return effects().forward(callRef.createCall(customer));
+    return effects().forward(components().customerValueEntity().create(customer));
   }
 }

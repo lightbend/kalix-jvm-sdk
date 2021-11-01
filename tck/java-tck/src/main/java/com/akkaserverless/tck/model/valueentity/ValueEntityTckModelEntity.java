@@ -17,8 +17,7 @@
 package com.akkaserverless.tck.model.valueentity;
 
 import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.ServiceCall;
-import com.akkaserverless.javasdk.ServiceCallRef;
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.tck.model.valueentity.ValueEntityApi.*;
 
@@ -27,14 +26,7 @@ import java.util.List;
 
 public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity {
 
-  private final ServiceCallRef<Request> serviceTwoCall;
-
-  public ValueEntityTckModelEntity(Context context) {
-    serviceTwoCall =
-        context
-            .serviceCallFactory()
-            .lookup("akkaserverless.tck.model.valueentity.ValueEntityTwo", "Call", Request.class);
-  }
+  public ValueEntityTckModelEntity(Context context) {}
 
   public Effect<Response> process(Persisted state, Request request) {
     // FIXME the effect API doesn't support all combinations, and that might be fine?
@@ -78,8 +70,8 @@ public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity
     }
   }
 
-  private ServiceCall serviceTwoRequest(String id) {
-    return serviceTwoCall.createCall(Request.newBuilder().setId(id).build());
+  private DeferredCall<Request, Response> serviceTwoRequest(String id) {
+    return components().valueEntityTwoEntity().call(Request.newBuilder().setId(id).build());
   }
 
   @Override

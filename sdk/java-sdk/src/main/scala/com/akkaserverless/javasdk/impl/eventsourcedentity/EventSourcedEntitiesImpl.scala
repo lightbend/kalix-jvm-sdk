@@ -89,7 +89,6 @@ final class EventSourcedEntityService(
 final class EventSourcedEntitiesImpl(
     system: ActorSystem,
     _services: Map[String, EventSourcedEntityService],
-    rootContext: Context,
     configuration: Configuration)
     extends EventSourcedEntities {
   import EntityExceptions._
@@ -200,6 +199,7 @@ final class EventSourcedEntitiesImpl(
 
           val clientAction =
             serializedSecondaryEffect.replyToClientAction(
+              service.anySupport,
               command.id,
               allowNoReply = false,
               restartOnFailure = events.nonEmpty)
@@ -221,7 +221,7 @@ final class EventSourcedEntitiesImpl(
                     EventSourcedReply(
                       command.id,
                       clientAction,
-                      EffectSupport.sideEffectsFrom(serializedSecondaryEffect),
+                      EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
                       serializedEvents,
                       serializedSnapshot))))
           }
@@ -248,12 +248,12 @@ final class EventSourcedEntitiesImpl(
       override val commandName: String,
       override val commandId: Long,
       override val metadata: Metadata)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(system)
       with CommandContext
       with ActivatableContext
 
   private class EventSourcedEntityContextImpl(override final val entityId: String)
-      extends AbstractContext(rootContext.serviceCallFactory(), system)
+      extends AbstractContext(system)
       with EventSourcedEntityContext
   private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
       extends EventSourcedEntityContextImpl(entityId)

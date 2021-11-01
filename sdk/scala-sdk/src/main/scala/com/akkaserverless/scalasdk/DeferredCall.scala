@@ -16,32 +16,34 @@
 
 package com.akkaserverless.scalasdk
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import scala.concurrent.Future
 
-/** Represents a call to a service, performed either as a forward, or as an effect. */
-trait ServiceCall {
-
-  /**
-   * The reference to the call.
-   *
-   * @return
-   *   The reference to the call.
-   */
-  def ref: ServiceCallRef[_]
+/**
+ * Represents a call to a component service that has not yet happened, but will be handed to Akka Serverless for
+ * execution. Used with forwards and side effects.
+ *
+ * @tparam I
+ *   the message type of the parameter for the call
+ * @tparam O
+ *   the message type that the call returns
+ *
+ * Not for user extension.
+ */
+trait DeferredCall[I, O] {
 
   /**
    * The message to pass to the call when the call is invoked.
-   *
-   * @return
-   *   The message to pass to the call, serialized as an {{{ScalaPbAny}}}
    */
-  def message: ScalaPbAny
+  def message: I
 
   /**
    * The metadata to pass with the message when the call is invoked.
-   *
-   * @return
-   *   The metadata.
    */
   def metadata: Metadata
+
+  /**
+   * Execute this call right away and get the async result back for composition. Can be used to create an async reply in
+   * an [[com.akkaserverless.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
+   */
+  def execute(): Future[O]
 }

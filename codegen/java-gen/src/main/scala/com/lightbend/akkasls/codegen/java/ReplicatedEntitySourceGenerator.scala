@@ -242,7 +242,8 @@ object ReplicatedEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
-      className: String): String = {
+      className: String,
+      mainPackageName: String): String = {
 
     val abstractEntityName = entity.abstractEntityName
     val baseClass = entity.data.baseClass
@@ -253,7 +254,9 @@ object ReplicatedEntitySourceGenerator {
       packageName,
       otherImports = Seq(
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-        s"com.akkaserverless.javasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data))
+        s"com.akkaserverless.javasdk.replicatedentity.$baseClass",
+        s"$mainPackageName.Components",
+        s"$mainPackageName.ComponentsImpl") ++ extraReplicatedImports(entity.data))
 
     val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
@@ -278,6 +281,10 @@ object ReplicatedEntitySourceGenerator {
         |
         |/** A replicated entity. */
         |public abstract class $abstractEntityName extends $baseClass$typeArguments {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(commandContext());
+        |  }
         |
         |  ${Format.indent(methods, 2)}
         |

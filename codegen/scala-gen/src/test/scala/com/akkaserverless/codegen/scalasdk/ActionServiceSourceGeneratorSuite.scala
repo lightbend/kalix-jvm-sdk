@@ -18,6 +18,7 @@ package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.ActionServiceSourceGenerator
 import com.akkaserverless.codegen.scalasdk.impl.ViewServiceSourceGenerator
+import com.lightbend.akkasls.codegen.PackageNaming
 import com.lightbend.akkasls.codegen.TestData
 
 class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
@@ -72,7 +73,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
     val service = testData.simpleActionService()
 
     val generatedSrc =
-      ActionServiceSourceGenerator.abstractAction(service).content
+      ActionServiceSourceGenerator.abstractAction(service, PackageNaming.noDescriptor("com.example")).content
     assertNoDiff(
       generatedSrc,
       """|package com.example.service
@@ -80,6 +81,8 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import akka.NotUsed
          |import akka.stream.scaladsl.Source
          |import com.akkaserverless.scalasdk.action.Action
+         |import com.example.Components
+         |import com.example.ComponentsImpl
          |import com.external.Empty
          |
          |// This code is managed by Akka Serverless tooling.
@@ -88,6 +91,9 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |
          |/** An action. */
          |abstract class AbstractMyServiceAction extends Action {
+         |
+         |  def components: Components =
+         |    new ComponentsImpl(actionContext)
          |
          |  /** Handler for "SimpleMethod". */
          |  def simpleMethod(myRequest: MyRequest): Action.Effect[Empty]

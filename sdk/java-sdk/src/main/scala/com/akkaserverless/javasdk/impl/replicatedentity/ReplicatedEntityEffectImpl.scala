@@ -16,8 +16,8 @@
 
 package com.akkaserverless.javasdk.impl.replicatedentity
 
+import com.akkaserverless.javasdk.DeferredCall
 import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.ServiceCall
 import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
@@ -26,10 +26,9 @@ import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity.Effect
+
 import java.util.{ Collection => JCollection }
-
 import scala.jdk.CollectionConverters._
-
 import com.akkaserverless.replicatedentity.ReplicatedData
 
 object ReplicatedEntityEffectImpl {
@@ -70,7 +69,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def forward[T](serviceCall: ServiceCall): ReplicatedEntityEffectImpl[D, T] = {
+  override def forward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
@@ -96,7 +95,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def thenForward[T](serviceCall: ServiceCall): ReplicatedEntityEffectImpl[D, T] = {
+  override def thenForward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }

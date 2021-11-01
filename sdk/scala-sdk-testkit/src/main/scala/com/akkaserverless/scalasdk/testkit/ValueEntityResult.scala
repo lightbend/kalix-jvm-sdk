@@ -41,7 +41,7 @@ trait ValueEntityResult[R] {
   /**
    * An object with details about the forward. If the result was not a forward an exception is thrown
    */
-  def forwardedTo: ServiceCallDetails[R]
+  def forwardedTo: DeferredCallDetails[_, R]
 
   /** @return true if the call was an error, false if not */
   def isError: Boolean

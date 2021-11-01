@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.javasdk.DeferredCall
+import com.google.protobuf.Descriptors
 
-trait ServiceCallDetails[T] {
+import java.util.concurrent.CompletionStage
 
-  /** @return The forwarded message */
-  def getMessage: T
-
-  /** @return Any metadata attached to the call */
-  def getMetadata: Metadata
-
-  /** @return The name of the service being called */
-  def getServiceName: String
-
-  /** @return The method name being called */
-  def getMethodName: String
+/**
+ * INTERNAL API
+ */
+final case class DeferredCallImpl[I, O](
+    message: I,
+    metadata: MetadataImpl,
+    fullServiceName: String,
+    methodName: String,
+    asyncCall: () => CompletionStage[O])
+    extends DeferredCall[I, O] {
+  override def execute(): CompletionStage[O] = asyncCall()
 }

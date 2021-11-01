@@ -64,7 +64,9 @@ object EntityServiceSourceGenerator {
       generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
 
     interfaceSourcePath.getParent.toFile.mkdirs()
-    Files.write(interfaceSourcePath, interfaceSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
+    Files.write(
+      interfaceSourcePath,
+      interfaceSource(service, entity, packageName, className, mainClassPackageName).getBytes(Charsets.UTF_8))
 
     if (!implSourcePath.toFile.exists()) {
       // Now we generate the entity
@@ -382,14 +384,20 @@ object EntityServiceSourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.Entity,
       packageName: String,
-      className: String): String =
+      className: String,
+      mainPackageName: String): String =
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
-        abstractEventSourcedEntity(service, eventSourcedEntity, packageName, className)
+        abstractEventSourcedEntity(service, eventSourcedEntity, packageName, className, mainPackageName)
       case valueEntity: ModelBuilder.ValueEntity =>
-        ValueEntitySourceGenerator.abstractValueEntity(service, valueEntity, packageName, className)
+        ValueEntitySourceGenerator.abstractValueEntity(service, valueEntity, packageName, className, mainPackageName)
       case replicatedEntity: ReplicatedEntity =>
-        ReplicatedEntitySourceGenerator.abstractReplicatedEntity(service, replicatedEntity, packageName, className)
+        ReplicatedEntitySourceGenerator.abstractReplicatedEntity(
+          service,
+          replicatedEntity,
+          packageName,
+          className,
+          mainPackageName)
     }
 
   private[codegen] def routerSource(
@@ -426,12 +434,16 @@ object EntityServiceSourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
-      className: String): String = {
+      className: String,
+      mainPackageName: String): String = {
     val imports = generateCommandImports(
       service.commands,
       entity.state,
       packageName,
-      Seq("com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity"))
+      Seq(
+        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        s"$mainPackageName.Components",
+        s"$mainPackageName.ComponentsImpl"))
 
     val commandHandlers = service.commands.map { command =>
       s"""|/** Command handler for "${command.name}". */
@@ -455,6 +467,10 @@ object EntityServiceSourceGenerator {
         |
         |/** An event sourced entity. */
         |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(commandContext());
+        |  }
         |
         |  ${Format.indent(commandHandlers, num = 2)}
         |

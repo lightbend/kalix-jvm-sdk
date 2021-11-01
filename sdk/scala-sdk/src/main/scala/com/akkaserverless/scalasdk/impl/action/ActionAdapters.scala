@@ -16,27 +16,24 @@
 
 package com.akkaserverless.scalasdk.impl.action
 
-import java.util.Optional
-
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.OptionConverters.RichOptional
-
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.javadsl.Source
 import com.akkaserverless.javasdk
 import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl
 import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.ServiceCallFactory
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionContext
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.akkaserverless.scalasdk.action.ActionProvider
 import com.akkaserverless.scalasdk.action.MessageEnvelope
+import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.MetadataImpl
-import com.akkaserverless.scalasdk.impl.ScalaServiceCallFactoryAdapter
 import com.google.protobuf.Descriptors
+
+import java.util.Optional
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.OptionConverters.RichOptional
 
 private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) extends javasdk.action.Action {
 
@@ -135,9 +132,6 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
     javaSdkCreationContext: javasdk.action.ActionCreationContext)
     extends ActionCreationContext {
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkCreationContext.serviceCallFactory())
-
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javaSdkCreationContext.getGrpcClient(clientClass, service)
 
@@ -145,7 +139,8 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
 }
 
 private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: javasdk.action.ActionContext)
-    extends ActionContext {
+    extends ActionContext
+    with InternalContext {
 
   override def metadata: Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
@@ -153,11 +148,12 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
   override def eventSubject: Option[String] =
     javaSdkContext.eventSubject().toScala
 
-  override def serviceCallFactory: ServiceCallFactory =
-    ScalaServiceCallFactoryAdapter(javaSdkContext.serviceCallFactory())
-
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javaSdkContext.getGrpcClient(clientClass, service)
+
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
+    case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

@@ -39,6 +39,7 @@ object ActionServiceSourceGenerator {
   def generate(
       service: ModelBuilder.ActionService,
       sourceDirectory: Path,
+      rootPackage: String,
       generatedSourceDirectory: Path): Iterable[Path] = {
 
     val packageName = service.fqn.parent.javaPackage
@@ -51,7 +52,7 @@ object ActionServiceSourceGenerator {
       generatedSourceDirectory.resolve(packagePath.resolve(service.abstractActionName + ".java"))
 
     interfaceSourcePath.getParent.toFile.mkdirs()
-    Files.write(interfaceSourcePath, abstractActionSource(service).getBytes(Charsets.UTF_8))
+    Files.write(interfaceSourcePath, abstractActionSource(service, rootPackage).getBytes(Charsets.UTF_8))
 
     val routerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.routerName + ".java"))
     routerSourcePath.getParent.toFile.mkdirs()
@@ -153,10 +154,14 @@ object ActionServiceSourceGenerator {
         |""".stripMargin
   }
 
-  private[codegen] def abstractActionSource(service: ModelBuilder.ActionService): String = {
+  private[codegen] def abstractActionSource(service: ModelBuilder.ActionService, rootPackage: String): String = {
 
     val packageName = service.fqn.parent.javaPackage
-    val imports = generateImports(service.commandTypes, packageName, otherImports = streamImports(service.commands))
+    val imports = generateImports(
+      service.commandTypes,
+      packageName,
+      otherImports = streamImports(service.commands) ++
+        Seq(s"$rootPackage.Components", s"$rootPackage.ComponentsImpl"))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -193,6 +198,10 @@ object ActionServiceSourceGenerator {
         |
         |/** An action. */
         |public abstract class ${service.abstractActionName} extends com.akkaserverless.javasdk.action.Action {
+        |
+        |  protected final Components components() {
+        |    return new ComponentsImpl(actionContext());
+        |  }
         |
         |  ${Format.indent(methods, 2)}
         |}""".stripMargin

@@ -44,7 +44,7 @@ public interface ActionResult<T> {
    * @return An object with details about the forward. If the result was not a forward an exception
    *     is thrown.
    */
-  ServiceCallDetails<T> getForward();
+  DeferredCallDetails<?, T> getForward();
 
   /** @return true if the call was async, false if not */
   boolean isAsync();
@@ -68,5 +68,5 @@ public interface ActionResult<T> {
   boolean isNoReply();
 
   /** @return The list of side effects */
-  List<ServiceCallDetails<T>> getSideEffects();
+  List<DeferredCallDetails<?, ?>> getSideEffects();
 }

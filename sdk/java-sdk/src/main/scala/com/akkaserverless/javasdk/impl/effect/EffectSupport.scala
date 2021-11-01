@@ -17,6 +17,8 @@
 package com.akkaserverless.javasdk.impl.effect
 
 import com.akkaserverless.javasdk
+import com.akkaserverless.javasdk.impl.AnySupport
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.MetadataImpl
 import com.akkaserverless.protocol.component
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -35,21 +37,29 @@ object EffectSupport {
   def asProtocol(messageReply: MessageReplyImpl[JavaPbAny]): component.Reply =
     component.Reply(Some(ScalaPbAny.fromJavaProto(messageReply.message)), asProtocol(messageReply.metadata))
 
-  def asProtocol(forward: ForwardReplyImpl[_]): component.Forward =
-    component.Forward(
-      forward.serviceCall.ref().method().getService.getFullName,
-      forward.serviceCall.ref().method().getName,
-      Some(ScalaPbAny.fromJavaProto(forward.serviceCall.message())),
-      asProtocol(forward.serviceCall.metadata()))
+  def asProtocol(anySupport: AnySupport, forward: ForwardReplyImpl[_]): component.Forward = {
+    forward match {
+      case ForwardReplyImpl(deferredCall: DeferredCallImpl[_, _], sideEffects) =>
+        component.Forward(
+          deferredCall.fullServiceName,
+          deferredCall.methodName,
+          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(forward.deferredCall.message))),
+          asProtocol(forward.deferredCall.metadata))
+      case _ =>
+        throw new IllegalArgumentException(s"Unsupported type of deferred call: ${forward.deferredCall.getClass}")
+    }
 
-  def sideEffectsFrom(secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
-    val encodedSideEffects = secondaryEffect.sideEffects.map { sideEffect =>
-      component.SideEffect(
-        sideEffect.serviceCall().ref().method().getService.getFullName,
-        sideEffect.serviceCall().ref().method().getName,
-        Some(ScalaPbAny.fromJavaProto(sideEffect.serviceCall().message())),
-        sideEffect.synchronous(),
-        asProtocol(sideEffect.serviceCall().metadata()))
+  }
+
+  def sideEffectsFrom(anySupport: AnySupport, secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
+    val encodedSideEffects = secondaryEffect.sideEffects.map {
+      case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
+        component.SideEffect(
+          deferred.fullServiceName,
+          deferred.methodName,
+          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(deferred.message))),
+          synchronous,
+          asProtocol(deferred.metadata))
     }
     encodedSideEffects
   }
