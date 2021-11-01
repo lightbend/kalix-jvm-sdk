@@ -213,7 +213,7 @@ The Maven plugin also provides you with an initial setup for integration tests b
 .src/it/java/com/example/domain/CounterIntegrationTest.java
 [source,java]
 ----
-include::example$java-first-service/src/it/java/com/example/domain/CounterIntegrationTest.java[]
+include::example$java-first-service/src/it/java/com/example/CounterIntegrationTest.java[]
 ----
 
 [.group-java]
