@@ -16,12 +16,7 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.google.protobuf.{
-  ByteString,
-  Descriptors,
-  Message => JavaMessage,
-  Parser
-}
+import com.google.protobuf.{ ByteString, Descriptors, Message => JavaMessage, Parser }
 
 import java.util.concurrent.CompletionStage
 
