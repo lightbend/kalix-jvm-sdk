@@ -30,5 +30,52 @@ class ShoppingCartActionImpl(creationContext: ActionCreationContext) extends Abs
     effects.asyncEffect(effect) // <6>
   }
   // end::initialize[]
+
+  // tag::forward[]
+  override def verifiedAddItem(addLineItem: AddLineItem): Action.Effect[Empty]=
+    if (addLineItem.name.equalsIgnoreCase("carrot")) // <1>
+      effects.error("Carrots no longer for sale") // <2>
+    else {
+      val call = components.shoppingCart.addItem(addLineItem) // <3>
+      effects.forward(call) // <4>
+    }
+  // end::forward[]
+
+
+  // tag::createPrePopulated[]
+  def createPrePopulated(newCart: NewCart): Action.Effect[NewCartCreated] = {
+    val cartId = UUID.randomUUID().toString
+
+    val reply: Future[NewCartCreated] =
+      for { // <1>
+        created <- components.shoppingCart.create(CreateCart(cartId)).execute()
+        populated <- components.shoppingCart.addItem(AddLineItem(cartId, "e", "eggplant", 1)).execute()
+      } yield NewCartCreated(cartId) // <2>
+
+    effects.asyncReply(reply) // <3>
+  }
+  // end::createPrePopulated[]
+
+  // tag::unsafeValidation[]
+  override def unsafeValidation(addLineItem: AddLineItem): Action.Effect[Empty] = {
+    // NOTE: This is an example of an anti-pattern, do not copy this
+    val cartReply = components.shoppingCart.getCart(GetShoppingCart(addLineItem.cartId))
+      .execute() // <1>
+
+    val effect =
+      cartReply.map { cart =>
+        val totalCount = cart.items.map(_.quantity).sum
+
+        if (totalCount < 10)
+          effects.error("Max 10 items in a cart")
+        else
+          effects.forward(components.shoppingCart.addItem(addLineItem)) // <2>
+      }
+
+    effects.asyncEffect(effect)
+  }
+  // end::unsafeValidation[]
+
+
 }
 

@@ -21,6 +21,7 @@ option java_outer_classname = "ShoppingCartController";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
+import "com/example/shoppingcart/shoppingcart_api.proto";
 
 message NewCart {
 }
@@ -35,4 +36,7 @@ service ShoppingCartAction {
   };
 
   rpc InitializeCart(NewCart) returns (NewCartCreated);
+  rpc VerifiedAddItem(com.example.shoppingcart.AddLineItem) returns (google.protobuf.Empty);
+  rpc CreatePrePopulated(NewCart) returns (NewCartCreated);
+  rpc UnsafeValidation(com.example.shoppingcart.AddLineItem) returns (google.protobuf.Empty);
 }
