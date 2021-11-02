@@ -135,6 +135,8 @@ public class AkkaServerlessTestKit {
     proxyContainer = new AkkaServerlessProxyContainer(port);
     proxyContainer.start();
     started = true;
+    // pass on proxy and host to GrpcClients to allow for inter-component communication
+    GrpcClients.get(runner.system()).setSelfServicePort(proxyContainer.getProxyPort());
     return this;
   }
 

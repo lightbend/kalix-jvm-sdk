@@ -64,7 +64,7 @@ message LineItem {
 
 message Cart {
   repeated LineItem items = 1;
-  int32 creation_timestamp = 2;
+  int64 creation_timestamp = 2;
 }
 // end::proto_messages[]
 

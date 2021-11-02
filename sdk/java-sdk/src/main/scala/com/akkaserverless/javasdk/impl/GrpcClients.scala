@@ -59,6 +59,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
   @volatile private var selfServiceName: Option[String] = None
+  @volatile private var selfPort: Option[Int] = None
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AnyRef]()
 
@@ -70,13 +71,19 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       }
       .map(_ => Done))
 
-  def setSelfServiceName(deployedName: String): Unit =
+  def setSelfServiceName(deployedName: String): Unit = {
+    log.debug("Setting proxy name to: [{}]", deployedName)
     selfServiceName = Some(deployedName)
+  }
+
+  def setSelfServicePort(port: Int): Unit = {
+    log.debug("Setting port to: [{}]", port)
+    selfPort = Some(port)
+  }
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
-    // FIXME something better for local proxy? Encode port in the string 'host:port'?
     selfServiceName match {
-      case Some("localhost") => getGrpcClient(serviceClass, "localhost", 9000)
+      case Some("localhost") => getGrpcClient(serviceClass, "localhost", selfPort.getOrElse(9000))
       case Some(selfName)    => getGrpcClient(serviceClass, selfName)
       case None =>
         throw new IllegalStateException("Self service name not set by proxy at discovery, too old proxy version?")

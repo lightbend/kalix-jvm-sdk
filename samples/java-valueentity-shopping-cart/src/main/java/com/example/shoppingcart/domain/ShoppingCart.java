@@ -104,7 +104,13 @@ public class ShoppingCart extends AbstractShoppingCart {
                     .map(this::convert)
                     .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
                     .collect(Collectors.toList());
-    return effects().reply(ShoppingCartApi.Cart.newBuilder().addAllItems(allItems).build());
+
+    ShoppingCartApi.Cart apiCart = ShoppingCartApi.Cart.newBuilder()
+        .addAllItems(allItems)
+        .setCreationTimestamp(currentState.getCreationTimestamp())
+        .build();
+
+    return effects().reply(apiCart);
   }
   // end::get-cart[]
 

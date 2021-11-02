@@ -64,7 +64,9 @@ class ShoppingCart(context: ValueEntityContext) extends AbstractShoppingCart {
     effects.reply(toApi(currentState))
 
   private def toApi(cart: Cart): shoppingcart.Cart =
-    shoppingcart.Cart(items = cart.items.map(toApi))
+    shoppingcart.Cart(
+      items = cart.items.map(toApi),
+      creationTimestamp = cart.creationTimestamp)
 
   private def toApi(item: LineItem): shoppingcart.LineItem =
     shoppingcart.LineItem(
