@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.shoppingcart.api;
+package com.example.shoppingcart;
 
 import com.example.shoppingcart.*;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
