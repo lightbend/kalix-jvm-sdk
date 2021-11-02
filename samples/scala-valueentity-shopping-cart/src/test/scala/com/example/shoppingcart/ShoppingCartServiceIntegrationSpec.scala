@@ -73,6 +73,21 @@ class ShoppingCartServiceIntegrationSpec
       cart.creationTimestamp shouldBe > (0L)
     }
 
+    "create new populated cart" in {
+      val created = actionClient.createPrePopulated(NewCart.defaultInstance).futureValue
+      val cart = client.getCart(GetShoppingCart(created.cartId)).futureValue
+      cart.creationTimestamp shouldBe > (0L)
+      cart.items should have size 1
+    }
+
+    "not allow adding carrots" in {
+      val cartId = "carrot-cart"
+      actionClient.verifiedAddItem(AddLineItem(cartId, "c", "Carrot", 4)).failed.futureValue
+      actionClient.verifiedAddItem(AddLineItem(cartId, "b", "Banana", 1)).futureValue
+      val cart = client.getCart(GetShoppingCart(cartId)).futureValue
+      cart.items should have size 1
+    }
+
   }
 
   override def afterAll(): Unit = {

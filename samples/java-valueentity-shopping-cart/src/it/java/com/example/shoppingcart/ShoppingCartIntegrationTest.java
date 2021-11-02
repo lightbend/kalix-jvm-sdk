@@ -17,14 +17,15 @@ package com.example.shoppingcart.api;
 
 import com.example.shoppingcart.*;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import com.google.protobuf.Empty;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
-import static org.junit.Assert.assertEquals;
 import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
@@ -100,6 +101,18 @@ public class ShoppingCartIntegrationTest {
         .get();
   }
 
+  ShoppingCartController.NewCartCreated createPrePopulated() throws Exception {
+    return actionClient.createPrePopulated(ShoppingCartController.NewCart.getDefaultInstance())
+        .toCompletableFuture()
+        .get();
+  }
+
+  Empty verifiedAddItem(ShoppingCartApi.AddLineItem in) throws Exception {
+    return actionClient.verifiedAddItem(in)
+        .toCompletableFuture()
+        .get();
+  }
+
   @Test
   public void emptyCartByDefault() throws Exception {
     assertEquals("shopping cart should be empty", 0, getCart("user1").getItemsCount());
@@ -157,6 +170,37 @@ public class ShoppingCartIntegrationTest {
 
     ShoppingCartApi.Cart cart = getCart(cartId);
     assertTrue(cart.getCreationTimestamp() > 0L);
+  }
+
+  @Test
+  public void createNewPrePopulatedCart() throws Exception {
+    ShoppingCartController.NewCartCreated newCartCreated = createPrePopulated();
+    String cartId = newCartCreated.getCartId();
+
+    ShoppingCartApi.Cart cart = getCart(cartId);
+    assertTrue(cart.getCreationTimestamp() > 0L);
+    assertEquals(1, cart.getItemsCount());
+  }
+
+  @Test
+  public void verifiedAddItem() throws Exception {
+    final String cartId = "carrot-cart";
+    assertThrows(Exception.class, () ->
+      verifiedAddItem(ShoppingCartApi.AddLineItem.newBuilder()
+          .setCartId(cartId)
+          .setProductId("c")
+          .setName("Carrot")
+          .setQuantity(4)
+          .build())
+    );
+    verifiedAddItem(ShoppingCartApi.AddLineItem.newBuilder()
+        .setCartId(cartId)
+        .setProductId("b")
+        .setName("Banana")
+        .setQuantity(1)
+        .build());
+    ShoppingCartApi.Cart cart = getCart(cartId);
+    assertEquals(1, cart.getItemsCount());
   }
 
 }
