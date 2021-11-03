@@ -42,7 +42,7 @@ include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shop
 <4> The `DeferredCall` is used with `effects.forward()` to forward the request to the entity
 
 
-== Transform both Deferred Call and Reply
+== Transform Request and Response to Another Component
 
 The `asyncReply` and `asyncEffect` effects allow us to process and transform a request before calling another componet and then also transform the response.
 
