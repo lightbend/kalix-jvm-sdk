@@ -1,6 +1,6 @@
-# Shopping Cart example (using a Replicated Entity)
+# Shopping Cart example (using a Value Entity)
 
-This example project implements an API for a shopping cart using an Akka Serverless Replicated Entity.
+This example project implements an API for a shopping cart using an Akka Serverless Value Entity.
 ## Designing
 
 While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
