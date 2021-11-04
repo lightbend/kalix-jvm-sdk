@@ -49,7 +49,9 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
 
   private var state: Option[S] = None
 
-  private def stateOrEmpty(): S = state match {
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
+  def _stateOrEmpty(): S = state match {
     case None =>
       val emptyState = entity.emptyState()
       // null is allowed as emptyState
@@ -70,7 +72,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
   final def _internalHandleEvent(event: Object, context: EventContext): Unit = {
     entity._internalSetEventContext(Optional.of(context))
     try {
-      val newState = handleEvent(stateOrEmpty(), event)
+      val newState = handleEvent(_stateOrEmpty(), event)
       setState(newState)
     } catch {
       case EventHandlerNotFound(eventClass) =>
@@ -91,7 +93,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
     val commandEffect =
       try {
         entity._internalSetCommandContext(Optional.of(context))
-        handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+        handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
       } catch {
         case CommandHandlerNotFound(name) =>
           throw new EntityExceptions.EntityException(
@@ -109,7 +111,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         events.foreach { event =>
           try {
             entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
-            val newState = handleEvent(stateOrEmpty(), event)
+            val newState = handleEvent(_stateOrEmpty(), event)
             if (newState == null)
               throw new IllegalArgumentException("Event handler must not return null as the updated state.")
             setState(newState)
@@ -125,13 +127,13 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         // snapshotting final state since that is the "atomic" write
         // emptyState can be null but null snapshot should not be stored, but that can't even
         // happen since event handler is not allowed to return null as newState
-        val endState = stateOrEmpty()
+        val endState = _stateOrEmpty()
         val snapshot =
           if (shouldSnapshot) Option(endState)
           else None
         CommandResult(events.toVector, commandEffect.secondaryEffect(endState), snapshot, currentSequence)
       case NoPrimaryEffect =>
-        CommandResult(Vector.empty, commandEffect.secondaryEffect(stateOrEmpty()), None, context.sequenceNumber())
+        CommandResult(Vector.empty, commandEffect.secondaryEffect(_stateOrEmpty()), None, context.sequenceNumber())
     }
   }
 
