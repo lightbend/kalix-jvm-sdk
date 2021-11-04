@@ -34,8 +34,14 @@ import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Mes
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
+  SnapshotRequest => InSnapshotRequest
+}
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failure => OutFailure }
+import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
+  SnapshotReply => OutSnapshotReply
+}
 import com.akkaserverless.protocol.event_sourced_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
@@ -225,6 +231,10 @@ final class EventSourcedEntitiesImpl(
                       serializedEvents,
                       serializedSnapshot))))
           }
+        case ((sequence, _), InSnapshotRequest(request)) =>
+          val reply =
+            EventSourcedSnapshotReply(request.requestId, Some(service.anySupport.encodeScala(handler._stateOrEmpty())))
+          (sequence, Some(OutSnapshotReply(reply)))
         case (_, InInit(_)) =>
           throw ProtocolException(init, "Entity already inited")
         case (_, InEmpty) =>
