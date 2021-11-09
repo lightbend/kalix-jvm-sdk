@@ -54,9 +54,6 @@ service ReplicatedEntityTckModel {
 // the `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ReplicatedEntityTwo {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
-  };
   rpc Call(Request) returns (Response);
 }
 

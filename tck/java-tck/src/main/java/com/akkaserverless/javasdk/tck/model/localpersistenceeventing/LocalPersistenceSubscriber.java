@@ -18,10 +18,14 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.JsonSupport;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
+import com.akkaserverless.javasdk.impl.DeferredCallImpl;
+import com.akkaserverless.javasdk.impl.InternalContext;
+import com.akkaserverless.javasdk.impl.MetadataImpl;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.example.Components;
@@ -103,15 +107,33 @@ public class LocalPersistenceSubscriber extends Action {
     } else if (step.hasForward()) {
       return effects()
           .forward(
-              components()
-                  .localPersistenceSubscriberModelAction()
-                  .effect(
-                      LocalPersistenceEventing.EffectRequest.newBuilder()
-                          .setId(id)
-                          .setMessage(step.getForward().getMessage())
-                          .build()));
+              localPersistenceEventingEffect(
+                  LocalPersistenceEventing.EffectRequest.newBuilder()
+                      .setId(id)
+                      .setMessage(step.getForward().getMessage())
+                      .build()));
     } else {
       throw new RuntimeException("No reply or forward");
     }
+  }
+
+  // FIXME replace again with below code once localPersistenceSubscriber model is using codegen
+  // components()
+  //                  .localPersistenceSubscriberModelAction()
+  //                  .effect(
+  private DeferredCall<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
+      localPersistenceEventingEffect(
+          com.akkaserverless.tck.model.eventing.LocalPersistenceEventing.EffectRequest
+              effectRequest) {
+    return new DeferredCallImpl<>(
+        effectRequest,
+        MetadataImpl.Empty(),
+        "akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel",
+        "Effect",
+        () ->
+            ((InternalContext) actionContext())
+                .getComponentGrpcClient(
+                    com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel.class)
+                .effect(effectRequest));
   }
 }

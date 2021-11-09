@@ -18,6 +18,9 @@ package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
 import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.impl.DeferredCallImpl;
+import com.akkaserverless.javasdk.impl.InternalContext;
+import com.akkaserverless.javasdk.impl.MetadataImpl;
 import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.*;
 import com.akkaserverless.tck.model.ReplicatedEntity.*;
@@ -354,6 +357,18 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
   }
 
   private DeferredCall<Request, Response> serviceTwoRequest(String id) {
-    return components().replicatedEntityTwoAction().call(Request.newBuilder().setId(id).build());
+    // FIXME: replace with below code once ReplicatedEntityTwo is included in code gen
+    // return components().replicatedEntityTwoAction().call(Request.newBuilder().setId(id).build());
+
+    Request request = Request.newBuilder().setId(id).build();
+    return new DeferredCallImpl<>(
+        request,
+        MetadataImpl.Empty(),
+        "akkaserverless.tck.model.replicatedentity.ReplicatedEntityTwo",
+        "Call",
+        () ->
+            ((InternalContext) commandContext())
+                .getComponentGrpcClient(com.akkaserverless.tck.model.ReplicatedEntityTwo.class)
+                .call(request));
   }
 }
