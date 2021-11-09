@@ -21,7 +21,9 @@ syntax = "proto3";
 package akkaserverless.tck.model.view;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/view;view";
-option java_package = "com.akkaserverless.tck.model";
+option java_package = "com.akkaserverless.tck.model.view";
+//option java_multiple_files = true;
+//option java_outer_classname = "ViewModel";
 
 import "akkaserverless/annotations.proto";
 
@@ -35,6 +37,10 @@ import "akkaserverless/annotations.proto";
 //   - The `Ignore` should return nothing (view protocol response `Empty`) to signal not doing any update for the incoming event
 //
 service ViewTckModel {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
+
   rpc ProcessUpdateUnary(Event) returns (ViewState) {
     option (akkaserverless.method).eventing.in = {
       value_entity: "view-source"
@@ -46,11 +52,22 @@ service ViewTckModel {
   }
 }
 
+option (akkaserverless.file).value_entity = {
+  name: "ViewTckSourceEntity"
+  entity_type: "view-source"
+  state: "Ignore"
+};
+
 //
 // The `ViewTckSource` service should be registered as a Value Entity with entity type "view-source".
 // This is used as the configured event source for the ViewTckModel, but doesn't do anything itself.
 //
-service ViewTckSource {}
+service ViewTckSource {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ENTITY
+    component: "ViewTckSourceEntity"
+  };
+}
 
 //
 // An `Event` message contains the type of action to take and the state data.
