@@ -28,7 +28,7 @@
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
 <!--        <appender-ref ref="STDOUT"/>-->
         <appender-ref ref="ASYNC-JSON-STDOUT"/>
     </root>
