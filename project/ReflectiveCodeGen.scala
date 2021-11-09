@@ -160,17 +160,32 @@ object ReflectiveCodeGen extends AutoPlugin {
         // Make sure generation has happened
         val _ = (Compile / PB.generate).value
         val managed = (Compile / managedSources).value
+        val target =
+          if ((Compile / akkaGrpcGeneratedLanguages).value contains AkkaGrpc.Java) "java"
+          else "scala"
+
         // Then copy over any new generated unmanaged sources
         copyIfNotExist(
           Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
-          Paths.get((Compile / sourceDirectory).value.toURI).resolve("java")
+          Paths.get((Compile / sourceDirectory).value.toURI).resolve(target)
         ) // FIXME: copy java and scala separately
       } else Seq.empty
     },
     Compile / unmanagedSources :=
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value)
+      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value,
+    // if we copied unmanaged sources from temporaryUnmanagedDirectory don't include those files in sources
+    Compile / managedSources := {
+      val allManaged = (Compile / managedSources).value
+      if ((Compile / copyUnmanagedSources).value)
+        allManaged.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value))
+      else
+        allManaged
+    })
 
   // copied from AkkaserverlessPlugin.scala
+  def isIn(file: File, dir: File): Boolean =
+    Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
+
   private def copyIfNotExist(from: Path, to: Path): Seq[File] = {
     Files
       .walk(from)

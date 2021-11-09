@@ -9,6 +9,7 @@ lazy val `akkaserverless-java-sdk` = project
     sdkJavaTestKit,
     sdkScalaTestKit,
     tckJava,
+    tckScala,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -165,7 +166,6 @@ lazy val sdkJavaTestKit = project
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.sdkJavaTestKit)
 
-//FIXME add scalasdk as package to tck, tck will test both java and scala sdk
 lazy val tckJava = project
   .in(file("tck/java-tck"))
   .dependsOn(sdkJava, sdkJavaTestKit)
@@ -176,6 +176,21 @@ lazy val tckJava = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
+    dockerEnvVars += "HOST" -> "0.0.0.0",
+    dockerExposedPorts += 8080)
+  .settings(Dependencies.tck)
+
+lazy val tckScala = project
+  .in(file("tck/scala-tck"))
+  .dependsOn(sdkScala, sdkScalaTestKit)
+  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
+  .settings(common)
+  .settings(
+    name := "akkaserverless-tck-scala-sdk",
+    akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+    libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"),
+    ReflectiveCodeGen.copyUnmanagedSources := true,
+    Compile / mainClass := Some("com.akkaserverless.scalasdk.tck.ScalaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
