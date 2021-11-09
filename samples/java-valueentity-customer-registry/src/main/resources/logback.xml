@@ -27,6 +27,8 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="akka.http" level="INFO"/>
+    <logger name="io.grpc" level="INFO"/>
 
     <root level="INFO">
 <!--        <appender-ref ref="STDOUT"/>-->
