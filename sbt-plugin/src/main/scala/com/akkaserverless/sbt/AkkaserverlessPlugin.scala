@@ -48,6 +48,8 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
+    val onlyUnit = settingKey[Boolean]("Filters out integration tests. By default: true")
+
   }
 
   object autoImport extends Keys
@@ -60,6 +62,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % "0.7.1" % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
       "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
+    onlyUnit := true,
     Compile / PB.targets +=
       gen(
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
@@ -104,7 +107,13 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Test / managedSources :=
       (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
     Test / unmanagedSources :=
-      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value)
+      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
+    ThisBuild / testOptions := {
+      val originalTO = testOptions.value
+      if (onlyUnit.value)
+        originalTO ++ Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
+      else originalTO
+    })
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
