@@ -58,12 +58,15 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |""".stripMargin)
   }
   test("it can generate an abstract event sourced entity implementation") {
-    val str = abstractEntity(testData.eventSourcedEntity(), testData.simpleEntityService()).content
+    val str =
+      abstractEntity(testData.eventSourcedEntity(), testData.simpleEntityService(), testData.mainPackage).content
     assertNoDiff(
       str,
       s"""|package com.example.service.domain
           |
           |import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+          |import com.example.Components
+          |import com.example.ComponentsImpl
           |import com.example.service
           |import com.external.Empty
           |
@@ -73,6 +76,9 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |
           |/** An event sourced entity. */
           |abstract class AbstractMyEntity extends EventSourcedEntity[MyState] {
+          |
+          |  def components: Components =
+          |    new ComponentsImpl(commandContext())
           |
           |  def set(currentState: MyState, setValue: service.SetValue): EventSourcedEntity.Effect[Empty]
           |

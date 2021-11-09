@@ -108,6 +108,8 @@ class TestData(val packageNamingTemplate: PackageNaming) {
       "com.example.service.domain",
       javaOuterClassnameOption = packageNamingTemplate.javaOuterClassnameOption.map(_ => s"EntityOuterClass$suffix"))
 
+  val mainPackage: PackageNaming = PackageNaming.noDescriptor("com.example")
+
   val externalProto: PackageNaming =
     PackageNaming(
       "external_domain.proto",

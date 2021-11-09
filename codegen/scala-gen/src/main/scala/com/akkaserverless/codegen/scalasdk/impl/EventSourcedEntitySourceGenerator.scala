@@ -17,7 +17,9 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
 
 object EventSourcedEntitySourceGenerator {
   import ScalaGeneratorUtils._
@@ -30,15 +32,17 @@ object EventSourcedEntitySourceGenerator {
 
   def generateManaged(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
-      service: ModelBuilder.EntityService): Seq[File] =
+      service: ModelBuilder.EntityService,
+      mainPackageName: PackageNaming): Seq[File] =
     Seq(
-      abstractEntity(eventSourcedEntity, service),
+      abstractEntity(eventSourcedEntity, service, mainPackageName),
       handler(eventSourcedEntity, service),
       provider(eventSourcedEntity, service))
 
   private[codegen] def abstractEntity(
       eventSourcedEntity: ModelBuilder.EventSourcedEntity,
-      service: ModelBuilder.EntityService): File = {
+      service: ModelBuilder.EntityService,
+      mainPackageName: PackageNaming): File = {
     import Types.EventSourcedEntity._
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
@@ -60,6 +64,9 @@ object EventSourcedEntitySourceGenerator {
           }
       }
 
+    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+
     generate(
       eventSourcedEntity.fqn.parent,
       abstractEntityName,
@@ -67,6 +74,9 @@ object EventSourcedEntitySourceGenerator {
           |
           |/** An event sourced entity. */
           |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
+          |
+          |  def components: $Components =
+          |    new ${ComponentsImpl}(commandContext())
           |
           |  $commandHandlers
           |  $eventHandlers
