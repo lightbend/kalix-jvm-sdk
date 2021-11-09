@@ -46,8 +46,7 @@ public final class RunTck {
           .withLogConsumer(new LogConsumer().withRemoveAnsiCodes(false))
           .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy())
           .withCommand(
-              "-Dakkaserverless.tck.ignore-tests.0=view -Dakkaserverless.tck.ignore-tests.1=eventing "
-                  + "-Dakkaserverless.tck.ignore-tests.2=replicated-entity")
+              "-Dakkaserverless.tck.ignore-tests.0=replicated-entity -Dakkaserverless.tck.ignore-tests.1=eventing")
           .start();
     } catch (Exception e) {
       // container failed, exit with failure, assumes forked run

@@ -25,6 +25,8 @@ import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity
 import com.akkaserverless.tck.model.valueentity.ValueEntityConfiguredEntity
 import com.akkaserverless.tck.model.valueentity.ValueEntityTckModelEntity
 import com.akkaserverless.tck.model.valueentity.ValueEntityTwoEntity
+import com.akkaserverless.tck.model.view.ViewTckModelImpl
+import com.akkaserverless.tck.model.view.ViewTckSourceEntity
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -48,8 +50,10 @@ object Main {
       new ValueEntityConfiguredEntity(_),
       new ValueEntityTckModelEntity(_),
       new ValueEntityTwoEntity(_),
+      new ViewTckSourceEntity(_),
       new ActionTckModelImpl(_),
-      new ActionTwoImpl(_))
+      new ActionTwoImpl(_),
+      new ViewTckModelImpl(_))
   }
 
   def main(args: Array[String]): Unit = {
