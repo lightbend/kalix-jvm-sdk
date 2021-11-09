@@ -58,12 +58,14 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
          |""".stripMargin)
   }
   test("it can generate an abstract value entity implementation") {
-    val str = abstractEntity(testData.valueEntity(), testData.simpleEntityService()).content
+    val str = abstractEntity(testData.valueEntity(), testData.simpleEntityService(), testData.mainPackage).content
     assertNoDiff(
       str,
       s"""package com.example.service.domain
           |
           |import com.akkaserverless.scalasdk.valueentity.ValueEntity
+          |import com.example.Components
+          |import com.example.ComponentsImpl
           |import com.example.service
           |import com.external.Empty
           |
@@ -73,6 +75,9 @@ class ValueEntitySourceGeneratorSuite extends munit.FunSuite {
           |
           |/** A value entity. */
           |abstract class AbstractMyValueEntity extends ValueEntity[MyState] {
+          |
+          |  def components: Components =
+          |    new ComponentsImpl(commandContext())
           |
           |  /** Command handler for "Set". */
           |  def set(currentState: MyState, setValue: service.SetValue): ValueEntity.Effect[Empty]

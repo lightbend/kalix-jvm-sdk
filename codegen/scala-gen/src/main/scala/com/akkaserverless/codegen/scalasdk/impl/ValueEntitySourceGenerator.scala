@@ -19,7 +19,9 @@ package com.akkaserverless.codegen.scalasdk.impl
 import com.akkaserverless.codegen.scalasdk.File
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
 
 object ValueEntitySourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
@@ -28,12 +30,19 @@ object ValueEntitySourceGenerator {
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
 
-  def generateManaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
-    Seq(abstractEntity(valueEntity, service), handler(valueEntity, service), provider(valueEntity, service))
+  def generateManaged(
+      valueEntity: ModelBuilder.ValueEntity,
+      service: ModelBuilder.EntityService,
+      mainPackageName: PackageNaming): Seq[File] =
+    Seq(
+      abstractEntity(valueEntity, service, mainPackageName),
+      handler(valueEntity, service),
+      provider(valueEntity, service))
 
   private[codegen] def abstractEntity(
       valueEntity: ModelBuilder.ValueEntity,
-      service: ModelBuilder.EntityService): File = {
+      service: ModelBuilder.EntityService,
+      mainPackageName: PackageNaming): File = {
     import Types.ValueEntity._
 
     val stateType = valueEntity.state.fqn
@@ -52,6 +61,9 @@ object ValueEntitySourceGenerator {
 
       }
 
+    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+
     generate(
       valueEntity.fqn.parent,
       abstractEntityName,
@@ -59,6 +71,9 @@ object ValueEntitySourceGenerator {
           |
           |/** A value entity. */
           |abstract class $abstractEntityName extends $ValueEntity[$stateType] {
+          |
+          |  def components: $Components =
+          |    new ${ComponentsImpl}(commandContext())
           |
           |  $methods
           |}

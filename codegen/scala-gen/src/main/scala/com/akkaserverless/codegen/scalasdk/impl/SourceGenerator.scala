@@ -36,9 +36,9 @@ object SourceGenerator {
         case service: ModelBuilder.EntityService =>
           model.lookupEntity(service) match {
             case entity: ModelBuilder.ValueEntity =>
-              ValueEntitySourceGenerator.generateManaged(entity, service)
+              ValueEntitySourceGenerator.generateManaged(entity, service, mainPackageName)
             case entity: ModelBuilder.EventSourcedEntity =>
-              EventSourcedEntitySourceGenerator.generateManaged(entity, service)
+              EventSourcedEntitySourceGenerator.generateManaged(entity, service, mainPackageName)
             case entity: ModelBuilder.ReplicatedEntity =>
               ReplicatedEntitySourceGenerator.generateManaged(entity, service)
           }
