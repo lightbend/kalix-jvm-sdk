@@ -51,10 +51,6 @@ import "google/protobuf/empty.proto";
 //   from the incoming events, along with the id read from the CloudEvent metadata source property.
 //
 service LocalPersistenceSubscriberModel {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
-  };
-
   rpc ProcessEventOne(EventOne) returns (Response) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "eventlogeventing-one"

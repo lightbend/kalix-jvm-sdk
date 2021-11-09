@@ -17,10 +17,6 @@
 package com.example;
 
 import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.tck.model.ReplicatedEntityTwoAction;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModelAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.akkaserverless.tck.model.action.ActionTckModelImpl;
 import com.akkaserverless.tck.model.action.ActionTwoImpl;
 import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
@@ -29,6 +25,8 @@ import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityConfiguredEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityTckModelEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityTwoEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //
@@ -52,9 +50,7 @@ public final class Main {
         ValueEntityTckModelEntity::new,
         ValueEntityTwoEntity::new,
         ActionTckModelImpl::new,
-        ActionTwoImpl::new,
-        LocalPersistenceSubscriberModelAction::new,
-        ReplicatedEntityTwoAction::new);
+        ActionTwoImpl::new);
   }
 
   public static void main(String[] args) throws Exception {
