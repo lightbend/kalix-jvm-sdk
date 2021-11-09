@@ -6,7 +6,7 @@
                 <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
 
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                    <prettyPrint>true</prettyPrint>
+                    <prettyPrint>false</prettyPrint>
                 </jsonFormatter>
             </layout>
         </encoder>
