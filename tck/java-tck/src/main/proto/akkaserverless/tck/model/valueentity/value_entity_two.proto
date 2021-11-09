@@ -32,7 +32,7 @@ import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 option (akkaserverless.file).value_entity = {
   name: "ValueEntityTwoEntity"
   entity_type: "value-entity-tck-model-two"
-  state: "String"
+  state: "Persisted"
 };
 
 //

@@ -24,12 +24,12 @@ public class ValueEntityTwoEntity extends AbstractValueEntityTwoEntity {
 
   public ValueEntityTwoEntity(ValueEntityContext context) {}
 
-  public Effect<Response> call(String state, Request request) {
+  public Effect<Response> call(Persisted state, Request request) {
     return effects().reply(Response.getDefaultInstance());
   }
 
   @Override
-  public String emptyState() {
+  public Persisted emptyState() {
     return null;
   }
 }
