@@ -31,7 +31,7 @@ import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 option (akkaserverless.file).value_entity = {
   name: "ValueEntityConfiguredEntity"
   entity_type: "value-entity-configured"
-  state: "String"
+  state: "Persisted"
 };
 
 //
