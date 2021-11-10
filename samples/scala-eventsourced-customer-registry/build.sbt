@@ -1,6 +1,6 @@
-name := "eventsourced-customer-registry"
+name := "customer-registry"
 
-organization := "com.akkaseverless.samples"
+organization := "com.akkaserverless.samples"
 organizationHomepage := Some(url("https://akkaserverless.com"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
@@ -10,6 +10,8 @@ enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
+// two Main files in this project changes entry point
+dockerEntrypoint := Seq("bin/main")
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
