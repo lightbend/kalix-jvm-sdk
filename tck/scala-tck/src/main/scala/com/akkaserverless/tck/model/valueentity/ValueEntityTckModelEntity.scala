@@ -16,21 +16,49 @@
 
 package com.akkaserverless.tck.model.valueentity
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
-import com.akkaserverless.tck.model.valueentity
-
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
-//
-// As long as this file exists it will not be overwritten: you can maintain it yourself,
-// or delete it so it is regenerated as needed.
+import com.akkaserverless.scalasdk.SideEffect
+import com.akkaserverless.scalasdk.valueentity.{ ValueEntity, ValueEntityContext }
 
 /** A value entity. */
 class ValueEntityTckModelEntity(context: ValueEntityContext) extends AbstractValueEntityTckModelEntity {
-  override def emptyState: Persisted =
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+  override def emptyState: Persisted = Persisted.defaultInstance
 
-  override def process(currentState: Persisted, request: Request): ValueEntity.Effect[Response] =
-    effects.error("The command handler for `Process` is not implemented, yet")
+  override def process(currentState: Persisted, request: Request): ValueEntity.Effect[Response] = {
+    case class HandlingState(
+        state: String,
+        effect: Either[ValueEntity.Effect.OnSuccessBuilder[Persisted], ValueEntity.Effect[Response]],
+        sideEffect: Seq[SideEffect]) {
+      def handle(action: RequestAction): HandlingState =
+        action.action match {
+          case RequestAction.Action.Empty => this
+          case RequestAction.Action.Update(Update(newValue, _)) =>
+            copy(state = newValue, effect = Left(effects.updateState(Persisted(newValue))))
+          case RequestAction.Action.Delete(Delete(_)) =>
+            copy(state = "", effect = Left(effects.deleteState))
+          case RequestAction.Action.Fail(Fail(message, _)) =>
+            copy(effect = Right(effects.error(message)))
+          case RequestAction.Action.Effect(Effect(id, sync, _)) =>
+            copy(sideEffect = sideEffect :+ SideEffect(components.valueEntityTwoEntity.call(Request(id)), sync))
+          case RequestAction.Action.Forward(Forward(id, _)) =>
+            val call = components.valueEntityTwoEntity.call(Request(id))
+            val newEffect: Either[ValueEntity.Effect.OnSuccessBuilder[Persisted], ValueEntity.Effect[Response]] =
+              effect match {
+                case Left(e)  => Right(e.thenForward(call))
+                case Right(_) => Right(effects.forward(call))
 
+              }
+            copy(effect = newEffect)
+        }
+      def result: ValueEntity.Effect[Response] =
+        (effect match {
+          case Left(e)  => e.thenReply(Response(state))
+          case Right(e) => e
+        }).addSideEffects(sideEffect)
+    }
+
+    request.actions
+      .foldLeft(HandlingState(currentState.value, Right(effects.reply(Response(currentState.value))), Vector.empty))(
+        _.handle(_))
+      .result
+  }
 }

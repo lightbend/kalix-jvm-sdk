@@ -16,11 +16,8 @@
 
 package com.akkaserverless.scalasdk.valueentity
 
-import scala.jdk.CollectionConverters._
-import akka.actor.ActorSystem
 import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.DeferredCall
-import com.akkaserverless.scalasdk.Context
 import com.akkaserverless.scalasdk.SideEffect
 import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
 
