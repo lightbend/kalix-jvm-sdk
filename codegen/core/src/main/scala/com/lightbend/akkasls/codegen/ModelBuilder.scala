@@ -240,6 +240,7 @@ object ModelBuilder {
       else fqn.name + "View"
     val impl = fqn.deriveName(_ => className)
     val abstractViewName = "Abstract" + baseClassName
+    val abstractView = fqn.deriveName(_ => abstractViewName)
     val routerName = baseClassName + "Router"
     val providerName = baseClassName + "Provider"
     val provider = fqn.deriveName(_ => baseClassName + "Provider")

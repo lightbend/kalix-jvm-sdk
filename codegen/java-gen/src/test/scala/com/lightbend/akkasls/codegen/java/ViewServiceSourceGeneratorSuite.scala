@@ -23,7 +23,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("source, transform_updates=true") {
     val service = testData.simpleViewService()
 
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
     val generatedSrc =
       ViewServiceSourceGenerator.viewSource(service, packageName)
     assertNoDiff(
@@ -31,6 +31,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
         |
         |import com.akkaserverless.javasdk.view.ViewContext;
+        |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
         |
         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -48,12 +49,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |  }
         |
         |  @Override
-        |  public UpdateEffect<ServiceOuterClass.ViewState> created(
+        |  public View.UpdateEffect<ServiceOuterClass.ViewState> created(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated entityCreated) {
         |    throw new UnsupportedOperationException("Update handler for 'Created' not implemented yet");
         |  }
         |  @Override
-        |  public UpdateEffect<ServiceOuterClass.ViewState> updated(
+        |  public View.UpdateEffect<ServiceOuterClass.ViewState> updated(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated entityUpdated) {
         |    throw new UnsupportedOperationException("Update handler for 'Updated' not implemented yet");
         |  }
@@ -64,7 +65,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
   test("source, transform_updates=false") {
     val service = testData.simpleViewService().copy(transformedUpdates = Nil)
 
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
     val generatedSrc =
       ViewServiceSourceGenerator.viewSource(service, packageName)
     assertNoDiff(
@@ -72,7 +73,6 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
          |
          |import com.akkaserverless.javasdk.view.ViewContext;
-         |import com.example.service.domain.EntityOuterClass;
          |
          |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
          |//
@@ -83,14 +83,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |
          |  public MyServiceViewImpl(ViewContext context) {}
          |
-         |  
+         |
          |}
          |""".stripMargin)
   }
 
   test("abstract source, transform_updates=true") {
     val service = testData.simpleViewService()
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
 
     val generatedSrc =
       ViewServiceSourceGenerator.abstractView(service, packageName)
@@ -107,9 +107,9 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
         |
         |public abstract class AbstractMyServiceView extends View<ServiceOuterClass.ViewState> {
         |
-        |  public abstract UpdateEffect<ServiceOuterClass.ViewState> created(
+        |  public abstract View.UpdateEffect<ServiceOuterClass.ViewState> created(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityCreated entityCreated);
-        |  public abstract UpdateEffect<ServiceOuterClass.ViewState> updated(
+        |  public abstract View.UpdateEffect<ServiceOuterClass.ViewState> updated(
         |    ServiceOuterClass.ViewState state, EntityOuterClass.EntityUpdated entityUpdated);
         |}
         |""".stripMargin)
@@ -117,7 +117,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("abstract source, transform_updates=false") {
     val service = testData.simpleViewService().copy(transformedUpdates = Nil)
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
 
     val generatedSrc =
       ViewServiceSourceGenerator.abstractView(service, packageName)
@@ -126,7 +126,6 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       """package com.example.service;
          |
          |import com.akkaserverless.javasdk.view.View;
-         |import com.example.service.domain.EntityOuterClass;
          |
          |// This code is managed by Akka Serverless tooling.
          |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -139,14 +138,14 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |    return null; // emptyState is only used with transform_updates=true
          |  }
          |
-         |  
+         |
          |}
          |""".stripMargin)
   }
 
   test("handler source") {
     val service = testData.simpleViewService()
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
 
     val generatedSrc =
       ViewServiceSourceGenerator.viewRouter(service, packageName)
@@ -155,10 +154,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
         |
-        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |import com.akkaserverless.javasdk.impl.view.ViewRouter;
         |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
+        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |
         |// This code is managed by Akka Serverless tooling.
         |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -199,7 +198,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
 
   test("provider source") {
     val service = testData.simpleViewService()
-    val packageName = "com.example.service"
+    val packageName = PackageNaming.noDescriptor("com.example.service")
 
     val generatedSrc =
       ViewServiceSourceGenerator.viewProvider(service, packageName)
@@ -208,15 +207,11 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
        |
-       |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
-       |import com.akkaserverless.javasdk.impl.view.ViewRouter;
-       |import com.akkaserverless.javasdk.view.View;
+       |import com.akkaserverless.javasdk.view.ViewProvider;
+       |import java.util.function.Function;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewOptions;
-       |import com.akkaserverless.javasdk.view.ViewProvider;
        |import com.google.protobuf.Descriptors;
-       |import com.google.protobuf.EmptyProto;
-       |import java.util.function.Function;
        |
        |// This code is managed by Akka Serverless tooling.
        |// It will be re-generated to reflect any changes to your protobuf definitions.
