@@ -6,7 +6,7 @@ import ProtocPlugin.autoImport.PB
 import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport._
 import protocbridge.{ Artifact, SandboxedJvmGenerator }
-import sbt.internal.inc.classpath.ClasspathUtilities
+import sbt.internal.inc.classpath.ClasspathUtil
 
 import java.nio.file.{ Files, Path, Paths }
 
@@ -77,7 +77,7 @@ object ReflectiveCodeGen extends AutoPlugin {
       logger: Logger): Seq[File] = {
 
     val cp = classpath.map(_.data)
-    val loader = ClasspathUtilities.toLoader(cp, AkkaGrpcPlugin.getClass.getClassLoader)
+    val loader = ClasspathUtil.toLoader(cp, AkkaGrpcPlugin.getClass.getClassLoader)
     import scala.reflect.runtime.universe
     import scala.tools.reflect.ToolBox
 
