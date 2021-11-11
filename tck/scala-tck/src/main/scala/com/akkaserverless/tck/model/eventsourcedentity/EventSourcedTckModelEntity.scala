@@ -16,24 +16,48 @@
 
 package com.akkaserverless.tck.model.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.tck.model.eventsourcedentity
-
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
-//
-// As long as this file exists it will not be overwritten: you can maintain it yourself,
-// or delete it so it is regenerated as needed.
+import com.akkaserverless.scalasdk.SideEffect
+import com.akkaserverless.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
 
 /** An event sourced entity. */
 class EventSourcedTckModelEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTckModelEntity {
-  override def emptyState: Persisted =
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+  override def emptyState: Persisted = Persisted.defaultInstance
 
-  override def process(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] =
-    effects.error("The command handler for `Process` is not implemented, yet")
+  override def process(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] = {
+    case class HandlingState(
+        failed: Boolean,
+        events: Seq[Persisted],
+        effect: EventSourcedEntity.Effect[Response],
+        sideEffects: Seq[SideEffect]) {
+      def handle(action: RequestAction): HandlingState = action.action match {
+        case RequestAction.Action.Fail(Fail(message, _)) =>
+          copy(failed = true, effect = effects.error(message))
+        case _ if failed                => this
+        case RequestAction.Action.Empty => this
+        case RequestAction.Action.Emit(Emit(value, _)) =>
+          val newEvents = events :+ Persisted(value)
+          copy(
+            events = newEvents,
+            effect = effects.emitEvents(newEvents.toList).thenReply(state => Response(state.value)))
+
+        case RequestAction.Action.Forward(Forward(id, _)) =>
+          val call = components.eventSourcedTwoEntity.call(Request(id))
+          copy(effect = effects.emitEvents(events.toList).thenForward(_ => call))
+
+        case RequestAction.Action.Effect(Effect(id, sync, _)) =>
+          copy(sideEffects = sideEffects :+ SideEffect(components.eventSourcedTwoEntity.call(Request(id)), sync))
+      }
+
+      def result: EventSourcedEntity.Effect[Response] =
+        effect.addSideEffects(sideEffects)
+    }
+
+    request.actions
+      .foldLeft(HandlingState(failed = false, Vector.empty, effects.reply(Response(currentState.value)), Vector.empty))(
+        _.handle(_))
+      .result
+  }
 
   override def persisted(currentState: Persisted, persisted: Persisted): Persisted =
-    throw new RuntimeException("The event handler for `Persisted` is not implemented, yet")
-
+    Persisted(currentState.value + persisted.value)
 }
