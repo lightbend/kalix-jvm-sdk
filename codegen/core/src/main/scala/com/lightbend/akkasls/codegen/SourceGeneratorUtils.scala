@@ -18,16 +18,15 @@ package com.lightbend.akkasls.codegen
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import scala.annotation.tailrec
 import scala.collection.immutable
-
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
 import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeElement.FQNElement
 
 object SourceGeneratorUtils {
   val managedComment =
@@ -181,38 +180,53 @@ object SourceGeneratorUtils {
     else dotsToCamelCase(s.tail, resultSoFar + s.head, false)
   }
 
-  class CodeBlock(val code: Seq[Any]) {
-    code.foreach(validateType)
+  sealed trait CodeElement
+  object CodeElement {
+    case class StringElement(string: String) extends CodeElement
+    case class FQNElement(fqn: FullyQualifiedName) extends CodeElement
 
-    private def validateType(seq: Any): Unit = seq match {
-      case _: String             => ()
-      case _: FullyQualifiedName => ()
-      case block: CodeBlock      => block.code.foreach(validateType)
-      case s: Seq[_]             => s.foreach(validateType)
-      case other =>
-        throw new IllegalArgumentException(s"Unexpected value of type [${other.getClass}] in block: [$other]")
-    }
+    implicit def stringElement(string: String): CodeElement = StringElement(string)
+    implicit def fqnElement(fqn: FullyQualifiedName): CodeElement = FQNElement(fqn)
+    implicit def block(els: Iterable[CodeElement]): CodeElement =
+      CodeBlock(
+        // add line terminator between each two elements
+        els.toVector.flatMap(Seq(_, stringElement("\n"))).dropRight(1))
+  }
+  case class CodeBlock(code: Seq[CodeElement]) extends CodeElement {
+    import CodeElement._
 
     /** All classes used in this code block */
     def fqns: Seq[FullyQualifiedName] = code.flatMap {
-      case name: FullyQualifiedName => Seq(name)
-      case block: CodeBlock         => block.fqns
-      case seq: Seq[_]              => new CodeBlock(seq).fqns
-      case _                        => Seq.empty
+      case FQNElement(name) => Seq(name)
+      case block: CodeBlock => block.fqns
+      case _: StringElement => Seq.empty
     }
+
+    def write(imports: Imports, typeName: FullyQualifiedName => String): String =
+      code.foldLeft("")((acc, o) =>
+        o match {
+          case StringElement(s) =>
+            acc ++ s
+          case block: CodeBlock =>
+            val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
+            acc ++ block.write(imports, typeName).replaceAll("\n", "\n" + currentIndent)
+          case FQNElement(fqn) =>
+            acc ++ typeName(fqn)
+        })
   }
 
   implicit class CodeBlockHelper(val sc: StringContext) extends AnyVal {
-    def c(args: Any*): CodeBlock = {
-      new CodeBlock(interleave(sc.parts.map(_.stripMargin), args))
-    }
+    def c(args: CodeElement*): CodeBlock =
+      CodeBlock(interleave(sc.parts.map(_.stripMargin), args))
 
-    private def interleave(strings: Seq[String], values: Seq[Any]): Seq[Any] =
+    private def interleave(strings: Seq[String], values: Seq[CodeElement]): Seq[CodeElement] =
       values.headOption match {
-        case Some(value) => Seq(strings.head, value) ++ interleave(strings.tail, values.tail)
+        case Some(value) => Seq(CodeElement.StringElement(strings.head), value) ++ interleave(strings.tail, values.tail)
         case None =>
           require(strings.size == 1)
-          strings
+          strings.map(CodeElement.StringElement)
       }
   }
+
+  private val lastIndentRegex = "[ \t]*$".r
 }

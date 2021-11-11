@@ -54,7 +54,7 @@ object ActionServiceSourceGenerator {
       val outputType = cmd.outputType
 
       if (cmd.isUnary) {
-        val jsonTopicHint = {
+        val jsonTopicHint: CodeElement = {
           // note: the somewhat funky indenting is on purpose to lf+indent only if comment present
           if (cmd.inFromTopic && cmd.inputType.fullyQualifiedProtoName == "com.google.protobuf.Any")
             c"""|// JSON input from a topic can be decoded using JsonSupport.decodeJson(classOf[MyClass], any)
