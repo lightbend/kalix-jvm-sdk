@@ -20,6 +20,7 @@ import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.{ akkaGrpcCodeGeneratorSettings, akkaGrpcGeneratedSources }
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
 
+import java.lang.{ Boolean => JBoolean }
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
@@ -107,16 +108,12 @@ object AkkaserverlessPlugin extends AutoPlugin {
       (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
     Test / unmanagedSources :=
       (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
-    onlyUnitTest := {
-      sys.props.get("onlyUnitTest") match {
-        case Some("true") => true
-        case _            => false
-      }
-    },
-    ThisBuild / testOptions := {
+    onlyUnitTest := JBoolean.getBoolean("onlyUnitTest"),
+    Test / testOptions := {
+      val old = (ThisBuild / testOptions).value
       if (onlyUnitTest.value)
-        testOptions.value ++ Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
-      else testOptions.value
+        old ++ Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
+      else old
     })
 
   def isIn(file: File, dir: File): Boolean =

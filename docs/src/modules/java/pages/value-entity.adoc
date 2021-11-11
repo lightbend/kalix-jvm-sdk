@@ -4,7 +4,7 @@ include::ROOT:partial$include.adoc[]
 
 https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
-While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data storage format, which should be private.
+While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
 The steps necessary to implement a Value Entity include:
 
@@ -19,7 +19,7 @@ The sections on this page walk through these steps using a counter service as an
 
 NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:quickstart-template.adoc[project template].
 
-The following `counter_domain.proto` file defines our "Counter" Value Entity. The entity stores an integer value as represented in the message `CounterState`. Real world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+The following `counter_domain.proto` file defines our "Counter" Value Entity. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [.tabset]
 Java::
@@ -30,7 +30,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
 <4> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
 <5> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
@@ -80,7 +80,7 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Akka Serverless protobuf annotations or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
@@ -89,7 +89,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/counter_ap
 
 == Implementing behavior
 
-A Value Entity implementation is a class where you define how each command is handled. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the generated file exist, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
+A Value Entity implementation is a class where you define how each command is handled. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the generated file exists, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
 
 
 [.tabset]
@@ -117,9 +117,9 @@ We need to implement all methods our Value Entity offers as https://developer.li
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
-Command handlers are implemented in the `Counter` class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+Command handlers are implemented in the `Counter` class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes the next processing actions, such as updating state and sending a reply.
 
-When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCounter`). This means that the compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+When adding or changing the `rpc` definitions, including name, parameter, and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCounter`). This means that the compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
 
 === Updating state
 
@@ -212,11 +212,11 @@ There are two ways to test a Value Entity:
 * unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit 
 * integration tests, with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
 
-Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests on the other hand are more realistic and allow many entities, interaction with other components inside and outside of the service, for example actual publishing to a pub/sub topic.
+Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests, on the other hand, are more realistic and allow many entities to interact with other components inside and outside of the service. For example, actual publishing to a pub/sub topic.
 
 === Unit tests
 
-To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the testkit to execute commands in the entity, get a `ValueEntityResult` back and assert the effects that the command led to, both the reply itself and the update to the state of the Entity.
+To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the test kit to execute commands in the entity, get a `ValueEntityResult` back and assert the effects that the command led to, both the reply itself and the update to the state of the Entity.
 
 [.tabset]
 Java::
@@ -237,7 +237,7 @@ Scala::
 include::example$scala-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
 ----
 +
-The unit tests can be run from sbt using `sbt test` or if you prefer from inside your IDE the same way you usually run tests.
+By default, the integration and unit tests are both invoked by `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that value to `true` in the sbt console by `set onlyUnitTest := true`. Then run `sbt test`
 
 === Integration tests
 
@@ -261,5 +261,7 @@ Scala::
 ----
 include::example$scala-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[]
 ----
+By default, the integration and unit test are both invoked by `sbt test`.
 
-Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also mean they take a bit more time to execute compared to the unit tests which are completely local and does not involve networking.
+
+Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also means they take a bit more time to execute compared to the unit tests which are completely local and do not involve networking.
