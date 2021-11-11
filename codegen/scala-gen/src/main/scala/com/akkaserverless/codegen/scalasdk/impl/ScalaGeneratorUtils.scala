@@ -84,7 +84,7 @@ object ScalaGeneratorUtils {
       block: CodeBlock,
       packageImports: Seq[PackageNaming] = Nil): File = {
     val packageImportStrings = packageImports.map(_.scalaPackage)
-    val imports = new Imports(
+    implicit val imports = new Imports(
       parent.scalaPackage,
       packageImportStrings ++ block.fqns
         .filter(_.parent.scalaPackage.nonEmpty)
@@ -100,24 +100,7 @@ object ScalaGeneratorUtils {
          |
          |${writeImports(imports)}
          |
-         |${writeBlock(block.code, imports)}
+         |${block.write(imports, typeName(_))}
          |""".stripMargin.replaceAll("[ \t]+\n", "\n"))
   }
-
-  private val lastIndentRegex = "[ \t]*$".r
-
-  private def writeBlock(code: Seq[Any], imports: Imports, resultSoFar: String = ""): String =
-    code.foldLeft("")((acc, o) =>
-      o match {
-        case s: String =>
-          acc ++ s
-        case block: CodeBlock =>
-          val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
-          acc ++ writeBlock(block.code, imports).replaceAll("\n", "\n" + currentIndent)
-        case seq: Seq[_] =>
-          val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
-          acc ++ seq.map(e => writeBlock(Seq(e), imports)).mkString("\n").replaceAll("\n", "\n" + currentIndent)
-        case fqn: FullyQualifiedName =>
-          acc ++ typeName(fqn)(imports)
-      })
 }
