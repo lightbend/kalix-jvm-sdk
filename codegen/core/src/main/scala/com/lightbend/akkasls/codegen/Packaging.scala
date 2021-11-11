@@ -55,7 +55,8 @@ case class FullyQualifiedName(
   }
 
   lazy val typeImport = s"${parent.javaPackage}.$fullName"
-  lazy val descriptorImport = descriptorObject.get
+  lazy val descriptorImport =
+    descriptorObject.getOrElse(throw new IllegalArgumentException(s"$this is missing descriptor"))
 
   /**
    * 'base' name of the file that will contain this fqn relative to the package root,
