@@ -16,7 +16,8 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder }
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.{ typeImport, CodeBlock }
+import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder, PackageNaming }
 
 object JavaGeneratorUtils {
   def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
@@ -75,4 +76,22 @@ object JavaGeneratorUtils {
     if (types.isEmpty) ""
     else types.mkString("<", ", ", ">")
 
+  def generate(parent: PackageNaming, block: CodeBlock, packageImports: Seq[PackageNaming] = Nil): String = {
+    val packageImportStrings = packageImports.map(_.javaPackage)
+    implicit val imports = new Imports(
+      parent.javaPackage,
+      packageImportStrings ++ block.fqns
+        .filter(_.parent.javaPackage.nonEmpty)
+        .filterNot { typ =>
+          packageImportStrings.contains(typ.parent.javaPackage)
+        }
+        .map(typeImport))
+
+    s"""package ${parent.javaPackage};
+       |
+       |${writeImports(imports)}
+       |
+       |${block.write(imports, typeName(_))}
+       |""".stripMargin.replaceAll("[ \t]+\n", "\n")
+  }
 }

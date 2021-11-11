@@ -45,8 +45,9 @@ object ViewServiceSourceGenerator {
     // adding such later minimal fuss in the user code
     val generatedSources = Seq.newBuilder[Path]
 
-    val packageName = service.fqn.parent.javaPackage
-    val packagePath = packageAsPath(packageName)
+    val packageName = service.fqn.parent
+    val javaPackageName = packageName.javaPackage
+    val packagePath = packageAsPath(javaPackageName)
 
     val implSourcePath =
       sourceDirectory.resolve(packagePath.resolve(service.className + ".java"))
@@ -75,213 +76,186 @@ object ViewServiceSourceGenerator {
     generatedSources.result()
   }
 
-  private[codegen] def viewRouter(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateCommandImports(
-      view.commands,
-      view.state,
-      packageName,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.javasdk.impl.view.ViewRouter",
-        "com.akkaserverless.javasdk.view.View"))
-
+  private[codegen] def viewRouter(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+    import Types.View._
     val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.name
-        val inputType = qualifiedType(cmd.inputType)
-        s"""|case "$methodName":
+        val inputType = cmd.inputType
+        c"""|case "$methodName":
             |  return view().${lowerFirst(methodName)}(
             |      state,
             |      (${inputType}) event);
-            |""".stripMargin
+            |"""
       }
 
-    s"""package $packageName;
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |/** A view handler */
-        |public class ${view.routerName} extends ViewRouter<${qualifiedType(view.state.fqn)}, ${view.className}> {
-        |
-        |  public ${view.routerName}(${view.className} view) {
-        |    super(view);
-        |  }
-        |
-        |  @Override
-        |  public View.UpdateEffect<${qualifiedType(view.state.fqn)}> handleUpdate(
-        |      String eventName,
-        |      ${qualifiedType(view.state.fqn)} state,
-        |      Object event) {
-        |
-        |    switch (eventName) {
-        |      ${Format.indent(cases, 6)}
-        |
-        |      default:
-        |        throw new UpdateHandlerNotFound(eventName);
-        |    }
-        |  }
-        |
-        |}
-        |""".stripMargin
-  }
-
-  private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: String): String = {
-    implicit val imports: Imports = generateCommandImports(
-      Nil,
-      view.state,
+    JavaGeneratorUtils.generate(
       packageName,
-      otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-        "com.akkaserverless.javasdk.impl.view.ViewRouter",
-        "com.akkaserverless.javasdk.view.ViewProvider",
-        "com.akkaserverless.javasdk.view.ViewCreationContext",
-        "com.akkaserverless.javasdk.view.View",
-        "com.akkaserverless.javasdk.view.ViewOptions",
-        view.classNameQualified,
-        "com.google.protobuf.Descriptors",
-        "com.google.protobuf.EmptyProto",
-        "java.util.function.Function"))
-
-    s"""package $packageName;
-        |
-        |${writeImports(imports)}
-        |
-        |$managedComment
-        |
-        |public class ${view.providerName} implements ViewProvider<${qualifiedType(view.state.fqn)}, ${view.className}> {
-        |
-        |  private final Function<ViewCreationContext, ${view.className}> viewFactory;
-        |  private final String viewId;
-        |  private final ViewOptions options;
-        |
-        |  /** Factory method of ${view.className} */
-        |  public static ${view.providerName} of(
-        |      Function<ViewCreationContext, ${view.className}> viewFactory) {
-        |    return new ${view.providerName}(viewFactory, "${view.viewId}", ViewOptions.defaults());
-        |  }
-        |
-        |  private ${view.providerName}(
-        |      Function<ViewCreationContext, ${view.className}> viewFactory,
-        |      String viewId,
-        |      ViewOptions options) {
-        |    this.viewFactory = viewFactory;
-        |    this.viewId = viewId;
-        |    this.options = options;
-        |  }
-        |
-        |  @Override
-        |  public String viewId() {
-        |    return viewId;
-        |  }
-        |
-        |  @Override
-        |  public final ViewOptions options() {
-        |    return options;
-        |  }
-        |
-        |  public final ${view.providerName} withOptions(ViewOptions options) {
-        |    return new ${view.providerName}(viewFactory, viewId, options);
-        |  }
-        |
-        |  /**
-        |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
-        |   * A different identifier can be needed when making rolling updates with changes to the view definition.
-        |   */
-        |  public ${view.providerName} withViewId(String viewId) {
-        |    return new ${view.providerName}(viewFactory, viewId, options);
-        |  }
-        |
-        |  @Override
-        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${typeName(view.fqn.descriptorImport)}.getDescriptor().findServiceByName("${view.fqn.protoName}");
-        |  }
-        |
-        |  @Override
-        |  public final ${view.routerName} newRouter(ViewCreationContext context) {
-        |    return new ${view.routerName}(viewFactory.apply(context));
-        |  }
-        |
-        |  @Override
-        |  public final Descriptors.FileDescriptor[] additionalDescriptors() {
-        |    return new Descriptors.FileDescriptor[] {${view.fqn.parent.javaOuterClassname}.getDescriptor()};
-        |  }
-        |}
-        |""".stripMargin
+      c"""|$managedComment
+          |
+          |/** A view handler */
+          |public class ${view.routerName} extends $ViewRouter<${view.state.fqn}, ${view.impl}> {
+          |
+          |  public ${view.routerName}(${view.impl} view) {
+          |    super(view);
+          |  }
+          |
+          |  @Override
+          |  public $View.UpdateEffect<${view.state.fqn}> handleUpdate(
+          |      String eventName,
+          |      ${view.state.fqn} state,
+          |      Object event) {
+          |
+          |    switch (eventName) {
+          |      $cases
+          |      default:
+          |        throw new $UpdateHandlerNotFound(eventName);
+          |    }
+          |  }
+          |
+          |}
+          |""",
+      Nil)
   }
 
-  private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: String): String = {
+  private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+    import Types.View._
+    import Types._
 
-    val imports = generateImports(view.commandTypes, packageName, Seq("com.akkaserverless.javasdk.view.ViewContext"))
+    JavaGeneratorUtils.generate(
+      packageName,
+      c"""|$managedComment
+          |
+          |public class ${view.providerName} implements $ViewProvider<${view.state.fqn}, ${view.impl}> {
+          |
+          |  private final $Function<$ViewCreationContext, ${view.className}> viewFactory;
+          |  private final String viewId;
+          |  private final $ViewOptions options;
+          |
+          |  /** Factory method of ${view.impl} */
+          |  public static ${view.providerName} of(
+          |      $Function<$ViewCreationContext, ${view.impl}> viewFactory) {
+          |    return new ${view.providerName}(viewFactory, "${view.viewId}", $ViewOptions.defaults());
+          |  }
+          |
+          |  private ${view.providerName}(
+          |      $Function<$ViewCreationContext, ${view.impl}> viewFactory,
+          |      String viewId,
+          |      $ViewOptions options) {
+          |    this.viewFactory = viewFactory;
+          |    this.viewId = viewId;
+          |    this.options = options;
+          |  }
+          |
+          |  @Override
+          |  public String viewId() {
+          |    return viewId;
+          |  }
+          |
+          |  @Override
+          |  public final $ViewOptions options() {
+          |    return options;
+          |  }
+          |
+          |  public final ${view.providerName} withOptions($ViewOptions options) {
+          |    return new ${view.providerName}(viewFactory, viewId, options);
+          |  }
+          |
+          |  /**
+          |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
+          |   * A different identifier can be needed when making rolling updates with changes to the view definition.
+          |   */
+          |  public ${view.providerName} withViewId(String viewId) {
+          |    return new ${view.providerName}(viewFactory, viewId, options);
+          |  }
+          |
+          |  @Override
+          |  public final $Descriptors.ServiceDescriptor serviceDescriptor() {
+          |    return ${view.fqn.descriptorImport}.getDescriptor().findServiceByName("${view.fqn.protoName}");
+          |  }
+          |
+          |  @Override
+          |  public final ${view.routerName} newRouter($ViewCreationContext context) {
+          |    return new ${view.routerName}(viewFactory.apply(context));
+          |  }
+          |
+          |  @Override
+          |  public final $Descriptors.FileDescriptor[] additionalDescriptors() {
+          |    return new $Descriptors.FileDescriptor[] {${view.fqn.parent.javaOuterClassname}.getDescriptor()};
+          |  }
+          |}
+          |""",
+      Nil)
+  }
+
+  private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+    import Types.View._
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
-        ""
+        c""
       else
-        s"""|
-            |  @Override
-            |  public ${qualifiedType(view.state.fqn)} emptyState() {
-            |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
-            |  }
-            |""".stripMargin
+        c"""|
+            |@Override
+            |public ${view.state.fqn} emptyState() {
+            |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+            |}
+            |"""
 
     val handlers = view.transformedUpdates.map { update =>
-      val stateType = qualifiedType(update.outputType)
-      s"""@Override
-         |public UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
-         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)}) {
+      val stateType = update.outputType
+      c"""@Override
+         |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
+         |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)}) {
          |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
-         |}""".stripMargin
+         |}"""
     }
 
-    s"""package $packageName;
+    JavaGeneratorUtils.generate(
+      packageName,
+      c"""$unmanagedComment
        |
-       |${writeImports(imports)}
+       |public class ${view.className} extends ${view.abstractView} {
        |
-       |$unmanagedComment
-       |
-       |public class ${view.className} extends ${view.abstractViewName} {
-       |
-       |  public ${view.className}(ViewContext context) {}
-       |$emptyState
-       |  ${Format.indent(handlers, 2)}
+       |  public ${view.className}($ViewContext context) {}
+       |  $emptyState
+       |  $handlers
        |}
-       |""".stripMargin
+       |""",
+      Nil)
   }
 
-  private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: String): String = {
-    val imports = generateImports(view.commandTypes, packageName, Seq("com.akkaserverless.javasdk.view.View"))
+  private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+    import Types.View._
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
-        s"""|
-            |  @Override
-            |  public ${qualifiedType(view.state.fqn)} emptyState() {
-            |    return null; // emptyState is only used with transform_updates=true
-            |  }
-            |""".stripMargin
+        c"""|
+            |@Override
+            |public ${view.state.fqn} emptyState() {
+            |  return null; // emptyState is only used with transform_updates=true
+            |}
+            |"""
       else
-        ""
+        c""
 
     val handlers = view.transformedUpdates.map { update =>
-      val stateType = qualifiedType(update.outputType)
-      s"""public abstract UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
-         |  $stateType state, ${qualifiedType(update.inputType)} ${lowerFirst(update.inputType.name)});""".stripMargin
+      val stateType = update.outputType
+      c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+         |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});"""
 
     }
 
-    s"""package $packageName;
-      |
-      |${writeImports(imports)}
-      |
-      |$managedComment
-      |
-      |public abstract class ${view.abstractViewName} extends View<${qualifiedType(view.state.fqn)}> {
-      |$emptyState
-      |  ${Format.indent(handlers, 2)}
-      |}
-      |""".stripMargin
+    JavaGeneratorUtils.generate(
+      packageName,
+      c"""$managedComment
+         |
+         |public abstract class ${view.abstractViewName} extends $View<${view.state.fqn}> {
+         |  $emptyState
+         |  $handlers
+         |}
+         |""",
+      Nil)
   }
 
 }
