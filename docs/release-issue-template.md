@@ -4,6 +4,7 @@
 
 - [ ] Make sure all important PRs have been merged
 - [ ] Check that the [latest build](https://app.circleci.com/pipelines/github/lightbend/akkaserverless-java-sdk) successfully finished
+- [ ] Make sure a version of the proxy that supports the protocol version the SDK expects has been deployed to production
 
 ### Cutting the release 
 
