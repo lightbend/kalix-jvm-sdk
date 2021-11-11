@@ -18,19 +18,11 @@ package com.akkaserverless.tck.model.valueentity
 
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
-import com.akkaserverless.tck.model.valueentity
-
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
-//
-// As long as this file exists it will not be overwritten: you can maintain it yourself,
-// or delete it so it is regenerated as needed.
 
 /** A value entity. */
 class ValueEntityTwoEntity(context: ValueEntityContext) extends AbstractValueEntityTwoEntity {
-  override def emptyState: Persisted =
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
+  override def emptyState: Persisted = Persisted.defaultInstance
 
   override def call(currentState: Persisted, request: Request): ValueEntity.Effect[Response] =
-    effects.error("The command handler for `Call` is not implemented, yet")
-
+    effects.reply(Response.defaultInstance)
 }

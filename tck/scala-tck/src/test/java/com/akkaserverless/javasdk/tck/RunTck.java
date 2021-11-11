@@ -16,8 +16,9 @@
 
 package com.akkaserverless.javasdk.tck;
 
-import akkaserverless.tck.model.Main;
+import akkaserverless.tck.model.TckService;
 import com.akkaserverless.javasdk.testkit.BuildInfo;
+import com.akkaserverless.scalasdk.AkkaServerless;
 import com.akkaserverless.scalasdk.AkkaServerlessRunner;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
@@ -33,7 +34,8 @@ public final class RunTck {
   public static final String TCK_VERSION = BuildInfo.proxyVersion();
 
   public static void main(String[] args) throws Exception {
-    AkkaServerlessRunner runner = Main.createAkkaServerless().createRunner();
+    AkkaServerless service = TckService.createService();
+    AkkaServerlessRunner runner = service.createRunner();
     runner.run();
 
     Testcontainers.exposeHostPorts(8080);
@@ -44,9 +46,8 @@ public final class RunTck {
           .withLogConsumer(new LogConsumer().withRemoveAnsiCodes(false))
           .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy())
           .withCommand(
-              "-Dakkaserverless.tck.ignore-tests.0=value-entity -Dakkaserverless.tck.ignore-tests.1=event-sourced-entity "
-                  + "-Dakkaserverless.tck.ignore-tests.2=replicated-entity -Dakkaserverless.tck.ignore-tests.3=eventing "
-                  + "-Dakkaserverless.tck.ignore-tests.4=view")
+              "-Dakkaserverless.tck.ignore-tests.0=view -Dakkaserverless.tck.ignore-tests.1=event-sourced-entity "
+                  + "-Dakkaserverless.tck.ignore-tests.2=replicated-entity -Dakkaserverless.tck.ignore-tests.3=eventing")
           .start();
     } catch (Exception e) {
       // container failed, exit with failure, assumes forked run
