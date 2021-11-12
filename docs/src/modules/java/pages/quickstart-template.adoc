@@ -189,7 +189,7 @@ Scala::
 include::example$scala-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
 ----
 
-Use the [.group-java]#`verify`# [.group-scala]#`compile`# command to run all unit tests.
+Use [.group-java]#`mvn verify`# [.group-scala]#`sbt -DonlyUnitTest test`# to run all unit tests.
 
 [.tabset]
 Java::
