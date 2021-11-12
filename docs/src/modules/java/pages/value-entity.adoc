@@ -237,7 +237,7 @@ Scala::
 include::example$scala-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
 ----
 +
-By default, the integration and unit tests are both invoked by `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that value to `true` in the sbt console by `set onlyUnitTest := true`. Then run `sbt test`
+By default, the integration and unit tests are both invoked by `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that value to `true` in the sbt session by `set onlyUnitTest := true`. Then run `sbt test`
 
 === Integration tests
 

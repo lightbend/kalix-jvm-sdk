@@ -304,7 +304,7 @@ include::example$scala-eventsourced-shopping-cart/src/test/scala/com/example/sho
 <8> retrieving the response from the call to `addItem`.
 <9> retrieving the state of the entity after all the calls to `addItem`.
 +
-By default the integration and unit test are both invoked by `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that paremeter to `true` in the sbt console by `set onlyUnitTest := true` and then run `sbt test`
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `sbt test`
 
 
 *EventSourcedResult*

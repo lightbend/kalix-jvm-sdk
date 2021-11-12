@@ -109,11 +109,10 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Test / unmanagedSources :=
       (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
     onlyUnitTest := JBoolean.getBoolean("onlyUnitTest"),
-    Test / testOptions := {
-      val old = (ThisBuild / testOptions).value
+    Test / testOptions ++= {
       if (onlyUnitTest.value)
-        old ++ Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
-      else old
+        Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
+      else Nil
     })
 
   def isIn(file: File, dir: File): Boolean =
