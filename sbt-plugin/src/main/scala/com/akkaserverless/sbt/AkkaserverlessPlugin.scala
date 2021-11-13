@@ -48,6 +48,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
+    val protobufDescriptorSetOut = settingKey[File]("The file to write the descriptor set to")
   }
 
   object autoImport extends Keys
@@ -65,12 +66,22 @@ object AkkaserverlessPlugin extends AutoPlugin {
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / sourceManaged).value,
     Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
     Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
+    protobufDescriptorSetOut := (resourceManaged in Compile).value / "protobuf" / "descriptor-sets" / "user-function.desc",
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
     // and the Akka Serverless 'handler'. For now working around it by only generating
     // the client, but we should probably resolve this before the first public release.
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Compile / PB.targets ++= Seq(genUnmanaged(
       akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Compile / temporaryUnmanagedDirectory).value),
+    Compile / PB.generate := (PB.generate in Compile)
+      .dependsOn(Def.task {
+        protobufDescriptorSetOut.value.getParentFile.mkdirs()
+      })
+      .value,
+    PB.protocOptions in Compile ++= Seq(
+      "--descriptor_set_out",
+      protobufDescriptorSetOut.value.getAbsolutePath,
+      "--include_source_info"),
     Test / PB.targets ++= Seq(genUnmanagedTest(
       akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
@@ -79,7 +90,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
-      // Make sure generation has happened
+      // Make sure generation has happened and that the protobuf descriptor file is created
       val _ = (Compile / PB.generate).value
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
@@ -97,6 +108,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
     },
     Compile / managedSources :=
       (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
+    Compile / managedResources += protobufDescriptorSetOut.value,
     Compile / unmanagedSources := {
       val _ = (Test / unmanagedSources).value // touch unmanaged test sources, so that they are generated on `compile`
       (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
