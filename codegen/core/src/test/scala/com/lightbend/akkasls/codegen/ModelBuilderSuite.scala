@@ -68,7 +68,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -77,7 +77,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "domain/shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -148,7 +148,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -157,7 +157,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "domain/shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -230,7 +230,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -239,7 +239,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "domain/shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -314,16 +314,16 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shopping_cart_view_model.proto",
+          "com/example/shoppingcart/view/shopping_cart_view_model.proto",
           "ShoppingCartViewModel",
-          "shopping.cart.view",
+          "com.example.shoppingcart.view",
           None,
           Some("ShoppingCartViewModel"),
           javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
-          "domain/shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -368,7 +368,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       assertEquals(
         model.services,
         Map(
-          "shopping.cart.view.ShoppingCartViewService" ->
+          "com.example.shoppingcart.view.ShoppingCartViewService" ->
           ModelBuilder.ViewService(
             FullyQualifiedName(
               "ShoppingCartViewService",
