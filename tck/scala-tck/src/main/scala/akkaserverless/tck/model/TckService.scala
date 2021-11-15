@@ -17,17 +17,36 @@
 package akkaserverless.tck.model
 
 import scala.concurrent.duration._
-
 import com.akkaserverless.scalasdk.PassivationStrategy
+import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
+import com.akkaserverless.tck.model.eventsourcedentity.{
+  EventSourcedConfiguredEntity,
+  EventSourcedConfiguredEntityProvider,
+  EventSourcedTckModelEntity,
+  EventSourcedTckModelEntityProvider
+}
 import com.akkaserverless.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityConfiguredEntityProvider }
 
-/** Create the AkkaServerless instance with some required configuration changes */
+/**
+ * Create the AkkaServerless instance with some required configuration changes.
+ *
+ * This construction allows to regenerate the Main class automatically and use it as is.
+ */
 object TckService {
   def createService() =
     Main
       .createAkkaServerless()
+      // take Main registrations and override a few ones with extra options
       .register(
+        // required timeout of 100 millis for configured TCK tests
         ValueEntityConfiguredEntityProvider(new ValueEntityConfiguredEntity(_))
           .withOptions(ValueEntityOptions.defaults.withPassivationStrategy(PassivationStrategy.timeout(100.millis))))
+      .register(
+        // required timeout of 100 millis for configured TCK tests
+        EventSourcedConfiguredEntityProvider(new EventSourcedConfiguredEntity(_))
+          .withOptions(
+            EventSourcedEntityOptions.defaults.withPassivationStrategy(PassivationStrategy.timeout(100.millis))))
+      .register(EventSourcedTckModelEntityProvider(new EventSourcedTckModelEntity(_))
+        .withOptions(EventSourcedEntityOptions.defaults.withSnapshotEvery(5)))
 }
