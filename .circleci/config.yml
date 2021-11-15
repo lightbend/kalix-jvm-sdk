@@ -145,9 +145,17 @@ jobs:
       - run:
           name: Scala Samples
           command: |
-            if [ $(find ./samples -name plugins.sbt | xargs grep -h "akkaserverless-sdk.version" | sort | uniq | wc -l) -ne 1 ]; then
+            if [ $(find ./samples -name plugins.sbt | xargs grep -h "akkaserverless-sdk.version" | uniq | wc -l) -ne 1 ]; then
               "Not all Scala samples have the same SDK version:"
               find ./samples -name plugins.sbt | xargs grep "akkaserverless-sdk.version"
+              false
+            fi
+      - run:
+          name: Java Samples
+          command: |
+            if [ $(find ./samples -name pom.xml | xargs grep -h "<akkaserverless-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
+              "Not all Java samples have the same SDK version:"
+              find ./samples -name pom.xml | xargs grep "<akkaserverless-sdk.version>"
               false
             fi
 
