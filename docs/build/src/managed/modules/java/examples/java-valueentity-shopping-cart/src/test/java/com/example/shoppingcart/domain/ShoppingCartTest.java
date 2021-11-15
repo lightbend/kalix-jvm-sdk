@@ -16,8 +16,25 @@ import static org.junit.Assert.assertTrue;
 public class ShoppingCartTest {
 
     @Test
+    public void createTest() {
+        ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
+
+        ValueEntityResult<Empty> creation1Result = testKit.create(ShoppingCartApi.CreateCart.newBuilder().build());
+        assertEquals(Empty.getDefaultInstance(), creation1Result.getReply());
+        assertTrue(testKit.getState().getCreationTimestamp() > 0L);
+
+        // creating an already created cart is not allowed
+        ValueEntityResult<Empty> creation2Result = testKit.create(ShoppingCartApi.CreateCart.newBuilder().build());
+        assertTrue(creation2Result.isError());
+    }
+
+    @Test
     public void addItemTest() {
         ShoppingCartTestKit testKit = ShoppingCartTestKit.of(ShoppingCart::new);
+
+        ValueEntityResult<Empty> creation1Result = testKit.create(ShoppingCartApi.CreateCart.newBuilder().build());
+        assertEquals(Empty.getDefaultInstance(), creation1Result.getReply());
+        long creationTimeStamp = testKit.getState().getCreationTimestamp();
 
         ShoppingCartApi.AddLineItem commandA = ShoppingCartApi.AddLineItem.newBuilder().setProductId("idA")
                 .setName("nameA").setQuantity(1).build();
@@ -35,6 +52,7 @@ public class ShoppingCartTest {
         ShoppingCartDomain.LineItem expectedLineItemB = ShoppingCartDomain.LineItem.newBuilder().setProductId("idB")
                 .setName("nameB").setQuantity(2).build();
         ShoppingCartDomain.Cart expectedState = ShoppingCartDomain.Cart.newBuilder()
+                .setCreationTimestamp(creationTimeStamp)
                 .addItems(expectedLineItemA)
                 .addItems(expectedLineItemB)
                 .build();

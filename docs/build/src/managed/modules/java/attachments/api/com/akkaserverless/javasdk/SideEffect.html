@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":1,"i1":1,"i2":6,"i3":6};
+var data = {"i0":6,"i1":1,"i2":1,"i3":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -145,25 +146,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static <a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#of(com.akkaserverless.javasdk.ServiceCall)">of</a></span>&#8203;(<a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall)</code></th>
+<td class="colFirst"><code><a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;?,&#8203;?&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#call()">call</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Create a side effect of the given service call.</div>
+<div class="block">The service call that is executed as this effect.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#of(com.akkaserverless.javasdk.ServiceCall,boolean)">of</a></span>&#8203;(<a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall,
-  boolean&nbsp;synchronous)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#of(com.akkaserverless.javasdk.DeferredCall)">of</a></span>&#8203;(<a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&nbsp;serviceCall)</code></th>
 <td class="colLast">
 <div class="block">Create a side effect of the given service call.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serviceCall()">serviceCall</a></span>()</code></th>
+<td class="colFirst"><code>static <a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#of(com.akkaserverless.javasdk.DeferredCall,boolean)">of</a></span>&#8203;(<a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&nbsp;serviceCall,
+  boolean&nbsp;synchronous)</code></th>
 <td class="colLast">
-<div class="block">The service call that is executed as this effect.</div>
+<div class="block">Create a side effect of the given service call.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -190,13 +191,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="serviceCall()">
+<a id="call()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>serviceCall</h4>
-<pre class="methodSignature"><a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall()</pre>
+<h4>call</h4>
+<pre class="methodSignature"><a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;?,&#8203;?&gt;&nbsp;call()</pre>
 <div class="block">The service call that is executed as this effect.</div>
 </li>
 </ul>
@@ -210,13 +211,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Whether this effect should be executed synchronously or not.</div>
 </li>
 </ul>
-<a id="of(com.akkaserverless.javasdk.ServiceCall,boolean)">
+<a id="of(com.akkaserverless.javasdk.DeferredCall,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>of</h4>
-<pre class="methodSignature">static&nbsp;<a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a>&nbsp;of&#8203;(<a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall,
+<pre class="methodSignature">static&nbsp;<a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a>&nbsp;of&#8203;(<a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&nbsp;serviceCall,
                      boolean&nbsp;synchronous)</pre>
 <div class="block">Create a side effect of the given service call.</div>
 <dl>
@@ -228,13 +229,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="of(com.akkaserverless.javasdk.ServiceCall)">
+<a id="of(com.akkaserverless.javasdk.DeferredCall)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>of</h4>
-<pre class="methodSignature">static&nbsp;<a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a>&nbsp;of&#8203;(<a href="ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall)</pre>
+<pre class="methodSignature">static&nbsp;<a href="SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a>&nbsp;of&#8203;(<a href="DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&nbsp;serviceCall)</pre>
 <div class="block">Create a side effect of the given service call.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

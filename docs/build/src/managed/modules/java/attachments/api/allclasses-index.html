@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":2,"i1":1,"i2":1,"i3":1,"i4":1,"i5":1,"i6":1,"i7":1,"i8":2,"i9":1,"i10":1,"i11":1,"i12":1,"i13":1,"i14":1,"i15":1,"i16":1,"i17":2,"i18":1,"i19":1,"i20":1,"i21":1,"i22":1,"i23":1,"i24":1,"i25":2,"i26":2,"i27":1,"i28":1,"i29":1,"i30":1,"i31":1,"i32":1,"i33":2,"i34":1,"i35":2,"i36":1,"i37":2,"i38":1,"i39":1,"i40":1,"i41":1,"i42":1,"i43":1,"i44":1,"i45":1,"i46":2,"i47":1,"i48":2,"i49":1,"i50":4,"i51":2,"i52":1,"i53":2,"i54":1,"i55":2,"i56":1,"i57":2,"i58":1,"i59":1,"i60":1,"i61":1,"i62":1,"i63":2,"i64":1,"i65":1,"i66":1,"i67":1,"i68":1,"i69":1,"i70":1,"i71":2,"i72":1,"i73":1,"i74":1,"i75":1,"i76":1,"i77":1,"i78":1,"i79":4};
+var data = {"i0":2,"i1":1,"i2":1,"i3":1,"i4":1,"i5":1,"i6":1,"i7":1,"i8":2,"i9":1,"i10":1,"i11":1,"i12":1,"i13":1,"i14":1,"i15":1,"i16":1,"i17":1,"i18":2,"i19":1,"i20":1,"i21":1,"i22":1,"i23":1,"i24":1,"i25":1,"i26":2,"i27":2,"i28":1,"i29":1,"i30":1,"i31":1,"i32":1,"i33":1,"i34":2,"i35":1,"i36":2,"i37":1,"i38":2,"i39":1,"i40":1,"i41":1,"i42":1,"i43":1,"i44":1,"i45":1,"i46":1,"i47":2,"i48":1,"i49":2,"i50":1,"i51":4,"i52":2,"i53":1,"i54":2,"i55":1,"i56":2,"i57":1,"i58":2,"i59":1,"i60":1,"i61":2,"i62":1,"i63":1,"i64":1,"i65":1,"i66":1,"i67":1,"i68":1,"i69":2,"i70":1,"i71":1,"i72":1,"i73":1,"i74":1,"i75":1,"i76":1,"i77":4};
 var tabs = {65535:["t0","All Classes"],1:["t1","Interface Summary"],2:["t2","Class Summary"],4:["t3","Enum Summary"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -195,362 +196,351 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </th>
 </tr>
 <tr id="i14" class="altColor">
+<td class="colFirst"><a href="com/akkaserverless/javasdk/DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;<a href="com/akkaserverless/javasdk/DeferredCall.html" title="type parameter in DeferredCall">I</a>,&#8203;<a href="com/akkaserverless/javasdk/DeferredCall.html" title="type parameter in DeferredCall">O</a>&gt;</td>
+<th class="colLast" scope="row">
+<div class="block">Represents a call to another component, performed as a forward, a side effect, or a
+ request-reply.</div>
+</th>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/EntityContext.html" title="interface in com.akkaserverless.javasdk">EntityContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root context for all contexts that pertain to entities, that is, things that are addressable via
  an entity id.</div>
 </th>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/EntityOptions.html" title="interface in com.akkaserverless.javasdk">EntityOptions</a></td>
 <th class="colLast" scope="row">
 <div class="block">Options used for configuring an entity.</div>
 </th>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Context for an event.</div>
 </th>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" title="type parameter in EventSourcedEntity.Effect">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </th>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="type parameter in EventSourcedEntity.Effect.Builder">S</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Construct the effect that is returned by the command handler.</div>
 </th>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="type parameter in EventSourcedEntity.Effect.OnSuccessBuilder">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityContext.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root context for all event sourcing contexts.</div>
 </th>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/impl/EventSourcedEntityFactory.html" title="interface in com.akkaserverless.javasdk.impl">EventSourcedEntityFactory</a></td>
 <th class="colLast" scope="row">
 <div class="block">Low level interface for handling events and commands on an entity.</div>
 </th>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityOptions.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root entity options for all event sourcing entities.</div>
 </th>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="type parameter in EventSourcedEntityProvider">S</a>,&#8203;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="type parameter in EventSourcedEntityProvider">E</a> extends <a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="type parameter in EventSourcedEntityProvider">S</a>&gt;&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Register an event sourced entity in <a href="com/akkaserverless/javasdk/AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a
  <code>EventSourcedEntityProvider</code>.</div>
 </th>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/JsonSupport.html" title="class in com.akkaserverless.javasdk">JsonSupport</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/logging/LogbackJsonLayout.html" title="class in com.akkaserverless.javasdk.logging">LogbackJsonLayout</a></td>
 <th class="colLast" scope="row">
 <div class="block">This Logback JSON layout uses the name `severity` (instead of `level`).</div>
 </th>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/action/MessageEnvelope.html" title="interface in com.akkaserverless.javasdk.action">MessageEnvelope</a>&lt;<a href="com/akkaserverless/javasdk/action/MessageEnvelope.html" title="type parameter in MessageEnvelope">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A message envelope.</div>
 </th>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></td>
 <th class="colLast" scope="row">
 <div class="block">Transport specific metadata.</div>
 </th>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html" title="interface in com.akkaserverless.javasdk">Metadata.MetadataEntry</a></td>
 <th class="colLast" scope="row">
 <div class="block">A metadata entry.</div>
 </th>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Context that provides access to metadata.</div>
 </th>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/PassivationStrategy.html" title="interface in com.akkaserverless.javasdk">PassivationStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">A passivation strategy.</div>
 </th>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounter.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounter</a></td>
 <th class="colLast" scope="row">
 <div class="block">A counter that can be incremented and decremented.</div>
 </th>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterEntity</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMap</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html" title="type parameter in ReplicatedCounterMap">K</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A Map of counters.</div>
 </th>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedCounterMapEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMapEntity.html" title="type parameter in ReplicatedCounterMapEntity">K</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedDataFactory.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedDataFactory</a></td>
 <th class="colLast" scope="row">
 <div class="block">Factory for creating Replicated Data objects.</div>
 </th>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html" title="type parameter in ReplicatedEntity">D</a> extends com.akkaserverless.replicatedentity.ReplicatedData&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.html" title="type parameter in ReplicatedEntity.Effect">R</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </th>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="type parameter in ReplicatedEntity.Effect.Builder">D</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Construct the effect that is returned by the command handler.</div>
 </th>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.OnSuccessBuilder</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityContext.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root context for all Replicated Entity contexts.</div>
 </th>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/impl/ReplicatedEntityFactory.html" title="interface in com.akkaserverless.javasdk.impl">ReplicatedEntityFactory</a></td>
 <th class="colLast" scope="row">
 <div class="block">Low level interface for handling commands on a replicated entity.</div>
 </th>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityOptions.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityOptions</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root entity options for all Replicated Entities.</div>
 </th>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntityProvider</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="type parameter in ReplicatedEntityProvider">D</a> extends com.akkaserverless.replicatedentity.ReplicatedData,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="type parameter in ReplicatedEntityProvider">E</a> extends <a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntityProvider.html" title="type parameter in ReplicatedEntityProvider">D</a>&gt;&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Register a value based entity in <a href="com/akkaserverless/javasdk/AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a <code>
   ReplicatedEntityProvider</code>.</div>
 </th>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMap</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="type parameter in ReplicatedMap">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMap.html" title="type parameter in ReplicatedMap">V</a> extends com.akkaserverless.replicatedentity.ReplicatedData&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A Replicated Map that allows both the addition and removal of <code>ReplicatedData</code> objects.</div>
 </th>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedMapEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMapEntity.html" title="type parameter in ReplicatedMapEntity">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMapEntity.html" title="type parameter in ReplicatedMapEntity">V</a> extends com.akkaserverless.replicatedentity.ReplicatedData&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMap</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMap.html" title="type parameter in ReplicatedMultiMap">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMap.html" title="type parameter in ReplicatedMultiMap">V</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A replicated map that maps keys to values, where each key may be associated with multiple values.</div>
 </th>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedMultiMapEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMapEntity.html" title="type parameter in ReplicatedMultiMapEntity">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMapEntity.html" title="type parameter in ReplicatedMultiMapEntity">V</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegister.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegister.html" title="type parameter in ReplicatedRegister">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A Last-Write-Wins Register.</div>
 </th>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegister.Clock.html" title="enum in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegister.Clock</a></td>
 <th class="colLast" scope="row">
 <div class="block">Clock for register replication</div>
 </th>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterEntity.html" title="type parameter in ReplicatedRegisterEntity">T</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMap.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMap</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMap.html" title="type parameter in ReplicatedRegisterMap">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMap.html" title="type parameter in ReplicatedRegisterMap">V</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A Map of registers.</div>
 </th>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMapEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedRegisterMapEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMapEntity.html" title="type parameter in ReplicatedRegisterMapEntity">K</a>,&#8203;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedRegisterMapEntity.html" title="type parameter in ReplicatedRegisterMapEntity">V</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedSet.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedSet</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedSet.html" title="type parameter in ReplicatedSet">E</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A Replicated Set that allows both the addition and removal of elements in a set.</div>
 </th>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedSetEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedSetEntity</a>&lt;<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedSetEntity.html" title="type parameter in ReplicatedSetEntity">T</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVote.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedVote</a></td>
 <th class="colLast" scope="row">
 <div class="block">A Vote replicated data type.</div>
 </th>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedVoteEntity.html" title="class in com.akkaserverless.javasdk.replicatedentity">ReplicatedVoteEntity</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i58" class="altColor">
-<td class="colFirst"><a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents a call to a service, performed either as a forward, or as an effect.</div>
-</th>
-</tr>
 <tr id="i59" class="rowColor">
-<td class="colFirst"><a href="com/akkaserverless/javasdk/ServiceCallFactory.html" title="interface in com.akkaserverless.javasdk">ServiceCallFactory</a></td>
-<th class="colLast" scope="row">
-<div class="block">A service call factory.</div>
-</th>
-</tr>
-<tr id="i60" class="altColor">
-<td class="colFirst"><a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="interface in com.akkaserverless.javasdk">ServiceCallRef</a>&lt;<a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="type parameter in ServiceCallRef">T</a>&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">A reference to a call on a service.</div>
-</th>
-</tr>
-<tr id="i61" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></td>
 <th class="colLast" scope="row">
 <div class="block">A side effect.</div>
 </th>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/UpdateContext.html" title="interface in com.akkaserverless.javasdk.view">UpdateContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Context for view update calls.</div>
 </th>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.html" title="type parameter in ValueEntity.Effect">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </th>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="type parameter in ValueEntity.Effect.Builder">S</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Construct the effect that is returned by the command handler.</div>
 </th>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html" title="type parameter in ValueEntity.Effect.OnSuccessBuilder">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityContext.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root context for all value based entity contexts.</div>
 </th>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/impl/ValueEntityFactory.html" title="interface in com.akkaserverless.javasdk.impl">ValueEntityFactory</a></td>
 <th class="colLast" scope="row">
 <div class="block">Low level interface for handling commands on a value based entity.</div>
 </th>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityOptions.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityOptions</a></td>
 <th class="colLast" scope="row">
 <div class="block">Root entity options for all value based entities.</div>
 </th>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntityProvider</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="type parameter in ValueEntityProvider">S</a>,&#8203;<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="type parameter in ValueEntityProvider">E</a> extends <a href="com/akkaserverless/javasdk/valueentity/ValueEntity.html" title="class in com.akkaserverless.javasdk.valueentity">ValueEntity</a>&lt;<a href="com/akkaserverless/javasdk/valueentity/ValueEntityProvider.html" title="type parameter in ValueEntityProvider">S</a>&gt;&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Register a value based entity in <a href="com/akkaserverless/javasdk/AkkaServerless.html" title="class in com.akkaserverless.javasdk"><code>AkkaServerless</code></a> using a <code>
  ValueEntityProvider</code>.</div>
 </th>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/View.html" title="class in com.akkaserverless.javasdk.view">View</a>&lt;<a href="com/akkaserverless/javasdk/view/View.html" title="type parameter in View">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/View.UpdateEffect.html" title="interface in com.akkaserverless.javasdk.view">View.UpdateEffect</a>&lt;<a href="com/akkaserverless/javasdk/view/View.UpdateEffect.html" title="type parameter in View.UpdateEffect">S</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Construct the effect that is returned by the command handler.</div>
 </th>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/View.UpdateEffect.Builder.html" title="interface in com.akkaserverless.javasdk.view">View.UpdateEffect.Builder</a>&lt;<a href="com/akkaserverless/javasdk/view/View.UpdateEffect.Builder.html" title="type parameter in View.UpdateEffect.Builder">S</a>&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/ViewContext.html" title="interface in com.akkaserverless.javasdk.view">ViewContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Context for views.</div>
 </th>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/ViewCreationContext.html" title="interface in com.akkaserverless.javasdk.view">ViewCreationContext</a></td>
 <th class="colLast" scope="row">
 <div class="block">Creation context for <a href="com/akkaserverless/javasdk/view/View.html" title="class in com.akkaserverless.javasdk.view"><code>View</code></a> entities.</div>
 </th>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/impl/ViewFactory.html" title="interface in com.akkaserverless.javasdk.impl">ViewFactory</a></td>
 <th class="colLast" scope="row">
 <div class="block">Low level interface for handling messages in views.</div>
 </th>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/ViewOptions.html" title="interface in com.akkaserverless.javasdk.view">ViewOptions</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="interface in com.akkaserverless.javasdk.view">ViewProvider</a>&lt;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">S</a>,&#8203;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">V</a> extends <a href="com/akkaserverless/javasdk/view/View.html" title="class in com.akkaserverless.javasdk.view">View</a>&lt;<a href="com/akkaserverless/javasdk/view/ViewProvider.html" title="type parameter in ViewProvider">S</a>&gt;&gt;</td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><a href="com/akkaserverless/javasdk/replicatedentity/WriteConsistency.html" title="enum in com.akkaserverless.javasdk.replicatedentity">WriteConsistency</a></td>
 <th class="colLast" scope="row">
 <div class="block">Write consistency setting for replication of state updates for Replicated Entities.</div>

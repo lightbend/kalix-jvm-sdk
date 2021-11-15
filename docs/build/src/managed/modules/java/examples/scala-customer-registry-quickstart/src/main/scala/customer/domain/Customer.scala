@@ -17,8 +17,8 @@ class Customer(context: ValueEntityContext) extends AbstractCustomer {
 
   // tag::create[]
   override def create(currentState: CustomerState, customer: api.Customer): ValueEntity.Effect[Empty] = {
-    val state = convertToDomain(customer);
-    effects.updateState(state).thenReply(Empty.defaultInstance);
+    val state = convertToDomain(customer)
+    effects.updateState(state).thenReply(Empty.defaultInstance)
   }
 
   def convertToDomain(customer: api.Customer): CustomerState =
@@ -39,9 +39,9 @@ class Customer(context: ValueEntityContext) extends AbstractCustomer {
   // tag::getCustomer[]
   override def getCustomer(currentState: CustomerState, getCustomerRequest: api.GetCustomerRequest): ValueEntity.Effect[api.Customer] =
     if (currentState.customerId == "") {
-      effects.error(s"Customer ${getCustomerRequest.customerId} has not been created.");
+      effects.error(s"Customer ${getCustomerRequest.customerId} has not been created.")
     } else {
-      effects.reply(convertToApi(currentState));
+      effects.reply(convertToApi(currentState))
     }
 
   def convertToApi(customer: CustomerState): api.Customer =

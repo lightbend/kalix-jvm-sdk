@@ -19,7 +19,7 @@
         <jdk.target>11</jdk.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <akkaserverless-sdk.version>0.8.0</akkaserverless-sdk.version>
+        <akkaserverless-sdk.version>0.9.0</akkaserverless-sdk.version>
         <akka-grpc.version>2.1.0</akka-grpc.version>
     </properties>
 
@@ -72,24 +72,7 @@
                             <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
                             <descriptorSetFileName>user-function.desc</descriptorSetFileName>
                             <checkStaleness>true</checkStaleness>
-                            <protocArtifact>com.google.protobuf:protoc:3.11.4:exe:${os.detected.classifier}
-                            </protocArtifact>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- generate a gRPC client (with Akka gRPC) for integration testing -->
-                        <id>grpc-client</id>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                        <configuration>
-                            <writeDescriptorSet>true</writeDescriptorSet>
-                            <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-                            <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
-                            <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
-                            <checkStaleness>true</checkStaleness>
-                            <protocArtifact>com.google.protobuf:protoc:3.11.4:exe:${os.detected.classifier}
-                            </protocArtifact>
+                            <protocArtifact>com.google.protobuf:protoc:3.11.4:exe:${os.detected.classifier}</protocArtifact>
                             <protocPlugins>
                                 <protocPlugin>
                                     <id>akka-grpc</id>
@@ -101,6 +84,7 @@
                             </protocPlugins>
                         </configuration>
                     </execution>
+
                 </executions>
             </plugin>
 

@@ -12,7 +12,7 @@ We recommend that you define your service API and events and data associated wit
 
 The first line of the example `shoppingcart_api.proto` file defines the version of Protocol Buffer syntax:
 
-.src/main/proto/com/example/shoppingcart/hoppingcart_api.proto
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
 include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_syntax]

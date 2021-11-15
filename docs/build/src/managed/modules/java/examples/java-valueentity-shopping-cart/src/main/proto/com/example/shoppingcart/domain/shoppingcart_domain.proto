@@ -38,7 +38,7 @@ option (akkaserverless.file).value_entity = {
 
 // tag::proto_messages[]
 message LineItem {
-  string productId = 1;
+  string product_id = 1;
   string name = 2;
   int32 quantity = 3;
 }
@@ -46,6 +46,7 @@ message LineItem {
 // The shopping cart state.
 message Cart {
   repeated LineItem items = 1;
+  int64 creation_timestamp = 2;
 }
 // end::proto_messages[]
 // end::domain[]

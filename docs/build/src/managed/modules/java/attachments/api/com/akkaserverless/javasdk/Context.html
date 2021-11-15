@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
+var data = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -155,13 +156,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">An Akka Stream materializer to use for running streams.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="ServiceCallFactory.html" title="interface in com.akkaserverless.javasdk">ServiceCallFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serviceCallFactory()">serviceCallFactory</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Get the service call factory for this stateful service.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -179,16 +173,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="serviceCallFactory()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>serviceCallFactory</h4>
-<pre class="methodSignature"><a href="ServiceCallFactory.html" title="interface in com.akkaserverless.javasdk">ServiceCallFactory</a>&nbsp;serviceCallFactory()</pre>
-<div class="block">Get the service call factory for this stateful service.</div>
-</li>
-</ul>
 <a id="materializer()">
 <!--   -->
 </a>

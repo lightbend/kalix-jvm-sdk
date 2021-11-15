@@ -15,31 +15,26 @@ import com.google.protobuf.empty.Empty
 /** An action. */
 class DoubleCounterAction(creationContext: ActionCreationContext) extends AbstractDoubleCounterAction {
 
-  private val increaseCallRef =
-    creationContext.serviceCallFactory.lookup( // <1>
-      "com.example.CounterService",
-      "Increase",
-      classOf[IncreaseValue])
 
   /** Handler for "Increase". */
   override def increase(increaseValue: IncreaseValue): Action.Effect[Empty] = {
     // end::controller-side-effect[]
     val doubled = increaseValue.value * 2
-    val increaseValueDoubled = increaseValue.copy(value = doubled) // <2>
+    val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
 
-    effects.forward(increaseCallRef.createCall(increaseValueDoubled)) // <3>
+    effects.forward(components.counter.increase(increaseValueDoubled)) // <2>
   }
 
   // end::controller-forward[]
-  def increaseWithSideEffect(increaseValue: IncreaseValue): Action.Effect[Empty] = {
-    // tag::controller-side-effect[]
+  // tag::controller-side-effect[]
+  override def increaseWithSideEffect(increaseValue: IncreaseValue): Action.Effect[Empty] = {
     val doubled = increaseValue.value * 2
-    val increaseValueDoubled = increaseValue.copy(value = doubled) // <2>
+    val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
 
     effects
-      .reply(Empty.defaultInstance) // <3>
-      .addSideEffect( // <4>
-        SideEffect(increaseCallRef.createCall(increaseValueDoubled)))
+      .reply(Empty.defaultInstance) // <2>
+      .addSideEffect( // <3>
+        SideEffect(components.counter.increase(increaseValueDoubled)))
   }
   // tag::controller-forward[]
 

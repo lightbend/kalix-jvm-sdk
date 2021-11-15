@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -156,7 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="EventSourcedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#thenForward(java.util.function.Function)">thenForward</a></span>&#8203;(java.util.function.Function&lt;<a href="EventSourcedEntity.Effect.OnSuccessBuilder.html" title="type parameter in EventSourcedEntity.Effect.OnSuccessBuilder">S</a>,&#8203;<a href="../ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&gt;&nbsp;serviceCall)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#thenForward(java.util.function.Function)">thenForward</a></span>&#8203;(java.util.function.Function&lt;<a href="EventSourcedEntity.Effect.OnSuccessBuilder.html" title="type parameter in EventSourcedEntity.Effect.OnSuccessBuilder">S</a>,&#8203;<a href="../DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;? extends Object,&#8203;T&gt;&gt;&nbsp;serviceCall)</code></th>
 <td class="colLast">
 <div class="block">Create a forward reply after for example <code>emitEvent</code>.</div>
 </td>
@@ -244,7 +245,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>thenForward</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="EventSourcedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;T&gt;&nbsp;thenForward&#8203;(java.util.function.Function&lt;<a href="EventSourcedEntity.Effect.OnSuccessBuilder.html" title="type parameter in EventSourcedEntity.Effect.OnSuccessBuilder">S</a>,&#8203;<a href="../ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&gt;&nbsp;serviceCall)</pre>
+<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="EventSourcedEntity.Effect.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;T&gt;&nbsp;thenForward&#8203;(java.util.function.Function&lt;<a href="EventSourcedEntity.Effect.OnSuccessBuilder.html" title="type parameter in EventSourcedEntity.Effect.OnSuccessBuilder">S</a>,&#8203;<a href="../DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;? extends Object,&#8203;T&gt;&gt;&nbsp;serviceCall)</pre>
 <div class="block">Create a forward reply after for example <code>emitEvent</code>.</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>

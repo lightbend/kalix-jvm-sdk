@@ -12,6 +12,7 @@
                 <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
                 <appendLineSeparator>true</appendLineSeparator>
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <!-- Don't use prettyPrint true in production, but can be useful for local development -->
                     <prettyPrint>false</prettyPrint>
                 </jsonFormatter>
             </layout>
@@ -26,8 +27,10 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="akka.http" level="INFO"/>
+    <logger name="io.grpc" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
 <!--        <appender-ref ref="STDOUT"/>-->
         <appender-ref ref="ASYNC-JSON-STDOUT"/>
     </root>

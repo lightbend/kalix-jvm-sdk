@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -149,7 +150,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#thenForward(com.akkaserverless.javasdk.ServiceCall)">thenForward</a></span>&#8203;(<a href="../ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#thenForward(com.akkaserverless.javasdk.DeferredCall)">thenForward</a></span>&#8203;(<a href="../DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;? extends Object,&#8203;T&gt;&nbsp;serviceCall)</code></th>
 <td class="colLast">
 <div class="block">Create a forward reply after for example <code>updateState</code>.</div>
 </td>
@@ -235,13 +236,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="thenForward(com.akkaserverless.javasdk.ServiceCall)">
+<a id="thenForward(com.akkaserverless.javasdk.DeferredCall)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>thenForward</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;&nbsp;thenForward&#8203;(<a href="../ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a>&nbsp;serviceCall)</pre>
+<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;&nbsp;thenForward&#8203;(<a href="../DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a>&lt;? extends Object,&#8203;T&gt;&nbsp;serviceCall)</pre>
 <div class="block">Create a forward reply after for example <code>updateState</code>.</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>

@@ -18,7 +18,7 @@
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <akkaserverless-sdk.version>0.8.0</akkaserverless-sdk.version>
+    <akkaserverless-sdk.version>0.9.0</akkaserverless-sdk.version>
     <akka-grpc.version>2.1.0</akka-grpc.version>
   </properties>
 

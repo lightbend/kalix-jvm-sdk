@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -233,6 +234,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">C</h2>
 <dl>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#call()">call()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
+<dd>
+<div class="block">The service call that is executed as this effect.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#clear()">clear()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Clear all metadata entries.</div>
@@ -401,16 +406,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a view handler for the given context.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCallRef.html#createCall(T)">createCall(T)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="interface in com.akkaserverless.javasdk">ServiceCallRef</a></dt>
-<dd>
-<div class="block">Create a call from this reference, using the given message as the message to pass to it when
- it's invoked.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCallRef.html#createCall(T,com.akkaserverless.javasdk.Metadata)">createCall(T, Metadata)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="interface in com.akkaserverless.javasdk">ServiceCallRef</a></dt>
-<dd>
-<div class="block">Create a call from this reference, using the given message as the message to pass to it when
- it's invoked.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/AkkaServerless.html#createRunner()">createRunner()</a></span> - Method in class com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></dt>
 <dd>
 <div class="block">Creates an AkkaServerlessRunner using the currently configured services.</div>
@@ -488,6 +483,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a passivation strategy that passivates the entity after the default duration (30
  seconds) of inactivity.</div>
+</dd>
+<dt><a href="com/akkaserverless/javasdk/DeferredCall.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">DeferredCall</span></a>&lt;<a href="com/akkaserverless/javasdk/DeferredCall.html" title="type parameter in DeferredCall">I</a>,&#8203;<a href="com/akkaserverless/javasdk/DeferredCall.html" title="type parameter in DeferredCall">O</a>&gt; - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
+<dd>
+<div class="block">Represents a call to another component, performed as a forward, a side effect, or a
+ request-reply.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html#delete()">delete()</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a></dt>
 <dd>
@@ -657,25 +657,29 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The origin subject of the <a href="com/akkaserverless/javasdk/CloudEvent.html" title="interface in com.akkaserverless.javasdk"><code>CloudEvent</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/DeferredCall.html#execute()">execute()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a></dt>
+<dd>
+<div class="block">Execute this call right away and get the async result back for composition.</div>
+</dd>
 </dl>
 <a id="I:F">
 <!--   -->
 </a>
 <h2 class="title">F</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html#forward(com.akkaserverless.javasdk.ServiceCall)">forward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html#forward(com.akkaserverless.javasdk.DeferredCall)">forward(DeferredCall&lt;? extends Object, S&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a forward reply.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.ServiceCall)">forward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.DeferredCall)">forward(DeferredCall&lt;? extends Object, T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a forward reply.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.ServiceCall)">forward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.DeferredCall)">forward(DeferredCall&lt;? extends Object, T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a forward reply.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.ServiceCall)">forward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html#forward(com.akkaserverless.javasdk.DeferredCall)">forward(DeferredCall&lt;? extends Object, T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a forward reply.</div>
 </dd>
@@ -938,10 +942,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/logging/LogbackJsonLayout.html#%3Cinit%3E()">LogbackJsonLayout()</a></span> - Constructor for class com.akkaserverless.javasdk.logging.<a href="com/akkaserverless/javasdk/logging/LogbackJsonLayout.html" title="class in com.akkaserverless.javasdk.logging">LogbackJsonLayout</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCallFactory.html#lookup(java.lang.String,java.lang.String,java.lang.Class)">lookup(String, String, Class&lt;T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCallFactory.html" title="interface in com.akkaserverless.javasdk">ServiceCallFactory</a></dt>
-<dd>
-<div class="block">Lookup a reference to the service call with the given name and method.</div>
-</dd>
 </dl>
 <a id="I:M">
 <!--   -->
@@ -957,7 +957,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">An Akka Stream materializer to use for running streams.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCall.html#message()">message()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/DeferredCall.html#message()">message()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a></dt>
 <dd>
 <div class="block">The message to pass to the call when the call is invoked.</div>
 </dd>
@@ -973,13 +973,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The metadata associated with the message.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/DeferredCall.html#metadata()">metadata()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/DeferredCall.html" title="interface in com.akkaserverless.javasdk">DeferredCall</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/MetadataContext.html#metadata()">metadata()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/MetadataContext.html" title="interface in com.akkaserverless.javasdk">MetadataContext</a></dt>
 <dd>
 <div class="block">Get the metadata associated with this context.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCall.html#metadata()">metadata()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></dt>
-<dd>
-<div class="block">The metadata to pass with the message when the call is invoked.</div>
 </dd>
 <dt><a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">Metadata</span></a> - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
 <dd>
@@ -992,10 +990,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><a href="com/akkaserverless/javasdk/MetadataContext.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">MetadataContext</span></a> - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
 <dd>
 <div class="block">Context that provides access to metadata.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCallRef.html#method()">method()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="interface in com.akkaserverless.javasdk">ServiceCallRef</a></dt>
-<dd>
-<div class="block">The protobuf descriptor for the method.</div>
 </dd>
 </dl>
 <a id="I:N">
@@ -1067,11 +1061,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">O</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.ServiceCall)">of(ServiceCall)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.DeferredCall)">of(DeferredCall)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
 <dd>
 <div class="block">Create a side effect of the given service call.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.ServiceCall,boolean)">of(ServiceCall, boolean)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#of(com.akkaserverless.javasdk.DeferredCall,boolean)">of(DeferredCall, boolean)</a></span> - Static method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
 <dd>
 <div class="block">Create a side effect of the given service call.</div>
 </dd>
@@ -1137,10 +1131,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">R</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/ServiceCall.html#ref()">ref()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk">ServiceCall</a></dt>
-<dd>
-<div class="block">The reference to the call.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/AkkaServerless.html#register(com.akkaserverless.javasdk.action.ActionProvider)">register(ActionProvider)</a></span> - Method in class com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/AkkaServerless.html" title="class in com.akkaserverless.javasdk">AkkaServerless</a></dt>
 <dd>
 <div class="block">Register an action using an {<a href="com/akkaserverless/javasdk/action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action"><code>ActionProvider</code></a>}.</div>
@@ -1350,26 +1340,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The sequence number of the current event being processed.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#serviceCall()">serviceCall()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
-<dd>
-<div class="block">The service call that is executed as this effect.</div>
-</dd>
-<dt><a href="com/akkaserverless/javasdk/ServiceCall.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">ServiceCall</span></a> - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
-<dd>
-<div class="block">Represents a call to a service, performed either as a forward, or as an effect.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Context.html#serviceCallFactory()">serviceCallFactory()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Context.html" title="interface in com.akkaserverless.javasdk">Context</a></dt>
-<dd>
-<div class="block">Get the service call factory for this stateful service.</div>
-</dd>
-<dt><a href="com/akkaserverless/javasdk/ServiceCallFactory.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">ServiceCallFactory</span></a> - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
-<dd>
-<div class="block">A service call factory.</div>
-</dd>
-<dt><a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">ServiceCallRef</span></a>&lt;<a href="com/akkaserverless/javasdk/ServiceCallRef.html" title="type parameter in ServiceCallRef">T</a>&gt; - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
-<dd>
-<div class="block">A reference to a call on a service.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionProvider.html#serviceDescriptor()">serviceDescriptor()</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionProvider.html" title="interface in com.akkaserverless.javasdk.action">ActionProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html#serviceDescriptor()">serviceDescriptor()</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntityProvider</a></dt>
@@ -1466,15 +1436,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Attach the given side effect to this reply from the new state.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html#thenForward(com.akkaserverless.javasdk.ServiceCall)">thenForward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.OnSuccessBuilder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html#thenForward(com.akkaserverless.javasdk.DeferredCall)">thenForward(DeferredCall&lt;? extends Object, T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.replicatedentity.<a href="com/akkaserverless/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.replicatedentity">ReplicatedEntity.Effect.OnSuccessBuilder</a></dt>
 <dd>
 <div class="block">Create a forward reply after for example <code>delete</code>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html#thenForward(com.akkaserverless.javasdk.ServiceCall)">thenForward(ServiceCall)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html#thenForward(com.akkaserverless.javasdk.DeferredCall)">thenForward(DeferredCall&lt;? extends Object, T&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a></dt>
 <dd>
 <div class="block">Create a forward reply after for example <code>updateState</code>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html#thenForward(java.util.function.Function)">thenForward(Function&lt;S, ServiceCall&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a></dt>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html#thenForward(java.util.function.Function)">thenForward(Function&lt;S, DeferredCall&lt;? extends Object, T&gt;&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.eventsourcedentity.<a href="com/akkaserverless/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in com.akkaserverless.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a></dt>
 <dd>
 <div class="block">Create a forward reply after for example <code>emitEvent</code>.</div>
 </dd>
