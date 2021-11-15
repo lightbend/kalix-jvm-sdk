@@ -23,36 +23,36 @@ if [ ! -d "$2" ]; then
 fi
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/samples/java-eventsourced-shopping-cart/src/main/proto/shoppingcart" \
+--proto_path="$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart" \
 --descriptor_set_out=event-sourced-shoppingcart.desc \
-"$2/samples/java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto" \
-"$2/samples/java-eventsourced-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto"
+"$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
+"$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto"
 
 echo "Generated event-sourced-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/samples/java-valueentity-shopping-cart/src/main/proto/shoppingcart" \
+--proto_path="$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart" \
 --descriptor_set_out=value-shoppingcart.desc \
-"$2/samples/java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto" \
-"$2/samples/java-valueentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto"
+"$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
+"$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto"
 
 echo "Generated value-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart" \
+--proto_path="$2/samples/java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart" \
 --descriptor_set_out=replicated-shoppingcart.desc \
-"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_domain.proto" \
-"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/shoppingcart/shoppingcart_api.proto"
+"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
+"$2/samples/java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto"
 
 echo "Generated replicated-shoppingcart.desc"
 
+
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/samples/java-eventing-shopping-cart/src/main/proto" \
---proto_path="$2/samples/java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_domain.proto" \
+--proto_path="$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart" \
 --descriptor_set_out=view-shoppingcart.desc \
-"$2/samples/java-eventing-shopping-cart/src/main/proto/cart/shopping_cart_view_model.proto"
+"$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shopping_cart_view_model.proto"
 
 echo "Generated view-shoppingcart.desc"

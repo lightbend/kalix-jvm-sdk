@@ -8,7 +8,9 @@ package com.example.shoppingcart;
 import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.example.shoppingcart.domain.ShoppingCart;
+import com.example.shoppingcart.view.ShoppingCartViewServiceImpl;
 
 public final class Main {
 
@@ -20,7 +22,8 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     return AkkaServerlessFactory.withComponents(
-        ShoppingCart::new
+        ShoppingCart::new,
+        ShoppingCartViewServiceImpl::new
     );
   }
 

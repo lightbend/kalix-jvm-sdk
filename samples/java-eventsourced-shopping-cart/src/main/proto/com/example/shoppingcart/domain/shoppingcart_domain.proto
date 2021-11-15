@@ -36,6 +36,11 @@ message ItemRemoved {
   string productId = 1;
 }
 
+// The checked out event.
+message CheckedOut {
+  int64 checked_out_timestamp = 1;
+}
+
 // The shopping cart state.
 message Cart {
   repeated LineItem items = 1;

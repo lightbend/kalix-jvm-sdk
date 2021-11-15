@@ -77,7 +77,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -98,7 +98,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val entity =
         ModelBuilder.EventSourcedEntity(
           fullyQualifiedName("ShoppingCart", derivedPackage),
-          "eventsourced-shopping-cart",
+          "shopping-cart",
           ModelBuilder.State(fullyQualifiedName("Cart", domainProto)),
           List(
             ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainProto)),
@@ -157,7 +157,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -187,6 +187,10 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EntityService(
             fullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
+              command(
+                "Create",
+                fullyQualifiedName("CreateCart", shoppingCartProto),
+                fullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 "AddItem",
                 fullyQualifiedName("AddLineItem", shoppingCartProto),
@@ -235,7 +239,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -310,7 +314,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "cart/shopping_cart_view_model.proto",
+          "shopping_cart_view_model.proto",
           "ShoppingCartViewModel",
           "shopping.cart.view",
           None,
@@ -319,9 +323,9 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "cart/shopping_cart_domain.proto",
-          "ShoppingCartDomain",
-          "shopping.cart.domain",
+          "domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
           None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
@@ -354,6 +358,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             "ProcessCheckedOut",
             fullyQualifiedName("CheckedOut", domainProto),
             fullyQualifiedName("CartViewState", shoppingCartProto)))
+
       val queries = List(
         command(
           "GetCheckedOutCarts",
