@@ -1,4 +1,4 @@
-> compile
+> products
 
 $ exists src/main/scala/com/example/Main.scala
 $ exists target/scala-2.13/src_managed/main/com/example/AkkaServerlessFactory.scala
@@ -148,6 +148,9 @@ $ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/So
 # com/example/valueentity/domain/some_value_entity_domain.proto
 $ exists src/test/scala/com/example/valueentity/domain/SomeValueEntitySpec.scala
 $ exists src/test/scala/com/example/valueentity/SomeValueEntityServiceIntegrationSpec.scala
+
+# Descriptor set must be included in classpath
+$ must-mirror target/scala-2.13/classes/protobuf/descriptor-sets/user-function.desc target/scala-2.13/resource_managed/main/protobuf/descriptor-sets/user-function.desc
 
 > Test/compile
 $ exists target/scala-2.13/src_managed/test/com/example/valueentity/domain/SomeValueEntityTestKit.scala

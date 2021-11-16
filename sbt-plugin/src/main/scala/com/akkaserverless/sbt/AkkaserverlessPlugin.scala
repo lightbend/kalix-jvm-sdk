@@ -35,8 +35,6 @@ import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
-import sbtprotoc.ProtocPlugin.protobufConfigSettings
-import scalapb.GeneratorOption
 
 object AkkaserverlessPlugin extends AutoPlugin {
   override def trigger = noTrigger
@@ -90,7 +88,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
         akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug) -> (Test / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
-      // Make sure generation has happened and that the protobuf descriptor file is created
+      // Make sure generation has happened
       val _ = (Compile / PB.generate).value
       // Then copy over any new generated unmanaged sources
       copyIfNotExist(
@@ -108,7 +106,11 @@ object AkkaserverlessPlugin extends AutoPlugin {
     },
     Compile / managedSources :=
       (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
-    Compile / managedResources += protobufDescriptorSetOut.value,
+    Compile / managedResources += {
+      // make sure the file has been generated
+      val _ = (Compile / PB.generate).value
+      protobufDescriptorSetOut.value
+    },
     Compile / unmanagedSources := {
       val _ = (Test / unmanagedSources).value // touch unmanaged test sources, so that they are generated on `compile`
       (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
