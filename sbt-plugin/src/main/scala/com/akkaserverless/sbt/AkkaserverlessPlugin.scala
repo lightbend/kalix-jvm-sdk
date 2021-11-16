@@ -119,7 +119,13 @@ object AkkaserverlessPlugin extends AutoPlugin {
       (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
     Test / unmanagedSources :=
       (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
-    onlyUnitTest := JBoolean.getBoolean("onlyUnitTest"),
+    onlyUnitTest := {
+      sys.props.get("onlyUnitTest") match {
+        case Some("") => true
+        case Some(x)  => JBoolean.valueOf(x)
+        case None     => false
+      }
+    },
     Test / testOptions ++= {
       if (onlyUnitTest.value)
         Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
