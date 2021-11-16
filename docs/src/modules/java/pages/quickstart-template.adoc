@@ -205,7 +205,7 @@ Scala::
 ----
 sbt -DonlyUnitTest test
 ----
-[.group-scala]#By default the integration and unit tests are both triggered with `sbt test`. To invoke only the unit tests run `sbt -DonlyUnitTest test` or set up that value to `true` in the sbt session by `set onlyUnitTest := true`. Then run `sbt test`#
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#
 
 For more details, see xref:java:value-entity.adoc#_testing_the_entity[Testing a Value Entity].
 xref:java:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourced Entity].
