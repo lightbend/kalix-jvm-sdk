@@ -25,6 +25,8 @@ import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityConfiguredEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityTckModelEntity;
 import com.akkaserverless.tck.model.valueentity.ValueEntityTwoEntity;
+import com.akkaserverless.tck.model.view.ViewTckModelImpl;
+import com.akkaserverless.tck.model.view.ViewTckSourceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +51,10 @@ public final class Main {
         ValueEntityConfiguredEntity::new,
         ValueEntityTckModelEntity::new,
         ValueEntityTwoEntity::new,
+        ViewTckSourceEntity::new,
         ActionTckModelImpl::new,
-        ActionTwoImpl::new);
+        ActionTwoImpl::new,
+        ViewTckModelImpl::new);
   }
 
   public static void main(String[] args) throws Exception {

@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.view;
+package com.akkaserverless.tck.model.view;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 
-public class ViewTckSourceEntity extends ValueEntity<String> {
-  public ViewTckSourceEntity(ValueEntityContext context) {}
+/** A value entity. */
+public class ViewTckSourceEntity extends AbstractViewTckSourceEntity {
+  @SuppressWarnings("unused")
+  private final String entityId;
+
+  public ViewTckSourceEntity(ValueEntityContext context) {
+    this.entityId = context.entityId();
+  }
 
   @Override
-  public String emptyState() {
+  public View.Ignore emptyState() {
     return null;
   }
 }
