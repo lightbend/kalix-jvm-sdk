@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.view;
+package com.akkaserverless.tck.model.view;
 
-import com.akkaserverless.javasdk.view.View;
 import com.akkaserverless.javasdk.view.ViewContext;
-import com.akkaserverless.tck.model.View.Event;
-import com.akkaserverless.tck.model.View.ViewState;
 
-public class ViewTckModelBehavior extends View<ViewState> {
+public class ViewTckModelImpl extends AbstractViewTckModelView {
 
-  @SuppressWarnings("unused")
-  public ViewTckModelBehavior(ViewContext context) {}
+  public ViewTckModelImpl(ViewContext context) {}
 
   @Override
-  public ViewState emptyState() {
+  public View.ViewState emptyState() {
     return null;
   }
 
-  public View.UpdateEffect<ViewState> processUpdateUnary(ViewState state, Event event) {
+  @Override
+  public UpdateEffect<View.ViewState> processUpdateUnary(View.ViewState state, View.Event event) {
     if (event.hasReturnAsIs()) {
       return effects()
-          .updateState(ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
+          .updateState(
+              View.ViewState.newBuilder().setData(event.getReturnAsIs().getData()).build());
     } else if (event.hasUppercaseThis()) {
       return effects()
           .updateState(
-              ViewState.newBuilder()
+              View.ViewState.newBuilder()
                   .setData(event.getUppercaseThis().getData().toUpperCase())
                   .build());
     } else if (event.hasAppendToExistingState()) {;

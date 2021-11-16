@@ -21,39 +21,20 @@ import com.akkaserverless.javasdk.PassivationStrategy;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOne;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityOneProvider;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwo;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.EventSourcedEntityTwoProvider;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriber;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.LocalPersistenceSubscriberProvider;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOne;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityOneProvider;
 import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwoProvider;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityConfiguredEntity;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityConfiguredEntityProvider;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTckModelEntity;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTckModelEntityProvider;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntity;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.ReplicatedEntityTwoEntityProvider;
-
-import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehavior;
-import com.akkaserverless.javasdk.tck.model.view.ViewTckModelBehaviorProvider;
-import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntity;
-import com.akkaserverless.javasdk.tck.model.view.ViewTckSourceEntityProvider;
+import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.*;
+import com.akkaserverless.javasdk.tck.model.replicatedentity.*;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.tck.model.action.ActionTckModelActionProvider;
-import com.akkaserverless.tck.model.action.ActionTwoActionProvider;
 import com.akkaserverless.tck.model.action.ActionTckModelImpl;
+import com.akkaserverless.tck.model.action.ActionTwoActionProvider;
 import com.akkaserverless.tck.model.action.ActionTwoImpl;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntityProvider;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntityProvider;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntityProvider;
+import com.akkaserverless.tck.model.eventsourcedentity.*;
 import com.akkaserverless.tck.model.valueentity.*;
+import com.akkaserverless.tck.model.view.ViewTckModelImpl;
+import com.akkaserverless.tck.model.view.ViewTckModelViewProvider;
+import com.akkaserverless.tck.model.view.ViewTckSourceEntity;
+import com.akkaserverless.tck.model.view.ViewTckSourceEntityProvider;
 
 import java.time.Duration;
 
@@ -97,7 +78,7 @@ public final class JavaSdkTck {
           .register(EventSourcedEntityTwoProvider.of(EventSourcedEntityTwo::new))
           .register(ValueEntityOneProvider.of(ValueEntityOne::new))
           .register(ValueEntityTwoProvider.of(ValueEntityTwo::new))
-          .register(ViewTckModelBehaviorProvider.of(ViewTckModelBehavior::new))
+          .register(ViewTckModelViewProvider.of(ViewTckModelImpl::new))
           .register(ViewTckSourceEntityProvider.of(ViewTckSourceEntity::new));
 
   public static void main(String[] args) throws Exception {
