@@ -189,7 +189,7 @@ Scala::
 include::example$scala-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
 ----
 
-Use the [.group-java]#`verify`# [.group-scala]#`compile`# command to run all unit tests.
+Use [.group-java]#`mvn verify`# [.group-scala]#`sbt -DonlyUnitTest test`# to run all unit tests.
 
 [.tabset]
 Java::
@@ -203,10 +203,13 @@ Scala::
 +
 [source,bash]
 ----
-sbt compile Test/compile
+sbt -DonlyUnitTest test
 ----
+By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`
 
-For more details, see xref:java:value-entity.adoc#_testing_the_entity[Testing the entity].
+For more details, see xref:java:value-entity.adoc#_testing_the_entity[Testing a Value Entity].
+xref:java:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourced Entity].
+xref:java:actions.adoc#_testing_the_action[Testing an Action].
 
 [.group-java]
 The Maven plugin also provides you with an initial setup for integration tests based on the Akka Serverless Java SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].
@@ -225,6 +228,15 @@ The Maven failsafe plugin runs the integration tests when the `it` profile is en
 [source,bash]
 ----
 mvn verify -Pit
+----
+
+[.group-scala]
+By default the integration and unit test are both invoked by `sbt test`.
+
+[.group-scala]
+[source,bash]
+----
+sbt test
 ----
 
 == Package service

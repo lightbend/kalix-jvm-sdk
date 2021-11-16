@@ -20,6 +20,7 @@ import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.{ akkaGrpcCodeGeneratorSettings, akkaGrpcGeneratedSources }
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
 
+import java.lang.{ Boolean => JBoolean }
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
@@ -46,6 +47,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
+    val onlyUnitTest = settingKey[Boolean]("Filters out integration tests. By default: false")
     val protobufDescriptorSetOut = settingKey[File]("The file to write the descriptor set to")
   }
 
@@ -118,7 +120,19 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Test / managedSources :=
       (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
     Test / unmanagedSources :=
-      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value)
+      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
+    onlyUnitTest := {
+      sys.props.get("onlyUnitTest") match {
+        case Some("") => true
+        case Some(x)  => JBoolean.valueOf(x)
+        case None     => false
+      }
+    },
+    Test / testOptions ++= {
+      if (onlyUnitTest.value)
+        Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
+      else Nil
+    })
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
