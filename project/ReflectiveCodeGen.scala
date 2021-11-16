@@ -152,7 +152,11 @@ object ReflectiveCodeGen extends AutoPlugin {
       "--descriptor_set_out",
       protobufDescriptorSetOut.value.getAbsolutePath,
       "--include_source_info"),
-    Compile / managedResources += protobufDescriptorSetOut.value,
+    Compile / managedResources += {
+      // make sure the file has been generated
+      val _ = (Compile / PB.generate).value
+      protobufDescriptorSetOut.value
+    },
     Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value,
     Compile / generateUnmanaged := {
       if ((Compile / copyUnmanagedSources).value) {
