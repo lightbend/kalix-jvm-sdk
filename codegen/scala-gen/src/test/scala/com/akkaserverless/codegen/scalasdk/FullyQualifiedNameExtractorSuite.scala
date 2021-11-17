@@ -35,10 +35,10 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
     classOf[ClassNameSuite].getResourceAsStream("/test-files/descriptor-sets/value-shoppingcart.desc"))
   val descriptors = d.right.get.right.get.toList
 
-  val api = descriptors.find(_.getName == "shoppingcart_api.proto").get
+  val api = descriptors.find(_.getName == "com/example/shoppingcart/shoppingcart_api.proto").get
   val apiCart = api.getMessageTypes.asScala.find(_.getName == "Cart").get
 
-  val domain = descriptors.find(_.getName == "shoppingcart_domain.proto").get
+  val domain = descriptors.find(_.getName == "com/example/shoppingcart/domain/shoppingcart_domain.proto").get
   val stateCart = domain.getMessageTypes.asScala.find(_.getName == "Cart").get
 
   val di = DescriptorImplicits.fromCodeGenRequest(

@@ -68,7 +68,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -77,7 +77,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -98,7 +98,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       val entity =
         ModelBuilder.EventSourcedEntity(
           fullyQualifiedName("ShoppingCart", derivedPackage),
-          "eventsourced-shopping-cart",
+          "shopping-cart",
           ModelBuilder.State(fullyQualifiedName("Cart", domainProto)),
           List(
             ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainProto)),
@@ -148,7 +148,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -157,7 +157,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -187,6 +187,10 @@ class ModelBuilderSuite extends munit.FunSuite {
           ModelBuilder.EntityService(
             fullyQualifiedName("ShoppingCartService", shoppingCartProto),
             List(
+              command(
+                "Create",
+                fullyQualifiedName("CreateCart", shoppingCartProto),
+                fullyQualifiedName("Empty", googleEmptyProto)),
               command(
                 "AddItem",
                 fullyQualifiedName("AddLineItem", shoppingCartProto),
@@ -226,7 +230,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "shoppingcart_api.proto",
+          "com/example/shoppingcart/shoppingcart_api.proto",
           "ShoppingcartApi",
           "com.example.shoppingcart",
           None,
@@ -235,7 +239,7 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val domainProto =
         PackageNaming(
-          "shoppingcart_domain.proto",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
           "com.example.shoppingcart.domain",
           None,
@@ -310,18 +314,18 @@ class ModelBuilderSuite extends munit.FunSuite {
 
       val shoppingCartProto =
         PackageNaming(
-          "cart/shopping_cart_view_model.proto",
+          "com/example/shoppingcart/view/shopping_cart_view_model.proto",
           "ShoppingCartViewModel",
-          "shopping.cart.view",
+          "com.example.shoppingcart.view",
           None,
           Some("ShoppingCartViewModel"),
           javaMultipleFiles = false)
 
       val domainProto =
         PackageNaming(
-          "cart/shopping_cart_domain.proto",
-          "ShoppingCartDomain",
-          "shopping.cart.domain",
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
           None,
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
@@ -354,6 +358,7 @@ class ModelBuilderSuite extends munit.FunSuite {
             "ProcessCheckedOut",
             fullyQualifiedName("CheckedOut", domainProto),
             fullyQualifiedName("CartViewState", shoppingCartProto)))
+
       val queries = List(
         command(
           "GetCheckedOutCarts",
@@ -363,7 +368,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       assertEquals(
         model.services,
         Map(
-          "shopping.cart.view.ShoppingCartViewService" ->
+          "com.example.shoppingcart.view.ShoppingCartViewService" ->
           ModelBuilder.ViewService(
             FullyQualifiedName(
               "ShoppingCartViewService",
