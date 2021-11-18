@@ -122,7 +122,12 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
     init.state match {
       case Some(ValueEntityInitState(stateOpt, _)) =>
-        stateOpt.map(service.anySupport.decode).foreach(handler._internalSetInitState)
+        stateOpt match {
+          case Some(state) =>
+            val decoded = service.anySupport.decodeMessage(state)
+            handler._internalSetInitState(decoded)
+          case None => // no initial state
+        }
       case None =>
         throw new IllegalStateException("ValueEntityInitState is mandatory")
     }
@@ -142,8 +147,8 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val cmd =
-            service.anySupport.decode(
-              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
+            service.anySupport.decodeMessage(
+              command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
           val context =
             new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
 

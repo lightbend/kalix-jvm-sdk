@@ -58,7 +58,7 @@ private[akkaserverless] final class ReplicatedRegisterImpl[T](
 
   override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedRegisterImpl[T]] = {
     case ReplicatedEntityDelta.Delta.Register(ReplicatedRegisterDelta(Some(any), _, _, _)) =>
-      new ReplicatedRegisterImpl(anySupport, anySupport.decode(any).asInstanceOf[T])
+      new ReplicatedRegisterImpl(anySupport, anySupport.decodePossiblyPrimitive(any).asInstanceOf[T])
   }
 
   private def convertClock(clock: ReplicatedRegister.Clock): ReplicatedEntityClock =

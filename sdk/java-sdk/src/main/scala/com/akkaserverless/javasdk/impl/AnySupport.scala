@@ -17,27 +17,27 @@
 package com.akkaserverless.javasdk.impl
 
 import com.akkaserverless.javasdk.JsonSupport
-import com.akkaserverless.javasdk.impl.AnySupport.Prefer.{ Java, Scala }
+import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Java
+import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Scala
 import com.google.common.base.CaseFormat
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.google.protobuf.{
-  Any => JavaPbAny,
-  ByteString,
-  CodedInputStream,
-  CodedOutputStream,
-  Descriptors,
-  Parser,
-  UnsafeByteOperations,
-  WireFormat
-}
+import com.google.protobuf.ByteString
+import com.google.protobuf.CodedInputStream
+import com.google.protobuf.CodedOutputStream
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Parser
+import com.google.protobuf.UnsafeByteOperations
+import com.google.protobuf.WireFormat
+import com.google.protobuf.{ Any => JavaPbAny }
 import org.slf4j.LoggerFactory
 import scalapb.options.Scalapb
-import scalapb.{ GeneratedMessage, GeneratedMessageCompanion }
+import scalapb.GeneratedMessage
+import scalapb.GeneratedMessageCompanion
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
-import scala.jdk.CollectionConverters._
 import scala.collection.concurrent.TrieMap
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -379,23 +379,64 @@ class AnySupport(
           s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
     }
 
-  def decode(any: JavaPbAny): Any = decode(ScalaPbAny.fromJavaProto(any))
-
-  def decode(any: ScalaPbAny): Any = {
+  /**
+   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a ScalaPbAny wrapped
+   * Akkaserverless primitive into the Java primitive type value. Must only be used where primitive values are expected.
+   */
+  def decodePossiblyPrimitive(any: ScalaPbAny): Any = {
     val typeUrl = any.typeUrl
-    val bytes = any.value
     if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
+      // Note that this decodes primitive bytestring and string but not json which falls over to message decode below
       NameToPrimitives.get(typeUrl) match {
         case Some(primitive) =>
-          bytesToPrimitive(primitive, bytes)
+          bytesToPrimitive(primitive, any.value)
         case None =>
           throw SerializationException("Unknown primitive type url: " + typeUrl)
       }
-    } else if (typeUrl.startsWith(JsonSupport.AKKA_SERVERLESS_JSON)) {
-      // the general decode does not actually handle json but returns it as is (but as Scala PB any) and let the user
-      // decide which json type to try decode it into
-      ScalaPbAny.toJavaProto(any)
     } else {
+      decodeMessage(any)
+    }
+  }
+
+  /**
+   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a Akka Serverless specific
+   * wrapping of bytes, string or strings containing JSON into com.google.protobuf.{BytesValue, StringValue} which the
+   * user method is expected to accept for such messages (for example coming from a topic).
+   *
+   * Other JavaPbAny wrapped primitives are not expected, but the wrapped value is passed through as it is.
+   */
+  def decodeMessage(any: ScalaPbAny): Any = {
+    val typeUrl = any.typeUrl
+    if (typeUrl.equals(BytesPrimitive.fullName)) {
+      // raw byte strings we turn into BytesValue and expect service method to accept
+      val bytes = bytesToPrimitive(BytesPrimitive, any.value)
+      if (prefer == PREFER_JAVA)
+        com.google.protobuf.BytesValue.of(bytes)
+      else
+        com.google.protobuf.wrappers.BytesValue.of(bytes)
+
+    } else if (typeUrl.equals(StringPrimitive.fullName)) {
+      // strings as StringValue
+      val string = bytesToPrimitive(StringPrimitive, any.value)
+      if (prefer == PREFER_JAVA)
+        com.google.protobuf.StringValue.of(string)
+      else
+        com.google.protobuf.wrappers.StringValue.of(string)
+
+    } else if (typeUrl.startsWith(JsonSupport.AKKA_SERVERLESS_JSON)) {
+      // we do not actually parse JSON here but returns it as is and let the user
+      // decide which json type to try decode it into etc. based on the type_url which
+      // may have additional detail about what it can be JSON-deserialized into
+      if (prefer == PREFER_JAVA)
+        ScalaPbAny.toJavaProto(any)
+      else
+        any
+
+    } else if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
+      // pass on as is, the generated types will not match the primitive type if we unwrap/decode
+      any
+    } else {
+      // wrapped concrete protobuf message, parse into the right type
       val typeName = typeUrl.split("/", 2) match {
         case Array(host, typeName) =>
           if (host != typeUrlPrefix) {
@@ -415,7 +456,7 @@ class AnySupport(
 
       resolveTypeUrl(typeName) match {
         case Some(parser) =>
-          parser.parseFrom(bytes)
+          parser.parseFrom(any.value)
         case None =>
           throw SerializationException("Unable to find descriptor for type: " + typeUrl)
       }

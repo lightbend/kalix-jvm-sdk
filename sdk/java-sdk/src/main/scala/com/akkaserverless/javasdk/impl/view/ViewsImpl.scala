@@ -92,10 +92,10 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
               val state: Option[Any] =
                 receiveEvent.bySubjectLookupResult.flatMap(row =>
-                  row.value.map(scalaPb => service.anySupport.decode(ScalaPbAny.toJavaProto(scalaPb))))
+                  row.value.map(scalaPb => service.anySupport.decodeMessage(scalaPb)))
 
               val commandName = receiveEvent.commandName
-              val msg = service.anySupport.decode(ScalaPbAny.toJavaProto(receiveEvent.payload.get))
+              val msg = service.anySupport.decodeMessage(receiveEvent.payload.get)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 

@@ -38,6 +38,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import com.akkaserverless.javasdk.impl.ActionFactory
+import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
 import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -104,9 +105,6 @@ private[javasdk] final class ActionsImpl(
     override def getGrpcClient[T](clientClass: Class[T], service: String): T =
       GrpcClients(system).getGrpcClient(clientClass, service)
   }
-
-  private def toJavaPbAny(any: Option[ScalaPbAny]) =
-    any.fold(JavaPbAny.getDefaultInstance)(ScalaPbAny.toJavaProto)
 
   private def effectToResponse(
       service: ActionService,
@@ -177,7 +175,8 @@ private[javasdk] final class ActionsImpl(
       case Some(service) =>
         try {
           val context = createContext(in)
-          val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
+          val decodedPayload = service.anySupport.decodeMessage(
+            in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           val effect = service.factory
             .create(creationContext)
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
@@ -220,7 +219,8 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
+                      val decodedPayload = service.anySupport.decodeMessage(
+                        message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
                     createContext(call))
@@ -248,7 +248,8 @@ private[javasdk] final class ActionsImpl(
       case Some(service) =>
         try {
           val context = createContext(in)
-          val decodedPayload = service.anySupport.decode(toJavaPbAny(in.payload))
+          val decodedPayload = service.anySupport.decodeMessage(
+            in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
             .create(creationContext)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
@@ -296,7 +297,8 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decode(toJavaPbAny(message.payload))
+                      val decodedPayload = service.anySupport.decodeMessage(
+                        message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
                     createContext(call))

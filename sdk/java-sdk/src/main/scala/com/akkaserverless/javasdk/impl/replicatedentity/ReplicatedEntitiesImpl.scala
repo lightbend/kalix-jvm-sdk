@@ -165,7 +165,7 @@ object ReplicatedEntitiesImpl {
 
       val context = new ReplicatedEntityCommandContext(entityId, command, system)
       val payload = command.payload.getOrElse(throw ProtocolException(command, "No command payload"))
-      val cmd = service.anySupport.decode(ScalaPbAny.toJavaProto(payload))
+      val cmd = service.anySupport.decodeMessage(payload)
 
       val CommandResult(effect: ReplicatedEntityEffectImpl[_, _]) =
         try {
