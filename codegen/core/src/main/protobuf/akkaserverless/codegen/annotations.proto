@@ -16,14 +16,14 @@
 
 syntax = "proto3";
 
-package akkaserverless.codegen;
+package akkaserverless;
 
-option java_package = "com.akkaserverless";
-option java_outer_classname = "CodegenProto";
+option java_package = "com.akkaserverless.codegen";
+option java_multiple_files = true;
 import "google/protobuf/descriptor.proto";
 
 message CodegenOptions {
-  oneof component {
+  oneof codegen {
     EventSourcedEntityDef event_sourced_entity = 1;
     // Value entity configuration.
     ValueEntityDef value_entity = 2;
@@ -35,7 +35,7 @@ message CodegenOptions {
 }
 
 extend google.protobuf.ServiceOptions {
-  CodegenOptions component = 1081;
+  CodegenOptions codegen = 1081;
 }
 
 
@@ -89,53 +89,53 @@ message ReplicatedEntityDef {
   // Mandatory replicated data type for this replicated entity
   oneof replicated_data {
     // Configure this entity as a replicated counter
-    ReplicatedCounter replicated_counter = 4;
+    ReplicatedCounterDef replicated_counter = 4;
     // Configure this entity as a replicated register
-    ReplicatedRegister replicated_register = 5;
+    ReplicatedRegisterDef replicated_register = 5;
     // Configure this entity as a replicated set
-    ReplicatedSet replicated_set = 6;
+    ReplicatedSetDef replicated_set = 6;
     // Configure this entity as a (heterogeneous) replicated map
-    ReplicatedMap replicated_map = 7;
+    ReplicatedMapDef replicated_map = 7;
     // Configure this entity as a replicated counter map
-    ReplicatedCounterMap replicated_counter_map = 8;
+    ReplicatedCounterMapDef replicated_counter_map = 8;
     // Configure this entity as a replicated register map
-    ReplicatedRegisterMap replicated_register_map = 9;
+    ReplicatedRegisterMapDef replicated_register_map = 9;
     // Configure this entity as a replicated multi-map
-    ReplicatedMultiMap replicated_multi_map = 10;
+    ReplicatedMultiMapDef replicated_multi_map = 10;
     // Configure this entity as a replicated vote
-    ReplicatedVote replicated_vote = 11;
+    ReplicatedVoteDef replicated_vote = 11;
   }
 }
 
 // Options specific to replicated counters
-message ReplicatedCounter {}
+message ReplicatedCounterDef {}
 
 // Options specific to replicated registers
-message ReplicatedRegister {
+message ReplicatedRegisterDef {
   // Mandatory value type for this replicated register
   string value = 1;
 }
 
 // Options specific to replicated sets
-message ReplicatedSet {
+message ReplicatedSetDef {
   // Mandatory element type for this replicated set
   string element = 1;
 }
 
 // Options specific to (heterogeneous) replicated maps
-message ReplicatedMap {
+message ReplicatedMapDef {
   // Mandatory key type for this replicated map
   string key = 1;
 }
 
 // Options specific to replicated counter maps
-message ReplicatedCounterMap {
+message ReplicatedCounterMapDef {
   // Mandatory key type for this replicated counter map
   string key = 1;
 }
 
 // Options specific to replicated register maps
-message ReplicatedRegisterMap {
+message ReplicatedRegisterMapDef {
   // Mandatory key type for this replicated register map
   string key = 1;
   // Mandatory value type for this replicated register map
@@ -143,7 +143,7 @@ message ReplicatedRegisterMap {
 }
 
 // Options specific to replicated multi-maps
-message ReplicatedMultiMap {
+message ReplicatedMultiMapDef {
   // Mandatory key type for this replicated multi-map
   string key = 1;
   // Mandatory value type for this replicated multi-map
@@ -151,5 +151,5 @@ message ReplicatedMultiMap {
 }
 
 // Options specific to replicated votes
-message ReplicatedVote {}
+message ReplicatedVoteDef {}
 

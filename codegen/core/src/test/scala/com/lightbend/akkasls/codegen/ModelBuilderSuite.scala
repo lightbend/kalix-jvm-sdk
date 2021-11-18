@@ -42,7 +42,7 @@ object ModelBuilderSuite {
 
     def registry: ExtensionRegistry = {
       val reg = ExtensionRegistry.newInstance()
-      reg.add(com.akkaserverless.CodegenProto.component)
+      reg.add(com.akkaserverless.codegen.Annotations.codegen)
       reg.add(com.akkaserverless.Annotations.method)
       reg
     }

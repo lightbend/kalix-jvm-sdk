@@ -18,10 +18,10 @@ package com.lightbend.akkasls.codegen
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.CodegenProto.CodegenOptions
-import com.akkaserverless.CodegenProto.EventSourcedEntityDef
-import com.akkaserverless.CodegenProto.ReplicatedEntityDef
-import com.akkaserverless.CodegenProto.ValueEntityDef
+import com.akkaserverless.codegen.CodegenOptions
+import com.akkaserverless.codegen.EventSourcedEntityDef
+import com.akkaserverless.codegen.ReplicatedEntityDef
+import com.akkaserverless.codegen.ValueEntityDef
 import com.akkaserverless.ServiceOptions.ServiceType
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
@@ -352,7 +352,7 @@ object ModelBuilder {
 
       val modelFromServices =
         fileDescriptor.getServices.asScala.foldLeft(accModel) { (model, serviceDescriptor) =>
-          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.CodegenProto.component)) {
+          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.codegen.Annotations.codegen)) {
             model ++ modelFromCodegenOptions(serviceDescriptor, descriptorSeq)
 
           } else if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.service)) {
@@ -501,19 +501,19 @@ object ModelBuilder {
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Model = {
 
-    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.CodegenProto.component)
+    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.codegen.Annotations.codegen)
     val serviceName = fqnExtractor(serviceDescriptor)
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
 
-    codegenOptions.getComponentCase match {
-      case CodegenOptions.ComponentCase.ACTION =>
+    codegenOptions.getCodegenCase match {
+      case CodegenOptions.CodegenCase.ACTION =>
         Model.fromService(
           ActionService(
             serviceName, // FIXME: use ActionDef.name and ActionDef.packageName
             commands))
 
-      case CodegenOptions.ComponentCase.VIEW =>
+      case CodegenOptions.CodegenCase.VIEW =>
         val methodDetails = methods.flatMap { method =>
           Option(method.getOptions.getExtension(com.akkaserverless.Annotations.method).getView).map(viewOptions =>
             (method, viewOptions))
@@ -538,21 +538,21 @@ object ModelBuilder {
                 Command.from(method)
             }))
 
-      case CodegenOptions.ComponentCase.VALUE_ENTITY =>
+      case CodegenOptions.CodegenCase.VALUE_ENTITY =>
         val entityDef = codegenOptions.getValueEntity
         val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
         Model
           .fromService(EntityService(serviceName, commands, componentFullName))
           .addEntity(extractValueEntity(entityDef, additionalDescriptors))
 
-      case CodegenOptions.ComponentCase.EVENT_SOURCED_ENTITY =>
+      case CodegenOptions.CodegenCase.EVENT_SOURCED_ENTITY =>
         val entityDef = codegenOptions.getEventSourcedEntity
         val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
         Model
           .fromService(EntityService(serviceName, commands, componentFullName))
           .addEntity(extractEventSourcedEntity(entityDef, additionalDescriptors))
 
-      case CodegenOptions.ComponentCase.REPLICATED_ENTITY =>
+      case CodegenOptions.CodegenCase.REPLICATED_ENTITY =>
         val entityDef = codegenOptions.getReplicatedEntity
         val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
         Model
