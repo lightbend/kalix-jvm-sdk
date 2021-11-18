@@ -16,7 +16,8 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import com.akkaserverless.codegen.scalasdk.impl.ReplicatedEntitySourceGenerator
+import com.akkaserverless.codegen.scalasdk.impl.{ ReplicatedEntitySourceGenerator, ScalaGeneratorUtils }
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder.{
   ReplicatedCounter,
   ReplicatedCounterMap,
@@ -48,13 +49,14 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     test(s"Generated replicated entity service implementation - $testName") {
 
       val fixedImports =
-        Set(
-          "import com.example.service",
-          "import com.external.Empty",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext")
+        Seq(
+          "com.example.service",
+          "com.external.Empty",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext")
 
-      val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
+      val expectedImports =
+        ScalaGeneratorUtils.writeImports(new Imports("com.example.service.domain", fixedImports ++ specificImports))
 
       assertNoDiff(
         ReplicatedEntitySourceGenerator
@@ -90,13 +92,13 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
   testEntityServiceImplementation(
     "ReplicatedCounter",
     ReplicatedCounter,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
     "ReplicatedCounter")
 
   testEntityServiceImplementation(
     "ReplicatedRegister (with protobuf message type)",
     ReplicatedRegister(domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
     "ReplicatedRegister[SomeValue]",
     """|  override def emptyValue: SomeValue =
        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value")
@@ -106,9 +108,7 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
   testEntityServiceImplementation(
     "ReplicatedRegister (with protobuf scalar type)",
     ReplicatedRegister(domainType("bytes")),
-    Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister",
-      "import com.google.protobuf.ByteString"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister", "com.google.protobuf.ByteString"),
     "ReplicatedRegister[ByteString]",
     """|  override def emptyValue: ByteString =
        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty register value")
@@ -118,71 +118,71 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
   testEntityServiceImplementation(
     "ReplicatedSet (with protobuf message type)",
     ReplicatedSet(domainType("SomeElement")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[SomeElement]")
 
   testEntityServiceImplementation(
     "ReplicatedSet (with protobuf scalar type)",
     ReplicatedSet(domainType("string")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[String]")
 
   testEntityServiceImplementation(
     "ReplicatedMap (with protobuf message type)",
     ReplicatedMap(domainType("SomeKey")),
     Set(
-      "import com.akkaserverless.replicatedentity.ReplicatedData",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
+      "com.akkaserverless.replicatedentity.ReplicatedData",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
   testEntityServiceImplementation(
     "ReplicatedMap (with protobuf scalar type)",
     ReplicatedMap(domainType("int32")),
     Set(
-      "import com.akkaserverless.replicatedentity.ReplicatedData",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
+      "com.akkaserverless.replicatedentity.ReplicatedData",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
     "ReplicatedMap[Int, ReplicatedData]")
 
   testEntityServiceImplementation(
     "ReplicatedCounterMap (with protobuf message type)",
     ReplicatedCounterMap(domainType("SomeKey")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[SomeKey]")
 
   testEntityServiceImplementation(
     "ReplicatedCounterMap (with protobuf scalar type)",
     ReplicatedCounterMap(domainType("string")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[String]")
 
   testEntityServiceImplementation(
     "ReplicatedRegisterMap (with protobuf message type)",
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[SomeKey, SomeValue]")
 
   testEntityServiceImplementation(
     "ReplicatedRegisterMap (with protobuf scalar types)",
     ReplicatedRegisterMap(domainType("double"), domainType("string")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[Double, String]")
 
   testEntityServiceImplementation(
     "ReplicatedMultiMap (with protobuf message type)",
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[SomeKey, SomeValue]")
 
   testEntityServiceImplementation(
     "ReplicatedMultiMap (with protobuf scalar types)",
     ReplicatedMultiMap(domainType("sint32"), domainType("double")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[Int, Double]")
 
   testEntityServiceImplementation(
     "ReplicatedVote",
     ReplicatedVote,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
     "ReplicatedVote")
 
   def testAbstractEntityService(
@@ -193,12 +193,13 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     test(s"Generated abstract replicated entity service - ${replicatedData.name}") {
 
       val fixedImports =
-        Set(
-          "import com.example.service",
-          "import com.external.Empty",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity")
+        Seq(
+          "com.example.service",
+          "com.external.Empty",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity")
 
-      val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
+      val expectedImports =
+        ScalaGeneratorUtils.writeImports(new Imports("com.example.service.domain", fixedImports ++ specificImports))
 
       assertNoDiff(
         ReplicatedEntitySourceGenerator
@@ -228,65 +229,65 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
   testAbstractEntityService(
     ReplicatedCounter,
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterEntity"),
     "ReplicatedCounterEntity",
     "ReplicatedCounter")
 
   testAbstractEntityService(
     ReplicatedRegister(domainType("SomeValue")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterEntity"),
     "ReplicatedRegisterEntity[SomeValue]",
     "ReplicatedRegister[SomeValue]")
 
   testAbstractEntityService(
     ReplicatedSet(domainType("SomeElement")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSetEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedSetEntity"),
     "ReplicatedSetEntity[SomeElement]",
     "ReplicatedSet[SomeElement]")
 
   testAbstractEntityService(
     ReplicatedMap(domainType("SomeKey")),
     Set(
-      "import com.akkaserverless.replicatedentity.ReplicatedData",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMapEntity"),
+      "com.akkaserverless.replicatedentity.ReplicatedData",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMapEntity"),
     "ReplicatedMapEntity[SomeKey, ReplicatedData]",
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
   testAbstractEntityService(
     ReplicatedCounterMap(domainType("SomeKey")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMapEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMapEntity"),
     "ReplicatedCounterMapEntity[SomeKey]",
     "ReplicatedCounterMap[SomeKey]")
 
   testAbstractEntityService(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMapEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMapEntity"),
     "ReplicatedRegisterMapEntity[SomeKey, SomeValue]",
     "ReplicatedRegisterMap[SomeKey, SomeValue]")
 
   testAbstractEntityService(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMapEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMapEntity"),
     "ReplicatedMultiMapEntity[SomeKey, SomeValue]",
     "ReplicatedMultiMap[SomeKey, SomeValue]")
 
   testAbstractEntityService(
     ReplicatedVote,
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVoteEntity"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedVoteEntity"),
     "ReplicatedVoteEntity",
     "ReplicatedVote")
 
@@ -294,9 +295,9 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
   testAbstractEntityService(
     ReplicatedSet(domainType("bytes")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSetEntity",
-      "import com.google.protobuf.ByteString"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedSetEntity",
+      "com.google.protobuf.ByteString"),
     "ReplicatedSetEntity[ByteString]",
     "ReplicatedSet[ByteString]")
 
@@ -304,14 +305,15 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     test(s"Generated replicated entity handler - ${replicatedData.name}") {
 
       val fixedImports =
-        Set(
-          "import com.example.service",
-          "import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-          "import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
-          "import com.akkaserverless.scalasdk.replicatedentity.CommandContext")
+        Seq(
+          "com.example.service",
+          "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
+          "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
+          "com.akkaserverless.scalasdk.replicatedentity.CommandContext")
 
-      val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
+      val expectedImports =
+        ScalaGeneratorUtils.writeImports(new Imports("com.example.service.domain", fixedImports ++ specificImports))
 
       assertNoDiff(
         ReplicatedEntitySourceGenerator
@@ -355,50 +357,47 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   testEntityRouter(
     ReplicatedCounter,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
     "ReplicatedCounter")
 
   testEntityRouter(
     ReplicatedRegister(domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
     "ReplicatedRegister[SomeValue]")
 
   testEntityRouter(
     ReplicatedSet(domainType("SomeElement")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[SomeElement]")
 
   testEntityRouter(
     ReplicatedMap(domainType("SomeKey")),
     Set(
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
-      "import com.akkaserverless.replicatedentity.ReplicatedData"),
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap",
+      "com.akkaserverless.replicatedentity.ReplicatedData"),
     "ReplicatedMap[SomeKey, ReplicatedData]")
 
   testEntityRouter(
     ReplicatedCounterMap(domainType("SomeKey")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[SomeKey]")
 
   testEntityRouter(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[SomeKey, SomeValue]")
 
   testEntityRouter(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[SomeKey, SomeValue]")
 
-  testEntityRouter(
-    ReplicatedVote,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
-    "ReplicatedVote")
+  testEntityRouter(ReplicatedVote, Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"), "ReplicatedVote")
 
   // test for scalar types, using ByteString because of extra import
   testEntityRouter(
     ReplicatedSet(domainType("bytes")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "import com.google.protobuf.ByteString"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "com.google.protobuf.ByteString"),
     "ReplicatedSet[ByteString]")
 
   def testEntityProvider(
@@ -409,16 +408,17 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
     test(s"Generated replicated entity provider - ${replicatedData.name}") {
 
       val fixedImports =
-        Set(
-          "import com.example.service",
-          "import com.external.ExternalDomainProto",
-          "import com.google.protobuf.Descriptors",
-          "import scala.collection.immutable.Seq",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
-          "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider")
+        Seq(
+          "com.example.service",
+          "com.external.ExternalDomainProto",
+          "com.google.protobuf.Descriptors",
+          "scala.collection.immutable.Seq",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
+          "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider")
 
-      val expectedImports = (fixedImports ++ specificImports).toList.sorted.mkString("\n")
+      val expectedImports =
+        ScalaGeneratorUtils.writeImports(new Imports("com.example.service.domain", fixedImports ++ specificImports))
 
       assertNoDiff(
         ReplicatedEntitySourceGenerator
@@ -468,58 +468,58 @@ class ReplicatedEntitySourceGeneratorSuite extends munit.FunSuite {
 
   testEntityProvider(
     ReplicatedCounter,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter"),
     "ReplicatedCounter",
     "ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedRegister(domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister"),
     "ReplicatedRegister[SomeValue]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedSet(domainType("SomeElement")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet"),
     "ReplicatedSet[SomeElement]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedMap(domainType("SomeKey")),
     Set(
-      "import com.akkaserverless.replicatedentity.ReplicatedData",
-      "import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
+      "com.akkaserverless.replicatedentity.ReplicatedData",
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap"),
     "ReplicatedMap[SomeKey, ReplicatedData]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedCounterMap(domainType("SomeKey")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap"),
     "ReplicatedCounterMap[SomeKey]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor".stripMargin.stripTrailing)
 
   testEntityProvider(
     ReplicatedRegisterMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap"),
     "ReplicatedRegisterMap[SomeKey, SomeValue]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedMultiMap(domainType("SomeKey"), domainType("SomeValue")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap"),
     "ReplicatedMultiMap[SomeKey, SomeValue]",
     "DomainProto.javaDescriptor :: ExternalDomainProto.javaDescriptor")
 
   testEntityProvider(
     ReplicatedVote,
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote"),
     "ReplicatedVote",
     "ExternalDomainProto.javaDescriptor")
 
   // test for scalar types, using ByteString because of extra import
   testEntityProvider(
     ReplicatedSet(domainType("bytes")),
-    Set("import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "import com.google.protobuf.ByteString"),
+    Set("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet", "com.google.protobuf.ByteString"),
     "ReplicatedSet[ByteString]",
     "ExternalDomainProto.javaDescriptor")
 }

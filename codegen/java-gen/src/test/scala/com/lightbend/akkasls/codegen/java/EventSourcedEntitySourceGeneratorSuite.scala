@@ -205,6 +205,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
          |import com.external.Empty;
          |import com.external.ExternalDomain;
          |import com.google.protobuf.Descriptors;
+         |
          |import java.util.function.Function;
          |
          |// This code is managed by Akka Serverless tooling.

@@ -46,6 +46,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
+        |
         |import java.util.ArrayList;
         |import java.util.List;
         |import java.util.NoSuchElementException;

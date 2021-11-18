@@ -58,6 +58,7 @@ class ActionTestKitGeneratorSuite extends munit.FunSuite {
         |import com.example.service.MyServiceAction;
         |import com.example.service.ServiceOuterClass;
         |import com.external.Empty;
+        |
         |import java.util.ArrayList;
         |import java.util.List;
         |import java.util.Optional;

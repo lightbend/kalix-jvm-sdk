@@ -32,15 +32,14 @@ object ScalaGeneratorUtils {
   }
 
   def writeImports(imports: Imports): String = {
-    imports.imports
-      .map { imported =>
+    imports.ordered
+      .map(_.map { imported =>
         if (imported == "com.google.protobuf.any.Any") {
           s"import com.google.protobuf.any.{ Any => ScalaPbAny }"
         } else
           s"import $imported"
-      }
-      .sorted
-      .mkString("\n")
+      }.mkString("\n"))
+      .mkString("\n\n")
   }
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
