@@ -23,7 +23,7 @@ class ClassNameSuite extends munit.FunSuite {
     val d = DescriptorSet.descriptors(
       classOf[ClassNameSuite].getResourceAsStream("/test-files/descriptor-sets/value-shoppingcart.desc"))
     val descriptors = d.right.get.right.get.toList
-    assertEquals(descriptors.size, 11)
+    assertEquals(descriptors.size, 12)
 
     // This test doesn't test anything particularly interesting, but is useful
     // for experimenting with what a 'real' parsed proto looks like after parsing ;)

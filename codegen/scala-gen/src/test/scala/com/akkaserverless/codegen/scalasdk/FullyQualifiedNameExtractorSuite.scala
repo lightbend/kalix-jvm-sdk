@@ -32,7 +32,8 @@ class FullyQualifiedNameExtractorSuite extends munit.FunSuite {
   }
 
   val d = DescriptorSet.descriptors(
-    classOf[ClassNameSuite].getResourceAsStream("/test-files/descriptor-sets/value-shoppingcart.desc"))
+    classOf[FullyQualifiedNameExtractorSuite].getResourceAsStream(
+      "/test-files/descriptor-sets/value-shoppingcart.desc"))
   val descriptors = d.right.get.right.get.toList
 
   val api = descriptors.find(_.getName == "com/example/shoppingcart/shoppingcart_api.proto").get
