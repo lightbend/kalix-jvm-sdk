@@ -226,7 +226,6 @@ class TestData(val packageNamingTemplate: PackageNaming) {
     valueEntity(domainProto(suffix), suffix)
   def valueEntity(parent: PackageNaming, suffix: String = ""): ModelBuilder.ValueEntity =
     ModelBuilder.ValueEntity(
-      parent.protoPackage + s".MyValueEntity$suffix",
       fullyQualifiedName(s"MyValueEntity$suffix", parent),
       s"MyValueEntity$suffix",
       ModelBuilder.State(fullyQualifiedName("MyState", parent)))

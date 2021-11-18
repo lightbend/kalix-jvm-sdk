@@ -30,7 +30,39 @@ import scala.collection.mutable
 
 import com.lightbend.akkasls.codegen.TestData.fullyQualifiedName
 
-class ModelBuilderSuite extends munit.FunSuite {
+object ModelBuilderSuite {
+  trait Config {
+    def label: String
+    def registry: ExtensionRegistry
+    def descriptorSetPath: String
+  }
+  object CodegenAnnotationConfig extends Config {
+    override val label: String = "CodegenAnnotation"
+    override val descriptorSetPath: String = "descriptor-sets"
+
+    def registry: ExtensionRegistry = {
+      val reg = ExtensionRegistry.newInstance()
+      reg.add(com.akkaserverless.CodegenProto.component)
+      reg.add(com.akkaserverless.Annotations.method)
+      reg
+    }
+
+  }
+  object ServiceAnnotationConfig extends Config {
+    override val label: String = "ServiceAnnotation"
+    override val descriptorSetPath: String = "descriptor-sets-old-format"
+
+    def registry: ExtensionRegistry = {
+      val reg = ExtensionRegistry.newInstance()
+      reg.add(com.akkaserverless.Annotations.service)
+      reg.add(com.akkaserverless.Annotations.file)
+      reg.add(com.akkaserverless.Annotations.method)
+      reg
+    }
+
+  }
+}
+abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit.FunSuite {
   val log = LoggerFactory.getLogger(getClass)
   implicit val codegenLog = new Log {
     override def debug(message: String): Unit = log.debug(message)
@@ -48,17 +80,14 @@ class ModelBuilderSuite extends munit.FunSuite {
       outToTopic: Boolean = false) =
     ModelBuilder.Command(name, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
-  test("EventSourcedEntity introspection") {
+  test(s"EventSourcedEntity introspection (${config.label})") {
+
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
-      testFilesPath.resolve("descriptor-sets/event-sourced-shoppingcart.desc")
-
-    val registry = ExtensionRegistry.newInstance()
-    registry.add(com.akkaserverless.Annotations.service)
-    registry.add(com.akkaserverless.Annotations.file)
+      testFilesPath.resolve(config.descriptorSetPath + "/event-sourced-shoppingcart.desc")
 
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
       val fileList = fileDescSet.getFileList.asScala
 
       val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
@@ -129,17 +158,13 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
-  test("ValueEntity introspection") {
+  test(s"ValueEntity introspection (${config.label})") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
-      testFilesPath.resolve("descriptor-sets/value-shoppingcart.desc")
-
-    val registry = ExtensionRegistry.newInstance()
-    registry.add(com.akkaserverless.Annotations.service)
-    registry.add(com.akkaserverless.Annotations.file)
+      testFilesPath.resolve(config.descriptorSetPath + "/value-shoppingcart.desc")
 
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
       val fileList = fileDescSet.getFileList.asScala
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
@@ -173,7 +198,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
-        domainProto.protoPackage + "." + "ShoppingCart",
         fullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
         ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
@@ -211,17 +235,13 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
-  test("ReplicatedEntity introspection") {
+  test(s"ReplicatedEntity introspection (${config.label})") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
-      testFilesPath.resolve("descriptor-sets/replicated-shoppingcart.desc")
-
-    val registry = ExtensionRegistry.newInstance()
-    registry.add(com.akkaserverless.Annotations.service)
-    registry.add(com.akkaserverless.Annotations.file)
+      testFilesPath.resolve(config.descriptorSetPath + "/replicated-shoppingcart.desc")
 
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
       val fileList = fileDescSet.getFileList.asScala
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
@@ -293,18 +313,13 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
-  test("View introspection") {
+  test(s"View introspection (${config.label})") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
-      testFilesPath.resolve("descriptor-sets/view-shoppingcart.desc")
-
-    val registry = ExtensionRegistry.newInstance()
-    registry.add(com.akkaserverless.Annotations.service)
-    registry.add(com.akkaserverless.Annotations.file)
-    registry.add(com.akkaserverless.Annotations.method)
+      testFilesPath.resolve(config.descriptorSetPath + "/view-shoppingcart.desc")
 
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, registry)
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
       val fileList = fileDescSet.getFileList.asScala
 
       val descriptors = fileList.foldLeft(List.empty[Descriptors.FileDescriptor])((acc, file) =>
@@ -339,7 +354,6 @@ class ModelBuilderSuite extends munit.FunSuite {
           Some("EmptyProto"),
           javaMultipleFiles = true)
       val entity = ModelBuilder.ValueEntity(
-        domainProto.protoPackage + "." + "ShoppingCart",
         fullyQualifiedName("ShoppingCart", domainProto),
         "shopping-cart",
         ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
@@ -383,7 +397,7 @@ class ModelBuilderSuite extends munit.FunSuite {
     }.get
   }
 
-  test("deriving java package from proto options") {
+  test(s"deriving java package from proto options (${config.label})") {
     val protoFileName = "name.proto"
     val name = "Name"
     val pkg = "com.example"
@@ -394,7 +408,7 @@ class ModelBuilderSuite extends munit.FunSuite {
       "override.package")
   }
 
-  test("resolving full names") {
+  test(s"resolving full names  (${config.label})") {
     val pkg = "com.example"
 
     assertEquals(ModelBuilder.resolveFullName("Test", pkg), "com.example.Test")
@@ -402,3 +416,6 @@ class ModelBuilderSuite extends munit.FunSuite {
     assertEquals(ModelBuilder.resolveFullName("other.package.Test", pkg), "other.package.Test")
   }
 }
+
+class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.CodegenAnnotationConfig)
+class ModelBuilderWithServiceAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.ServiceAnnotationConfig)

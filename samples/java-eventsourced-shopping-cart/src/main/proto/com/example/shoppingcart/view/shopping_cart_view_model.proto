@@ -22,8 +22,8 @@ import "akkaserverless/annotations.proto";
 import "com/example/shoppingcart/domain/shoppingcart_domain.proto";
 
 service ShoppingCartViewService {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_VIEW
+  option (akkaserverless.codegen) = {
+    view: {}
   };
 
   rpc ProcessAdded(com.example.shoppingcart.domain.ItemAdded) returns (CartViewState) {

@@ -231,7 +231,6 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
     }
 
     ModelBuilder.ValueEntity(
-      domainProto.protoPackage + ".ShoppingCart",
       fullyQualifiedName("ShoppingCart", domainProto),
       "shopping-cart",
       ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))

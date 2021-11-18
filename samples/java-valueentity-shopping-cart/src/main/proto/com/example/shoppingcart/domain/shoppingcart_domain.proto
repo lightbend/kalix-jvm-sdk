@@ -23,18 +23,6 @@ package com.example.shoppingcart.domain;
 
 option java_outer_classname = "ShoppingCartDomain";
 
-// tag::proto_imports[]
-import "akkaserverless/annotations.proto";
-// end::proto_imports[]
-
-// tag::proto_state[]
-// Describes how this domain relates to a value entity
-option (akkaserverless.file).value_entity = {
-  name: "ShoppingCart"
-  entity_type: "shopping-cart"
-  state: "Cart"
-};
-// end::proto_state[]
 
 // tag::proto_messages[]
 message LineItem {

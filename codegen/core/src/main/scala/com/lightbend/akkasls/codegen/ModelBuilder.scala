@@ -17,8 +17,14 @@
 package com.lightbend.akkasls.codegen
 
 import scala.jdk.CollectionConverters._
-import com.google.protobuf.Descriptors
+
+import com.akkaserverless.CodegenProto.CodegenOptions
+import com.akkaserverless.CodegenProto.EventSourcedEntityDef
+import com.akkaserverless.CodegenProto.ReplicatedEntityDef
+import com.akkaserverless.CodegenProto.ValueEntityDef
 import com.akkaserverless.ServiceOptions.ServiceType
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Descriptors.ServiceDescriptor
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -38,6 +44,16 @@ object ModelBuilder {
     def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming
   }
 
+  object Model {
+    def empty: Model = Model(Map.empty, Map.empty)
+
+    def fromService(service: Service): Model =
+      Model.empty.addService(service)
+
+    def fromEntity(entity: Entity): Model =
+      Model.empty.addEntity(entity)
+  }
+
   /**
    * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
    */
@@ -49,6 +65,15 @@ object ModelBuilder {
           "Service [" + service.fqn.fullyQualifiedProtoName + "] refers to entity [" + service.componentFullName +
           s"], but no entity configuration is found for that component name. Entities: [${entities.keySet.mkString(", ")}]"))
     }
+
+    def addService(service: Service): Model =
+      copy(services + (service.fqn.fullyQualifiedProtoName -> service), entities)
+
+    def addEntity(entity: Entity): Model =
+      copy(services, entities + (entity.fqn.fullyQualifiedProtoName -> entity))
+
+    def ++(model: Model): Model =
+      Model(services ++ model.services, entities ++ model.entities)
   }
 
   /**
@@ -75,12 +100,7 @@ object ModelBuilder {
   /**
    * A type of Entity that stores its current state directly.
    */
-  case class ValueEntity(
-      // TODO this should probably be promoted to Entity level
-      val componentFullName: String,
-      override val fqn: FullyQualifiedName,
-      override val entityType: String,
-      state: State)
+  case class ValueEntity(override val fqn: FullyQualifiedName, override val entityType: String, state: State)
       extends Entity(fqn, entityType)
 
   /**
@@ -125,9 +145,10 @@ object ModelBuilder {
   sealed trait TypeArgument
 
   object TypeArgument {
-    def apply(name: String, proto: PackageNaming, descriptorObject: Option[FullyQualifiedName]): TypeArgument = {
+
+    def apply(name: String, proto: PackageNaming, fqn: Option[FullyQualifiedName]): TypeArgument = {
       if (name.nonEmpty && name.charAt(0).isLower) ScalarTypeArgument(ScalarType(name))
-      else MessageTypeArgument(FullyQualifiedName(name, name, proto, descriptorObject))
+      else MessageTypeArgument(FullyQualifiedName(name, name, proto, fqn))
     }
   }
 
@@ -305,8 +326,8 @@ object ModelBuilder {
   case class Event(fqn: FullyQualifiedName)
 
   /**
-   * The state is simply data—​the current set of values for an entity instance. Event Sourced entities hold their state
-   * in memory.
+   * The state is simply data — the current set of values for an entity instance. Event Sourced entities hold their
+   * state in memory.
    */
   case class State(fqn: FullyQualifiedName)
 
@@ -323,73 +344,32 @@ object ModelBuilder {
   def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Model = {
+
     val descriptorSeq = descriptors.toSeq
-    descriptorSeq.foldLeft(Model(Map.empty, Map.empty)) {
-      case (Model(existingServices, existingEntities), descriptor) =>
-        log.debug("Looking at descriptor " + descriptor.getName)
-        val services = for {
-          serviceDescriptor <- descriptor.getServices.asScala
-          options = serviceDescriptor
-            .getOptions()
-            .getExtension(com.akkaserverless.Annotations.service)
-          serviceType <- Option(options.getType())
-          serviceName = fqnExtractor(serviceDescriptor)
 
-          methods = serviceDescriptor.getMethods.asScala
-          commands = methods.map(Command.from)
+    descriptorSeq.foldLeft(Model.empty) { case (accModel, fileDescriptor) =>
+      log.debug("Looking at descriptor " + fileDescriptor.getName)
 
-          service <- serviceType match {
-            case ServiceType.SERVICE_TYPE_ENTITY =>
-              Option(options.getComponent())
-                .filter(_.nonEmpty)
-                .map[Service] { componentName =>
-                  val componentFullName =
-                    resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+      val modelFromServices =
+        fileDescriptor.getServices.asScala.foldLeft(accModel) { (model, serviceDescriptor) =>
+          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.CodegenProto.component)) {
+            model ++ modelFromCodegenOptions(serviceDescriptor, descriptorSeq)
 
-                  EntityService(serviceName, commands, componentFullName)
-                }
-            case ServiceType.SERVICE_TYPE_ACTION =>
-              Some(ActionService(serviceName, commands))
-            case ServiceType.SERVICE_TYPE_VIEW =>
-              val methodDetails = methods.flatMap { method =>
-                Option(method.getOptions().getExtension(com.akkaserverless.Annotations.method).getView()).map(
-                  viewOptions => (method, viewOptions))
-              }
-              val updates = methodDetails.collect {
-                case (method, viewOptions) if viewOptions.hasUpdate =>
-                  Command.from(method)
-              }
-              Some(
-                ViewService(
-                  serviceName,
-                  commands,
-                  viewId = serviceDescriptor.getName(),
-                  updates = updates,
-                  transformedUpdates = methodDetails
-                    .collect {
-                      case (method, viewOptions)
-                          if viewOptions.hasUpdate && viewOptions
-                            .getUpdate()
-                            .getTransformUpdates() =>
-                        Command.from(method)
-                    },
-                  queries = methodDetails.collect {
-                    case (method, viewOptions) if viewOptions.hasQuery =>
-                      Command.from(method)
-                  }))
-            case _ => None
+          } else if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.service)) {
+            // FIXME: old format, builds service model from old service annotation
+            model ++ modelFromServiceOptions(serviceDescriptor)
+          } else {
+            model
           }
-        } yield serviceName.fullyQualifiedProtoName -> service
+        }
 
-        Model(
-          existingServices ++ services,
-          existingEntities ++
-          extractEventSourcedEntityDefinition(descriptor, descriptorSeq)
-            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity) ++
-          extractValueEntityDefinition(descriptor, descriptorSeq)
-            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity) ++
-          extractReplicatedEntityDefinition(descriptor)
-            .map(entity => entity.fqn.fullyQualifiedProtoName -> entity))
+      // FIXME: old format, builds entity model from domain.proto file
+      val modelFromDomainFile =
+        extractEventSourcedEntityDefinitionFromFileOptions(fileDescriptor, descriptorSeq) ++
+        extractValueEntityDefinitionFromFileOptions(fileDescriptor, descriptorSeq) ++
+        extractReplicatedEntityDefinitionFromFileOptions(fileDescriptor)
+
+      modelFromServices ++ modelFromDomainFile
     }
   }
 
@@ -432,6 +412,58 @@ object ModelBuilder {
   }
 
   /**
+   * Lookup a FileDescriptor for the passed `name` and `package`.
+   *
+   * Valid inputs are:
+   *   - package: foo.bar.baz, name: Foo
+   *   - package: foo.bar, name: baz.Foo
+   *
+   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz"
+   *
+   * @return
+   *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
+   */
+  private def lookupDescriptor(
+      resolvedPackage: String,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor]): Descriptors.FileDescriptor = {
+
+    val selectedDescriptors =
+      additionalDescriptors.filter { desc =>
+        desc.getPackage == resolvedPackage
+      }
+
+    selectedDescriptors.size match {
+      case 1 => selectedDescriptors.head
+      case 0 => throw new IllegalArgumentException(s"No descriptor found declaring package [$resolvedPackage]")
+      case _ =>
+        throw new IllegalArgumentException(s"Found more than one descriptor declaring package [$resolvedPackage]")
+    }
+  }
+
+  /**
+   * Resolves a proto 'message' using name and package. Valid inputs are:
+   *
+   *   - package: foo.bar.baz, name: Foo
+   *   - package: foo.bar, name: baz.Foo
+   *
+   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz"
+   *
+   * @return
+   *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
+   */
+  private def resolveFullyQualifiedMessageType(
+      name: String,
+      pkg: String,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): FullyQualifiedName = {
+
+    val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
+    val descriptor = lookupDescriptor(revolvedPackage, additionalDescriptors)
+    resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors)
+  }
+
+  /**
    * Resolves the provided name relative to the provided package
    *
    * @param name
@@ -451,6 +483,278 @@ object ModelBuilder {
   }
 
   /**
+   * Resolves the provided name relative to the provided package and split it back into name and package
+   *
+   * (foo.bar, baz.Foo) => (foo.bar.baz, Foo)
+   */
+  private def extractPackageAndName(pkg: String, name: String): (String, String) = {
+    val resolvedPackageAndName = resolveFullName(name, pkg)
+    val idx = resolvedPackageAndName.lastIndexOf('.')
+    val resolvedName = resolvedPackageAndName.drop(idx + 1)
+    val resolvedPackage = resolvedPackageAndName.take(idx)
+    (resolvedPackage, resolvedName)
+  }
+
+  private def modelFromCodegenOptions(
+      serviceDescriptor: ServiceDescriptor,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Model = {
+
+    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.CodegenProto.component)
+    val serviceName = fqnExtractor(serviceDescriptor)
+    val methods = serviceDescriptor.getMethods.asScala
+    val commands = methods.map(Command.from)
+
+    codegenOptions.getComponentCase match {
+      case CodegenOptions.ComponentCase.ACTION =>
+        Model.fromService(
+          ActionService(
+            serviceName, // FIXME: use ActionDef.name and ActionDef.packageName
+            commands))
+
+      case CodegenOptions.ComponentCase.VIEW =>
+        val methodDetails = methods.flatMap { method =>
+          Option(method.getOptions.getExtension(com.akkaserverless.Annotations.method).getView).map(viewOptions =>
+            (method, viewOptions))
+        }
+        val updates = methodDetails.collect {
+          case (method, viewOptions) if viewOptions.hasUpdate =>
+            Command.from(method)
+        }
+        Model.fromService(
+          ViewService(
+            serviceName, // FIXME: use ViewDef.name and ViewDef.packageName
+            commands,
+            viewId = serviceDescriptor.getName,
+            updates = updates,
+            transformedUpdates = methodDetails
+              .collect {
+                case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
+                  Command.from(method)
+              },
+            queries = methodDetails.collect {
+              case (method, viewOptions) if viewOptions.hasQuery =>
+                Command.from(method)
+            }))
+
+      case CodegenOptions.ComponentCase.VALUE_ENTITY =>
+        val entityDef = codegenOptions.getValueEntity
+        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        Model
+          .fromService(EntityService(serviceName, commands, componentFullName))
+          .addEntity(extractValueEntity(entityDef, additionalDescriptors))
+
+      case CodegenOptions.ComponentCase.EVENT_SOURCED_ENTITY =>
+        val entityDef = codegenOptions.getEventSourcedEntity
+        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        Model
+          .fromService(EntityService(serviceName, commands, componentFullName))
+          .addEntity(extractEventSourcedEntity(entityDef, additionalDescriptors))
+
+      case CodegenOptions.ComponentCase.REPLICATED_ENTITY =>
+        val entityDef = codegenOptions.getReplicatedEntity
+        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        Model
+          .fromService(EntityService(serviceName, commands, componentFullName))
+          .addEntity(extractReplicatedEntity(entityDef, additionalDescriptors))
+
+      case _ => Model.empty
+    }
+
+  }
+
+  private def extractEventSourcedEntity(
+      entityDef: EventSourcedEntityDef,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): EventSourcedEntity = {
+
+    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
+    val protoReference = fqnExtractor.packageName(domainDescriptor)
+    val packageName = protoReference.copy(javaMultipleFiles = true)
+    val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))
+
+    EventSourcedEntity(
+      FullyQualifiedName(entityDef.getName, entityDef.getName, packageName, fullQualifiedDescriptor),
+      entityDef.getEntityType,
+      State(resolveFullyQualifiedMessageType(entityDef.getState, entityDef.getPackageName, additionalDescriptors)),
+      entityDef.getEventsList.asScala
+        .map { event =>
+          Event(resolveFullyQualifiedMessageType(event, entityDef.getPackageName, additionalDescriptors))
+        })
+
+  }
+
+  private def extractValueEntity(entityDef: ValueEntityDef, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
+      implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): ValueEntity = {
+
+    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
+    val protoReference = fqnExtractor.packageName(domainDescriptor)
+
+    ValueEntity(
+      FullyQualifiedName(
+        entityDef.getName,
+        entityDef.getName,
+        protoReference,
+        Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))),
+      entityDef.getEntityType,
+      State(resolveFullyQualifiedMessageType(entityDef.getState, entityDef.getPackageName, additionalDescriptors)))
+
+  }
+
+  private def extractReplicatedEntity(
+      entityDef: ReplicatedEntityDef,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): ReplicatedEntity = {
+
+    import ReplicatedEntityDef.ReplicatedDataCase
+
+    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
+
+    val protoReference = fqnExtractor.packageName(domainDescriptor)
+    val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))
+
+    def typeArgument(name: String, fqn: FullyQualifiedName) =
+      TypeArgument(name, fqn.parent, fqn.descriptorObject)
+
+    val dataType =
+      entityDef.getReplicatedDataCase match {
+        case ReplicatedDataCase.REPLICATED_COUNTER => ReplicatedCounter
+        case ReplicatedDataCase.REPLICATED_REGISTER =>
+          val fqn = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedRegister.getValue,
+            entityDef.getPackageName,
+            additionalDescriptors)
+          ReplicatedRegister(typeArgument(entityDef.getReplicatedRegister.getValue, fqn))
+
+        case ReplicatedDataCase.REPLICATED_SET =>
+          val fqn = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedSet.getElement,
+            entityDef.getPackageName,
+            additionalDescriptors)
+          ReplicatedSet(typeArgument(entityDef.getReplicatedSet.getElement, fqn))
+
+        case ReplicatedDataCase.REPLICATED_MAP =>
+          val fqn = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedMap.getKey,
+            entityDef.getPackageName,
+            additionalDescriptors)
+          ReplicatedMap(typeArgument(entityDef.getReplicatedMap.getKey, fqn))
+
+        case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
+          val fqn = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedCounterMap.getKey,
+            entityDef.getPackageName,
+            additionalDescriptors)
+          ReplicatedCounterMap(typeArgument(entityDef.getReplicatedCounterMap.getKey, fqn))
+
+        case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
+          val fqnKey = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedRegisterMap.getKey,
+            entityDef.getPackageName,
+            additionalDescriptors)
+
+          val fqnValue = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedRegisterMap.getValue,
+            entityDef.getPackageName,
+            additionalDescriptors)
+
+          ReplicatedRegisterMap(
+            typeArgument(entityDef.getReplicatedRegisterMap.getKey, fqnKey),
+            typeArgument(entityDef.getReplicatedRegisterMap.getValue, fqnValue))
+
+        case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
+          val fqnKey = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedMultiMap.getKey,
+            entityDef.getPackageName,
+            additionalDescriptors)
+
+          val fqnValue = resolveFullyQualifiedMessageType(
+            entityDef.getReplicatedMultiMap.getValue,
+            entityDef.getPackageName,
+            additionalDescriptors)
+
+          ReplicatedMultiMap(
+            typeArgument(entityDef.getReplicatedMultiMap.getKey, fqnKey),
+            typeArgument(entityDef.getReplicatedMultiMap.getValue, fqnValue))
+
+        case ReplicatedDataCase.REPLICATED_VOTE =>
+          ReplicatedVote
+        case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
+          throw new IllegalArgumentException("Replicated data type not set")
+      }
+
+    ReplicatedEntity(
+      FullyQualifiedName(
+        entityDef.getName,
+        entityDef.getName,
+        protoReference.copy(javaMultipleFiles = true),
+        fullQualifiedDescriptor),
+      entityDef.getEntityType,
+      dataType)
+
+  }
+
+  private def modelFromServiceOptions(serviceDescriptor: Descriptors.ServiceDescriptor)(implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): Model = {
+
+    val serviceOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.Annotations.service)
+    val serviceType = serviceOptions.getType
+    val serviceName = fqnExtractor(serviceDescriptor)
+
+    val methods = serviceDescriptor.getMethods.asScala
+    val commands = methods.map(Command.from)
+
+    serviceType match {
+      case ServiceType.SERVICE_TYPE_ENTITY =>
+        if (serviceOptions.getComponent eq null) Model.empty
+        else {
+          val componentName = serviceOptions.getComponent
+          val componentFullName = resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+          EntityService(serviceName, commands, componentFullName)
+          Model.fromService(EntityService(serviceName, commands, componentFullName))
+        }
+      case ServiceType.SERVICE_TYPE_ACTION =>
+        Model.fromService(ActionService(serviceName, commands))
+
+      case ServiceType.SERVICE_TYPE_VIEW =>
+        val methodDetails = methods.flatMap { method =>
+          Option(method.getOptions.getExtension(com.akkaserverless.Annotations.method).getView).map(viewOptions =>
+            (method, viewOptions))
+        }
+        val updates = methodDetails.collect {
+          case (method, viewOptions) if viewOptions.hasUpdate =>
+            Command.from(method)
+        }
+        Model.fromService(
+          ViewService(
+            serviceName,
+            commands,
+            viewId = serviceDescriptor.getName,
+            updates = updates,
+            transformedUpdates = methodDetails
+              .collect {
+                case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
+                  Command.from(method)
+              },
+            queries = methodDetails.collect {
+              case (method, viewOptions) if viewOptions.hasQuery =>
+                Command.from(method)
+            }))
+
+      case _ => Model.empty
+    }
+  }
+
+  /**
    * Extracts any defined event sourced entity from the provided protobuf file descriptor
    *
    * @param descriptor
@@ -458,11 +762,12 @@ object ModelBuilder {
    * @return
    *   the event sourced entity
    */
-  private def extractEventSourcedEntityDefinition(
+  private def extractEventSourcedEntityDefinitionFromFileOptions(
       descriptor: Descriptors.FileDescriptor,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
-      fqnExtractor: FullyQualifiedNameExtractor): Option[EventSourcedEntity] = {
+      fqnExtractor: FullyQualifiedNameExtractor): Model = {
+
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
@@ -471,16 +776,20 @@ object ModelBuilder {
     val protoReference = fqnExtractor.packageName(descriptor)
     val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))
 
-    Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
-      EventSourcedEntity(
-        FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
-        rawEntity.getEntityType,
-        State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, additionalDescriptors)),
-        rawEntity.getEventsList.asScala
-          // TODO this assumes events are defined in the same proto as the entity. To lift this restriction,
-          // use something like resolveFullyQualifiedMessageType above
-          .map(event => Event(FullyQualifiedName(event, event, protoReference, fullQualifiedDescriptor))))
-    }
+    Option(rawEntity.getName)
+      .filter(_.nonEmpty)
+      .map { name =>
+        Model.fromEntity(
+          EventSourcedEntity(
+            FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
+            rawEntity.getEntityType,
+            State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, additionalDescriptors)),
+            rawEntity.getEventsList.asScala
+              // TODO this assumes events are defined in the same proto as the entity. To lift this restriction,
+              // use something like resolveFullyQualifiedMessageType above
+              .map(event => Event(FullyQualifiedName(event, event, protoReference, fullQualifiedDescriptor)))))
+      }
+      .getOrElse(Model.empty)
   }
 
   /**
@@ -489,27 +798,30 @@ object ModelBuilder {
    * @param descriptor
    *   the file descriptor to extract from
    */
-  private def extractValueEntityDefinition(
+  private def extractValueEntityDefinitionFromFileOptions(
       descriptor: Descriptors.FileDescriptor,
       descriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
-      fqnExtractor: FullyQualifiedNameExtractor): Option[ValueEntity] = {
+      fqnExtractor: FullyQualifiedNameExtractor): Model = {
     val rawEntity =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
 
-    Option(rawEntity.getName).filter(_.nonEmpty).map { name =>
-      ValueEntity(
-        descriptor.getFile.getPackage + "." + name,
-        FullyQualifiedName(
-          name,
-          name,
-          fqnExtractor.packageName(descriptor),
-          Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
-        rawEntity.getEntityType,
-        State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, descriptors)))
-    }
+    Option(rawEntity.getName)
+      .filter(_.nonEmpty)
+      .map { name =>
+        Model.fromEntity(
+          ValueEntity(
+            FullyQualifiedName(
+              name,
+              name,
+              fqnExtractor.packageName(descriptor),
+              Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
+            rawEntity.getEntityType,
+            State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, descriptors))))
+      }
+      .getOrElse(Model.empty)
   }
 
   /**
@@ -518,9 +830,8 @@ object ModelBuilder {
    * @param descriptor
    *   the file descriptor to extract from
    */
-  private def extractReplicatedEntityDefinition(descriptor: Descriptors.FileDescriptor)(implicit
-      log: Log,
-      fqnExtractor: FullyQualifiedNameExtractor): Option[ReplicatedEntity] = {
+  private def extractReplicatedEntityDefinitionFromFileOptions(
+      descriptor: Descriptors.FileDescriptor)(implicit log: Log, fqnExtractor: FullyQualifiedNameExtractor): Model = {
     import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
 
     val rawEntity =
@@ -531,42 +842,47 @@ object ModelBuilder {
     val protoReference = fqnExtractor.packageName(descriptor)
     val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))
 
-    Option(rawEntity.getName).filter(_.nonEmpty).flatMap { name =>
-
-      val dataType = rawEntity.getReplicatedDataCase match {
-        case ReplicatedDataCase.REPLICATED_COUNTER =>
-          Some(ReplicatedCounter)
-        case ReplicatedDataCase.REPLICATED_REGISTER =>
-          val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedRegister(value))
-        case ReplicatedDataCase.REPLICATED_SET =>
-          val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedSet(element))
-        case ReplicatedDataCase.REPLICATED_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedMap(key))
-        case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedCounterMap(key))
-        case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference, fullQualifiedDescriptor)
-          val value = TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedRegisterMap(key, value))
-        case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
-          val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference, fullQualifiedDescriptor)
-          val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference, fullQualifiedDescriptor)
-          Some(ReplicatedMultiMap(key, value))
-        case ReplicatedDataCase.REPLICATED_VOTE =>
-          Some(ReplicatedVote)
-        case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
-          None
+    Option(rawEntity.getName)
+      .filter(_.nonEmpty)
+      .flatMap { name =>
+        val dataType = rawEntity.getReplicatedDataCase match {
+          case ReplicatedDataCase.REPLICATED_COUNTER =>
+            Some(ReplicatedCounter)
+          case ReplicatedDataCase.REPLICATED_REGISTER =>
+            val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedRegister(value))
+          case ReplicatedDataCase.REPLICATED_SET =>
+            val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedSet(element))
+          case ReplicatedDataCase.REPLICATED_MAP =>
+            val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedMap(key))
+          case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
+            val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedCounterMap(key))
+          case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
+            val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference, fullQualifiedDescriptor)
+            val value =
+              TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedRegisterMap(key, value))
+          case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
+            val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference, fullQualifiedDescriptor)
+            val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference, fullQualifiedDescriptor)
+            Some(ReplicatedMultiMap(key, value))
+          case ReplicatedDataCase.REPLICATED_VOTE =>
+            Some(ReplicatedVote)
+          case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
+            None
+        }
+        dataType
+          .map { data =>
+            Model.fromEntity(
+              ReplicatedEntity(
+                FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
+                rawEntity.getEntityType,
+                data))
+          }
       }
-      dataType.map { data =>
-        ReplicatedEntity(
-          FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
-          rawEntity.getEntityType,
-          data)
-      }
-    }
+      .getOrElse(Model.empty)
   }
 }
