@@ -141,6 +141,17 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       val decoded2 = anySupport.decodePossiblyPrimitive(any)
       decoded2 shouldBe a[ByteString]
     }
+
+    "serialize BytesValue into our own primitive type" in {
+      val encoded = anySupport.encodeScala(
+        com.google.protobuf.BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("woho!")).build())
+      encoded.typeUrl should ===("p.akkaserverless.com/bytes")
+    }
+
+    "serialize StringValue into our own primitive type" in {
+      val encoded = anySupport.encodeScala(com.google.protobuf.StringValue.newBuilder().setValue("waha!").build())
+      encoded.typeUrl should ===("p.akkaserverless.com/string")
+    }
   }
 
   "Any support for Scala" should {
@@ -189,6 +200,15 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       decoded2 shouldBe a[ByteString]
     }
 
+    "serialize BytesValue into our own primitive type" in {
+      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.BytesValue(ByteString.copyFromUtf8("woho!")))
+      encoded.typeUrl should ===("p.akkaserverless.com/bytes")
+    }
+
+    "serialize StringValue into our own primitive type" in {
+      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.StringValue("waha!"))
+      encoded.typeUrl should ===("p.akkaserverless.com/string")
+    }
   }
 
 }
