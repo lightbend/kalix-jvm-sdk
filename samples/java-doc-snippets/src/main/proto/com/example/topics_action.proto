@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.example;
+
+// tag::text[]
+// tag::bytes[]
+import "akkaserverless/annotations.proto";
+import "google/protobuf/wrappers.proto"; // <1>
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "MyTopics";
+
+service MyTopicsAction {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_ACTION
+  };
+
+  // end::bytes[]
+  rpc ConsumeStringTopic(google.protobuf.StringValue) returns (google.protobuf.Empty) { // <2>
+    option (akkaserverless.method).eventing.in = {
+      topic: "strings_topic"
+    };
+  }
+
+  // end::text[]
+  // tag::bytes[]
+  rpc ConsumeRawBytesTopic(google.protobuf.BytesValue) returns (google.protobuf.Empty) { // <3>
+    option (akkaserverless.method).eventing.in = {
+      topic: "bytes_topic"
+    };
+  }
+  // tag::text[]
+}
+// end::bytes[]
+// end::text[]

@@ -7,40 +7,20 @@ You do not need to handle serialization for messages. Akka Serverless functions 
 
 The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:proto.adoc#_transcoding_http[Transcoding HTTP].
 
-For messages consumed from or published to topics it can be needed to use another format than `protobuf`. Akka Serverless provides a utility to serialize and deserialize JSON messages.
+== Consuming Messages from Topics
 
-== Primitive types
+When a message arrives from a topic, Akka Serverless detects the message payload type based on the `Content-Type` or `ce-datacontenttype` header or attribute of the message. If there is no such metadata, the content is seen as raw bytes.
 
-Akka Serverless supports serializing the following primitive types:
+If the content type starts with `application/protobuf`, `application/x-protobuf` or `application/vnd.google.protobuf` the payload is expected to also have a `ce-type` header or attribute identifying the concrete protobuf message type. Such messages will be decoded into the described message type before handed to a topic subscriber method, which must accept that specific message type.
 
-[cols="a,a"]
-|===
-| Protobuf type | Java type
+For messages consumed from or published to topics it can be needed to use another format than `protobuf`.
 
-| string
-| java.lang.String
-
-| bytes
-| com.google.protobuf.ByteString
-
-| int32
-| java.lang.Integer
-
-| int64
-| java.lang.Long
-
-| float
-| java.lang.Float
-
-| double
-| java.lang.Double
-
-| bool
-| java.lang.Boolean
-
-|===
 
 == JSON
+
+If the incoming content type starts with `application/json` or `application/...+json` and possibly a `ce-type` field identifying a specific type object in the JSON. The topic subscriber method must accept a protobuf `Any` message.
+
+Akka Serverless provides a utility to serialize and deserialize JSON messages based on Jackson.
 
 [.tabset]
 Java::
@@ -101,5 +81,65 @@ include::example$scala-doc-snippets/src/main/scala/com/example/json/MyServiceAct
 <3> Encode the Scala class `JsonKeyValueMessage` to JSON.
 
 Akka Serverless uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
+
+== Receiving Text
+
+If the content type starts with `text/` it is treated as a string message. The topic subscriber method must accept the `google.protobuf.StringValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+
+== Receiving Bytes
+
+If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Akka Serverless the message is treated as a binary message. The topic subscriber method must accept the `google.protobuf.BytesValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming raw bytes messages from a topic the input type must be `google.protobuf.BytesValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.BytesValue`.
+
 
 include::partial$topic-eventing-cloudevent.adoc[]

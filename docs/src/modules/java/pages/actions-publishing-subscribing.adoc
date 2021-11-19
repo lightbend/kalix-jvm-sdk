@@ -9,14 +9,17 @@ With Actions you can:
 
 - subscribe to events emitted by an event sourced entity within the same service.
 - subscribe to state changes emitted by a value entity within the same service.
-- subscribe to external events via https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub].
-- publish events to a Google Cloud Pub/Sub topic.
+- subscribe to external events from https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka.
+- publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
 
 Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
 
 == Publishing Entity events to a Topic
 
-To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic. 
+To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
+
+For details about how to set up the connection to https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka see
+https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers]
 
 include::partial$pubsub-note.adoc[]
 
@@ -98,7 +101,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/actions/co
 
 == Subscribing to a Topic
 
-It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation. 
+It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation.
 
 include::partial$pubsub-note.adoc[]
 
@@ -151,7 +154,9 @@ but it could a forward to some other component or external service.
 
 == Receiving messages from an external Topic
 
-In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless. In such case, the Action definition should receive Protobuf's type `Any` and you must take care of the serialization yourself. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with other serialization formats.
+In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless.
+
+In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
 
 == Subscribing and acting upon
 
