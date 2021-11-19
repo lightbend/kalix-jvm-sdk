@@ -27,7 +27,16 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
     val fileDescriptor = descriptor.getFile
-    if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
+    if (fileDescriptor.getName.startsWith("google.protobuf") && descriptor.getName.endsWith("Value")) {
+      PackageNaming(
+        descriptor.getName,
+        descriptor.getName,
+        fileDescriptor.getPackage,
+        // Single shared file descriptor for the NnnValue wrapper types in Java
+        Some("com.google.protobuf"),
+        Some("WrappersProto"),
+        javaMultipleFiles = true)
+    } else if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
       // In the case of placeholders for standard google types, we need to assume the package naming
       // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
       PackageNaming(
