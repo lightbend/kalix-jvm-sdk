@@ -26,8 +26,7 @@ object ProtocolProject extends AutoPlugin {
 }
 
 /**
- * Publicly published protocol project.
- * Proto files are published as jars and as zip archives.
+ * Publicly published protocol project. Proto files are published as jars and as zip archives.
  */
 object PublicProtocolProject extends AutoPlugin {
   object PublicProtocolProjectKeys {

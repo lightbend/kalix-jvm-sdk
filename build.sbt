@@ -23,7 +23,7 @@ def common: Seq[Setting[_]] =
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11"))
 
-lazy val codegenProtoAnnotations = project 
+lazy val codegenProtoAnnotations = project
   .in(file("codegen/proto-annotations"))
   .enablePlugins(PublicProtocolProject)
   .settings(common)
@@ -203,7 +203,6 @@ lazy val tckScala = project
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
-
 
 lazy val codegenCore =
   project
