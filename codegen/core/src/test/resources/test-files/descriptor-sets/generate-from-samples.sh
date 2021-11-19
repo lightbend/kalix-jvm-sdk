@@ -21,10 +21,8 @@ if [ ! -d "$2" ]; then
     echo "$2 does not exist or is not a directory"
     exit 1
 fi
-
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/codegen/core/src/main/protobuf" \
 --proto_path="$2/samples/java-eventsourced-shopping-cart/src/main/proto" \
 --descriptor_set_out=event-sourced-shoppingcart.desc \
 "$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
@@ -34,7 +32,6 @@ echo "Generated event-sourced-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/codegen/core/src/main/protobuf" \
 --proto_path="$2/samples/java-valueentity-shopping-cart/src/main/proto" \
 --descriptor_set_out=value-shoppingcart.desc \
 "$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
@@ -42,21 +39,8 @@ protoc --include_imports \
 
 echo "Generated value-shoppingcart.desc"
 
-
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/codegen/core/src/main/protobuf" \
---proto_path="$2/samples/java-valueentity-shopping-cart/src/main/proto" \
---descriptor_set_out=action-shoppingcart.desc \
-"$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_controller_api.proto" \
-"$2/samples/java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto"
-
-echo "Generated action-shoppingcart.desc"
-
-
-protoc --include_imports \
---proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/codegen/core/src/main/protobuf" \
 --proto_path="$2/samples/java-replicatedentity-shopping-cart/src/main/proto" \
 --descriptor_set_out=replicated-shoppingcart.desc \
 "$2/samples/java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
@@ -67,10 +51,8 @@ echo "Generated replicated-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="$2/codegen/core/src/main/protobuf" \
 --proto_path="$2/samples/java-eventsourced-shopping-cart/src/main/proto" \
 --descriptor_set_out=view-shoppingcart.desc \
 "$2/samples/java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/view/shopping_cart_view_model.proto"
 
 echo "Generated view-shoppingcart.desc"
-
