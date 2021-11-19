@@ -10,6 +10,7 @@ lazy val `akkaserverless-java-sdk` = project
     sdkScalaTestKit,
     tckJava,
     tckScala,
+    codegenProtoAnnotations,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -21,6 +22,12 @@ def common: Seq[Setting[_]] =
   Seq(
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11"))
+
+lazy val codegenProtoAnnotations = project 
+  .in(file("codegen/proto-annotations"))
+  .enablePlugins(PublicProtocolProject)
+  .settings(common)
+  .settings(name := "akkaserverless-codegen-proto-annotations")
 
 lazy val sdkCore = project
   .in(file("sdk/core"))
@@ -38,7 +45,7 @@ lazy val sdkCore = project
 
 lazy val sdkJava = project
   .in(file("sdk/java-sdk"))
-  .dependsOn(sdkCore)
+  .dependsOn(sdkCore, codegenProtoAnnotations)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -195,6 +202,7 @@ lazy val tckScala = project
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
 
+
 lazy val codegenCore =
   project
     .in(file("codegen/core"))
@@ -203,7 +211,8 @@ lazy val codegenCore =
     .settings(
       name := "akkaserverless-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
-      Test / fork := false)
+      Test / fork := false,
+      Compile / PB.protoSources ++= (codegenProtoAnnotations / Compile / PB.protoSources).value)
     .settings(Dependencies.codegenCore)
     .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
