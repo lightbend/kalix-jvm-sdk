@@ -12,32 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This is the public API offered by the shopping cart Value Entity.
-
-// tag::api[]
-// tag::proto_syntax[]
 syntax = "proto3";
-// end::proto_syntax[]
 
-// tag::proto_package[]
-package com.example.shoppingcart;
-// end::proto_package[]
+package com.example.shoppingcart;  // <1>
 
-option java_outer_classname = "ShoppingCartApi";
-
-// tag::proto_imports[]
-import "google/protobuf/empty.proto";
+import "google/protobuf/empty.proto"; // <2>
 import "akkaserverless/annotations.proto";
+import "akkaserverless/codegen/annotations.proto";
 import "google/api/annotations.proto";
-// end::proto_imports[]
 
-// tag::proto_messages[]
-message CreateCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
-}
+option java_outer_classname = "ShoppingCartApi";  // <3>
 
-message AddLineItem {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+message AddLineItem { // <4>
+  string cart_id = 1 [(akkaserverless.field).entity_key = true];  // <5>
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
@@ -46,6 +33,7 @@ message AddLineItem {
 message RemoveLineItem {
   string cart_id = 1 [(akkaserverless.field).entity_key = true];
   string product_id = 2;
+  string name = 3;
 }
 
 message GetShoppingCart {
@@ -59,54 +47,50 @@ message RemoveShoppingCart {
 message LineItem {
   string product_id = 1;
   string name = 2;
-  int32 quantity = 3;
+  int64 quantity = 3;
 }
 
-message Cart {
+message Cart {  // <6>
   repeated LineItem items = 1;
-  int64 creation_timestamp = 2;
 }
-// end::proto_messages[]
 
-// tag::proto_service[]
-service ShoppingCartService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+service ShoppingCartService {  // <7>
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "ShoppingCart"
+      package_name: "com.example.shoppingcart.domain"
+      entity_type: "shopping-cart"
+      replicated_counter_map: {
+        key: "Product"
+      }
+    }
   };
 
-  rpc Create (CreateCart) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <1>
-      post: "/cart/{cart_id}/create"
+  rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
     };
   }
 
-  rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <1>
-            post: "/cart/{cart_id}/items/add"
-            body: "*"
-        };
-  }
-
   rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <2>
-            post: "/cart/{cart_id}/items/{product_id}/remove"
-        };
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/{product_id}/remove"
+    };
   }
 
   rpc GetCart (GetShoppingCart) returns (Cart) {
-    option (google.api.http) = { // <3>
-            get: "/carts/{cart_id}"
-            additional_bindings: {
-                get: "/carts/{cart_id}/items"
-                response_body: "items"
-            }
-        };
+    option (google.api.http) = {
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+        get: "/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
   }
 
   rpc RemoveCart (RemoveShoppingCart) returns (google.protobuf.Empty) {
     option (google.api.http).post = "/carts/{cart_id}/remove";
   }
 }
-// end::proto_service[]
-// end::api[]
+

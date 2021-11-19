@@ -6,7 +6,6 @@ package com.example.shoppingcart;  // <1>
 
 import "google/protobuf/empty.proto"; // <2>
 import "akkaserverless/annotations.proto";
-import "akkaserverless/codegen/annotations.proto";
 import "google/api/annotations.proto";
 
 option java_outer_classname = "ShoppingCartApi";  // <3>
@@ -43,15 +42,9 @@ message Cart {  // <6>
 }
 
 service ShoppingCartService {  // <7>
-  option (akkaserverless.codegen) = {
-    replicated_entity: {
-      name: "ShoppingCart"
-      package_name: "com.example.shoppingcart.domain"
-      entity_type: "shopping-cart"
-      replicated_counter_map: {
-        key: "Product"
-      }
-    }
+  option (akkaserverless.service) = {  // <8>
+    type: SERVICE_TYPE_ENTITY
+    component: "com.example.shoppingcart.domain.ShoppingCart"
   };
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {

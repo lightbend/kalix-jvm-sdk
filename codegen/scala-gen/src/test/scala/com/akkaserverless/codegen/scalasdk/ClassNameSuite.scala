@@ -21,7 +21,8 @@ import com.lightbend.akkasls.codegen.DescriptorSet
 class ClassNameSuite extends munit.FunSuite {
   test("parse a proto descriptor set") {
     val d = DescriptorSet.descriptors(
-      classOf[ClassNameSuite].getResourceAsStream("/test-files/descriptor-sets/value-shoppingcart.desc"))
+      classOf[ClassNameSuite].getResourceAsStream(
+        "/test-files/codegen-annotation/descriptor-sets/value-shoppingcart.desc"))
     val descriptors = d.right.get.right.get.toList
     assertEquals(descriptors.size, 12)
 

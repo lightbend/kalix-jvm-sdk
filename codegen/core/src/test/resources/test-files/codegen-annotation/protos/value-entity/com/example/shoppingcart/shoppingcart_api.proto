@@ -28,6 +28,7 @@ option java_outer_classname = "ShoppingCartApi";
 // tag::proto_imports[]
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
+import "akkaserverless/codegen/annotations.proto";
 import "google/api/annotations.proto";
 // end::proto_imports[]
 
@@ -70,9 +71,13 @@ message Cart {
 
 // tag::proto_service[]
 service ShoppingCartService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "ShoppingCart"
+      package_name: "com.example.shoppingcart.domain"
+      entity_type: "shopping-cart"
+      state: "com.example.shoppingcart.domain.Cart"
+    }
   };
 
   rpc Create (CreateCart) returns (google.protobuf.Empty) {

@@ -4,7 +4,18 @@ syntax = "proto3";
 
 package com.example.shoppingcart.domain; // <1>
 
-option java_outer_classname = "ShoppingCartDomain"; // <2>
+import "akkaserverless/annotations.proto"; // <2>
+
+option java_outer_classname = "ShoppingCartDomain"; // <3>
+
+// Describes how this domain relates to a replicated entity
+option (akkaserverless.file).replicated_entity = { // <4>
+  name: "ShoppingCart" // <5>
+  entity_type: "shopping-cart" // <6>
+  replicated_counter_map: { // <7>
+    key: "Product" // <8>
+  }
+};
 
 message Product {
   string id = 1;

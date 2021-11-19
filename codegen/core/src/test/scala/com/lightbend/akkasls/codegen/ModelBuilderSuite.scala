@@ -38,7 +38,7 @@ object ModelBuilderSuite {
   }
   object CodegenAnnotationConfig extends Config {
     override val label: String = "CodegenAnnotation"
-    override val descriptorSetPath: String = "descriptor-sets-new-format"
+    override val descriptorSetPath: String = "codegen-annotation/descriptor-sets"
 
     def registry: ExtensionRegistry = {
       val reg = ExtensionRegistry.newInstance()
@@ -50,7 +50,7 @@ object ModelBuilderSuite {
   }
   object ServiceAnnotationConfig extends Config {
     override val label: String = "ServiceAnnotation"
-    override val descriptorSetPath: String = "descriptor-sets"
+    override val descriptorSetPath: String = "service-annotation/descriptor-sets"
 
     def registry: ExtensionRegistry = {
       val reg = ExtensionRegistry.newInstance()
