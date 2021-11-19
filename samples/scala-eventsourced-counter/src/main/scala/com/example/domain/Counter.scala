@@ -2,6 +2,7 @@ package com.example.domain
 
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import com.akkaserverless.scalasdk.SideEffect
 import com.example
 import com.google.protobuf.empty.Empty
 
@@ -22,6 +23,21 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
     } else {
       effects
         .emitEvent(ValueIncreased(increaseValue.value))
+        .thenReply(_ => Empty())
+    }
+
+  import com.akkaserverless.javasdk.impl.DeferredCallImpl
+
+  override def increaseWithSideEffect(
+      currentState: CounterState,
+      increaseValue: example.IncreaseValue): EventSourcedEntity.Effect[Empty] =
+    if (increaseValue.value < 0) {
+      effects.error("Value must be a zero or a positive number")
+    } else {
+      effects
+        .emitEvent(ValueIncreased(increaseValue.value))
+        .thenAddSideEffect(_ =>
+          SideEffect(components.counter.increase(example.IncreaseValue(context.entityId, increaseValue.value * 2))))
         .thenReply(_ => Empty())
     }
 

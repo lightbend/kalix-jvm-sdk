@@ -131,9 +131,22 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         val snapshot =
           if (shouldSnapshot) Option(endState)
           else None
-        CommandResult(events.toVector, commandEffect.secondaryEffect(endState), snapshot, currentSequence)
+
+        try {
+          context.asInstanceOf[CommandContextImpl].checkActive()
+          entity._internalSetCommandContext(Optional.of(context))
+          CommandResult(events.toVector, commandEffect.secondaryEffect(endState), snapshot, currentSequence)
+        } finally {
+          entity._internalSetCommandContext(Optional.empty())
+        }
       case NoPrimaryEffect =>
-        CommandResult(Vector.empty, commandEffect.secondaryEffect(_stateOrEmpty()), None, context.sequenceNumber())
+        try {
+          context.asInstanceOf[CommandContextImpl].checkActive()
+          entity._internalSetCommandContext(Optional.of(context))
+          CommandResult(Vector.empty, commandEffect.secondaryEffect(_stateOrEmpty()), None, context.sequenceNumber())
+        } finally {
+          entity._internalSetCommandContext(Optional.empty())
+        }
     }
   }
 

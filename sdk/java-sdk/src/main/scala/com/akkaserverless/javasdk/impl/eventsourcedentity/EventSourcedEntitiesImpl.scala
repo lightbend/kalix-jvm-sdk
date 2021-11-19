@@ -175,8 +175,7 @@ final class EventSourcedEntitiesImpl(
               ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
-            new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
-
+            new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata, system)
           val CommandResult(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,
@@ -252,16 +251,6 @@ final class EventSourcedEntitiesImpl(
       }
   }
 
-  private class CommandContextImpl(
-      override val entityId: String,
-      override val sequenceNumber: Long,
-      override val commandName: String,
-      override val commandId: Long,
-      override val metadata: Metadata)
-      extends AbstractContext(system)
-      with CommandContext
-      with ActivatableContext
-
   private class EventSourcedEntityContextImpl(override final val entityId: String)
       extends AbstractContext(system)
       with EventSourcedEntityContext
@@ -269,3 +258,14 @@ final class EventSourcedEntitiesImpl(
       extends EventSourcedEntityContextImpl(entityId)
       with EventContext
 }
+
+class CommandContextImpl(
+    override val entityId: String,
+    override val sequenceNumber: Long,
+    override val commandName: String,
+    override val commandId: Long,
+    override val metadata: Metadata,
+    val system: ActorSystem)
+    extends AbstractContext(system)
+    with CommandContext
+    with ActivatableContext
