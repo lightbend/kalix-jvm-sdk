@@ -80,7 +80,9 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
     }.asJavaCollection))
 
   def thenAddSideEffect(sideEffect: S => SideEffect): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
-    EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { case ScalaSideEffectAdapter(s) => s })
+    EventSourcedEntityEffectImpl(javasdkEffect.thenAddSideEffect { s =>
+      sideEffect(s) match { case ScalaSideEffectAdapter(s) => s }
+    })
 
   def thenForward[T](serviceCall: S => DeferredCall[_, T]): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.thenForward[T] { s =>
