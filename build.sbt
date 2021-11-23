@@ -216,6 +216,16 @@ lazy val codegenJava =
     .configs(IntegrationTest)
     .dependsOn(codegenCore % "compile->compile;test->test")
     .enablePlugins(PublishSonatype)
+    .settings(
+      // to provide access to protoc to tests
+      Test / buildInfoPackage := "com.lightbend.akkasls.codegen.java",
+      Test / buildInfoKeys := Seq(
+        BuildInfoKey(PB.protocExecutable),
+        BuildInfoKey(codegenCore / PB.externalIncludePath),
+        BuildInfoKey(codegenCore / PB.externalSourcePath),
+        BuildInfoKey(Test / resourceDirectory)))
+    // only need BuildInfo in Test scope so some manual setup here
+    .settings(BuildInfoPlugin.buildInfoScopedSettings(Test) ++ BuildInfoPlugin.buildInfoDefaultSettings)
     .settings(common)
     .settings(Defaults.itSettings)
     .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
