@@ -17,63 +17,24 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-
-import com.google.common.base.Charsets
-
 /**
  * Responsible for generating Java sources for a view
  */
 object ViewServiceSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-  import JavaGeneratorUtils._
 
   /**
    * Generate Java sources for provider, handler, abstract baseclass for a view, and also the user view source file if
    * it does not already exist.
-   *
-   * Impure.
    */
-  def generate(
-      service: ModelBuilder.ViewService,
-      sourceDirectory: Path,
-      testSourceDirectory: Path,
-      integrationTestSourceDirectory: Path,
-      generatedSourceDirectory: Path): Iterable[Path] = {
-    // Note that we generate all sources also with no transformations - no actual logic operations to make
-    // adding such later minimal fuss in the user code
-    val generatedSources = Seq.newBuilder[Path]
+  def generate(service: ModelBuilder.ViewService): GeneratedFiles = {
+    val pkg = service.fqn.parent
 
-    val packageName = service.fqn.parent
-    val javaPackageName = packageName.javaPackage
-    val packagePath = packageAsPath(javaPackageName)
-
-    val implSourcePath =
-      sourceDirectory.resolve(packagePath.resolve(service.className + ".java"))
-
-    val abstractViewPath =
-      generatedSourceDirectory.resolve(packagePath.resolve(service.abstractViewName + ".java"))
-    abstractViewPath.getParent.toFile.mkdirs()
-    Files.write(abstractViewPath, abstractView(service, packageName).getBytes(Charsets.UTF_8))
-    generatedSources += abstractViewPath
-
-    // Only if there is no user view code already present
-    if (!implSourcePath.toFile.exists()) {
-      implSourcePath.getParent.toFile.mkdirs()
-      Files.write(implSourcePath, viewSource(service, packageName).getBytes(Charsets.UTF_8))
-    }
-    generatedSources += implSourcePath
-
-    val routerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.routerName + ".java"))
-    Files.write(routerSourcePath, viewRouter(service, packageName).getBytes(Charsets.UTF_8))
-    generatedSources += routerSourcePath
-
-    val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
-    Files.write(providerSourcePath, viewProvider(service, packageName).getBytes(Charsets.UTF_8))
-    generatedSources += providerSourcePath
-
-    generatedSources.result()
+    GeneratedFiles.Empty
+      .addManaged(File.java(pkg, service.abstractViewName, abstractView(service, pkg)))
+      .addManaged(File.java(pkg, service.routerName, viewRouter(service, pkg)))
+      .addManaged(File.java(pkg, service.providerName, viewProvider(service, pkg)))
+      .addUnmanaged(File.java(pkg, service.className, viewSource(service, pkg)))
   }
 
   private[codegen] def viewRouter(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {

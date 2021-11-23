@@ -55,7 +55,7 @@ object ActionTestKitGenerator {
        }) + "\n"
     }
 
-    File(
+    File.scala(
       service.fqn.parent.scalaPackage,
       s"${actionClassName}TestKit",
       s"""|package ${service.fqn.parent.scalaPackage}
@@ -122,7 +122,7 @@ object ActionTestKitGenerator {
               |""".stripMargin)
     }
 
-    File(
+    File.scala(
       service.fqn.parent.scalaPackage,
       actionClassName + "Spec",
       s"""|package ${service.fqn.parent.scalaPackage}

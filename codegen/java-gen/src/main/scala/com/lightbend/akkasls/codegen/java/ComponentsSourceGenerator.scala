@@ -16,18 +16,16 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.google.common.base.Charsets
+import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.GeneratedFiles
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
 import com.lightbend.akkasls.codegen.ModelBuilder.EntityService
 import com.lightbend.akkasls.codegen.ModelBuilder.Service
 import com.lightbend.akkasls.codegen.ModelBuilder.ViewService
-
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import com.lightbend.akkasls.codegen.PackageNaming
 
 /**
  * Generates convenience accessors for other components in the same service, accessible from actions
@@ -41,10 +39,7 @@ object ComponentsSourceGenerator {
       service: ModelBuilder.Service,
       callableCommands: Iterable[ModelBuilder.Command])
 
-  def generate(
-      generatedSourceDirectory: Path,
-      packageName: String,
-      serviceMap: Map[String, Service]): Iterable[Path] = {
+  def generate(pkg: PackageNaming, serviceMap: Map[String, Service]): GeneratedFiles = {
 
     // since we want to flatten component names to as short as possible there may be duplicate
     // names, so for those we need to use a longer name
@@ -67,20 +62,9 @@ object ComponentsSourceGenerator {
         }
       }
 
-    val packagePath = packageAsPath(packageName)
-    val componentsFile = generatedSourceDirectory.resolve(packagePath.resolve("Components.java"))
-    componentsFile.getParent.toFile.mkdirs()
-    Files.write(
-      componentsFile,
-      generateComponentsInterface(packageName, uniqueNamesAndComponents).getBytes(Charsets.UTF_8))
-
-    val componentsImplFile = generatedSourceDirectory.resolve(packagePath.resolve("ComponentsImpl.java"))
-    componentsImplFile.getParent.toFile.mkdirs()
-    Files.write(
-      componentsImplFile,
-      generateComponentsImpl(packageName, uniqueNamesAndComponents).getBytes(Charsets.UTF_8))
-
-    componentsFile :: componentsImplFile :: Nil
+    GeneratedFiles.Empty
+      .addManaged(File.java(pkg, "Components", generateComponentsInterface(pkg.javaPackage, uniqueNamesAndComponents)))
+      .addManaged(File.java(pkg, "ComponentsImpl", generateComponentsImpl(pkg.javaPackage, uniqueNamesAndComponents)))
   }
 
   private def generateComponentsInterface(packageName: String, callableComponents: Seq[CallableComponent]): String = {

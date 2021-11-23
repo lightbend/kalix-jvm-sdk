@@ -75,7 +75,7 @@ object ReplicatedEntitySourceGenerator {
       case _ => ""
     }
 
-    File(
+    File.scala(
       packageName,
       className,
       s"""|package $packageName
@@ -127,7 +127,7 @@ object ReplicatedEntitySourceGenerator {
             |""".stripMargin
       }
 
-    File(
+    File.scala(
       packageName,
       abstractEntityName,
       s"""|package $packageName
@@ -174,7 +174,7 @@ object ReplicatedEntitySourceGenerator {
             |""".stripMargin
       }
 
-    File(
+    File.scala(
       packageName,
       routerName,
       s"""|package $packageName
@@ -243,7 +243,7 @@ object ReplicatedEntitySourceGenerator {
         .distinct
         .sorted
 
-    File(
+    File.scala(
       packageName,
       providerName,
       s"""

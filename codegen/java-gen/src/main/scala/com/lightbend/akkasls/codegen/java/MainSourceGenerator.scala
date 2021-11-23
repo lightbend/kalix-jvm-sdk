@@ -33,35 +33,18 @@ object MainSourceGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
 
-  def generate(
-      model: ModelBuilder.Model,
-      mainClassPackageName: String,
-      mainClassName: String,
-      sourceDirectory: Path,
-      generatedSourceDirectory: Path): Iterable[Path] = {
-
-    val mainClassPackagePath = packageAsPath(mainClassPackageName)
-
-    val akkaServerlessFactorySourcePath =
-      generatedSourceDirectory.resolve(mainClassPackagePath.resolve("AkkaServerlessFactory.java"))
-
-    akkaServerlessFactorySourcePath.getParent.toFile.mkdirs()
-    Files.write(
-      akkaServerlessFactorySourcePath,
-      akkaServerlessFactorySource(mainClassPackageName, model).getBytes(Charsets.UTF_8))
-
-    // Generate a main source file if it is not there already
-
-    val mainClassPath =
-      sourceDirectory.resolve(mainClassPackagePath.resolve(mainClassName + ".java"))
-    if (!mainClassPath.toFile.exists()) {
-      mainClassPath.getParent.toFile.mkdirs()
-      Files.write(
-        mainClassPath,
-        mainSource(mainClassPackageName, mainClassName, model.entities, model.services).getBytes(Charsets.UTF_8))
-    }
-    List(akkaServerlessFactorySourcePath, mainClassPath)
-  }
+  def generate(model: ModelBuilder.Model, mainClassPackage: PackageNaming, mainClassName: String): GeneratedFiles =
+    GeneratedFiles.Empty
+      .addManaged(
+        File.java(
+          mainClassPackage,
+          "AkkaServerlessFactory",
+          akkaServerlessFactorySource(mainClassPackage.javaPackage, model)))
+      .addUnmanaged(
+        File.java(
+          mainClassPackage,
+          mainClassName,
+          mainSource(mainClassPackage.javaPackage, mainClassName, model.entities, model.services)))
 
   private[codegen] def mainSource(
       mainClassPackageName: String,

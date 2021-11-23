@@ -17,39 +17,18 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-
-import com.google.common.base.Charsets
-
 object EventSourcedEntityTestKitGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generate(
-      entity: ModelBuilder.EventSourcedEntity,
-      service: ModelBuilder.EntityService,
-      testSourceDirectory: Path,
-      generatedSourceDirectory: Path): Iterable[Path] = {
-    var generatedFiles: Seq[Path] = Vector.empty
-    val packageName = entity.fqn.parent.javaPackage
+  def generate(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): GeneratedFiles = {
+    val pkg = entity.fqn.parent
     val className = entity.fqn.name
 
-    val packagePath = packageAsPath(packageName)
-    val testKitPath = generatedSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
-    testKitPath.getParent.toFile.mkdirs()
-    val sourceCode = generateSourceCode(service, entity, packageName, className)
-    Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
-    generatedFiles :+= testKitPath
-
-    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
-    if (!testFilePath.toFile.exists()) {
-      testFilePath.getParent.toFile.mkdirs()
-      Files.write(testFilePath, generateTestSources(service, entity).getBytes(Charsets.UTF_8))
-      generatedFiles :+= testFilePath
-    }
-
-    generatedFiles
+    GeneratedFiles.Empty
+      .addManagedTest(
+        File.java(pkg, className + "TestKit", generateSourceCode(service, entity, pkg.javaPackage, className)))
+      .addUnmanagedTest(File.java(pkg, className + "Test", generateTestSources(service, entity)))
   }
 
   private[codegen] def generateSourceCode(
