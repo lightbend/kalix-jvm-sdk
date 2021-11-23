@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package com.lightbend.akkasls.codegen
 
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.packageAsPath
 

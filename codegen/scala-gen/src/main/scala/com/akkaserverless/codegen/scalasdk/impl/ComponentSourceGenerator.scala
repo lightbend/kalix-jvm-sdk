@@ -16,7 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
