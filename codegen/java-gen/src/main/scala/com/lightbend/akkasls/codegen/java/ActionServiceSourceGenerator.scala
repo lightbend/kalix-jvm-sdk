@@ -36,42 +36,14 @@ object ActionServiceSourceGenerator {
    *
    * Impure.
    */
-  def generate(
-      service: ModelBuilder.ActionService,
-      sourceDirectory: Path,
-      rootPackage: String,
-      generatedSourceDirectory: Path): Iterable[Path] = {
+  def generate(service: ModelBuilder.ActionService, rootPackage: String): GeneratedFiles = {
+    val pkg = service.fqn.parent
 
-    val packageName = service.fqn.parent.javaPackage
-    val packagePath = packageAsPath(packageName)
-
-    val implSourcePath =
-      sourceDirectory.resolve(packagePath.resolve(service.className + ".java"))
-
-    val interfaceSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(service.abstractActionName + ".java"))
-
-    interfaceSourcePath.getParent.toFile.mkdirs()
-    Files.write(interfaceSourcePath, abstractActionSource(service, rootPackage).getBytes(Charsets.UTF_8))
-
-    val routerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.routerName + ".java"))
-    routerSourcePath.getParent.toFile.mkdirs()
-    Files.write(routerSourcePath, actionRouter(service).getBytes(Charsets.UTF_8))
-
-    val providerSourcePath = generatedSourceDirectory.resolve(packagePath.resolve(service.providerName + ".java"))
-    providerSourcePath.getParent.toFile.mkdirs()
-    Files.write(providerSourcePath, actionProvider(service).getBytes(Charsets.UTF_8))
-
-    if (!implSourcePath.toFile.exists()) {
-      // Now we generate the entity
-      implSourcePath.getParent.toFile.mkdirs()
-      Files.write(implSourcePath, actionSource(service).getBytes(Charsets.UTF_8))
-    }
-    // We return implSourcePath here even when we didn't just generate it, because
-    // otherwise the incremental compiler can't seem to find it. I'm not entirely confident
-    // this is the right way to fix that, but it seems to work. Let's revisit when we find a
-    // problem with this approach.
-    List(implSourcePath, interfaceSourcePath, providerSourcePath, routerSourcePath)
+    GeneratedFiles.Empty
+      .addManaged(File.java(pkg, service.abstractActionName, abstractActionSource(service, rootPackage)))
+      .addManaged(File.java(pkg, service.routerName, actionRouter(service)))
+      .addManaged(File.java(pkg, service.providerName, actionProvider(service)))
+      .addUnmanaged(File.java(pkg, service.className, actionSource(service)))
   }
 
   private def streamImports(commands: Iterable[ModelBuilder.Command]): Seq[String] = {

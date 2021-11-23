@@ -17,38 +17,17 @@
 package com.lightbend.akkasls.codegen
 package java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-
-import com.google.common.base.Charsets
-
 object ActionTestKitGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
-  def generate(
-      service: ModelBuilder.ActionService,
-      testSourceDirectory: Path,
-      generatedTestSourceDirectory: Path): Iterable[Path] = {
-    var generatedFiles: Seq[Path] = Vector.empty
-    val packageName = service.fqn.parent.javaPackage
+  def generate(service: ModelBuilder.ActionService): GeneratedFiles = {
+    val pkg = service.fqn.parent
     val className = service.className
 
-    val packagePath = packageAsPath(packageName)
-    val testKitPath = generatedTestSourceDirectory.resolve(packagePath.resolve(className + "TestKit.java"))
-    testKitPath.getParent.toFile.mkdirs()
-    val sourceCode = generateSourceCode(service)
-    Files.write(testKitPath, sourceCode.getBytes(Charsets.UTF_8))
-    generatedFiles :+= testKitPath
-
-    val testFilePath = testSourceDirectory.resolve(packagePath.resolve(className + "Test.java"))
-    if (!testFilePath.toFile.exists()) {
-      testFilePath.getParent.toFile.mkdirs()
-      Files.write(testFilePath, generateTestSourceCode(service).getBytes(Charsets.UTF_8))
-      generatedFiles :+= testFilePath
-    }
-
-    generatedFiles
+    GeneratedFiles.Empty
+      .addManagedTest(File.java(pkg, className + "TestKit", generateSourceCode(service)))
+      .addUnmanagedTest(File.java(pkg, className + "Test", generateTestSourceCode(service)))
   }
 
   private[codegen] def generateSourceCode(service: ModelBuilder.ActionService): String = {
