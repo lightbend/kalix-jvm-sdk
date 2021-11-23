@@ -41,69 +41,64 @@ extend google.protobuf.ServiceOptions {
 
 // Options to describe an Action
 message ActionDef {
-  string package_name = 1;
-  // Optional name for the view - if not defined, will follow the name of the service
-  string name = 2;
+  // Optional name for the action - if not defined, will follow the name of the service
+  string name = 1;
 }
 
 // Options to describe a View
 message ViewDef {
-  string package_name = 1;
   // Optional name for the view - if not defined, will follow the name of the service
-  string name = 2;
+  string name = 1;
 }
 
 // Options to describe event sourced entities
 message EventSourcedEntityDef {
-  string package_name = 1;
-  // A mandatory name for the entity - used for type name generation
-  string name = 2;
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
   // A mandatory key name to be used for persisting names with, quite often
   // the name of the entity.
-  string entity_type = 3;
+  string entity_type = 2;
   // The associated state message.
-  string state = 4;
+  string state = 3;
   // Zero or more event messages associated with the entity.
-  repeated string events = 5;
+  repeated string events = 4;
 }
 
 // Options to describe value entities
 message ValueEntityDef {
-  string package_name = 1;
-  // A mandatory name for the entity - used for type name generation
-  string name = 2;
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
   // A mandatory key name to be used for persisting names with, quite often
   // the name of the entity.
-  string entity_type = 3;
+  string entity_type = 2;
   // The associated state message.
-  string state = 4;
+  string state = 3;
 }
 
 // Options to describe replicated entities
 message ReplicatedEntityDef {
-  string package_name = 1;
-  // A mandatory name for the entity - used for code generation
-  string name = 2;
+  // Optional name for the entity - if not defined, will follow the name of the service
+  string name = 1;
   // The entity type name used when replicating this entity
-  string entity_type = 3;
+  string entity_type = 2;
   // Mandatory replicated data type for this replicated entity
   oneof replicated_data {
     // Configure this entity as a replicated counter
-    ReplicatedCounterDef replicated_counter = 4;
+    ReplicatedCounterDef replicated_counter = 3;
     // Configure this entity as a replicated register
-    ReplicatedRegisterDef replicated_register = 5;
+    ReplicatedRegisterDef replicated_register = 4;
     // Configure this entity as a replicated set
-    ReplicatedSetDef replicated_set = 6;
+    ReplicatedSetDef replicated_set = 5;
     // Configure this entity as a (heterogeneous) replicated map
-    ReplicatedMapDef replicated_map = 7;
+    ReplicatedMapDef replicated_map = 6;
     // Configure this entity as a replicated counter map
-    ReplicatedCounterMapDef replicated_counter_map = 8;
+    ReplicatedCounterMapDef replicated_counter_map = 7;
     // Configure this entity as a replicated register map
-    ReplicatedRegisterMapDef replicated_register_map = 9;
+    ReplicatedRegisterMapDef replicated_register_map = 8;
     // Configure this entity as a replicated multi-map
-    ReplicatedMultiMapDef replicated_multi_map = 10;
+    ReplicatedMultiMapDef replicated_multi_map = 9;
     // Configure this entity as a replicated vote
-    ReplicatedVoteDef replicated_vote = 11;
+    ReplicatedVoteDef replicated_vote = 10;
   }
 }
 

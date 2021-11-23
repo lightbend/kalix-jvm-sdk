@@ -73,10 +73,9 @@ message Cart {
 service ShoppingCartService {
   option (akkaserverless.codegen) = {
     value_entity: {
-      name: "ShoppingCart"
-      package_name: "com.example.shoppingcart.domain"
+      name: ".domain.ShoppingCart"
       entity_type: "shopping-cart"
-      state: "com.example.shoppingcart.domain.Cart"
+      state: ".domain.Cart"
     }
   };
 

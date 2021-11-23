@@ -52,13 +52,12 @@ message Cart { // <6>
 service ShoppingCartService { // <7>
   option (akkaserverless.codegen) = {
     event_sourced_entity: {
-        name: "ShoppingCart" 
-        package_name: "com.example.shoppingcart.domain"
+        name: ".domain.ShoppingCart"
         entity_type: "shopping-cart" 
-        state: "Cart"
+        state: ".domain.Cart"
         events: [
-          "ItemAdded",
-          "ItemRemoved" ]
+          ".domain.ItemAdded",
+          ".domain.ItemRemoved" ]
     }
   };
 

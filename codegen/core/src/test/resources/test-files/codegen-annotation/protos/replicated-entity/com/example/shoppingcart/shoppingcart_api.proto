@@ -57,11 +57,10 @@ message Cart {  // <6>
 service ShoppingCartService {  // <7>
   option (akkaserverless.codegen) = {
     replicated_entity: {
-      name: "ShoppingCart"
-      package_name: "com.example.shoppingcart.domain"
+      name: ".domain.ShoppingCart"
       entity_type: "shopping-cart"
       replicated_counter_map: {
-        key: "Product"
+        key: ".domain.Product"
       }
     }
   };

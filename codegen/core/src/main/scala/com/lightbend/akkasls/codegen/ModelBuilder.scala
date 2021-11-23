@@ -146,6 +146,9 @@ object ModelBuilder {
 
   object TypeArgument {
 
+    def apply(fqn: FullyQualifiedName): TypeArgument =
+      apply(fqn.name, fqn.parent, fqn.descriptorObject)
+
     def apply(name: String, proto: PackageNaming, fqn: Option[FullyQualifiedName]): TypeArgument = {
       if (name.nonEmpty && name.charAt(0).isLower) ScalarTypeArgument(ScalarType(name))
       else MessageTypeArgument(FullyQualifiedName(name, name, proto, fqn))
@@ -388,7 +391,7 @@ object ModelBuilder {
     if (name == "String")
       FullyQualifiedName.noDescriptor("String", PackageNaming("", "", "", javaMultipleFiles = true))
     else {
-      val fullName = resolveFullName(name, descriptor.getPackage)
+      val fullName = resolveFullName(descriptor.getPackage, name)
       val protoPackage = fullName.split("\\.").init.mkString(".")
       val protoName = fullName.split("\\.").last
       // TODO we could also look at the imports in the proto file to support
@@ -473,14 +476,15 @@ object ModelBuilder {
    * @return
    *   the resolved full name
    */
-  private[codegen] def resolveFullName(name: String, pkg: String) = name.indexOf('.') match {
-    case 0 => // name starts with a dot, treat as relative to package
-      s"$pkg$name"
-    case -1 => // name contains no dots, prepend package
-      s"$pkg.$name"
-    case _ => // name contains at least one dot, treat as absolute
-      name
-  }
+  private[codegen] def resolveFullName(pkg: String, name: String) =
+    name.indexOf('.') match {
+      case 0 => // name starts with a dot, treat as relative to package
+        s"$pkg$name"
+      case -1 => // name contains no dots, prepend package
+        s"$pkg.$name"
+      case _ => // name contains at least one dot, treat as absolute
+        name
+    }
 
   /**
    * Resolves the provided name relative to the provided package and split it back into name and package
@@ -488,7 +492,7 @@ object ModelBuilder {
    * (foo.bar, baz.Foo) => (foo.bar.baz, Foo)
    */
   private def extractPackageAndName(pkg: String, name: String): (String, String) = {
-    val resolvedPackageAndName = resolveFullName(name, pkg)
+    val resolvedPackageAndName = resolveFullName(pkg, name)
     val idx = resolvedPackageAndName.lastIndexOf('.')
     val resolvedName = resolvedPackageAndName.drop(idx + 1)
     val resolvedPackage = resolvedPackageAndName.take(idx)
@@ -506,11 +510,13 @@ object ModelBuilder {
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
 
+    val protoPackageName = serviceDescriptor.getFile.getPackage
+
     codegenOptions.getCodegenCase match {
       case CodegenOptions.CodegenCase.ACTION =>
         Model.fromService(
           ActionService(
-            serviceName, // FIXME: use ActionDef.name and ActionDef.packageName
+            serviceName, // FIXME: use ActionDef.name if defined
             commands))
 
       case CodegenOptions.CodegenCase.VIEW =>
@@ -524,7 +530,7 @@ object ModelBuilder {
         }
         Model.fromService(
           ViewService(
-            serviceName, // FIXME: use ViewDef.name and ViewDef.packageName
+            serviceName, // FIXME: use ViewDef.name if defined
             commands,
             viewId = serviceDescriptor.getName,
             updates = updates,
@@ -540,24 +546,24 @@ object ModelBuilder {
 
       case CodegenOptions.CodegenCase.VALUE_ENTITY =>
         val entityDef = codegenOptions.getValueEntity
-        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        val componentFullName = resolveFullName(protoPackageName, entityDef.getName)
         Model
           .fromService(EntityService(serviceName, commands, componentFullName))
-          .addEntity(extractValueEntity(entityDef, additionalDescriptors))
+          .addEntity(extractValueEntity(protoPackageName, entityDef, additionalDescriptors))
 
       case CodegenOptions.CodegenCase.EVENT_SOURCED_ENTITY =>
         val entityDef = codegenOptions.getEventSourcedEntity
-        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        val componentFullName = resolveFullName(protoPackageName, entityDef.getName)
         Model
           .fromService(EntityService(serviceName, commands, componentFullName))
-          .addEntity(extractEventSourcedEntity(entityDef, additionalDescriptors))
+          .addEntity(extractEventSourcedEntity(protoPackageName, entityDef, additionalDescriptors))
 
       case CodegenOptions.CodegenCase.REPLICATED_ENTITY =>
         val entityDef = codegenOptions.getReplicatedEntity
-        val componentFullName = resolveFullName(entityDef.getName, entityDef.getPackageName)
+        val componentFullName = resolveFullName(protoPackageName, entityDef.getName)
         Model
           .fromService(EntityService(serviceName, commands, componentFullName))
-          .addEntity(extractReplicatedEntity(entityDef, additionalDescriptors))
+          .addEntity(extractReplicatedEntity(protoPackageName, entityDef, additionalDescriptors))
 
       case _ => Model.empty
     }
@@ -565,49 +571,49 @@ object ModelBuilder {
   }
 
   private def extractEventSourcedEntity(
+      protoPackageName: String,
       entityDef: EventSourcedEntityDef,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): EventSourcedEntity = {
 
-    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val (resolvedPackage, name) = extractPackageAndName(protoPackageName, entityDef.getName)
     val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
     val protoReference = fqnExtractor.packageName(domainDescriptor)
     val packageName = protoReference.copy(javaMultipleFiles = true)
     val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))
 
     EventSourcedEntity(
-      FullyQualifiedName(entityDef.getName, entityDef.getName, packageName, fullQualifiedDescriptor),
+      FullyQualifiedName(name, name, packageName, fullQualifiedDescriptor),
       entityDef.getEntityType,
-      State(resolveFullyQualifiedMessageType(entityDef.getState, entityDef.getPackageName, additionalDescriptors)),
+      State(resolveFullyQualifiedMessageType(entityDef.getState, protoPackageName, additionalDescriptors)),
       entityDef.getEventsList.asScala
         .map { event =>
-          Event(resolveFullyQualifiedMessageType(event, entityDef.getPackageName, additionalDescriptors))
+          Event(resolveFullyQualifiedMessageType(event, protoPackageName, additionalDescriptors))
         })
 
   }
 
-  private def extractValueEntity(entityDef: ValueEntityDef, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
-      implicit
+  private def extractValueEntity(
+      protoPackageName: String,
+      entityDef: ValueEntityDef,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): ValueEntity = {
 
-    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val (resolvedPackage, name) = extractPackageAndName(protoPackageName, entityDef.getName)
     val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
     val protoReference = fqnExtractor.packageName(domainDescriptor)
 
     ValueEntity(
-      FullyQualifiedName(
-        entityDef.getName,
-        entityDef.getName,
-        protoReference,
-        Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))),
+      FullyQualifiedName(name, name, protoReference, Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))),
       entityDef.getEntityType,
-      State(resolveFullyQualifiedMessageType(entityDef.getState, entityDef.getPackageName, additionalDescriptors)))
+      State(resolveFullyQualifiedMessageType(entityDef.getState, protoPackageName, additionalDescriptors)))
 
   }
 
   private def extractReplicatedEntity(
+      protoPackageName: String,
       entityDef: ReplicatedEntityDef,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
@@ -615,14 +621,11 @@ object ModelBuilder {
 
     import ReplicatedEntityDef.ReplicatedDataCase
 
-    val (resolvedPackage, _) = extractPackageAndName(entityDef.getPackageName, entityDef.getName)
+    val (resolvedPackage, name) = extractPackageAndName(protoPackageName, entityDef.getName)
     val domainDescriptor = lookupDescriptor(resolvedPackage, additionalDescriptors)
 
     val protoReference = fqnExtractor.packageName(domainDescriptor)
     val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(domainDescriptor.getFile))
-
-    def typeArgument(name: String, fqn: FullyQualifiedName) =
-      TypeArgument(name, fqn.parent, fqn.descriptorObject)
 
     val dataType =
       entityDef.getReplicatedDataCase match {
@@ -630,60 +633,54 @@ object ModelBuilder {
         case ReplicatedDataCase.REPLICATED_REGISTER =>
           val fqn = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedRegister.getValue,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
-          ReplicatedRegister(typeArgument(entityDef.getReplicatedRegister.getValue, fqn))
+          ReplicatedRegister(TypeArgument(fqn))
 
         case ReplicatedDataCase.REPLICATED_SET =>
           val fqn = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedSet.getElement,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
-          ReplicatedSet(typeArgument(entityDef.getReplicatedSet.getElement, fqn))
+          ReplicatedSet(TypeArgument(fqn))
 
         case ReplicatedDataCase.REPLICATED_MAP =>
-          val fqn = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedMap.getKey,
-            entityDef.getPackageName,
-            additionalDescriptors)
-          ReplicatedMap(typeArgument(entityDef.getReplicatedMap.getKey, fqn))
+          val fqn =
+            resolveFullyQualifiedMessageType(entityDef.getReplicatedMap.getKey, protoPackageName, additionalDescriptors)
+          ReplicatedMap(TypeArgument(fqn))
 
         case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
           val fqn = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedCounterMap.getKey,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
-          ReplicatedCounterMap(typeArgument(entityDef.getReplicatedCounterMap.getKey, fqn))
+          ReplicatedCounterMap(TypeArgument(fqn))
 
         case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
           val fqnKey = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedRegisterMap.getKey,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
 
           val fqnValue = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedRegisterMap.getValue,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
 
-          ReplicatedRegisterMap(
-            typeArgument(entityDef.getReplicatedRegisterMap.getKey, fqnKey),
-            typeArgument(entityDef.getReplicatedRegisterMap.getValue, fqnValue))
+          ReplicatedRegisterMap(TypeArgument(fqnKey), TypeArgument(fqnValue))
 
         case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
           val fqnKey = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedMultiMap.getKey,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
 
           val fqnValue = resolveFullyQualifiedMessageType(
             entityDef.getReplicatedMultiMap.getValue,
-            entityDef.getPackageName,
+            protoPackageName,
             additionalDescriptors)
 
-          ReplicatedMultiMap(
-            typeArgument(entityDef.getReplicatedMultiMap.getKey, fqnKey),
-            typeArgument(entityDef.getReplicatedMultiMap.getValue, fqnValue))
+          ReplicatedMultiMap(TypeArgument(fqnKey), TypeArgument(fqnValue))
 
         case ReplicatedDataCase.REPLICATED_VOTE =>
           ReplicatedVote
@@ -692,11 +689,7 @@ object ModelBuilder {
       }
 
     ReplicatedEntity(
-      FullyQualifiedName(
-        entityDef.getName,
-        entityDef.getName,
-        protoReference.copy(javaMultipleFiles = true),
-        fullQualifiedDescriptor),
+      FullyQualifiedName(name, name, protoReference.copy(javaMultipleFiles = true), fullQualifiedDescriptor),
       entityDef.getEntityType,
       dataType)
 
@@ -718,7 +711,7 @@ object ModelBuilder {
         if (serviceOptions.getComponent eq null) Model.empty
         else {
           val componentName = serviceOptions.getComponent
-          val componentFullName = resolveFullName(componentName, serviceDescriptor.getFile.getPackage)
+          val componentFullName = resolveFullName(serviceDescriptor.getFile.getPackage, componentName)
           EntityService(serviceName, commands, componentFullName)
           Model.fromService(EntityService(serviceName, commands, componentFullName))
         }

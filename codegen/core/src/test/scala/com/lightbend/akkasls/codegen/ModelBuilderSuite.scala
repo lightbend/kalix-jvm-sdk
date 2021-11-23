@@ -411,9 +411,9 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
   test(s"resolving full names  (${config.label})") {
     val pkg = "com.example"
 
-    assertEquals(ModelBuilder.resolveFullName("Test", pkg), "com.example.Test")
-    assertEquals(ModelBuilder.resolveFullName(".sub.Test", pkg), "com.example.sub.Test")
-    assertEquals(ModelBuilder.resolveFullName("other.package.Test", pkg), "other.package.Test")
+    assertEquals(ModelBuilder.resolveFullName(pkg, "Test"), "com.example.Test")
+    assertEquals(ModelBuilder.resolveFullName(pkg, ".sub.Test"), "com.example.sub.Test")
+    assertEquals(ModelBuilder.resolveFullName(pkg, "other.package.Test"), "other.package.Test")
   }
 }
 
