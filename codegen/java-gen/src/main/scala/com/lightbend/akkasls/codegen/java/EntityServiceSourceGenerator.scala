@@ -45,84 +45,40 @@ object EntityServiceSourceGenerator {
   def generate(
       entity: ModelBuilder.Entity,
       service: ModelBuilder.EntityService,
-      sourceDirectory: Path,
-      testSourceDirectory: Path,
-      integrationTestSourceDirectory: Path,
-      generatedSourceDirectory: Path,
       mainClassPackageName: String,
-      mainClassName: String): Iterable[Path] = {
-    val packageName = entity.fqn.parent.javaPackage
-    val servicePackageName = service.fqn.parent.javaPackage
+      mainClassName: String): GeneratedFiles = {
+    val entityPackage = entity.fqn.parent
+    val servicePackage = service.fqn.parent
     val className = entity.fqn.name
-    val packagePath = packageAsPath(packageName)
-    val servicePackagePath = packageAsPath(servicePackageName)
 
-    val implClassName = className
-    val implSourcePath =
-      sourceDirectory.resolve(packagePath.resolve(implClassName + ".java"))
-
-    val interfaceClassName = entity.abstractEntityName
-    val interfaceSourcePath =
-      generatedSourceDirectory.resolve(packagePath.resolve(interfaceClassName + ".java"))
-
-    interfaceSourcePath.getParent.toFile.mkdirs()
-    Files.write(
-      interfaceSourcePath,
-      interfaceSource(service, entity, packageName, className, mainClassPackageName).getBytes(Charsets.UTF_8))
-
-    if (!implSourcePath.toFile.exists()) {
-      // Now we generate the entity
-      implSourcePath.getParent.toFile.mkdirs()
-      Files.write(
-        implSourcePath,
-        source(service, entity, packageName, implClassName, interfaceClassName).getBytes(Charsets.UTF_8))
-    }
-
-    val routerClassName = entity.routerName
-    val routerSourcePath = {
-      val path = generatedSourceDirectory.resolve(packagePath.resolve(routerClassName + ".java"))
-      path.getParent.toFile.mkdirs()
-      Files.write(path, routerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
-      path
-    }
-
-    val providerClassName = entity.providerName
-    val providerSourcePath = {
-      val path = generatedSourceDirectory.resolve(packagePath.resolve(providerClassName + ".java"))
-      path.getParent.toFile.mkdirs()
-      Files.write(path, providerSource(service, entity, packageName, className).getBytes(Charsets.UTF_8))
-      path
-    }
-
-    // unit test
-    val testClassName = className + "Test"
-    val testSourcePath =
-      testSourceDirectory.resolve(packagePath.resolve(testClassName + ".java"))
-    val testSourceFiles = Nil // FIXME add new unit test generation
-
-    // integration test
-    val integrationTestClassName = className + "IntegrationTest"
-    val integrationTestSourcePath =
-      integrationTestSourceDirectory
-        .resolve(servicePackagePath.resolve(integrationTestClassName + ".java"))
-    if (!integrationTestSourcePath.toFile.exists()) {
-      integrationTestSourcePath.getParent.toFile.mkdirs()
-      Files.write(
-        integrationTestSourcePath,
+    GeneratedFiles.Empty
+      .addManaged(
+        File.java(
+          entityPackage,
+          entity.abstractEntityName,
+          interfaceSource(service, entity, entityPackage.javaPackage, className, mainClassPackageName)))
+      .addManaged(File
+        .java(entityPackage, entity.routerName, routerSource(service, entity, entityPackage.javaPackage, className)))
+      .addManaged(
+        File.java(
+          entityPackage,
+          entity.providerName,
+          providerSource(service, entity, entityPackage.javaPackage, className)))
+      .addUnmanaged(
+        File.java(
+          entityPackage,
+          className,
+          source(service, entity, entityPackage.javaPackage, className, entity.abstractEntityName)))
+      .addIntegrationTest(File.java(
+        servicePackage,
+        className + "IntegrationTest",
         integrationTestSource(
           mainClassPackageName,
           mainClassName,
           service,
           entity,
-          servicePackageName,
-          integrationTestClassName).getBytes(Charsets.UTF_8))
-    }
-    Seq(
-      implSourcePath,
-      integrationTestSourcePath,
-      interfaceSourcePath,
-      providerSourcePath,
-      routerSourcePath) ++ testSourceFiles
+          servicePackage.javaPackage,
+          className + "IntegrationTest")))
   }
 
   private[codegen] def source(

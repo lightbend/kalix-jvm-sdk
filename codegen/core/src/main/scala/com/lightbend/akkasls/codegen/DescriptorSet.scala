@@ -17,7 +17,7 @@
 package com.lightbend.akkasls.codegen
 
 import com.google.protobuf.{ DescriptorProtos, Descriptors }
-import java.io.{ File, FileInputStream, FileNotFoundException, IOException, InputStream }
+import java.io.{ FileInputStream, FileNotFoundException, IOException, InputStream }
 import java.util.logging.{ Level, Logger }
 
 import scala.jdk.CollectionConverters._
@@ -50,7 +50,8 @@ object DescriptorSet {
    * @return
    *   a collection of FileDescriptor objects or an error condition
    */
-  def fileDescriptors(file: File): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] =
+  def fileDescriptors(
+      file: java.io.File): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] =
     Using[FileInputStream, Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]]](
       new FileInputStream(file)) { fis => descriptors(fis) } match {
       case Success(result)                   => result

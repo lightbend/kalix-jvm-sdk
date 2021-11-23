@@ -76,7 +76,7 @@ object MainSourceGenerator {
 
     val registrationParameters = entityRegistrationParameters ::: serviceRegistrationParameters
 
-    File(
+    File.scala(
       mainClass.parent.scalaPackage,
       mainClass.name,
       s"""|package ${mainClass.parent.scalaPackage}
@@ -204,7 +204,7 @@ object MainSourceGenerator {
 
     val creatorParameters = entityCreators ::: serviceCreators
 
-    File(
+    File.scala(
       mainPackageName.javaPackage,
       "AkkaServerlessFactory",
       s"""|package ${mainPackageName.javaPackage}

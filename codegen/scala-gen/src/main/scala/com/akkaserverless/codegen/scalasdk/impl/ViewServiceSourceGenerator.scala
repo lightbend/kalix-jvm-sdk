@@ -60,7 +60,7 @@ object ViewServiceSourceGenerator {
             |""".stripMargin
       }
 
-    File(
+    File.scala(
       view.fqn.parent.scalaPackage,
       view.routerName,
       s"""|package ${view.fqn.parent.scalaPackage}
@@ -108,7 +108,7 @@ object ViewServiceSourceGenerator {
           "scala.collection.immutable.Seq"),
         packageImports = Nil)
 
-    File(
+    File.scala(
       view.fqn.parent.scalaPackage,
       view.providerName,
       s"""|package ${view.fqn.parent.scalaPackage}
@@ -176,7 +176,7 @@ object ViewServiceSourceGenerator {
          |""".stripMargin
     }
 
-    File(
+    File.scala(
       view.fqn.parent.scalaPackage,
       view.className,
       s"""|package ${view.fqn.parent.scalaPackage}
@@ -217,7 +217,7 @@ object ViewServiceSourceGenerator {
 
     }
 
-    File(
+    File.scala(
       view.fqn.parent.scalaPackage,
       view.abstractViewName,
       s"""|package ${view.fqn.parent.scalaPackage}
