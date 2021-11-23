@@ -16,9 +16,9 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import com.akkaserverless.codegen.scalasdk.File
+import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder, PackageNaming }
+import com.lightbend.akkasls.codegen.{FullyQualifiedName, Imports, ModelBuilder, PackageNaming}
 
 object ScalaGeneratorUtils {
   def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
