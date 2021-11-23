@@ -31,7 +31,12 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val entityType = "my-eventsourcedentity-persistence"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.source(service, entity, packageName, className, interfaceClassName, entityType)
+      EventSourcedEntitySourceGenerator.eventSourcedEntitySource(
+        service,
+        entity,
+        packageName,
+        className,
+        interfaceClassName)
     assertNoDiff(
       generatedSrc,
       """package com.example.service;
@@ -130,7 +135,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyServiceEntity"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.eventSourcedEntityRouter(service, entity, packageName, className)
+      EventSourcedEntitySourceGenerator.eventSourcedEntityRouter(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
@@ -192,7 +197,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
     val className = "MyService"
 
     val generatedSrc =
-      EntityServiceSourceGenerator.eventSourcedEntityProvider(service, entity, packageName, className)
+      EventSourcedEntitySourceGenerator.eventSourcedEntityProvider(service, entity, packageName, className)
 
     assertNoDiff(
       generatedSrc,
