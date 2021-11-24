@@ -70,7 +70,9 @@ object ComponentSourceGenerator {
       // type names are fully qualified rather than imported
       val methods = component.callableCommands
         .map(command =>
-          c"""def ${lowerFirst(command.name)}(command: ${command.inputType.fullyQualifiedJavaName}): $DeferredCall[${command.inputType.fullyQualifiedJavaName}, ${command.outputType.fullyQualifiedJavaName}]
+          c"""def ${lowerFirst(command.name)}(command: ${fullyQualifiedClassWithRoot(
+            command.inputType)}): $DeferredCall[${fullyQualifiedClassWithRoot(
+            command.inputType)}, ${fullyQualifiedClassWithRoot(command.outputType)}]
              |""")
 
       c"""trait ${component.uniqueName}Calls {
@@ -117,15 +119,15 @@ object ComponentSourceGenerator {
       val methods = component.callableCommands
         .map { command =>
           val commandMethod = lowerFirst(command.name)
-          val inputType = fullyQualifiedMessage(command.inputType)
-          val outputType = fullyQualifiedMessage(command.outputType)
+          val inputType = fullyQualifiedClassWithRoot(command.inputType)
+          val outputType = fullyQualifiedClassWithRoot(command.outputType)
           c"""override def $commandMethod(command: $inputType): $DeferredCall[$inputType, $outputType] =
              |  $ScalaDeferredCallAdapter(
              |    command,
              |    $Metadata.empty,
              |    "${component.service.fqn.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
+             |    () => getGrpcClient(classOf[_root_.${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
              |  )"""
         }
 
@@ -177,4 +179,7 @@ object ComponentSourceGenerator {
         // only unary commands for now
         service.commands.filter(_.isUnary)
     }
+
+  private def fullyQualifiedClassWithRoot(name: FullyQualifiedName): String =
+    s"_root_.${name.fullyQualifiedJavaName}"
 }
