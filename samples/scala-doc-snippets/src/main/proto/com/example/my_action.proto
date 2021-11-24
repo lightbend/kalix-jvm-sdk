@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.example;
+
+import "akkaserverless/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service DelegatingService {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_ACTION
+  };
+
+  rpc ConsumeRawByteMessages(google.protobuf.BytesValue) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic:  "bytes-topic"
+    };
+  };
+
+  rpc ConsumeTextMessages(google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic:  "text-topic"
+    };
+  };
+}

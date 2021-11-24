@@ -27,7 +27,11 @@ class SourceGeneratorUtilsSuite extends munit.FunSuite {
     assertNoDiff(
       mainPackageName(Set("com.lightbend.Something", "com.lightbend.other.SomethingElse")).mkString("."),
       "com.lightbend")
-    assertNoDiff(mainPackageName(Set("com.lightbend.Something", "io.akka.SomethingElse")).mkString("."), "")
+
+    // no common package prefix should fail
+    intercept[RuntimeException] {
+      mainPackageName(Set("com.lightbend.Something", "io.akka.SomethingElse")).mkString(".")
+    }
   }
 
 }
