@@ -127,7 +127,7 @@ object ComponentSourceGenerator {
              |    $Metadata.empty,
              |    "${component.service.fqn.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
+             |    () => getGrpcClient(classOf[_root_.${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
              |  )"""
         }
 
