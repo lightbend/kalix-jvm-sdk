@@ -57,8 +57,7 @@ object SourceGeneratorUtils {
           s"No common package prefix found for protobuf packages [${packageNames.mkString(", ")}]. " +
           "Auto-selection of root package for shared generated classes not possible, please configure explicit root package for " +
           "Akka Serverless code generation in your sbt build using the Akka Serverless sbt plugin setting 'rootPackage', " +
-          """for example: 'rootPackage := Some("com.example")'"""
-        ) with NoStackTrace
+          """for example: 'rootPackage := Some("com.example")'""") with NoStackTrace
       case prefix => prefix
     }
 
