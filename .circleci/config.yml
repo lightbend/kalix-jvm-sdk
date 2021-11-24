@@ -665,7 +665,7 @@ jobs:
           command: |
             cd samples/scala-first-service
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
