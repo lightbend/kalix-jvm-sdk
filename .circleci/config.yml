@@ -226,6 +226,25 @@ jobs:
       - publish-local
       - save_deps_cache
 
+  verify-all-samples-tested:
+    machine: true
+    description: "Check that all samples has CI-verification"
+    steps:
+      - checkout-and-merge-to-main
+      - run:
+          name: Check that all samples has CI-verification
+          command: |
+            ALL_OK=true
+            for SAMPLE in samples/java* samples/scala*
+            do
+              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ]
+              then
+                echo "$SAMPLE is missing CI-tests"
+                ALL_OK=false
+              fi
+            done
+            $ALL_OK
+
   maven-java-tests:
     machine: true
     description: "Maven Java (plugin and archetype tests)"
@@ -815,6 +834,7 @@ workflows:
       - checks
       - publish-local
       - check-sample-sdk-versions
+      - verify-all-samples-tested
 
       - validate-docs:
           requires:
