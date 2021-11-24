@@ -188,3 +188,5 @@ Calling an action method through the test kit gives us back an link:{attachments
 * `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.
 * `errorDescription` returns the error description when `effects().error()` was returned to signal an error.
 * `forwardedTo` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
++
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#

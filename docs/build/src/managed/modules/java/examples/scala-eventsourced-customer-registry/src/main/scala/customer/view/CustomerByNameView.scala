@@ -18,7 +18,7 @@ class CustomerByNameView(context: ViewContext) extends AbstractCustomerByNameVie
 
   override def processCustomerCreated(
     state: Customer, customerCreated: CustomerCreated): UpdateEffect[Customer] = // <3>
-    if (state == emptyState) effects.ignore() // already  created
+    if (state != emptyState) effects.ignore() // already created
     else effects.updateState(convertToApi(customerCreated.customer.get))
 
   override def processCustomerNameChanged(

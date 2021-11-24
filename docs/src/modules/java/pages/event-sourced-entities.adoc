@@ -303,6 +303,9 @@ include::example$scala-eventsourced-shopping-cart/src/test/scala/com/example/sho
 <7> retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
 <8> retrieving the response from the call to `addItem`.
 <9> retrieving the state of the entity after all the calls to `addItem`.
++
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#
+
 
 *EventSourcedResult*
 
