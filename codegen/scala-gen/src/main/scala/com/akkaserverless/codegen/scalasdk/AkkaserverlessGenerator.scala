@@ -27,6 +27,10 @@ import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 object AkkaserverlessGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
+  def rootPackage(packageName: String) = s"rootPackage=$packageName"
+  val rootPackageRegex = """rootPackage=(\w+)""".r
+  def extractRootPackage(parameter: String): Option[String] =
+    rootPackageRegex.findFirstMatchIn(parameter).map(found => found.group(1))
 
   override def registerExtensions(registry: ExtensionRegistry): Unit = {
     Annotations.registerAllExtensions(registry)
@@ -34,13 +38,14 @@ object AkkaserverlessGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(enableDebug)
+    val configuredRootPackage = extractRootPackage(request.parameter)
     val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
       DebugPrintlnLog(debugEnabled),
       FullyQualifiedNameExtractor(request))
     try {
       CodeGenResponse.succeed(
         SourceGenerator
-          .generateManaged(model)
+          .generateManaged(model, configuredRootPackage)
           .map(file =>
             CodeGeneratorResponse.File
               .newBuilder()

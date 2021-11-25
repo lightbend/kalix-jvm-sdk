@@ -33,13 +33,14 @@ object AkkaserverlessUnmanagedTestGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)
+    val configuredRootPackage = AkkaserverlessGenerator.extractRootPackage(request.parameter)
     val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
       DebugPrintlnLog(debugEnabled),
       FullyQualifiedNameExtractor(request))
     try {
       CodeGenResponse.succeed(
         SourceGenerator
-          .generateUnmanagedTest(model)
+          .generateUnmanagedTest(model, configuredRootPackage)
           .map(file =>
             CodeGeneratorResponse.File
               .newBuilder()
