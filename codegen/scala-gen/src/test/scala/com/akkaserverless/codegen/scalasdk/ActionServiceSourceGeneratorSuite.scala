@@ -17,7 +17,6 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.akkaserverless.codegen.scalasdk.impl.ActionServiceSourceGenerator
-import com.akkaserverless.codegen.scalasdk.impl.ViewServiceSourceGenerator
 import com.lightbend.akkasls.codegen.PackageNaming
 import com.lightbend.akkasls.codegen.TestData
 

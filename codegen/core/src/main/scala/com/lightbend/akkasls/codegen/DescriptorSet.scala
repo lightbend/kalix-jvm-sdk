@@ -23,7 +23,6 @@ import java.util.logging.{ Level, Logger }
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Using }
 
-import com.akkaserverless.Annotations
 import com.google.protobuf.ExtensionRegistry
 
 /**
@@ -62,7 +61,8 @@ object DescriptorSet {
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def descriptors(is: InputStream): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] = {
     val registry = ExtensionRegistry.newInstance()
-    Annotations.registerAllExtensions(registry)
+    com.akkaserverless.Annotations.registerAllExtensions(registry)
+    com.akkaserverless.codegen.Annotations.registerAllExtensions(registry)
 
     Right(try {
       val descriptorProtos =

@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.shoppingcart.domain;
+package com.example.shoppingcart;
 
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
-import com.example.shoppingcart.Main;
-import com.example.shoppingcart.ShoppingCartApi;
-import com.example.shoppingcart.ShoppingCartService;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -34,8 +31,7 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(Main.createAkkaServerless());
 
   private final ShoppingCartService client;
 

@@ -22,7 +22,7 @@ class DescriptorSetSuite extends munit.FunSuite {
 
   test("reading") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
-    val descriptorFile = testFilesPath.resolve("descriptor-sets/hello-1.0-SNAPSHOT.protobin").toFile
+    val descriptorFile = testFilesPath.resolve("hello-1.0-SNAPSHOT.protobin").toFile
     val result = DescriptorSet
       .fileDescriptors(descriptorFile) match {
       case Right(fileExists) =>

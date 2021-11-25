@@ -1,0 +1,52 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// These are the messages that get persisted - the current state (Cart).
+
+// tag::domain[]
+// tag::proto_syntax[]
+syntax = "proto3";
+// end::proto_syntax[]
+
+package com.example.shoppingcart.domain;
+
+option java_outer_classname = "ShoppingCartDomain";
+
+// tag::proto_imports[]
+import "akkaserverless/annotations.proto";
+// end::proto_imports[]
+
+// tag::proto_state[]
+// Describes how this domain relates to a value entity
+option (akkaserverless.file).value_entity = {
+  name: "ShoppingCart"
+  entity_type: "shopping-cart"
+  state: "Cart"
+};
+// end::proto_state[]
+
+// tag::proto_messages[]
+message LineItem {
+  string product_id = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+// The shopping cart state.
+message Cart {
+  repeated LineItem items = 1;
+  int64 creation_timestamp = 2;
+}
+// end::proto_messages[]
+// end::domain[]
