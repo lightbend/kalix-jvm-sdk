@@ -1,0 +1,1 @@
+This 'scripted' test checks that proto services with no common package works.

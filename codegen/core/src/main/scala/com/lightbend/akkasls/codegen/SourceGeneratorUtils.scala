@@ -28,6 +28,8 @@ import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeElement.FQNElement
 
+import scala.util.control.NoStackTrace
+
 object SourceGeneratorUtils {
   val managedComment =
     """// This code is managed by Akka Serverless tooling.
@@ -48,7 +50,17 @@ object SourceGeneratorUtils {
           .toList)
       .toSet
     if (packages.isEmpty) throw new IllegalArgumentException("Nothing to generate!")
-    longestCommonPrefix(packages.head, packages.tail)
+    longestCommonPrefix(packages.head, packages.tail) match {
+      case Nil =>
+        val packageNames = packages.map(_.mkString("."))
+        throw new RuntimeException(
+          s"No common package prefix found for protobuf packages [${packageNames.mkString(", ")}]. " +
+          "Auto-selection of root package for shared generated classes not possible, please configure explicit root package for " +
+          "Akka Serverless code generation in your sbt build using the Akka Serverless sbt plugin setting 'rootPackage', " +
+          """for example: 'rootPackage := Some("com.example")'""") with NoStackTrace
+      case prefix => prefix
+    }
+
   }
 
   @tailrec

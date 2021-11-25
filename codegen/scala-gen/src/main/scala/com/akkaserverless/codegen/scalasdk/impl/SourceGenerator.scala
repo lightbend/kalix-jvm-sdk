@@ -26,8 +26,10 @@ object SourceGenerator {
   /**
    * Generate the 'managed' code for this model: code that will be regenerated regularly in the 'compile' configuratio
    */
-  def generateManaged(model: ModelBuilder.Model): Seq[File] = {
-    val mainPackageName = nameForMainPackate(model)
+  def generateManaged(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] = {
+    val mainPackageName = configuredRootPackage
+      .map(nameForMainPackage)
+      .getOrElse(nameForMainPackage(model))
 
     MainSourceGenerator.generateManaged(model, mainPackageName).toSeq ++
     ComponentSourceGenerator.generateManaged(model, mainPackageName) ++
@@ -74,8 +76,10 @@ object SourceGenerator {
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the
    * user.
    */
-  def generateUnmanaged(model: ModelBuilder.Model): Seq[File] = {
-    val mainPackageName = nameForMainPackate(model)
+  def generateUnmanaged(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] = {
+    val mainPackageName = configuredRootPackage
+      .map(nameForMainPackage)
+      .getOrElse(nameForMainPackage(model))
 
     MainSourceGenerator.generateUnmanaged(model, mainPackageName).toSeq ++
     model.services.values
@@ -99,8 +103,10 @@ object SourceGenerator {
   /**
    * Generate the 'unmanaged' code for this model: code that is generated once on demand and then maintained by the user
    */
-  def generateUnmanagedTest(model: ModelBuilder.Model): Seq[File] = {
-    val mainPackageName = nameForMainPackate(model)
+  def generateUnmanagedTest(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] = {
+    val mainPackageName = configuredRootPackage
+      .map(nameForMainPackage)
+      .getOrElse(nameForMainPackage(model))
 
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
@@ -120,12 +126,15 @@ object SourceGenerator {
     }.toList
   }
 
-  private def nameForMainPackate(model: ModelBuilder.Model): PackageNaming =
+  private def nameForMainPackage(packageString: String): PackageNaming =
     new PackageNaming(
       protoFileName = "",
       name = "",
-      protoPackage = SourceGeneratorUtils.mainPackageName(model.services.keys ++ model.entities.keys).mkString("."),
+      protoPackage = packageString,
       javaPackageOption = None,
       javaOuterClassnameOption = None,
       javaMultipleFiles = false)
+
+  private def nameForMainPackage(model: ModelBuilder.Model): PackageNaming =
+    nameForMainPackage(SourceGeneratorUtils.mainPackageName(model.services.keys ++ model.entities.keys).mkString("."))
 }

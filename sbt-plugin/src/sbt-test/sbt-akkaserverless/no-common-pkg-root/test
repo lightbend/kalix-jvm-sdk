@@ -1,0 +1,7 @@
+# heterogenous packages in proto, generation should fail
+-> compile
+
+# explicitly configure root, should pass now
+> 'set rootPackage := Some("my.root")'
+
+> compile
