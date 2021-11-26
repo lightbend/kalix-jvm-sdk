@@ -134,6 +134,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
 
         try {
           context.asInstanceOf[CommandContextImpl].checkActive()
+          // side effect callbacks may want to access context or components which is valid
           entity._internalSetCommandContext(Optional.of(context))
           CommandResult(events.toVector, commandEffect.secondaryEffect(endState), snapshot, currentSequence)
         } finally {
