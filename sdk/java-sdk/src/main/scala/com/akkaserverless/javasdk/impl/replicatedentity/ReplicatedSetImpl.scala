@@ -22,7 +22,6 @@ import com.akkaserverless.javasdk.impl.AnySupport
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedSetDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
 
 private[akkaserverless] class ReplicatedSetImpl[E](
     anySupport: AnySupport,

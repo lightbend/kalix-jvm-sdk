@@ -14,19 +14,19 @@
 
 syntax = "proto3";
 
-package com.example.shoppingcart.domain; // <1>
+package com.example.shoppingcart.domain; 
 
-import "akkaserverless/annotations.proto"; // <2>
+import "akkaserverless/annotations.proto"; 
 
-option java_outer_classname = "ShoppingCartDomain"; // <3>
+option java_outer_classname = "ShoppingCartDomain"; 
 
 // tag::event_sourced_entity[]
 // Describes how this domain relates to an event sourced entity
-option (akkaserverless.file).event_sourced_entity = { // <4>
-  name: "ShoppingCart" // <5>
-  entity_type: "shopping-cart" // <6>
-  state: "Cart" // <7>
-  events: ["ItemAdded", "ItemRemoved"] // <8>
+option (akkaserverless.file).event_sourced_entity = { 
+  name: "ShoppingCart" 
+  entity_type: "shopping-cart" 
+  state: "Cart" 
+  events: ["ItemAdded", "ItemRemoved"] 
 };
 // end::event_sourced_entity[]
 

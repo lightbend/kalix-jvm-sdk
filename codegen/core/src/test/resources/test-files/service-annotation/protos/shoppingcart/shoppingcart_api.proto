@@ -28,7 +28,6 @@ option java_outer_classname = "ShoppingCartApi";
 // tag::proto_imports[]
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "google/api/annotations.proto";
 // end::proto_imports[]
 
 // tag::proto_messages[]
@@ -75,38 +74,11 @@ service ShoppingCartService {
     component: "com.example.shoppingcart.domain.ShoppingCart"
   };
 
-  rpc Create (CreateCart) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <1>
-      post: "/cart/{cart_id}/create"
-    };
-  }
-
-  rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <1>
-            post: "/cart/{cart_id}/items/add"
-            body: "*"
-        };
-  }
-
-  rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty) {
-    option (google.api.http) = { // <2>
-            post: "/cart/{cart_id}/items/{product_id}/remove"
-        };
-  }
-
-  rpc GetCart (GetShoppingCart) returns (Cart) {
-    option (google.api.http) = { // <3>
-            get: "/carts/{cart_id}"
-            additional_bindings: {
-                get: "/carts/{cart_id}/items"
-                response_body: "items"
-            }
-        };
-  }
-
-  rpc RemoveCart (RemoveShoppingCart) returns (google.protobuf.Empty) {
-    option (google.api.http).post = "/carts/{cart_id}/remove";
-  }
+  rpc Create (CreateCart) returns (google.protobuf.Empty) ;
+  rpc AddItem (AddLineItem) returns (google.protobuf.Empty);
+  rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty);
+  rpc GetCart (GetShoppingCart) returns (Cart);
+  rpc RemoveCart (RemoveShoppingCart) returns (google.protobuf.Empty);
 }
 // end::proto_service[]
 // end::api[]
