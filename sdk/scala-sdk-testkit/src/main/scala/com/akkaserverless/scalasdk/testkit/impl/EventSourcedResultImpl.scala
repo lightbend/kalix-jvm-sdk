@@ -22,6 +22,10 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.scalasdk.DeferredCall
+
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 
 import scala.reflect.ClassTag
 
@@ -98,6 +102,20 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
         throw new NoSuchElementException(
           "expected event type [" + expectedClass.runtimeClass.getName + "] but found [" + next.getClass.getName + "]")
     }
+
+  private def extractServices(sideEffects: Vector[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
+    sideEffects.map { sideEffect =>
+      TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+    }
+  }
+
+  override def sideEffects: Seq[DeferredCallDetails[_, _]] = effect.javasdkEffect.secondaryEffect(state) match {
+    case MessageReplyImpl(_, _, sideEffects) => extractServices(sideEffects)
+    case ForwardReplyImpl(_, sideEffects)    => extractServices(sideEffects)
+    case ErrorReplyImpl(_, sideEffects)      => extractServices(sideEffects)
+    case NoReply(sideEffects)                => extractServices(sideEffects)
+    case NoSecondaryEffectImpl               => Nil // this should never happen
+  }
 
 }
 
