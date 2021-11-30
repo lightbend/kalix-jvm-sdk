@@ -8,9 +8,7 @@ import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
 import com.example
 import com.google.protobuf.empty.Empty
 import scala.collection.immutable.Seq
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
+import com.akkaserverless.scalasdk.testkit.impl.StubEventSourcedCommandContextImpl
 
 
 // This code is managed by Akka Serverless tooling.
@@ -61,7 +59,7 @@ final class CounterTestTok private(entity: Counter) {
     //When I execute From EventSourcedEntitiesRouter.handleCommand or handleEvent
     // There is context in the signature's input Q
     //Q how the sequence in the context is used?
-    entity._internalSetCommandContext(Some(new StubCommandContextImpl()))
+    entity._internalSetCommandContext(Some(new TestKitEventSourcedEntityContext(entityId = "howDoIGetEntityId")))
     val events = EventSourcedResultImpl.eventsOf(effect)
     this.events ++= events
     this._state = events.foldLeft(this._state)(handleEvent)
@@ -86,14 +84,3 @@ final class CounterTestTok private(entity: Counter) {
     
 
 }
-
-class StubCommandContextImpl(
-      override val entityId: String = "whocares",
-      override val sequenceNumber: Long = 1L,
-      override val commandName: String = "whocares",
-      override val commandId: Long = 1L,
-      override val metadata: Metadata = Metadata.empty)
-      extends CommandContext with InternalContext {
-        override def materializer(): akka.stream.Materializer  = ???
-        final def getComponentGrpcClient[T](serviceClass: Class[T]): T = ???
-      }

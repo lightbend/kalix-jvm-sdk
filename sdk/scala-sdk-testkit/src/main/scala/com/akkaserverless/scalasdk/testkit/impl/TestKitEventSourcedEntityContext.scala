@@ -18,12 +18,20 @@ package com.akkaserverless.scalasdk.testkit.impl
 
 import akka.stream.Materializer
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
+import com.akkaserverless.scalasdk.Metadata
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitEventSourcedEntityContext(override val entityId: String)
+final class TestKitEventSourcedEntityContext(
+    override val entityId: String,
+    override val commandId: Long = 0L,
+    override val commandName: String = "stub",
+    override val sequenceNumber: Long = 0L,
+    override val metadata: Metadata = Metadata.empty)
     extends AbstractTestKitContext
+    with CommandContext
     with EventSourcedEntityContext {
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
