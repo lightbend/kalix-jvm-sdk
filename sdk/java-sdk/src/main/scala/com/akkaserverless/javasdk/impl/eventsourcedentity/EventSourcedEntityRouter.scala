@@ -142,7 +142,6 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         }
       case NoPrimaryEffect =>
         try {
-          context.asInstanceOf[CommandContextImpl].checkActive()
           entity._internalSetCommandContext(Optional.of(context))
           CommandResult(Vector.empty, commandEffect.secondaryEffect(_stateOrEmpty()), None, context.sequenceNumber())
         } finally {
