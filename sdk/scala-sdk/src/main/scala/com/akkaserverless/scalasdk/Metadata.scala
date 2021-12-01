@@ -251,6 +251,14 @@ trait Metadata extends Iterable[MetadataEntry] {
    *   This metadata, represented as a CloudEvent with the specified fields.
    */
   def asCloudEvent(id: String, source: URI, `type`: String): CloudEvent
+
+  /**
+   * Get the JWT claims present in this metadata.
+   *
+   * @return
+   *   The JWT claims.
+   */
+  def jwtClaims: JwtClaims
 }
 
 object Metadata {

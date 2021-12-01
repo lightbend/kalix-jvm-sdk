@@ -225,6 +225,13 @@ public interface Metadata extends Iterable<Metadata.MetadataEntry> {
    */
   CloudEvent asCloudEvent(String id, URI source, String type);
 
+  /**
+   * Get the JWT claims present in this metadata.
+   *
+   * @return The JWT claims.
+   */
+  JwtClaims jwtClaims();
+
   /** A metadata entry. */
   interface MetadataEntry {
     /**
