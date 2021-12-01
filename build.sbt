@@ -289,23 +289,6 @@ lazy val javaEventsourcedCustomerRegistry = project
     IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
 
-lazy val protobufDescriptorSetOut = settingKey[File]("The file to write the protobuf descriptor set to")
-
-lazy val attachProtobufDescriptorSets = Seq(
-  protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
-  Compile / PB.generate := (Compile / PB.generate)
-    .dependsOn(Def.task {
-      protobufDescriptorSetOut.value.getParentFile.mkdirs()
-    })
-    .value,
-  Compile / PB.targets := Seq(PB.gens.java -> (Compile / sourceManaged).value),
-  Compile / PB.protocOptions ++= Seq(
-    "--descriptor_set_out",
-    protobufDescriptorSetOut.value.getAbsolutePath,
-    "--include_source_info"),
-  Compile / managedResources += protobufDescriptorSetOut.value,
-  Compile / unmanagedResourceDirectories ++= (Compile / PB.protoSources).value)
-
 lazy val codegenScala =
   project
     .in(file("codegen/scala-gen"))
