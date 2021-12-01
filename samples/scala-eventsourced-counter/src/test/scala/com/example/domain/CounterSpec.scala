@@ -34,7 +34,7 @@ class CounterSpec extends AnyWordSpec with Matchers {
     }
 
     "correctly process commands of type IncreaseWithSideEffect" in {
-      val testKit = CounterTestTok(new Counter(_))
+      val testKit = CounterTestKit(new Counter(_))
       val result: EventSourcedResult[Empty] = testKit.increaseWithSideEffect(example.IncreaseValue("id1",1))
       val actualEvent = result.nextEvent[ValueIncreased]
       actualEvent shouldBe ValueIncreased(value = 1)
