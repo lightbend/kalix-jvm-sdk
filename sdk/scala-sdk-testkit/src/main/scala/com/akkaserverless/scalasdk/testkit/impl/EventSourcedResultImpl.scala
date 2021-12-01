@@ -32,12 +32,20 @@ import scala.reflect.ClassTag
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R, S], state: S)
+final class EventSourcedResultImpl[R, S](
+    effect: EventSourcedEntityEffectImpl[R, S],
+    state: S,
+    secondaryEffect: SecondaryEffectImpl)
     extends EventSourcedResult[R] {
   import EventSourcedResultImpl._
 
+  def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state, secondaryEffect)
+
+  //DELETE before after codegen generates the proper TestKit
+  // only for compatibility while WIP
   def this(effect: EventSourcedEntity.Effect[R], state: S) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state)
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state, NoSecondaryEffectImpl)
 
   private lazy val eventsIterator = events.iterator
 
@@ -109,7 +117,9 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
     }
   }
 
-  override def sideEffects: Seq[DeferredCallDetails[_, _]] = effect.javasdkEffect.secondaryEffect(state) match {
+  //feed the state
+  /// I will already have the secondary effect.
+  override def sideEffects(): Seq[DeferredCallDetails[_, _]] = secondaryEffect match {
     case MessageReplyImpl(_, _, sideEffects) => extractServices(sideEffects)
     case ForwardReplyImpl(_, sideEffects)    => extractServices(sideEffects)
     case ErrorReplyImpl(_, sideEffects)      => extractServices(sideEffects)
@@ -130,6 +140,13 @@ object EventSourcedResultImpl {
           case ee: EmitEvents          => ee.event.toList
           case _: NoPrimaryEffect.type => Nil
         }
+    }
+  }
+
+  def secondaryEffectOf[S](effect: EventSourcedEntity.Effect[_], state: S): SecondaryEffectImpl = {
+    effect match {
+      case ei: EventSourcedEntityEffectImpl[_, S] =>
+        ei.javasdkEffect.secondaryEffect(state)
     }
   }
 }
