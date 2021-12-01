@@ -36,9 +36,9 @@ object CounterTestTok {
   def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter): CounterTestTok =
     new CounterTestTok(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
 }
-final class CounterTestTok private(entity: Counter) {
-  private var _state: CounterState = entity.emptyState
-  private var events: Seq[Any] = Nil
+final class CounterTestTok private(entity: Counter) extends AbstractEffectsRunner[CounterState](entity: Counter) {
+  var _state: CounterState = entity.emptyState
+  var events: Seq[Any] = Nil
 
   /** @return The current state of the entity */
   def currentState: CounterState = _state
@@ -46,7 +46,7 @@ final class CounterTestTok private(entity: Counter) {
   /** @return All events emitted by command handlers of this entity up to now */
   def allEvents: Seq[Any] = events
 
-  private def handleEvent(state: CounterState, event: Any): CounterState =
+  def handleEvent(state: CounterState, event: Any): CounterState =
    event match {
      case e: ValueIncreased =>
       entity.valueIncreased(state, e)
@@ -57,25 +57,6 @@ final class CounterTestTok private(entity: Counter) {
     case e: ValueReset =>
       entity.valueReset(state, e)
    }
-///HOW do I really call the the effects? 
-    // see 63 through the entity
-
-  private def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
-    //add setting the context => done //?? what was this about?
-    entity._internalSetCommandContext(Some(new StubEventSourcedEntityContext()))
-    val effectExecuted = effect()
-    val events = EventSourcedResultImpl.eventsOf(effectExecuted)
-    this.events ++= events
-    entity._internalSetCommandContext(None)
-
-    this._state = events.foldLeft(this._state)(handleEvent)
-
-    entity._internalSetCommandContext(Some(new StubEventSourcedEntityContext()))
-    val secondaryEffect = EventSourcedResultImpl.secondaryEffectOf(effectExecuted, _state)
-    entity._internalSetCommandContext(None)
-    new EventSourcedResultImpl[R, CounterState](effectExecuted, _state, secondaryEffect)
-  }
-
 
   def increase(command: example.IncreaseValue): EventSourcedResult[Empty] =
     interpretEffects(() => entity.increase(_state, command))
@@ -109,3 +90,34 @@ final class StubEventSourcedEntityContext(
        override def getComponentGrpcClient[T](serviceClass: Class[T]): T = throw new UnsupportedOperationException(
         "Accessing the componentGrpcClient from testkit not supported yet")
     }
+
+
+abstract class AbstractEffectsRunner[S](entity:EventSourcedEntity[S]) {
+  var _state: S
+  var events: Seq[Any]
+
+  def handleEvent(state: S, event: Any): S
+
+  def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
+    //add setting the context => done //?? what was this about?
+    val effectExecuted = try {
+      entity._internalSetCommandContext(Some(new StubEventSourcedEntityContext()))
+      val effectExecuted = effect()
+      val events = EventSourcedResultImpl.eventsOf(effectExecuted)
+      this.events ++= events
+      effectExecuted
+    }finally{
+      entity._internalSetCommandContext(None)
+    }
+
+    this._state = events.foldLeft(this._state)(handleEvent)
+    val result = try {
+      entity._internalSetCommandContext(Some(new StubEventSourcedEntityContext()))
+      val secondaryEffect = EventSourcedResultImpl.secondaryEffectOf(effectExecuted, _state)
+      new EventSourcedResultImpl[R, S](effectExecuted, _state, secondaryEffect)
+    }finally {
+      entity._internalSetCommandContext(None)
+    }
+    result
+  }
+}

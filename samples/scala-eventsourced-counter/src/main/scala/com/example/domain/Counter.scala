@@ -34,6 +34,7 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
     if (increaseValue.value < 0) {
       effects.error("Value must be a zero or a positive number")
     } else {
+      components //this checks we have access to the entity's context
       effects
         .emitEvent(ValueIncreased(increaseValue.value))
         .thenAddSideEffect(_ =>
