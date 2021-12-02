@@ -31,7 +31,7 @@ private[akkaserverless] abstract class EventSourcedEntityEffectsRunner[S](entity
 
   def handleEvent(state: S, event: Any): S
 
-  def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
+  protected def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
     val effectExecuted =
       try {
         entity._internalSetCommandContext(Some(commandContext))
