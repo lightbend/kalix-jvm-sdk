@@ -110,7 +110,7 @@ object EventSourcedEntityTestKitGenerator {
        |  /** @return All events emitted by command handlers of this entity up to now */
        |  def allEvents: Seq[Any] = events
        |
-       |  def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
+       |  protected def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
        |   event match {
        |     ${Format.indent(eventHandlers, 4)}
        |   }
