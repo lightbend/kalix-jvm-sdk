@@ -23,7 +23,8 @@ import scala.collection.immutable.Seq
 
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 
-abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
+/** Extended by generated code, not meant for user extension */
+private[akkaserverless] abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
   var _state: S
   var events: Seq[Any]
   val commandContext: CommandContext
