@@ -21,6 +21,7 @@ import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.impl.InternalContext
 import akka.stream.Materializer
 
+/** INTERNAL API Used by the generated testkit */
 final class StubEventSourcedEntityContext(
     override val entityId: String = "stubEntityId",
     override val commandId: Long = 0L,
