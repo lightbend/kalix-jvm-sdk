@@ -72,7 +72,13 @@ case class FullyQualifiedName(
    * class.
    */
   def deriveName(derive: String => String): FullyQualifiedName =
-    copy(name = derive(name), parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
+    copy(name = derive(name), protoName = derive(protoName)).removeOuterClass
+
+  def asJavaMultiFiles: FullyQualifiedName =
+    copy(parent = parent.asJavaMultiFiles)
+
+  def removeOuterClass: FullyQualifiedName =
+    copy(parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
 }
 
 object FullyQualifiedName {
@@ -111,6 +117,9 @@ case class PackageNaming(
   lazy val javaPackage: String = javaPackageOption.getOrElse(protoPackage)
   def scalaPackage: String = javaPackage
   def javaOuterClassname: String = javaOuterClassnameOption.getOrElse(name)
+
+  def asJavaMultiFiles: PackageNaming =
+    copy(javaMultipleFiles = true)
 }
 
 object PackageNaming {
