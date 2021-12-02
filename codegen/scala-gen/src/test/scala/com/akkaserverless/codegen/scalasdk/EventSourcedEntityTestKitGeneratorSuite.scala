@@ -34,8 +34,9 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.testkit.EventSourcedResult
          |import com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
          |import com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl
-         |import com.akkaserverless.scalasdk.testkit.impl.StubEventSourcedEntityContext
+         |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
          |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
+         |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
          |import com.example.service
          |import com.external.Empty
          |import scala.collection.immutable.Seq
@@ -62,9 +63,9 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    new MyEntityTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
          |}
          |final class MyEntityTestKit private(entity: MyEntity) extends EventSourcedEntityEffectsRunner[MyState](entity: MyEntity) {
-         |  var _state: MyState = entity.emptyState
-         |  var events: Seq[Any] = Nil
-         |  val commandContext = new StubEventSourcedEntityContext()
+         |  override protected var _state: MyState = entity.emptyState
+         |  override protected var events: Seq[Any] = Nil
+         |  override protected val commandContext = new TestKitEventSourcedEntityCommandContext()
          |
          |  /** @return The current state of the entity */
          |  def currentState: MyState = _state
@@ -72,11 +73,15 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  /** @return All events emitted by command handlers of this entity up to now */
          |  def allEvents: Seq[Any] = events
          |
-         |  override protected def handleEvent(state: MyState, event: Any): MyState =
-         |   event match {
-         |     case e: SetEvent =>
-         |      entity.setEvent(state, e)
-         |   }
+         |  override protected def handleEvent(state: MyState, event: Any): MyState = {
+         |    entity._internalSetEventContext(Some(new TestKitEventSourcedEntityEventContext()))
+         |    val result = event match {
+         |      case e: SetEvent =>
+         |        entity.setEvent(state, e)
+         |    }
+         |    entity._internalSetEventContext(None)
+         |    result
+         |  }
          |
          |  def set(command: service.SetValue): EventSourcedResult[Empty] =
          |    interpretEffects(() => entity.set(_state, command))

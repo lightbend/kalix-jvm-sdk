@@ -53,7 +53,8 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner",
-          "com.akkaserverless.scalasdk.testkit.impl.StubEventSourcedEntityContext",
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
           "scala.collection.immutable.Seq"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
@@ -100,9 +101,9 @@ object EventSourcedEntityTestKitGenerator {
        |final class $className private(entity: ${typeName(
         entity.fqn)}) extends EventSourcedEntityEffectsRunner[${typeName(entity.state.fqn)}](entity: ${typeName(
         entity.fqn)}) {
-       |  var _state: ${typeName(entity.state.fqn)} = entity.emptyState
-       |  var events: Seq[Any] = Nil
-       |  val commandContext = new StubEventSourcedEntityContext()
+       |  override protected var _state: ${typeName(entity.state.fqn)} = entity.emptyState
+       |  override protected var events: Seq[Any] = Nil
+       |  override protected val commandContext = new TestKitEventSourcedEntityCommandContext()
        |
        |  /** @return The current state of the entity */
        |  def currentState: ${typeName(entity.state.fqn)} = _state
@@ -110,10 +111,15 @@ object EventSourcedEntityTestKitGenerator {
        |  /** @return All events emitted by command handlers of this entity up to now */
        |  def allEvents: Seq[Any] = events
        |
-       |  protected def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
-       |   event match {
-       |     ${Format.indent(eventHandlers, 4)}
-       |   }
+       |  override protected def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(
+        entity.state.fqn)} = {
+       |    entity._internalSetEventContext(Some(new TestKitEventSourcedEntityEventContext()))
+       |    val result = event match {
+       |      ${Format.indent(eventHandlers, 6)}
+       |    }
+       |    entity._internalSetEventContext(None)
+       |    result
+       |  }
        |
        |  ${Format.indent(methods, 2)}
        |}

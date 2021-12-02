@@ -16,17 +16,22 @@
 
 package com.akkaserverless.scalasdk.testkit.impl
 
-import akka.stream.Materializer
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.impl.InternalContext
+import akka.stream.Materializer
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitEventSourcedEntityContext(override val entityId: String)
-    extends AbstractTestKitContext
-    with EventSourcedEntityContext {
+/** INTERNAL API Used by the generated testkit */
+final class TestKitEventSourcedEntityCommandContext(
+    override val entityId: String = "stubEntityId",
+    override val commandId: Long = 0L,
+    override val commandName: String = "stubCommandName",
+    override val sequenceNumber: Long = 0L,
+    override val metadata: Metadata = Metadata.empty)
+    extends CommandContext
+    with InternalContext {
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
+  override def getComponentGrpcClient[T](serviceClass: Class[T]): T = throw new UnsupportedOperationException(
+    "Accessing the componentGrpcClient from testkit not supported yet")
 }
