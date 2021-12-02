@@ -72,7 +72,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |  /** @return All events emitted by command handlers of this entity up to now */
          |  def allEvents: Seq[Any] = events
          |
-         |  def handleEvent(state: MyState, event: Any): MyState =
+         |  override protected def handleEvent(state: MyState, event: Any): MyState =
          |   event match {
          |     case e: SetEvent =>
          |      entity.setEvent(state, e)
