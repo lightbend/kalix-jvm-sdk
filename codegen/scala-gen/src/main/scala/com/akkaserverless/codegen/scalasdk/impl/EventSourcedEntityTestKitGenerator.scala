@@ -58,12 +58,6 @@ object EventSourcedEntityTestKitGenerator {
           "scala.collection.immutable.Seq"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
-    val eventHandlers = entity.events.map { event =>
-      s"""|case e: ${typeName(event.fqn)} =>
-          |  entity.${lowerFirst(event.fqn.name)}(state, e)
-         |""".stripMargin
-    }
-
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
         cmd.outputType)}] =

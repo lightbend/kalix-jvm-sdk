@@ -48,24 +48,33 @@ private[akkaserverless] object EventSourcedResultImpl {
         }
     }
   }
+
+  def secondaryEffectOf[S](effect: EventSourcedEntity.Effect[_], state: S): SecondaryEffectImpl = {
+    effect match {
+      case ei: EventSourcedEntityEffectImpl[S] =>
+        ei.secondaryEffect(state)
+    }
+  }
 }
 
 /**
  * INTERNAL API
  */
-private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[S], state: S)
+private[akkaserverless] final class EventSourcedResultImpl[R, S](
+    effect: EventSourcedEntityEffectImpl[S],
+    state: S,
+    secondaryEffect: SecondaryEffectImpl)
     extends EventSourcedResult[R] {
 
+  def this(effect: EventSourcedEntity.Effect[S], state: S, secondaryEffect: SecondaryEffectImpl) =
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, secondaryEffect)
+
   def this(effect: EventSourcedEntity.Effect[S], state: S) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state)
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, NoSecondaryEffectImpl)
 
   private lazy val eventsIterator = getAllEvents().iterator
 
-  private val appliedSecondaryEffect: SecondaryEffectImpl = effect match {
-    case ese: EventSourcedEntityEffectImpl[_] => ese.secondaryEffect(state)
-  }
-
-  private def secondaryEffectName: String = appliedSecondaryEffect match {
+  private def secondaryEffectName: String = secondaryEffect match {
     case _: MessageReplyImpl[_] => "reply"
     case _: ForwardReplyImpl[_] => "forward"
     case _: ErrorReplyImpl[_]   => "error"
@@ -76,29 +85,29 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](effect: EventSo
   /** All emitted events. */
   override def getAllEvents(): java.util.List[Any] = eventsOf(effect)
 
-  override def isReply: Boolean = appliedSecondaryEffect.isInstanceOf[MessageReplyImpl[_]]
+  override def isReply: Boolean = secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
-  def getReply: R = appliedSecondaryEffect match {
+  def getReply: R = secondaryEffect match {
     case MessageReplyImpl(reply, _, _) => reply.asInstanceOf[R]
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$secondaryEffectName]")
   }
 
-  override def isForward: Boolean = appliedSecondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
+  override def isForward: Boolean = secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
-  override def getForward: DeferredCallDetails[_, R] = appliedSecondaryEffect match {
+  override def getForward: DeferredCallDetails[_, R] = secondaryEffect match {
     case ForwardReplyImpl(deferredCall: DeferredCallImpl[_, _], _) =>
       TestKitDeferredCall(deferredCall.asInstanceOf[DeferredCallImpl[_, R]])
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$secondaryEffectName]")
   }
 
-  override def isError: Boolean = appliedSecondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
+  override def isError: Boolean = secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def getError: String = appliedSecondaryEffect match {
+  override def getError: String = secondaryEffect match {
     case ErrorReplyImpl(description, _) => description
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
 
-  override def isNoReply: Boolean = appliedSecondaryEffect.isInstanceOf[NoReply[_]]
+  override def isNoReply: Boolean = secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def getUpdatedState: AnyRef = state.asInstanceOf[AnyRef]
 
