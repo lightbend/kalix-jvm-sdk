@@ -16,16 +16,18 @@
 
 package com.akkaserverless.javasdk.impl
 
-import com.akkaserverless.javasdk.{ CloudEvent, Metadata }
+import com.akkaserverless.javasdk.{ CloudEvent, JwtClaims, Metadata }
 import com.akkaserverless.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
-
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util
+import java.{ lang, util }
 import java.util.{ Objects, Optional }
+
+import com.akkaserverless.javasdk.impl.MetadataImpl.JwtClaimPrefix
+
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
 import scala.compat.java8.OptionConverters._
@@ -188,6 +190,31 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def clearTime(): MetadataImpl = remove(MetadataImpl.CeTime)
 
   override def asMetadata(): Metadata = this
+
+  // The reason we don't just implement JwtClaims ourselves is that some of the methods clash with CloudEvent
+  override lazy val jwtClaims: JwtClaims = new JwtClaims {
+    override def allClaimNames(): lang.Iterable[String] = allJwtClaimNames.asJava
+    override def asMap(): util.Map[String, String] = jwtClaimsAsMap.asJava
+    override def getString(name: String): Optional[String] = getJwtClaim(name).asJava
+  }
+
+  private[akkaserverless] def allJwtClaimNames: Iterable[String] =
+    entries.view.collect {
+      case MetadataEntry(key, MetadataEntry.Value.StringValue(_), _) if key.startsWith(JwtClaimPrefix) => key
+    }
+
+  private[akkaserverless] def jwtClaimsAsMap: Map[String, String] =
+    entries.view.collect {
+      case MetadataEntry(key, MetadataEntry.Value.StringValue(value), _) if key.startsWith(JwtClaimPrefix) =>
+        key -> value
+    }.toMap
+
+  private[akkaserverless] def getJwtClaim(name: String): Option[String] = {
+    val prefixedName = JwtClaimPrefix + name
+    entries.collectFirst {
+      case MetadataEntry(key, MetadataEntry.Value.StringValue(value), _) if key == prefixedName => value
+    }
+  }
 }
 
 object MetadataImpl {
@@ -204,4 +231,6 @@ object MetadataImpl {
   val CeRequired: Set[String] = Set(CeSpecversion, CeId, CeSource, CeType)
 
   val Empty = new MetadataImpl(Vector.empty)
+
+  val JwtClaimPrefix = "_akkasls-jwt-claim-"
 }

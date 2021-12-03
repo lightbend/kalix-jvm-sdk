@@ -133,6 +133,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.view.MyService4ViewImpl;
         |import com.example.service.view.MyService4ViewProvider;
         |import com.example.service.view.ServiceOuterClass4;
+        |
         |import java.util.function.Function;
         |
         |// This code is managed by Akka Serverless tooling.
@@ -182,6 +183,7 @@ class MainSourceGeneratorSuite extends munit.FunSuite {
         |import com.example.service.view.MyServiceViewImpl;
         |import com.example.service.view.MyServiceViewProvider;
         |import com.example.service.view.ServiceOuterClass;
+        |
         |import java.util.function.Function;
         |
         |// This code is managed by Akka Serverless tooling.

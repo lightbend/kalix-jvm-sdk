@@ -17,10 +17,7 @@
 package com.akkaserverless.scalasdk.impl
 import java.nio.ByteBuffer
 import scala.collection.immutable.Seq
-import com.akkaserverless.javasdk.impl.{ MetadataImpl => Impl }
-import com.akkaserverless.scalasdk.CloudEvent
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.MetadataEntry
+import com.akkaserverless.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry }
 import com.akkaserverless.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
 
 private[akkaserverless] object MetadataImpl {
@@ -81,4 +78,10 @@ private[akkaserverless] class MetadataImpl(val impl: com.akkaserverless.javasdk.
   def remove(key: String): Metadata = MetadataImpl(impl.remove(key))
   def set(key: String, value: String): Metadata = MetadataImpl(impl.set(key, value))
   def setBinary(key: String, value: java.nio.ByteBuffer): Metadata = MetadataImpl(impl.setBinary(key, value))
+  // The reason we don't just implement JwtClaims ourselves is that some of the methods clash with CloudEvent
+  override lazy val jwtClaims: JwtClaims = new JwtClaims {
+    override def allClaimNames: Iterable[String] = impl.allJwtClaimNames
+    override def asMap: Map[String, String] = impl.jwtClaimsAsMap
+    override def getString(name: String): Option[String] = impl.getJwtClaim(name)
+  }
 }

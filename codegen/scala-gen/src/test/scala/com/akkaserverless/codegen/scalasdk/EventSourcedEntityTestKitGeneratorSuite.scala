@@ -39,6 +39,7 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
          |import com.example.service
          |import com.external.Empty
+         |
          |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.

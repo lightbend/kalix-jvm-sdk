@@ -53,10 +53,9 @@ echo "Generated value-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
---proto_path="protos/value-entity" \
+--proto_path="protos/action" \
 --descriptor_set_out=descriptor-sets/action-shoppingcart.desc \
-"protos/value-entity/com/example/shoppingcart/shoppingcart_controller_api.proto" \
-"protos/value-entity/com/example/shoppingcart/shoppingcart_api.proto"
+"protos/action/com/example/shoppingcart/shoppingcart_controller_api.proto"
 
 echo "Generated action-shoppingcart.desc"
 

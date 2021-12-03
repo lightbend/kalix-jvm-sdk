@@ -35,11 +35,10 @@ object JavaGeneratorUtils {
     else directParent + s".${fqn.name}"
   }
 
-  def writeImports(imports: Imports): String = {
-    imports.imports
-      .map { imported => s"import $imported;" }
-      .mkString("\n")
-  }
+  def writeImports(imports: Imports): String =
+    imports.ordered
+      .map(_.map { imported => s"import $imported;" }.mkString("\n"))
+      .mkString("\n\n")
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
     typeArgument match {

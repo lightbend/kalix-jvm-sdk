@@ -62,7 +62,7 @@ object ModelBuilderSuite {
 
   }
 }
-abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit.FunSuite {
+abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends munit.FunSuite {
   val log = LoggerFactory.getLogger(getClass)
   implicit val codegenLog = new Log {
     override def debug(message: String): Unit = log.debug(message)
@@ -80,88 +80,10 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
       outToTopic: Boolean = false) =
     ModelBuilder.Command(name, inputType, outputType, streamedInput, streamedOutput, inFromTopic, outToTopic)
 
-  test(s"EventSourcedEntity introspection (${config.label})") {
-
+  test(s"Action introspection (${config.label})") {
     val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
     val descriptorFilePath =
-      testFilesPath.resolve(config.descriptorSetPath + "/event-sourced-shoppingcart.desc")
-
-    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
-      val fileList = fileDescSet.getFileList.asScala
-
-      val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
-        fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
-
-      val model = ModelBuilder.introspectProtobufClasses(descriptors)
-
-      val shoppingCartProto =
-        PackageNaming(
-          "com/example/shoppingcart/shoppingcart_api.proto",
-          "ShoppingcartApi",
-          "com.example.shoppingcart",
-          None,
-          Some("ShoppingCartApi"),
-          javaMultipleFiles = false)
-
-      val domainProto =
-        PackageNaming(
-          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
-          "ShoppingcartDomain",
-          "com.example.shoppingcart.domain",
-          None,
-          Some("ShoppingCartDomain"),
-          javaMultipleFiles = false)
-
-      val derivedPackage = domainProto.copy(javaMultipleFiles = true)
-
-      val googleEmptyProto =
-        PackageNaming(
-          "Empty",
-          "Empty",
-          "google.protobuf",
-          Some("com.google.protobuf"),
-          Some("EmptyProto"),
-          javaMultipleFiles = true)
-
-      val entity =
-        ModelBuilder.EventSourcedEntity(
-          fullyQualifiedName("ShoppingCart", derivedPackage),
-          "shopping-cart",
-          ModelBuilder.State(fullyQualifiedName("Cart", domainProto)),
-          List(
-            ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainProto)),
-            ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainProto))))
-
-      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
-
-      assertEquals(
-        model.services,
-        Map(
-          "com.example.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.EntityService(
-            fullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            List(
-              command(
-                "AddItem",
-                fullyQualifiedName("AddLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "RemoveItem",
-                fullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "GetCart",
-                fullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                fullyQualifiedName("Cart", shoppingCartProto))),
-            entity.fqn.fullyQualifiedProtoName)))
-    }.get
-  }
-
-  test(s"ValueEntity introspection (${config.label})") {
-    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
-    val descriptorFilePath =
-      testFilesPath.resolve(config.descriptorSetPath + "/value-shoppingcart.desc")
+      testFilesPath.resolve(config.descriptorSetPath + "/action-shoppingcart.desc")
 
     Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
       val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
@@ -169,147 +91,36 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
 
       val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
 
-      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+      val model =
+        ModelBuilder
+          .introspectProtobufClasses(descriptors)
+          .copy(entities = Map.empty) // remove value entity, we don't need to assert it
 
-      val shoppingCartProto =
+      val shoppingCartPackage =
         PackageNaming(
-          "com/example/shoppingcart/shoppingcart_api.proto",
-          "ShoppingcartApi",
+          "com/example/shoppingcart/shoppingcart_controller_api.proto",
+          "ShoppingcartControllerApi",
           "com.example.shoppingcart",
           None,
-          Some("ShoppingCartApi"),
+          Some("ShoppingCartController"),
           javaMultipleFiles = false)
 
-      val domainProto =
-        PackageNaming(
-          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
-          "ShoppingcartDomain",
-          "com.example.shoppingcart.domain",
-          None,
-          Some("ShoppingCartDomain"),
-          javaMultipleFiles = false)
-
-      val googleEmptyProto =
-        PackageNaming(
-          "Empty",
-          "Empty",
-          "google.protobuf",
-          Some("com.google.protobuf"),
-          Some("EmptyProto"),
-          javaMultipleFiles = true)
-      val entity = ModelBuilder.ValueEntity(
-        fullyQualifiedName("ShoppingCart", domainProto),
-        "shopping-cart",
-        ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
-
-      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
-
+      val derivedShoppingCartPackage = shoppingCartPackage.asJavaMultiFiles
       assertEquals(
         model.services,
         Map(
-          "com.example.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.EntityService(
-            fullyQualifiedName("ShoppingCartService", shoppingCartProto),
+          "com.example.shoppingcart.ShoppingCartAction" ->
+          ModelBuilder.ActionService(
+            fullyQualifiedName("ShoppingCartAction", derivedShoppingCartPackage),
             List(
               command(
-                "Create",
-                fullyQualifiedName("CreateCart", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
+                "InitializeCart",
+                fullyQualifiedName("NewCart", shoppingCartPackage),
+                fullyQualifiedName("NewCartCreated", shoppingCartPackage)),
               command(
-                "AddItem",
-                fullyQualifiedName("AddLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "RemoveItem",
-                fullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "GetCart",
-                fullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                fullyQualifiedName("Cart", shoppingCartProto)),
-              command(
-                "RemoveCart",
-                fullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto))),
-            entity.fqn.fullyQualifiedProtoName)))
-    }.get
-  }
-
-  test(s"ReplicatedEntity introspection (${config.label})") {
-    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
-    val descriptorFilePath =
-      testFilesPath.resolve(config.descriptorSetPath + "/replicated-shoppingcart.desc")
-
-    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
-      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
-      val fileList = fileDescSet.getFileList.asScala
-
-      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
-
-      val model = ModelBuilder.introspectProtobufClasses(descriptors)
-
-      val shoppingCartProto =
-        PackageNaming(
-          "com/example/shoppingcart/shoppingcart_api.proto",
-          "ShoppingcartApi",
-          "com.example.shoppingcart",
-          None,
-          Some("ShoppingCartApi"),
-          javaMultipleFiles = false)
-
-      val domainProto =
-        PackageNaming(
-          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
-          "ShoppingcartDomain",
-          "com.example.shoppingcart.domain",
-          None,
-          Some("ShoppingCartDomain"),
-          javaMultipleFiles = false)
-
-      val derivedPackage = domainProto.copy(javaMultipleFiles = true)
-
-      val googleEmptyProto =
-        PackageNaming(
-          "Empty",
-          "Empty",
-          "google.protobuf",
-          Some("com.google.protobuf"),
-          Some("EmptyProto"),
-          javaMultipleFiles = true)
-
-      val entity = ModelBuilder.ReplicatedEntity(
-        fullyQualifiedName("ShoppingCart", derivedPackage),
-        "shopping-cart",
-        ModelBuilder.ReplicatedCounterMap(
-          ModelBuilder
-            .TypeArgument("Product", domainProto, TestData.guessDescriptor(domainProto.name, domainProto))))
-
-      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
-
-      assertEquals(
-        model.services,
-        Map(
-          "com.example.shoppingcart.ShoppingCartService" ->
-          ModelBuilder.EntityService(
-            fullyQualifiedName("ShoppingCartService", shoppingCartProto),
-            List(
-              command(
-                "AddItem",
-                fullyQualifiedName("AddLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "RemoveItem",
-                fullyQualifiedName("RemoveLineItem", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto)),
-              command(
-                "GetCart",
-                fullyQualifiedName("GetShoppingCart", shoppingCartProto),
-                fullyQualifiedName("Cart", shoppingCartProto)),
-              command(
-                "RemoveCart",
-                fullyQualifiedName("RemoveShoppingCart", shoppingCartProto),
-                fullyQualifiedName("Empty", googleEmptyProto))),
-            entity.fqn.fullyQualifiedProtoName)))
+                "CreatePrePopulated",
+                fullyQualifiedName("NewCart", shoppingCartPackage),
+                fullyQualifiedName("NewCartCreated", shoppingCartPackage))))))
     }.get
   }
 
@@ -327,7 +138,7 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
 
       val model = ModelBuilder.introspectProtobufClasses(descriptors)
 
-      val shoppingCartProto =
+      val shoppingCartPackage =
         PackageNaming(
           "com/example/shoppingcart/view/shopping_cart_view_model.proto",
           "ShoppingCartViewModel",
@@ -336,7 +147,7 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
           Some("ShoppingCartViewModel"),
           javaMultipleFiles = false)
 
-      val domainProto =
+      val domainPackage =
         PackageNaming(
           "com/example/shoppingcart/domain/shoppingcart_domain.proto",
           "ShoppingcartDomain",
@@ -345,40 +156,28 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
           Some("ShoppingCartDomain"),
           javaMultipleFiles = false)
 
-      val googleEmptyProto =
-        PackageNaming(
-          "Empty",
-          "Empty",
-          "google.protobuf",
-          Some("com.google.protobuf"),
-          Some("EmptyProto"),
-          javaMultipleFiles = true)
-      val entity = ModelBuilder.ValueEntity(
-        fullyQualifiedName("ShoppingCart", domainProto),
-        "shopping-cart",
-        ModelBuilder.State(fullyQualifiedName("Cart", domainProto)))
-
       val transformedUpdates =
         List(
           command(
             "ProcessAdded",
-            fullyQualifiedName("ItemAdded", domainProto),
-            fullyQualifiedName("CartViewState", shoppingCartProto)),
+            fullyQualifiedName("ItemAdded", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)),
           command(
             "ProcessRemoved",
-            fullyQualifiedName("ItemRemoved", domainProto),
-            fullyQualifiedName("CartViewState", shoppingCartProto)),
+            fullyQualifiedName("ItemRemoved", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)),
           command(
             "ProcessCheckedOut",
-            fullyQualifiedName("CheckedOut", domainProto),
-            fullyQualifiedName("CartViewState", shoppingCartProto)))
+            fullyQualifiedName("CheckedOut", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)))
 
       val queries = List(
         command(
           "GetCheckedOutCarts",
-          fullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartProto),
-          fullyQualifiedName("CartViewState", shoppingCartProto),
+          fullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartPackage),
+          fullyQualifiedName("CartViewState", shoppingCartPackage),
           streamedOutput = true))
+
       assertEquals(
         model.services,
         Map(
@@ -387,8 +186,8 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
             FullyQualifiedName(
               "ShoppingCartViewService",
               "ShoppingCartViewService",
-              shoppingCartProto,
-              TestData.guessDescriptor("ShoppingCartViewService", shoppingCartProto)),
+              shoppingCartPackage.asJavaMultiFiles,
+              TestData.guessDescriptor("ShoppingCartViewService", shoppingCartPackage)),
             transformedUpdates ++ queries,
             "ShoppingCartViewService",
             transformedUpdates,
@@ -417,5 +216,877 @@ abstract class ModelBuilderSuite(config: ModelBuilderSuite.Config) extends munit
   }
 }
 
-class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.CodegenAnnotationConfig)
-class ModelBuilderWithServiceAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.ServiceAnnotationConfig)
+class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.CodegenAnnotationConfig) {
+
+  test(s"EventSourcedEntity introspection (${config.label})") {
+
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/event-sourced-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
+        fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      // Entities don't have a proto package so we need to build one for them
+      // since they are declared in a Service annotation, we stay with this package,
+      // but we do resolve their FQN. The package that the user asks may no be the same as the Service
+      val derivedShoppingCartPackage =
+        shoppingCartPackage.asJavaMultiFiles.copy(protoPackage = "com.example.shoppingcart.domain")
+
+      val entity =
+        ModelBuilder.EventSourcedEntity(
+          // this is the name as defined in the proto file
+          fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+          "shopping-cart",
+          ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)),
+          List(
+            ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainPackage)),
+            ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ValueEntity introspection (${config.label})") {
+
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/value-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      // Entities don't have a proto package so we need to build one for them
+      // since they are declared in a Service annotation, we stay with this package,
+      // but we do resolve their FQN. The package that they user asks may no be the same as the Service
+      val derivedShoppingCartPackage =
+        shoppingCartPackage.asJavaMultiFiles.copy(protoPackage = "com.example.shoppingcart.domain")
+
+      val entity = ModelBuilder.ValueEntity(
+        fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+        "shopping-cart",
+        ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "Create",
+                fullyQualifiedName("CreateCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ReplicatedEntity introspection (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/replicated-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      // Entities don't have a proto package so we need to build one for them
+      // since they are declared in a Service annotation, we stay with this package,
+      // but we do resolve their FQN. The package that the user asks may no be the same as the Service
+      val derivedShoppingCartPackage =
+        shoppingCartPackage.asJavaMultiFiles.copy(protoPackage = "com.example.shoppingcart.domain")
+
+      val entity = ModelBuilder.ReplicatedEntity(
+        // this is the name as defined in the proto file
+        fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+        "shopping-cart",
+        ModelBuilder.ReplicatedCounterMap(
+          ModelBuilder
+            .TypeArgument("Product", domainPackage, TestData.guessDescriptor(domainPackage.name, domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"EventSourcedEntity introspection with unnamed entity (${config.label})") {
+
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/event-sourced-shoppingcart-unnamed.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
+        fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val entity =
+        ModelBuilder.EventSourcedEntity(
+          // this is the name as defined in the proto file
+          fullyQualifiedName("ShoppingCartServiceEntity", shoppingCartPackage).removeOuterClass,
+          "shopping-cart",
+          ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)),
+          List(
+            ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainPackage)),
+            ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      // unnamed entities get their name derived from service name (name + Entity)
+      // ShoppingCartService => ShoppingCartServiceEntity
+      val generatedEntity = model.entities(entity.fqn.fullyQualifiedProtoName)
+      assertEquals(generatedEntity.fqn.name, "ShoppingCartServiceEntity")
+      assertEquals(generatedEntity.fqn.parent.protoPackage, "com.example.shoppingcart")
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" -> ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ValueEntity introspection with unnamed entity (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/value-shoppingcart-unnamed.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val entity = ModelBuilder.ValueEntity(
+        fullyQualifiedName("ShoppingCartServiceEntity", shoppingCartPackage).removeOuterClass,
+        "shopping-cart",
+        ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      // unnamed entities get their name derived from service name (name + Entity)
+      // ShoppingCartService => ShoppingCartServiceEntity
+      val generatedEntity = model.entities(entity.fqn.fullyQualifiedProtoName)
+      assertEquals(generatedEntity.fqn.name, "ShoppingCartServiceEntity")
+      assertEquals(generatedEntity.fqn.parent.protoPackage, "com.example.shoppingcart")
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "Create",
+                fullyQualifiedName("CreateCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ReplicatedEntity introspection with unnamed entity (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/replicated-shoppingcart-unnamed.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val entity = ModelBuilder.ReplicatedEntity(
+        fullyQualifiedName("ShoppingCartServiceEntity", shoppingCartPackage).removeOuterClass,
+        "shopping-cart",
+        ModelBuilder.ReplicatedCounterMap(
+          ModelBuilder
+            .TypeArgument("Product", domainPackage, TestData.guessDescriptor(domainPackage.name, domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      // unnamed entities get their name derived from service name (name + Entity)
+      // ShoppingCartService => ShoppingCartServiceEntity
+      val generatedEntity = model.entities(entity.fqn.fullyQualifiedProtoName)
+      assertEquals(generatedEntity.fqn.name, "ShoppingCartServiceEntity")
+      assertEquals(generatedEntity.fqn.parent.protoPackage, "com.example.shoppingcart")
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  // for Actions we must do the inverted test. Legacy test is unnamed, so we test the named case
+  test(s"Action introspection with named action (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/action-shoppingcart-named.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model =
+        ModelBuilder
+          .introspectProtobufClasses(descriptors)
+          .copy(entities = Map.empty) // remove value entity, we don't need to assert it
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_controller_api.proto",
+          "ShoppingcartControllerApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartController"),
+          javaMultipleFiles = false)
+
+      // Action components don't have a proto package.
+      // So we need to build one for them since they are declared in a Service annotation,
+      // we stay with this package, but we do resolve their FQN.
+      // The package that the user asks may no be the same as the Service
+      val derivedShoppingCartPackage =
+        shoppingCartPackage.asJavaMultiFiles
+          .copy(protoPackage = "com.example.shoppingcart.controllers")
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.controllers.ShoppingCartController" ->
+          ModelBuilder.ActionService(
+            // this is the name as defined in the proto file
+            fullyQualifiedName("ShoppingCartController", derivedShoppingCartPackage),
+            List(
+              command(
+                "InitializeCart",
+                fullyQualifiedName("NewCart", shoppingCartPackage),
+                fullyQualifiedName("NewCartCreated", shoppingCartPackage)),
+              command(
+                "CreatePrePopulated",
+                fullyQualifiedName("NewCart", shoppingCartPackage),
+                fullyQualifiedName("NewCartCreated", shoppingCartPackage))),
+            transformName = false)))
+    }.get
+  }
+
+  // for Views we must do the inverted test. Legacy test is unnamed, so we test the named case
+  test(s"View introspection with names view (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/view-shoppingcart-named.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.foldLeft(List.empty[Descriptors.FileDescriptor])((acc, file) =>
+        acc :+ Descriptors.FileDescriptor.buildFrom(file, acc.toArray, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/view/shopping_cart_view_model.proto",
+          "ShoppingCartViewModel",
+          "com.example.shoppingcart.view",
+          None,
+          Some("ShoppingCartViewModel"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      // View components don't have a proto package.
+      // So we need to build one for them since they are declared in a Service annotation,
+      // we stay with this package.
+      val derivedShoppingCartPackage = shoppingCartPackage.asJavaMultiFiles
+
+      val transformedUpdates =
+        List(
+          command(
+            "ProcessAdded",
+            fullyQualifiedName("ItemAdded", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)),
+          command(
+            "ProcessRemoved",
+            fullyQualifiedName("ItemRemoved", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)),
+          command(
+            "ProcessCheckedOut",
+            fullyQualifiedName("CheckedOut", domainPackage),
+            fullyQualifiedName("CartViewState", shoppingCartPackage)))
+
+      val queries = List(
+        command(
+          "GetCheckedOutCarts",
+          fullyQualifiedName("GetCheckedOutCartsRequest", shoppingCartPackage),
+          fullyQualifiedName("CartViewState", shoppingCartPackage),
+          streamedOutput = true))
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.view.ShoppingCartView" ->
+          ModelBuilder.ViewService(
+            // this is the name as defined in the proto file
+            FullyQualifiedName(
+              "ShoppingCartView",
+              "ShoppingCartView",
+              derivedShoppingCartPackage,
+              TestData.guessDescriptor("ShoppingCartViewService", shoppingCartPackage)),
+            transformedUpdates ++ queries,
+            "ShoppingCartViewService",
+            transformedUpdates,
+            transformedUpdates,
+            queries,
+            transformName = false)))
+    }.get
+  }
+}
+
+class ModelBuilderWithServiceAnnotationSuite extends ModelBuilderSuite(ModelBuilderSuite.ServiceAnnotationConfig) {
+
+  test(s"EventSourcedEntity introspection (${config.label})") {
+
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/event-sourced-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors: mutable.Seq[Descriptors.FileDescriptor] =
+        fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val derivedDomainPackage = domainPackage.asJavaMultiFiles
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val entity =
+        ModelBuilder.EventSourcedEntity(
+          fullyQualifiedName("ShoppingCart", derivedDomainPackage),
+          "shopping-cart",
+          ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)),
+          List(
+            ModelBuilder.Event(fullyQualifiedName("ItemAdded", domainPackage)),
+            ModelBuilder.Event(fullyQualifiedName("ItemRemoved", domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ValueEntity introspection (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/value-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val derivedDomainPackage = domainPackage.asJavaMultiFiles
+
+      val entity = ModelBuilder.ValueEntity(
+        fullyQualifiedName("ShoppingCart", derivedDomainPackage),
+        "shopping-cart",
+        ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "Create",
+                fullyQualifiedName("CreateCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+  test(s"ReplicatedEntity introspection (${config.label})") {
+    val testFilesPath = Paths.get(getClass.getClassLoader.getResource("test-files").toURI)
+    val descriptorFilePath =
+      testFilesPath.resolve(config.descriptorSetPath + "/replicated-shoppingcart.desc")
+
+    Using(new FileInputStream(descriptorFilePath.toFile)) { fis =>
+      val fileDescSet = FileDescriptorSet.parseFrom(fis, config.registry)
+      val fileList = fileDescSet.getFileList.asScala
+
+      val descriptors = fileList.map(Descriptors.FileDescriptor.buildFrom(_, Array.empty, true))
+
+      val model = ModelBuilder.introspectProtobufClasses(descriptors)
+
+      val shoppingCartPackage =
+        PackageNaming(
+          "com/example/shoppingcart/shoppingcart_api.proto",
+          "ShoppingcartApi",
+          "com.example.shoppingcart",
+          None,
+          Some("ShoppingCartApi"),
+          javaMultipleFiles = false)
+
+      val domainPackage =
+        PackageNaming(
+          "com/example/shoppingcart/domain/shoppingcart_domain.proto",
+          "ShoppingcartDomain",
+          "com.example.shoppingcart.domain",
+          None,
+          Some("ShoppingCartDomain"),
+          javaMultipleFiles = false)
+
+      val derivedDomainPackage = domainPackage.asJavaMultiFiles
+
+      val googleEmptyPackage =
+        PackageNaming(
+          "Empty",
+          "Empty",
+          "google.protobuf",
+          Some("com.google.protobuf"),
+          Some("EmptyProto"),
+          javaMultipleFiles = true)
+
+      val entity = ModelBuilder.ReplicatedEntity(
+        fullyQualifiedName("ShoppingCart", derivedDomainPackage),
+        "shopping-cart",
+        ModelBuilder.ReplicatedCounterMap(
+          ModelBuilder
+            .TypeArgument("Product", domainPackage, TestData.guessDescriptor(domainPackage.name, domainPackage))))
+
+      assertEquals(model.entities, Map(entity.fqn.fullyQualifiedProtoName -> entity))
+
+      assertEquals(
+        model.services,
+        Map(
+          "com.example.shoppingcart.ShoppingCartService" ->
+          ModelBuilder.EntityService(
+            fullyQualifiedName("ShoppingCartService", shoppingCartPackage),
+            List(
+              command(
+                "AddItem",
+                fullyQualifiedName("AddLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "RemoveItem",
+                fullyQualifiedName("RemoveLineItem", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage)),
+              command(
+                "GetCart",
+                fullyQualifiedName("GetShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Cart", shoppingCartPackage)),
+              command(
+                "RemoveCart",
+                fullyQualifiedName("RemoveShoppingCart", shoppingCartPackage),
+                fullyQualifiedName("Empty", googleEmptyPackage))),
+            entity.fqn.fullyQualifiedProtoName)))
+    }.get
+  }
+
+}

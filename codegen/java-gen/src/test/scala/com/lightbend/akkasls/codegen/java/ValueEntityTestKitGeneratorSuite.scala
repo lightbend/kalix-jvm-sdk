@@ -47,6 +47,7 @@ class ValueEntityTestKitGeneratorSuite extends munit.FunSuite {
         |import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
         |import com.example.shoppingcart.domain.ShoppingCartDomain;
         |import com.google.protobuf.Empty;
+        |
         |import java.util.function.Function;
         |
         |// This code is managed by Akka Serverless tooling.

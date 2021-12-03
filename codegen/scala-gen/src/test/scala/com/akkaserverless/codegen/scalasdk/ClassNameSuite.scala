@@ -24,7 +24,7 @@ class ClassNameSuite extends munit.FunSuite {
       classOf[ClassNameSuite].getResourceAsStream(
         "/test-files/codegen-annotation/descriptor-sets/value-shoppingcart.desc"))
     val descriptors = d.right.get.right.get.toList
-    assertEquals(descriptors.size, 12)
+    assertEquals(descriptors.size, 10)
 
     // This test doesn't test anything particularly interesting, but is useful
     // for experimenting with what a 'real' parsed proto looks like after parsing ;)
