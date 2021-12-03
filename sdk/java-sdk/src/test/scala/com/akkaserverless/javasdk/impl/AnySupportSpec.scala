@@ -200,14 +200,14 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       decoded2 shouldBe a[ByteString]
     }
 
-    "serialize BytesValue into our own primitive type" in {
+    "serialize BytesValue like a regular message" in {
       val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.BytesValue(ByteString.copyFromUtf8("woho!")))
-      encoded.typeUrl should ===("p.akkaserverless.com/bytes")
+      encoded.typeUrl should ===("type.googleapis.com/google.protobuf.BytesValue")
     }
 
-    "serialize StringValue into our own primitive type" in {
+    "serialize StringValue like a regular message" in {
       val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.StringValue("waha!"))
-      encoded.typeUrl should ===("p.akkaserverless.com/string")
+      encoded.typeUrl should ===("type.googleapis.com/google.protobuf.StringValue")
     }
   }
 
