@@ -355,8 +355,20 @@ class AnySupport(
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
 
-      // Note: the wrapper types for bytes and Strings are handled as any other proto message here
-      // (and proxy handles conversion when going to a topic)
+      // these are all generated message so needs to go before GeneratedMessage,
+      // but we encode them in side any just like regular message, we just need to get the type_url right
+      case javaBytes: com.google.protobuf.BytesValue =>
+        ScalaPbAny.fromJavaProto(JavaPbAny.pack(javaBytes))
+
+      case scalaBytes: com.google.protobuf.wrappers.BytesValue =>
+        ScalaPbAny.pack(scalaBytes)
+
+      case javaText: com.google.protobuf.StringValue =>
+        ScalaPbAny.fromJavaProto(JavaPbAny.pack(javaText))
+
+      case scalaText: com.google.protobuf.wrappers.StringValue =>
+        ScalaPbAny.pack(scalaText)
+
       case javaProtoMessage: com.google.protobuf.Message =>
         ScalaPbAny(
           typeUrlPrefix + "/" + javaProtoMessage.getDescriptorForType.getFullName,

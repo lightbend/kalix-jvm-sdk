@@ -142,15 +142,18 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       decoded2 shouldBe a[ByteString]
     }
 
-    "serialize BytesValue into our own primitive type" in {
-      val encoded = anySupport.encodeScala(
-        com.google.protobuf.BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("woho!")).build())
-      encoded.typeUrl should ===("p.akkaserverless.com/bytes")
+    "serialize BytesValue like a regular message" in {
+      val bytes = ByteString.copyFromUtf8("woho!")
+      val encoded = anySupport.encodeScala(com.google.protobuf.BytesValue.newBuilder().setValue(bytes).build())
+      encoded.typeUrl should ===("type.googleapis.com/google.protobuf.BytesValue")
+      com.google.protobuf.BytesValue.parseFrom(encoded.value).getValue should ===(bytes)
     }
 
-    "serialize StringValue into our own primitive type" in {
-      val encoded = anySupport.encodeScala(com.google.protobuf.StringValue.newBuilder().setValue("waha!").build())
-      encoded.typeUrl should ===("p.akkaserverless.com/string")
+    "serialize StringValue like a regular message" in {
+      val text = "waha!"
+      val encoded = anySupport.encodeScala(com.google.protobuf.StringValue.newBuilder().setValue(text).build())
+      encoded.typeUrl should ===("type.googleapis.com/google.protobuf.StringValue")
+      com.google.protobuf.StringValue.parseFrom(encoded.value).getValue should ===(text)
     }
   }
 
@@ -201,13 +204,17 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     }
 
     "serialize BytesValue like a regular message" in {
-      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.BytesValue(ByteString.copyFromUtf8("woho!")))
+      val bytes = ByteString.copyFromUtf8("woho!")
+      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.BytesValue(bytes))
       encoded.typeUrl should ===("type.googleapis.com/google.protobuf.BytesValue")
+      com.google.protobuf.wrappers.BytesValue.parseFrom(encoded.value.newCodedInput()).value should ===(bytes)
     }
 
     "serialize StringValue like a regular message" in {
-      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.StringValue("waha!"))
+      val text = "waha!"
+      val encoded = anySupport.encodeScala(com.google.protobuf.wrappers.StringValue(text))
       encoded.typeUrl should ===("type.googleapis.com/google.protobuf.StringValue")
+      com.google.protobuf.wrappers.StringValue.parseFrom(encoded.value.newCodedInput()).value should ===(text)
     }
   }
 
