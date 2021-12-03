@@ -190,6 +190,7 @@ class ActionServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.action.ActionOptions
          |import com.akkaserverless.scalasdk.action.ActionProvider
          |import com.google.protobuf.Descriptors
+         |
          |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.

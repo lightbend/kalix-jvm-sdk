@@ -151,6 +151,7 @@ class EventSourcedEntitySourceGeneratorSuite extends munit.FunSuite {
           |import com.example.service
           |import com.external.ExternalDomainProto
           |import com.google.protobuf.Descriptors
+          |
           |import scala.collection.immutable.Seq
           |
           |// This code is managed by Akka Serverless tooling.

@@ -200,6 +200,7 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
          |import com.akkaserverless.scalasdk.view.ViewProvider
          |import com.google.protobuf.Descriptors
          |import com.google.protobuf.EmptyProto
+         |
          |import scala.collection.immutable.Seq
          |
          |// This code is managed by Akka Serverless tooling.

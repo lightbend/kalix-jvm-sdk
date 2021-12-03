@@ -30,8 +30,8 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
         |
-        |import com.akkaserverless.javasdk.view.ViewContext;
         |import com.akkaserverless.javasdk.view.View;
+        |import com.akkaserverless.javasdk.view.ViewContext;
         |import com.example.service.domain.EntityOuterClass;
         |
         |// This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -154,10 +154,10 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
         |
+        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |import com.akkaserverless.javasdk.impl.view.ViewRouter;
         |import com.akkaserverless.javasdk.view.View;
         |import com.example.service.domain.EntityOuterClass;
-        |import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
         |
         |// This code is managed by Akka Serverless tooling.
         |// It will be re-generated to reflect any changes to your protobuf definitions.
@@ -207,11 +207,12 @@ class ViewServiceSourceGeneratorSuite extends munit.FunSuite {
       generatedSrc,
       """package com.example.service;
        |
-       |import com.akkaserverless.javasdk.view.ViewProvider;
-       |import java.util.function.Function;
        |import com.akkaserverless.javasdk.view.ViewCreationContext;
        |import com.akkaserverless.javasdk.view.ViewOptions;
+       |import com.akkaserverless.javasdk.view.ViewProvider;
        |import com.google.protobuf.Descriptors;
+       |
+       |import java.util.function.Function;
        |
        |// This code is managed by Akka Serverless tooling.
        |// It will be re-generated to reflect any changes to your protobuf definitions.

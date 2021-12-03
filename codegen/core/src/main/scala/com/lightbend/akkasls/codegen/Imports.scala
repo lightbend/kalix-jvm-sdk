@@ -30,6 +30,12 @@ class Imports(val currentPackage: String, val _imports: Seq[String]) {
       .filter(_._2.size > 1)
       .keySet
 
+  def ordered: List[Seq[String]] = {
+    val (stdlib, other) =
+      imports.partition(i => i.startsWith("java.") || i.startsWith("javax.") || i.startsWith("scala."))
+    List(other.sorted, stdlib.sorted).filter(_.nonEmpty)
+  }
+
   private def isInCurrentPackage(imp: String): Boolean = {
     val i = imp.lastIndexOf('.')
     if (i == -1)
