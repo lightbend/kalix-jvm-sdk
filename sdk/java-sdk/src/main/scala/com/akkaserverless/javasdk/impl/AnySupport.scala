@@ -355,19 +355,8 @@ class AnySupport(
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
 
-      // these are all generated message so needs to go before GeneratedMessage to be encoded to our internal primitive types
-      case javaBytes: com.google.protobuf.BytesValue =>
-        ScalaPbAny(BytesPrimitive.fullName, primitiveToBytes(BytesPrimitive, javaBytes.getValue))
-
-      case scalaBytes: com.google.protobuf.wrappers.BytesValue =>
-        ScalaPbAny(BytesPrimitive.fullName, primitiveToBytes(BytesPrimitive, scalaBytes.value))
-
-      case javaText: com.google.protobuf.StringValue =>
-        ScalaPbAny(StringPrimitive.fullName, primitiveToBytes(StringPrimitive, javaText.getValue))
-
-      case scalaText: com.google.protobuf.wrappers.StringValue =>
-        ScalaPbAny(StringPrimitive.fullName, primitiveToBytes(StringPrimitive, scalaText.value))
-
+      // Note: the wrapper types for bytes and Strings are handled as any other proto message here
+      // (and proxy handles conversion when going to a topic)
       case javaProtoMessage: com.google.protobuf.Message =>
         ScalaPbAny(
           typeUrlPrefix + "/" + javaProtoMessage.getDescriptorForType.getFullName,
