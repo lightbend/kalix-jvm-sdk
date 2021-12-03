@@ -3,7 +3,7 @@ include::ROOT:partial$include.adoc[]
 = Publishing and Subscribing with Actions
 :page-supergroup-java-scala: Language
 
-A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes or a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic for asynchronous messaging between services.
+A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.
 
 With Actions you can: 
 
@@ -17,9 +17,6 @@ Messages are guaranteed to be delivered at least once. This means that receivers
 == Publishing Entity events to a Topic
 
 To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
-
-For details about how to set up the connection to https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka see
-https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers]
 
 include::partial$pubsub-note.adoc[]
 
@@ -71,6 +68,8 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic]
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
+
+In this example we have published ProtoBuf messages to the topic which is convenient if the consuming end is also an Akka Serverless service. For an external consumer ProtoBuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
 
 == Subscribing to state changes from a Value Entity
 
