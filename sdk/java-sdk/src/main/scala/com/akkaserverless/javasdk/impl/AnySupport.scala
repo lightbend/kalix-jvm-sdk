@@ -356,7 +356,7 @@ class AnySupport(
       case scalaPbAny: ScalaPbAny => scalaPbAny
 
       // these are all generated message so needs to go before GeneratedMessage,
-      // but we encode them in side any just like regular message, we just need to get the type_url right
+      // but we encode them inside Any just like regular message, we just need to get the type_url right
       case javaBytes: com.google.protobuf.BytesValue =>
         ScalaPbAny.fromJavaProto(JavaPbAny.pack(javaBytes))
 

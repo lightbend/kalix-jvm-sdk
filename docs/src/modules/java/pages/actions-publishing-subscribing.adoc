@@ -69,7 +69,7 @@ include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/C
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
-In this example we have published ProtoBuf messages to the topic which is convenient if the consuming end is also an Akka Serverless service. For an external consumer ProtoBuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
+In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also an Akka Serverless service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
 
 == Subscribing to state changes from a Value Entity
 

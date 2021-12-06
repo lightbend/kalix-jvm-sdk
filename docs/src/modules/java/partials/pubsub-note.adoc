@@ -1,4 +1,4 @@
 [NOTE]
 ====
-In the protobuf descriptors topic names are referenced but no additional details about how to connect to the topics. When deploying the application there must be a broker configuration with credentials and details on how connect in the Akka Serverless project. For details about configuring a broker see https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers]
+In the Protobuf descriptors topic names are referenced but no additional details about how to connect to the topics. When deploying the application there must be a broker configuration with credentials and details on how connect in the Akka Serverless project. For details about configuring a broker see https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers]
 ====
