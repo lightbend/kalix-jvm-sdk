@@ -31,14 +31,12 @@ message Hello {
 }
 
 service EchoAction {
-    option (akkaserverless.service) = {
-      type : SERVICE_TYPE_ACTION
-    };
-    rpc SayHello(Person) returns (Hello) {
-    }
+  option (akkaserverless.codegen) = {
+    action: { }
+  };
 
-    // example importing a type coming from another file
-    rpc Create(valueentity.CreateUser) returns (google.protobuf.Empty){
+  rpc SayHello(Person) returns (Hello);
 
-    }
+  // example importing a type coming from another file
+  rpc Create(valueentity.CreateUser) returns (google.protobuf.Empty);
 }

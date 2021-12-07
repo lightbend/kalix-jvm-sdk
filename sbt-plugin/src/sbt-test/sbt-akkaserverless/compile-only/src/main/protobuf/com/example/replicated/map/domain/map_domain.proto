@@ -16,17 +16,7 @@ syntax = "proto3";
 
 package com.example.replicated.map.domain;
 
-import "akkaserverless/annotations.proto";
-
 option java_outer_classname = "SomeMapDomain";
-
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeMap"
-  entity_type: "some-map"
-  replicated_map: {
-    key: "SomeKey"
-  }
-};
 
 message SomeKey {
   string key = 1;

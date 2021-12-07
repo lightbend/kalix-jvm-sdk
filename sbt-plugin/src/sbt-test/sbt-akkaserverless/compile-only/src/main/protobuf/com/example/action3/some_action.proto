@@ -19,14 +19,14 @@ package com.example.action3;
 option java_multiple_files = true;
 // no java_outer_classname option, will default to "SomeActionOuterClass"
 
-import "akkaserverless/annotations.proto";
+import "akkaserverless/annotations.proto";  
 
 message Request {}
 message Response {}
 
 service SomeAction {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: { }
   };
 
   rpc Method(Request) returns (Response);

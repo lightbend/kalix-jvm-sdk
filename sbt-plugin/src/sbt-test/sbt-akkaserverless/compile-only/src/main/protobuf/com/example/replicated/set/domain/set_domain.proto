@@ -16,17 +16,7 @@ syntax = "proto3";
 
 package com.example.replicated.set.domain;
 
-import "akkaserverless/annotations.proto";
-
 option java_outer_classname = "SomeSetDomain";
-
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeSet"
-  entity_type: "some-set"
-  replicated_set: {
-    element: "SomeElement"
-  }
-};
 
 message SomeElement {
   string value = 1;

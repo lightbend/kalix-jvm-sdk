@@ -37,9 +37,12 @@ message CurrentUser {
 }
 
 service UserService {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component : "com.example.valueentity.domain.User"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: ".domain.User"
+      entity_type: "user"
+      state: ".domain.UserState"
+    }
   };
 
   rpc Create (CreateUser) returns (google.protobuf.Empty);

@@ -25,9 +25,9 @@ message Request {}
 message Response {}
 
 service SimpleAction {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: { }
   };
-
+  
   rpc Method(Request) returns (Response);
 }

@@ -19,11 +19,11 @@ package com.example.view;
 option java_outer_classname = "UserViewModel";
 
 import "com/example/valueentity/domain/user_domain.proto";
-import "akkaserverless/annotations.proto";
+import "akkaserverless/annotations.proto";  
 
 service UserByName {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_VIEW
+  option (akkaserverless.codegen) = {
+    view: { }
   };
 
   // purposely using a projection query up top to detect using the wrong state type

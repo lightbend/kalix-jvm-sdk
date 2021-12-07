@@ -44,9 +44,14 @@ message CurrentElements {
 }
 
 service SetService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.set.domain.SomeSet"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeSet"
+      entity_type: "some-set"
+      replicated_set: {
+        element: ".domain.SomeElement"
+      }
+    }
   };
 
   rpc Add(AddElement) returns (google.protobuf.Empty);
@@ -55,9 +60,14 @@ service SetService {
 }
 
 service ScalarSetService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.set.domain.SomeScalarSet"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeScalarSet"
+      entity_type: "some-scalar-set"
+      replicated_set: {
+        element: "string"
+      }
+    }
   };
 
   rpc Add(AddElement) returns (google.protobuf.Empty);

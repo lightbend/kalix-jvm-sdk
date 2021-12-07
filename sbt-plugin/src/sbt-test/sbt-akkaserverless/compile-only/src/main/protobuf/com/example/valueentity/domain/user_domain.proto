@@ -16,15 +16,7 @@ syntax = "proto3";
 
 package com.example.valueentity.domain;
 
-import "akkaserverless/annotations.proto";
-
 option java_outer_classname = "UserDomain";
-
-option (akkaserverless.file).value_entity = {
-    name: "User"
-    entity_type: "user"
-    state: "UserState"
-};
 
 message UserState {
   string name = 1;

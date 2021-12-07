@@ -25,10 +25,14 @@ message Request {}
 message Response {}
 
 service SomeValueEntityService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.valueentity.domain.SomeValueEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: ".domain.SomeValueEntity"
+      entity_type: "some-value-entity"
+      state: ".domain.SomeValueEntityState"
+    }
   };
+
 
   rpc Method(Request) returns (Response);
 }

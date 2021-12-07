@@ -18,7 +18,6 @@ package com.example.shoppingcart;
 
 import "google/protobuf/empty.proto"; 
 import "akkaserverless/annotations.proto";
-import "akkaserverless/codegen/annotations.proto";
 
 option java_outer_classname = "ShoppingCartApi";  
 
