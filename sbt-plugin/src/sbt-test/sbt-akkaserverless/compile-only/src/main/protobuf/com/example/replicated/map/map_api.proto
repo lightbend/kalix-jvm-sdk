@@ -57,9 +57,14 @@ message CurrentValues {
 }
 
 service MapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.map.domain.SomeMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeMap"
+      entity_type: "some-map"
+      replicated_map: {
+        key: ".domain.SomeKey"
+      }
+    }
   };
 
   rpc IncreaseFoo(IncreaseFooValue) returns (google.protobuf.Empty);
@@ -71,9 +76,14 @@ service MapService {
 }
 
 service ScalarMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.map.domain.SomeScalarMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeScalarMap"
+      entity_type: "some-scalar-map"
+      replicated_map: {
+        key: "string"
+      }
+    }
   };
 
   rpc IncreaseFoo(IncreaseFooValue) returns (google.protobuf.Empty);

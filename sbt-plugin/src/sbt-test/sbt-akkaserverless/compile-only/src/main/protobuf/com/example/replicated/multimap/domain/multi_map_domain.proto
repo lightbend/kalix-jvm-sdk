@@ -16,18 +16,7 @@ syntax = "proto3";
 
 package com.example.replicated.multimap.domain;
 
-import "akkaserverless/annotations.proto";
-
 option java_outer_classname = "SomeMultiMapDomain";
-
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeMultiMap"
-  entity_type: "some-multi-map"
-  replicated_multi_map: {
-    key: "SomeKey"
-    value: "SomeValue"
-  }
-};
 
 message SomeKey {
   string key = 1;

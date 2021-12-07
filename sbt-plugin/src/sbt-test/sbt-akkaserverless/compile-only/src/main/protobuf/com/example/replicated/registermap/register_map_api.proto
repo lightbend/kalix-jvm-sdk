@@ -54,10 +54,17 @@ message CurrentValues {
 }
 
 service RegisterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.registermap.domain.SomeRegisterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeRegisterMap"
+      entity_type: "some-register-map"
+      replicated_register_map: {
+        key: ".domain.SomeKey"
+        value: ".domain.SomeValue"
+      }
+    }
   };
+
 
   rpc Set(SetValue) returns (google.protobuf.Empty);
   rpc Get(GetValue) returns (CurrentValue);
@@ -65,9 +72,15 @@ service RegisterMapService {
 }
 
 service ScalarRegisterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.registermap.domain.SomeScalarRegisterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeScalarRegisterMap"
+      entity_type: "some-scalar-register-map"
+      replicated_register_map: {
+        key: "sint32"
+        value: "string"
+      }
+    }
   };
 
   rpc Set(SetValue) returns (google.protobuf.Empty);

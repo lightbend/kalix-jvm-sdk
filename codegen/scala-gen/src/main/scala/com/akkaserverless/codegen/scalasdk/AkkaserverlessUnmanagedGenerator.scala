@@ -20,14 +20,14 @@ import com.akkaserverless.Annotations
 import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
+import com.google.protobuf.compiler.PluginProtos.registerAllExtensions
 import com.lightbend.akkasls.codegen.ModelBuilder
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
 object AkkaserverlessUnmanagedGenerator extends CodeGenApp {
-  override def registerExtensions(registry: ExtensionRegistry): Unit = {
+  override def registerExtensions(registry: ExtensionRegistry): Unit =
     Annotations.registerAllExtensions(registry)
-  }
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)

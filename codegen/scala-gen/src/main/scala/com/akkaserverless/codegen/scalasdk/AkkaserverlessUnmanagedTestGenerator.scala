@@ -27,9 +27,8 @@ import protocgen.CodeGenRequest
 import protocgen.CodeGenResponse
 
 object AkkaserverlessUnmanagedTestGenerator extends CodeGenApp {
-  override def registerExtensions(registry: ExtensionRegistry): Unit = {
+  override def registerExtensions(registry: ExtensionRegistry): Unit =
     Annotations.registerAllExtensions(registry)
-  }
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)

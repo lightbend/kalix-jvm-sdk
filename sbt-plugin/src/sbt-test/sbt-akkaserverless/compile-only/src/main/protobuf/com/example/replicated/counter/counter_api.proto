@@ -40,9 +40,12 @@ message CurrentValue {
 }
 
 service CounterService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.counter.domain.SomeCounter"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeCounter"
+      entity_type: "some-counter"
+      replicated_counter: {}
+    }
   };
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);

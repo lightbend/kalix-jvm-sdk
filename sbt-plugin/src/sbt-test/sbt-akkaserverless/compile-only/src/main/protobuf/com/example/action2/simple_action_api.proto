@@ -19,14 +19,14 @@ package com.example.action2;
 // no java_multiple_files option, classes will be wrapped in outer class
 // no java_outer_classname option, will default to "SimpleActionApi"
 
-import "akkaserverless/annotations.proto";
+import "akkaserverless/annotations.proto";  
 
 message Request {}
 message Response {}
 
 service AnotherSimpleAction {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: { }
   };
 
   rpc Method(Request) returns (Response);

@@ -60,9 +60,15 @@ message AllCurrentValues {
 }
 
 service MultiMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.multimap.domain.SomeMultiMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeMultiMap"
+      entity_type: "some-multi-map"
+      replicated_multi_map: {
+        key: ".domain.SomeKey"
+        value: ".domain.SomeValue"
+      }
+    }
   };
 
   rpc Put(PutValue) returns (google.protobuf.Empty);
@@ -72,10 +78,17 @@ service MultiMapService {
 }
 
 service ScalarMultiMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.multimap.domain.SomeScalarMultiMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeScalarMultiMap"
+      entity_type: "some-scalar-multi-map"
+      replicated_multi_map: {
+        key: "string"
+        value: "double"
+      }
+    }
   };
+
 
   rpc Put(PutValue) returns (google.protobuf.Empty);
   rpc Remove(RemoveValue) returns (google.protobuf.Empty);

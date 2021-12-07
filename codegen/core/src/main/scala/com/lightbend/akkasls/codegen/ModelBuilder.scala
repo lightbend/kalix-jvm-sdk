@@ -18,10 +18,10 @@ package com.lightbend.akkasls.codegen
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.codegen.CodegenOptions
-import com.akkaserverless.codegen.EventSourcedEntityDef
-import com.akkaserverless.codegen.ReplicatedEntityDef
-import com.akkaserverless.codegen.ValueEntityDef
+import com.akkaserverless.CodegenOptions
+import com.akkaserverless.EventSourcedEntityDef
+import com.akkaserverless.ReplicatedEntityDef
+import com.akkaserverless.ValueEntityDef
 import com.akkaserverless.ServiceOptions.ServiceType
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
@@ -185,24 +185,27 @@ object ModelBuilder {
     case object Bytes extends ScalarType
     case object Unknown extends ScalarType
 
-    def apply(protoType: String): ScalarType = protoType match {
-      case "double"   => Double
-      case "float"    => Float
-      case "int32"    => Int32
-      case "int64"    => Int64
-      case "uint32"   => UInt32
-      case "uint64"   => UInt64
-      case "sint32"   => SInt32
-      case "sint64"   => SInt64
-      case "fixed32"  => Fixed32
-      case "fixed64"  => Fixed64
-      case "sfixed32" => SFixed32
-      case "sfixed64" => SFixed64
-      case "bool"     => Bool
-      case "string"   => String
-      case "bytes"    => Bytes
-      case _          => Unknown
-    }
+    def isScalarType(protoType: String): Boolean = apply(protoType) != Unknown
+
+    def apply(protoType: String): ScalarType =
+      protoType match {
+        case "double"   => Double
+        case "float"    => Float
+        case "int32"    => Int32
+        case "int64"    => Int64
+        case "uint32"   => UInt32
+        case "uint64"   => UInt64
+        case "sint32"   => SInt32
+        case "sint64"   => SInt64
+        case "fixed32"  => Fixed32
+        case "fixed64"  => Fixed64
+        case "sfixed32" => SFixed32
+        case "sfixed64" => SFixed64
+        case "bool"     => Bool
+        case "string"   => String
+        case "bytes"    => Bytes
+        case _          => Unknown
+      }
   }
 
   /**
@@ -369,7 +372,7 @@ object ModelBuilder {
 
       val modelFromServices =
         fileDescriptor.getServices.asScala.foldLeft(accModel) { (model, serviceDescriptor) =>
-          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.codegen.Annotations.codegen)) {
+          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.codegen)) {
             model ++ modelFromCodegenOptions(serviceDescriptor, descriptorSeq)
 
           } else if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.service)) {
@@ -429,43 +432,39 @@ object ModelBuilder {
   }
 
   /**
-   * Lookup a FileDescriptor for the passed `name` and `package`.
+   * Lookup a FileDescriptor for the passed `package` and `name`.
    *
    * Valid inputs are:
    *   - package: foo.bar.baz, name: Foo
-   *   - package: foo.bar, name: baz.Foo
+   *   - package: foo.bar, name: .baz.Foo
    *
-   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz"
-   *
-   * @return
-   *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
+   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz" and message "Foo"
    */
   private def lookupDescriptor(
       resolvedPackage: String,
+      resolvedName: String,
       additionalDescriptors: Seq[Descriptors.FileDescriptor]): Descriptors.FileDescriptor = {
 
-    val selectedDescriptors =
-      additionalDescriptors.filter { desc =>
-        desc.getPackage == resolvedPackage
+    // we should have only one match for package and resolvedName
+    // if more than one proto defines the same message and package it will be caught earlier, by protoc
+    additionalDescriptors
+      .find { desc =>
+        desc.getPackage == resolvedPackage && desc.getMessageTypes.asScala.exists(_.getName == resolvedName)
       }
-
-    selectedDescriptors.size match {
-      case 1 => selectedDescriptors.head
-      case 0 => throw new IllegalArgumentException(s"No descriptor found declaring package [$resolvedPackage]")
-      case _ =>
-        // FIXME: this seems to be too restrictive.
-        //  We may need to pass the message we want to resolve and find out the descriptor defining it
-        throw new IllegalArgumentException(s"Found more than one descriptor declaring package [$resolvedPackage]")
-    }
+      .getOrElse {
+        throw new IllegalArgumentException(
+          s"No descriptor found declaring package [$resolvedPackage] and message [$resolvedName]")
+      }
   }
 
   /**
-   * Resolves a proto 'message' using name and package. Valid inputs are:
+   * Resolves a proto 'message' using `package` and `name`.
    *
+   * Valid inputs are:
    *   - package: foo.bar.baz, name: Foo
-   *   - package: foo.bar, name: baz.Foo
+   *   - package: foo.bar, name: .baz.Foo
    *
-   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz"
+   * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz" and message "Foo"
    *
    * @return
    *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
@@ -478,8 +477,22 @@ object ModelBuilder {
       fqnExtractor: FullyQualifiedNameExtractor): FullyQualifiedName = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
-    val descriptor = lookupDescriptor(revolvedPackage, additionalDescriptors)
+    val descriptor = lookupDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
     resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors)
+  }
+  private def resolveTypeArgument(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
+      implicit
+      log: Log,
+      fqnExtractor: FullyQualifiedNameExtractor): TypeArgument = {
+
+    val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
+
+    if (ScalarType.isScalarType(resolvedName))
+      ScalarTypeArgument(ScalarType(resolvedName))
+    else {
+      val descriptor = lookupDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
+      MessageTypeArgument(resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors))
+    }
   }
 
   /**
@@ -521,7 +534,7 @@ object ModelBuilder {
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Model = {
 
-    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.codegen.Annotations.codegen)
+    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.Annotations.codegen)
     val serviceName = fqnExtractor(serviceDescriptor)
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
@@ -633,10 +646,10 @@ object ModelBuilder {
         // becomes: pkg = foo.bar.baz, name = Qux
         val (resolvedPackage, resolvedName) = extractPackageAndName(serviceName.parent.protoPackage, name)
         val descOpt = serviceName.descriptorObject.map { fqn =>
-          fqn.copy(parent = fqn.parent.asJavaMultiFiles.copy(protoPackage = resolvedPackage))
+          fqn.copy(parent = fqn.parent.asJavaMultiFiles.changePackages(resolvedPackage))
         }
         val packageNaming =
-          serviceName.parent.asJavaMultiFiles.copy(protoPackage = resolvedPackage)
+          serviceName.parent.asJavaMultiFiles.changePackages(resolvedPackage)
         FullyQualifiedName(resolvedName, resolvedName, packageNaming, descOpt)
       }
 
@@ -699,59 +712,42 @@ object ModelBuilder {
       entityDef.getReplicatedDataCase match {
         case ReplicatedDataCase.REPLICATED_COUNTER => ReplicatedCounter
         case ReplicatedDataCase.REPLICATED_REGISTER =>
-          val fqn = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedRegister.getValue,
-            protoPackageName,
-            additionalDescriptors)
-          ReplicatedRegister(TypeArgument(fqn))
+          val typeArgument =
+            resolveTypeArgument(entityDef.getReplicatedRegister.getValue, protoPackageName, additionalDescriptors)
+          ReplicatedRegister(typeArgument)
 
         case ReplicatedDataCase.REPLICATED_SET =>
-          val fqn = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedSet.getElement,
-            protoPackageName,
-            additionalDescriptors)
-          ReplicatedSet(TypeArgument(fqn))
+          val typeArgument =
+            resolveTypeArgument(entityDef.getReplicatedSet.getElement, protoPackageName, additionalDescriptors)
+          ReplicatedSet(typeArgument)
 
         case ReplicatedDataCase.REPLICATED_MAP =>
-          val fqn =
-            resolveFullyQualifiedMessageType(entityDef.getReplicatedMap.getKey, protoPackageName, additionalDescriptors)
-          ReplicatedMap(TypeArgument(fqn))
+          val typeArgument =
+            resolveTypeArgument(entityDef.getReplicatedMap.getKey, protoPackageName, additionalDescriptors)
+          ReplicatedMap(typeArgument)
 
         case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
-          val fqn = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedCounterMap.getKey,
-            protoPackageName,
-            additionalDescriptors)
-          ReplicatedCounterMap(TypeArgument(fqn))
+          val typeArgument =
+            resolveTypeArgument(entityDef.getReplicatedCounterMap.getKey, protoPackageName, additionalDescriptors)
+          ReplicatedCounterMap(typeArgument)
 
         case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
-          val fqnKey = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedRegisterMap.getKey,
-            protoPackageName,
-            additionalDescriptors)
-
-          val fqnValue = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedRegisterMap.getValue,
-            protoPackageName,
-            additionalDescriptors)
-
-          ReplicatedRegisterMap(TypeArgument(fqnKey), TypeArgument(fqnValue))
+          val typeArgumentKey =
+            resolveTypeArgument(entityDef.getReplicatedRegisterMap.getKey, protoPackageName, additionalDescriptors)
+          val typeArgumentValue =
+            resolveTypeArgument(entityDef.getReplicatedRegisterMap.getValue, protoPackageName, additionalDescriptors)
+          ReplicatedRegisterMap(typeArgumentKey, typeArgumentValue)
 
         case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
-          val fqnKey = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedMultiMap.getKey,
-            protoPackageName,
-            additionalDescriptors)
-
-          val fqnValue = resolveFullyQualifiedMessageType(
-            entityDef.getReplicatedMultiMap.getValue,
-            protoPackageName,
-            additionalDescriptors)
-
-          ReplicatedMultiMap(TypeArgument(fqnKey), TypeArgument(fqnValue))
+          val typeArgumentKey =
+            resolveTypeArgument(entityDef.getReplicatedMultiMap.getKey, protoPackageName, additionalDescriptors)
+          val typeArgumentValue =
+            resolveTypeArgument(entityDef.getReplicatedMultiMap.getValue, protoPackageName, additionalDescriptors)
+          ReplicatedMultiMap(typeArgumentKey, typeArgumentValue)
 
         case ReplicatedDataCase.REPLICATED_VOTE =>
           ReplicatedVote
+
         case ReplicatedDataCase.REPLICATEDDATA_NOT_SET =>
           throw new IllegalArgumentException("Replicated data type not set")
       }

@@ -79,6 +79,7 @@ case class FullyQualifiedName(
 
   def removeOuterClass: FullyQualifiedName =
     copy(parent = parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true))
+
 }
 
 object FullyQualifiedName {
@@ -120,6 +121,16 @@ case class PackageNaming(
 
   def asJavaMultiFiles: PackageNaming =
     copy(javaMultipleFiles = true)
+
+  /**
+   * This changes both the proto package and the javaPackage (if defined) This is useful when we derived a component
+   * descriptor from a Service descriptor. In such a case, after we resolve the package where the component should live,
+   * we need to modify it in order to have the file generated in the right package.
+   */
+  def changePackages(newPackage: String): PackageNaming = {
+    val adaptedPackage = javaPackageOption.map { _ => newPackage }
+    copy(javaPackageOption = adaptedPackage, protoPackage = newPackage)
+  }
 }
 
 object PackageNaming {
