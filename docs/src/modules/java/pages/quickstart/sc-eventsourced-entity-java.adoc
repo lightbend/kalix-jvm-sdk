@@ -1,0 +1,286 @@
+= Quickstart: Shopping Cart in Java
+
+include::java:partial$attributes.adoc[]
+
+Learn how to create a shopping cart in Java, package it into a container, and run it on Akka Serverless.
+
+== Before you begin
+
+* If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
+* You'll also need to install the xref:akkasls:install-akkasls.adoc[Akka Serverless CLI, window="new-doc"] if you want to deploy from a terminal window.
+* For this quickstart, you'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {java-version} or higher
+** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
+** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Akka Serverless CLI:
+`akkasls quickstart download shopping-cart-java`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+== Writing the Shopping Cart
+
+. From the command line, create a directory for your project.
++
+[source,command line]
+----
+mkdir shoppingcart
+----
+
+. Change into the project directory.
++
+[source,command line]
+----
+cd shoppingcart
+----
+
+. Download the `pom.xml` file
++
+[source,command line]
+----
+curl -OL https://raw.githubusercontent.com/lightbend/akkaserverless-java-sdk/main/samples/java-shopping-cart-quickstart/pom.xml
+----
+
+. Update the `dockerImage` property (line 13 of the `pom.xml` file) with your container registry name.
+
+== Define the external API
+
+The Shopping Cart service will store shopping carts for your customers, including the items in those carts. The `shoppingcart_api.proto` will contain the external API your clients will invoke.
+
+. In your project, create a `src/main/proto/shopping/cart/api` and a `src/main/proto/shopping/cart/domain` directory.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/shopping/cart/api
+mkdir -p ./src/main/proto/shopping/cart/domain
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/shopping/cart/api
+mkdir src/main/proto/shopping/cart/domain
+----
+--
+
+. Create a `shopping_cart_api.proto` file and save it in the `src/main/proto/shopping/cart/api` directory.
+
+. Add declarations for:
++
+* The protobuf syntax version, `proto3`.
+* The package name, `shopping.cart.api`.
+* The required Java outer classname, `ShoppingCartAPI`. Messages defined in this file will be generated as inner classes.
+* Import `google/protobuf/empty.proto` and Akka Serverless `akkaserverless/annotations.proto`.
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/shopping_cart_api.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=declarations]
+----
+
+. Add the service endpoint
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=service]
+----
+
+. Add messages to define the fields that comprise a `Cart` object (and its compound `LineItem`)
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=messages]
+----
+
+. Add the messages to carry the arguments for the service calls:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=method-messages]
+----
+
+== Define the domain model
+
+The `shopping_cart_domain.proto` contains all the internal data objects (xref:reference:glossary.adoc#entity[Entities, window="new"]). The xref:reference:glossary.adoc#event_sourced_entity[Event Sourced Entity, window="new"] in this quickstart keeps all events sent for a specific shopping cart in a journal.
+
+. Create a `shopping_cart_domain.proto` file and save it in the `src/main/proto/shopping/cart/domain` directory.
+
+. Add declarations for the proto syntax, the Akka Serverless annotations, and package name
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=declarations]
+----
+
+. Add the `CartState` message with fields for entity data and the `LineItem` message that defines the compound line item:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=state]
+----
+
+. Event Sourced entities work based on events. Add the events that can occur in this quickstart:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::java:example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=events]
+----
+
+. Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
++
+----
+mvn compile
+----
+
+== Create command handlers
+
+Command handlers, as the name suggests, handle incoming API requests. State is not updated directly by command handlers.
+Instead, if state should be updated, an event is persisted that describes the intended transaction.
+
+. Open `src/main/java/shopping/cart/domain/ShoppingCartEntity.java` for editing.
+
+. Add some imports that are needed later:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=imports]
+----
++
+
+
+. Modify the `emptyState` method to return the initial state for the entity. The method should look
+  like this:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=emptyState]
+----
++
+
+. Modify the `addItem` method by adding the logic to handle the command. The complete method should include the following:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=addItem]
+----
++
+* This method will handle an incoming API request. It gets passed the current state and the request
+  argument.
+* It checks the input parameters and fails using an `error` effect if the precondition fails.
+* Otherwise, it creates an `ItemAdded` event that is persisted by using the `emitEvent` effect.
+
+. Modify the `getCart` method as follows to handle the `GetShoppingCart` command:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=getCart]
+----
++
+* The method takes the current internal state and converts it to the API model.
+* Each `LineItem` in the state is converted to its corresponding API form using the `convert` method.
++
+
+. Modify the `removeItem` method by adding the logic to handle removing an item. The complete method should include the following:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=removeItem]
+----
++
+* This method will handle removing an item from the shopping cart. It will first check the precondition whether the requested item
+  can be currently found in the shopping cart. If not, the API call returns an error effect.
+* If the item is found, the handler creates an `ItemRemoved` event that is persisted by using the `emitEvent` effect.
+
+== Create event handlers
+
+Event handlers maintain the state of an entity by sequentially applying the effects of events to the local state.
+
+. Modify the `itemAdded` event handling method by adding the logic to apply the event to the state:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemAdded]
+----
++
+* First, the method looks for an existing line item for the newly added product.
+* If an existing item is found, its quantity is adjusted.
+* Otherwise, the new item can be directly added to the cart (after conversion from API to domain types)
+* Finally, the new cart state is returned.
+* Several helper methods convert between API and domain types and help with management of state.
+
+. Modify the `itemRemoved` event handling method by adding the logic to apply the event to the state:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::java:example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemRemoved]
+----
++
+* The method removes the given product from the cart and returns the new state.
+
+
+[NOTE]
+====
+The `src/main/java/shopping/cart/Main.java` file already contains the required code to start your service and register it with Akka Serverless.
+====
+
+== Package and deploy your service
+
+To compile, build the container image, and publish it to your container registry, follow these steps
+
+. From the root project directory, compile the source code using Maven:
++
+[source, command line]
+----
+mvn compile
+----
+
+. Use the `deploy` target to build the container image and publish it to your container registry. At the end of this command Maven will show you the container image URL you'll need in the next part of this quickstart.
++
+[source, command line]
+----
+mvn deploy
+----
+
+. Sign in to your Akka Serverless account at: {console}
+. If you do not have a project, click *Add Project* to create one, otherwise choose the project you want to deploy your service to.
+. On the project dashboard click the "+" next to *services* to start the deployment wizard
+. Choose a name for your service and click *Next*
+. Enter the container image URL from the above step and click *Next*
+. Click *Next* (no environment variables are needed for these samples)
+. Check both _Add a route to this service_ and _Enable CORS_ and click *Next*
+. Click *Finish* to start the deployment
+. Click *Go to Service* to see your newly deployed service
+
+== Invoke your service
+
+Now that you have deployed your service, the next step is to invoke it using gRPCurl
+
+. From the "_Service Explorer_" click on the method you want to invoke
+. Click on "_gRPCurl_"
+. In the bottom section of the dialog, fill in the values you want to send to your service
+. In the top section of the dialog, click the "_Copy to clipboard_" button
+. Open a new command line and paste the content you just copied
