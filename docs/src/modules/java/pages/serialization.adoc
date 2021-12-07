@@ -9,13 +9,13 @@ The gRPC services are also exposed as HTTP endpoints with JSON messages. See xre
 
 == When consuming Messages from Topics
 
-When a message arrives from a topic, Akka Serverless detects the message payload type based on the `Content-Type` or `ce-datacontenttype` header or attribute of the message. If there is no such metadata, the content is seen as raw bytes.
+When a message arrives from a topic, Akka Serverless detects the message payload type based on the `Content-Type` or `ce-datacontenttype` header or attribute of the message. If there is no such metadata, the content is handled as raw bytes.
 
-If the content type starts with `application/protobuf`, `application/x-protobuf` or `application/vnd.google.protobuf` the payload is expected to also have a `ce-type` header or attribute identifying the concrete protobuf message type. Such messages will be decoded into the described message type before handed to a topic subscriber method, which must accept that specific message type.
+If the content type starts with `application/protobuf`, `application/x-protobuf` or `application/vnd.google.protobuf` the payload is expected to also have a `ce-type` header or attribute identifying the concrete protobuf message type. Such messages will be decoded into the described message type before being handed to a topic subscriber method, which must accept that specific message type.
 
 If the publishing service is also an Akka Serverless service, this is handled transparently for you as shown in xref:actions-publishing-subscribing.adoc[].
 
-For messages consumed from or published to topics to interact with external services it can be a requirement to use another format than `protobuf`.
+For messages that are consumed from or published to topics when interacting with external services, it can be a requirement to use a format other than `protobuf`. Other supported message formats include JSON, text, or raw bytes.
 
 include::partial$pubsub-note.adoc[]
 
@@ -123,7 +123,7 @@ If the content type is `application/octet-stream`, no content type is present, o
 [.tabset]
 Java::
 +
-A `proto` definition of an Action that consumes String messages can look like this:
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
 +
 [source,proto,indent=0]
 .src/main/proto/com/example/topics_action.proto
@@ -135,7 +135,7 @@ include::example$java-doc-snippets/src/main/proto/com/example/topics_action.prot
 
 Scala::
 +
-A `proto` definition of an Action that consumes String messages can look like this:
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
 +
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
@@ -167,22 +167,22 @@ The Protobuf rpc declaration uses the expected Protobuf message type and specifi
 [.tabset]
 Java::
 +
-A `proto` definition of an Action that consumes cloud event messages can look like this:
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
 +
 [source,proto,indent=0]
 .src/main/proto/com/example/topics_action.proto
 ----
 include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
-<1> When consuming a cloud event containing a protobuf message the handler request must have the message type specified in the metadata
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
 
 Scala::
 +
-A `proto` definition of an Action that consumes cloud event messages can look like this:
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
 +
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
 include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
-<1> When consuming a cloud event containing a protobuf message the handler request must have the message type specified in the metadata
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
