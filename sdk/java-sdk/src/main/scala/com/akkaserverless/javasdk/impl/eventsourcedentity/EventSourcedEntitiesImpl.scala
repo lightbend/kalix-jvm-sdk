@@ -152,7 +152,7 @@ final class EventSourcedEntitiesImpl(
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      handler._internalHandleSnapshot(service.anySupport.decode(ScalaPbAny.toJavaProto(any)))
+      handler._internalHandleSnapshot(service.anySupport.decodeMessage(any))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -163,7 +163,9 @@ final class EventSourcedEntitiesImpl(
           // Note that these only come on replay
           val context = new EventContextImpl(thisEntityId, event.sequence)
           val ev =
-            service.anySupport.decode(ScalaPbAny.toJavaProto(event.payload.get)).asInstanceOf[AnyRef] // FIXME empty?
+            service.anySupport
+              .decodeMessage(event.payload.get)
+              .asInstanceOf[AnyRef] // FIXME empty?
           handler._internalHandleEvent(ev, context)
           (event.sequence, None)
         case ((sequence, _), InCommand(command)) =>
@@ -171,8 +173,8 @@ final class EventSourcedEntitiesImpl(
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
 
           val cmd =
-            service.anySupport.decode(
-              ScalaPbAny.toJavaProto(command.payload.getOrElse(throw ProtocolException(command, "No command payload"))))
+            service.anySupport.decodeMessage(
+              command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)

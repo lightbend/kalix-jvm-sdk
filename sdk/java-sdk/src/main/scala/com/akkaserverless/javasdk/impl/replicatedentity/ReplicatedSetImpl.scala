@@ -124,8 +124,9 @@ private[akkaserverless] class ReplicatedSetImpl[E](
   override val applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedSetImpl[E]] = {
     case ReplicatedEntityDelta.Delta.ReplicatedSet(ReplicatedSetDelta(cleared, removed, added, _)) =>
       val updatedValue = {
-        (if (cleared) Set.empty[E] else values -- removed.map(element => anySupport.decode(element).asInstanceOf[E])) ++
-        added.map(element => anySupport.decode(element).asInstanceOf[E])
+        (if (cleared) Set.empty[E]
+         else values -- removed.map(element => anySupport.decodePossiblyPrimitive(element).asInstanceOf[E])) ++
+        added.map(element => anySupport.decodePossiblyPrimitive(element).asInstanceOf[E])
       }
       new ReplicatedSetImpl(anySupport, updatedValue)
   }

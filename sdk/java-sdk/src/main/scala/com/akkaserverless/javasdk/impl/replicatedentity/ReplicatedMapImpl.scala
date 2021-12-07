@@ -145,10 +145,10 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
     case ReplicatedEntityDelta.Delta.ReplicatedMap(ReplicatedMapDelta(cleared, removed, updated, added, _)) =>
       val reducedEntries =
         if (cleared) Map.empty[K, V]
-        else entries -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+        else entries -- removed.map(key => anySupport.decodePossiblyPrimitive(key).asInstanceOf[K])
       val updatedEntries = updated.foldLeft(reducedEntries) {
         case (map, ReplicatedMapEntryDelta(Some(encodedKey), Some(ReplicatedEntityDelta(delta, _)), _)) =>
-          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val key = anySupport.decodePossiblyPrimitive(encodedKey).asInstanceOf[K]
           map.get(key) match {
             case Some(value) =>
               map.updated(key, value.asInstanceOf[InternalReplicatedData].applyDelta(delta).asInstanceOf[V])
@@ -158,7 +158,7 @@ private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
       }
       val newEntries = added.foldLeft(updatedEntries) {
         case (map, ReplicatedMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
-          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val key = anySupport.decodePossiblyPrimitive(encodedKey).asInstanceOf[K]
           map.updated(key, ReplicatedEntityDeltaTransformer.create(delta, anySupport).asInstanceOf[V])
         case (map, _) => map
       }
