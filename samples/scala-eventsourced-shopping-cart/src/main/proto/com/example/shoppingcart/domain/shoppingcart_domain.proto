@@ -6,18 +6,6 @@ syntax = "proto3";
 
 package com.example.shoppingcart.domain; // <1>
 
-import "akkaserverless/annotations.proto"; // <2>
-
-// tag::event_sourced_entity[]
-// Describes how this domain relates to an event sourced entity
-option (akkaserverless.file).event_sourced_entity = { // <3>
-  name: "ShoppingCart" // <4>
-  entity_type: "shopping-cart" // <5>
-  state: "Cart" // <6>
-  events: ["ItemAdded", "ItemRemoved"] // <7>
-};
-// end::event_sourced_entity[]
-
 message LineItem {
   string productId = 1;
   string name = 2;

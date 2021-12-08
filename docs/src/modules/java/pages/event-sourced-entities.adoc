@@ -33,13 +33,7 @@ Java::
 include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
-<2> Import the Akka Serverless protobuf annotations or options.
-<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
-<4> The protobuf option `(akkaserverless.file).event_sourced_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<5> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<6> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<7> `state` points to the protobuf message representing the entity's state which is kept by Akka Serverless. It is stored as snapshots.
-<8> `events` points to the protobuf message representing the entity's events, which are stored by Akka Serverless.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
 
 Scala::
 +
@@ -49,13 +43,6 @@ Scala::
 include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart.domain`.
-<2> Import the Akka Serverless protobuf annotations or options.
-<3> The protobuf option `(akkaserverless.file).event_sourced_entity` is specific to code-generation as provided by the Akka Serverless sbt plugin.
-<4> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<5> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<6> `state` points to the protobuf message representing the entity's state which is kept by Akka Serverless. It is stored as snapshots.
-<7> `events` points to the protobuf message representing the entity's events, which are stored by Akka Serverless.
-
 
 The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
 
@@ -74,7 +61,13 @@ include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shop
 <5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+<8> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<9> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
+<10> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<12> `state` points to the protobuf message representing the entity's state which is kept by Akka Serverless. It is stored as snapshots.
+<13> `events` points to the protobuf message representing the entity's events, which are stored by Akka Serverless.
+
 
 Scala::
 +
@@ -89,7 +82,12 @@ include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/sho
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<7> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless sbt plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+<7> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless sbt plugin.
+<8> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
+<9> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `state` points to the protobuf message representing the entity's state which is kept by Akka Serverless. It is stored as snapshots.
+<12> `events` points to the protobuf message representing the entity's events, which are stored by Akka Serverless.
 
 
 == Implementing behavior
@@ -157,7 +155,7 @@ include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/sho
 <3> We store the event by returning an `Effect` with `effects.emitEvent`.
 <4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
 
-The new state is created from the event and the previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`.
+The new state is created from the event and the previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. Event handlers are generated for each event declared in  `(akkaserverless.codegen).event_sourced_entity.events`.
 
 [.tabset]
 Java::
@@ -174,26 +172,6 @@ Scala::
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
 include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=itemAdded]
-----
-
-
-Note that you have to define the events in the `(akkaserverless.file).event_sourced_entity`:
-
-[.tabset]
-Java::
-+
-[source,proto]
-.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
-----
-include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=event_sourced_entity]
-----
-
-Scala::
-+
-[source,proto]
-.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
-----
-include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=event_sourced_entity]
 ----
 
 
@@ -344,4 +322,3 @@ This class is generated by AkkaServerless when the project is compiled and locat
 
 * `currentState` - the current state of the entity, it is updated on each method call emitting events.
 * `allEvents` - all events emitted since the creation of the testkit instance.
-
