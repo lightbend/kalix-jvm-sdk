@@ -23,8 +23,8 @@ message Number {
 }
 
 service Fibonacci {
-  option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION  // <3>
+  option (akkaserverless.codegen) = { 
+    action: {}  // <3>
   };
 
   rpc NextNumber(Number) returns (Number) {}

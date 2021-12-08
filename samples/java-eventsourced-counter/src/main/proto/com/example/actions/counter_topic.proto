@@ -34,8 +34,8 @@ message Decreased {
 }
 
 service CounterJournalToTopic {
-  option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION  // <2>
+  option (akkaserverless.codegen) = { 
+    action: {}  // <2>
   };
   
   rpc Increase (com.example.domain.ValueIncreased) returns (Increased) { // <3>

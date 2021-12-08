@@ -75,7 +75,6 @@ service MultiMapService {
     }
   };
 
-
   rpc Put(PutValue) returns (google.protobuf.Empty);
   rpc PutAll(PutAllValues) returns (google.protobuf.Empty);
   rpc Remove(RemoveValue) returns (google.protobuf.Empty);
