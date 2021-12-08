@@ -22,36 +22,46 @@ import com.akkaserverless.javasdk.testkit.EventSourcedResult
 import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl
 import java.util.Optional
 import java.util.{ List => JList }
+import java.util.ArrayList
 import scala.jdk.CollectionConverters._
 
 /** Extended by generated code, not meant for user extension */
 abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
-  protected var _state: S
-  protected var events: JList[Any]
-  protected val commandContext: CommandContext
+  private var _state: S = entity.emptyState
+  private var events: JList[Any] = new ArrayList()
+  //FIXME can't use protected in Scala because is public in Java
+  def handleEvent(state: S, event: Any): S
 
-  protected def handleEvent(state: S, event: Any): S
+  /** @return The current state of the entity */
+  def getState: S = _state
 
-  protected def interpretEffects[R](effect: () => EventSourcedEntity.Effect[S]): EventSourcedResult[R] = {
+  /** @return All events emitted by command handlers of this entity up to now */
+  def getAllEvents: JList[Any] = events
+
+  protected def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
+    val commandContext = new TestKitEventSourcedEntityCommandContext()
     val effectExecuted =
       try {
         entity._internalSetCommandContext(Optional.of(commandContext))
         val effectExecuted = effect()
-        val events = EventSourcedResultImpl.eventsOf(effectExecuted)
-        this.events.addAll(events)
+        this.events.addAll(EventSourcedResultImpl.eventsOf(effectExecuted))
         effectExecuted
       } finally {
-        entity._internalSetCommandContext(Optional.empty())
+        entity._internalSetCommandContext(Optional.empty)
       }
-
-    this._state = events.asScala.foldLeft(this._state)(handleEvent)
+    try {
+      entity._internalSetEventContext(Optional.of(new TestKitEventSourcedEntityEventContext()))
+      this._state = EventSourcedResultImpl.eventsOf(effectExecuted).asScala.foldLeft(this._state)(handleEvent)
+    } finally {
+      entity._internalSetEventContext(Optional.empty)
+    }
     val result =
       try {
         entity._internalSetCommandContext(Optional.of(commandContext))
         val secondaryEffect = EventSourcedResultImpl.secondaryEffectOf(effectExecuted, _state)
         new EventSourcedResultImpl[R, S](effectExecuted, _state, secondaryEffect)
       } finally {
-        entity._internalSetCommandContext(Optional.empty())
+        entity._internalSetCommandContext(Optional.empty)
       }
     result
   }

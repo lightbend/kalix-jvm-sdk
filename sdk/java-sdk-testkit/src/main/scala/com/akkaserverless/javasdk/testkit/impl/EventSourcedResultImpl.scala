@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
+import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
@@ -31,6 +32,7 @@ import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.testkit.EventSourcedResult
 import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
 
+import java.util.ArrayList
 import java.util.Collections
 import java.util.{ List => JList }
 import scala.jdk.CollectionConverters._
@@ -66,10 +68,10 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
     secondaryEffect: SecondaryEffectImpl)
     extends EventSourcedResult[R] {
 
-  def this(effect: EventSourcedEntity.Effect[S], state: S, secondaryEffect: SecondaryEffectImpl) =
+  def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
     this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, secondaryEffect)
 
-  def this(effect: EventSourcedEntity.Effect[S], state: S) =
+  def this(effect: EventSourcedEntity.Effect[R], state: S) =
     this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, NoSecondaryEffectImpl)
 
   private lazy val eventsIterator = getAllEvents().iterator
@@ -122,5 +124,23 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
         throw new NoSuchElementException(
           "expected event type [" + expectedClass.getName + "] but found [" + next.getClass.getName + "]")
     }
+
+  private def extractServices(sideEffects: Vector[SideEffect]): JList[DeferredCallDetails[_, _]] = {
+    sideEffects
+      .map { sideEffect =>
+        TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+          .asInstanceOf[DeferredCallDetails[_, _]] //FIXME java List is invariant in type
+      }
+      .toList
+      .asJava
+  }
+
+  override def getSideEffects(): JList[DeferredCallDetails[_, _]] = secondaryEffect match {
+    case MessageReplyImpl(_, _, sideEffects) => extractServices(sideEffects)
+    case ForwardReplyImpl(_, sideEffects)    => extractServices(sideEffects)
+    case ErrorReplyImpl(_, sideEffects)      => extractServices(sideEffects)
+    case NoReply(sideEffects)                => extractServices(sideEffects)
+    case NoSecondaryEffectImpl               => new ArrayList() // this should never happen
+  }
 
 }

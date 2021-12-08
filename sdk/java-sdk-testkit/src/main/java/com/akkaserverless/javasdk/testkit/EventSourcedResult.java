@@ -74,4 +74,7 @@ public interface EventSourcedResult<R> {
    * @return The next event if it is of type E, for additional assertions.
    */
   <E> E getNextEventOfType(Class<E> expectedClass);
+
+  /** @return The list of side effects */
+  List<DeferredCallDetails<?, ?>> getSideEffects();
 }

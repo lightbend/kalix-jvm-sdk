@@ -117,8 +117,6 @@ final class EventSourcedResultImpl[R, S](
     }
   }
 
-  //feed the state
-  /// I will already have the secondary effect.
   override def sideEffects(): Seq[DeferredCallDetails[_, _]] = secondaryEffect match {
     case MessageReplyImpl(_, _, sideEffects) => extractServices(sideEffects)
     case ForwardReplyImpl(_, sideEffects)    => extractServices(sideEffects)
