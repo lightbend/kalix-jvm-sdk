@@ -58,10 +58,18 @@ message CurrentValues {
   repeated CurrentValue values = 1;
 }
 
+
+// tag::replicated_entity[]
 service RegisterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.registermap.domain.SomeRegisterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.registermap.domain.SomeRegisterMap" // <1>
+      entity_type: "some-register-map"
+      replicated_register_map: { // <2>
+        key: "com.example.replicated.registermap.domain.SomeKey" // <3>
+        value: "com.example.replicated.registermap.domain.SomeValue" // <4>
+      }
+    }
   };
 
   rpc Set(SetValue) returns (google.protobuf.Empty);
@@ -69,3 +77,4 @@ service RegisterMapService {
   rpc Get(GetValue) returns (CurrentValue);
   rpc GetAll(GetAllValues) returns (CurrentValues);
 }
+// end::replicated_entity[]

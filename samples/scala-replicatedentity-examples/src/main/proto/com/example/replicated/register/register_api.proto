@@ -32,12 +32,19 @@ message CurrentValue {
   string value = 1;
 }
 
+// tag::replicated_entity[]
 service RegisterService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.register.domain.SomeRegister"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.register.domain.SomeRegister" // <1>
+      entity_type: "some-register"
+      replicated_register: { // <2>
+        value: "com.example.replicated.register.domain.SomeValue" // <3>
+      }
+    }
   };
 
   rpc Set(SetValue) returns (google.protobuf.Empty);
   rpc Get(GetValue) returns (CurrentValue);
 }
+// end::replicated_entity[]

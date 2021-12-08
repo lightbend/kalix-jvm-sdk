@@ -55,10 +55,16 @@ message CurrentValues {
   map<string, int64> values = 1;
 }
 
+// tag::replicated_entity[]
 service CounterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.countermap.domain.SomeCounterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.countermap.domain.SomeCounterMap" // <1>
+      entity_type: "some-counter-map"
+      replicated_counter_map: { // <2>
+        key: "string" // <3>
+      }
+    }
   };
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
@@ -67,3 +73,4 @@ service CounterMapService {
   rpc Get(GetValue) returns (CurrentValue);
   rpc GetAll(GetAllValues) returns (CurrentValues);
 }
+// end::replicated_entity[]
