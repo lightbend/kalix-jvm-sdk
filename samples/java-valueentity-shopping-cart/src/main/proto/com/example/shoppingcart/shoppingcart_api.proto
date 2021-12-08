@@ -70,43 +70,59 @@ message Cart {
 
 // tag::proto_service[]
 service ShoppingCartService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  // Describes how this domain relates to a value entity
+  option (akkaserverless.codegen) = {
+    value_entity: { // <1>
+      name: "com.example.shoppingcart.domain.ShoppingCart" // <2>
+      entity_type: "shopping-cart" // <3>
+      state: "com.example.shoppingcart.domain.Cart" // <4>
+    }
   };
 
+  // tag::http-transcoding[]
   rpc Create (CreateCart) returns (google.protobuf.Empty) {
+    // end::proto_service[]
     option (google.api.http) = { // <1>
       post: "/cart/{cart_id}/create"
     };
+    // tag::proto_service[]
   }
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
+    // end::proto_service[]
     option (google.api.http) = { // <1>
-            post: "/cart/{cart_id}/items/add"
-            body: "*"
-        };
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
+    };
+    // tag::proto_service[]
   }
 
   rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty) {
+    // end::proto_service[]
     option (google.api.http) = { // <2>
-            post: "/cart/{cart_id}/items/{product_id}/remove"
-        };
+      post: "/cart/{cart_id}/items/{product_id}/remove"
+    };
+    // tag::proto_service[]
   }
 
   rpc GetCart (GetShoppingCart) returns (Cart) {
+    // end::proto_service[]
     option (google.api.http) = { // <3>
-            get: "/carts/{cart_id}"
-            additional_bindings: {
-                get: "/carts/{cart_id}/items"
-                response_body: "items"
-            }
-        };
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+        get: "/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
+    // tag::proto_service[]
   }
 
   rpc RemoveCart (RemoveShoppingCart) returns (google.protobuf.Empty) {
+    // end::proto_service[]
     option (google.api.http).post = "/carts/{cart_id}/remove";
+    // tag::proto_service[]
   }
+  // end::http-transcoding[]
 }
 // end::proto_service[]
 // end::api[]
