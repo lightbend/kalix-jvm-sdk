@@ -25,25 +25,34 @@ import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 
 /** Extended by generated code, not meant for user extension */
 abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
-  protected var _state: S
-  protected var events: Seq[Any]
-  protected val commandContext: CommandContext
+  private var _state: S = entity.emptyState
+  private var events: Seq[Any] = Nil
 
   protected def handleEvent(state: S, event: Any): S
 
+  /** @return The current state of the entity */
+  def currentState: S = _state
+
+  /** @return All events emitted by command handlers of this entity up to now */
+  def allEvents: Seq[Any] = events
+
   protected def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
+    val commandContext = new TestKitEventSourcedEntityCommandContext()
     val effectExecuted =
       try {
         entity._internalSetCommandContext(Some(commandContext))
         val effectExecuted = effect()
-        val events = EventSourcedResultImpl.eventsOf(effectExecuted)
-        this.events ++= events
+        this.events ++= EventSourcedResultImpl.eventsOf(effectExecuted)
         effectExecuted
       } finally {
         entity._internalSetCommandContext(None)
       }
-
-    this._state = events.foldLeft(this._state)(handleEvent)
+    try {
+      entity._internalSetEventContext(Some(new TestKitEventSourcedEntityEventContext()))
+      this._state = events.foldLeft(this._state)(handleEvent)
+    } finally {
+      entity._internalSetEventContext(None)
+    }
     val result =
       try {
         entity._internalSetCommandContext(Some(commandContext))

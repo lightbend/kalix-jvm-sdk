@@ -64,31 +64,19 @@ class EventSourcedEntityTestKitGeneratorSuite extends munit.FunSuite {
          |    new MyEntityTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
          |}
          |final class MyEntityTestKit private(entity: MyEntity) extends EventSourcedEntityEffectsRunner[MyState](entity: MyEntity) {
-         |  override protected var _state: MyState = entity.emptyState
-         |  override protected var events: Seq[Any] = Nil
-         |  override protected val commandContext = new TestKitEventSourcedEntityCommandContext()
-         |
-         |  /** @return The current state of the entity */
-         |  def currentState: MyState = _state
-         |
-         |  /** @return All events emitted by command handlers of this entity up to now */
-         |  def allEvents: Seq[Any] = events
          |
          |  override protected def handleEvent(state: MyState, event: Any): MyState = {
-         |    entity._internalSetEventContext(Some(new TestKitEventSourcedEntityEventContext()))
-         |    val result = event match {
+         |    event match {
          |      case e: SetEvent =>
          |        entity.setEvent(state, e)
          |    }
-         |    entity._internalSetEventContext(None)
-         |    result
          |  }
          |
          |  def set(command: service.SetValue): EventSourcedResult[Empty] =
-         |    interpretEffects(() => entity.set(_state, command))
+         |    interpretEffects(() => entity.set(currentState, command))
          |
          |  def get(command: service.GetValue): EventSourcedResult[service.MyState] =
-         |    interpretEffects(() => entity.get(_state, command))
+         |    interpretEffects(() => entity.get(currentState, command))
          |}
          |""".stripMargin)
   }

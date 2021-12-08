@@ -58,10 +58,16 @@ object EventSourcedEntityTestKitGenerator {
           "scala.collection.immutable.Seq"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
+    val eventHandlers = entity.events.map { event =>
+      s"""|case e: ${typeName(event.fqn)} =>
+          |  entity.${lowerFirst(event.fqn.name)}(state, e)
+         |""".stripMargin
+    }
+
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
         cmd.outputType)}] =
-          |  interpretEffects(() => entity.${lowerFirst(cmd.name)}(_state, command))
+          |  interpretEffects(() => entity.${lowerFirst(cmd.name)}(currentState, command))
          |""".stripMargin
     }
 
@@ -95,24 +101,12 @@ object EventSourcedEntityTestKitGenerator {
        |final class $className private(entity: ${typeName(
         entity.fqn)}) extends EventSourcedEntityEffectsRunner[${typeName(entity.state.fqn)}](entity: ${typeName(
         entity.fqn)}) {
-       |  override protected var _state: ${typeName(entity.state.fqn)} = entity.emptyState
-       |  override protected var events: Seq[Any] = Nil
-       |  override protected val commandContext = new TestKitEventSourcedEntityCommandContext()
-       |
-       |  /** @return The current state of the entity */
-       |  def currentState: ${typeName(entity.state.fqn)} = _state
-       |
-       |  /** @return All events emitted by command handlers of this entity up to now */
-       |  def allEvents: Seq[Any] = events
        |
        |  override protected def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(
         entity.state.fqn)} = {
-       |    entity._internalSetEventContext(Some(new TestKitEventSourcedEntityEventContext()))
-       |    val result = event match {
+       |    event match {
        |      ${Format.indent(eventHandlers, 6)}
        |    }
-       |    entity._internalSetEventContext(None)
-       |    result
        |  }
        |
        |  ${Format.indent(methods, 2)}
