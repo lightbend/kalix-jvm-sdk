@@ -10,7 +10,6 @@ lazy val `akkaserverless-java-sdk` = project
     sdkScalaTestKit,
     tckJava,
     tckScala,
-    codegenProtoAnnotations,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -22,12 +21,6 @@ def common: Seq[Setting[_]] =
   Seq(
     Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11"))
-
-lazy val codegenProtoAnnotations = project
-  .in(file("codegen/proto-annotations"))
-  .enablePlugins(PublicProtocolProject)
-  .settings(common)
-  .settings(name := "akkaserverless-codegen-proto-annotations")
 
 lazy val sdkCore = project
   .in(file("sdk/core"))
@@ -46,7 +39,6 @@ lazy val sdkCore = project
 lazy val sdkJava = project
   .in(file("sdk/java-sdk"))
   .dependsOn(sdkCore)
-  .dependsOn(codegenProtoAnnotations)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -82,7 +74,6 @@ lazy val sdkJava = project
     // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
     // without needing to generate them themselves
     Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
-    Compile / PB.protoSources ++= (codegenProtoAnnotations / Compile / PB.protoSources).value,
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
@@ -212,8 +203,7 @@ lazy val codegenCore =
     .settings(
       name := "akkaserverless-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
-      Test / fork := false,
-      Compile / PB.protoSources ++= (codegenProtoAnnotations / Compile / PB.protoSources).value)
+      Test / fork := false)
     .settings(Dependencies.codegenCore)
     .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
@@ -299,7 +289,13 @@ lazy val codegenScala =
     .settings(
       name := "akkaserverless-codegen-scala",
       scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
-      buildInfoKeys := Seq[BuildInfoKey](name, organization, version, scalaVersion, sbtVersion),
+      buildInfoKeys := Seq[BuildInfoKey](
+        name,
+        organization,
+        version,
+        scalaVersion,
+        sbtVersion,
+        "protocolVersion" -> AkkaServerless.FrameworkVersion),
       buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
       testFrameworks += new TestFramework("munit.Framework"))
     .dependsOn(codegenCore % "compile->compile;test->test")

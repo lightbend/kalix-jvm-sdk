@@ -62,7 +62,6 @@ object DescriptorSet {
   def descriptors(is: InputStream): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] = {
     val registry = ExtensionRegistry.newInstance()
     com.akkaserverless.Annotations.registerAllExtensions(registry)
-    com.akkaserverless.codegen.Annotations.registerAllExtensions(registry)
 
     Right(try {
       val descriptorProtos =

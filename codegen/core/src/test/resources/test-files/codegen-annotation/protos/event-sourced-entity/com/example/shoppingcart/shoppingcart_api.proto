@@ -16,8 +16,7 @@ syntax = "proto3";
 
 package com.example.shoppingcart; 
 
-import "akkaserverless/annotations.proto"; 
-import "akkaserverless/codegen/annotations.proto";
+import "akkaserverless/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option java_outer_classname = "ShoppingCartApi"; 

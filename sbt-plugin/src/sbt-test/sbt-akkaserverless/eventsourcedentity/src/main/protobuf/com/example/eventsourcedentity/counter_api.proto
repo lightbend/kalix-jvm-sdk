@@ -44,10 +44,14 @@ message CurrentCounter {
   int32 value = 1;
 }
 
-service CounterService { 
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component : "com.example.eventsourcedentity.domain.Counter"
+service CounterService {
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: ".domain.Counter"
+      entity_type: "counter"
+      state: ".domain.CounterState"
+      events: [".domain.Increased", ".domain.Decreased"]
+    }
   };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);

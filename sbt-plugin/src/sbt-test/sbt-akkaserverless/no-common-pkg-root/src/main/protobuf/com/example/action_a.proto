@@ -22,8 +22,8 @@ message Request {}
 message Response {}
 
 service ActionA {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action:{}
   };
 
   // all forms of commands handlers

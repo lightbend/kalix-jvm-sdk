@@ -111,10 +111,10 @@ private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
     case ReplicatedEntityDelta.Delta.ReplicatedMultiMap(ReplicatedMultiMapDelta(cleared, removed, updated, _)) =>
       val reducedEntries =
         if (cleared) Map.empty[K, ReplicatedSetImpl[V]]
-        else entries -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+        else entries -- removed.map(key => anySupport.decodePossiblyPrimitive(key).asInstanceOf[K])
       val updatedEntries = updated.foldLeft(reducedEntries) {
         case (map, ReplicatedMultiMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
-          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val key = anySupport.decodePossiblyPrimitive(encodedKey).asInstanceOf[K]
           val values = map.getOrElse(key, new ReplicatedSetImpl[V](anySupport))
           map.updated(key, values.applyDelta(ReplicatedEntityDelta.Delta.ReplicatedSet(delta)))
         case (map, _) => map

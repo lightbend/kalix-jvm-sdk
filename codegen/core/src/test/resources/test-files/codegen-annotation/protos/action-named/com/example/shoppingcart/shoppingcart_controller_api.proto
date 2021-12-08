@@ -17,7 +17,7 @@ syntax = "proto3";
 package com.example.shoppingcart;
 
 option java_outer_classname = "ShoppingCartController";
-import "akkaserverless/codegen/annotations.proto";
+import "akkaserverless/annotations.proto";
 
 message NewCart {
 }

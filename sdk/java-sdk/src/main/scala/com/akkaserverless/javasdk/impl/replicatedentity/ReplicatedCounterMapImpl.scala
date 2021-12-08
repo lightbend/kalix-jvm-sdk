@@ -96,10 +96,10 @@ private[akkaserverless] final class ReplicatedCounterMapImpl[K](
     case ReplicatedEntityDelta.Delta.ReplicatedCounterMap(ReplicatedCounterMapDelta(cleared, removed, updated, _)) =>
       val reducedCounters =
         if (cleared) Map.empty[K, ReplicatedCounterImpl]
-        else counters -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+        else counters -- removed.map(key => anySupport.decodePossiblyPrimitive(key).asInstanceOf[K])
       val updatedCounters = updated.foldLeft(reducedCounters) {
         case (map, ReplicatedCounterMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
-          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val key = anySupport.decodePossiblyPrimitive(encodedKey).asInstanceOf[K]
           val counter = map.getOrElse(key, new ReplicatedCounterImpl)
           map.updated(key, counter.applyDelta(ReplicatedEntityDelta.Delta.Counter(delta)))
         case (map, _) => map

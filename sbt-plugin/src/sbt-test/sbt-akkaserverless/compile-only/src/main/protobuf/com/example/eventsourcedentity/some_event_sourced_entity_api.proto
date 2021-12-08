@@ -25,9 +25,13 @@ message Request {}
 message Response {}
 
 service SomeEventSourcedEntityService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.eventsourcedentity.domain.SomeEventSourcedEntity"
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: ".domain.SomeEventSourcedEntity"
+      entity_type: "some-event-sourced-entity"
+      state: ".domain.SomeEventSourcedEntityState"
+      events: [".domain.SomeEvent"]
+    }
   };
 
   rpc Method(Request) returns (Response);

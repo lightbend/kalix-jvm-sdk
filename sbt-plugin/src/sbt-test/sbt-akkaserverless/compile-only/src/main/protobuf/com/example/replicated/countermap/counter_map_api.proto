@@ -51,9 +51,14 @@ message CurrentValues {
 }
 
 service CounterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.countermap.domain.SomeCounterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeCounterMap"
+      entity_type: "some-counter-map"
+      replicated_counter_map: {
+        key: ".domain.SomeKey"
+      }
+    }
   };
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
@@ -63,10 +68,16 @@ service CounterMapService {
 }
 
 service ScalarCounterMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.countermap.domain.SomeScalarCounterMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: ".domain.SomeScalarCounterMap"
+      entity_type: "some-scalar-counter-map"
+      replicated_counter_map: {
+        key: "int64"
+      }
+    }
   };
+
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);

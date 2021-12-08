@@ -20,14 +20,6 @@ import "akkaserverless/annotations.proto";
 
 option java_outer_classname = "SomeCounterMapDomain";
 
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeCounterMap"
-  entity_type: "some-counter-map"
-  replicated_counter_map: {
-    key: "SomeKey"
-  }
-};
-
 message SomeKey {
   string key = 1;
 }

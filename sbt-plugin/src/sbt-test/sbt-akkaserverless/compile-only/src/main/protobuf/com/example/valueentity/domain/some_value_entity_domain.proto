@@ -16,16 +16,8 @@ syntax = "proto3";
 
 package com.example.valueentity.domain;
 
-import "akkaserverless/annotations.proto";
-
 option java_multiple_files = true;
 // no java_outer_classname option, will default to "SomeValueEntityDomain"
-
-option (akkaserverless.file).value_entity = {
-    name: "SomeValueEntity"
-    entity_type: "some-value-entity"
-    state: "SomeValueEntityState"
-};
 
 message SomeValueEntityState {
   string some_field = 1;

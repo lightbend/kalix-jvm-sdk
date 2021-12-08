@@ -1,8 +1,6 @@
 import sbt._
 import sbt.Keys._
-import sbt.internal.util.ManagedLogger
 import sbtprotoc.ProtocPlugin
-import scala.sys.process._
 
 /**
  * Settings for protocol projects.

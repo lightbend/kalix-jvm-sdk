@@ -23,7 +23,6 @@ import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 import com.lightbend.akkasls.codegen.{ Log, ModelBuilder }
-import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 object AkkaserverlessGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
@@ -32,9 +31,8 @@ object AkkaserverlessGenerator extends CodeGenApp {
   def extractRootPackage(parameter: String): Option[String] =
     rootPackageRegex.findFirstMatchIn(parameter).map(found => found.group(1))
 
-  override def registerExtensions(registry: ExtensionRegistry): Unit = {
+  override def registerExtensions(registry: ExtensionRegistry): Unit =
     Annotations.registerAllExtensions(registry)
-  }
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(enableDebug)

@@ -14,16 +14,30 @@
 
 syntax = "proto3";
 
-package com.example.replicated.register.domain;
+package com.example.eventing;
+
+option java_multiple_files = true;
+option java_outer_classname = "RawEventingTypes";
 
 import "akkaserverless/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
-option java_outer_classname = "SomeScalarRegisterDomain";
+service RawEventingTypesAction {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_ACTION
+  };
 
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeScalarRegister"
-  entity_type: "some-scalar-register"
-  replicated_register: {
-    value: "bytes"
+  rpc ConsumeStringTopic(google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "strings_topic"
+    };
   }
-};
+
+  rpc ConsumeRawBytesTopic(google.protobuf.BytesValue) returns (google.protobuf.Empty) {
+    option (akkaserverless.method).eventing.in = {
+      topic: "bytes_topic"
+    };
+  }
+
+}

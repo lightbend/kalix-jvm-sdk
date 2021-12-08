@@ -96,10 +96,10 @@ private[akkaserverless] final class ReplicatedRegisterMapImpl[K, V](
     case ReplicatedEntityDelta.Delta.ReplicatedRegisterMap(ReplicatedRegisterMapDelta(cleared, removed, updated, _)) =>
       val reducedRegisters =
         if (cleared) Map.empty[K, ReplicatedRegisterImpl[V]]
-        else registers -- removed.map(key => anySupport.decode(key).asInstanceOf[K])
+        else registers -- removed.map(key => anySupport.decodePossiblyPrimitive(key).asInstanceOf[K])
       val updatedRegisters = updated.foldLeft(reducedRegisters) {
         case (map, ReplicatedRegisterMapEntryDelta(Some(encodedKey), Some(delta), _)) =>
-          val key = anySupport.decode(encodedKey).asInstanceOf[K]
+          val key = anySupport.decodePossiblyPrimitive(encodedKey).asInstanceOf[K]
           val register = map.getOrElse(key, new ReplicatedRegisterImpl[V](anySupport))
           map.updated(key, register.applyDelta(ReplicatedEntityDelta.Delta.Register(delta)))
         case (map, _) => map

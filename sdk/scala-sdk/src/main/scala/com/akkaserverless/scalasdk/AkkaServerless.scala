@@ -38,10 +38,10 @@ import com.akkaserverless.scalasdk.view.View
 import com.akkaserverless.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 object AkkaServerless {
-  def apply() = new AkkaServerless(new javasdk.AkkaServerless())
+  def apply() = new AkkaServerless(new javasdk.AkkaServerless().preferScalaProtobufs())
 
   private[scalasdk] def apply(impl: javasdk.AkkaServerless) =
-    new AkkaServerless(impl.preferScalaProtobufs())
+    new AkkaServerless(impl)
 }
 
 /**
