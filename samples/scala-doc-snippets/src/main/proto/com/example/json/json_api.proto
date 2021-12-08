@@ -12,8 +12,8 @@ message KeyValue {
 }
 
 service MyService {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {}
   };
 
   rpc Consume(google.protobuf.Any) returns (google.protobuf.Empty) { // <1>
