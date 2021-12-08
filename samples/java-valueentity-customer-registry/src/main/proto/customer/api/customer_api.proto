@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+// tag::declarations[]
 syntax = "proto3";
 
 package customer.api;
@@ -20,6 +22,7 @@ option java_outer_classname = "CustomerApi";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
+// end::declarations[]
 
 message Customer {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
@@ -47,17 +50,19 @@ message ChangeAddressRequest {
   Address new_address = 2;
 }
 
+// tag::value-entity[]
 service CustomerService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "customer.domain.CustomerValueEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "customer.domain.CustomerValueEntity"
+      entity_type: "customers"
+      state: "customer.domain.CustomerState"
+    }
   };
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
-
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
-
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
-
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }
+// end::value-entity[]
