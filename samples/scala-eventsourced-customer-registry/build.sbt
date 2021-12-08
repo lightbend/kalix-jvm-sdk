@@ -12,6 +12,7 @@ dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 // two Main files in this project changes entry point
 dockerEntrypoint := Seq("bin/main")
+dockerUpdateLatest := true
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
