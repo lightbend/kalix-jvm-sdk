@@ -23,8 +23,8 @@ import "google/protobuf/empty.proto";
 option java_outer_classname = "StateSubscriptionApi";
 
 service CounterStateSubscription {
-  option (akkaserverless.service) = { 
-    type : SERVICE_TYPE_ACTION // <2>
+  option (akkaserverless.codegen) = { 
+    action: {} // <2>
   };
   
   rpc OnUpdateState (com.example.domain.CounterState) returns (google.protobuf.Empty) {

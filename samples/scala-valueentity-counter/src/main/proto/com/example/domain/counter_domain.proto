@@ -2,14 +2,6 @@ syntax = "proto3";
 
 package com.example.domain; // <1>
 
-import "akkaserverless/annotations.proto"; // <2>
-
-option (akkaserverless.file).value_entity = { // <3>
-    name: "Counter" // <4>
-    entity_type: "counter" // <5>
-    state: "CounterState" // <6>
-};
-
-message CounterState { // <7>
+message CounterState { // <2>
   int32 value = 1;
 }

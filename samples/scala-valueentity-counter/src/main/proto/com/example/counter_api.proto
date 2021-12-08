@@ -30,9 +30,12 @@ message CurrentCounter { // <5>
 }
 
 service CounterService { // <6>
-  option (akkaserverless.service) = { // <7>
-    type : SERVICE_TYPE_ENTITY
-    component : "com.example.domain.Counter"
+  option (akkaserverless.codegen) = { // <7>
+    value_entity: { // <8>
+      name: "com.example.domain.Counter" // <9>
+      entity_type: "counter" // <10>
+      state: "com.example.domain.CounterState" // <11>
+    }
   };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
