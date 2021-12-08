@@ -70,9 +70,16 @@ message Cart {
 
 // tag::proto_service[]
 service ShoppingCartService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: "com.example.shoppingcart.domain.Counter"
+      entity_type: "counter"
+      state: "CounterState"
+      events: [
+        "com.example.shoppingcart.domain.ValueIncreased",
+        "com.example.shoppingcart.domain.ValueDecreased",
+        "com.example.shoppingcart.domain.ValueReset"]
+    }
   };
 
   rpc Create (CreateCart) returns (google.protobuf.Empty) {
