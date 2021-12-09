@@ -25,7 +25,7 @@ import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 
 /** Extended by generated code, not meant for user extension */
 abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
-  private var _state: S = state.getOrElse(entity.emptyState)
+  private var _state: S = entity.emptyState
   private var events: Seq[Any] = Nil
 
   protected def handleEvent(state: S, event: Any): S
