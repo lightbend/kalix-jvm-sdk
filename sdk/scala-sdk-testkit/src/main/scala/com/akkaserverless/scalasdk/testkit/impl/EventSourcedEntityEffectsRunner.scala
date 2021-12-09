@@ -24,7 +24,7 @@ import scala.collection.immutable.Seq
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 
 /** Extended by generated code, not meant for user extension */
-abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S], state: Option[S]) {
+abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {
   private var _state: S = state.getOrElse(entity.emptyState)
   private var events: Seq[Any] = Nil
 

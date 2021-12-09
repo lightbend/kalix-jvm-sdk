@@ -16,7 +16,7 @@ public class CounterTest {
 
   @Test
   public void increaseTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     EventSourcedResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(1).build());
     assertTrue(result.didEmitEvents());
     assertEquals(1, testKit.getState().getValue());
@@ -24,7 +24,7 @@ public class CounterTest {
 
   @Test
   public void increaseWithSideEffectTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     int increase = 1;
     EventSourcedResult<Empty> result = testKit.increaseWithSideEffect(CounterApi.IncreaseValue.newBuilder().setValue(increase).build());
     assertTrue(result.didEmitEvents());
@@ -41,7 +41,7 @@ public class CounterTest {
 
   @Test
   public void increaseTestWithNegativeValue() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     EventSourcedResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(-1).build());
     assertFalse(result.didEmitEvents());
     assertTrue(result.isError());
@@ -50,7 +50,7 @@ public class CounterTest {
 
   @Test
   public void decreaseTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(10).build());
     EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(-1).build());
     assertTrue(result.didEmitEvents());
@@ -59,7 +59,7 @@ public class CounterTest {
 
   @Test
   public void decreaseToMuchTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(2).build());
     EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(-3).build());
     assertTrue(result.isError());
@@ -69,7 +69,7 @@ public class CounterTest {
 
   @Test
   public void decreaseTestWithPositiveValue() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(1).build());
     EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(1).build());
     assertTrue(result.isError());
@@ -78,7 +78,7 @@ public class CounterTest {
 
   @Test
   public void resetTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(10).build());
     assertEquals(10, testKit.getState().getValue());
     EventSourcedResult<Empty> result = testKit.reset(CounterApi.ResetValue.getDefaultInstance());
@@ -89,7 +89,7 @@ public class CounterTest {
 
   @Test
   public void getCurrentCounterTest() {
-    CounterTestTok testKit = CounterTestTok.of(Counter::new);
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(10).build());
     assertEquals(10, testKit.getState().getValue());
 
