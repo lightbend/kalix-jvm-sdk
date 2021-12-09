@@ -71,9 +71,6 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
   def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
     this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, secondaryEffect)
 
-  def this(effect: EventSourcedEntity.Effect[R], state: S) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, NoSecondaryEffectImpl)
-
   private lazy val eventsIterator = getAllEvents().iterator
 
   private def secondaryEffectName: String = secondaryEffect match {

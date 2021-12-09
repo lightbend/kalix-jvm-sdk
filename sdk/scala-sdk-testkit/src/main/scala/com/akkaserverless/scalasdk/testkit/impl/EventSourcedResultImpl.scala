@@ -42,11 +42,6 @@ final class EventSourcedResultImpl[R, S](
   def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
     this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state, secondaryEffect)
 
-  //DELETE before after codegen generates the proper TestKit
-  // only for compatibility while WIP
-  def this(effect: EventSourcedEntity.Effect[R], state: S) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state, NoSecondaryEffectImpl)
-
   private lazy val eventsIterator = events.iterator
 
   override def events: Seq[Any] = eventsOf(effect)
