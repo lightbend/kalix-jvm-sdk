@@ -45,7 +45,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/domain/cou
 
 The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state. 
 
-In this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generated all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+In this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 They make up the service API:
 
@@ -68,7 +68,7 @@ include::example$java-valueentity-counter/src/main/proto/com/example/counter_api
 <9> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <10> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. ote, the package and name follow the definion in the domain.proto file.
+<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
 
 Scala::
 +
@@ -87,7 +87,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/counter_ap
 <8> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <9> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. ote, the package and name follow the definion in the domain.proto file.
+<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
 
 
 == Implementing behavior
