@@ -19,7 +19,7 @@
 syntax = "proto3"; // <1>
 package com.example.shoppingcart.domain; // <2>
 
-option java_outer_classname = "ShoppingCartDomain";  
+option java_outer_classname = "ShoppingCartDomain";
 
 message LineItem {
   string product_id = 1;

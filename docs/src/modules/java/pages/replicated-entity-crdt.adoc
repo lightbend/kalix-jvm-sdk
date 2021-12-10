@@ -338,7 +338,7 @@ include::example$java-replicatedentity-examples/src/main/proto/com/example/repli
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register.
-<3> Specify the `protobuf` type for the value of the Replicated Register. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
 
 Scala::
 +
@@ -349,7 +349,7 @@ include::example$scala-replicatedentity-examples/src/main/proto/com/example/repl
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register.
-<3> Specify the `protobuf` type for the value of the Replicated Register. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
 
 NOTE: The type for the value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the value type in this example.
 
@@ -607,8 +607,8 @@ include::example$java-replicatedentity-examples/src/main/proto/com/example/repli
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register Map.
-<3> Specify the `protobuf` type for the keys of the Replicated Register Map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
-<4> Specify the `protobuf` type for the values of the Replicated Register Map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
 
 Scala::
 +
@@ -619,8 +619,8 @@ include::example$scala-replicatedentity-examples/src/main/proto/com/example/repl
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register Map.
-<3> Specify the `protobuf` type for the keys of the Replicated Register Map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
-<4> Specify the `protobuf` type for the values of the Replicated Register Map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
 
 NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. Message types are being used for both the key and value types in this example.
 
@@ -782,7 +782,7 @@ include::example$java-replicatedentity-examples/src/main/proto/com/example/repli
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Map.
-<3> Specify the `protobuf` type for the keys of the map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the keys of the map.
 
 Scala::
 +
@@ -793,7 +793,7 @@ include::example$scala-replicatedentity-examples/src/main/proto/com/example/repl
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Map.
-<3> Specify the `protobuf` type for the keys of the map. This must point to a proto Message, for instance defined in a `register_domain.proto` file.
+<3> Specify the `protobuf` type for the keys of the map.
 
 
 NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the key type in this example.

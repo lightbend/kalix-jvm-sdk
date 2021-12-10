@@ -22,7 +22,7 @@ import "google/protobuf/empty.proto";
 
 service CounterStateSubscription {
   option (akkaserverless.codegen) = { 
-    aciton: {} // <2>
+    action: {} // <2>
   };
   
   rpc OnUpdateState (com.example.domain.CounterState) returns (google.protobuf.Empty) {

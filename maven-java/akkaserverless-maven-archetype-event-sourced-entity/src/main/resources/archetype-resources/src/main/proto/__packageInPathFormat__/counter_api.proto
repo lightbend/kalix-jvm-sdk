@@ -36,7 +36,7 @@ service CounterService {
     event_sourced_entity: {
       name: "${package}.domain.Counter"
       entity_type: "counter"
-      state: "CounterState"
+      state: "${package}.domain.CounterState"
       events: [
         "${package}.domain.ValueIncreased",
         "${package}.domain.ValueDecreased",

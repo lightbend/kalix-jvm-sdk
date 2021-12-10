@@ -63,7 +63,7 @@ This section of the `.proto` file declares the API of the service itself, along 
 
 The `AddItem` and `RemoveItem` methods have no return value (the `Empty` type).
 
-Most important, in this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generated all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+Most importantly, in this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]

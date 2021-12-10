@@ -54,7 +54,7 @@ message Cart {
 }
 
 service ShoppingCartService { 
-  option (akkaserverless.file) = {
+  option (akkaserverless.codegen) = {
     value_entity: {
       name: ".domain.ShoppingCart"
       entity_type: "shopping-cart"

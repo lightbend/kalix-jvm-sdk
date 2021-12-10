@@ -72,9 +72,9 @@ message Cart {
 service ShoppingCartService {
   option (akkaserverless.codegen) = {
     event_sourced_entity: {
-      name: "com.example.shoppingcart.domain.Counter"
-      entity_type: "counter"
-      state: "CounterState"
+      name: "com.example.shoppingcart.domain.ShoppingCart"
+      entity_type: "shopping-cart"
+      state: "com.example.shoppingcart.domain.Cart"
       events: [
         "com.example.shoppingcart.domain.ValueIncreased",
         "com.example.shoppingcart.domain.ValueDecreased",

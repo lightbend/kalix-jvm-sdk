@@ -47,7 +47,7 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/dom
 ----
 
 
-As well as a Value Entity service that will produce the state changed consumed by the View:
+As well as a Value Entity service that will produce the state changes consumed by the View:
 
 [.tabset]
 Java::
@@ -90,7 +90,7 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/vie
 
 <1> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that a View must be generated.
 <2> The `UpdateCustomer` method defines how Akka Serverless will update the view.
-<3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(akkaserverless.file).value_entity` option in the `customer_domain.proto` file.
+<3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(akkaserverless.codegen).value_entity` option in the `customer_api.proto` file.
 <4> The `(akkaserverless.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
 <5> The `GetCustomers` method defines the query to retrieve a stream of customers.
 <6> The `(akkaserverless.method).view.query` annotation defines that this method is used as a query of the View.
@@ -204,7 +204,7 @@ include::example$java-eventsourced-customer-registry/src/main/proto/customer/vie
 ----
 <1> The `akkaserverless.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
 <2> Define an update method for each event.
-<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(akkaserverless.file).event_sourced_entity` option in the `customer_domain.proto` file.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(akkaserverless.codegen).event_sourced_entity` option in the `customer_api.proto` file.
 <4> Enable `transform_updates` to build the View state from the events.
 <5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 <6> Enable `transform_updates` for all update methods.
