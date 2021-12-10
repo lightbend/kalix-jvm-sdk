@@ -71,14 +71,10 @@ message Cart {
 // tag::proto_service[]
 service ShoppingCartService {
   option (akkaserverless.codegen) = {
-    event_sourced_entity: {
+    value_entity: {
       name: "com.example.shoppingcart.domain.ShoppingCart"
       entity_type: "shopping-cart"
       state: "com.example.shoppingcart.domain.Cart"
-      events: [
-        "com.example.shoppingcart.domain.ValueIncreased",
-        "com.example.shoppingcart.domain.ValueDecreased",
-        "com.example.shoppingcart.domain.ValueReset"]
     }
   };
 

@@ -41,7 +41,7 @@ service ShoppingCartService { // <7>
     event_sourced_entity: { // <9>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <10>
       entity_type: "shopping-cart" // <11>
-      state: "Cart" // <12>
+      state: "com.example.shoppingcart.domain.Cart" // <12>
       events: [
         "com.example.shoppingcart.domain.ItemAdded", // <13>
         "com.example.shoppingcart.domain.ItemRemoved"] 
