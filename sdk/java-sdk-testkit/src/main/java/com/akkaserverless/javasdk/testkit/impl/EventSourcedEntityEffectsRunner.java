@@ -38,7 +38,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
     this._state = entity.emptyState();
   }
 
-  /** @return The current state of the entity after applying the event*/
+  /** @return The current state of the entity after applying the event */
   protected abstract S handleEvent(S state, Object event);
 
   /** @return The current state of the entity */
@@ -52,11 +52,12 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
   }
 
   /**
-   * creates a context to run the commands and cleans it afterwards
-   * creates a context to run the events and cleans it afterwards
-   * creates a context to run the side effects and cleans it afterwards
+   * creates a command context to run the commands, then creates an event context to run the events,
+   * and finally, creates a command context to run the side effects. It cleans each context after
+   * each run.
+   *
    * @return the result of the side effects
-   **/
+   */
   protected <R> EventSourcedResult<R> interpretEffects(
       Supplier<EventSourcedEntity.Effect<R>> effect) {
     var commandContext = TestKitEventSourcedEntityCommandContext.empty();
