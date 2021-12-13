@@ -141,7 +141,7 @@ object EventSourcedEntitySourceGenerator {
     val className = entity.providerName
 
     val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
+      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)) ++ entity.events.map(_.fqn))
         .map(_.descriptorImport)
 
     generate(
