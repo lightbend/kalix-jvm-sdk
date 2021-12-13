@@ -115,7 +115,7 @@ object EventSourcedEntitySourceGenerator {
     val relevantTypes = {
       service.commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
-      }.toSeq :+ entity.state.fqn
+      }.toSeq ++ entity.events.map(_.fqn) :+ entity.state.fqn
     }
 
     implicit val imports: Imports = generateImports(
