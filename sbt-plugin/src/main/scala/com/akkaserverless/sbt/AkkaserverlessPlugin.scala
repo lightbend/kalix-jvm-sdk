@@ -70,7 +70,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
         ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Compile / sourceManaged).value,
     Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
     Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
-    protobufDescriptorSetOut := (resourceManaged in Compile).value / "protobuf" / "descriptor-sets" / "user-function.desc",
+    protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
     rootPackage := None,
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
     // and the Akka Serverless 'handler'. For now working around it by only generating
@@ -79,12 +79,12 @@ object AkkaserverlessPlugin extends AutoPlugin {
     Compile / PB.targets ++= Seq(
       genUnmanaged((akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
       ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Compile / temporaryUnmanagedDirectory).value),
-    Compile / PB.generate := (PB.generate in Compile)
+    Compile / PB.generate := (Compile / PB.generate)
       .dependsOn(Def.task {
         protobufDescriptorSetOut.value.getParentFile.mkdirs()
       })
       .value,
-    PB.protocOptions in Compile ++= Seq(
+    Compile / PB.protocOptions ++= Seq(
       "--descriptor_set_out",
       protobufDescriptorSetOut.value.getAbsolutePath,
       "--include_source_info"),
