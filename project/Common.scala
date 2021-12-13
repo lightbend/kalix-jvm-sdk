@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import akka.grpc.sbt.AkkaGrpcPlugin
+import com.lightbend.sbt.JavaFormatterPlugin.autoImport.javafmtOnCompile
 import de.heikoseeberger.sbtheader.{ AutomateHeaderPlugin, HeaderPlugin }
 import org.scalafmt.sbt.ScalafmtPlugin
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
@@ -31,12 +32,13 @@ object CommonSettings extends AutoPlugin {
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := true,
+      javafmtOnCompile := true,
       scalaVersion := Dependencies.ScalaVersion,
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
       }) ++ (
       if (sys.props.contains("disable.apidocs"))
-        Seq(Compile / doc / sources := Seq.empty, publishArtifact in (Compile, packageDoc) := false)
+        Seq(Compile / doc / sources := Seq.empty, Compile / packageDoc / publishArtifact := false)
       else Seq.empty
     )
 
