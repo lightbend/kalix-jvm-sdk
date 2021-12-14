@@ -54,10 +54,16 @@ message CurrentValues {
   repeated string baz = 3;
 }
 
+// tag::replicated_entity[]
 service MapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.map.domain.SomeMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.map.domain.SomeMap" // <1>
+      entity_type: "some-map"
+      replicated_map: { // <2>
+        key: "com.example.replicated.map.domain.SomeKey" // <3>
+      }
+    }
   };
 
   rpc IncreaseFoo(IncreaseFooValue) returns (google.protobuf.Empty);
@@ -67,3 +73,4 @@ service MapService {
   rpc RemoveBaz(RemoveBazValue) returns (google.protobuf.Empty);
   rpc Get(GetValues) returns (CurrentValues);
 }
+// end::replicated_entity[]

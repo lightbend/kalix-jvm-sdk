@@ -32,10 +32,17 @@ message CurrentCounter {
 }
 
 service CounterService {
-    option (akkaserverless.service) = {
-        type : SERVICE_TYPE_ENTITY
-        component : "com.example.domain.Counter"
-    };
+    option (akkaserverless.codegen) = {
+      event_sourced_entity: {
+        name: "com.example.domain.Counter"
+        entity_type: "counter"
+        state: "com.example.domain.CounterState"
+        events: [
+          "com.example.domain.ValueIncreased",
+          "com.example.domain.ValueDecreased",
+          "com.example.domain.ValueReset"]
+      }
+  };
 
     rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
     rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);

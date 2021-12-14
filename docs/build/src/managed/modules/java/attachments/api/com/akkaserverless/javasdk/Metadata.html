@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -305,13 +305,20 @@ extends Iterable&lt;<a href="Metadata.MetadataEntry.html" title="interface in co
 </td>
 </tr>
 <tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#jwtClaims()">jwtClaims</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Get the JWT claims present in this metadata.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(java.lang.String)">remove</a></span>&#8203;(String&nbsp;key)</code></th>
 <td class="colLast">
 <div class="block">Remove all metadata entries with the given key.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.String,java.lang.String)">set</a></span>&#8203;(String&nbsp;key,
    String&nbsp;value)</code></th>
@@ -319,7 +326,7 @@ extends Iterable&lt;<a href="Metadata.MetadataEntry.html" title="interface in co
 <div class="block">Set the string value for the given key.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBinary(java.lang.String,java.nio.ByteBuffer)">setBinary</a></span>&#8203;(String&nbsp;key,
          java.nio.ByteBuffer&nbsp;value)</code></th>
@@ -656,7 +663,7 @@ extends Iterable&lt;<a href="Metadata.MetadataEntry.html" title="interface in co
 <a id="asCloudEvent(java.lang.String,java.net.URI,java.lang.String)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>asCloudEvent</h4>
 <pre class="methodSignature"><a href="CloudEvent.html" title="interface in com.akkaserverless.javasdk">CloudEvent</a>&nbsp;asCloudEvent&#8203;(String&nbsp;id,
@@ -672,6 +679,20 @@ extends Iterable&lt;<a href="Metadata.MetadataEntry.html" title="interface in co
 <dd><code>type</code> - The type of the CloudEvent.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This metadata, represented as a CloudEvent with the specified fields.</dd>
+</dl>
+</li>
+</ul>
+<a id="jwtClaims()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>jwtClaims</h4>
+<pre class="methodSignature"><a href="JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a>&nbsp;jwtClaims()</pre>
+<div class="block">Get the JWT claims present in this metadata.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The JWT claims.</dd>
 </dl>
 </li>
 </ul>

@@ -70,9 +70,12 @@ message Cart {
 
 // tag::proto_service[]
 service ShoppingCartService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "com.example.shoppingcart.domain.ShoppingCart"
+      entity_type: "shopping-cart"
+      state: "com.example.shoppingcart.domain.Cart"
+    }
   };
 
   rpc Create (CreateCart) returns (google.protobuf.Empty) {

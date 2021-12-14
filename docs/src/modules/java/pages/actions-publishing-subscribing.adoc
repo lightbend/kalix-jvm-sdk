@@ -3,20 +3,20 @@ include::ROOT:partial$include.adoc[]
 = Publishing and Subscribing with Actions
 :page-supergroup-java-scala: Language
 
-A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes or a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic for asynchronous messaging between services.
+A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.
 
 With Actions you can: 
 
 - subscribe to events emitted by an event sourced entity within the same service.
 - subscribe to state changes emitted by a value entity within the same service.
-- subscribe to external events via https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub].
-- publish events to a Google Cloud Pub/Sub topic.
+- subscribe to external events from https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka.
+- publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
 
 Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
 
 == Publishing Entity events to a Topic
 
-To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] topic. 
+To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
 
 include::partial$pubsub-note.adoc[]
 
@@ -29,7 +29,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`. 
 <4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -42,7 +42,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
 <4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -69,6 +69,8 @@ include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/C
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
+In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also an Akka Serverless service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
+
 == Subscribing to state changes from a Value Entity
 
 Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity. 
@@ -82,7 +84,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
 
 Scala::
@@ -93,12 +95,12 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
 
 == Subscribing to a Topic
 
-It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation. 
+It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation.
 
 include::partial$pubsub-note.adoc[]
 
@@ -113,7 +115,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 Scala::
@@ -124,7 +126,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
@@ -151,7 +153,9 @@ but it could a forward to some other component or external service.
 
 == Receiving messages from an external Topic
 
-In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless. In such case, the Action definition should receive Protobuf's type `Any` and you must take care of the serialization yourself. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with other serialization formats.
+In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless.
+
+In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
 
 == Subscribing and acting upon
 

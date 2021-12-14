@@ -15,28 +15,12 @@
 // These are the messages that get persisted - the current state (Cart).
 
 // tag::domain[]
-// tag::proto_syntax[]
-syntax = "proto3";
-// end::proto_syntax[]
 
-package com.example.shoppingcart.domain;
+syntax = "proto3"; // <1>
+package com.example.shoppingcart.domain; // <2>
 
 option java_outer_classname = "ShoppingCartDomain";
 
-// tag::proto_imports[]
-import "akkaserverless/annotations.proto";
-// end::proto_imports[]
-
-// tag::proto_state[]
-// Describes how this domain relates to a value entity
-option (akkaserverless.file).value_entity = {
-  name: "ShoppingCart"
-  entity_type: "shopping-cart"
-  state: "Cart"
-};
-// end::proto_state[]
-
-// tag::proto_messages[]
 message LineItem {
   string product_id = 1;
   string name = 2;
@@ -44,9 +28,8 @@ message LineItem {
 }
 
 // The shopping cart state.
-message Cart {
+message Cart { // <3>
   repeated LineItem items = 1;
   int64 creation_timestamp = 2;
 }
-// end::proto_messages[]
 // end::domain[]

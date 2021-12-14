@@ -62,10 +62,17 @@ message AllCurrentValues {
   repeated CurrentValues values = 1;
 }
 
+// tag::replicated_entity[]
 service MultiMapService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.multimap.domain.SomeMultiMap"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.multimap.domain.SomeMultiMap" // <1>
+      entity_type: "some-multi-map"
+      replicated_multi_map: { // <2>
+        key: "string" // <3>
+        value: "double" // <4>
+      }
+    }
   };
 
   rpc Put(PutValue) returns (google.protobuf.Empty);
@@ -75,3 +82,4 @@ service MultiMapService {
   rpc Get(GetValues) returns (CurrentValues);
   rpc GetAll(GetAllValues) returns (AllCurrentValues);
 }
+// end::replicated_entity[]

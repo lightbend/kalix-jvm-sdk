@@ -20,7 +20,6 @@ option java_outer_classname = "ShoppingCartController";
 
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "google/api/annotations.proto";
 import "com/example/shoppingcart/shoppingcart_api.proto";
 
 message NewCart {
@@ -31,8 +30,8 @@ message NewCartCreated {
 }
 
 service ShoppingCartAction {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {}
   };
 
   rpc InitializeCart(NewCart) returns (NewCartCreated);

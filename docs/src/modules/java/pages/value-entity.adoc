@@ -19,7 +19,7 @@ The sections on this page walk through these steps using a counter service as an
 
 NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:quickstart-template.adoc[project template].
 
-The following `counter_domain.proto` file defines our "Counter" Value Entity. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [.tabset]
 Java::
@@ -30,13 +30,8 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
-<2> Import the Akka Serverless protobuf annotations or options.
-<3> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
-<4> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<5> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<6> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<7> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless.
-<8> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
+<3> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
 
 Scala::
 +
@@ -46,14 +41,13 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.domain`.
-<2> Import the Akka Serverless protobuf annotations, or options.
-<3> The protobuf option `(akkaserverless.file).value_entity` is specific to code-generation as provided by the Akka Serverless sbt plugin.
-<4> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<5> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<6> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless.
-<7> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
+<2> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
 
-The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state. They make up the service API:
+The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state. 
+
+In this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+
+They make up the service API:
 
 [.tabset]
 Java::
@@ -70,7 +64,11 @@ include::example$java-valueentity-counter/src/main/proto/com/example/counter_api
 <5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `Counter` we've seen above (in the `com.example.domain` package).
+<8> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<9> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
+<10> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
 
 Scala::
 +
@@ -85,7 +83,12 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/counter_ap
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<7> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless sbt plugin and points to the protobuf definition `Counter` we've seen above (in the `com.example.domain` package).
+<7> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<8> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
+<9> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
+
 
 == Implementing behavior
 

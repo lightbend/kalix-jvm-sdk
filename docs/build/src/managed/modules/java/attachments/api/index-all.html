@@ -208,6 +208,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Updates will be written immediately to all replicas.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#allClaimNames()">allClaimNames()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Returns the names of all the claims in this request.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#asCloudEvent()">asCloudEvent()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Return a CloudEvent representation of this Metadata.</div>
@@ -215,6 +219,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#asCloudEvent(java.lang.String,java.net.URI,java.lang.String)">asCloudEvent(String, URI, String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Convert this metadata to a CloudEvent, adding the given required CloudEvent fields.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#asMap()">asMap()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Returns all the claims as a map of strings to strings.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/CloudEvent.html#asMetadata()">asMetadata()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/CloudEvent.html" title="interface in com.akkaserverless.javasdk">CloudEvent</a></dt>
 <dd>
@@ -227,6 +235,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html#asyncReply(java.util.concurrent.CompletionStage)">asyncReply(CompletionStage&lt;S&gt;)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/Action.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.action">Action.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a message reply from an async operation result.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#audience()">audience()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the audience, that is, the <tt>aud</tt> claim, as described in RFC 7519 section 4.1.3.</div>
 </dd>
 </dl>
 <a id="I:C">
@@ -661,6 +673,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Execute this call right away and get the async result back for composition.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#expirationTime()">expirationTime()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the expiration time, that is, the <tt>exp</tt> claim, as described in RFC 7519 section
+ 4.1.4.</div>
+</dd>
 </dl>
 <a id="I:F">
 <!--   -->
@@ -735,6 +752,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The binary value for the metadata entry.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getBoolean(java.lang.String)">getBoolean(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the boolean claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getBooleanList(java.lang.String)">getBooleanList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the boolean list claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getDouble(java.lang.String)">getDouble(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the double claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getDoubleList(java.lang.String)">getDoubleList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the double list claim with the given name.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/action/ActionContext.html#getGrpcClient(java.lang.Class,java.lang.String)">getGrpcClient(Class&lt;T&gt;, String)</a></span> - Method in interface com.akkaserverless.javasdk.action.<a href="com/akkaserverless/javasdk/action/ActionContext.html" title="interface in com.akkaserverless.javasdk.action">ActionContext</a></dt>
 <dd>
 <div class="block">Get an Akka gRPC client for the given service name.</div>
@@ -743,9 +776,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Get an Akka gRPC client for the given service name.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getInteger(java.lang.String)">getInteger(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the integer claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getIntegerList(java.lang.String)">getIntegerList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the integer list claim with the given name.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html#getKey()">getKey()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html" title="interface in com.akkaserverless.javasdk">Metadata.MetadataEntry</a></dt>
 <dd>
 <div class="block">The key for the metadata entry.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getLong(java.lang.String)">getLong(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the long claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getLongList(java.lang.String)">getLongList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the long list claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getNumericDate(java.lang.String)">getNumericDate(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the numeric data claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getNumericDateList(java.lang.String)">getNumericDateList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the numeric date list claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getObject(java.lang.String)">getObject(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the object claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getObjectList(java.lang.String)">getObjectList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the object list claim with the given name.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JsonSupport.html#getObjectMapper()">getObjectMapper()</a></span> - Static method in class com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JsonSupport.html" title="class in com.akkaserverless.javasdk">JsonSupport</a></dt>
 <dd>
@@ -799,6 +864,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Get the current value for this node's vote.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getString(java.lang.String)">getString(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the string claim with the given name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#getStringList(java.lang.String)">getStringList(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the string list claim with the given name.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html#getValue()">getValue()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html" title="interface in com.akkaserverless.javasdk">Metadata.MetadataEntry</a></dt>
 <dd>
 <div class="block">The string value for the metadata entry.</div>
@@ -828,6 +901,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#has(java.lang.String)">has(String)</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Check whether this metadata has a entry for the given key.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#hasClaims()">hasClaims()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Does this request have any claims that have been validated?</div>
 </dd>
 </dl>
 <a id="I:I">
@@ -887,6 +964,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Have a majority of nodes voted true?</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#issuedAt()">issuedAt()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the issued at, that is, the <tt>iat</tt> claim, as described in RFC 7519 section 4.1.6.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#issuer()">issuer()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the issuer, that is, the <tt>iss</tt> claim, as described in RFC 7519 section 4.1.1.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html#isText()">isText()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.MetadataEntry.html" title="interface in com.akkaserverless.javasdk">Metadata.MetadataEntry</a></dt>
 <dd>
 <div class="block">Whether this entry is a text entry.</div>
@@ -903,6 +988,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><a href="com/akkaserverless/javasdk/JsonSupport.html" title="class in com.akkaserverless.javasdk"><span class="typeNameLink">JsonSupport</span></a> - Class in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/Metadata.html#jwtClaims()">jwtClaims()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/Metadata.html" title="interface in com.akkaserverless.javasdk">Metadata</a></dt>
+<dd>
+<div class="block">Get the JWT claims present in this metadata.</div>
+</dd>
+<dt><a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk"><span class="typeNameLink">JwtClaims</span></a> - Interface in <a href="com/akkaserverless/javasdk/package-summary.html">com.akkaserverless.javasdk</a></dt>
+<dd>
+<div class="block">Representation of JWT claims that have been validated and extracted from the bearer token of a
+ request.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#jwtId()">jwtId()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the JWT ID, that is, the <tt>jti</tt> claim, as described in RFC 7519 section 4.1.7.</div>
+</dd>
 </dl>
 <a id="I:K">
 <!--   -->
@@ -1054,6 +1152,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html#noReply()">noReply()</a></span> - Method in interface com.akkaserverless.javasdk.valueentity.<a href="com/akkaserverless/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in com.akkaserverless.javasdk.valueentity">ValueEntity.Effect.Builder</a></dt>
 <dd>
 <div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#notBefore()">notBefore()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the not before, that is, the <tt>nbf</tt> claim, as described in RFC 7519 section 4.1.5.</div>
 </dd>
 </dl>
 <a id="I:O">
@@ -1421,6 +1523,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/CloudEvent.html#subject()">subject()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/CloudEvent.html" title="interface in com.akkaserverless.javasdk">CloudEvent</a></dt>
 <dd>
 <div class="block">The subject of this CloudEvent.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/JwtClaims.html#subject()">subject()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/JwtClaims.html" title="interface in com.akkaserverless.javasdk">JwtClaims</a></dt>
+<dd>
+<div class="block">Get the subject, that is, the <tt>sub</tt> claim, as described in RFC 7519 section 4.1.2.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/akkaserverless/javasdk/SideEffect.html#synchronous()">synchronous()</a></span> - Method in interface com.akkaserverless.javasdk.<a href="com/akkaserverless/javasdk/SideEffect.html" title="interface in com.akkaserverless.javasdk">SideEffect</a></dt>
 <dd>

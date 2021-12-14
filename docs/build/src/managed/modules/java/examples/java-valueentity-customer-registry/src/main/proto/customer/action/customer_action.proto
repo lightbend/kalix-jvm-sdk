@@ -24,8 +24,8 @@ import "customer/api/customer_api.proto";
 
 
 service CustomerAction {
-  option (akkaserverless.service) = {
-      type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+      action: {}
     };
   rpc Create(api.Customer) returns (google.protobuf.Empty) {
   }

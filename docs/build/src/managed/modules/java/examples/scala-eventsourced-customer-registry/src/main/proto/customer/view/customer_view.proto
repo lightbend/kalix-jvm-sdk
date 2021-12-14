@@ -30,8 +30,8 @@ message ByNameRequest {
 }
 
 service CustomerByName {
-  option (akkaserverless.service) = { // <1>
-    type: SERVICE_TYPE_VIEW
+  option (akkaserverless.codegen) = { // <1>
+    view: {}
   };
 
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) { // <2>
