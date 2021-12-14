@@ -29,7 +29,7 @@ import scala.jdk.javaapi.CollectionConverters;
 /** Extended by generated code, not meant for user extension */
 public abstract class EventSourcedEntityEffectsRunner<S> {
 
-  protected EventSourcedEntity<S> entity;
+  private EventSourcedEntity<S> entity;
   private S _state;
   private List<Object> events = new ArrayList();
 
