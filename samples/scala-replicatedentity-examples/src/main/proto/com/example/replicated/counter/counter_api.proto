@@ -37,13 +37,18 @@ message CurrentValue {
   int64 value = 1;
 }
 
+// tag::replicated_entity[]
 service CounterService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.counter.domain.SomeCounter"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.counter.domain.SomeCounter" // <1>
+      entity_type: "some-counter"
+      replicated_counter: {} // <2>
+    }
   };
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);
   rpc Get(GetValue) returns (CurrentValue);
 }
+// end::replicated_entity[]

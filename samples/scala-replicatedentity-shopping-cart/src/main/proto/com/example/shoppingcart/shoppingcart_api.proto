@@ -40,9 +40,14 @@ message Cart {  // <5>
 }
 
 service ShoppingCartService {  // <6>
-  option (akkaserverless.service) = {  // <7>
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  option (akkaserverless.codegen) = { // <7>
+    replicated_entity: { // <8>
+      name: "com.example.shoppingcart.domain.ShoppingCart" // <9>
+      entity_type: "shopping-cart" // <10>
+      replicated_counter_map: { // <11>
+        key: "com.example.shoppingcart.domain.Product" // <12>
+      }
+    }
   };
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {

@@ -16,14 +16,9 @@ syntax = "proto3";
 
 package customer.api;
 
-// tag::declarations[]
-
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
-// end::declarations[]
-
-// tag::view[]
 message Customer {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
   string email = 2;
@@ -35,8 +30,6 @@ message Address {
   string street = 1;
   string city = 2;
 }
-// end::view[]
-
 message GetCustomerRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
 }
@@ -50,18 +43,23 @@ message ChangeAddressRequest {
   string customer_id = 1 [(akkaserverless.field).entity_key = true];
   Address new_address = 2;
 }
-
+// tag::eventsourced-entity[]
 service CustomerService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "customer.domain.CustomerEntity"
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: "customer.domain.CustomerEntity"
+      entity_type: "customers"
+      state: "customer.domain.CustomerState"
+      events: [
+        "customer.domain.CustomerCreated", 
+        "customer.domain.CustomerNameChanged", 
+        "customer.domain.CustomerAddressChanged"]
+    }
   };
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
-
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
-
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
-
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }
+// end::eventsourced-entity[]

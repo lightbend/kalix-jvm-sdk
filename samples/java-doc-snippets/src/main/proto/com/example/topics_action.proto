@@ -21,8 +21,8 @@ message TopicOperation {
 // tag::text[]
 
 service MyTopicsAction {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {}
   };
 
   // end::bytes[]

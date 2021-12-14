@@ -45,17 +45,19 @@ message ChangeAddressRequest {
   Address new_address = 2;
 }
 
+// tag::value-entity[]
 service CustomerService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "customer.domain.CustomerValueEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "customer.domain.CustomerValueEntity"
+      entity_type: "customers"
+      state: "customer.domain.CustomerState"
+    }
   };
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
-
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
-
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
-
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }
+// end::value-entity[]

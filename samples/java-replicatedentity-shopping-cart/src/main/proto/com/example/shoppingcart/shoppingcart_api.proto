@@ -42,9 +42,14 @@ message Cart {  // <6>
 }
 
 service ShoppingCartService {  // <7>
-  option (akkaserverless.service) = {  // <8>
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.shoppingcart.domain.ShoppingCart"
+  option (akkaserverless.codegen) = { // <8>
+    replicated_entity: { // <9>
+      name: "com.example.shoppingcart.domain.ShoppingCart" // <10>
+      entity_type: "shopping-cart" // <11>
+      replicated_counter_map: { // <12>
+        key: "com.example.shoppingcart.domain.Product" // <13>
+      }
+    }
   };
 
   rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
@@ -74,4 +79,3 @@ service ShoppingCartService {  // <7>
     option (google.api.http).post = "/carts/{cart_id}/remove";
   }
 }
-

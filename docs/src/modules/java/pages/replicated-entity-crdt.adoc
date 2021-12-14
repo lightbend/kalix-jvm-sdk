@@ -34,13 +34,7 @@ Java::
 include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
-<2> Import the Akka Serverless protobuf annotations, or options.
-<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
-<4> The protobuf option `(akkaserverless.file).replicated_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<5> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<6> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
-<7> `replicated_counter_map` describes the Replicated Data type for this entity.
-<8> `key` points to the protobuf message representing the counter map's key type.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
 
 Scala::
 +
@@ -50,12 +44,7 @@ Scala::
 include::example$scala-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart.domain`.
-<2> Import the Akka Serverless protobuf annotations, or options.
-<3> The protobuf option `(akkaserverless.file).replicated_entity` is specific to code-generation as provided by the Akka Serverless Maven plugin.
-<4> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<5> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
-<6> `replicated_counter_map` describes the Replicated Data type for this entity.
-<7> `key` points to the protobuf message representing the counter map's key type.
+
 
 NOTE: Each Replicated Entity is associated with one underlying Replicated Data type. Replicated Data types that are generic, accepting type parameters for key, value, or element types, are used with `protobuf` messages and can represent structured data. In this shopping cart example, the keys of the counter map are products that have an id and name.
 
@@ -76,7 +65,12 @@ include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/
 <5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+<8> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<9> `replicated_entity` indicates that we want the codegen to generate a Replicated Entity for this service.
+<10> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
+<12> `replicated_counter_map` describes the Replicated Data type for this entity.
+<13> `key` points to the protobuf message representing the counter map's key type.
 
 Scala::
 +
@@ -91,7 +85,12 @@ include::example$scala-replicatedentity-shopping-cart/src/main/proto/com/example
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<7> The protobuf option `(akkaserverless.service)`  is specific to code-generation as provided by the Akka Serverless Maven plugin and points to the protobuf definition `ShoppingCart` we've seen above (in the `com.example.shoppingcart.domain` package).
+<7> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<8> `replicated_entity` indicates that we want the codegen to generate a Replicated Entity for this service.
+<9> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
+<11> `replicated_counter_map` describes the Replicated Data type for this entity.
+<12> `key` points to the protobuf message representing the counter map's key type.
 
 
 == Implementing behavior
@@ -249,28 +248,30 @@ IMPORTANT: The **only** way for a command handler to modify the underlying data 
 
 A link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedCounter.html[`ReplicatedCounter` {tab-icon}, window="new"] can be incremented and decremented.
 
-To configure a Replicated Entity with a Replicated Counter, use the `replicated_counter` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Counter, use the `replicated_counter` option when <<_defining_the_proto_files,defining the `proto` file>>:
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/counter/domain/counter_domain.proto
+.src/main/proto/com/example/replicated/counter/counter_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/counter/domain/counter_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
 ----
 +
-<1> Specify the Replicated Data type as a Replicated Counter.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter.
 
 Scala::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/counter/domain/counter_domain.proto
+.src/main/proto/com/example/replicated/counter/counter_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/counter/domain/counter_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
 ----
 +
-<1> Specify the Replicated Data type as a Replicated Counter.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter.
 
 When implementing a Replicated Counter entity, the state can be updated by calling the `increment` or `decrement` methods on the current data object, and then triggering an update with the modified data object:
 
@@ -325,28 +326,30 @@ A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatede
 
 ifdef::todo[TODO: configuring clocks for register replication]
 
-To configure a Replicated Entity with a Replicated Register, use the `replicated_register` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Register, use the `replicated_register` option when <<_defining_the_proto_files,defining the `proto` file>>:
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/register/domain/register_domain.proto
+.src/main/proto/com/example/replicated/register/register_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/register/domain/register_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Register.
-<2> Specify the `protobuf` type for the value of the Replicated Register.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
 
 Scala::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/register/domain/register_domain.proto
+.src/main/proto/com/example/replicated/register/register_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/register/domain/register_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Register.
-<2> Specify the `protobuf` type for the value of the Replicated Register.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
 
 NOTE: The type for the value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the value type in this example.
 
@@ -423,28 +426,30 @@ NOTE: The current value may not be the most up-to-date value when there are conc
 
 A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedSet.html[`ReplicatedSet` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/replicatedentity/ReplicatedSet.html[`ReplicatedSet` {tab-icon}, window="new"]# is a set of (serializable) values, where elements can be added or removed.
 
-To configure a Replicated Entity with a Replicated Set, use the `replicated_set` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Set, use the `replicated_set` option when <<_defining_the_proto_files,defining the `proto` file>>:
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/set/domain/set_domain.proto
+.src/main/proto/com/example/replicated/set/set_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/set/domain/set_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Set.
-<2> Specify the `protobuf` type for the elements of the Replicated Set.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Set.
+<3> Specify the `protobuf` type for the elements of the Replicated Set. In this case, the scalar type `string`.
 
 Scala::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/set/domain/set_domain.proto
+.src/main/proto/com/example/replicated/set/set_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/set/domain/set_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Set.
-<2> Specify the `protobuf` type for the elements of the Replicated Set.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Set.
+<3> Specify the `protobuf` type for the elements of the Replicated Set. In this case, the scalar type `string`.
 
 
 NOTE: The type for the elements can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the element type in this example, which corresponds to the Java `String` class.
@@ -505,28 +510,32 @@ NOTE: The current value may not be the most up-to-date view of the set when ther
 A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedCounterMap.html[`ReplicatedCounterMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/replicatedentity/ReplicatedCounterMap.html[`ReplicatedCounterMap` {tab-icon}, window="new"]#
  maps (serializable) keys to replicated counters, where each value can be incremented and decremented.
 
-To configure a Replicated Entity with a Replicated Counter Map, use the `replicated_counter_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Counter Map, use the `replicated_counter_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto
+.src/main/proto/com/example/replicated/countermap/counter_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Counter Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Counter Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Counter Map. In this case, the scalar type `string`.
+
 
 Scala::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto
+.src/main/proto/com/example/replicated/countermap/counter_map_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/domain/counter_map_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Counter Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Counter Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Counter Map. In this case, the scalar type `string`.
+
 
 NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type in this example, which corresponds to the Java `String` class.
 
@@ -586,30 +595,32 @@ A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatede
 
 ifdef::todo[TODO: configuring clocks for register replication]
 
-To configure a Replicated Entity with a Replicated Register Map, use the `replicated_register_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Register Map, use the `replicated_register_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto
+.src/main/proto/com/example/replicated/registermap/register_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Register Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Register Map.
-<3> Specify the `protobuf` type for the values of the Replicated Register Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
 
 Scala::
 +
 [source,proto]
 .src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Register Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Register Map.
-<3> Specify the `protobuf` type for the values of the Replicated Register Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
 
 NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. Message types are being used for both the key and value types in this example.
 
@@ -675,30 +686,32 @@ NOTE: Entries may not contain the most up-to-date values for registers when ther
 
 A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatedentity/ReplicatedMultiMap.html[`ReplicatedMultiMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/replicatedentity/ReplicatedMultiMap.html[`ReplicatedMultiMap` {tab-icon}, window="new"]# maps (serializable) keys to replicated sets of (serializable) values, providing a multi-map interface that can associate multiple values with each key.
 
-To configure a Replicated Entity with a Replicated Multi-Map, use the `replicated_multi_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a Replicated Multi-Map, use the `replicated_multi_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto
+.src/main/proto/com/example/replicated/multimap/multi_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Multi-Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Multi-Map.
-<3> Specify the `protobuf` type for the values of the Replicated Multi-Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Multi-Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Multi-Map. In this case, the scalar type `string`.
+<4> Specify the `protobuf` type for the values of the Replicated Multi-Map. In this case, the scalar type `double`.
 
 Scala::
 +
 [source,proto]
 .src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Multi-Map.
-<2> Specify the `protobuf` type for the keys of the Replicated Multi-Map.
-<3> Specify the `protobuf` type for the values of the Replicated Multi-Map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Multi-Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Multi-Map. In this case, the scalar type `string`.
+<4> Specify the `protobuf` type for the values of the Replicated Multi-Map. In this case, the scalar type `double`.
 
 
 NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type and the `double` scalar type for the value type in this example, which correspond to the Java types for `String` and `Double`.
@@ -757,28 +770,30 @@ A [.group-java]#link:{attachmentsdir}/api/com/akkaserverless/javasdk/replicatede
 
 NOTE: Prefer to use the specialized replicated maps (<<_replicated_counter_map>>, <<_replicated_register_map>>, or <<_replicated_multi_map>>) whenever the values of the map are of the same type -- counters, registers, or sets.
 
-To configure a Replicated Entity with a (heterogeneous) Replicated Map, use the `replicated_map` option when <<_defining_the_proto_files,defining the `proto` file>> for the entity domain:
+To configure a Replicated Entity with a (heterogeneous) Replicated Map, use the `replicated_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
 
 [.tabset]
 Java::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/map/domain/map_domain.proto
+.src/main/proto/com/example/replicated/map/map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/map/domain/map_domain.proto[tag=replicated_entity]
+include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Map.
-<2> Specify the `protobuf` type for the keys of the map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Map.
+<3> Specify the `protobuf` type for the keys of the map.
 
 Scala::
 +
 [source,proto]
-.src/main/proto/com/example/replicated/map/domain/map_domain.proto
+.src/main/proto/com/example/replicated/map/map_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/map/domain/map_domain.proto[tag=replicated_entity]
+include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
 ----
-<1> Specify the Replicated Data type as a Replicated Map.
-<2> Specify the `protobuf` type for the keys of the map.
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Map.
+<3> Specify the `protobuf` type for the keys of the map.
 
 
 NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the key type in this example.

@@ -29,7 +29,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`. 
 <4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -42,7 +42,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
 <4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -84,7 +84,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
 
 Scala::
@@ -95,7 +95,7 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
 
 == Subscribing to a Topic
@@ -115,7 +115,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 Scala::
@@ -126,7 +126,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.service) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.

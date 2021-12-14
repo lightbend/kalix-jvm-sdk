@@ -16,17 +16,7 @@ syntax = "proto3";
 
 package com.example.replicated.register.domain;
 
-import "akkaserverless/annotations.proto";
-
 // tag::replicated_entity[]
-option (akkaserverless.file).replicated_entity = {
-  name: "SomeRegister"
-  entity_type: "some-register"
-  replicated_register: { // <1>
-    value: "SomeValue" // <2>
-  }
-};
-
 message SomeValue {
   string some_field = 1;
 }

@@ -38,13 +38,20 @@ message CurrentElements {
   repeated string elements = 1;
 }
 
+// tag::replicated_entity[]
 service SetService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "com.example.replicated.set.domain.SomeSet"
+  option (akkaserverless.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.set.domain.SomeSet" // <1>
+      entity_type: "some-set"
+      replicated_set: { // <2>
+        element: "string" // <3>
+      }
+    }
   };
 
   rpc Add(AddElement) returns (google.protobuf.Empty);
   rpc Remove(RemoveElement) returns (google.protobuf.Empty);
   rpc Get(GetElements) returns (CurrentElements);
 }
+// end::replicated_entity[]
