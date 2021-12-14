@@ -6,6 +6,8 @@
 - [ ] Check that the [latest build](https://app.circleci.com/pipelines/github/lightbend/akkaserverless-java-sdk) successfully finished
 - [ ] Make sure a version of the proxy that supports the protocol version the SDK expects has been deployed to production
 
+You can see the proxy version on prod [on grafana](https://lightbendcloud.grafana.net/d/ebzw4ARnz/prod-akka-serverless-operations-dashboard?orgId=1) or using [various other methods](https://github.com/lightbend/akkaserverless/wiki/Versioning-and-how-to-determine-what-version-is-running).
+
 ### Cutting the release 
 
 - [ ] Edit the [draft release notes](https://github.com/lightbend/akkaserverless-java-sdk/releases) and create the appropriate tag
