@@ -55,7 +55,9 @@ object CommonHeaderSettings extends AutoPlugin {
 
   override def projectSettings = AutomateHeaderPlugin.projectSettings ++ Seq(
     headerMappings += FileType("proto") -> HeaderCommentStyle.cppStyleLineComment,
-    headerSources / excludeFilter := (headerSources / excludeFilter).value || "package-info.java")
+    headerSources / excludeFilter := (headerSources / excludeFilter).value || "package-info.java",
+    // exclude source files in resources
+    headerResources / excludeFilter := (headerSources / excludeFilter).value || "*.java" || "*.scala")
 }
 
 object CommonAkkaGrpcSettings extends AutoPlugin {
