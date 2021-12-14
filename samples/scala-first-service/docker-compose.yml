@@ -1,7 +1,7 @@
 version: "3"
 services:
   akka-serverless-proxy:
-    image: gcr.io/akkaserverless-public/akkaserverless-proxy:0.8.3
+    image: gcr.io/akkaserverless-public/akkaserverless-proxy:0.8.5
     command: -Dconfig.resource=dev-mode.conf -Dakkaserverless.proxy.eventing.support=google-pubsub-emulator
     ports:
       - "9000:9000"
@@ -16,4 +16,3 @@ services:
     command: gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
     ports:
       - 8085:8085
-
