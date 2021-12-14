@@ -19,7 +19,6 @@ package com.akkaserverless.javasdk.testkit.impl;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
