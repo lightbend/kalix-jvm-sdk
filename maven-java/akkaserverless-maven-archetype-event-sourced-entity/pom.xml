@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>akkaserverless-maven-archetype-event-sourced-entity</artifactId>
-    <version>0.10.1</version>
+    <version>0.10.2</version>
     <packaging>maven-archetype</packaging>
     <parent>
         <groupId>com.akkaserverless</groupId>
         <artifactId>akkaserverless-maven-java</artifactId>
-        <version>0.10.1</version>
+        <version>0.10.2</version>
     </parent>
 
     <name>Akka Serverless Maven Archetype (Event Sourced entity)</name>
