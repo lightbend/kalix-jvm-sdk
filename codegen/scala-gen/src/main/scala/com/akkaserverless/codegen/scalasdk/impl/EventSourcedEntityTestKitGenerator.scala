@@ -52,6 +52,9 @@ object EventSourcedEntityTestKitGenerator {
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
           "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
+          "com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner",
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
           "scala.collection.immutable.Seq"),
         packageImports = Seq(service.fqn.parent.scalaPackage))
 
@@ -64,7 +67,7 @@ object EventSourcedEntityTestKitGenerator {
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
         cmd.outputType)}] =
-          |  interpretEffects(entity.${lowerFirst(cmd.name)}(_state, command))
+          |  interpretEffects(() => entity.${lowerFirst(cmd.name)}(currentState, command))
          |""".stripMargin
     }
 
@@ -95,26 +98,15 @@ object EventSourcedEntityTestKitGenerator {
       }}TestKit =
        |    new ${entity.fqn.name}TestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
        |}
-       |final class $className private(entity: ${typeName(entity.fqn)}) {
-       |  private var _state: ${typeName(entity.state.fqn)} = entity.emptyState
-       |  private var events: Seq[Any] = Nil
+       |final class $className private(entity: ${typeName(
+        entity.fqn)}) extends EventSourcedEntityEffectsRunner[${typeName(entity.state.fqn)}](entity: ${typeName(
+        entity.fqn)}) {
        |
-       |  /** @return The current state of the entity */
-       |  def currentState: ${typeName(entity.state.fqn)} = _state
-       |
-       |  /** @return All events emitted by command handlers of this entity up to now */
-       |  def allEvents: Seq[Any] = events
-       |
-       |  private def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(entity.state.fqn)} =
-       |   event match {
-       |     ${Format.indent(eventHandlers, 4)}
-       |   }
-       |
-       |  private def interpretEffects[R](effect: EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
-       |    val events = EventSourcedResultImpl.eventsOf(effect)
-       |    this.events ++= events
-       |    this._state = events.foldLeft(this._state)(handleEvent)
-       |    new EventSourcedResultImpl[R, ${typeName(entity.state.fqn)}](effect, _state)
+       |  override protected def handleEvent(state: ${typeName(entity.state.fqn)}, event: Any): ${typeName(
+        entity.state.fqn)} = {
+       |    event match {
+       |      ${Format.indent(eventHandlers, 6)}
+       |    }
        |  }
        |
        |  ${Format.indent(methods, 2)}

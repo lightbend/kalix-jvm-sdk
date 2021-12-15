@@ -70,4 +70,7 @@ trait EventSourcedResult[R] {
    *   The next event if it is of type E, for additional assertions.
    */
   def nextEvent[E](implicit expectedClass: ClassTag[E]): E
+
+  /** @return The list of side effects */
+  def sideEffects: Seq[DeferredCallDetails[_, _]];
 }

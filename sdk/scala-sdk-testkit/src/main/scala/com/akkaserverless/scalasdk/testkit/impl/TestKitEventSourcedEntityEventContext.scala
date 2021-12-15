@@ -17,16 +17,14 @@
 package com.akkaserverless.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.Metadata
+import com.akkaserverless.scalasdk.eventsourcedentity.EventContext
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitEventSourcedEntityContext(override val entityId: String)
-    extends AbstractTestKitContext
-    with EventSourcedEntityContext {
+final class TestKitEventSourcedEntityEventContext extends EventContext {
+  override def entityId = "testkit-entity-id"
+  override def sequenceNumber = 0L
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 }

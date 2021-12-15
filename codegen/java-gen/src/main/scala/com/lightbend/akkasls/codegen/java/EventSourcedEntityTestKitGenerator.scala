@@ -53,7 +53,11 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
         "com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl",
-        "java.util.function.Function"))
+        "com.akkaserverless.javasdk.testkit.impl.EventSourcedEntityEffectsRunner",
+        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
+        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
+        "java.util.function.Function",
+        "java.util.Optional"))
 
     val entityClassName = entity.fqn.name
     val stateClassName = entity.state.fqn.fullName
@@ -68,11 +72,7 @@ object EventSourcedEntityTestKitGenerator {
           |/**
           | * TestKit for unit testing $entityClassName
           | */
-          |public final class ${testkitClassName} {
-          |
-          |  private $stateClassName state;
-          |  private $entityClassName entity;
-          |  private List<Object> events = new ArrayList<Object>();
+          |public final class ${testkitClassName} extends EventSourcedEntityEffectsRunner<$stateClassName> {
           |
           |  /**
           |   * Create a testkit instance of $entityClassName
@@ -90,45 +90,21 @@ object EventSourcedEntityTestKitGenerator {
           |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
           |  }
           |
+          |  private ${entityClassName} entity;
+          |
           |  /** Construction is done through the static $testkitClassName.of-methods */
           |  private ${testkitClassName}(${entityClassName} entity) {
-          |    this.state = entity.emptyState();
-          |    this.entity = entity;
+          |     super(entity);
+          |     this.entity = entity;
           |  }
           |
-          |  private ${testkitClassName}(${entityClassName} entity, $stateClassName state) {
-          |    this.state = state;
-          |    this.entity = entity;
-          |  }
-          |
-          |  /**
-          |   * @return The current state of the $entityClassName under test
-          |   */
-          |  public $stateClassName getState() {
-          |    return state;
-          |  }
-          |
-          |  /**
-          |   * @return All events that has been emitted by command handlers since the creation of this testkit.
-          |   *         Individual sets of events from a single command handler invokation can be found in the
-          |   *         Result from calling it.
-          |   */
-          |  public List<Object> getAllEvents() {
-          |    return this.events;
-          |  }
-          |
-          |  private $stateClassName handleEvent($stateClassName state, Object event) {
-          |    ${Format.indent(generateHandleEvents(entity.events), 4)}
-          |  }
-          |
-          |  @SuppressWarnings("unchecked")
-          |  private <Reply> EventSourcedResult<Reply> interpretEffects(EventSourcedEntity.Effect<Reply> effect) {
-          |    List<Object> events = EventSourcedResultImpl.eventsOf(effect);
-          |    this.events.addAll(events);
-          |    for(Object e: events) {
-          |      this.state = handleEvent(state,e);
+          |  public $stateClassName handleEvent($stateClassName state, Object event) {
+          |    try {
+          |      entity._internalSetEventContext(Optional.of(new TestKitEventSourcedEntityEventContext()));
+          |      ${Format.indent(generateHandleEvents(entity.events), 6)}
+          |    } finally {
+          |      entity._internalSetEventContext(Optional.empty());
           |    }
-          |    return new EventSourcedResultImpl(effect, state);
           |  }
           |
           |  ${Format.indent(generateServices(service), 2)}
@@ -149,8 +125,7 @@ object EventSourcedEntityTestKitGenerator {
     service.commands
       .map { command =>
         s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command) {
-            |  EventSourcedEntity.Effect<${selectOutput(command)}> effect = entity.${lowerFirst(command.name)}(state, command);
-            |  return interpretEffects(effect);
+            |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command));
             |}
             |""".stripMargin + "\n"
       }

@@ -5,6 +5,7 @@
 package com.example.domain;
 
 import com.akkaserverless.javasdk.testkit.EventSourcedResult;
+import com.akkaserverless.javasdk.testkit.DeferredCallDetails;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;
@@ -19,6 +20,23 @@ public class CounterTest {
     EventSourcedResult<Empty> result = testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(1).build());
     assertTrue(result.didEmitEvents());
     assertEquals(1, testKit.getState().getValue());
+  }
+
+  @Test
+  public void increaseWithSideEffectTest() {
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
+    int increase = 1;
+    EventSourcedResult<Empty> result = testKit.increaseWithSideEffect(CounterApi.IncreaseValue.newBuilder().setValue(increase).build());
+    assertTrue(result.didEmitEvents());
+    //FIXME assertEquals(1 + 2, testKit.getState().getValue());
+    DeferredCallDetails<?, ?> sideEffect = result.getSideEffects().get(0);// <2>
+    assertEquals("com.example.CounterService", sideEffect.getServiceName());// <3>
+    assertEquals("Increase", sideEffect.getMethodName());
+    CounterApi.IncreaseValue doubledIncreased =  CounterApi.IncreaseValue.newBuilder()
+        .setValue(increase*2)
+        .build();
+    assertEquals(doubledIncreased, sideEffect.getMessage());
+
   }
 
   @Test

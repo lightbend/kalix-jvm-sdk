@@ -22,18 +22,25 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.scalasdk.DeferredCall
+
+import com.akkaserverless.javasdk.impl.DeferredCallImpl
 
 import scala.reflect.ClassTag
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R, S], state: S)
+final class EventSourcedResultImpl[R, S](
+    effect: EventSourcedEntityEffectImpl[R, S],
+    state: S,
+    secondaryEffect: SecondaryEffectImpl)
     extends EventSourcedResult[R] {
   import EventSourcedResultImpl._
 
-  def this(effect: EventSourcedEntity.Effect[R], state: S) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state)
+  def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[R, S]], state, secondaryEffect)
 
   private lazy val eventsIterator = events.iterator
 
@@ -99,6 +106,20 @@ final class EventSourcedResultImpl[R, S](effect: EventSourcedEntityEffectImpl[R,
           "expected event type [" + expectedClass.runtimeClass.getName + "] but found [" + next.getClass.getName + "]")
     }
 
+  private def extractServices(sideEffects: Vector[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
+    sideEffects.map { sideEffect =>
+      TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+    }
+  }
+
+  override def sideEffects(): Seq[DeferredCallDetails[_, _]] = secondaryEffect match {
+    case MessageReplyImpl(_, _, sideEffects) => extractServices(sideEffects)
+    case ForwardReplyImpl(_, sideEffects)    => extractServices(sideEffects)
+    case ErrorReplyImpl(_, sideEffects)      => extractServices(sideEffects)
+    case NoReply(sideEffects)                => extractServices(sideEffects)
+    case NoSecondaryEffectImpl               => Nil // this should never happen
+  }
+
 }
 
 /**
@@ -112,6 +133,13 @@ object EventSourcedResultImpl {
           case ee: EmitEvents          => ee.event.toList
           case _: NoPrimaryEffect.type => Nil
         }
+    }
+  }
+
+  def secondaryEffectOf[S](effect: EventSourcedEntity.Effect[_], state: S): SecondaryEffectImpl = {
+    effect match {
+      case ei: EventSourcedEntityEffectImpl[_, S] =>
+        ei.javasdkEffect.secondaryEffect(state)
     }
   }
 }
