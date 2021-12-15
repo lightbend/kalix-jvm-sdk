@@ -32,10 +32,6 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
     - [ ] Update the `akkaserverless-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files to the release version
     - [ ] version in `maven-java/**/pom.xml`
  
-### Clean up 
-
-- [ ] Move appropriate things on [the board](https://github.com/orgs/lightbend/projects/8?card_filter_query=label%3Aas-framework) to "Shipped"
- 
 ### Check docs update
 
 - [ ] After quite a while TechHub shows [updated docs](https://developer.lightbend.com/docs/akka-serverless/index.html) (see the timestamp on the bottom of the page)
