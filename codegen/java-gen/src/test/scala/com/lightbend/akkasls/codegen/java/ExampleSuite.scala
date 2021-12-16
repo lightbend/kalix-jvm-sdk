@@ -22,7 +22,7 @@ import com.lightbend.akkasls.codegen.GeneratedFiles
 import com.lightbend.akkasls.codegen.ModelBuilder
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{ FileVisitOption, Files }
 import scala.sys.process._
 
 class ExampleSuite extends munit.FunSuite {
@@ -38,9 +38,13 @@ class ExampleSuite extends munit.FunSuite {
 
   val testsDir = BuildInfo.test_resourceDirectory / "tests"
 
-  val tests = testsDir.listFiles().filter(d => d.isDirectory).toVector
+  val tests =
+    testsDir
+      .walk(f => f.isDirectory && f.listFiles().exists(d => d.isDirectory && d.getName == "proto"))
+      .toVector
 
-  tests.foreach { testDir =>
+  tests.foreach { testDirUnresolved =>
+    val testDir = testsDir.toPath.resolve(testDirUnresolved.toPath).toFile
     val regenerate = testDir / "regenerate"
 
     val protoDir = testDir / "proto"
@@ -57,12 +61,12 @@ class ExampleSuite extends munit.FunSuite {
     val files = SourceGenerator.generateFiles(model, "org.example.Main")
 
     def t(testName: String, dir: String, fileSet: GeneratedFiles => Seq[codegen.File]): Unit =
-      test(s"${testDir.getName} / $testName") {
+      test(s"${testDirUnresolved.getPath.replace("/", " / ")} / $testName") {
         checkFiles(testDir / dir, fileSet(files))
       }
 
     if (regenerateAll || regenerate.exists) {
-      test("${testDir.getName} / first run: generating target files") {
+      test(s"${testDir.getName} / first run: generating target files") {
         import scala.language.postfixOps
         files.write(
           testDir / "generated-managed" toPath,
@@ -105,7 +109,7 @@ object ExampleSuite {
     def walk(p: File => Boolean): Iterator[File] =
       if (f.exists())
         Files
-          .walk(f.toPath)
+          .walk(f.toPath, FileVisitOption.FOLLOW_LINKS)
           .map[File](_.toFile)
           .filter(p(_))
           .map[File] { sub =>

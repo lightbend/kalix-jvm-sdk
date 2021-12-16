@@ -2,7 +2,8 @@
 
 These are the test files for the `ExampleSuite`.
 
-Each directory contains one test case.
+Each directory contains one test case. Directories can be nested, a test directory is recognized by finding a `proto`
+directory inside.
 
 The `proto` below each test directory contains the input protobuf files and the `generated-` directories contain the
 expected output files. You can create a file named `regenerate` into the test folder to have the test succeed and
