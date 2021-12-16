@@ -42,9 +42,9 @@ class ExampleSuite extends munit.FunSuite {
     testsDir
       .walk(f => f.isDirectory && f.listFiles().exists(d => d.isDirectory && d.getName == "proto"))
       .toVector
-      .map(d => testsDir.toPath.resolve(d.toPath).toFile)
 
-  tests.foreach { testDir =>
+  tests.foreach { testDirUnresolved =>
+    val testDir = testsDir.toPath.resolve(testDirUnresolved.toPath).toFile
     val regenerate = testDir / "regenerate"
 
     val protoDir = testDir / "proto"
@@ -61,7 +61,7 @@ class ExampleSuite extends munit.FunSuite {
     val files = SourceGenerator.generateFiles(model, "org.example.Main")
 
     def t(testName: String, dir: String, fileSet: GeneratedFiles => Seq[codegen.File]): Unit =
-      test(s"${testDir.getName} / $testName") {
+      test(s"${testDirUnresolved.getPath.replace("/", " / ")} / $testName") {
         checkFiles(testDir / dir, fileSet(files))
       }
 
