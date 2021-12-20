@@ -481,3 +481,5 @@ Or come from fields in the request message:
 ----
 SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
 ----
+
+Note: `OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
