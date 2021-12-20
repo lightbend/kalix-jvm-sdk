@@ -653,3 +653,24 @@ To get the total number of results that will be returned over all pages, use `CO
 ----
 SELECT * AS customers, COUNT(*) AS total, has_more() AS more FROM customers LIMIT 10
 ----
+
+=== Paging
+
+Reading through a query result one "page" at a time rather than returning the entire result at once is possible with `OFFSET` and `LIMIT`.
+
+`OFFSET` specifies at which offset in the result to start
+
+`LIMIT` specifies a maximum number of results to return
+
+The values can either be static, defined up front in the query:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers LIMIT 10
+----
+
+Or come from fields in the request message:
+[source,proto,indent=0]
+----
+SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
+----
