@@ -54,7 +54,7 @@ public class CustomerByEmailIntegrationTest {
         CustomerViewModel.ByEmailRequest.newBuilder().setEmail("foo@example.com").build();
 
     // // the view is eventually updated
-    await().atMost(10, SECONDS).until(() -> viewClient.getCustomer(req).toCompletableFuture()
+    await().ignoreExceptions().atMost(10, SECONDS).until(() -> viewClient.getCustomer(req).toCompletableFuture()
         .get(3, SECONDS).getCustomerId().equals(id));
   }
 
