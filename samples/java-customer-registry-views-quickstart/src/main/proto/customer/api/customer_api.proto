@@ -46,16 +46,16 @@ message ChangeAddressRequest {
 }
 
 service CustomerService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "customer.domain.Customer"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "customer.domain.Customer"
+      entity_type: "customers"
+      state: "customer.domain.CustomerState"
+    }
   };
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
-
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
-
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
-
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
 }

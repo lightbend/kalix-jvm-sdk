@@ -51,9 +51,12 @@ message ChangeAddressRequest {
 
 // tag::service[]
 service CustomerService {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "customer.domain.Customer"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "customer.domain.Customer"
+      entity_type: "customers"
+      state: "customer.domain.CustomerState"
+    }
   };
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
