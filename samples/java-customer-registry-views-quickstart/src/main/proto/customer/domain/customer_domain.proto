@@ -18,12 +18,6 @@ package customer.domain;
 
 option java_outer_classname = "CustomerDomain";
 
-import "akkaserverless/annotations.proto";
-option (akkaserverless.file).value_entity = { // <1>
-  name: "Customer"
-  entity_type: "customers"
-  state: "CustomerState"
-};
 message CustomerState {
   string customer_id = 1;
   string email = 2;

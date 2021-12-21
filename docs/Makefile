@@ -36,6 +36,8 @@ attributes:
 		>> "${managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${managed_partials}/attributes.adoc"
+	echo ":console: https://console.akkaserverless.com/" \
+		>> "${managed_partials}/attributes.adoc"
 
 apidocs:
 	mkdir -p "${managed_attachments}"
