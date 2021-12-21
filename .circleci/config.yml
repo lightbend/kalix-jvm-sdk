@@ -226,6 +226,21 @@ jobs:
       - publish-local
       - save_deps_cache
 
+  compile-example-suite-java: 
+    machine: true
+    description: "Check that all samples are included in CI-verification"
+    steps:
+      - checkout-and-merge-to-main
+      - restore_deps_cache
+      - setup_sbt
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+            name: Compile test projects from ExampleSuite (Java)
+            # this is for now defined as a script because it will help running it locally
+            command: ./bin/compile-example-suite-java.sh
+
   verify-all-samples-tested:
     machine: true
     description: "Check that all samples are included in CI-verification"
@@ -891,6 +906,10 @@ workflows:
           requires:
             - checks
 
+      - compile-example-suite-java:
+          requires:
+            - checks
+            - publish-local
 
       - maven-java-tests:
           requires:
