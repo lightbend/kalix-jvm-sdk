@@ -228,7 +228,7 @@ jobs:
 
   compile-example-suite-java: 
     machine: true
-    description: "Check that all samples are included in CI-verification"
+    description: "Compile Test Projects from Example Suite (Java)"
     steps:
       - checkout-and-merge-to-main
       - restore_deps_cache
