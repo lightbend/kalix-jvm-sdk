@@ -38,9 +38,9 @@ object ValueEntityTestKitGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String): String = {
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -147,9 +147,9 @@ object ValueEntityTestKitGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ValueEntity,
       packageName: String): String = {
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
