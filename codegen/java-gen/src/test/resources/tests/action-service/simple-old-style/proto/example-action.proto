@@ -27,9 +27,9 @@ service MyService {
   };
 
   rpc simpleMethod(MyRequest) returns (org.external.Empty) {}
-  rpc streamedOutputMethod(MyRequest) returns (stream google.protobuf.Empty) {}
-  rpc streamedInputMethod(stream MyRequest) returns (google.protobuf.Empty) {}
-  rpc fullStreamedMethod(stream MyRequest) returns (stream google.protobuf.Empty) {}
+  rpc streamedOutputMethod(MyRequest) returns (stream org.external.Empty) {}
+  rpc streamedInputMethod(stream MyRequest) returns (org.external.Empty) {}
+  rpc fullStreamedMethod(stream MyRequest) returns (stream org.external.Empty) {}
 }
 
 message MyRequest {}
