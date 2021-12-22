@@ -15,20 +15,22 @@
 syntax = "proto3";
 package org.example.service;
 
+import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-import "external_domain.proto";
 
 option java_outer_classname = "ServiceOuterClass";
 
 service MyService {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {
+      name: "MyServiceNamedAction"
+    }
   };
 
-  rpc simpleMethod(MyRequest) returns (org.external.Empty) {}
-  rpc streamedOutputMethod(MyRequest) returns (stream org.external.Empty) {}
-  rpc streamedInputMethod(stream MyRequest) returns (org.external.Empty) {}
-  rpc fullStreamedMethod(stream MyRequest) returns (stream org.external.Empty) {}
+  rpc simpleMethod(MyRequest) returns (google.protobuf.Empty) {}
+  rpc streamedOutputMethod(MyRequest) returns (stream google.protobuf.Empty) {}
+  rpc streamedInputMethod(stream MyRequest) returns (google.protobuf.Empty) {}
+  rpc fullStreamedMethod(stream MyRequest) returns (stream google.protobuf.Empty) {}
 }
 
 message MyRequest {}
