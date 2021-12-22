@@ -160,7 +160,8 @@ class TestData(val packageNamingTemplate: PackageNaming) {
           fullyQualifiedName("MyRequest", proto),
           fullyQualifiedName("Empty", externalProto),
           streamedInput = true,
-          streamedOutput = true)))
+          streamedOutput = true)),
+      None)
   }
 
   def simpleJsonPubSubActionService(proto: PackageNaming = serviceProto()): ModelBuilder.ActionService = {
@@ -176,7 +177,8 @@ class TestData(val packageNamingTemplate: PackageNaming) {
           "OutToTopic",
           fullyQualifiedName("EntityUpdated", domainProto()),
           fullyQualifiedName("Any", googleProto),
-          outToTopic = true)))
+          outToTopic = true)),
+      None)
   }
 
   def simpleViewService(proto: PackageNaming = serviceProto(), suffix: String = ""): ModelBuilder.ViewService = {
@@ -211,7 +213,8 @@ class TestData(val packageNamingTemplate: PackageNaming) {
         command(
           "Query",
           fullyQualifiedName("QueryRequest", domainProto(suffix)),
-          fullyQualifiedName("ViewState", proto))))
+          fullyQualifiedName("ViewState", proto))),
+      None)
   }
 
   def eventSourcedEntity(suffix: String = ""): ModelBuilder.EventSourcedEntity =
