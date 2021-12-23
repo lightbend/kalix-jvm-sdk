@@ -225,20 +225,17 @@ object ModelBuilder {
   case class ActionService(
       override val fqn: FullyQualifiedName,
       override val commands: Iterable[Command],
-      transformName: Boolean = true)
+      userDefinedNameOpt: Option[FullyQualifiedName])
       extends Service(fqn, commands) {
 
-    private val baseClassName =
-      if (transformName) {
-        if (fqn.name.endsWith("Action")) fqn.name
-        else fqn.name + "Action"
-      } else fqn.name
-
-    val className =
-      if (transformName) {
-        if (fqn.name.contains("Action")) fqn.name + "Impl"
-        else fqn.name + "Action"
-      } else fqn.name
+    val (baseClassName, className) =
+      userDefinedNameOpt match {
+        case Some(userDefinedName) => (userDefinedName.name, userDefinedName.name)
+        case _ =>
+          val baseCls = if (fqn.name.endsWith("Action")) fqn.name else fqn.name + "Action"
+          val cls = if (fqn.name.contains("Action")) fqn.name + "Impl" else fqn.name + "Action"
+          (baseCls, cls)
+      }
 
     val impl = fqn.deriveName(_ => className)
     val abstractActionName = "Abstract" + baseClassName
@@ -264,20 +261,17 @@ object ModelBuilder {
       updates: Iterable[Command],
       transformedUpdates: Iterable[Command],
       queries: Iterable[Command],
-      transformName: Boolean = true)
+      userDefinedNameOpt: Option[FullyQualifiedName])
       extends Service(fqn, commands) {
 
-    private val baseClassName =
-      if (transformName) {
-        if (fqn.name.endsWith("View")) fqn.name
-        else fqn.name + "View"
-      } else fqn.name
-
-    val className =
-      if (transformName) {
-        if (fqn.name.contains("View")) fqn.name + "Impl"
-        else fqn.name + "View"
-      } else fqn.name
+    val (baseClassName, className) =
+      userDefinedNameOpt match {
+        case Some(userDefinedName) => (userDefinedName.name, userDefinedName.name)
+        case _ =>
+          val baseCls = if (fqn.name.endsWith("View")) fqn.name else fqn.name + "View"
+          val cls = if (fqn.name.contains("View")) fqn.name + "Impl" else fqn.name + "View"
+          (baseCls, cls)
+      }
 
     val impl = fqn.deriveName(_ => className)
     val abstractViewName = "Abstract" + baseClassName
@@ -541,21 +535,9 @@ object ModelBuilder {
 
     codegenOptions.getCodegenCase match {
       case CodegenOptions.CodegenCase.ACTION =>
+        val userDefinedName = buildUserDefinedName(codegenOptions.getAction.getName, serviceName)
         val actionService =
-          buildUserDefinedName(codegenOptions.getAction.getName, serviceName) match {
-            case Some(userDefinedName) =>
-              ActionService(
-                userDefinedName,
-                commands,
-                transformName = false // no name transformation, use what the user requested
-              )
-            case _ =>
-              ActionService(
-                serviceName.asJavaMultiFiles,
-                commands,
-                transformName = true // need to apply name transformations for derived names
-              )
-          }
+          ActionService(serviceName.asJavaMultiFiles, commands, userDefinedName)
         Model.fromService(actionService)
 
       case CodegenOptions.CodegenCase.VIEW =>
@@ -576,29 +558,16 @@ object ModelBuilder {
             Command.from(method)
         }
 
+        val userDefinedName = buildUserDefinedName(codegenOptions.getView.getName, serviceName)
         val viewService =
-          buildUserDefinedName(codegenOptions.getView.getName, serviceName) match {
-            case Some(userDefinedName) =>
-              ViewService(
-                userDefinedName,
-                commands,
-                viewId = serviceDescriptor.getName,
-                updates = updates,
-                transformedUpdates = transformedUpdates,
-                queries = queries,
-                transformName = false // no name transformation, use what the user requested
-              )
-            case _ =>
-              ViewService(
-                serviceName.asJavaMultiFiles,
-                commands,
-                viewId = serviceDescriptor.getName,
-                updates = updates,
-                transformedUpdates = transformedUpdates,
-                queries = queries,
-                transformName = true // need to apply name transformations for derived names
-              )
-          }
+          ViewService(
+            serviceName.asJavaMultiFiles,
+            commands,
+            viewId = serviceDescriptor.getName,
+            updates = updates,
+            transformedUpdates = transformedUpdates,
+            queries = queries,
+            userDefinedName)
         Model.fromService(viewService)
 
       case CodegenOptions.CodegenCase.VALUE_ENTITY =>
@@ -778,7 +747,7 @@ object ModelBuilder {
           Model.fromService(EntityService(serviceName, commands, componentFullName))
         }
       case ServiceType.SERVICE_TYPE_ACTION =>
-        Model.fromService(ActionService(serviceName.asJavaMultiFiles, commands))
+        Model.fromService(ActionService(serviceName.asJavaMultiFiles, commands, None))
 
       case ServiceType.SERVICE_TYPE_VIEW =>
         val methodDetails = methods.flatMap { method =>
@@ -803,7 +772,8 @@ object ModelBuilder {
             queries = methodDetails.collect {
               case (method, viewOptions) if viewOptions.hasQuery =>
                 Command.from(method)
-            }))
+            },
+            None))
 
       case _ => Model.empty
     }

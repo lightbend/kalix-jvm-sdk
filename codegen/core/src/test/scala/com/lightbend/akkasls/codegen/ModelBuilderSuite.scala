@@ -120,7 +120,8 @@ abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends m
               command(
                 "CreatePrePopulated",
                 fullyQualifiedName("NewCart", shoppingCartPackage),
-                fullyQualifiedName("NewCartCreated", shoppingCartPackage))))))
+                fullyQualifiedName("NewCartCreated", shoppingCartPackage))),
+            None)))
     }.get
   }
 
@@ -192,7 +193,8 @@ abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends m
             "ShoppingCartViewService",
             transformedUpdates,
             transformedUpdates,
-            queries)))
+            queries,
+            None)))
     }.get
   }
 
@@ -747,17 +749,17 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
       // So we need to build one for them since they are declared in a Service annotation,
       // we stay with this package, but we do resolve their FQN.
       // The package that the user asks may no be the same as the Service
-      val derivedShoppingCartPackage =
-        shoppingCartPackage.asJavaMultiFiles
-          .copy(protoPackage = "com.example.shoppingcart.controllers")
+      val derivedShoppingCartPackage = shoppingCartPackage.asJavaMultiFiles
+
+      val userDefinedNamePackage =
+        derivedShoppingCartPackage.copy(protoPackage = "com.example.shoppingcart.controllers")
 
       assertEquals(
         model.services,
         Map(
-          "com.example.shoppingcart.controllers.ShoppingCartController" ->
+          "com.example.shoppingcart.ShoppingCartAction" ->
           ModelBuilder.ActionService(
-            // this is the name as defined in the proto file
-            fullyQualifiedName("ShoppingCartController", derivedShoppingCartPackage),
+            fullyQualifiedName("ShoppingCartAction", derivedShoppingCartPackage),
             List(
               command(
                 "InitializeCart",
@@ -767,7 +769,8 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
                 "CreatePrePopulated",
                 fullyQualifiedName("NewCart", shoppingCartPackage),
                 fullyQualifiedName("NewCartCreated", shoppingCartPackage))),
-            transformName = false)))
+            // this is the name as defined in the proto file
+            Some(fullyQualifiedName("ShoppingCartController", userDefinedNamePackage)))))
     }.get
   }
 
@@ -809,6 +812,9 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
       // we stay with this package.
       val derivedShoppingCartPackage = shoppingCartPackage.asJavaMultiFiles
 
+      val userDefinedNamePackage =
+        derivedShoppingCartPackage.copy(protoPackage = "com.example.shoppingcart.view")
+
       val transformedUpdates =
         List(
           command(
@@ -833,12 +839,11 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
       assertEquals(
         model.services,
         Map(
-          "com.example.shoppingcart.view.ShoppingCartView" ->
+          "com.example.shoppingcart.view.ShoppingCartViewService" ->
           ModelBuilder.ViewService(
-            // this is the name as defined in the proto file
             FullyQualifiedName(
-              "ShoppingCartView",
-              "ShoppingCartView",
+              "ShoppingCartViewService",
+              "ShoppingCartViewService",
               derivedShoppingCartPackage,
               TestData.guessDescriptor("ShoppingCartViewService", shoppingCartPackage)),
             transformedUpdates ++ queries,
@@ -846,7 +851,8 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
             transformedUpdates,
             transformedUpdates,
             queries,
-            transformName = false)))
+            // this is the name as defined in the proto file
+            Some(fullyQualifiedName("ShoppingCartView", userDefinedNamePackage)))))
     }.get
   }
 }
