@@ -679,7 +679,7 @@ Or come from fields in the request message:
 SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
 ----
 
-Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages. The token based paging handles this better.
+Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages.
 
 `OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
 
@@ -687,9 +687,9 @@ Note: Using numeric offsets can lead to missing or duplicated entries in the res
 
 The count based offset requires that you keep track of how far you got by adding the page size to the offset for each query.
 
-An alternative is to use a token emitted by Akka Serverless identifying how far into the result set the paging has reached using the functions `next_page_token()` and `page_token_offset()`.
+An alternative is to use a string token emitted by Akka Serverless identifying how far into the result set the paging has reached using the functions `next_page_token()` and `page_token_offset()`.
 
-When reading the first page, an empty token is provided to `page_token_offset`. For each returned result page a new token that can be used to read the next page is returned by `next_page_token()`, once the last page has been read, an empty token is returned.
+When reading the first page, an empty token is provided to `page_token_offset`. For each returned result page a new token that can be used to read the next page is returned by `next_page_token()`, once the last page has been read, an empty token is returned (see also xref:has-more[has_more] for determining if the last page was reached).
 
 The size of each page can optionally be specified using `LIMIT`, if it is not present a default page size of 100 is used.
 
@@ -717,6 +717,9 @@ LIMIT 10
 
 `OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
 
+The token value is not meant to be parseable into any meaningful information other than being a token for reading the next page.
+
+[#has-more]
 ==== Check if there are more pages ====
 
 To check if there are more pages left, you can use the function `has_more()` providing a boolean value for the result. This works both for the count and token based offset paging, and also when only using `LIMIT` without any `OFFSET`:
@@ -727,4 +730,3 @@ SELECT * AS customers, has_more() AS more_customers FROM customers LIMIT 10
 ----
 
 This query will return `more_customers = true` when the view contains more than 10 customers.
-
