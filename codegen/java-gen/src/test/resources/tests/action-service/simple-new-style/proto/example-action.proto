@@ -15,7 +15,6 @@
 syntax = "proto3";
 package org.example.service;
 
-import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 import "external_domain.proto";
 
