@@ -679,7 +679,9 @@ Or come from fields in the request message:
 SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
 ----
 
-Note: `OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
+Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages. The token based paging handles this better.
+
+`OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
 
 ==== Token based offset ====
 
@@ -713,6 +715,7 @@ OFFSET page_token_offset(:page_token)
 LIMIT 10
 ----
 
+`OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
 
 ==== Check if there are more pages ====
 
