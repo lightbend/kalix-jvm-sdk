@@ -29,9 +29,8 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext"))
 
@@ -81,9 +80,8 @@ object ValueEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
@@ -234,9 +232,8 @@ object ValueEntitySourceGenerator {
 
     val stateType = entity.state.fqn
 
-    implicit val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    implicit val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntity",

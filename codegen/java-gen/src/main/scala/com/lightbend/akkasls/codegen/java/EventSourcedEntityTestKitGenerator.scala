@@ -36,9 +36,8 @@ object EventSourcedEntityTestKitGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String): String = {
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -157,9 +156,8 @@ object EventSourcedEntityTestKitGenerator {
 
   def generateTestSources(service: ModelBuilder.EntityService, entity: ModelBuilder.EventSourcedEntity): String = {
     val packageName = entity.fqn.parent.javaPackage
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",

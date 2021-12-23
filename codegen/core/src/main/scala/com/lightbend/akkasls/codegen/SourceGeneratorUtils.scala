@@ -18,8 +18,10 @@ package com.lightbend.akkasls.codegen
 
 import java.nio.file.Path
 import java.nio.file.Paths
+
 import scala.annotation.tailrec
 import scala.collection.immutable
+
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
@@ -27,8 +29,14 @@ import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
 import com.lightbend.akkasls.codegen.ModelBuilder.State
 import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeElement.FQNElement
-
 import scala.util.control.NoStackTrace
+
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounterMap
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedMap
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedMultiMap
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedRegister
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedRegisterMap
+import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedSet
 
 object SourceGeneratorUtils {
   val managedComment =
@@ -107,6 +115,44 @@ object SourceGeneratorUtils {
   def packageAsPath(packageName: String): Path =
     Paths.get(packageName.replace(".", "/"))
 
+  /**
+   * Given a Service and an Entity, return all FullQualifiedNames for all possible messages:
+   *   - commands for all cases
+   *   - state for Value Entities
+   *   - state and events for Event Sourced Entities
+   *   - Value and eventually Key types for Replicated Entities (when applicable)
+   */
+  def allMessageTypes(service: ModelBuilder.EntityService, entity: ModelBuilder.Entity) = {
+
+    val allCommands = service.commands.toSeq
+      .flatMap(command => Seq(command.inputType, command.outputType))
+
+    val entitySpecificMessages =
+      entity match {
+        case es: ModelBuilder.EventSourcedEntity =>
+          es.events.map(_.fqn).toSeq :+ es.state.fqn
+        case va: ModelBuilder.ValueEntity =>
+          Seq(va.state.fqn)
+        case re: ModelBuilder.ReplicatedEntity =>
+          re.data match {
+            case ReplicatedRegister(MessageTypeArgument(valueFqn))   => Seq(valueFqn)
+            case ReplicatedSet(MessageTypeArgument(valueFqn))        => Seq(valueFqn)
+            case ReplicatedMap(MessageTypeArgument(valueFqn))        => Seq(valueFqn)
+            case ReplicatedCounterMap(MessageTypeArgument(valueFqn)) => Seq(valueFqn)
+
+            case ReplicatedRegisterMap(MessageTypeArgument(keyFqn), MessageTypeArgument(valFqn)) => Seq(keyFqn, valFqn)
+            case ReplicatedRegisterMap(MessageTypeArgument(keyFqn), _)                           => Seq(keyFqn)
+            case ReplicatedRegisterMap(_, MessageTypeArgument(valueFqn))                         => Seq(valueFqn)
+
+            case ReplicatedMultiMap(MessageTypeArgument(keyFqn), MessageTypeArgument(valFqn)) => Seq(keyFqn, valFqn)
+            case ReplicatedMultiMap(MessageTypeArgument(keyFqn), _)                           => Seq(keyFqn)
+            case ReplicatedMultiMap(_, MessageTypeArgument(valueFqn))                         => Seq(valueFqn)
+            case _                                                                            => Seq.empty
+          }
+      }
+    allCommands ++ entitySpecificMessages
+  }
+
   def generateImports(
       types: Iterable[FullyQualifiedName],
       packageName: String,
@@ -125,16 +171,6 @@ object SourceGeneratorUtils {
       .map(typeImport)
 
     new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
-  }
-
-  def generateCommandImports(
-      commands: Iterable[Command],
-      state: State,
-      packageName: String,
-      otherImports: Seq[String],
-      packageImports: Seq[String] = Seq.empty): Imports = {
-    val types = commandTypes(commands) :+ state.fqn
-    generateImports(types, packageName, otherImports, packageImports)
   }
 
   def generateCommandAndTypeArgumentImports(

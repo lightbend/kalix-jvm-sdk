@@ -60,9 +60,9 @@ class ExampleSuite extends munit.FunSuite {
 
     val files = SourceGenerator.generateFiles(model, "org.example.Main")
 
-    def t(testName: String, dir: String, fileSet: GeneratedFiles => Seq[codegen.File]): Unit =
+    def testFiles(testName: String, dir: String, fileSet: GeneratedFiles => Seq[codegen.File]): Unit =
       test(s"${testDirUnresolved.getPath.replace("/", " / ")} / $testName") {
-        checkFiles(testDir / dir, fileSet(files))
+        assertFiles(testDir / dir, fileSet(files))
       }
 
     if (regenerateAll || regenerate.exists) {
@@ -77,15 +77,15 @@ class ExampleSuite extends munit.FunSuite {
         regenerate.delete()
       }
     } else {
-      t("unmanaged", "generated-unmanaged", _.unmanagedFiles)
-      t("managed", "generated-managed", _.managedFiles)
-      t("unmanaged test", "generated-test-unmanaged", _.unmanagedTestFiles)
-      t("managed test", "generated-test-managed", _.managedTestFiles)
-      t("unmanaged integration tests", "generated-integration-managed", _.integrationTestFiles)
+      testFiles("unmanaged", "generated-unmanaged", _.unmanagedFiles)
+      testFiles("managed", "generated-managed", _.managedFiles)
+      testFiles("unmanaged test", "generated-test-unmanaged", _.unmanagedTestFiles)
+      testFiles("managed test", "generated-test-managed", _.managedTestFiles)
+      testFiles("unmanaged integration tests", "generated-integration-unmanaged", _.integrationTestFiles)
     }
   }
 
-  def checkFiles(expectedDir: File, actualGenerated: Seq[codegen.File]): Unit = {
+  def assertFiles(expectedDir: File, actualGenerated: Seq[codegen.File]): Unit = {
     val actual = actualGenerated.map(g => g.name -> g.content).toMap
     val expectedFiles = expectedDir.walkFiles().toVector
     val expectedNameSet = expectedFiles.map(_.getPath).toSet

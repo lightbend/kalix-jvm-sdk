@@ -19,8 +19,8 @@ package com.lightbend.akkasls.codegen.java
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.allMessageTypes
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.collectRelevantTypes
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.generateCommandImports
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.generateImports
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.lowerFirst
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.managedComment
@@ -36,9 +36,8 @@ object EventSourcedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
@@ -112,11 +111,8 @@ object EventSourcedEntitySourceGenerator {
       entity: ModelBuilder.EventSourcedEntity,
       packageName: String,
       className: String): String = {
-    val relevantTypes = {
-      service.commands.flatMap { cmd =>
-        cmd.inputType :: cmd.outputType :: Nil
-      }.toSeq ++ entity.events.map(_.fqn) :+ entity.state.fqn
-    }
+
+    val relevantTypes = allMessageTypes(service, entity)
 
     implicit val imports: Imports = generateImports(
       relevantTypes ++ relevantTypes.map(_.descriptorImport),
@@ -203,13 +199,9 @@ object EventSourcedEntitySourceGenerator {
       packageName: String,
       className: String,
       interfaceClassName: String): String = {
-    val messageTypes = service.commands.toSeq
-      .flatMap(command => Seq(command.inputType, command.outputType)) ++
-      entity.events.map(_.fqn) :+ entity.state.fqn
 
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
@@ -274,9 +266,9 @@ object EventSourcedEntitySourceGenerator {
       packageName: String,
       className: String,
       mainPackageName: String): String = {
-    val imports = generateCommandImports(
-      service.commands,
-      entity.state,
+
+    val imports = generateImports(
+      allMessageTypes(service, entity),
       packageName,
       Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
