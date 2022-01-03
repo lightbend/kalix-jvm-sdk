@@ -488,8 +488,6 @@ SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
 
 Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages.
 
-`OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
-
 ==== Token based offset ====
 
 The count based offset requires that you keep track of how far you got by adding the page size to the offset for each query.
@@ -521,8 +519,6 @@ FROM customers
 OFFSET page_token_offset(:page_token)
 LIMIT 10
 ----
-
-`OFFSET` and `LIMIT` cannot be used in queries containing `OR`.
 
 The token value is not meant to be parseable into any meaningful information other than being a token for reading the next page.
 
