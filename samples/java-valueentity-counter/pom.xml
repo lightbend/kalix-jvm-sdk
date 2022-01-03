@@ -20,7 +20,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <akkaserverless-sdk.version>0.10.2</akkaserverless-sdk.version>
-    <akka-grpc.version>2.1.0</akka-grpc.version>
+    <akka-grpc.version>2.1.2</akka-grpc.version>
   </properties>
 
   <build>
