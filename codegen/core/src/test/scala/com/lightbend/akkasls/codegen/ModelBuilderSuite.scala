@@ -124,12 +124,12 @@ abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends m
           Some("EmptyProto"),
           javaMultipleFiles = true)
 
-      val derivedShoppingCartPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
+      val derivedEntityPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
 
       val entity =
         ModelBuilder.EventSourcedEntity(
           // this is the name as defined in the proto file
-          fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+          fullyQualifiedName("ShoppingCart", derivedEntityPackage),
           "shopping-cart",
           ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)),
           List(
@@ -202,10 +202,10 @@ abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends m
           Some("EmptyProto"),
           javaMultipleFiles = true)
 
-      val derivedShoppingCartPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
+      val derivedEntityPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
 
       val entity = ModelBuilder.ValueEntity(
-        fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+        fullyQualifiedName("ShoppingCart", derivedEntityPackage),
         "shopping-cart",
         ModelBuilder.State(fullyQualifiedName("Cart", domainPackage)))
 
@@ -282,11 +282,11 @@ abstract class ModelBuilderSuite(val config: ModelBuilderSuite.Config) extends m
           Some("EmptyProto"),
           javaMultipleFiles = true)
 
-      val derivedShoppingCartPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
+      val derivedEntityPackage = derivePackageForEntity(shoppingCartPackage, domainPackage)
 
       val entity = ModelBuilder.ReplicatedEntity(
         // this is the name as defined in the proto file
-        fullyQualifiedName("ShoppingCart", derivedShoppingCartPackage),
+        fullyQualifiedName("ShoppingCart", derivedEntityPackage),
         "shopping-cart",
         ModelBuilder.ReplicatedCounterMap(
           ModelBuilder
