@@ -110,11 +110,7 @@ object Dependencies {
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
-  val sdkScalaTestKit = deps ++= Seq(
-    testContainers,
-    logback % "test;provided",
-    scalaTest % Test
-  )
+  val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
 
   val tck = deps ++= Seq(
     // FIXME: For now TCK protos have been copied and adapted into this project.
