@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.testkit;
 
+import java.util.List;
+
 /**
  * Represents the result of an ValueEntity handling a command when run in through the testkit.
  *
@@ -60,4 +62,7 @@ public interface ValueEntityResult<R> {
 
   /** @return true if the call deleted the entity */
   boolean stateWasDeleted();
+
+  /** @return The list of side effects */
+  List<DeferredCallDetails<?, ?>> getSideEffects();
 }

@@ -29,6 +29,7 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
+/** INTERNAL API */
 object ActionEffectImpl {
   sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
     override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
@@ -36,7 +37,7 @@ object ActionEffectImpl {
     override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects.asScala)
 
-    protected def internalSideEffects(): Seq[SideEffect]
+    def internalSideEffects(): Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
   final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])

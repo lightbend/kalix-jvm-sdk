@@ -16,21 +16,37 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.action.Action
 import com.akkaserverless.javasdk.impl.DeferredCallImpl
+import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 
 import java.util.concurrent.CompletionStage
 import java.util.{ List => JList }
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 
-final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T] {
+/**
+ * INTERNAL API
+ */
+private[akkaserverless] object ActionResultImpl {
+
+  private def toDeferredCallDetails(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_, _]] =
+    sideEffects
+      .map(s => TestKitDeferredCall(s.call.asInstanceOf[DeferredCallImpl[_, _]]): DeferredCallDetails[_, _])
+      .asJava
+}
+
+/**
+ * INTERNAL API
+ */
+final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) extends ActionResult[T] {
+  import ActionResultImpl._
+
+  def this(effect: Action.Effect[T]) = this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
 
   implicit val ec = ExecutionContext.Implicits.global
 
@@ -40,19 +56,6 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
   def getReply(): T = {
     val reply = getEffectOfType(classOf[ActionEffectImpl.ReplyEffect[T]])
     reply.msg
-  }
-
-  private def extractServices(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_, _]] =
-    sideEffects
-      .map(s => TestKitDeferredCall(s.call.asInstanceOf[DeferredCallImpl[_, _]]): DeferredCallDetails[_, _])
-      .asJava
-
-  def getSideEffects(): JList[DeferredCallDetails[_, _]] = effect match {
-    case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
-    case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
-    case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
-    case ActionEffectImpl.ErrorEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
-    case ActionEffectImpl.NoReply(internalSideEffects)           => extractServices(internalSideEffects)
   }
 
   //TODO add metadata??
@@ -101,4 +104,8 @@ final class ActionResultImpl[T](effect: Action.Effect[T]) extends ActionResult[T
       throw new NoSuchElementException(
         "expected effect type [" + expectedClass.getName + "] but found [" + effect.getClass.getName + "]")
   }
+
+  def getSideEffects(): JList[DeferredCallDetails[_, _]] =
+    toDeferredCallDetails(effect.internalSideEffects())
+
 }

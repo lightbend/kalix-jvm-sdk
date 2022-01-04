@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.impl
 
+import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
@@ -27,6 +28,9 @@ import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.testkit.ValueEntityResult
 import com.akkaserverless.javasdk.valueentity.ValueEntity
 
+import java.util.{ List => JList }
+import scala.jdk.CollectionConverters._
+
 /**
  * INTERNAL API
  */
@@ -35,6 +39,8 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   def this(effect: ValueEntity.Effect[R]) =
     this(effect.asInstanceOf[ValueEntityEffectImpl[R]])
+
+  private def secondaryEffect = effect.secondaryEffect
 
   override def isReply(): Boolean = effect.secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
@@ -80,5 +86,18 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
   }
 
   override def stateWasDeleted(): Boolean = effect.primaryEffect eq ValueEntityEffectImpl.DeleteState
+
+  private def toDeferredCallDetails(sideEffects: Vector[SideEffect]): JList[DeferredCallDetails[_, _]] = {
+    sideEffects
+      .map { sideEffect =>
+        TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+          .asInstanceOf[DeferredCallDetails[_, _]] // java List is invariant in type
+      }
+      .toList
+      .asJava
+  }
+
+  override def getSideEffects(): JList[DeferredCallDetails[_, _]] =
+    toDeferredCallDetails(secondaryEffect.sideEffects)
 
 }

@@ -23,11 +23,15 @@ import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
-
+import com.akkaserverless.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] {
+final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) extends ActionResult[T] {
+
+  def this(effect: Action.Effect[T]) =
+    this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
+
   override def isReply: Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[_]]
   override def reply: T = effect match {
     case e: ActionEffectImpl.ReplyEffect[T] => e.msg
@@ -43,13 +47,8 @@ class ActionResultImpl[T](val effect: Action.Effect[T]) extends ActionResult[T] 
     }
   }
 
-  override def sideEffects: Seq[DeferredCallDetails[_, _]] = effect match {
-    case ActionEffectImpl.ReplyEffect(_, _, internalSideEffects) => extractServices(internalSideEffects)
-    case ActionEffectImpl.ForwardEffect(_, internalSideEffects)  => extractServices(internalSideEffects)
-    case ActionEffectImpl.AsyncEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
-    case ActionEffectImpl.ErrorEffect(_, internalSideEffects)    => extractServices(internalSideEffects)
-    case ActionEffectImpl.NoReply(internalSideEffects)           => extractServices(internalSideEffects)
-  }
+  override def sideEffects: Seq[DeferredCallDetails[_, _]] =
+    EffectUtils.toDeferredCallDetails(effect.toJavaSdk.asInstanceOf[JavaPrimaryEffect[_]].internalSideEffects())
 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 

@@ -104,12 +104,13 @@ object Dependencies {
     // https://github.com/testcontainers/testcontainers-java/issues/4308
     "org.apache.commons" % "commons-compress" % "1.21",
     junit4 % Provided,
-    junit5 % Provided)
+    junit5 % Provided,
+    scalaTest % Test)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
-  val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided")
+  val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
 
   val tck = deps ++= Seq(
     // FIXME: For now TCK protos have been copied and adapted into this project.

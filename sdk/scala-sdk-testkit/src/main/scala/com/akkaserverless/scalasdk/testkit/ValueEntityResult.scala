@@ -60,4 +60,7 @@ trait ValueEntityResult[R] {
 
   /** @return true if the call deleted the entity */
   def stateWasDeleted: Boolean
+
+  /** @return The list of side effects */
+  def sideEffects: Seq[DeferredCallDetails[_, _]]
 }
