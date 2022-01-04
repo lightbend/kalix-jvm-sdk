@@ -72,5 +72,5 @@ trait EventSourcedResult[R] {
   def nextEvent[E](implicit expectedClass: ClassTag[E]): E
 
   /** @return The list of side effects */
-  def sideEffects: Seq[DeferredCallDetails[_, _]];
+  def sideEffects: Seq[DeferredCallDetails[_, _]]
 }
