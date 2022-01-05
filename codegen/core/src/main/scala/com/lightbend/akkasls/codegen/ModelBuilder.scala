@@ -827,13 +827,12 @@ object ModelBuilder {
       descriptors: Seq[Descriptors.FileDescriptor])(implicit
       log: Log,
       fqnExtractor: FullyQualifiedNameExtractor): Model = {
-    val rawEntity =
+    val entityDef =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getValueEntity
 
-    Option(rawEntity.getName)
-      .filter(_.nonEmpty)
+    nonEmptyName(entityDef.getName)
       .map { name =>
         Model.fromEntity(
           ValueEntity(
@@ -842,8 +841,8 @@ object ModelBuilder {
               name,
               fqnExtractor.packageName(descriptor).asJavaMultiFiles,
               Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))),
-            rawEntity.getEntityType,
-            State(resolveFullyQualifiedMessageType(rawEntity.getState, descriptor, descriptors))))
+            entityDef.getEntityType,
+            State(resolveFullyQualifiedMessageType(entityDef.getState, descriptor, descriptors))))
       }
       .getOrElse(Model.empty)
   }
@@ -858,7 +857,7 @@ object ModelBuilder {
       descriptor: Descriptors.FileDescriptor)(implicit log: Log, fqnExtractor: FullyQualifiedNameExtractor): Model = {
     import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
 
-    val rawEntity =
+    val entityDef =
       descriptor.getOptions
         .getExtension(com.akkaserverless.Annotations.file)
         .getReplicatedEntity
@@ -866,32 +865,31 @@ object ModelBuilder {
     val protoReference = fqnExtractor.packageName(descriptor)
     val fullQualifiedDescriptor = Some(fqnExtractor.fileDescriptorObject(descriptor.getFile))
 
-    Option(rawEntity.getName)
-      .filter(_.nonEmpty)
+    nonEmptyName(entityDef.getName)
       .flatMap { name =>
-        val dataType = rawEntity.getReplicatedDataCase match {
+        val dataType = entityDef.getReplicatedDataCase match {
           case ReplicatedDataCase.REPLICATED_COUNTER =>
             Some(ReplicatedCounter)
           case ReplicatedDataCase.REPLICATED_REGISTER =>
-            val value = TypeArgument(rawEntity.getReplicatedRegister.getValue, protoReference, fullQualifiedDescriptor)
+            val value = TypeArgument(entityDef.getReplicatedRegister.getValue, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedRegister(value))
           case ReplicatedDataCase.REPLICATED_SET =>
-            val element = TypeArgument(rawEntity.getReplicatedSet.getElement, protoReference, fullQualifiedDescriptor)
+            val element = TypeArgument(entityDef.getReplicatedSet.getElement, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedSet(element))
           case ReplicatedDataCase.REPLICATED_MAP =>
-            val key = TypeArgument(rawEntity.getReplicatedMap.getKey, protoReference, fullQualifiedDescriptor)
+            val key = TypeArgument(entityDef.getReplicatedMap.getKey, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedMap(key))
           case ReplicatedDataCase.REPLICATED_COUNTER_MAP =>
-            val key = TypeArgument(rawEntity.getReplicatedCounterMap.getKey, protoReference, fullQualifiedDescriptor)
+            val key = TypeArgument(entityDef.getReplicatedCounterMap.getKey, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedCounterMap(key))
           case ReplicatedDataCase.REPLICATED_REGISTER_MAP =>
-            val key = TypeArgument(rawEntity.getReplicatedRegisterMap.getKey, protoReference, fullQualifiedDescriptor)
+            val key = TypeArgument(entityDef.getReplicatedRegisterMap.getKey, protoReference, fullQualifiedDescriptor)
             val value =
-              TypeArgument(rawEntity.getReplicatedRegisterMap.getValue, protoReference, fullQualifiedDescriptor)
+              TypeArgument(entityDef.getReplicatedRegisterMap.getValue, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedRegisterMap(key, value))
           case ReplicatedDataCase.REPLICATED_MULTI_MAP =>
-            val key = TypeArgument(rawEntity.getReplicatedMultiMap.getKey, protoReference, fullQualifiedDescriptor)
-            val value = TypeArgument(rawEntity.getReplicatedMultiMap.getValue, protoReference, fullQualifiedDescriptor)
+            val key = TypeArgument(entityDef.getReplicatedMultiMap.getKey, protoReference, fullQualifiedDescriptor)
+            val value = TypeArgument(entityDef.getReplicatedMultiMap.getValue, protoReference, fullQualifiedDescriptor)
             Some(ReplicatedMultiMap(key, value))
           case ReplicatedDataCase.REPLICATED_VOTE =>
             Some(ReplicatedVote)
@@ -903,7 +901,7 @@ object ModelBuilder {
             Model.fromEntity(
               ReplicatedEntity(
                 FullyQualifiedName(name, name, protoReference.asJavaMultiFiles, fullQualifiedDescriptor),
-                rawEntity.getEntityType,
+                entityDef.getEntityType,
                 data))
           }
       }
