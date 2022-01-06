@@ -58,9 +58,15 @@ message GetShoppingCart {
 
 // tag::service[]
 service ShoppingCart {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "shopping.cart.domain.ShoppingCartEntity"
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: "shopping.cart.domain.ShoppingCartEntity"
+      entity_type: "eventsourced-shopping-cart"
+      state: "shopping.cart.domain.CartState"
+      events: [
+        "shopping.cart.domain.ItemAdded", 
+        "shopping.cart.domain.ItemRemoved"]
+    }
   };
 
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {

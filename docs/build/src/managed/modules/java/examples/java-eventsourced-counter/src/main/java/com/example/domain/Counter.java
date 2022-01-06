@@ -4,6 +4,7 @@
  */
 package com.example.domain;
 
+import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
@@ -41,12 +42,27 @@ public class Counter extends AbstractCounter {
   }
 
   @Override
-  public Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue decreaseValue) {
-    if (decreaseValue.getValue() > 0)
-      return effects().error("Value must be a zero or a negative number");
-    else if(updateState(currentState, decreaseValue.getValue()).getValue() < 0)
-      return effects().error("Decrease value is too high. Counter cannot become negative");
+  public Effect<Empty> increaseWithSideEffect(CounterDomain.CounterState currentState, CounterApi.IncreaseValue increaseValue) {
+     int doubled = increaseValue.getValue() * 2;
+    CounterApi.IncreaseValue increaseValueDoubled =
+        increaseValue.toBuilder().setValue(doubled).build(); 
+
+    if (increaseValue.getValue() < 0)
+      return effects().error("Value must be a zero or a positive number");
     else
+      return effects()
+              .emitEvent(CounterDomain.ValueIncreased.newBuilder().setValue(increaseValue.getValue()).build())
+              .thenAddSideEffect(__ -> SideEffect.of(components().counter().increase(increaseValueDoubled)))
+              .thenReply(__ -> Empty.getDefaultInstance());
+  }
+
+  @Override
+  public Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue decreaseValue) {
+    if (decreaseValue.getValue() > 0){
+      return effects().error("Value must be a zero or a negative number");
+    }else if(updateState(currentState, decreaseValue.getValue()).getValue() < 0){
+      return effects().error("Decrease value is too high. Counter cannot become negative");
+    }else
       return effects()
           .emitEvent(CounterDomain.ValueDecreased.newBuilder().setValue(decreaseValue.getValue()).build())
           .thenReply(__ -> Empty.getDefaultInstance());

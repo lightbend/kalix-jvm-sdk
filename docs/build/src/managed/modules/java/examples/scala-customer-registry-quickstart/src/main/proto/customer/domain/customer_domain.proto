@@ -17,15 +17,7 @@ syntax = "proto3";
 
 package customer.domain;
 
-import "akkaserverless/annotations.proto";
 // end::declarations[]
-// tag::entity[]
-option (akkaserverless.file).value_entity = { // <1>
-  name: "Customer"
-  entity_type: "customers"
-  state: "CustomerState"
-};
-// end::entity[]
 // tag::domain[]
 message CustomerState {
   string customer_id = 1;

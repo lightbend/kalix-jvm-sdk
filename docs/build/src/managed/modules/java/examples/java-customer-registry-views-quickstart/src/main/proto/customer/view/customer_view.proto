@@ -25,8 +25,8 @@ import "akkaserverless/annotations.proto";
 
 // tag::CustomerByEmail[]
 service CustomerByEmail { // <1>
-  option (akkaserverless.service) = { // <2>
-    type: SERVICE_TYPE_VIEW
+  option (akkaserverless.codegen) = { // <2>
+    view: {}
   };
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <3>
@@ -52,8 +52,8 @@ message ByEmailRequest {
 
 // tag::CustomerByName[]
 service CustomerByName {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_VIEW
+  option (akkaserverless.codegen) = {
+    view: {}
   };
 
   rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) { // <1>

@@ -1,3 +1,4 @@
 com.akkaserverless.javasdk.testkit
+com.akkaserverless.javasdk.testkit.impl
 com.akkaserverless.javasdk.testkit.junit
 com.akkaserverless.javasdk.testkit.junit.jupiter
