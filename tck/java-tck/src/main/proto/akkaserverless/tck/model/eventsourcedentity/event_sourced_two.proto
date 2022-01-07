@@ -27,22 +27,19 @@ option java_multiple_files = true;
 import "akkaserverless/annotations.proto";
 import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
 
-option (akkaserverless.file).event_sourced_entity = {
-  name: "EventSourcedTwoEntity"
-  entity_type: "event-sourced-two"
-  state: "Persisted"
-  events: ["Persisted"]
-};
-
-
 //
 // The `EventSourcedTwo` service is only for verifying forward actions and side effects.
 // The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service EventSourcedTwo {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component: "EventSourcedTwoEntity"
+
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: "EventSourcedTwoEntity"
+      entity_type: "event-sourced-two"
+      state: "Persisted"
+      events: ["Persisted"]
+    }
   };
 
   rpc Call(Request) returns (Response);

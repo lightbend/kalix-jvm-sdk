@@ -28,11 +28,7 @@ import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 
-option (akkaserverless.file).value_entity = {
-  name: "ValueEntityConfiguredEntity"
-  entity_type: "value-entity-configured"
-  state: "Persisted"
-};
+
 
 //
 // The `ValueEntityConfigured` service is for testing entity configuration from the language support:
@@ -42,10 +38,12 @@ option (akkaserverless.file).value_entity = {
 // - The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ValueEntityConfigured {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component: "ValueEntityConfiguredEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "ValueEntityConfiguredEntity"
+      entity_type: "value-entity-configured"
+      state: "Persisted"
+    }
   };
-
   rpc Call(Request) returns (Response);
 }
