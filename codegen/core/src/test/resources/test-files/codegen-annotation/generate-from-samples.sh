@@ -3,8 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Re-generates sample proto file descriptors from the source
-# Requires https://github.com/lightbend/akkaserverless-java-sdk to be cloned locally, and its path provided
-# Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework /path/to/akkaserverless-java-sdk
+# Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework
 
 if [ $# -lt 1 ]; then
     echo "Required arguments not supplied"
