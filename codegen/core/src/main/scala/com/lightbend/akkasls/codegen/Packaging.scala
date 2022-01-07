@@ -131,6 +131,7 @@ case class PackageNaming(
     val adaptedPackage = javaPackageOption.map { _ => newPackage }
     copy(javaPackageOption = adaptedPackage, protoPackage = newPackage)
   }
+
 }
 
 object PackageNaming {

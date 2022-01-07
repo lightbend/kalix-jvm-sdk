@@ -850,7 +850,7 @@ class ModelBuilderWithCodegenAnnotationSuite extends ModelBuilderSuite(ModelBuil
     // Entities don't have a proto package so we need to build one for them
     // since they are declared in a Service annotation, we stay with this package,
     // but we do resolve their FQN. The package that the user asks may not be the same as the Service
-    servicePackage.asJavaMultiFiles.copy(protoPackage = "com.example.shoppingcart.domain")
+    servicePackage.asJavaMultiFiles.changePackages(domainPackage.javaPackage)
   }
 
 }
