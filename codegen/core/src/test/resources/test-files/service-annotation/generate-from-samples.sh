@@ -3,22 +3,16 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Re-generates sample proto file descriptors from the source
-# Requires https://github.com/lightbend/akkaserverless-java-sdk to be cloned locally, and its path provided
-# Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework /path/to/akkaserverless-java-sdk
+# Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework
 
 if [ $# -lt 2 ]; then
     echo "Required arguments not supplied"
-    echo "Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework /path/to/akkaserverless-java-sdk"
+    echo "Usage: ./generate-from-samples.sh /path/to/akkaserverless-framework
     exit 1
 fi
 
 if [ ! -d "$1" ]; then
     echo "$1 does not exist or is not a directory"
-    exit 1
-fi
-
-if [ ! -d "$2" ]; then
-    echo "$2 does not exist or is not a directory"
     exit 1
 fi
 
