@@ -16,10 +16,7 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils
+import com.lightbend.akkasls.codegen.{ File, GeneratedFiles, ModelBuilder, PackageNaming, SourceGeneratorUtils }
 
 object SourceGenerator {
 
@@ -125,6 +122,17 @@ object SourceGenerator {
         ActionTestKitGenerator.generateUnmanagedTest(service)
     }.toList
   }
+
+  /**
+   * Genereate files to a `GeneratedFiles` structure similar to what Java does for testing purposes.
+   */
+  def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): GeneratedFiles =
+    GeneratedFiles(
+      managedFiles = generateManaged(model, configuredRootPackage),
+      unmanagedFiles = generateUnmanaged(model, configuredRootPackage),
+      managedTestFiles = generateManagedTest(model),
+      unmanagedTestFiles = generateUnmanagedTest(model, configuredRootPackage),
+      integrationTestFiles = Nil)
 
   private def nameForMainPackage(packageString: String): PackageNaming =
     new PackageNaming(

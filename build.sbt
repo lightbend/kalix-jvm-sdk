@@ -305,7 +305,11 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
-        "protocolVersion" -> AkkaServerless.FrameworkVersion),
+        "protocolVersion" -> AkkaServerless.FrameworkVersion,
+        BuildInfoKey(PB.protocExecutable),
+        BuildInfoKey(codegenCore / PB.externalIncludePath),
+        BuildInfoKey(codegenCore / PB.externalSourcePath),
+        BuildInfoKey(Test / resourceDirectory)),
       buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
       testFrameworks += new TestFramework("munit.Framework"))
     .dependsOn(codegenCore % "compile->compile;test->test")
