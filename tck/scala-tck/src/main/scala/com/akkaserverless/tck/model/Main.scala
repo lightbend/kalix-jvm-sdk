@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package akkaserverless.tck.model
+package com.akkaserverless.tck.model
 
 import com.akkaserverless.scalasdk.AkkaServerless
 import com.akkaserverless.tck.model.action.ActionTckModelImpl
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
 
 object Main {
 
-  private val log = LoggerFactory.getLogger("akkaserverless.tck.model.Main")
+  private val log = LoggerFactory.getLogger("com.akkaserverless.tck.model.Main")
 
   def createAkkaServerless(): AkkaServerless = {
     // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,

@@ -135,6 +135,9 @@ object SourceGenerator {
       javaOuterClassnameOption = None,
       javaMultipleFiles = false)
 
-  private def nameForMainPackage(model: ModelBuilder.Model): PackageNaming =
-    nameForMainPackage(SourceGeneratorUtils.mainPackageName(model.services.keys ++ model.entities.keys).mkString("."))
+  private def nameForMainPackage(model: ModelBuilder.Model): PackageNaming = {
+    val services = model.services.values.map(_.fqn.fullyQualifiedJavaName)
+    val entities = model.entities.values.map(_.fqn.fullyQualifiedJavaName)
+    nameForMainPackage(SourceGeneratorUtils.mainPackageName(services ++ entities).mkString("."))
+  }
 }

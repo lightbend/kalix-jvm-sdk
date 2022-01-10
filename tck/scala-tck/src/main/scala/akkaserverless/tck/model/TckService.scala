@@ -20,6 +20,7 @@ import scala.concurrent.duration._
 import com.akkaserverless.scalasdk.PassivationStrategy
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
+import com.akkaserverless.tck.model.Main
 import com.akkaserverless.tck.model.eventsourcedentity.{
   EventSourcedConfiguredEntity,
   EventSourcedConfiguredEntityProvider,
