@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package akkaserverless.tck.model
+package com.akkaserverless.tck.model
 
 import scala.concurrent.duration._
 import com.akkaserverless.scalasdk.PassivationStrategy

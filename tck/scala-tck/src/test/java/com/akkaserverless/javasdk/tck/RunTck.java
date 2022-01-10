@@ -16,7 +16,7 @@
 
 package com.akkaserverless.javasdk.tck;
 
-import akkaserverless.tck.model.TckService;
+import com.akkaserverless.tck.model.TckService;
 import com.akkaserverless.javasdk.testkit.BuildInfo;
 import com.akkaserverless.scalasdk.AkkaServerless;
 import com.akkaserverless.scalasdk.AkkaServerlessRunner;
