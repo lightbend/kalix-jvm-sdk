@@ -16,108 +16,16 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen
-import com.lightbend.akkasls.codegen.DescriptorSet
-import com.lightbend.akkasls.codegen.GeneratedFiles
-import com.lightbend.akkasls.codegen.ModelBuilder
+import com.google.protobuf.Descriptors
+import com.lightbend.akkasls.codegen.{ ExampleSuiteBase, GeneratedFiles, ModelBuilder }
 
-import java.io.File
-import java.nio.file.{ FileVisitOption, Files }
-import scala.sys.process._
+class ExampleSuite extends ExampleSuiteBase {
+  def regenerateAll: Boolean = false
+  lazy val BuildInfo = com.lightbend.akkasls.codegen.java.BuildInfo
+  override def createFQNExtractor(
+      fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor =
+    FullyQualifiedNameExtractor
 
-class ExampleSuite extends munit.FunSuite {
-  import ExampleSuite._
-
-  val regenerateAll: Boolean = false
-
-  implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
-    override def debug(message: String): Unit = println(s"[DEBUG] $message")
-    override def info(message: String): Unit = println(s"[INFO] $message")
-  }
-  implicit val fqnExtractor = FullyQualifiedNameExtractor
-
-  val testsDir = BuildInfo.test_resourceDirectory / "tests"
-
-  val tests =
-    testsDir
-      .walk(f => f.isDirectory && f.listFiles().exists(d => d.isDirectory && d.getName == "proto"))
-      .toVector
-
-  tests.foreach { testDirUnresolved =>
-    val testDir = testsDir.toPath.resolve(testDirUnresolved.toPath).toFile
-    val regenerate = testDir / "regenerate"
-
-    val protoDir = testDir / "proto"
-    val protos = protoDir.byName(_.endsWith(".proto"))
-    val tmpDesc = File.createTempFile("user", ".desc")
-    tmpDesc.deleteOnExit()
-
-    val protoSources = protos.map(_.getAbsolutePath).mkString(" ")
-    s"""${BuildInfo.protocExecutable.getAbsolutePath} --include_imports --proto_path=${protoDir.getAbsolutePath} --proto_path=${BuildInfo.protocExternalSourcePath} --proto_path=${BuildInfo.protocExternalIncludePath} --descriptor_set_out=${tmpDesc.getAbsolutePath} $protoSources""".!!
-
-    val fileDescs = DescriptorSet.fileDescriptors(tmpDesc).right.get.right.get
-    val model = ModelBuilder.introspectProtobufClasses(fileDescs)
-
-    val files = SourceGenerator.generateFiles(model, "org.example.Main")
-
-    def testFiles(testName: String, dir: String, fileSet: GeneratedFiles => Seq[codegen.File]): Unit =
-      test(s"${testDirUnresolved.getPath.replace("/", " / ")} / $testName") {
-        assertFiles(testDir / dir, fileSet(files))
-      }
-
-    if (regenerateAll || regenerate.exists) {
-      test(s"${testDir.getName} / first run: generating target files") {
-        import scala.language.postfixOps
-        files.write(
-          testDir / "generated-managed" toPath,
-          testDir / "generated-unmanaged" toPath,
-          testDir / "generated-test-managed" toPath,
-          testDir / "generated-test-unmanaged" toPath,
-          testDir / "generated-integration-unmanaged" toPath)
-        regenerate.delete()
-      }
-    } else {
-      testFiles("unmanaged", "generated-unmanaged", _.unmanagedFiles)
-      testFiles("managed", "generated-managed", _.managedFiles)
-      testFiles("unmanaged test", "generated-test-unmanaged", _.unmanagedTestFiles)
-      testFiles("managed test", "generated-test-managed", _.managedTestFiles)
-      testFiles("unmanaged integration tests", "generated-integration-unmanaged", _.integrationTestFiles)
-    }
-  }
-
-  def assertFiles(expectedDir: File, actualGenerated: Seq[codegen.File]): Unit = {
-    val actual = actualGenerated.map(g => g.name -> g.content).toMap
-    val expectedFiles = expectedDir.walkFiles().toVector
-    val expectedNameSet = expectedFiles.map(_.getPath).toSet
-    val missing = expectedNameSet.diff(actual.keySet)
-    val extra = actual.keySet.diff(expectedNameSet)
-
-    assert(missing.isEmpty, s"Files should have been generated but are missing: [${missing.mkString(", ")}]")
-    assert(extra.isEmpty, s"Unexpected files were generated: [${extra.mkString(", ")}]")
-
-    expectedFiles.foreach { f =>
-      assertNoDiff(actual(f.getPath), Files.readString((expectedDir / f.getPath).toPath))
-    }
-  }
-}
-object ExampleSuite {
-  implicit class FileTools(val f: File) extends AnyVal {
-    def /(path: String): File = new File(f, path)
-    def byName(filter: String => Boolean): Seq[File] = f.listFiles(f => filter(f.getName)).toVector
-    import scala.collection.JavaConverters._
-    def walkFiles(): Iterator[File] = walk(_.isFile)
-    def walk(p: File => Boolean): Iterator[File] =
-      if (f.exists())
-        Files
-          .walk(f.toPath, FileVisitOption.FOLLOW_LINKS)
-          .map[File](_.toFile)
-          .filter(p(_))
-          .map[File] { sub =>
-            require(sub.getCanonicalPath.startsWith(f.getCanonicalPath))
-            new File(sub.getCanonicalPath.drop(f.getCanonicalPath.size + 1))
-          }
-          .iterator()
-          .asScala
-      else Iterator.empty
-  }
+  override def generateFiles(model: ModelBuilder.Model): GeneratedFiles =
+    SourceGenerator.generateFiles(model, "org.example.Main")
 }
