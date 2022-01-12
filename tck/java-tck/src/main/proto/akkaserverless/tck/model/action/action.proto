@@ -44,8 +44,8 @@ import "akkaserverless/annotations.proto";
 // - Forwarding and side effects must always be made to the second service `ActionTwo`.
 //
 service ActionTckModel {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {}
   };
 
   rpc ProcessUnary(Request) returns (Response) {
@@ -64,8 +64,8 @@ service ActionTckModel {
 // The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ActionTwo {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (akkaserverless.codegen) = {
+    action: {}
   };
 
   rpc Call(OtherRequest) returns (Response);

@@ -29,11 +29,6 @@ import "google/api/annotations.proto";
 
 import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 
-option (akkaserverless.file).value_entity = {
-  name: "ValueEntityTwoEntity"
-  entity_type: "value-entity-tck-model-two"
-  state: "Persisted"
-};
 
 //
 // The `ValueBasedTwo` service is only for verifying forward actions and side effects.
@@ -42,10 +37,12 @@ option (akkaserverless.file).value_entity = {
 // - The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ValueEntityTwo {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component: "ValueEntityTwoEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "ValueEntityTwoEntity"
+      entity_type: "value-entity-tck-model-two"
+      state: "Persisted"
+    }
   };
-
   rpc Call(Request) returns (Response);
 }

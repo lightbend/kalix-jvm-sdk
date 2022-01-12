@@ -52,20 +52,18 @@ service ViewTckModel {
   }
 }
 
-option (akkaserverless.file).value_entity = {
-  name: "ViewTckSourceEntity"
-  entity_type: "view-source"
-  state: "Ignore"
-};
 
 //
 // The `ViewTckSource` service should be registered as a Value Entity with entity type "view-source".
 // This is used as the configured event source for the ViewTckModel, but doesn't do anything itself.
 //
 service ViewTckSource {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_ENTITY
-    component: "ViewTckSourceEntity"
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "ViewTckSourceEntity"
+      entity_type: "view-source"
+      state: "Ignore"
+    }
   };
 }
 

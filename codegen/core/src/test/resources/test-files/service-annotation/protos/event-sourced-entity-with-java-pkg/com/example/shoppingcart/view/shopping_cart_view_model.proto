@@ -1,0 +1,74 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package com.example.shoppingcart.view;
+
+option java_outer_classname = "ShoppingCartViewModel";
+
+import "akkaserverless/annotations.proto";
+import "com/example/shoppingcart/domain/shoppingcart_domain.proto";
+
+service ShoppingCartViewService {
+  option (akkaserverless.service) = {
+    type : SERVICE_TYPE_VIEW
+  };
+
+  rpc ProcessAdded(com.example.shoppingcart.domain.ItemAdded) returns (CartViewState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "shopping-cart"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "carts"
+      transform_updates: true
+    };
+  }
+  rpc ProcessRemoved(com.example.shoppingcart.domain.ItemRemoved) returns (CartViewState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "shopping-cart"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "carts"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessCheckedOut(com.example.shoppingcart.domain.CheckedOut) returns (CartViewState) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "shopping-cart"
+    };
+    option (akkaserverless.method).view.update = {
+      table: "carts"
+      transform_updates: true
+    };
+  }
+
+
+  rpc GetCheckedOutCarts(GetCheckedOutCartsRequest) returns (stream CartViewState) {
+    option (akkaserverless.method).view.query = {
+      query: "select * from carts where checked_out_timestamp >= :timestamp"
+    };
+  }
+}
+
+message CartViewState {
+  string cart_id = 1;
+  int32 number_of_items = 2;
+  int64 checked_out_timestamp = 3;
+}
+
+message GetCheckedOutCartsRequest {
+  int64 timestamp = 1;
+}

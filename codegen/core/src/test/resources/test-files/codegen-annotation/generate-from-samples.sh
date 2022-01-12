@@ -35,7 +35,6 @@ protoc --include_imports \
 
 echo "Generated event-sourced-shoppingcart.desc"
 
-
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
 --proto_path="protos/view" \

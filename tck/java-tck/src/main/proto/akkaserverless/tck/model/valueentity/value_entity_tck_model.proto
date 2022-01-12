@@ -29,11 +29,6 @@ import "google/api/annotations.proto";
 
 import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 
-option (akkaserverless.file).value_entity = {
-  name: "ValueEntityTckModelEntity"
-  entity_type: "value-entity-tck-model"
-  state: "Persisted"
-};
 
 //
 // The `ValueEntityTckModel` service should be implemented in the following ways:
@@ -49,9 +44,13 @@ option (akkaserverless.file).value_entity = {
 // - Forwarding and side effects must always be made to the second service `ValueEntityTwo`.
 //
 service ValueEntityTckModel {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component: "ValueEntityTckModelEntity"
+
+  option (akkaserverless.codegen) = {
+    value_entity: {
+      name: "ValueEntityTckModelEntity"
+      entity_type: "value-entity-tck-model"
+      state: "Persisted"
+    }
   };
 
   rpc Process(Request) returns (Response) {

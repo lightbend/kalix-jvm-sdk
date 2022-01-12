@@ -613,7 +613,7 @@ object ModelBuilder {
         // if filled, we need to resolve the name
         // for example: pkg = foo.bar, name = baz.Qux
         // becomes: pkg = foo.bar.baz, name = Qux
-        val (resolvedPackage, resolvedName) = extractPackageAndName(serviceName.parent.protoPackage, name)
+        val (resolvedPackage, resolvedName) = extractPackageAndName(serviceName.parent.javaPackage, name)
         val descOpt = serviceName.descriptorObject.map { fqn =>
           fqn.copy(parent = fqn.parent.asJavaMultiFiles.changePackages(resolvedPackage))
         }

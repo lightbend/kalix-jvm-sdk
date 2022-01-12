@@ -28,6 +28,16 @@ echo "Generated event-sourced-shoppingcart.desc"
 
 protoc --include_imports \
 --proto_path="$1/protocols/sdk/src/main/protobuf" \
+--proto_path="protos/event-sourced-entity-with-java-pkg" \
+--descriptor_set_out=descriptor-sets/event-sourced-shoppingcart-with-java-pkg.desc \
+"protos/event-sourced-entity-with-java-pkg/com/example/shoppingcart/domain/shoppingcart_domain.proto" \
+"protos/event-sourced-entity-with-java-pkg/com/example/shoppingcart/shoppingcart_api.proto"
+
+echo "Generated event-sourced-shoppingcart-with-java-pkg.desc"
+
+
+protoc --include_imports \
+--proto_path="$1/protocols/sdk/src/main/protobuf" \
 --proto_path="protos/event-sourced-entity" \
 --descriptor_set_out=descriptor-sets/view-shoppingcart.desc \
 "protos/event-sourced-entity/com/example/shoppingcart/view/shopping_cart_view_model.proto" 

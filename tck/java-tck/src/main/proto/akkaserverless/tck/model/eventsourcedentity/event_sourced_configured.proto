@@ -27,13 +27,6 @@ option java_multiple_files = true;
 import "akkaserverless/annotations.proto";
 import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
 
-option (akkaserverless.file).event_sourced_entity = {
-  name: "EventSourcedConfiguredEntity"
-  entity_type: "event-sourced-configured"
-  state: "Persisted"
-  events: ["Persisted"]
-};
-
 
 //
 // The `EventSourcedConfigured` service is for testing entity configuration from the language support:
@@ -43,10 +36,14 @@ option (akkaserverless.file).event_sourced_entity = {
 // - The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service EventSourcedConfigured {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ENTITY
-    component: "EventSourcedConfiguredEntity"
+  option (akkaserverless.codegen) = {
+    event_sourced_entity: {
+      name: "EventSourcedConfiguredEntity"
+      entity_type: "event-sourced-configured"
+      state: "Persisted"
+      events: ["Persisted"]
+    }
   };
-
+  
   rpc Call(Request) returns (Response);
 }
