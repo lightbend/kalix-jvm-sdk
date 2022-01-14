@@ -1,7 +1,7 @@
 package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
-import org.example.service.example_action.MyServiceActionImpl
+import org.example.service.MyServiceActionImpl
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

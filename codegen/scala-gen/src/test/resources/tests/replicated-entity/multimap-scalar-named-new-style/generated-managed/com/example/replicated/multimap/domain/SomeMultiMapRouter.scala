@@ -5,7 +5,7 @@ import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import com.akkaserverless.scalasdk.replicatedentity.CommandContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap.multi_map_api
+import com.example.replicated.multimap
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -26,7 +26,7 @@ class SomeMultiMapRouter(entity: SomeMultiMap)
 
     commandName match {
       case "Put" =>
-        entity.put(data, command.asInstanceOf[multi_map_api.PutValue])
+        entity.put(data, command.asInstanceOf[multimap.PutValue])
 
       case _ =>
         throw new CommandHandlerNotFound(commandName)

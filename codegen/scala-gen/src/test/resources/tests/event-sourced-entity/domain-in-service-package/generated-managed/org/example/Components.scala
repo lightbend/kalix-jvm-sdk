@@ -20,9 +20,9 @@ trait Components {
 object Components{
 
  trait CounterCalls {
-   def increase(command: _root_.org.example.eventsourcedentity.counter_api.IncreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.counter_api.IncreaseValue, _root_.com.google.protobuf.empty.Empty]
+   def increase(command: _root_.org.example.eventsourcedentity.IncreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.IncreaseValue, _root_.com.google.protobuf.empty.Empty]
 
-   def decrease(command: _root_.org.example.eventsourcedentity.counter_api.DecreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.counter_api.DecreaseValue, _root_.com.google.protobuf.empty.Empty]
+   def decrease(command: _root_.org.example.eventsourcedentity.DecreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.DecreaseValue, _root_.com.google.protobuf.empty.Empty]
 
  }
 

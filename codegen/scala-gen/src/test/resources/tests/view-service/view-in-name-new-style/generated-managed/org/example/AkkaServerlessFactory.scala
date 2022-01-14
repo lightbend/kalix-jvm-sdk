@@ -2,8 +2,8 @@ package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
 import com.akkaserverless.scalasdk.view.ViewCreationContext
-import org.example.view.example_views.UserByNameViewImpl
-import org.example.view.example_views.UserByNameViewProvider
+import org.example.view.UserByNameViewImpl
+import org.example.view.UserByNameViewProvider
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

@@ -28,21 +28,21 @@ final class ComponentsImpl(context: InternalContext) extends Components {
 
 
  private final class CounterCallsImpl extends Components.CounterCalls {
-   override def increase(command: _root_.org.example.valueentity.counter_api.IncreaseValue): DeferredCall[_root_.org.example.valueentity.counter_api.IncreaseValue, _root_.com.google.protobuf.empty.Empty] =
+   override def increase(command: _root_.org.example.valueentity.IncreaseValue): DeferredCall[_root_.org.example.valueentity.IncreaseValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.valueentity.CounterService",
        "Increase",
-       () => getGrpcClient(classOf[_root_.org.example.valueentity.counter_api.CounterService]).increase(command)
+       () => getGrpcClient(classOf[_root_.org.example.valueentity.CounterService]).increase(command)
      )
-   override def decrease(command: _root_.org.example.valueentity.counter_api.DecreaseValue): DeferredCall[_root_.org.example.valueentity.counter_api.DecreaseValue, _root_.com.google.protobuf.empty.Empty] =
+   override def decrease(command: _root_.org.example.valueentity.DecreaseValue): DeferredCall[_root_.org.example.valueentity.DecreaseValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.valueentity.CounterService",
        "Decrease",
-       () => getGrpcClient(classOf[_root_.org.example.valueentity.counter_api.CounterService]).decrease(command)
+       () => getGrpcClient(classOf[_root_.org.example.valueentity.CounterService]).decrease(command)
      )
  }
 

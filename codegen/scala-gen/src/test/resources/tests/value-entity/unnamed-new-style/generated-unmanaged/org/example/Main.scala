@@ -1,7 +1,7 @@
 package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
-import org.example.valueentity.counter_api.CounterServiceEntity
+import org.example.valueentity.CounterServiceEntity
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

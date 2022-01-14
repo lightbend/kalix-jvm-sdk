@@ -5,7 +5,7 @@ import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap.multi_map_api
+import com.example.replicated.multimap
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
 
@@ -41,8 +41,8 @@ class SomeMultiMapProvider private (
     new SomeMultiMapRouter(entityFactory(context))
 
   override def serviceDescriptor: Descriptors.ServiceDescriptor =
-    multi_map_api.MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
+    multimap.MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
 
   override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    EmptyProto.javaDescriptor :: multi_map_api.MultiMapApiProto.javaDescriptor :: Nil
+    EmptyProto.javaDescriptor :: multimap.MultiMapApiProto.javaDescriptor :: Nil
 }

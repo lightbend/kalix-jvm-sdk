@@ -1,7 +1,7 @@
 package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
-import com.example.replicated.multimap.multi_map_api.MultiMapServiceEntity
+import com.example.replicated.multimap.MultiMapServiceEntity
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

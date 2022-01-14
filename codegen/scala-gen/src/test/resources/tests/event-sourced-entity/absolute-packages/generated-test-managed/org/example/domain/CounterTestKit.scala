@@ -9,8 +9,8 @@ import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommand
 import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
 import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
 import com.google.protobuf.empty.Empty
-import org.example.eventsourcedentity.counter_api
-import org.example.state.counter_state.CounterState
+import org.example.eventsourcedentity
+import org.example.state.CounterState
 
 import scala.collection.immutable.Seq
 
@@ -39,17 +39,17 @@ final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEf
 
   override protected def handleEvent(state: CounterState, event: Any): CounterState = {
     event match {
-      case e: org.example.events.counter_events.Increased =>
+      case e: org.example.events.Increased =>
         entity.increased(state, e)
 
-      case e: org.example.events.counter_events.Decreased =>
+      case e: org.example.events.Decreased =>
         entity.decreased(state, e)
     }
   }
 
-  def increase(command: counter_api.IncreaseValue): EventSourcedResult[Empty] =
+  def increase(command: eventsourcedentity.IncreaseValue): EventSourcedResult[Empty] =
     interpretEffects(() => entity.increase(currentState, command))
 
-  def decrease(command: counter_api.DecreaseValue): EventSourcedResult[Empty] =
+  def decrease(command: eventsourcedentity.DecreaseValue): EventSourcedResult[Empty] =
     interpretEffects(() => entity.decrease(currentState, command))
 }

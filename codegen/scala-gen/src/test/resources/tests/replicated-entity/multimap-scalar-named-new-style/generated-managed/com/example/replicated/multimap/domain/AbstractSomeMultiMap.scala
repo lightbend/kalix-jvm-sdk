@@ -3,7 +3,7 @@ package com.example.replicated.multimap.domain
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMapEntity
-import com.example.replicated.multimap.multi_map_api
+import com.example.replicated.multimap
 import com.google.protobuf.empty.Empty
 
 // This code is managed by Akka Serverless tooling.
@@ -14,6 +14,6 @@ import com.google.protobuf.empty.Empty
 abstract class AbstractSomeMultiMap extends ReplicatedMultiMapEntity[String, Double] {
 
   /** Command handler for "Put". */
-  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multi_map_api.PutValue): ReplicatedEntity.Effect[Empty]
+  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty]
 
 }

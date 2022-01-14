@@ -5,9 +5,7 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
-import org.example.eventsourcedentity.counter_api
-import org.example.eventsourcedentity.domain.counter_domain.CounterDomainProto
-import org.example.eventsourcedentity.domain.counter_domain.CounterState
+import org.example.eventsourcedentity
 
 import scala.collection.immutable.Seq
 
@@ -26,7 +24,7 @@ class CounterProvider private(entityFactory: EventSourcedEntityContext => Counte
     new CounterProvider(entityFactory, newOptions)
 
   override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-    counter_api.CounterApiProto.javaDescriptor.findServiceByName("CounterService")
+    eventsourcedentity.CounterApiProto.javaDescriptor.findServiceByName("CounterService")
 
   override final val entityType: String = "counter"
 
@@ -35,7 +33,7 @@ class CounterProvider private(entityFactory: EventSourcedEntityContext => Counte
 
   override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
     CounterDomainProto.javaDescriptor ::
-    counter_api.CounterApiProto.javaDescriptor ::
+    eventsourcedentity.CounterApiProto.javaDescriptor ::
     EmptyProto.javaDescriptor :: Nil
 }
 

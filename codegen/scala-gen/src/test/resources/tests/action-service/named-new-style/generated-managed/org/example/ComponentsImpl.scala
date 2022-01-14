@@ -28,13 +28,13 @@ final class ComponentsImpl(context: InternalContext) extends Components {
 
 
  private final class MyServiceNamedActionCallsImpl extends Components.MyServiceNamedActionCalls {
-   override def simpleMethod(command: _root_.org.example.service.example_action.MyRequest): DeferredCall[_root_.org.example.service.example_action.MyRequest, _root_.com.google.protobuf.empty.Empty] =
+   override def simpleMethod(command: _root_.org.example.service.MyRequest): DeferredCall[_root_.org.example.service.MyRequest, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.service.MyService",
        "simpleMethod",
-       () => getGrpcClient(classOf[_root_.org.example.service.example_action.MyService]).simpleMethod(command)
+       () => getGrpcClient(classOf[_root_.org.example.service.MyService]).simpleMethod(command)
      )
  }
 

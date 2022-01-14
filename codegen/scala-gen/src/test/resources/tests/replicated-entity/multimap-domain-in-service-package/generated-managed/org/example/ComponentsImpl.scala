@@ -28,13 +28,13 @@ final class ComponentsImpl(context: InternalContext) extends Components {
 
 
  private final class SomeMultiMapCallsImpl extends Components.SomeMultiMapCalls {
-   override def put(command: _root_.com.example.replicated.multimap.multi_map_api.PutValue): DeferredCall[_root_.com.example.replicated.multimap.multi_map_api.PutValue, _root_.com.google.protobuf.empty.Empty] =
+   override def put(command: _root_.com.example.replicated.multimap.PutValue): DeferredCall[_root_.com.example.replicated.multimap.PutValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "com.example.replicated.multimap.MultiMapService",
        "Put",
-       () => getGrpcClient(classOf[_root_.com.example.replicated.multimap.multi_map_api.MultiMapService]).put(command)
+       () => getGrpcClient(classOf[_root_.com.example.replicated.multimap.MultiMapService]).put(command)
      )
  }
 
