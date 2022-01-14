@@ -27,7 +27,7 @@ class ExampleSuite extends ExampleSuiteBase {
 
   override def createFQNExtractor(
       fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor =
-    new FullyQualifiedNameExtractor(new DescriptorImplicits(GeneratorParams(), fileDescriptors))
+    new FullyQualifiedNameExtractor(new DescriptorImplicits(GeneratorParams(flatPackage = true), fileDescriptors))
 
   override def generateFiles(model: ModelBuilder.Model): GeneratedFiles =
     SourceGenerator.generateFiles(model, Some("org.example"))
