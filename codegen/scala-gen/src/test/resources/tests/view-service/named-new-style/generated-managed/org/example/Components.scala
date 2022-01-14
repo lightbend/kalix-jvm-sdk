@@ -20,7 +20,7 @@ trait Components {
 object Components{
 
  trait MyUserByNameViewCalls {
-   def getUserByName(command: _root_.org.example.named.view.example_named_views.ByNameRequest): DeferredCall[_root_.org.example.named.view.example_named_views.ByNameRequest, _root_.org.example.named.view.example_named_views.UserResponse]
+   def getUserByName(command: _root_.org.example.named.view.ByNameRequest): DeferredCall[_root_.org.example.named.view.ByNameRequest, _root_.org.example.named.view.UserResponse]
 
  }
 

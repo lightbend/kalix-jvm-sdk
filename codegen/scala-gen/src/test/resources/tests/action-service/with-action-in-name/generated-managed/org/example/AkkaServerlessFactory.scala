@@ -2,8 +2,8 @@ package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
 import com.akkaserverless.scalasdk.action.ActionCreationContext
-import org.example.service.example_action.MyServiceActionImpl
-import org.example.service.example_action.MyServiceActionProvider
+import org.example.service.MyServiceActionImpl
+import org.example.service.MyServiceActionProvider
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

@@ -3,8 +3,8 @@ package org.example.domain
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
-import org.example.eventsourcedentity.counter_api
-import org.example.state.counter_state.CounterState
+import org.example.eventsourcedentity
+import org.example.state.CounterState
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -31,12 +31,12 @@ class CounterSpec extends AnyWordSpec with Matchers {
 
     "correctly process commands of type Increase" in {
       val testKit = CounterTestKit(new Counter(_))
-      // val result: EventSourcedResult[Empty] = testKit.increase(counter_api.IncreaseValue(...))
+      // val result: EventSourcedResult[Empty] = testKit.increase(eventsourcedentity.IncreaseValue(...))
     }
 
     "correctly process commands of type Decrease" in {
       val testKit = CounterTestKit(new Counter(_))
-      // val result: EventSourcedResult[Empty] = testKit.decrease(counter_api.DecreaseValue(...))
+      // val result: EventSourcedResult[Empty] = testKit.decrease(eventsourcedentity.DecreaseValue(...))
     }
   }
 }

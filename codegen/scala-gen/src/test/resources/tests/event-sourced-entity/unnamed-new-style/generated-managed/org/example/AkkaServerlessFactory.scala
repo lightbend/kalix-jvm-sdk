@@ -2,8 +2,8 @@ package org.example
 
 import com.akkaserverless.scalasdk.AkkaServerless
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import org.example.eventsourcedentity.counter_api.CounterServiceEntity
-import org.example.eventsourcedentity.counter_api.CounterServiceEntityProvider
+import org.example.eventsourcedentity.CounterServiceEntity
+import org.example.eventsourcedentity.CounterServiceEntityProvider
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

@@ -3,7 +3,7 @@ package org.example.valueentity
 import com.akkaserverless.scalasdk.testkit.ValueEntityResult
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
-import org.example.valueentity.counter_domain.CounterState
+import org.example.valueentity
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -27,12 +27,12 @@ class CounterSpec
 
     "handle command Increase" in {
       val testKit = CounterTestKit(new Counter(_))
-      // val result = testKit.increase(org.example.valueentity.counter_api.IncreaseValue(...))
+      // val result = testKit.increase(IncreaseValue(...))
     }
 
     "handle command Decrease" in {
       val testKit = CounterTestKit(new Counter(_))
-      // val result = testKit.decrease(org.example.valueentity.counter_api.DecreaseValue(...))
+      // val result = testKit.decrease(DecreaseValue(...))
     }
 
   }

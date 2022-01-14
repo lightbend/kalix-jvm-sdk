@@ -20,7 +20,7 @@ trait Components {
 object Components{
 
  trait SomeMultiMapCalls {
-   def put(command: _root_.com.example.replicated.multimap.multi_map_api.PutValue): DeferredCall[_root_.com.example.replicated.multimap.multi_map_api.PutValue, _root_.com.google.protobuf.empty.Empty]
+   def put(command: _root_.com.example.replicated.multimap.PutValue): DeferredCall[_root_.com.example.replicated.multimap.PutValue, _root_.com.google.protobuf.empty.Empty]
 
  }
 

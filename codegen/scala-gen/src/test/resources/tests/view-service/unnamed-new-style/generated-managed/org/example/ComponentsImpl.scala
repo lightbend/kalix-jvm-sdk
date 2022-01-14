@@ -28,13 +28,13 @@ final class ComponentsImpl(context: InternalContext) extends Components {
 
 
  private final class UserByNameViewCallsImpl extends Components.UserByNameViewCalls {
-   override def getUserByName(command: _root_.org.example.unnamed.view.example_unnamed_views.ByNameRequest): DeferredCall[_root_.org.example.unnamed.view.example_unnamed_views.ByNameRequest, _root_.org.example.unnamed.view.example_unnamed_views.UserResponse] =
+   override def getUserByName(command: _root_.org.example.unnamed.view.ByNameRequest): DeferredCall[_root_.org.example.unnamed.view.ByNameRequest, _root_.org.example.unnamed.view.UserResponse] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.unnamed.view.UserByName",
        "GetUserByName",
-       () => getGrpcClient(classOf[_root_.org.example.unnamed.view.example_unnamed_views.UserByName]).getUserByName(command)
+       () => getGrpcClient(classOf[_root_.org.example.unnamed.view.UserByName]).getUserByName(command)
      )
  }
 

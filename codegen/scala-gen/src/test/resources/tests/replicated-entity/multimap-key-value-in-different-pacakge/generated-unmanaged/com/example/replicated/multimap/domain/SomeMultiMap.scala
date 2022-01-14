@@ -3,9 +3,9 @@ package com.example.replicated.multimap.domain
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap.domain.key.multi_map_key.SomeKey
-import com.example.replicated.multimap.domain.value.multi_map_value.SomeValue
-import com.example.replicated.multimap.multi_map_api
+import com.example.replicated.multimap
+import com.example.replicated.multimap.domain.key.SomeKey
+import com.example.replicated.multimap.domain.value.SomeValue
 import com.google.protobuf.empty.Empty
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -18,7 +18,7 @@ class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMa
 
 
   /** Command handler for "Put". */
-  def put(currentData: ReplicatedMultiMap[SomeKey, SomeValue], putValue: multi_map_api.PutValue): ReplicatedEntity.Effect[Empty] =
+  def put(currentData: ReplicatedMultiMap[SomeKey, SomeValue], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] =
     effects.error("The command handler for `Put` is not implemented, yet")
 
 }

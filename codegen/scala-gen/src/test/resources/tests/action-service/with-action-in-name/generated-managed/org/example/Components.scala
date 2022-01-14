@@ -20,7 +20,7 @@ trait Components {
 object Components{
 
  trait MyServiceActionImplCalls {
-   def simpleMethod(command: _root_.org.example.service.example_action.MyRequest): DeferredCall[_root_.org.example.service.example_action.MyRequest, _root_.com.google.protobuf.empty.Empty]
+   def simpleMethod(command: _root_.org.example.service.MyRequest): DeferredCall[_root_.org.example.service.MyRequest, _root_.com.google.protobuf.empty.Empty]
 
  }
 

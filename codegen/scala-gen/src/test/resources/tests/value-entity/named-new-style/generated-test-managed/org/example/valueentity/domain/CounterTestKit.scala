@@ -6,8 +6,7 @@ import com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.google.protobuf.empty.Empty
-import org.example.valueentity.counter_api
-import org.example.valueentity.domain.counter_domain.CounterState
+import org.example.valueentity
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -51,12 +50,12 @@ final class CounterTestKit private(entity: Counter) {
     result
   }
 
-  def increase(command: counter_api.IncreaseValue): ValueEntityResult[Empty] = {
+  def increase(command: valueentity.IncreaseValue): ValueEntityResult[Empty] = {
     val effect = entity.increase(state, command)
     interpretEffects(effect)
   }
 
-  def decrease(command: counter_api.DecreaseValue): ValueEntityResult[Empty] = {
+  def decrease(command: valueentity.DecreaseValue): ValueEntityResult[Empty] = {
     val effect = entity.decrease(state, command)
     interpretEffects(effect)
   }

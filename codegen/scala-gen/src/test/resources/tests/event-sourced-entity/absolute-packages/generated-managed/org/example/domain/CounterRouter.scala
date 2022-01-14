@@ -5,10 +5,10 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRout
 import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
-import org.example.events.counter_events.Decreased
-import org.example.events.counter_events.Increased
-import org.example.eventsourcedentity.counter_api
-import org.example.state.counter_state.CounterState
+import org.example.events.Decreased
+import org.example.events.Increased
+import org.example.eventsourcedentity
+import org.example.state.CounterState
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -22,10 +22,10 @@ class CounterRouter(entity: Counter) extends EventSourcedEntityRouter[CounterSta
   def handleCommand(commandName: String, state: CounterState, command: Any, context: CommandContext): EventSourcedEntity.Effect[_] = {
     commandName match {
       case "Increase" =>
-        entity.increase(state, command.asInstanceOf[counter_api.IncreaseValue])
+        entity.increase(state, command.asInstanceOf[eventsourcedentity.IncreaseValue])
 
       case "Decrease" =>
-        entity.decrease(state, command.asInstanceOf[counter_api.DecreaseValue])
+        entity.decrease(state, command.asInstanceOf[eventsourcedentity.DecreaseValue])
 
       case _ =>
         throw new CommandHandlerNotFound(commandName)

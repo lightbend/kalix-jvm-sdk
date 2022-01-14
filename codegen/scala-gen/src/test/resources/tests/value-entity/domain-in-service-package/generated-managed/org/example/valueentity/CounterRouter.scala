@@ -4,7 +4,7 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHand
 import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter
 import com.akkaserverless.scalasdk.valueentity.CommandContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import org.example.valueentity.counter_domain.CounterState
+import org.example.valueentity
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -18,10 +18,10 @@ class CounterRouter(entity: Counter) extends ValueEntityRouter[CounterState, Cou
   def handleCommand(commandName: String, state: CounterState, command: Any, context: CommandContext): ValueEntity.Effect[_] = {
     commandName match {
       case "Increase" =>
-        entity.increase(state, command.asInstanceOf[org.example.valueentity.counter_api.IncreaseValue])
+        entity.increase(state, command.asInstanceOf[IncreaseValue])
 
       case "Decrease" =>
-        entity.decrease(state, command.asInstanceOf[org.example.valueentity.counter_api.DecreaseValue])
+        entity.decrease(state, command.asInstanceOf[DecreaseValue])
 
       case _ =>
         throw new CommandHandlerNotFound(commandName)

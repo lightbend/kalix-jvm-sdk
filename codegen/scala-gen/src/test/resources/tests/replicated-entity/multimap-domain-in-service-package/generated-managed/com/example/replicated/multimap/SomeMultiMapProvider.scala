@@ -5,7 +5,7 @@ import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap.multi_map_domain.MultiMapDomainProto
+import com.example.replicated.multimap
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
 
@@ -33,7 +33,7 @@ object SomeMultiMapProvider {
 class SomeMultiMapProvider private (
     entityFactory: ReplicatedEntityContext => SomeMultiMap,
     override val options: ReplicatedEntityOptions)
-    extends ReplicatedEntityProvider[ReplicatedMultiMap[com.example.replicated.multimap.multi_map_domain.SomeKey, com.example.replicated.multimap.multi_map_domain.SomeValue], SomeMultiMap] {
+    extends ReplicatedEntityProvider[ReplicatedMultiMap[SomeKey, SomeValue], SomeMultiMap] {
 
   override def entityType: String = "some-multi-map"
 
@@ -41,8 +41,8 @@ class SomeMultiMapProvider private (
     new SomeMultiMapRouter(entityFactory(context))
 
   override def serviceDescriptor: Descriptors.ServiceDescriptor =
-    com.example.replicated.multimap.multi_map_api.MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
+    MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
 
   override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    EmptyProto.javaDescriptor :: MultiMapDomainProto.javaDescriptor :: com.example.replicated.multimap.multi_map_api.MultiMapApiProto.javaDescriptor :: Nil
+    EmptyProto.javaDescriptor :: MultiMapApiProto.javaDescriptor :: MultiMapDomainProto.javaDescriptor :: Nil
 }

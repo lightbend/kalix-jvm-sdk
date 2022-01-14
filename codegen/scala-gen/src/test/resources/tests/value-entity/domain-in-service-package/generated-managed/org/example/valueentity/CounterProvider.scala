@@ -5,8 +5,7 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
-import org.example.valueentity.counter_domain.CounterDomainProto
-import org.example.valueentity.counter_domain.CounterState
+import org.example.valueentity
 
 import scala.collection.immutable.Seq
 
@@ -25,7 +24,7 @@ class CounterProvider private(entityFactory: ValueEntityContext => Counter, over
     new CounterProvider(entityFactory, newOptions)
 
   override final val serviceDescriptor: Descriptors.ServiceDescriptor =
-    org.example.valueentity.counter_api.CounterApiProto.javaDescriptor.findServiceByName("CounterService")
+    CounterApiProto.javaDescriptor.findServiceByName("CounterService")
 
   override final val entityType = "counter"
 
@@ -34,7 +33,7 @@ class CounterProvider private(entityFactory: ValueEntityContext => Counter, over
 
   override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
     CounterDomainProto.javaDescriptor ::
-    org.example.valueentity.counter_api.CounterApiProto.javaDescriptor ::
+    CounterApiProto.javaDescriptor ::
     EmptyProto.javaDescriptor :: Nil
 }
 
