@@ -231,15 +231,24 @@ jobs:
     description: "Compile Test Projects from Example Suite (Java)"
     steps:
       - checkout-and-merge-to-main
-      - restore_deps_cache
       - setup_sbt
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
+      - restore_deps_cache
       - run:
             name: Compile test projects from ExampleSuite (Java)
-            # this is for now defined as a script because it will help running it locally
-            command: ./bin/compile-example-suite-java.sh
+            command: sbt -Dexample.suite.java.enabled codegenJavaCompilationExampleSuite/compile
+      - save_deps_cache
+
+  compile-example-suite-scala: 
+    machine: true
+    description: "Compile Test Projects from Example Suite (Scala)"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      - run:
+            name: Compile test projects from ExampleSuite (Scala)
+            command: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
+      - save_deps_cache      
 
   verify-all-samples-tested:
     machine: true
@@ -909,7 +918,10 @@ workflows:
       - compile-example-suite-java:
           requires:
             - checks
-            - publish-local
+
+      - compile-example-suite-scala:
+          requires:
+            - checks
 
       - maven-java-tests:
           requires:
