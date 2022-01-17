@@ -339,7 +339,7 @@ lazy val codegenJavaCompilationExampleSuite: CompositeProject =
       val innerProjects = findProjects.map { case (dir, name) =>
         Project("test-java" + name, dir)
           .dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
-          .disablePlugins(HeaderPlugin)
+          .disablePlugins(HeaderPlugin, JavaFormatterPlugin)
           .settings(
             Compile / unmanagedSourceDirectories ++= Seq("generated-managed", "generated-unmanaged").map(
               baseDirectory.value / _),
