@@ -332,51 +332,22 @@ lazy val codegenScalaCompilationTest = project
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val codegenJavaCompilationExampleSuite: CompositeProject =
-  if (sys.props.contains("example.suite.java.enabled")) {
-    new ExampleSuiteCompilationProject {
-      val name = "codegenJavaCompilationExampleSuite"
-      val pathToTests = "codegen/java-gen/src/test/resources/tests"
-      val innerProjects = findProjects.map { case (dir, name) =>
-        Project("test-java" + name, dir)
-          .dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
-          .disablePlugins(HeaderPlugin, JavaFormatterPlugin)
-          .settings(
-            Compile / unmanagedSourceDirectories ++= Seq("generated-managed", "generated-unmanaged").map(
-              baseDirectory.value / _),
-            Test / unmanagedSourceDirectories ++= Seq("generated-test-managed", "generated-test-unmanaged").map(
-              baseDirectory.value / _),
-            Compile / PB.protoSources += baseDirectory.value / "proto",
-            akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
-          .enablePlugins(ProtocPlugin, AkkaGrpcPlugin)
-      }
-    }
-  } else {
-    ExampleSuiteCompilationProject.empty
+  ExampleSuiteCompilationProject.compilationProject("java", "codegen/java-gen/src/test/resources/tests") {
+    testProject =>
+      testProject
+        .dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
+        .settings(akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
   }
 
 lazy val codegenScalaCompilationExampleSuite: CompositeProject =
-  if (sys.props.contains("example.suite.scala.enabled")) {
-    new ExampleSuiteCompilationProject {
-      override val name = "codegenScalaCompilationExampleSuite"
-      val pathToTests = "codegen/scala-gen/src/test/resources/tests"
-      val innerProjects = findProjects.map { case (dir, name) =>
-        Project("test-scala" + name, dir)
-          .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
-          .disablePlugins(HeaderPlugin, ScalafmtPlugin)
-          .settings(
-            Compile / unmanagedSourceDirectories ++= Seq("generated-managed", "generated-unmanaged").map(
-              baseDirectory.value / _),
-            Test / unmanagedSourceDirectories ++= Seq("generated-test-managed", "generated-test-unmanaged").map(
-              baseDirectory.value / _),
-            Compile / PB.protoSources += baseDirectory.value / "proto",
-            akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-            akkaGrpcCodeGeneratorSettings += "flat_package",
-            libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
-          .enablePlugins(ProtocPlugin, AkkaGrpcPlugin)
-      }
-    }
-  } else {
-    ExampleSuiteCompilationProject.empty
+  ExampleSuiteCompilationProject.compilationProject("scala", "codegen/scala-gen/src/test/resources/tests") {
+    testProject =>
+      testProject
+        .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
+        .settings(
+          akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+          akkaGrpcCodeGeneratorSettings += "flat_package",
+          libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
   }
 
 lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
