@@ -25,6 +25,7 @@ option java_package = "com.akkaserverless.tck.model.view";
 //option java_multiple_files = true;
 //option java_outer_classname = "ViewModel";
 
+import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
 //
@@ -46,8 +47,15 @@ service ViewTckModel {
       value_entity: "view-source"
     };
     option (akkaserverless.method).view.update = {
-      table: "view-model"
+      table: "view_model"
       transform_updates: true
+    };
+  }
+
+  // not really used but needed for the service to be valid
+  rpc DummyQuery(google.protobuf.Empty) returns (stream ViewState) {
+    option (akkaserverless.method).view.query = {
+      query: "SELECT * FROM view_model"
     };
   }
 }
