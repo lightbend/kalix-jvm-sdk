@@ -332,20 +332,17 @@ lazy val codegenScalaCompilationTest = project
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val codegenJavaCompilationExampleSuite: CompositeProject =
-  ExampleSuiteCompilationProject.compilationProject("java", "codegen/java-gen/src/test/resources/tests") {
+  ExampleSuiteCompilationProject.compilationProject(AkkaGrpc.Java, "codegen/java-gen/src/test/resources/tests") {
     testProject =>
-      testProject
-        .dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
-        .settings(akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
+      testProject.dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
   }
 
 lazy val codegenScalaCompilationExampleSuite: CompositeProject =
-  ExampleSuiteCompilationProject.compilationProject("scala", "codegen/scala-gen/src/test/resources/tests") {
+  ExampleSuiteCompilationProject.compilationProject(AkkaGrpc.Scala, "codegen/scala-gen/src/test/resources/tests") {
     testProject =>
       testProject
         .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
         .settings(
-          akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
           akkaGrpcCodeGeneratorSettings += "flat_package",
           libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
   }
