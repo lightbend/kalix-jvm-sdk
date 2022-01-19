@@ -217,6 +217,7 @@ lazy val codegenJava =
     .dependsOn(codegenCore % "compile->compile;test->test")
     .enablePlugins(PublishSonatype)
     .settings(
+      Test / fork := false, // needed to pass -D properties to ExampleSuite
       // to provide access to protoc to tests
       Test / buildInfoPackage := "com.lightbend.akkasls.codegen.java",
       Test / buildInfoKeys := Seq(
@@ -299,6 +300,7 @@ lazy val codegenScala =
     .settings(
       name := "akkaserverless-codegen-scala",
       scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+      Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
         name,
         organization,

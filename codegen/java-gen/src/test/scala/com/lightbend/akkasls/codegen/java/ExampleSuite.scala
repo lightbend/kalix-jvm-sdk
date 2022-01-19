@@ -20,12 +20,18 @@ import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.{ ExampleSuiteBase, GeneratedFiles, ModelBuilder }
 
 class ExampleSuite extends ExampleSuiteBase {
+
   def regenerateAll: Boolean = false
+
   lazy val BuildInfo = com.lightbend.akkasls.codegen.java.BuildInfo
+
+  override def propertyPath: String = "example.suite.java.regenerate"
+
   override def createFQNExtractor(
       fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor =
     FullyQualifiedNameExtractor
 
   override def generateFiles(model: ModelBuilder.Model): GeneratedFiles =
     SourceGenerator.generateFiles(model, "org.example.Main")
+
 }
