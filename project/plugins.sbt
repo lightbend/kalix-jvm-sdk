@@ -1,6 +1,6 @@
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.8.1")
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
-addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.2")
+addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.3")
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.7.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.5")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.6.0")
