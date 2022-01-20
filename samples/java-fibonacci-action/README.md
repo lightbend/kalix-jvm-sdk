@@ -42,13 +42,13 @@ For further details see [Running a service locally](https://developer.lightbend.
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.akkaserverless.dev/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/fibonacci.Fibonacci/NextNumber -d '{"value": 5 }'
+curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.fibonacci.Fibonacci/NextNumber -d '{"value": 5 }'
 ```
 
 Or, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-grpcurl -plaintext -d '{"value": 5 }' localhost:9000 fibonacci.Fibonacci/NextNumber
+grpcurl -plaintext -d '{"value": 5 }' localhost:9000 com.example.fibonacci.Fibonacci/NextNumber
 ```
 
 ## Deploying
