@@ -62,7 +62,7 @@ object Dependencies {
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
-  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.2"
+  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.3"
 
   private val deps = libraryDependencies
 
