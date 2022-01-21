@@ -48,7 +48,8 @@ abstract class ValueEntityRouter[S, E <: ValueEntity[S]](protected val entity: E
       // null is allowed as emptyState
       state = Some(emptyState)
       emptyState
-    case Some(state) => state
+    case Some(state) =>
+      state
   }
 
   /** INTERNAL API */

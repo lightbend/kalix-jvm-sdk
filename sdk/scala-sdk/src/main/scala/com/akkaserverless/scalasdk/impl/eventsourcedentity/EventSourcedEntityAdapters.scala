@@ -37,12 +37,14 @@ import com.akkaserverless.scalasdk.impl.InternalContext
 import com.akkaserverless.scalasdk.impl.MetadataConverters
 import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
 import com.google.protobuf.Descriptors
-
 import java.util.Optional
+
 import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
+
+import com.akkaserverless.javasdk.impl.Serializer
 
 private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
     extends JavaSdkEventSourcedEntity[S] {
@@ -77,6 +79,8 @@ private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: Even
 
   def options(): JavaSdkEventSourcedEntityOptions = new JavaEventSourcedEntityOptionsAdapter(scalaSdkProvider.options)
   def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
+
+  override def serializer(): Serializer = Serializer.noopSerializer
 }
 
 private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(

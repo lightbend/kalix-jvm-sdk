@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.example.replicatedentity.shoppingcart.ShoppingCartApi;
 import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Descriptors;
@@ -72,5 +73,10 @@ public class CartEntityProvider
       ShoppingCartDomain.getDescriptor(),
       EmptyProto.getDescriptor()
     };
+  }
+
+  @Override
+  public Serializer serializer() {
+    return Serializer.noopSerializer();
   }
 }

@@ -45,10 +45,11 @@ import org.scalatest.Inside
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
+
+import com.akkaserverless.javasdk.impl.Serializer
 
 class ActionRouterSpec
     extends ScalaTestWithActorTestKit
@@ -65,7 +66,10 @@ class ActionRouterSpec
   private val serviceDescriptor =
     ActionspecApi.getDescriptor.findServiceByName("ActionSpecService")
   private val serviceName = serviceDescriptor.getFullName
-  private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
+  private val anySupport = new AnySupport(
+    Array(ActionspecApi.getDescriptor),
+    this.getClass.getClassLoader,
+    serializer = Serializer.noopSerializer)
 
   def create(handler: ActionRouter[_]): Actions = {
     val service = new ActionService(_ => handler, serviceDescriptor, anySupport)

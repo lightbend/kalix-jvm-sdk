@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.eventsourcedentity;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Descriptors;
@@ -74,5 +75,10 @@ public class CartEntityProvider
       ShoppingCartDomain.getDescriptor(),
       EmptyProto.getDescriptor()
     };
+  }
+
+  @Override
+  public Serializer serializer() {
+    return Serializer.noopSerializer();
   }
 }

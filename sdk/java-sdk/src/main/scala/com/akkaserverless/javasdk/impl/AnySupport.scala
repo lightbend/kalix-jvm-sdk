@@ -16,11 +16,18 @@
 
 package com.akkaserverless.javasdk.impl
 
+import java.io.ByteArrayOutputStream
+import java.util.Locale
+
+import scala.collection.concurrent.TrieMap
+import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
+import scala.util.Try
+
 import com.akkaserverless.javasdk.JsonSupport
 import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Java
 import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Scala
 import com.google.common.base.CaseFormat
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
 import com.google.protobuf.CodedOutputStream
@@ -28,18 +35,12 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.Parser
 import com.google.protobuf.UnsafeByteOperations
 import com.google.protobuf.WireFormat
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import org.slf4j.LoggerFactory
-import scalapb.options.Scalapb
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
-
-import java.io.ByteArrayOutputStream
-import java.util.Locale
-import scala.collection.concurrent.TrieMap
-import scala.jdk.CollectionConverters._
-import scala.reflect.ClassTag
-import scala.util.Try
+import scalapb.options.Scalapb
 
 object AnySupport {
 
@@ -195,7 +196,8 @@ class AnySupport(
     descriptors: Array[Descriptors.FileDescriptor],
     classLoader: ClassLoader,
     typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
-    prefer: AnySupport.Prefer = AnySupport.Prefer.Java) {
+    prefer: AnySupport.Prefer = AnySupport.Prefer.Java,
+    serializer: Serializer) {
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
 
@@ -352,8 +354,9 @@ class AnySupport(
 
   def encodeScala(value: Any): ScalaPbAny =
     value match {
-      case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
-      case scalaPbAny: ScalaPbAny => scalaPbAny
+      case any if serializer.canSerialize(any) => ScalaPbAny.fromJavaProto(serializer.serialize(any))
+      case javaPbAny: JavaPbAny                => ScalaPbAny.fromJavaProto(javaPbAny)
+      case scalaPbAny: ScalaPbAny              => scalaPbAny
 
       // these are all generated message so needs to go before GeneratedMessage,
       // but we encode them inside Any just like regular message, we just need to get the type_url right
@@ -379,7 +382,7 @@ class AnySupport(
 
       case null =>
         throw SerializationException(
-          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
+          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
 
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
@@ -390,7 +393,7 @@ class AnySupport(
 
       case other =>
         throw SerializationException(
-          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
+          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
     }
 
   /**
@@ -421,7 +424,11 @@ class AnySupport(
    */
   def decodeMessage(any: ScalaPbAny): Any = {
     val typeUrl = any.typeUrl
-    if (typeUrl.equals(BytesPrimitive.fullName)) {
+    val javaPbAny = ScalaPbAny.toJavaProto(any)
+
+    if (serializer.canDeserialize(javaPbAny)) {
+      serializer.deserialize(javaPbAny)
+    } else if (typeUrl.equals(BytesPrimitive.fullName)) {
       // raw byte strings we turn into BytesValue and expect service method to accept
       val bytes = bytesToPrimitive(BytesPrimitive, any.value)
       if (prefer == PREFER_JAVA)
@@ -442,7 +449,7 @@ class AnySupport(
       // decide which json type to try decode it into etc. based on the type_url which
       // may have additional detail about what it can be JSON-deserialized into
       if (prefer == PREFER_JAVA)
-        ScalaPbAny.toJavaProto(any)
+        javaPbAny
       else
         any
 
