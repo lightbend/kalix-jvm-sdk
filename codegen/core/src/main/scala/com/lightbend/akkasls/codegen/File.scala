@@ -27,6 +27,7 @@ case class GeneratedFiles(
     managedTestFiles: Seq[File],
     unmanagedTestFiles: Seq[File],
     integrationTestFiles: Seq[File]) {
+
   def write(
       managedSourceDirectory: Path,
       unmanagedSourceDirectory: Path,
@@ -38,6 +39,18 @@ case class GeneratedFiles(
     managedTestFiles.map(_.writeToDirectory(managedTestSourceDirectory, onlyIfMissing = false)) ++
     unmanagedTestFiles.map(_.writeToDirectory(unmanagedTestSourceDirectory, onlyIfMissing = true)) ++
     integrationTestFiles.map(_.writeToDirectory(unmanagedIntegrationTestSourceDirectory, onlyIfMissing = true))
+
+  def overwrite(
+      managedSourceDirectory: Path,
+      unmanagedSourceDirectory: Path,
+      managedTestSourceDirectory: Path,
+      unmanagedTestSourceDirectory: Path,
+      unmanagedIntegrationTestSourceDirectory: Path): Iterable[Path] =
+    managedFiles.map(_.writeToDirectory(managedSourceDirectory, onlyIfMissing = false)) ++
+    unmanagedFiles.map(_.writeToDirectory(unmanagedSourceDirectory, onlyIfMissing = false)) ++
+    managedTestFiles.map(_.writeToDirectory(managedTestSourceDirectory, onlyIfMissing = false)) ++
+    unmanagedTestFiles.map(_.writeToDirectory(unmanagedTestSourceDirectory, onlyIfMissing = false)) ++
+    integrationTestFiles.map(_.writeToDirectory(unmanagedIntegrationTestSourceDirectory, onlyIfMissing = false))
 
   def addManaged(file: File): GeneratedFiles =
     copy(managedFiles = managedFiles :+ file)

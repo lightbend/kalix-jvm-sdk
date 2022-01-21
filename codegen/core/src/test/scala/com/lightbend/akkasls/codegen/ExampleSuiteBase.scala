@@ -33,8 +33,8 @@ package com.lightbend.akkasls.codegen
  */
 
 import com.google.protobuf.Descriptors
-
 import java.nio.file.{ FileVisitOption, Files }
+
 import scala.sys.process._
 
 abstract class ExampleSuiteBase extends munit.FunSuite {
@@ -44,6 +44,15 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
   def createFQNExtractor(fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor
   def generateFiles(model: ModelBuilder.Model): GeneratedFiles
   def regenerateAll: Boolean
+
+  def propertyPath: String
+
+  def regenerate(testDir: java.io.File): Boolean =
+    sys.props.get(propertyPath) match {
+      case Some("all") => true
+      case Some(node)  => testDir.toString.contains(node)
+      case None        => false
+    }
 
   implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
     override def debug(message: String): Unit = println(s"[DEBUG] $message")
@@ -58,7 +67,6 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
 
   tests.foreach { testDirUnresolved =>
     val testDir = testsDir.toPath.resolve(testDirUnresolved.toPath).toFile
-    val regenerate = testDir / "regenerate"
 
     val protoDir = testDir / "proto"
     val protos = protoDir.byName(_.endsWith(".proto"))
@@ -79,16 +87,15 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
         assertFiles(testDir / dir, fileSet(files))
       }
 
-    if (regenerateAll || regenerate.exists) {
+    if (regenerate(testDir)) {
       test(s"${testDir.getName} / first run: generating target files") {
         import scala.language.postfixOps
-        files.write(
+        files.overwrite(
           testDir / "generated-managed" toPath,
           testDir / "generated-unmanaged" toPath,
           testDir / "generated-test-managed" toPath,
           testDir / "generated-test-unmanaged" toPath,
           testDir / "generated-integration-unmanaged" toPath)
-        regenerate.delete()
       }
     } else {
       testFiles("unmanaged", "generated-unmanaged", _.unmanagedFiles)

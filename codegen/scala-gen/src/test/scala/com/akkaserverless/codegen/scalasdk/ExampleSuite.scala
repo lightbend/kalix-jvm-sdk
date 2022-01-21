@@ -22,8 +22,12 @@ import com.lightbend.akkasls.codegen.{ ExampleSuiteBase, GeneratedFiles, ModelBu
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
 class ExampleSuite extends ExampleSuiteBase {
+
   def regenerateAll: Boolean = false
+
   lazy val BuildInfo = com.akkaserverless.codegen.scalasdk.BuildInfo
+
+  override def propertyPath: String = "example.suite.scala.regenerate"
 
   override def createFQNExtractor(
       fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor =
@@ -31,4 +35,5 @@ class ExampleSuite extends ExampleSuiteBase {
 
   override def generateFiles(model: ModelBuilder.Model): GeneratedFiles =
     SourceGenerator.generateFiles(model, Some("org.example"))
+
 }
