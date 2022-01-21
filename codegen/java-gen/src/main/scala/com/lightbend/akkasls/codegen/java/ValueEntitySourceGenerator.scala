@@ -146,17 +146,22 @@ object ValueEntitySourceGenerator {
       relevantTypes ++ relevantTypes.flatMap(_.descriptorObject),
       packageName,
       otherImports = Seq(
+        "com.akkaserverless.javasdk.impl.Serializer",
         "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
         "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
-    val descriptors =
-      (collectRelevantTypes(relevantTypes, service.fqn)
+    val relevantTypeDescriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
         .flatMap(_.descriptorObject)
-        .map(d =>
-          s"${d.name}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+        .collect { case fqn if fqn.isProtoMessage => s"${fqn.name}.getDescriptor()" }
+
+    val descriptors =
+      (relevantTypeDescriptors :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+
+    val jsonSerializers = generateSerializers(relevantTypes.filterNot(_.isProtoMessage))
 
     s"""package $packageName;
         |
@@ -216,6 +221,11 @@ object ValueEntitySourceGenerator {
         |    return new Descriptors.FileDescriptor[] {
         |      ${Format.indent(descriptors.mkString(",\n"), 6)}
         |    };
+        |  }
+        |  
+        |  @Override
+        |  public Serializer serializer() { 
+        |    return ${Format.indent(jsonSerializers, 12)};
         |  }
         |}
         |""".stripMargin

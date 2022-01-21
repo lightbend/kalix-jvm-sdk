@@ -1,5 +1,6 @@
 package com.example.replicated.multimap;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
@@ -68,5 +69,10 @@ public class SomeMultiMapProvider implements ReplicatedEntityProvider<Replicated
       SomeMultiMapApi.getDescriptor(),
       SomeMultiMapDomain.getDescriptor()
     };
+  }
+  
+  @Override
+  public Serializer serializer() { 
+    return Serializer.noopSerializer();
   }
 }

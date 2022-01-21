@@ -32,12 +32,17 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
   private val anySupport = new AnySupport(
     Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
-    "com.example")
+    "com.example",
+    AnySupport.PREFER_JAVA,
+    Serializer.noopSerializer)
+
   private val anySupportScala = new AnySupport(
     Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
     "com.example",
-    AnySupport.PREFER_SCALA)
+    AnySupport.PREFER_SCALA,
+    Serializer.noopSerializer)
+
   private val addLineItem = ShoppingCartApi.AddLineItem
     .newBuilder()
     .setName("item")

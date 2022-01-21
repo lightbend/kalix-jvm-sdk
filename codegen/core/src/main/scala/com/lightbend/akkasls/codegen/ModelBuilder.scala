@@ -25,6 +25,7 @@ import com.akkaserverless.ValueEntityDef
 import com.akkaserverless.ServiceOptions.ServiceType
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
+import com.lightbend.akkasls.codegen.FullyQualifiedName.noDescriptor
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -434,20 +435,16 @@ object ModelBuilder {
    *
    * The above input will trigger a lookup for a descriptor defining package "foo.bar.baz" and message "Foo"
    */
-  private def lookupDescriptor(
+  private def lookupDomainDescriptor(
       resolvedPackage: String,
       resolvedName: String,
-      additionalDescriptors: Seq[Descriptors.FileDescriptor]): Descriptors.FileDescriptor = {
+      additionalDescriptors: Seq[Descriptors.FileDescriptor]): Option[Descriptors.FileDescriptor] = {
 
     // we should have only one match for package and resolvedName
     // if more than one proto defines the same message and package it will be caught earlier, by protoc
     additionalDescriptors
       .find { desc =>
         desc.getPackage == resolvedPackage && desc.getMessageTypes.asScala.exists(_.getName == resolvedName)
-      }
-      .getOrElse {
-        throw new IllegalArgumentException(
-          s"No descriptor found declaring package [$resolvedPackage] and message [$resolvedName]")
       }
   }
 
@@ -471,9 +468,16 @@ object ModelBuilder {
       fqnExtractor: FullyQualifiedNameExtractor): FullyQualifiedName = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
-    val descriptor = lookupDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
-    resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors)
+
+    lookupDomainDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
+      .map { descriptor =>
+        resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors)
+      }
+      .getOrElse {
+        buildFullyQualifiedNameForPojos(revolvedPackage, resolvedName)
+      }
   }
+
   private def resolveTypeArgument(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
       implicit
       log: Log,
@@ -484,9 +488,30 @@ object ModelBuilder {
     if (ScalarType.isScalarType(resolvedName))
       ScalarTypeArgument(ScalarType(resolvedName))
     else {
-      val descriptor = lookupDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
-      MessageTypeArgument(resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors))
+      lookupDomainDescriptor(revolvedPackage, resolvedName, additionalDescriptors)
+        .map { descriptor =>
+          MessageTypeArgument(resolveFullyQualifiedMessageType(resolvedName, descriptor, additionalDescriptors))
+        }
+        .getOrElse {
+          MessageTypeArgument(buildFullyQualifiedNameForPojos(revolvedPackage, resolvedName))
+        }
     }
+  }
+
+  private def buildFullyQualifiedNameForPojos(packageName: String, className: String) = {
+    val fqn =
+      FullyQualifiedName(
+        protoName = "",
+        name = className,
+        PackageNaming(
+          protoFileName = "",
+          name = className,
+          protoPackage = "",
+          javaPackageOption = Some(packageName),
+          javaOuterClassnameOption = None,
+          javaMultipleFiles = true),
+        None)
+    fqn.copy(descriptorObject = Some(fqn))
   }
 
   /**

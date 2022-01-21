@@ -158,6 +158,7 @@ object ReplicatedEntitySourceGenerator {
       relevantTypes ++ relevantTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
+        "com.akkaserverless.javasdk.impl.Serializer",
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
         "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
@@ -168,10 +169,14 @@ object ReplicatedEntitySourceGenerator {
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
+    val relevantDescriptors =
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .collect { case fqn if fqn.isProtoMessage => s"${fqn.parent.javaOuterClassname}.getDescriptor()" }
+
     val descriptors =
-      (collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d =>
-          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantDescriptors :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+
+    val jsonSerializers = generateSerializers(relevantTypes.filterNot(_.isProtoMessage))
 
     s"""package $packageName;
         |
@@ -231,6 +236,11 @@ object ReplicatedEntitySourceGenerator {
         |    return new Descriptors.FileDescriptor[] {
         |      ${Format.indent(descriptors.mkString(",\n"), 6)}
         |    };
+        |  }
+        |  
+        |  @Override
+        |  public Serializer serializer() { 
+        |    return ${Format.indent(jsonSerializers, 12)};
         |  }
         |}
         |""".stripMargin

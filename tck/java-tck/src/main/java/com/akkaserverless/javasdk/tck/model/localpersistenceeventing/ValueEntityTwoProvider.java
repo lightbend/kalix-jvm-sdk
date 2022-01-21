@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
@@ -72,5 +73,10 @@ public class ValueEntityTwoProvider implements ValueEntityProvider<Object, Value
     return new Descriptors.FileDescriptor[] {
       LocalPersistenceEventing.getDescriptor(), EmptyProto.getDescriptor()
     };
+  }
+
+  @Override
+  public Serializer serializer() {
+    return Serializer.noopSerializer();
   }
 }

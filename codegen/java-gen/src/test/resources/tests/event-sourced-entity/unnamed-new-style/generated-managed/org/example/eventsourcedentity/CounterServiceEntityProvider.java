@@ -3,6 +3,7 @@ package org.example.eventsourcedentity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
@@ -68,5 +69,10 @@ public class CounterServiceEntityProvider implements EventSourcedEntityProvider<
       CounterDomain.getDescriptor(),
       EmptyProto.getDescriptor()
     };
+  }
+  
+  @Override
+  public Serializer serializer() { 
+    return Serializer.noopSerializer();
   }
 }

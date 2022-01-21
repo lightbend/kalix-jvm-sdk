@@ -1,5 +1,6 @@
 package org.example.domain;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
@@ -69,5 +70,10 @@ public class CounterProvider implements ValueEntityProvider<OuterCounterState.Co
       EmptyProto.getDescriptor(),
       OuterCounterState.getDescriptor()
     };
+  }
+  
+  @Override
+  public Serializer serializer() { 
+    return Serializer.noopSerializer();
   }
 }

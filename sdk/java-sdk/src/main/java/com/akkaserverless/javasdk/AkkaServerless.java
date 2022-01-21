@@ -18,27 +18,20 @@ package com.akkaserverless.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.action.ActionProvider;
+import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
-import com.akkaserverless.javasdk.impl.ActionFactory;
-import com.akkaserverless.javasdk.impl.AnySupport;
-import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory;
-import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory;
-import com.akkaserverless.javasdk.impl.ValueEntityFactory;
-import com.akkaserverless.javasdk.impl.ViewFactory;
+import com.akkaserverless.javasdk.impl.*;
 import com.akkaserverless.javasdk.impl.action.ActionService;
 import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
 import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityService;
 import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
-import com.akkaserverless.javasdk.impl.Service;
 import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
 import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
@@ -46,6 +39,8 @@ import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
 import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.akkaserverless.javasdk.view.ViewProvider;
+import com.akkaserverless.replicatedentity.ReplicatedData;
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 
@@ -68,6 +63,22 @@ public final class AkkaServerless {
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
 
   private class LowLevelRegistration {
+
+    public AkkaServerless registerEventSourcedEntity(
+        EventSourcedEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        EventSourcedEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+      return registerEventSourcedEntity(
+          factory,
+          descriptor,
+          entityType,
+          entityOptions,
+          Serializer.noopSerializer(),
+          additionalDescriptors);
+    }
+
     /**
      * Register an event sourced entity factory.
      *
@@ -86,9 +97,10 @@ public final class AkkaServerless {
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
         EventSourcedEntityOptions entityOptions,
+        Serializer serializer,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      AnySupport anySupport = newAnySupport(additionalDescriptors, serializer);
       EventSourcedEntityFactory resolvedFactory =
           new ResolvedEventSourcedEntityFactory(
               factory, anySupport.resolveServiceDescriptor(descriptor));
@@ -122,7 +134,10 @@ public final class AkkaServerless {
         Descriptors.ServiceDescriptor descriptor,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      final AnySupport anySupport = newAnySupport(additionalDescriptors);
+      final AnySupport anySupport =
+          newAnySupport(
+              additionalDescriptors, Serializer.noopSerializer() // FIXME: add serializer support
+              );
 
       ActionFactory resolvedActionFactory =
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
@@ -132,6 +147,21 @@ public final class AkkaServerless {
       services.put(descriptor.getFullName(), system -> service);
 
       return AkkaServerless.this;
+    }
+
+    public AkkaServerless registerValueEntity(
+        ValueEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        ValueEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+      return registerValueEntity(
+          factory,
+          descriptor,
+          entityType,
+          entityOptions,
+          Serializer.noopSerializer(),
+          additionalDescriptors);
     }
 
     /**
@@ -150,9 +180,10 @@ public final class AkkaServerless {
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
         ValueEntityOptions entityOptions,
+        Serializer serializer,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      AnySupport anySupport = newAnySupport(additionalDescriptors, serializer);
       ValueEntityFactory resolvedFactory =
           new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
 
@@ -183,7 +214,10 @@ public final class AkkaServerless {
         ReplicatedEntityOptions entityOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      AnySupport anySupport =
+          newAnySupport(
+              additionalDescriptors, Serializer.noopSerializer() // FIXME: add serializer support
+              );
       ReplicatedEntityFactory resolvedFactory =
           new ResolvedReplicatedEntityFactory(
               factory, anySupport.resolveServiceDescriptor(descriptor));
@@ -215,7 +249,10 @@ public final class AkkaServerless {
         String viewId,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      AnySupport anySupport =
+          newAnySupport(
+              additionalDescriptors, Serializer.noopSerializer() // FIXME: add serializer support
+              );
       ViewService service =
           new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
       services.put(descriptor.getFullName(), system -> service);
@@ -305,6 +342,7 @@ public final class AkkaServerless {
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
+        provider.serializer(),
         provider.additionalDescriptors());
   }
 
@@ -326,6 +364,7 @@ public final class AkkaServerless {
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
+        provider.serializer(),
         provider.additionalDescriptors());
   }
 
@@ -395,7 +434,8 @@ public final class AkkaServerless {
     return new AkkaServerlessRunner(services, config);
   }
 
-  private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
+  private AnySupport newAnySupport(
+      Descriptors.FileDescriptor[] descriptors, Serializer serializer) {
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, serializer);
   }
 }

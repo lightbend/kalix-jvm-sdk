@@ -232,10 +232,9 @@ object ReplicatedEntitySourceGenerator {
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
-    val relevantTypesToImport = collectRelevantTypes(relevantTypes, service.fqn)
     val descriptors =
-      relevantTypesToImport
-        .map(d => typeName(d.descriptorImport))
+      collectRelevantTypes(relevantTypes, service.fqn)
+        .collect { case fqn if fqn.isProtoMessage => typeName(fqn.descriptorImport) }
         .distinct
         .sorted
 

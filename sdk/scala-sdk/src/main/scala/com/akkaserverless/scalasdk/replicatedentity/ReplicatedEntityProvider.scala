@@ -18,6 +18,7 @@ package com.akkaserverless.scalasdk.replicatedentity
 
 import scala.collection.immutable.Seq
 
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.replicatedentity.ReplicatedData
 import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import com.google.protobuf.Descriptors

@@ -19,6 +19,7 @@ package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.EmptyProto;
@@ -74,5 +75,10 @@ public class EventSourcedEntityOneProvider
     return new Descriptors.FileDescriptor[] {
       LocalPersistenceEventing.getDescriptor(), EmptyProto.getDescriptor()
     };
+  }
+
+  @Override
+  public Serializer serializer() {
+    return Serializer.noopSerializer();
   }
 }

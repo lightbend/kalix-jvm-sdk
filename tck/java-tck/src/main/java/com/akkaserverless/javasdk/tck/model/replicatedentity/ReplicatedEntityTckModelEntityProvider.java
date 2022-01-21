@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.tck.model.replicatedentity;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
@@ -74,5 +75,10 @@ public class ReplicatedEntityTckModelEntityProvider
     return new Descriptors.FileDescriptor[] {
       ReplicatedEntity.getDescriptor(), EmptyProto.getDescriptor()
     };
+  }
+
+  @Override
+  public Serializer serializer() {
+    return Serializer.noopSerializer();
   }
 }

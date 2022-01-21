@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.replicatedentity;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
 import com.akkaserverless.replicatedentity.ReplicatedData;
 import com.google.protobuf.Descriptors;
@@ -36,4 +37,6 @@ public interface ReplicatedEntityProvider<D extends ReplicatedData, E extends Re
   ReplicatedEntityRouter<D, E> newRouter(ReplicatedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  Serializer serializer();
 }
