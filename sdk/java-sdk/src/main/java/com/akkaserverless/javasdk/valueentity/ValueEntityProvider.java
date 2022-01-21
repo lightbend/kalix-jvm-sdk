@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.valueentity;
 
+import com.akkaserverless.javasdk.impl.Serializer;
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
 import com.google.protobuf.Descriptors;
 
@@ -35,4 +36,6 @@ public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
   ValueEntityRouter<S, E> newRouter(ValueEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  Serializer serializer();
 }

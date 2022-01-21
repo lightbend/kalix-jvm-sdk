@@ -535,6 +535,29 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
+
+  sample-java-eventsourced-counter-pojo:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Event Sourced "Counter" sample
+          command: |
+            cd samples/java-eventsourced-counter-pojo
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test
+            # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
+            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java/com/example/Main.java src/main/java/com/example/domain/Counter.java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+
   sample-java-valueentity-counter:
     machine: true
     steps:
@@ -555,6 +578,27 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
+
+  sample-java-valueentity-counter-pojo:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Value Entity "Counter" sample
+          command: |
+            cd samples/java-valueentity-counter-pojo
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java/com/example/Main.java src/main/java/com/example/domain/Counter.java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            
   sample-java-replicatedentity-examples:
     machine: true
     steps:
@@ -977,7 +1021,15 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-eventsourced-counter-pojo:
+          requires:
+            - checks
+            - publish-local
       - sample-java-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-valueentity-counter-pojo:
           requires:
             - checks
             - publish-local

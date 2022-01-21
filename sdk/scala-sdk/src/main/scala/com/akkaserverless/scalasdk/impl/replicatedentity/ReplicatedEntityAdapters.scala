@@ -57,13 +57,15 @@ import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote
 import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
 import com.google.protobuf.Descriptors
-
 import java.util
 import java.util.Optional
+
 import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
+
+import com.akkaserverless.javasdk.impl.Serializer
 
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     scalaSdkProvider: ReplicatedEntityProvider[D, E])
@@ -87,6 +89,8 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
+
+  override def serializer(): Serializer = Serializer.noopSerializer
 }
 
 private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](

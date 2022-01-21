@@ -27,12 +27,14 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
-
 import java.util.Optional
+
 import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
+
+import com.akkaserverless.javasdk.impl.Serializer
 
 private[scalasdk] final class JavaValueEntityAdapter[S](scalaSdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
@@ -66,6 +68,8 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
     scalaSdkProvider.options)
 
   override def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
+
+  override def serializer(): Serializer = Serializer.noopSerializer
 }
 
 private[scalasdk] final class JavaValueEntityRouterAdapter[S](

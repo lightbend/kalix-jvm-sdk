@@ -32,6 +32,9 @@ case class FullyQualifiedName(
     parent: PackageNaming,
     descriptorObject: Option[FullyQualifiedName]) {
 
+  // FIXME: quick workaround for now. We may want to model this in a better way.
+  val isProtoMessage: Boolean = protoName.nonEmpty
+
   /**
    * The fully qualified type name of the proto type. This should rarely be used during codegen, since language-specific
    * changes might have to be applied, and imports taken into account. In that case use the language-specific `typeName`

@@ -170,7 +170,16 @@ object SourceGeneratorUtils {
       }
       .map(typeImport)
 
-    new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
+    // non proto messages will require json serializers
+    val importsForJsonSerializer =
+      if (!types.forall(_.isProtoMessage)) {
+        Seq("com.akkaserverless.javasdk.impl.Serializers", "com.akkaserverless.javasdk.impl.JsonSerializer")
+      } else
+        Seq.empty[String]
+
+    new Imports(
+      packageName,
+      (messageTypeImports ++ otherImports ++ importsForJsonSerializer ++ packageImports).toSeq.distinct.sorted)
   }
 
   def generateCommandAndTypeArgumentImports(
@@ -186,6 +195,17 @@ object SourceGeneratorUtils {
     generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
 
+  def generateSerializers(typesWithJsonSerializers: Iterable[FullyQualifiedName]): String =
+    if (typesWithJsonSerializers.isEmpty) {
+      "Serializer.noopSerializer()"
+    } else {
+      val buffer =
+        typesWithJsonSerializers.foldLeft(new StringBuilder("Serializers\n")) { case (buff, domainType) =>
+          buff.append(s".add(new JsonSerializer(${domainType.name}.class))\n")
+        }
+      buffer.toString()
+    }
+
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
     typeArguments.collect { case ScalarTypeArgument(ScalarType.Bytes) =>
       "com.google.protobuf.ByteString"
@@ -197,8 +217,8 @@ object SourceGeneratorUtils {
   def collectRelevantTypes(
       fullQualifiedNames: Iterable[FullyQualifiedName],
       service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
-    fullQualifiedNames.filterNot { desc =>
-      desc.parent == service.parent
+    fullQualifiedNames.filterNot { fqn =>
+      fqn.parent == service.parent
     }.toList
   }
 

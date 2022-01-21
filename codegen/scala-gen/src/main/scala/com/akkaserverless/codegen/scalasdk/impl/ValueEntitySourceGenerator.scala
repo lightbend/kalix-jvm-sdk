@@ -122,9 +122,11 @@ object ValueEntitySourceGenerator {
     import Types.ValueEntity._
     val className = entity.providerName
 
-    val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
-        .map(_.descriptorImport)
+    val relevantTypes =
+      Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType))
+
+    val relevantDescriptors =
+      relevantTypes.collect { case fqn if fqn.isProtoMessage => fqn.descriptorImport }.distinct
 
     generate(
       entity.fqn.parent,
@@ -150,7 +152,7 @@ object ValueEntitySourceGenerator {
           |    new ${entity.routerName}(entityFactory(context))
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
-          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor :: ")}Nil
+          |    ${relevantDescriptors.map(d => c"$d.javaDescriptor :: ")}Nil
           |}
           |""",
       packageImports = Seq(service.fqn.parent))

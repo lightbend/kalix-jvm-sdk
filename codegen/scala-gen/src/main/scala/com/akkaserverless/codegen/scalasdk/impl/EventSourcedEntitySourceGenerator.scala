@@ -140,10 +140,12 @@ object EventSourcedEntitySourceGenerator {
     import Types.EventSourcedEntity._
     val className = entity.providerName
 
-    val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(
-        _.outputType)) ++ entity.events.map(_.fqn))
-        .map(_.descriptorImport)
+    val relevantTypes =
+      Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(
+        _.outputType)) ++ entity.events.map(_.fqn)
+
+    val relevantDescriptors =
+      relevantTypes.collect { case fqn if fqn.isProtoMessage => fqn.descriptorImport }.distinct
 
     generate(
       entity.fqn.parent,
@@ -169,7 +171,7 @@ object EventSourcedEntitySourceGenerator {
           |    new ${entity.routerName}(entityFactory(context))
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
-          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
+          |    ${relevantDescriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
           |}
           |""",
       packageImports = Seq(service.fqn.parent))
