@@ -7,18 +7,12 @@ To run the example locally:
 * Start the example:
   * publish relevant projects for use from Maven
     ```
-    sbt publishM2
-    ```
-  * build the latest Maven plugin and archetypes
-    ```
-    cd maven-java
-    mvn versions:set -DnewVersion="0.7.0-beta....-SNAPSHOT"
-    mvn install
+    ./publishLocalM2.sh
     ```
   * trigger codegen, compile and run form Maven
     ```
     cd samples/java-valueentity-customer-registry
-    mvn -Dakkaserverless-sdk.version="0.7.0-beta....-SNAPSHOT" compile exec:java
+    mvn -Dakkaserverless-sdk.version=0.7.0-beta....-dev-SNAPSHOT compile exec:exec
     ```
 
 * Start the proxy
