@@ -211,7 +211,7 @@ object EntityServiceSourceGenerator {
       |
       |import static java.util.concurrent.TimeUnit.*;
       |
-      |$unmanagedComment
+      |${unmanagedComment}
       |
       |// Example of an integration test calling our service via the Akka Serverless proxy
       |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`

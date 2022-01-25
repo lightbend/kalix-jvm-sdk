@@ -6,6 +6,7 @@ import com.example.replicated.multimap.domain.SomeMultiMapDomain;
 import com.google.protobuf.Empty;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This is the implementation for the Replicated Entity Service described in your multi_map_api.proto file.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
