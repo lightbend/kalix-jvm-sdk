@@ -1,13 +1,15 @@
-
 package com.example.replicated.multimap.domain
 
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap
+import com.example.replicated.multimap.MultiMapApiProto
 import com.example.replicated.multimap.domain.key.MultiMapKeyProto
+import com.example.replicated.multimap.domain.key.SomeKey
 import com.example.replicated.multimap.domain.value.MultiMapValueProto
+import com.example.replicated.multimap.domain.value.SomeValue
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
 
@@ -31,11 +33,10 @@ object SomeMultiMapProvider {
     new SomeMultiMapProvider(entityFactory, options)
 }
 
-
 class SomeMultiMapProvider private (
     entityFactory: ReplicatedEntityContext => SomeMultiMap,
     override val options: ReplicatedEntityOptions)
-    extends ReplicatedEntityProvider[ReplicatedMultiMap[com.example.replicated.multimap.domain.key.SomeKey, com.example.replicated.multimap.domain.value.SomeValue], SomeMultiMap] {
+    extends ReplicatedEntityProvider[ReplicatedMultiMap[SomeKey, SomeValue], SomeMultiMap] {
 
   override def entityType: String = "some-multi-map"
 
@@ -43,8 +44,15 @@ class SomeMultiMapProvider private (
     new SomeMultiMapRouter(entityFactory(context))
 
   override def serviceDescriptor: Descriptors.ServiceDescriptor =
-    multimap.MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
+    MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
 
   override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    EmptyProto.javaDescriptor :: MultiMapKeyProto.javaDescriptor :: MultiMapValueProto.javaDescriptor :: multimap.MultiMapApiProto.javaDescriptor :: Nil
+    MultiMapApiProto.javaDescriptor ::
+    EmptyProto.javaDescriptor ::
+    MultiMapKeyProto.javaDescriptor ::
+    MultiMapValueProto.javaDescriptor :: Nil
+
+  override def serializer: Serializer =
+    Serializer.noopSerializer
 }
+

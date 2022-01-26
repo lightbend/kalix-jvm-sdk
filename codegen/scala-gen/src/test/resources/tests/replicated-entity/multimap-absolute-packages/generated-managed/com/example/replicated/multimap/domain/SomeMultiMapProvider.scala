@@ -1,11 +1,11 @@
-
 package com.example.replicated.multimap.domain
 
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
 import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap
+import com.example.replicated.multimap.MultiMapApiProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
 
@@ -29,7 +29,6 @@ object SomeMultiMapProvider {
     new SomeMultiMapProvider(entityFactory, options)
 }
 
-
 class SomeMultiMapProvider private (
     entityFactory: ReplicatedEntityContext => SomeMultiMap,
     override val options: ReplicatedEntityOptions)
@@ -41,8 +40,14 @@ class SomeMultiMapProvider private (
     new SomeMultiMapRouter(entityFactory(context))
 
   override def serviceDescriptor: Descriptors.ServiceDescriptor =
-    multimap.MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
+    MultiMapApiProto.javaDescriptor.findServiceByName("MultiMapService")
 
   override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    EmptyProto.javaDescriptor :: MultiMapDomainProto.javaDescriptor :: multimap.MultiMapApiProto.javaDescriptor :: Nil
+    MultiMapApiProto.javaDescriptor ::
+    EmptyProto.javaDescriptor ::
+    MultiMapDomainProto.javaDescriptor :: Nil
+
+  override def serializer: Serializer =
+    Serializer.noopSerializer
 }
+

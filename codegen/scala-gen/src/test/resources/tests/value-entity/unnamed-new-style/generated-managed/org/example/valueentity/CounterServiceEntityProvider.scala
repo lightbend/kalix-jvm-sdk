@@ -1,5 +1,6 @@
 package org.example.valueentity
 
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
 import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
@@ -19,6 +20,7 @@ object CounterServiceEntityProvider {
   def apply(entityFactory: ValueEntityContext => CounterServiceEntity): CounterServiceEntityProvider =
     new CounterServiceEntityProvider(entityFactory, ValueEntityOptions.defaults)
 }
+
 class CounterServiceEntityProvider private(entityFactory: ValueEntityContext => CounterServiceEntity, override val options: ValueEntityOptions)
   extends ValueEntityProvider[CounterState, CounterServiceEntity] {
 
@@ -37,5 +39,8 @@ class CounterServiceEntityProvider private(entityFactory: ValueEntityContext => 
     CounterApiProto.javaDescriptor ::
     EmptyProto.javaDescriptor ::
     CounterDomainProto.javaDescriptor :: Nil
+
+  override def serializer: Serializer =
+    Serializer.noopSerializer
 }
 

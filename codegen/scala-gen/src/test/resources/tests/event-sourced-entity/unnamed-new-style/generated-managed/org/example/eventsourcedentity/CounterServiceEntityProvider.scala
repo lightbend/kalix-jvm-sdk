@@ -1,5 +1,6 @@
 package org.example.eventsourcedentity
 
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
@@ -37,5 +38,8 @@ class CounterServiceEntityProvider private(entityFactory: EventSourcedEntityCont
     CounterApiProto.javaDescriptor ::
     EmptyProto.javaDescriptor ::
     CounterDomainProto.javaDescriptor :: Nil
+
+  override def serializer: Serializer =
+    Serializer.noopSerializer
 }
 
