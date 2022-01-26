@@ -144,8 +144,8 @@ object SourceGenerator {
       javaMultipleFiles = false)
 
   private def nameForMainPackage(model: ModelBuilder.Model): PackageNaming = {
-    val services = model.services.values.map(_.fqn.fullyQualifiedJavaName)
-    val entities = model.entities.values.map(_.fqn.fullyQualifiedJavaName)
+    val services = model.services.values.map(_.messageType.fullyQualifiedName)
+    val entities = model.entities.values.map(_.messageType.fullyQualifiedName)
     nameForMainPackage(SourceGeneratorUtils.mainPackageName(services ++ entities).mkString("."))
   }
 }

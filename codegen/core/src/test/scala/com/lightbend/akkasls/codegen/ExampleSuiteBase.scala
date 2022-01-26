@@ -41,7 +41,8 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
   import ExampleSuiteBase._
 
   def BuildInfo: ExampleSuiteBuildInfo
-  def createFQNExtractor(fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor
+  def createMessageTypeExtractor(
+      fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.ProtoMessageTypeExtractor
   def generateFiles(model: ModelBuilder.Model): GeneratedFiles
   def regenerateAll: Boolean
 
@@ -77,7 +78,7 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
     s"""${BuildInfo.protocExecutable.getAbsolutePath} --include_imports --proto_path=${protoDir.getAbsolutePath} --proto_path=${BuildInfo.protocExternalSourcePath} --proto_path=${BuildInfo.protocExternalIncludePath} --descriptor_set_out=${tmpDesc.getAbsolutePath} $protoSources""".!!
 
     val fileDescs = DescriptorSet.fileDescriptors(tmpDesc).right.get.right.get
-    implicit val fqnExtractor = createFQNExtractor(fileDescs.toSeq)
+    implicit val messageTypeExtractor = createMessageTypeExtractor(fileDescs.toSeq)
     val model = ModelBuilder.introspectProtobufClasses(fileDescs)
 
     val files = generateFiles(model)

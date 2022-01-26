@@ -34,8 +34,8 @@ class CounterServiceEntityProvider private(entityFactory: EventSourcedEntityCont
     new CounterServiceEntityRouter(entityFactory(context))
 
   override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    CounterDomainProto.javaDescriptor ::
     CounterApiProto.javaDescriptor ::
-    EmptyProto.javaDescriptor :: Nil
+    EmptyProto.javaDescriptor ::
+    CounterDomainProto.javaDescriptor :: Nil
 }
 

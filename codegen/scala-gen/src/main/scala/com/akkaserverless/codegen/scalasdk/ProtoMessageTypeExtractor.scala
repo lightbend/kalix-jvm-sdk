@@ -17,14 +17,14 @@
 package com.akkaserverless.codegen.scalasdk
 
 import com.google.protobuf.Descriptors
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, PackageNaming }
+import com.lightbend.akkasls.codegen.{ ModelBuilder, PackageNaming, ProtoMessageType }
 import protocgen.CodeGenRequest
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
-class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuilder.FullyQualifiedNameExtractor {
+class ProtoMessageTypeExtractor(val di: DescriptorImplicits) extends ModelBuilder.ProtoMessageTypeExtractor {
   import di._
 
-  override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
+  override def apply(descriptor: Descriptors.GenericDescriptor): ProtoMessageType = {
     val name = descriptor match {
       case d: Descriptors.Descriptor =>
         d.scalaType.name
@@ -34,7 +34,7 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
         s.getName
     }
 
-    FullyQualifiedName(name, name, packageName(descriptor), Some(fileDescriptorObject(descriptor.getFile)))
+    ProtoMessageType(name, name, packageName(descriptor), Some(fileDescriptorObject(descriptor.getFile)))
   }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming =
@@ -55,14 +55,14 @@ class FullyQualifiedNameExtractor(val di: DescriptorImplicits) extends ModelBuil
       None,
       javaMultipleFiles = false)
 
-  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName =
-    FullyQualifiedName.noDescriptor(
+  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): ProtoMessageType =
+    ProtoMessageType.noDescriptor(
       descriptor.getFile.fileDescriptorObject.name,
       packageName(descriptor.getName, descriptor.getFile.fileDescriptorObject))
 }
-object FullyQualifiedNameExtractor {
-  def apply(request: CodeGenRequest): FullyQualifiedNameExtractor =
-    new FullyQualifiedNameExtractor(descriptorImplicits(request))
+object ProtoMessageTypeExtractor {
+  def apply(request: CodeGenRequest): ProtoMessageTypeExtractor =
+    new ProtoMessageTypeExtractor(descriptorImplicits(request))
 
   def descriptorImplicits(request: CodeGenRequest): DescriptorImplicits = {
     val params =
