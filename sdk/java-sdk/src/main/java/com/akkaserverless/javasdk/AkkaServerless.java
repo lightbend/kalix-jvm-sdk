@@ -97,10 +97,10 @@ public final class AkkaServerless {
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
         EventSourcedEntityOptions entityOptions,
-        Serializer serializer,
+        Serializer additionalSerializer,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      AnySupport anySupport = newAnySupport(additionalDescriptors, serializer);
+      AnySupport anySupport = newAnySupport(additionalDescriptors, additionalSerializer);
       EventSourcedEntityFactory resolvedFactory =
           new ResolvedEventSourcedEntityFactory(
               factory, anySupport.resolveServiceDescriptor(descriptor));
@@ -435,7 +435,7 @@ public final class AkkaServerless {
   }
 
   private AnySupport newAnySupport(
-      Descriptors.FileDescriptor[] descriptors, Serializer serializer) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, serializer);
+      Descriptors.FileDescriptor[] descriptors, Serializer additionalSerializer) {
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, additionalSerializer);
   }
 }

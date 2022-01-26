@@ -69,7 +69,7 @@ class ActionRouterSpec
   private val anySupport = new AnySupport(
     Array(ActionspecApi.getDescriptor),
     this.getClass.getClassLoader,
-    serializer = Serializer.noopSerializer)
+    additionalSerializer = Serializer.noopSerializer)
 
   def create(handler: ActionRouter[_]): Actions = {
     val service = new ActionService(_ => handler, serviceDescriptor, anySupport)

@@ -197,7 +197,7 @@ class AnySupport(
     classLoader: ClassLoader,
     typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
     prefer: AnySupport.Prefer = AnySupport.Prefer.Java,
-    serializer: Serializer) {
+    additionalSerializer: Serializer) {
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
 
@@ -354,9 +354,10 @@ class AnySupport(
 
   def encodeScala(value: Any): ScalaPbAny =
     value match {
-      case any if serializer.canSerialize(any) => ScalaPbAny.fromJavaProto(serializer.serialize(any))
-      case javaPbAny: JavaPbAny                => ScalaPbAny.fromJavaProto(javaPbAny)
-      case scalaPbAny: ScalaPbAny              => scalaPbAny
+      case any if additionalSerializer.canSerialize(any) =>
+        ScalaPbAny.fromJavaProto(additionalSerializer.serialize(any))
+      case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
+      case scalaPbAny: ScalaPbAny => scalaPbAny
 
       // these are all generated message so needs to go before GeneratedMessage,
       // but we encode them inside Any just like regular message, we just need to get the type_url right
@@ -426,8 +427,8 @@ class AnySupport(
     val typeUrl = any.typeUrl
     val javaPbAny = ScalaPbAny.toJavaProto(any)
 
-    if (serializer.canDeserialize(javaPbAny)) {
-      serializer.deserialize(javaPbAny)
+    if (additionalSerializer.canDeserialize(javaPbAny)) {
+      additionalSerializer.deserialize(javaPbAny)
     } else if (typeUrl.equals(BytesPrimitive.fullName)) {
       // raw byte strings we turn into BytesValue and expect service method to accept
       val bytes = bytesToPrimitive(BytesPrimitive, any.value)
