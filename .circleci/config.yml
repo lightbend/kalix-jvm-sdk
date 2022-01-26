@@ -146,7 +146,7 @@ jobs:
           name: Scala Samples
           command: |
             if [ $(find ./samples -name plugins.sbt | xargs grep -h "akkaserverless-sdk.version" | uniq | wc -l) -ne 1 ]; then
-              "Not all Scala samples have the same SDK version:"
+              echo "Not all Scala samples have the same SDK version:"
               find ./samples -name plugins.sbt | xargs grep "akkaserverless-sdk.version"
               false
             fi
@@ -154,10 +154,23 @@ jobs:
           name: Java Samples
           command: |
             if [ $(find ./samples -name pom.xml | xargs grep -h "<akkaserverless-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
-              "Not all Java samples have the same SDK version:"
+              echo "Not all Java samples have the same SDK version:"
               find ./samples -name pom.xml | xargs grep "<akkaserverless-sdk.version>"
               false
             fi
+      - run:
+          name: Protoc version
+          command: |
+            AKKA_GRPC_PROTOC=$(sbt "sdkCore/protocVersion" 2>/dev/null | tail -n 1 | sed 's/\[info\] //g')
+            POM_PROTOC_VERSIONS=$(find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:" | sed 's/.*:protoc://' | sed 's/:exe.*//' | sort | uniq)
+            if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
+              echo  "Not all Java Samples an Archetypes have the same protoc version:"
+              find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:"
+              false
+            elif [ "$AKKA_GRPC_PROTOC" != "$POM_PROTOC_VERSIONS" ]; then
+              echo  "Java Samples and Archetypes ($POM_PROTOC_VERSIONS) does not have the same protoc version as Akka gRPC ($AKKA_GRPC_PROTOC)"
+              false
+            fi       
 
   validate-docs:
     machine: true
