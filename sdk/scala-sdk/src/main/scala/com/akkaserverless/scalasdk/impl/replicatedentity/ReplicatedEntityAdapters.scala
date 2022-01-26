@@ -90,7 +90,7 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 
-  override def serializer(): Serializer = Serializer.noopSerializer
+  override def serializer(): Serializer = scalaSdkProvider.serializer
 }
 
 private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](

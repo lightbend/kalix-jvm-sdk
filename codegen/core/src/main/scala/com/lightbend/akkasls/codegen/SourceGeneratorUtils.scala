@@ -204,17 +204,6 @@ object SourceGeneratorUtils {
     generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
 
-  def generateSerializers(pojoMessageTypes: Iterable[PojoMessageType]): String =
-    if (pojoMessageTypes.isEmpty) {
-      "Serializer.noopSerializer()"
-    } else {
-      val buffer =
-        pojoMessageTypes.foldLeft(new StringBuilder("Serializers\n")) { case (buff, domainType) =>
-          buff.append(s".add(new JsonSerializer(${domainType.name}.class))\n")
-        }
-      buffer.toString()
-    }
-
   def extraTypeImports(typeArguments: Iterable[TypeArgument]): Seq[String] =
     typeArguments.collect { case ScalarTypeArgument(ScalarType.Bytes) =>
       "com.google.protobuf.ByteString"

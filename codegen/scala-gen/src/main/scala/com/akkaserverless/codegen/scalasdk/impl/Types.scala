@@ -17,6 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeBlock
 
 object Types {
   object Action {
@@ -59,6 +60,41 @@ object Types {
       "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
   }
 
+  object ReplicatedEntity {
+
+    val ReplicatedEntity = PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.Replicated")
+    val CommandContext = PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.CommandContext")
+    val ReplicatedEntityContext = PojoMessageType(
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext")
+    val ReplicatedEntityOptions = PojoMessageType(
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions")
+    val ReplicatedEntityProvider = PojoMessageType(
+      "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider")
+    val ReplicatedEntityRouter = PojoMessageType(
+      "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter")
+    val CommandHandlerNotFound = PojoMessageType(
+      "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound")
+
+    val ReplicatedData = PojoMessageType("com.akkaserverless.replicatedentity.ReplicatedData")
+
+    private val dataTypes = {
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap") ::
+      PojoMessageType("com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote") :: Nil
+    }
+
+    def lookupReplicatedData(name: String): PojoMessageType =
+      dataTypes
+        .find(_.name == name)
+        .getOrElse(throw new IllegalArgumentException(s"Couldn't find a MessageType definition for $name"))
+
+  }
+
   val DeferredCall = PojoMessageType("com.akkaserverless.scalasdk.DeferredCall")
   val ScalaDeferredCallAdapter = PojoMessageType("com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter")
   val InternalContext = PojoMessageType("com.akkaserverless.scalasdk.impl.InternalContext")
@@ -70,5 +106,11 @@ object Types {
   val ImmutableSeq = PojoMessageType("scala.collection.immutable.Seq")
 
   val Descriptors = PojoMessageType("com.google.protobuf.Descriptors")
+
+  val Serializer = PojoMessageType("com.akkaserverless.javasdk.impl.Serializer")
+  val Serializers = PojoMessageType("com.akkaserverless.javasdk.impl.Serializers")
+  val JsonSerializer = PojoMessageType("com.akkaserverless.javasdk.impl.JsonSerializer")
+
+  val ByteString = PojoMessageType("com.google.protobuf.ByteString")
 
 }

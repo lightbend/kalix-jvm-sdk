@@ -31,4 +31,5 @@ trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
   def additionalDescriptors: Seq[Descriptors.FileDescriptor]
+  def serializer: Serializer
 }

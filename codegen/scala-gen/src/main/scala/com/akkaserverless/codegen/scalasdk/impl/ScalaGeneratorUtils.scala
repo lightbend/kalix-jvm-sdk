@@ -26,6 +26,10 @@ import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
 object ScalaGeneratorUtils {
+
+  import Types._
+  import Types.ReplicatedEntity._
+
   def typeName(messageType: MessageType)(implicit imports: Imports): String =
     if (messageType.fullyQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
     else if (imports.contains(messageType.fullyQualifiedName)) messageType.name
@@ -45,6 +49,15 @@ object ScalaGeneratorUtils {
       }.mkString("\n"))
       .mkString("\n\n")
   }
+
+  def generateSerializers(pojoMessageTypes: Iterable[PojoMessageType]): CodeBlock =
+    if (pojoMessageTypes.isEmpty) {
+      c"$Serializer.noopSerializer"
+    } else {
+      c"""$Serializers
+          |  ${pojoMessageTypes.map(typ => c".add(new $JsonSerializer(classOf[${typ.name}]))")}
+          """
+    }
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
     typeArgument match {
@@ -80,6 +93,43 @@ object ScalaGeneratorUtils {
   def parameterizeTypes(types: Iterable[String]): String =
     if (types.isEmpty) ""
     else types.mkString("[", ", ", "]")
+
+  def dataTypeCodeBlock(typeArgument: ModelBuilder.TypeArgument): CodeBlock =
+    typeArgument match {
+      case ModelBuilder.MessageTypeArgument(messageType) =>
+        c"$messageType"
+      case ModelBuilder.ScalarTypeArgument(scalar) =>
+        scalar match {
+          case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
+              ModelBuilder.ScalarType.Fixed32 | ModelBuilder.ScalarType.SFixed32 =>
+            c"Int"
+          case ModelBuilder.ScalarType.Int64 | ModelBuilder.ScalarType.UInt64 | ModelBuilder.ScalarType.SInt64 |
+              ModelBuilder.ScalarType.Fixed64 | ModelBuilder.ScalarType.SFixed64 =>
+            c"Long"
+          case ModelBuilder.ScalarType.Double => c"Double"
+          case ModelBuilder.ScalarType.Float  => c"Float"
+          case ModelBuilder.ScalarType.Bool   => c"Boolean"
+          case ModelBuilder.ScalarType.String => c"String"
+          case ModelBuilder.ScalarType.Bytes  => c"$ByteString"
+          case _                              => c"_"
+        }
+    }
+
+  def parameterizeDataTypeCodeBlock(replicatedData: ModelBuilder.ReplicatedData): CodeBlock =
+    replicatedData match {
+      // special case ReplicatedMap as heterogeneous with ReplicatedData values
+      case ModelBuilder.ReplicatedMap(key) => c"[${dataTypeCodeBlock(key)}, $ReplicatedData]"
+      case data =>
+        data.typeArguments.toList.map(typ => dataTypeCodeBlock(typ)) match {
+          case first :: second :: Nil => c"[$first, $second]"
+          case single :: Nil          => c"[$single]"
+          case Nil                    => c""
+          case _                      =>
+            // this won't happen. All supported replicated data types have either zero, one or two type params
+            // this is here to make the compiler happy and to help us find it in case we add a new replicated data type
+            throw new IllegalArgumentException("Found more than two type parameter")
+        }
+    }
 
   def generate(
       parent: PackageNaming,

@@ -26,6 +26,7 @@ import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeBlock
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.typeImport
 
 object JavaGeneratorUtils {
+
   def typeName(messageType: MessageType)(implicit imports: Imports): String = {
     val directParent =
       messageType match {
@@ -47,7 +48,18 @@ object JavaGeneratorUtils {
       .map(_.map { imported => s"import $imported;" }.mkString("\n"))
       .mkString("\n\n")
 
-  def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
+  def generateSerializers(pojoMessageTypes: Iterable[PojoMessageType]): String =
+    if (pojoMessageTypes.isEmpty) {
+      "Serializer.noopSerializer()"
+    } else {
+      val buffer =
+        pojoMessageTypes.foldLeft(new StringBuilder("Serializers\n")) { case (buff, domainType) =>
+          buff.append(s".add(new JsonSerializer(${domainType.name}.class))\n")
+        }
+      buffer.toString()
+    }
+
+  def dataType(typeArgument: ModelBuilder.TypeArgument): String =
     typeArgument match {
       case ModelBuilder.MessageTypeArgument(messageType) =>
         messageType.fullName
@@ -68,7 +80,7 @@ object JavaGeneratorUtils {
         }
     }
 
-  def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData)(implicit imports: Imports): String = {
+  def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData): String = {
     val typeArguments =
       replicatedData match {
         // special case ReplicatedMap as heterogeneous with ReplicatedData values

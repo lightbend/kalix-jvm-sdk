@@ -117,13 +117,13 @@ object ValueEntitySourceGenerator {
   }
 
   def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
+    import Types._
     import Types.ValueEntity._
-    import Types.Descriptors
-    import Types.ImmutableSeq
     val className = entity.providerName
 
     val relevantTypes = allRelevantMessageTypes(service, entity)
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+    val relevantPojoTypes = relevantTypes.collect { case pojo: PojoMessageType => pojo }
 
     val relevantDescriptors = relevantProtoTypes.map(_.descriptorImport).distinct
 
@@ -136,6 +136,7 @@ object ValueEntitySourceGenerator {
           |  def apply(entityFactory: $ValueEntityContext => ${entity.messageType.name}): $className =
           |    new $className(entityFactory, $ValueEntityOptions.defaults)
           |}
+          |
           |class $className private(entityFactory: $ValueEntityContext => ${entity.messageType.name}, override val options: $ValueEntityOptions)
           |  extends $ValueEntityProvider[${entity.state.messageType}, ${entity.messageType}] {
           |
@@ -152,6 +153,9 @@ object ValueEntitySourceGenerator {
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
           |    ${relevantDescriptors.map(d => c"$d.javaDescriptor :: ")}Nil
+          |
+          |  override def serializer: $Serializer = 
+          |    ${generateSerializers(relevantPojoTypes)}
           |}
           |""",
       packageImports = Seq(service.messageType.parent))

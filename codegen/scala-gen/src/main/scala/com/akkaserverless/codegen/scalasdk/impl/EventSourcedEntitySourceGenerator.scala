@@ -137,13 +137,14 @@ object EventSourcedEntitySourceGenerator {
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
-    import Types.Descriptors
+    import Types._
     import Types.EventSourcedEntity._
-    import Types.ImmutableSeq
+
     val className = entity.providerName
 
     val relevantTypes = allRelevantMessageTypes(service, entity)
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+    val relevantPojoTypes = relevantTypes.collect { case pojo: PojoMessageType => pojo }
 
     val relevantDescriptors = relevantProtoTypes.map(_.descriptorImport).distinct
 
@@ -172,6 +173,9 @@ object EventSourcedEntitySourceGenerator {
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
           |    ${relevantDescriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
+          |    
+          |  override def serializer: $Serializer = 
+          |    ${generateSerializers(relevantPojoTypes)}
           |}
           |""",
       packageImports = Seq(service.messageType.parent))

@@ -69,7 +69,7 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
 
   override def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
 
-  override def serializer(): Serializer = Serializer.noopSerializer
+  override def serializer(): Serializer = scalaSdkProvider.serializer
 }
 
 private[scalasdk] final class JavaValueEntityRouterAdapter[S](

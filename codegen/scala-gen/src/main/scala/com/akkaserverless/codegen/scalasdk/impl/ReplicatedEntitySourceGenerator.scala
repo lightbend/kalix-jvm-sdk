@@ -211,76 +211,58 @@ object ReplicatedEntitySourceGenerator {
 
   private[codegen] def provider(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): File = {
 
-    val packageName = entity.messageType.parent.scalaPackage
-    val providerName = entity.providerName
+    import Types._
+    import Types.ReplicatedEntity._
+    val className = entity.providerName
 
     val relevantTypes = allRelevantMessageTypes(service, entity)
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+    val relevantPojoTypes = relevantTypes.collect { case pojo: PojoMessageType => pojo }
 
-    implicit val imports = generateImports(
-      relevantProtoTypes.map(_.descriptorImport),
-      packageName,
-      otherImports = Seq(
-        s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider",
-        "com.google.protobuf.Descriptors",
-        "scala.collection.immutable.Seq") ++
-        extraReplicatedImports(entity.data) ++
-        extraTypeImports(entity.data.typeArguments),
-      packageImports = Seq(service.messageType.parent.scalaPackage))
+    val parameterizedDataType =
+      c"${lookupReplicatedData(entity.data.name)}${parameterizeDataTypeCodeBlock(entity.data)}"
+    val relevantDescriptors = relevantProtoTypes.map(_.descriptorImport).distinct
 
-    val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
+    generate(
+      entity.messageType.parent,
+      className,
+      c"""|$managedComment
+          |
+          |/**
+          | * A replicated entity provider that defines how to register and create the entity for
+          | * the Protobuf service `${service.messageType.name}`.
+          | *
+          | * Should be used with the `register` method in [[com.akkaserverless.scalasdk.AkkaServerless]].
+          | */
+          |object $className {
+          |  def apply(entityFactory: $ReplicatedEntityContext => ${entity.messageType.name}): $className =
+          |    new $className(entityFactory, $ReplicatedEntityOptions.defaults)
+          |
+          |  def apply(entityFactory: $ReplicatedEntityContext => ${entity.messageType.name}, options: $ReplicatedEntityOptions): $className =
+          |    new $className(entityFactory, options)
+          |}
+          |
+          |class $className private (
+          |    entityFactory: $ReplicatedEntityContext => ${entity.messageType.name},
+          |    override val options: $ReplicatedEntityOptions)
+          |    extends $ReplicatedEntityProvider[$parameterizedDataType, ${entity.messageType}] {
+          |
+          |  override def entityType: String = "${entity.entityType}"
+          |
+          |  override def newRouter(context: $ReplicatedEntityContext): ${entity.routerName} =
+          |    new ${entity.routerName}(entityFactory(context))
+          |
+          |  override def serviceDescriptor: $Descriptors.ServiceDescriptor =
+          |    ${service.messageType.descriptorImport}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
+          |
+          |  override def additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
+          |    ${relevantDescriptors.map(d => c"$d.javaDescriptor :: ")}Nil
+          |    
+          |  override def serializer: $Serializer = 
+          |    ${generateSerializers(relevantPojoTypes)}
+          |}
+          |""")
 
-    val descriptors =
-      collectRelevantTypes(relevantProtoTypes, service.messageType)
-        .map { messageType => typeName(messageType.descriptorImport) }
-        .distinct
-        .sorted
-
-    File.scala(
-      packageName,
-      providerName,
-      s"""
-         |package $packageName
-         |
-         |${writeImports(imports)}
-         |
-         |$managedComment
-         |
-         |/**
-         | * A replicated entity provider that defines how to register and create the entity for
-         | * the Protobuf service `${service.messageType.name}`.
-         | *
-         | * Should be used with the `register` method in [[com.akkaserverless.scalasdk.AkkaServerless]].
-         | */
-         |object $providerName {
-         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}): $providerName =
-         |    new $providerName(entityFactory, ReplicatedEntityOptions.defaults)
-         |
-         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}, options: ReplicatedEntityOptions): $providerName =
-         |    new $providerName(entityFactory, options)
-         |}
-         |
-         |
-         |class $providerName private (
-         |    entityFactory: ReplicatedEntityContext => ${entity.messageType.name},
-         |    override val options: ReplicatedEntityOptions)
-         |    extends ReplicatedEntityProvider[$parameterizedDataType, ${typeName(entity.messageType)}] {
-         |
-         |  override def entityType: String = "${entity.entityType}"
-         |
-         |  override def newRouter(context: ReplicatedEntityContext): ${entity.routerName} =
-         |    new ${entity.routerName}(entityFactory(context))
-         |
-         |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.messageType.descriptorImport)}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
-         |
-         |  override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-         |    ${descriptors.map(d => d + ".javaDescriptor :: ").toList.distinct.mkString}Nil
-         |}
-         |""".stripMargin)
   }
 
 }

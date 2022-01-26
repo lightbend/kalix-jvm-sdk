@@ -80,7 +80,7 @@ private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: Even
   def options(): JavaSdkEventSourcedEntityOptions = new JavaEventSourcedEntityOptionsAdapter(scalaSdkProvider.options)
   def serviceDescriptor(): Descriptors.ServiceDescriptor = scalaSdkProvider.serviceDescriptor
 
-  override def serializer(): Serializer = Serializer.noopSerializer
+  override def serializer(): Serializer = scalaSdkProvider.serializer
 }
 
 private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(

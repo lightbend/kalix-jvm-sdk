@@ -21,18 +21,11 @@ import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PojoMessageType
 import com.lightbend.akkasls.codegen.ProtoMessageType
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.allRelevantMessageTypes
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.collectRelevantTypes
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.generateImports
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.generateSerializers
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.lowerFirst
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.managedComment
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.qualifiedType
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.unmanagedComment
-import com.lightbend.akkasls.codegen.java.JavaGeneratorUtils.typeName
-import com.lightbend.akkasls.codegen.java.JavaGeneratorUtils.writeImports
 
 object EventSourcedEntitySourceGenerator {
+  import JavaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+
   private[codegen] def eventSourcedEntityRouter(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,

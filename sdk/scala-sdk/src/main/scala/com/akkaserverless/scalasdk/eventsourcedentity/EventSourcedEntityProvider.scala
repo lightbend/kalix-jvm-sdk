@@ -17,6 +17,8 @@
 package com.akkaserverless.scalasdk.eventsourcedentity
 
 import scala.collection.immutable.Seq
+
+import com.akkaserverless.javasdk.impl.Serializer
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import com.google.protobuf.Descriptors
 
@@ -35,4 +37,6 @@ trait EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]] {
   def newRouter(context: EventSourcedEntityContext): EventSourcedEntityRouter[S, E]
 
   def additionalDescriptors: Seq[Descriptors.FileDescriptor]
+
+  def serializer: Serializer
 }
