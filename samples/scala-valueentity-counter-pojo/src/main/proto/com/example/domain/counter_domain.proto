@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package com.example.domain; // <1>
+
+message CounterState { // <2>
+  int32 value = 1;
+}
