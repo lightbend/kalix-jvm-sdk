@@ -35,9 +35,9 @@ class CounterProvider private(entityFactory: EventSourcedEntityContext => Counte
     new CounterRouter(entityFactory(context))
 
   override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    CounterStateProto.javaDescriptor ::
     eventsourcedentity.CounterApiProto.javaDescriptor ::
     EmptyProto.javaDescriptor ::
-    CounterEventsProto.javaDescriptor :: Nil
+    CounterEventsProto.javaDescriptor ::
+    CounterStateProto.javaDescriptor :: Nil
 }
 

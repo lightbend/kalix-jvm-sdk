@@ -17,19 +17,23 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
+import com.lightbend.akkasls.codegen.Imports
+import com.lightbend.akkasls.codegen.MessageType
+import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder, PackageNaming }
 
 object ScalaGeneratorUtils {
-  def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
-    if (fqn.fullyQualifiedJavaName == "com.google.protobuf.any.Any") "ScalaPbAny"
-    else if (imports.contains(fqn.fullyQualifiedJavaName)) fqn.name
-    else if (fqn.parent.javaPackage == imports.currentPackage) fqn.name
-    else if (imports.contains(fqn.parent.javaPackage))
-      fqn.parent.javaPackage.split("\\.").last + "." + fqn.name
+  def typeName(messageType: MessageType)(implicit imports: Imports): String =
+    if (messageType.fullyQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
+    else if (imports.contains(messageType.fullyQualifiedName)) messageType.name
+    else if (messageType.packageName == imports.currentPackage) messageType.name
+    else if (imports.contains(messageType.packageName))
+      messageType.packageName.split("\\.").last + "." + messageType.name
     else
-      s"${fqn.parent.javaPackage}.${fqn.name}"
-  }
+      s"${messageType.packageName}.${messageType.name}"
 
   def writeImports(imports: Imports): String = {
     imports.ordered
@@ -44,8 +48,8 @@ object ScalaGeneratorUtils {
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
     typeArgument match {
-      case ModelBuilder.MessageTypeArgument(fqn) =>
-        typeName(fqn)
+      case ModelBuilder.MessageTypeArgument(messageType) =>
+        typeName(messageType)
       case ModelBuilder.ScalarTypeArgument(scalar) =>
         scalar match {
           case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
@@ -85,11 +89,12 @@ object ScalaGeneratorUtils {
     val packageImportStrings = packageImports.map(_.scalaPackage)
     implicit val imports = new Imports(
       parent.scalaPackage,
-      packageImportStrings ++ block.fqns
-        .filter(_.parent.scalaPackage.nonEmpty)
-        .filterNot { typ =>
-          packageImportStrings.contains(typ.parent.scalaPackage)
+      packageImportStrings ++ block.messageTypes
+        .filter {
+          case proto: ProtoMessageType => proto.parent.javaPackage.nonEmpty
+          case _                       => true
         }
+        .filterNot { messageType => packageImportStrings.contains(messageType.packageName) }
         .map(typeImport))
 
     File.scala(

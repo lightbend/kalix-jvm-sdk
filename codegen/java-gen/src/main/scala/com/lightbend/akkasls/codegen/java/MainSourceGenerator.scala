@@ -70,7 +70,7 @@ object MainSourceGenerator {
         Seq("com.akkaserverless.javasdk.AkkaServerless", "org.slf4j.Logger", "org.slf4j.LoggerFactory"))
 
     val entityRegistrationParameters = entities.values.toList
-      .sortBy(_.fqn.name)
+      .sortBy(_.messageType.name)
       .collect {
         case entity: ModelBuilder.EventSourcedEntity => s"${typeName(entity.impl)}::new"
         case entity: ModelBuilder.ValueEntity        => s"${typeName(entity.impl)}::new"
@@ -78,7 +78,7 @@ object MainSourceGenerator {
       }
 
     val serviceRegistrationParameters = services.values.toList
-      .sortBy(_.fqn.name)
+      .sortBy(_.messageType.name)
       .collect {
         case service: ModelBuilder.ActionService => s"${typeName(service.impl)}::new"
         case view: ModelBuilder.ViewService      => s"${typeName(view.impl)}::new"
@@ -119,7 +119,7 @@ object MainSourceGenerator {
     }
 
     val serviceImports = model.services.values.flatMap { serv =>
-      serv.fqn.descriptorObject ++
+      serv.messageType.descriptorObject ++
       (serv match {
         case actionServ: ModelBuilder.ActionService =>
           List(actionServ.impl, actionServ.provider)
@@ -152,9 +152,9 @@ object MainSourceGenerator {
         mainClassPackageName,
         "com.akkaserverless.javasdk.AkkaServerless" +: contextImports)
 
-    def creator(fqn: FullyQualifiedName): String = {
-      if (imports.clashingNames.contains(fqn.name)) s"create${dotsToCamelCase(typeName(fqn))}"
-      else s"create${fqn.name}"
+    def creator(messageType: ProtoMessageType): String = {
+      if (imports.clashingNames.contains(messageType.name)) s"create${dotsToCamelCase(typeName(messageType))}"
+      else s"create${messageType.name}"
     }
 
     val registrations = model.services.values
@@ -181,7 +181,7 @@ object MainSourceGenerator {
 
     val entityCreators =
       model.entities.values.toList
-        .sortBy(_.fqn.name)
+        .sortBy(_.messageType.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>
             s"Function<EventSourcedEntityContext, ${typeName(entity.impl)}> ${creator(entity.impl)}"
@@ -192,7 +192,7 @@ object MainSourceGenerator {
         }
 
     val serviceCreators = model.services.values.toList
-      .sortBy(_.fqn.name)
+      .sortBy(_.messageType.name)
       .collect {
         case service: ModelBuilder.ActionService =>
           s"Function<ActionCreationContext, ${typeName(service.impl)}> ${creator(service.impl)}"

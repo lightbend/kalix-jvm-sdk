@@ -39,7 +39,7 @@ object AkkaserverlessGenerator extends CodeGenApp {
     val configuredRootPackage = extractRootPackage(request.parameter)
     val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
       DebugPrintlnLog(debugEnabled),
-      FullyQualifiedNameExtractor(request))
+      ProtoMessageTypeExtractor(request))
     try {
       CodeGenResponse.succeed(
         SourceGenerator

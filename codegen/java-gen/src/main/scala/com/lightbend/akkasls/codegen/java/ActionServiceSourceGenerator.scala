@@ -37,7 +37,7 @@ object ActionServiceSourceGenerator {
    * Impure.
    */
   def generate(service: ModelBuilder.ActionService, rootPackage: String): GeneratedFiles = {
-    val pkg = service.fqn.parent
+    val pkg = service.messageType.parent
 
     GeneratedFiles.Empty
       .addManaged(File.java(pkg, service.abstractActionName, abstractActionSource(service, rootPackage)))
@@ -55,7 +55,7 @@ object ActionServiceSourceGenerator {
 
   private[codegen] def actionSource(service: ModelBuilder.ActionService): String = {
 
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
     val className = service.className
 
     val imports = generateImports(
@@ -128,7 +128,7 @@ object ActionServiceSourceGenerator {
 
   private[codegen] def abstractActionSource(service: ModelBuilder.ActionService, rootPackage: String): String = {
 
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
     val imports = generateImports(
       service.commandTypes,
       packageName,
@@ -182,7 +182,7 @@ object ActionServiceSourceGenerator {
   private[codegen] def actionRouter(service: ModelBuilder.ActionService): String = {
 
     val className = service.className
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
 
     val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
@@ -289,16 +289,18 @@ object ActionServiceSourceGenerator {
 
   private[codegen] def actionProvider(service: ModelBuilder.ActionService): String = {
 
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
     val classNameAction = service.className
-    val protoName = service.fqn.protoName
+    val protoName = service.messageType.protoName
 
     val relevantDescriptors =
-      collectRelevantTypes(service.commandTypes, service.fqn)
-        .collect { case fqn if fqn.isProtoMessage => s"${fqn.parent.javaOuterClassname}.getDescriptor()" }
+      collectRelevantTypes(service.commandTypes, service.messageType)
+        .collect { case pmt: ProtoMessageType =>
+          s"${pmt.parent.javaOuterClassname}.getDescriptor()"
+        }
 
     val descriptors =
-      (relevantDescriptors :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     implicit val imports: Imports = generateImports(
       service.commandTypes ++ service.commandTypes.map(_.descriptorImport),
@@ -349,7 +351,7 @@ object ActionServiceSourceGenerator {
       |
       |  @Override
       |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-      |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("$protoName");
+      |    return ${typeName(service.messageType.descriptorImport)}.getDescriptor().findServiceByName("$protoName");
       |  }
       |
       |  @Override

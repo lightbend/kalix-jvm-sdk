@@ -24,39 +24,39 @@ class JavaGeneratorUtilsSuite extends munit.FunSuite {
     implicit val imports = new Imports("com.example", Nil)
 
     val packaging = PackageNaming(protoFileName = "test.proto", name = "Outer", protoPackage = "com.example.domain")
-    val fqn = FullyQualifiedName.noDescriptor("Test", packaging)
+    val messageType = ProtoMessageType.noDescriptor("Test", packaging)
 
     // It's not imported, so we should use the full name, including outer class:
-    assertEquals(typeName(fqn), "com.example.domain.Outer.Test")
+    assertEquals(typeName(messageType), "com.example.domain.Outer.Test")
   }
 
   test("refer to an inner class directly when the outer class is imported") {
     implicit val imports = new Imports("com.example", Nil)
 
     val packaging = PackageNaming(protoFileName = "test.proto", name = "Outer", protoPackage = "com.example.domain")
-    val fqn = FullyQualifiedName.noDescriptor("Test", packaging)
+    val messageType = ProtoMessageType.noDescriptor("Test", packaging)
 
     // It's not imported, so we should use the full name, including outer class:
-    assertEquals(typeName(fqn), "com.example.domain.Outer.Test")
+    assertEquals(typeName(messageType), "com.example.domain.Outer.Test")
   }
 
   test("refer to an inner class via its outer class when the outer class is in the current package") {
     implicit val imports = new Imports("com.example", Nil)
 
     val packaging = PackageNaming(protoFileName = "test.proto", name = "Outer", protoPackage = "com.example")
-    val fqn = FullyQualifiedName.noDescriptor("Test", packaging)
+    val messageType = ProtoMessageType.noDescriptor("Test", packaging)
 
     // It's not imported, so we should use the full name, including outer class:
-    assertEquals(typeName(fqn), "Outer.Test")
+    assertEquals(typeName(messageType), "Outer.Test")
   }
 
   test("refer to a class with its FQN when there would be clashing imports") {
     implicit val imports = new Imports("com.example", Seq("com.example.bar.Foo", "com.example.baz.Foo"))
     val bar =
       PackageNaming(protoFileName = "test.proto", name = "", protoPackage = "com.example.bar", javaMultipleFiles = true)
-    val fqn = FullyQualifiedName.noDescriptor("Foo", bar)
+    val messageType = ProtoMessageType.noDescriptor("Foo", bar)
 
-    assertEquals(typeName(fqn), "com.example.bar.Foo")
+    assertEquals(typeName(messageType), "com.example.bar.Foo")
     assert(!writeImports(imports).contains("com.example.bar.Foo"))
     assert(!writeImports(imports).contains("com.example.bar.Bar"))
   }
@@ -65,9 +65,9 @@ class JavaGeneratorUtilsSuite extends munit.FunSuite {
     implicit val imports = new Imports("com.example", Seq("com.example.bar.Foo", "com.example.Foo"))
     val bar =
       PackageNaming(protoFileName = "test.proto", name = "", protoPackage = "com.example.bar", javaMultipleFiles = true)
-    val fqn = FullyQualifiedName.noDescriptor("Foo", bar)
+    val messageType = ProtoMessageType.noDescriptor("Foo", bar)
 
-    assertEquals(typeName(fqn), "com.example.bar.Foo")
+    assertEquals(typeName(messageType), "com.example.bar.Foo")
     assert(!writeImports(imports).contains("com.example.bar.Foo"))
   }
 }

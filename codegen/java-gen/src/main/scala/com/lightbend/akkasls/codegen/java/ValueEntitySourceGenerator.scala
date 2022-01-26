@@ -18,10 +18,12 @@ package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   private[codegen] def valueEntitySource(
       service: ModelBuilder.EntityService,
@@ -30,11 +32,11 @@ object ValueEntitySourceGenerator {
       className: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext"))
 
-    val stateType = entity.state.fqn.fullName
+    val stateType = entity.state.messageType.fullName
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -81,14 +83,14 @@ object ValueEntitySourceGenerator {
       className: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.CommandContext",
         "com.akkaserverless.javasdk.valueentity.ValueEntity",
         "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter"))
 
-    val stateType = entity.state.fqn.fullName
+    val stateType = entity.state.messageType.fullName
 
     val commandCases = service.commands
       .map { cmd =>
@@ -106,12 +108,12 @@ object ValueEntitySourceGenerator {
         |$managedComment
         |
         |/**
-        | * A value entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
-        | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
+        | * A value entity handler that is the glue between the Protobuf service <code>${service.messageType.name}</code>
+        | * and the command handler methods in the <code>${entity.messageType.name}</code> class.
         | */
-        |public class ${className}Router extends ValueEntityRouter<$stateType, ${entity.fqn.name}> {
+        |public class ${className}Router extends ValueEntityRouter<$stateType, ${entity.messageType.name}> {
         |
-        |  public ${className}Router(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.messageType.name} entity) {
         |    super(entity);
         |  }
         |
@@ -136,15 +138,13 @@ object ValueEntitySourceGenerator {
       entity: ModelBuilder.ValueEntity,
       packageName: String,
       className: String): String = {
-    val relevantTypes = {
-      List(entity.state.fqn) ++
-      service.commands.flatMap { cmd =>
-        cmd.inputType :: cmd.outputType :: Nil
-      }
-    }
+
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+    val relevantPojoTypes = relevantTypes.collect { case pojo: PojoMessageType => pojo }
 
     implicit val imports = generateImports(
-      relevantTypes ++ relevantTypes.flatMap(_.descriptorObject),
+      relevantTypes ++ relevantProtoTypes.flatMap(_.descriptorObject),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.impl.Serializer",
@@ -155,14 +155,14 @@ object ValueEntitySourceGenerator {
         "java.util.function.Function"))
 
     val relevantTypeDescriptors =
-      collectRelevantTypes(relevantTypes, service.fqn)
+      collectRelevantTypes(relevantProtoTypes, service.messageType)
         .flatMap(_.descriptorObject)
-        .collect { case fqn if fqn.isProtoMessage => s"${fqn.name}.getDescriptor()" }
+        .map { messageType => s"${messageType.name}.getDescriptor()" }
 
     val descriptors =
-      (relevantTypeDescriptors :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantTypeDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    val jsonSerializers = generateSerializers(relevantTypes.filterNot(_.isProtoMessage))
+    val jsonSerializers = generateSerializers(relevantPojoTypes)
 
     s"""package $packageName;
         |
@@ -172,11 +172,11 @@ object ValueEntitySourceGenerator {
         |
         |/**
         | * A value entity provider that defines how to register and create the entity for
-        | * the Protobuf service <code>${service.fqn.name}</code>.
+        | * the Protobuf service <code>${service.messageType.name}</code>.
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
-        |public class ${className}Provider implements ValueEntityProvider<${entity.state.fqn.fullName}, $className> {
+        |public class ${className}Provider implements ValueEntityProvider<${entity.state.messageType.fullName}, $className> {
         |
         |  private final Function<ValueEntityContext, $className> entityFactory;
         |  private final ValueEntityOptions options;
@@ -204,7 +204,7 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.messageType.descriptorImport)}.getDescriptor().findServiceByName("${service.messageType.name}");
         |  }
         |
         |  @Override
@@ -240,10 +240,10 @@ object ValueEntitySourceGenerator {
       className: String,
       mainPackageName: String): String = {
 
-    val stateType = entity.state.fqn
+    val stateType = entity.state.messageType
 
     implicit val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.valueentity.ValueEntity",

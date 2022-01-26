@@ -32,8 +32,8 @@ class CounterProvider private(entityFactory: ValueEntityContext => Counter, over
     new CounterRouter(entityFactory(context))
 
   override final val additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-    CounterDomainProto.javaDescriptor ::
     valueentity.CounterApiProto.javaDescriptor ::
-    EmptyProto.javaDescriptor :: Nil
+    EmptyProto.javaDescriptor ::
+    CounterDomainProto.javaDescriptor :: Nil
 }
 
