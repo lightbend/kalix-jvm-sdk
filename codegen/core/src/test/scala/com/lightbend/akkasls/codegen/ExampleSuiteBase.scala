@@ -46,14 +46,14 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
 
   val tests =
     testsDir
-      .walk(f => f.isDirectory && f.listFiles().exists(d => d.isDirectory && d.getName == "proto"))
+      .walkNoAbsPath(f => f.isDirectory && f.listFiles().exists(d => d.isDirectory && d.getName == "proto"))
       .toVector
 
   tests.foreach { testDirUnresolved =>
     val testDir = testsDir.toPath.resolve(testDirUnresolved.toPath).toFile
 
     val protoDir = testDir / "proto"
-    val protos = protoDir.byName(_.endsWith(".proto"))
+    val protos = protoDir.walk(_.getName.endsWith(".proto"))
     val tmpDesc = java.io.File.createTempFile("user", ".desc")
     tmpDesc.deleteOnExit()
 
@@ -92,7 +92,7 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
 
   def assertFiles(expectedDir: java.io.File, actualGenerated: Seq[File]): Unit = {
     val actual = actualGenerated.map(g => g.name -> g.content).toMap
-    val expectedFiles = expectedDir.walkFiles().toVector
+    val expectedFiles = expectedDir.walkFilesNoAbsPath().toVector
     val expectedNameSet = expectedFiles.map(_.getPath).toSet
     val missing = expectedNameSet.diff(actual.keySet)
     val extra = actual.keySet.diff(expectedNameSet)
@@ -106,31 +106,33 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
   }
 }
 object ExampleSuiteBase {
+  import java.io.File
   type ExampleSuiteBuildInfo = {
-    def protocExecutable: java.io.File
-    def protocExternalIncludePath: java.io.File
-    def protocExternalSourcePath: java.io.File
-    def test_resourceDirectory: java.io.File
+    def protocExecutable: File
+    def protocExternalIncludePath: File
+    def protocExternalSourcePath: File
+    def test_resourceDirectory: File
   }
 
-  import java.io.File
   implicit class FileTools(val f: File) extends AnyVal {
     def /(path: String): File = new File(f, path)
-    def byName(filter: String => Boolean): Seq[File] = f.listFiles(f => filter(f.getName)).toVector
     import scala.collection.JavaConverters._
-    def walkFiles(): Iterator[File] = walk(_.isFile)
-    def walk(p: File => Boolean): Iterator[File] =
+    def walk(filter: File => Boolean): Iterator[File] = {
       if (f.exists())
         Files
           .walk(f.toPath, FileVisitOption.FOLLOW_LINKS)
           .map[File](_.toFile)
-          .filter(p(_))
-          .map[File] { sub =>
-            require(sub.getCanonicalPath.startsWith(f.getCanonicalPath))
-            new File(sub.getCanonicalPath.drop(f.getCanonicalPath.size + 1))
-          }
+          .filter(filter(_))
           .iterator()
           .asScala
       else Iterator.empty
+    }
+    def walkFilesNoAbsPath(): Iterator[File] = walkNoAbsPath(_.isFile)
+    def walkNoAbsPath(filter: File => Boolean): Iterator[File] =
+      walk(filter)
+        .map[File] { sub =>
+          require(sub.getCanonicalPath.startsWith(f.getCanonicalPath))
+          new File(sub.getCanonicalPath.drop(f.getCanonicalPath.size + 1))
+        }
   }
 }
