@@ -17,9 +17,7 @@ object MainWithCustomViewId {
       .register(
         CustomerByNameViewProvider(new CustomerByNameView(_))
           .withViewId("CustomerByNameV2"))
-      .register(
-        CustomerEntityProvider(new CustomerEntity(_))
-      )
+      .register(CustomerEntityProvider(new CustomerEntity(_)))
   // end::register[]
 
   def main(args: Array[String]): Unit = {
