@@ -38,7 +38,11 @@ It is recommended that you align the `proto` directory structure with the packag
 
 === Messages
 
-You define messages that can be sent to or returned from the service. Each message for an Entity that is input to a RPC command, *must* contain an Entity key. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(akkaserverless.field).entity_key`. Akka Serverless uses the `entity_key` to know which instance of an Entity a message is for. If more than one field is specified as an Entity key, the fields are concatenated together. Akka Serverless serializes Entity keys to strings.
+You define messages that can be sent to or returned from the service.
+
+==== Messages for entities
+
+Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Akka Serverless can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(akkaserverless.field).entity_key`. Akka Serverless extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Akka Serverless serializes Entity keys to strings.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -56,6 +60,21 @@ message SomeMessage {
   string second_field = 2 [(akkaserverless.field).entity_key = true];
 }  
 ----
+
+==== Generated entity keys
+
+In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Akka Serverless that an Entity key should be generated, the incoming message must not have any `(akkaserverless.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(akkaserverless.method).entity.key_generator`, for example:
+
+[source,proto]
+----
+rpc CreateCart(CreateCartRequest) returns (CreateCartResponse) {
+  option (akkaserverless.method).entity.key_generator = VERSION_4_UUID;
+};
+----
+
+This will generate a version 4 (random) UUID for the Entity. Only version 4 UUIDs are currently supported for generated Entity keys.
+
+It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
 
 === Service
 
