@@ -235,7 +235,7 @@ object EventSourcedEntitySourceGenerator {
        |
        |${writeImports(imports)}
        |
-       |$unmanagedComment
+       |${unmanagedComment(Right(entity))}
        |
        |/** An event sourced entity. */
        |public class $className extends ${interfaceClassName} {

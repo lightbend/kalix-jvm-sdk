@@ -53,7 +53,7 @@ object ValueEntitySourceGenerator {
         |
         |${writeImports(imports)}
         |
-        |$unmanagedComment
+        |${unmanagedComment(Right(entity))}
         |
         |/** A value entity. */
         |public class $className extends Abstract$className {

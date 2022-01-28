@@ -174,7 +174,7 @@ object ViewServiceSourceGenerator {
 
     JavaGeneratorUtils.generate(
       packageName,
-      c"""$unmanagedComment
+      c"""${unmanagedComment(Left(view))}
        |
        |public class ${view.className} extends ${view.abstractView} {
        |

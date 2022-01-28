@@ -43,12 +43,28 @@ object SourceGeneratorUtils {
     """// This code is managed by Akka Serverless tooling.
        |// It will be re-generated to reflect any changes to your protobuf definitions.
        |// DO NOT EDIT""".stripMargin
-
+  //TODO delete this val
   val unmanagedComment =
     """// This class was initially generated based on the .proto definition by Akka Serverless tooling.
        |//
        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
        |// or delete it so it is regenerated as needed.""".stripMargin
+
+  def unmanagedComment(service: Either[ModelBuilder.Service, ModelBuilder.Entity]) = {
+
+    val (kind, fileName) = service match {
+      case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.fqn.parent.protoFileName)
+      case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.fqn.parent.protoFileName)
+      case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.fqn.parent.protoFileName)
+      case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.fqn.parent.protoFileName)
+      case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.fqn.parent.protoFileName)
+    }
+    s"""// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+       |// This is the implementation for the $kind described in your $fileName file.
+       |//
+       |// As long as this file exists it will not be overwritten: you can maintain it yourself,
+       |// or delete it so it is regenerated as needed.""".stripMargin
+  }
 
   def mainPackageName(classNames: Iterable[String]): List[String] = {
     val packages = classNames

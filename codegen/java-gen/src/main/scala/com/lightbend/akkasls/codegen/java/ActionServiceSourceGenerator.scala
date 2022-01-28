@@ -114,7 +114,7 @@ object ActionServiceSourceGenerator {
         |
         |${writeImports(imports)}
         |
-        |$unmanagedComment
+        |${unmanagedComment(Left(service))}
         |
         |/** An action. */
         |public class $className extends ${service.abstractActionName} {

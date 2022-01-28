@@ -66,7 +66,7 @@ object ReplicatedEntitySourceGenerator {
         |
         |${writeImports(imports)}
         |
-        |$unmanagedComment
+        |${unmanagedComment(Right(entity))}
         |
         |/** A replicated entity. */
         |public class $className extends Abstract$className {
