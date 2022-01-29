@@ -8,7 +8,6 @@ import com.akkaserverless.scalasdk.view.View
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A view handler */
 class MyUserByNameViewRouter(view: MyUserByNameView)
   extends ViewRouter[UserState, MyUserByNameView](view) {
 

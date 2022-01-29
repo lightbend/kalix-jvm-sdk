@@ -8,7 +8,6 @@ import com.akkaserverless.javasdk.view.View;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A view handler */
 public class MyUserByNameViewRouter extends ViewRouter<UserViewModel.UserState, MyUserByNameView> {
 
   public MyUserByNameViewRouter(MyUserByNameView view) {

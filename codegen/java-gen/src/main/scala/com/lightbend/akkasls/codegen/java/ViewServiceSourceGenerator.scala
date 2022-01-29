@@ -54,7 +54,6 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |/** A view handler */
           |public class ${view.routerName} extends $ViewRouter<${view.state.fqn}, ${view.impl}> {
           |
           |  public ${view.routerName}(${view.impl} view) {
