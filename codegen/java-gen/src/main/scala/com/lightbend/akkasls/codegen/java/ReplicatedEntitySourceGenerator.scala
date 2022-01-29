@@ -68,7 +68,6 @@ object ReplicatedEntitySourceGenerator {
         |
         |${unmanagedComment(Right(entity))}
         |
-        |/** A replicated entity. */
         |public class $className extends Abstract$className {
         |  @SuppressWarnings("unused")
         |  private final String entityId;
@@ -267,8 +266,7 @@ object ReplicatedEntitySourceGenerator {
         val inputType = cmd.inputType.fullName
         val outputType = cmd.outputType.fullName
 
-        s"""|/** Command handler for "${cmd.name}". */
-            |public abstract Effect<$outputType> ${lowerFirst(
+        s"""|public abstract Effect<$outputType> ${lowerFirst(
           methodName)}($parameterizedDataType currentData, $inputType ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
       }
@@ -279,7 +277,6 @@ object ReplicatedEntitySourceGenerator {
         |
         |$managedComment
         |
-        |/** A replicated entity. */
         |public abstract class $abstractEntityName extends $baseClass$typeArguments {
         |
         |  protected final Components components() {

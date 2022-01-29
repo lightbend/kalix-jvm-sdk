@@ -84,7 +84,6 @@ object ReplicatedEntitySourceGenerator {
           |
           |$unmanagedComment
           |
-          |/** A replicated entity. */
           |class ${className}(context: ReplicatedEntityContext) extends $abstractEntityName {
           |
           |$emptyValue
@@ -136,7 +135,6 @@ object ReplicatedEntitySourceGenerator {
           |
           |$managedComment
           |
-          |/** A replicated entity. */
           |abstract class ${abstractEntityName} extends $baseClass$typeArguments {
           |
           |  ${Format.indent(methods, 2)}

@@ -10,10 +10,8 @@ import com.google.protobuf.empty.Empty
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A replicated entity. */
 abstract class AbstractSomeMultiMap extends ReplicatedMultiMapEntity[SomeKey, SomeValue] {
 
-  /** Command handler for "Put". */
   def put(currentData: ReplicatedMultiMap[SomeKey, SomeValue], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty]
 
 }
