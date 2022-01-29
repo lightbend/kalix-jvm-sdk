@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 
-/** An action. */
 public class FibonacciAction extends AbstractFibonacciAction { // <1>
 
   public FibonacciAction(ActionCreationContext creationContext) {}
@@ -33,7 +32,6 @@ public class FibonacciAction extends AbstractFibonacciAction { // <1>
     return Math.round(result);
   }
 
-  /** Handler for "NextNumber". */
   @Override
   public Effect<FibonacciApi.Number> nextNumber(FibonacciApi.Number number) {
     long num = number.getValue();

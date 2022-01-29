@@ -16,7 +16,6 @@ abstract class AbstractMyServiceAction extends Action {
   def components: Components =
     new ComponentsImpl(actionContext)
 
-
   def simpleMethod(myRequest: MyRequest): Action.Effect[Empty]
 
   def streamedOutputMethod(myRequest: MyRequest): Source[Action.Effect[Empty], NotUsed]

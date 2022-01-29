@@ -11,7 +11,6 @@ import com.akkaserverless.scalasdk.impl.action.ActionRouter
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** An Action handler */
 class MyServiceActionRouter(action: MyServiceAction) extends ActionRouter[MyServiceAction](action) {
 
   override def handleUnary(commandName: String, message: MessageEnvelope[Any]):  Action.Effect[_] = {

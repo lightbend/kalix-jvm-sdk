@@ -9,7 +9,6 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 
-/** An action. */
 class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFibonacciAction { // <1>
 
   // tag::implemented-action[]
@@ -26,7 +25,6 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
     Math.round(result)
   }
 
-  /** Handler for "NextNumber". */
   override def nextNumber(number: Number): Action.Effect[Number] = {
     val num = number.value
     if (isFibonacci(num)) // <2>
