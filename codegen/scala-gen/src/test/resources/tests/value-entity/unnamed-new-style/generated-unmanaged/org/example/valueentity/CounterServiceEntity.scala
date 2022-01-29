@@ -11,7 +11,6 @@ import org.example.valueentity.domain.CounterState
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** A value entity. */
 class CounterServiceEntity(context: ValueEntityContext) extends AbstractCounterServiceEntity {
   override def emptyState: CounterState =
     throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")

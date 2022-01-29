@@ -10,7 +10,6 @@ import org.example.valueentity.domain.CounterDomain;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** A value entity. */
 public class CounterServiceEntity extends AbstractCounterServiceEntity {
   @SuppressWarnings("unused")
   private final String entityId;

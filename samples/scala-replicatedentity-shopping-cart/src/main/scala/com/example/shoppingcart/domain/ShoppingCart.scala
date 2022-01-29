@@ -15,7 +15,6 @@ import com.google.protobuf.empty.Empty
 class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCart { // <1>
   // end::class[]
 
-  /** Command handler for "AddItem". */
   // tag::addItem[]
   def addItem(
       cart: ReplicatedCounterMap[Product],
@@ -33,7 +32,6 @@ class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCar
   }
   // end::addItem[]
 
-  /** Command handler for "RemoveItem". */
   def removeItem(
       cart: ReplicatedCounterMap[Product], // <1>
       removeLineItem: shoppingcart.RemoveLineItem): ReplicatedEntity.Effect[Empty] = {
@@ -48,7 +46,6 @@ class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCar
     }
   }
 
-  /** Command handler for "GetCart". */
   // tag::getCart[]
   def getCart(
       cart: ReplicatedCounterMap[Product], // <1>
@@ -68,7 +65,6 @@ class ShoppingCart(context: ReplicatedEntityContext) extends AbstractShoppingCar
   }
   // end::getCart[]
 
-  /** Command handler for "RemoveCart". */
   // tag::removeCart[]
   def removeCart(
       cart: ReplicatedCounterMap[Product],

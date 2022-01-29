@@ -6,7 +6,6 @@ import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.google.protobuf.empty.Empty
 import customer.api
 
-/** An event sourced entity. */
 class CustomerEntity(context: EventSourcedEntityContext) extends AbstractCustomerEntity {
 
   private val entityId = context.entityId

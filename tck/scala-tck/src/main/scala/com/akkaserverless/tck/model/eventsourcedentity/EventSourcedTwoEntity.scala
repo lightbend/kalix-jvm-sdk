@@ -18,7 +18,6 @@ package com.akkaserverless.tck.model.eventsourcedentity
 
 import com.akkaserverless.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
 
-/** An event sourced entity. */
 class EventSourcedTwoEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTwoEntity {
   override def emptyState: Persisted = Persisted.defaultInstance
 

@@ -19,7 +19,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 // end::imports[]
 
-/** An event sourced entity. */
 public class ShoppingCartEntity extends AbstractShoppingCartEntity {
 
   @SuppressWarnings("unused")

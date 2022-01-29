@@ -11,7 +11,6 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
-/** An event sourced entity. */
 public class Counter extends AbstractCounter {
 
   @SuppressWarnings("unused")

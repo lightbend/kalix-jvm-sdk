@@ -11,7 +11,6 @@ import com.google.protobuf.Empty;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An event sourced entity. */
 public class Counter extends AbstractCounter {
 
   @SuppressWarnings("unused")

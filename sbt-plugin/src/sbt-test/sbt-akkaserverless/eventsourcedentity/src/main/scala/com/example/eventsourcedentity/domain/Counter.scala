@@ -10,7 +10,6 @@ import com.google.protobuf.empty.Empty
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An event sourced entity. */
 class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
   override def emptyState: CounterState =
     CounterState(0)

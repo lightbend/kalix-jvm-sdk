@@ -10,7 +10,6 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.google.protobuf.empty.Empty
 import customer.api
 
-/** A value entity. */
 class CustomerValueEntity(context: ValueEntityContext) extends AbstractCustomerValueEntity {
 
   override def emptyState: CustomerState = CustomerState()

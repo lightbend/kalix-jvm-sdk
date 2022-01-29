@@ -13,7 +13,6 @@ import org.example.eventsourcedentity.domain.Increased
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An event sourced entity. */
 class CounterServiceEntity(context: EventSourcedEntityContext) extends AbstractCounterServiceEntity {
   override def emptyState: CounterState =
     throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")

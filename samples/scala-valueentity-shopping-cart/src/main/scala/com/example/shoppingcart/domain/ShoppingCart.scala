@@ -12,7 +12,6 @@ import java.time.Instant
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** A value entity. */
 class ShoppingCart(context: ValueEntityContext) extends AbstractShoppingCart {
 
   override def emptyState: Cart = Cart.defaultInstance

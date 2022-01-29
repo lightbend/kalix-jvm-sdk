@@ -72,7 +72,6 @@ object EventSourcedEntitySourceGenerator {
       abstractEntityName,
       c"""|$managedComment
           |
-          |/** An event sourced entity. */
           |abstract class $abstractEntityName extends $EventSourcedEntity[$stateType] {
           |
           |  def components: $Components =
@@ -201,7 +200,6 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity.fqn.name,
       c"""|$unmanagedComment
           |
-          |/** An event sourced entity. */
           |class ${eventSourcedEntity.fqn.name}(context: $EventSourcedEntityContext) extends ${eventSourcedEntity.abstractEntityName} {
           |  override def emptyState: ${eventSourcedEntity.state.fqn} =
           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")

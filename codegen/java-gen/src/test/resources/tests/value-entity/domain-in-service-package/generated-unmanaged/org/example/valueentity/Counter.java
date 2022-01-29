@@ -9,7 +9,6 @@ import com.google.protobuf.Empty;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** A value entity. */
 public class Counter extends AbstractCounter {
   @SuppressWarnings("unused")
   private final String entityId;

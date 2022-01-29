@@ -55,8 +55,7 @@ object ValueEntitySourceGenerator {
         val inputType = cmd.inputType
         val outputType = cmd.outputType
 
-        c"""|/** Command handler for "${cmd.name}". */
-            |def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): $ValueEntity.Effect[$outputType]
+        c"""|def ${lowerFirst(methodName)}(currentState: $stateType, ${lowerFirst(cmd.inputType.name)}: $inputType): $ValueEntity.Effect[$outputType]
             |"""
 
       }
@@ -69,7 +68,6 @@ object ValueEntitySourceGenerator {
       abstractEntityName,
       c"""|$managedComment
           |
-          |/** A value entity. */
           |abstract class $abstractEntityName extends $ValueEntity[$stateType] {
           |
           |  def components: $Components =
@@ -172,7 +170,6 @@ object ValueEntitySourceGenerator {
       valueEntity.fqn.name,
       c"""|$unmanagedComment
           |
-          |/** A value entity. */
           |class ${valueEntity.fqn.name}(context: $ValueEntityContext) extends ${valueEntity.abstractEntityName} {
           |  override def emptyState: ${valueEntity.state.fqn} =
           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")

@@ -59,8 +59,7 @@ object ReplicatedEntitySourceGenerator {
         val inputType = cmd.inputType
         val outputType = cmd.outputType
 
-        s"""|/** Command handler for "${cmd.name}". */
-            |def ${lowerFirst(methodName)}(currentData: $parameterizedDataType, ${lowerFirst(
+        s"""|def ${lowerFirst(methodName)}(currentData: $parameterizedDataType, ${lowerFirst(
           cmd.inputType.name)}: ${typeName(inputType)}): ReplicatedEntity.Effect[${typeName(outputType)}] =
             |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
             |""".stripMargin
@@ -120,8 +119,7 @@ object ReplicatedEntitySourceGenerator {
         val inputType = cmd.inputType
         val outputType = cmd.outputType
 
-        s"""|/** Command handler for "${cmd.name}". */
-            |def ${lowerFirst(methodName)}(currentData: $parameterizedDataType, ${lowerFirst(
+        s"""|def ${lowerFirst(methodName)}(currentData: $parameterizedDataType, ${lowerFirst(
           cmd.inputType.name)}: ${typeName(inputType)}): ReplicatedEntity.Effect[${typeName(outputType)}]
             |""".stripMargin
       }

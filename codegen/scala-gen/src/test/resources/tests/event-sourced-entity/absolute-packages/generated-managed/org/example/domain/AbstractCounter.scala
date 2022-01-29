@@ -13,7 +13,6 @@ import org.example.state.CounterState
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** An event sourced entity. */
 abstract class AbstractCounter extends EventSourcedEntity[CounterState] {
 
   def components: Components =
