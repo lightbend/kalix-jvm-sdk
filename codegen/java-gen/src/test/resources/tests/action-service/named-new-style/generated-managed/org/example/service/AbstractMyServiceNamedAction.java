@@ -10,22 +10,17 @@ import org.example.ComponentsImpl;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** An action. */
 public abstract class AbstractMyServiceNamedAction extends com.akkaserverless.javasdk.action.Action {
 
   protected final Components components() {
     return new ComponentsImpl(actionContext());
   }
 
-  /** Handler for "simpleMethod". */
   public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
 
-  /** Handler for "streamedOutputMethod". */
   public abstract Source<Effect<Empty>, NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest);
 
-  /** Handler for "streamedInputMethod". */
   public abstract Effect<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
 
-  /** Handler for "fullStreamedMethod". */
   public abstract Source<Effect<Empty>, NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, NotUsed> myRequestSrc);
 }

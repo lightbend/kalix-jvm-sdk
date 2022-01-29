@@ -81,28 +81,24 @@ object ActionServiceSourceGenerator {
           else ""
         }
 
-        s"""|/** Handler for "$methodName". */
-            |@Override
+        s"""|@Override
             |public Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input) {
             |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
             |}""".stripMargin
       } else if (cmd.isStreamOut) {
         s"""
-           |/** Handler for "$methodName". */
            |@Override
            |public Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}($inputTypeFullName $input) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
       } else if (cmd.isStreamIn) {
         s"""
-           |/** Handler for "$methodName". */
            |@Override
            |public Effect<$outputType> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
            |}""".stripMargin
       } else {
         s"""
-           |/** Handler for "$methodName". */
            |@Override
            |public Source<Effect<$outputType>, NotUsed> ${lowerFirst(methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src) {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet");
@@ -116,7 +112,6 @@ object ActionServiceSourceGenerator {
         |
         |${unmanagedComment(Left(service))}
         |
-        |/** An action. */
         |public class $className extends ${service.abstractActionName} {
         |
         |  public $className(ActionCreationContext creationContext) {}
@@ -142,21 +137,17 @@ object ActionServiceSourceGenerator {
       val outputType = cmd.outputType.fullName
 
       if (cmd.isUnary) {
-        s"""|/** Handler for "$methodName". */
-            |public abstract Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
+        s"""|public abstract Effect<$outputType> ${lowerFirst(methodName)}($inputTypeFullName $input);""".stripMargin
       } else if (cmd.isStreamOut) {
         s"""
-           |/** Handler for "$methodName". */
            |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(
           methodName)}($inputTypeFullName $input);""".stripMargin
       } else if (cmd.isStreamIn) {
         s"""
-           |/** Handler for "$methodName". */
            |public abstract Effect<$outputType> ${lowerFirst(
           methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       } else {
         s"""
-           |/** Handler for "$methodName". */
            |public abstract Source<Effect<$outputType>, NotUsed> ${lowerFirst(
           methodName)}(Source<$inputTypeFullName, NotUsed> ${input}Src);""".stripMargin
       }
@@ -168,7 +159,6 @@ object ActionServiceSourceGenerator {
         |
         |$managedComment
         |
-        |/** An action. */
         |public abstract class ${service.abstractActionName} extends com.akkaserverless.javasdk.action.Action {
         |
         |  protected final Components components() {

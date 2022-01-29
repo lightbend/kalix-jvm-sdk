@@ -9,10 +9,8 @@ import com.google.protobuf.empty.Empty
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An action. */
 class MyServiceActionImpl(creationContext: ActionCreationContext) extends AbstractMyServiceAction {
 
-  /** Handler for "simpleMethod". */
   override def simpleMethod(myRequest: MyRequest): Action.Effect[Empty] = {
     throw new RuntimeException("The command handler for `simpleMethod` is not implemented, yet")
   }
