@@ -16,21 +16,21 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 
 object Types {
   object View {
-    val UpdateHandlerNotFound = PojoMessageType("com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound")
-    val ViewRouter = PojoMessageType("com.akkaserverless.javasdk.impl.view.ViewRouter")
-    val View = PojoMessageType("com.akkaserverless.javasdk.view.View")
-    val ViewProvider = PojoMessageType("com.akkaserverless.javasdk.view.ViewProvider")
-    val ViewCreationContext = PojoMessageType("com.akkaserverless.javasdk.view.ViewCreationContext")
-    val ViewOptions = PojoMessageType("com.akkaserverless.javasdk.view.ViewOptions")
-    val ViewContext = PojoMessageType("com.akkaserverless.javasdk.view.ViewContext")
+    val UpdateHandlerNotFound = ClassMessageType("com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound")
+    val ViewRouter = ClassMessageType("com.akkaserverless.javasdk.impl.view.ViewRouter")
+    val View = ClassMessageType("com.akkaserverless.javasdk.view.View")
+    val ViewProvider = ClassMessageType("com.akkaserverless.javasdk.view.ViewProvider")
+    val ViewCreationContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewCreationContext")
+    val ViewOptions = ClassMessageType("com.akkaserverless.javasdk.view.ViewOptions")
+    val ViewContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewContext")
   }
 
-  val Descriptors = PojoMessageType("com.google.protobuf.Descriptors")
-  val EmptyProto = PojoMessageType("com.google.protobuf.EmptyProto")
-  val Function = PojoMessageType("java.util.function.Function")
+  val Descriptors = ClassMessageType("com.google.protobuf.Descriptors")
+  val EmptyProto = ClassMessageType("com.google.protobuf.EmptyProto")
+  val Function = ClassMessageType("java.util.function.Function")
 
 }

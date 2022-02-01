@@ -42,7 +42,7 @@ trait MessageType {
     packageName.replace('.', '/') + "/" + name
 }
 
-case class PojoMessageType(packageName: String, name: String) extends MessageType {
+case class ClassMessageType(packageName: String, name: String) extends MessageType {
 
   override def deriveName(derive: String => String): MessageType =
     copy(name = derive(name))
@@ -53,11 +53,11 @@ case class PojoMessageType(packageName: String, name: String) extends MessageTyp
 /**
  * A message type representing a simple Java/Scala type
  */
-object PojoMessageType {
-  def apply(fullQualifiedName: String): PojoMessageType = {
+object ClassMessageType {
+  def apply(fullQualifiedName: String): ClassMessageType = {
     val idx = fullQualifiedName.lastIndexOf('.')
     if (idx > 0)
-      PojoMessageType(fullQualifiedName.take(idx), fullQualifiedName.drop(idx + 1))
+      ClassMessageType(fullQualifiedName.take(idx), fullQualifiedName.drop(idx + 1))
     else
       throw new IllegalArgumentException(s"Expected fully-qualified name but got '$fullQualifiedName'")
   }

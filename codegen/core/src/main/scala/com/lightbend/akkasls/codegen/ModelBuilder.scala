@@ -471,7 +471,7 @@ object ModelBuilder {
         resolveProtoMessageType(resolvedName, descriptor, additionalDescriptors)
       }
       .getOrElse {
-        PojoMessageType(revolvedPackage, resolvedName)
+        ClassMessageType(revolvedPackage, resolvedName)
       }
   }
 
@@ -490,7 +490,7 @@ object ModelBuilder {
           MessageTypeArgument(resolveProtoMessageType(resolvedName, descriptor, additionalDescriptors))
         }
         .getOrElse {
-          MessageTypeArgument(PojoMessageType(revolvedPackage, resolvedName))
+          MessageTypeArgument(ClassMessageType(revolvedPackage, resolvedName))
         }
     }
   }

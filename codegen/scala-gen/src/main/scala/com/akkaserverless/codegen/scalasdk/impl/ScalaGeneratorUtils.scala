@@ -21,7 +21,7 @@ import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.MessageType
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 

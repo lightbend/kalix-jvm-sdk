@@ -197,7 +197,7 @@ object SourceGeneratorUtils {
 
     // non proto messages will require json serializers
     val importsForJsonSerializer =
-      if (types.exists(_.isInstanceOf[PojoMessageType])) {
+      if (types.exists(_.isInstanceOf[ClassMessageType])) {
         Seq("com.akkaserverless.javasdk.impl.Serializers", "com.akkaserverless.javasdk.impl.JsonSerializer")
       } else
         Seq.empty[String]
@@ -220,12 +220,12 @@ object SourceGeneratorUtils {
     generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
 
-  def generateSerializers(pojoMessageTypes: Iterable[PojoMessageType]): String =
-    if (pojoMessageTypes.isEmpty) {
+  def generateSerializers(classMessageTypes: Iterable[ClassMessageType]): String =
+    if (classMessageTypes.isEmpty) {
       "Serializer.noopSerializer()"
     } else {
       val buffer =
-        pojoMessageTypes.foldLeft(new StringBuilder("Serializers\n")) { case (buff, domainType) =>
+        classMessageTypes.foldLeft(new StringBuilder("Serializers\n")) { case (buff, domainType) =>
           buff.append(s".add(new JsonSerializer(${domainType.name}.class))\n")
         }
       buffer.toString()

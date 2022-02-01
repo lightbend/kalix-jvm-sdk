@@ -28,8 +28,8 @@ class PackagingSuite extends munit.FunSuite {
     assertNoDiff(messageType.fileBasename + ".scala", "com/example/service/domain/MyClass.scala")
   }
 
-  test("PojoMessageType should be able to produce filenames") {
-    val messageType = PojoMessageType("com.example.service.domain", "MyClass")
+  test("ClassMessageType should be able to produce filenames") {
+    val messageType = ClassMessageType("com.example.service.domain", "MyClass")
 
     assertNoDiff(messageType.fileBasename + ".scala", "com/example/service/domain/MyClass.scala")
   }

@@ -19,7 +19,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
@@ -60,8 +60,8 @@ object ValueEntitySourceGenerator {
 
       }
 
-    val Components = PojoMessageType(mainPackageName.javaPackage + ".Components")
-    val ComponentsImpl = PojoMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
+    val Components = ClassMessageType(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = ClassMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
 
     generate(
       valueEntity.messageType.parent,

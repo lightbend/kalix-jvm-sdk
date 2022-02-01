@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ReplicatedEntitySourceGenerator {
@@ -151,7 +151,7 @@ object ReplicatedEntitySourceGenerator {
 
     val relevantTypes = allRelevantMessageTypes(service, entity)
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
-    val relevantPojoTypes = relevantTypes.collect { case pojo: PojoMessageType => pojo }
+    val relevantClassTypes = relevantTypes.collect { case clsTyp: ClassMessageType => clsTyp }
 
     implicit val imports = generateImports(
       relevantTypes ++ relevantProtoTypes.map(_.descriptorImport),
@@ -175,7 +175,7 @@ object ReplicatedEntitySourceGenerator {
     val descriptors =
       (relevantDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
-    val jsonSerializers = generateSerializers(relevantPojoTypes)
+    val jsonSerializers = generateSerializers(relevantClassTypes)
 
     s"""package $packageName;
         |

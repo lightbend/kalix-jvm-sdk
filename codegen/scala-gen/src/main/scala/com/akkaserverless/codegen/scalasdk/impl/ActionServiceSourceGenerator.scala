@@ -20,7 +20,7 @@ import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 
 /**
  * Responsible for generating Scala sourced for Actions
@@ -133,8 +133,8 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    val Components = PojoMessageType(mainPackageName.javaPackage + ".Components")
-    val ComponentsImpl = PojoMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
+    val Components = ClassMessageType(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = ClassMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
 
     generate(
       service.messageType.parent,

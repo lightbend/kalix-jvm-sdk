@@ -20,7 +20,7 @@ import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ReplicatedEntitySourceGenerator {

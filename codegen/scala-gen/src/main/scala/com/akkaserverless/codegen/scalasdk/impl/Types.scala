@@ -16,59 +16,59 @@
 
 package com.akkaserverless.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.PojoMessageType
+import com.lightbend.akkasls.codegen.ClassMessageType
 
 object Types {
   object Action {
-    val Action = PojoMessageType("com.akkaserverless.scalasdk.action.Action")
-    val ActionCreationContext = PojoMessageType("com.akkaserverless.scalasdk.action.ActionCreationContext")
-    val ActionOptions = PojoMessageType("com.akkaserverless.scalasdk.action.ActionOptions")
-    val ActionProvider = PojoMessageType("com.akkaserverless.scalasdk.action.ActionProvider")
-    val MessageEnvelope = PojoMessageType("com.akkaserverless.scalasdk.action.MessageEnvelope")
-    val ActionRouter = PojoMessageType("com.akkaserverless.scalasdk.impl.action.ActionRouter")
-    val HandlerNotFound = PojoMessageType("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
+    val Action = ClassMessageType("com.akkaserverless.scalasdk.action.Action")
+    val ActionCreationContext = ClassMessageType("com.akkaserverless.scalasdk.action.ActionCreationContext")
+    val ActionOptions = ClassMessageType("com.akkaserverless.scalasdk.action.ActionOptions")
+    val ActionProvider = ClassMessageType("com.akkaserverless.scalasdk.action.ActionProvider")
+    val MessageEnvelope = ClassMessageType("com.akkaserverless.scalasdk.action.MessageEnvelope")
+    val ActionRouter = ClassMessageType("com.akkaserverless.scalasdk.impl.action.ActionRouter")
+    val HandlerNotFound = ClassMessageType("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
   }
 
   object EventSourcedEntity {
-    val EventSourcedEntity = PojoMessageType("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
-    val EventSourcedEntityProvider = PojoMessageType(
+    val EventSourcedEntity = ClassMessageType("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
+    val EventSourcedEntityProvider = ClassMessageType(
       "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
-    val EventSourcedEntityOptions = PojoMessageType(
+    val EventSourcedEntityOptions = ClassMessageType(
       "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
-    val EventSourcedEntityContext = PojoMessageType(
+    val EventSourcedEntityContext = ClassMessageType(
       "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
 
-    val CommandContext = PojoMessageType("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
-    val EventSourcedEntityRouter = PojoMessageType(
+    val CommandContext = ClassMessageType("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
+    val EventSourcedEntityRouter = ClassMessageType(
       "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
 
-    val CommandHandlerNotFound = PojoMessageType(
+    val CommandHandlerNotFound = ClassMessageType(
       "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
-    val EventHandlerNotFound = PojoMessageType(
+    val EventHandlerNotFound = ClassMessageType(
       "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
   }
 
   object ValueEntity {
-    val ValueEntity = PojoMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntity")
-    val CommandContext = PojoMessageType("com.akkaserverless.scalasdk.valueentity.CommandContext")
-    val ValueEntityContext = PojoMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityContext")
-    val ValueEntityOptions = PojoMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityOptions")
-    val ValueEntityProvider = PojoMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityProvider")
-    val ValueEntityRouter = PojoMessageType("com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter")
-    val CommandHandlerNotFound = PojoMessageType(
+    val ValueEntity = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntity")
+    val CommandContext = ClassMessageType("com.akkaserverless.scalasdk.valueentity.CommandContext")
+    val ValueEntityContext = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityContext")
+    val ValueEntityOptions = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityOptions")
+    val ValueEntityProvider = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityProvider")
+    val ValueEntityRouter = ClassMessageType("com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter")
+    val CommandHandlerNotFound = ClassMessageType(
       "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
   }
 
-  val DeferredCall = PojoMessageType("com.akkaserverless.scalasdk.DeferredCall")
-  val ScalaDeferredCallAdapter = PojoMessageType("com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter")
-  val InternalContext = PojoMessageType("com.akkaserverless.scalasdk.impl.InternalContext")
-  val Context = PojoMessageType("com.akkaserverless.scalasdk.Context")
-  val Metadata = PojoMessageType("com.akkaserverless.scalasdk.Metadata")
+  val DeferredCall = ClassMessageType("com.akkaserverless.scalasdk.DeferredCall")
+  val ScalaDeferredCallAdapter = ClassMessageType("com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter")
+  val InternalContext = ClassMessageType("com.akkaserverless.scalasdk.impl.InternalContext")
+  val Context = ClassMessageType("com.akkaserverless.scalasdk.Context")
+  val Metadata = ClassMessageType("com.akkaserverless.scalasdk.Metadata")
 
-  val Source = PojoMessageType("akka.stream.scaladsl.Source")
-  val NotUsed = PojoMessageType("akka.NotUsed")
-  val ImmutableSeq = PojoMessageType("scala.collection.immutable.Seq")
+  val Source = ClassMessageType("akka.stream.scaladsl.Source")
+  val NotUsed = ClassMessageType("akka.NotUsed")
+  val ImmutableSeq = ClassMessageType("scala.collection.immutable.Seq")
 
-  val Descriptors = PojoMessageType("com.google.protobuf.Descriptors")
+  val Descriptors = ClassMessageType("com.google.protobuf.Descriptors")
 
 }
