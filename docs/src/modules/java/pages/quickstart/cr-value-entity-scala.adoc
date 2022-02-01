@@ -7,8 +7,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 
 == Before you begin
 
-* If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
-* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] if you want to deploy from a terminal window.
+* Install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] if you want to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
@@ -200,29 +199,58 @@ To compile, build the container image, and publish it to your container registry
 sbt compile
 ----
 
-. Use the `deploy` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
+. Use the `docker:publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
 +
 [source, command line]
 ----
 sbt docker:publish -Ddocker.username=[your-docker-hub-username]
 ----
 
-. Sign in to your Akka Serverless account at: {console}
-. If you do not have a project, click *Add Project* to create one, otherwise choose the project you want to deploy your service to.
-. On the project dashboard click the "+" next to *services* to start the deployment wizard
-. Choose a name for your service and click *Next*
-. Enter the container image URL from the above step and click *Next*
-. Click *Next* (no environment variables are needed for these samples)
-. Check both _Add a route to this service_ and _Enable CORS_ and click *Next*
-. Click *Finish* to start the deployment
-. Click *Go to Service* to see your newly deployed service
+. If you haven't yet, sign in to akkasls with `akkasls auth login`. If this is your first time using Akka Serverless, this will let you register an account, create your first project and set it as the default.
+. Deploy your project with `akkasls services deploy MY-SERVICE MY-IMAGE`
 
 == Invoke your service
 
-Now that you have deployed your service, the next step is to invoke it using gRPCurl
+Once the service has been successfully started (this may take a while),
+you can create an ad-hoc proxy to call it from your local machine:
 
-. From the "_Service Explorer_" click on the method you want to invoke
-. Click on "_gRPCurl_"
-. In the bottom section of the dialog, fill in the values you want to send to your service
-. In the top section of the dialog, click the "_Copy to clipboard_" button
-. Open a new command line and paste the content you just copied
+```
+$ akkasls services proxy my-service
+Listening on 127.0.0.1:8080
+```
+
+You can now invoke it, for example with `grpcurl`:
+
+```
+$ grpcurl --plaintext \
+    -d "{\"cart_id\":\"42\"}" \
+    localhost:8080 \
+    com.example.shoppingcart.ShoppingCartService/GetCart
+{
+
+}
+$ grpcurl --plaintext \
+    -d "{\"cart_id\":\"42\",\"product_id\":\"37\",\"name\":\"apples\",\"quantity\":\"5\"}" \
+    localhost:8080 \
+    com.example.shoppingcart.ShoppingCartService/AddItem
+$ grpcurl --plaintext \
+    -d "{\"cart_id\":\"42\"}" \
+    localhost:8080 \
+    com.example.shoppingcart.ShoppingCartService/GetCart
+{
+    "items": [
+    {
+      "productId": "37",
+      "name": "apples",
+      "quantity": 5
+    }
+  ]
+}
+```
+
+Or expose it to the Internet:
+
+```
+$ akkasls service expose my-service
+Service 'samples-js-value-entity-shopping-cart' was successfully exposed at: delicate-union-3021.us-east1.akkaserverless.app
+```
