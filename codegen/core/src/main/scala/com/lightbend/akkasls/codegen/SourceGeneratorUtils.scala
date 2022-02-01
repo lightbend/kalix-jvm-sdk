@@ -49,13 +49,14 @@ object SourceGeneratorUtils {
 
   def unmanagedComment(service: Either[ModelBuilder.Service, ModelBuilder.Entity]) = {
 
-    val (kind, fileName) = service match {
-      case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.fqn.parent.protoFileName)
-      case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.fqn.parent.protoFileName)
+    val (kind, messageType) = service match {
+      case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.messageType)
+      case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.messageType)
+      case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.messageType)
+      case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.messageType)
+      case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)
     }
+    val fileName = messageType.parent.protoFileName
     s"""// This class was initially generated based on the .proto definition by Akka Serverless tooling.
        |// This is the implementation for the $kind described in your $fileName file.
        |//
