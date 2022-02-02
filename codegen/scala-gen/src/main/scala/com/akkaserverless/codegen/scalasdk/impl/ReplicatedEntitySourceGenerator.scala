@@ -17,14 +17,16 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.Format
+import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ReplicatedEntitySourceGenerator {
 
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generateUnmanaged(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(entity, service))
@@ -36,8 +38,8 @@ object ReplicatedEntitySourceGenerator {
       entity: ModelBuilder.ReplicatedEntity,
       service: ModelBuilder.EntityService): File = {
 
-    val packageName = entity.fqn.parent.scalaPackage
-    val className = entity.fqn.name
+    val packageName = entity.messageType.parent.scalaPackage
+    val className = entity.messageType.name
     val abstractEntityName = entity.abstractEntityName
 
     implicit val imports: Imports = generateCommandAndTypeArgumentImports(
@@ -48,7 +50,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
+      packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
@@ -96,7 +98,7 @@ object ReplicatedEntitySourceGenerator {
       entity: ModelBuilder.ReplicatedEntity,
       service: ModelBuilder.EntityService): File = {
 
-    val packageName = entity.fqn.parent.scalaPackage
+    val packageName = entity.messageType.parent.scalaPackage
     val abstractEntityName = entity.abstractEntityName
     val baseClass = entity.data.baseClass
 
@@ -108,7 +110,7 @@ object ReplicatedEntitySourceGenerator {
         "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}",
         s"com.akkaserverless.scalasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
+      packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val typeArguments = parameterizeDataType(entity.data)
     val parameterizedDataType = entity.data.name + typeArguments
@@ -143,7 +145,7 @@ object ReplicatedEntitySourceGenerator {
 
   private[codegen] def handler(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): File = {
 
-    val packageName = entity.fqn.parent.scalaPackage
+    val packageName = entity.messageType.parent.scalaPackage
     val routerName = entity.routerName
 
     implicit val imports: Imports = generateImports(
@@ -157,7 +159,7 @@ object ReplicatedEntitySourceGenerator {
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++
         extraReplicatedImports(entity.data) ++
         extraTypeImports(entity.data.typeArguments),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
+      packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -180,11 +182,11 @@ object ReplicatedEntitySourceGenerator {
           |$managedComment
           |
           |/**
-          | * A replicated entity handler that is the glue between the Protobuf service `${service.fqn.name}`
-          | * and the command handler methods in the `${entity.fqn.name}` class.
+          | * A replicated entity handler that is the glue between the Protobuf service `${service.messageType.name}`
+          | * and the command handler methods in the `${entity.messageType.name}` class.
           | */
-          |class ${routerName}(entity: ${entity.fqn.name})
-          |  extends ReplicatedEntityRouter[$parameterizedDataType, ${entity.fqn.name}](entity) {
+          |class ${routerName}(entity: ${entity.messageType.name})
+          |  extends ReplicatedEntityRouter[$parameterizedDataType, ${entity.messageType.name}](entity) {
           |
           |  override def handleCommand(
           |      commandName: String,
@@ -205,19 +207,14 @@ object ReplicatedEntitySourceGenerator {
 
   private[codegen] def provider(entity: ModelBuilder.ReplicatedEntity, service: ModelBuilder.EntityService): File = {
 
-    val packageName = entity.fqn.parent.scalaPackage
+    val packageName = entity.messageType.parent.scalaPackage
     val providerName = entity.providerName
 
-    val relevantTypes = {
-      entity.data.typeArguments.collect { case ModelBuilder.MessageTypeArgument(fqn) =>
-        fqn
-      } ++ service.commands.flatMap { cmd =>
-        cmd.inputType :: cmd.outputType :: Nil
-      }
-    }
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
     implicit val imports = generateImports(
-      relevantTypes.map(_.descriptorImport),
+      relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}",
@@ -228,13 +225,13 @@ object ReplicatedEntitySourceGenerator {
         "scala.collection.immutable.Seq") ++
         extraReplicatedImports(entity.data) ++
         extraTypeImports(entity.data.typeArguments),
-      packageImports = Seq(service.fqn.parent.scalaPackage))
+      packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
     val descriptors =
-      collectRelevantTypes(relevantTypes, service.fqn)
-        .collect { case fqn if fqn.isProtoMessage => typeName(fqn.descriptorImport) }
+      collectRelevantTypes(relevantProtoTypes, service.messageType)
+        .map { messageType => typeName(messageType.descriptorImport) }
         .distinct
         .sorted
 
@@ -250,23 +247,23 @@ object ReplicatedEntitySourceGenerator {
          |
          |/**
          | * A replicated entity provider that defines how to register and create the entity for
-         | * the Protobuf service `${service.fqn.name}`.
+         | * the Protobuf service `${service.messageType.name}`.
          | *
          | * Should be used with the `register` method in [[com.akkaserverless.scalasdk.AkkaServerless]].
          | */
          |object $providerName {
-         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.fqn.name}): $providerName =
+         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}): $providerName =
          |    new $providerName(entityFactory, ReplicatedEntityOptions.defaults)
          |
-         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.fqn.name}, options: ReplicatedEntityOptions): $providerName =
+         |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}, options: ReplicatedEntityOptions): $providerName =
          |    new $providerName(entityFactory, options)
          |}
          |
          |
          |class $providerName private (
-         |    entityFactory: ReplicatedEntityContext => ${entity.fqn.name},
+         |    entityFactory: ReplicatedEntityContext => ${entity.messageType.name},
          |    override val options: ReplicatedEntityOptions)
-         |    extends ReplicatedEntityProvider[$parameterizedDataType, ${typeName(entity.fqn)}] {
+         |    extends ReplicatedEntityProvider[$parameterizedDataType, ${typeName(entity.messageType)}] {
          |
          |  override def entityType: String = "${entity.entityType}"
          |
@@ -274,7 +271,7 @@ object ReplicatedEntitySourceGenerator {
          |    new ${entity.routerName}(entityFactory(context))
          |
          |  override def serviceDescriptor: Descriptors.ServiceDescriptor =
-         |    ${typeName(service.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+         |    ${typeName(service.messageType.descriptorImport)}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
          |
          |  override def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
          |    ${descriptors.map(d => d + ".javaDescriptor :: ").toList.distinct.mkString}Nil

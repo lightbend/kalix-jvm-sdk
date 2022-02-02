@@ -26,8 +26,8 @@ object ValueEntityTestKitGenerator {
   import JavaGeneratorUtils._
 
   def generate(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): GeneratedFiles = {
-    val pkg = entity.fqn.parent
-    val className = entity.fqn.name
+    val pkg = entity.messageType.parent
+    val className = entity.messageType.name
 
     GeneratedFiles.Empty
       .addManagedTest(File.java(pkg, className + "TestKit", generateSourceCode(service, entity, pkg.javaPackage)))
@@ -40,7 +40,7 @@ object ValueEntityTestKitGenerator {
       packageName: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -54,12 +54,12 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"))
 
-    val entityClassName = entity.fqn.name
-    val stateClassName = entity.state.fqn.fullName
+    val entityClassName = entity.messageType.name
+    val stateClassName = entity.state.messageType.fullName
 
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.messageType.parent.javaPackage};
        |
        |${writeImports(imports)}
        |
@@ -149,7 +149,7 @@ object ValueEntityTestKitGenerator {
       packageName: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -157,7 +157,7 @@ object ValueEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.ValueEntityResult",
         "org.junit.Test"))
 
-    val entityClassName = entity.fqn.name
+    val entityClassName = entity.messageType.name
     val testkitClassName = s"${entityClassName}TestKit"
 
     val dummyTestCases = service.commands.map { command =>
@@ -170,7 +170,7 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin
     }
 
-    s"""package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.messageType.parent.javaPackage};
        |
        |${writeImports(imports)}
        |
