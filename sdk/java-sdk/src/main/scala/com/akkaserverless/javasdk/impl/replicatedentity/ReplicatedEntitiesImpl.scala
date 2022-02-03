@@ -184,11 +184,7 @@ object ReplicatedEntitiesImpl {
       }
 
       val clientAction =
-        serializedSecondaryEffect.replyToClientAction(
-          service.anySupport,
-          command.id,
-          allowNoReply = false,
-          restartOnFailure = false)
+        serializedSecondaryEffect.replyToClientAction(service.anySupport, command.id, allowNoReply = false)
 
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>

@@ -38,10 +38,7 @@ trait EntityMessages {
     clientActionFailure(id = 0, description)
 
   def clientActionFailure(id: Long, description: String): Option[ClientAction] =
-    clientActionFailure(id, description, restart = false)
-
-  def clientActionFailure(id: Long, description: String, restart: Boolean): Option[ClientAction] =
-    Some(ClientAction(ClientAction.Action.Failure(Failure(id, description, restart))))
+    Some(ClientAction(ClientAction.Action.Failure(Failure(id, description))))
 
   def sideEffect(service: String, command: String, payload: JavaPbMessage): SideEffect =
     sideEffect(service, command, messagePayload(payload), synchronous = false)

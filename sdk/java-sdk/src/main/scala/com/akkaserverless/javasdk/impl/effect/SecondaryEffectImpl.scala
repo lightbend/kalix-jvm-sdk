@@ -32,8 +32,7 @@ sealed trait SecondaryEffectImpl {
   final def replyToClientAction(
       anySupport: AnySupport,
       commandId: Long,
-      allowNoReply: Boolean,
-      restartOnFailure: Boolean): Option[ClientAction] = {
+      allowNoReply: Boolean): Option[ClientAction] = {
     this match {
       case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
         Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
@@ -41,8 +40,9 @@ sealed trait SecondaryEffectImpl {
         Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(anySupport, forward))))
       case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
         Some(
-          ClientAction(ClientAction.Action
-            .Failure(com.akkaserverless.protocol.component.Failure(commandId, failure.description, restartOnFailure))))
+          ClientAction(
+            ClientAction.Action
+              .Failure(com.akkaserverless.protocol.component.Failure(commandId, failure.description))))
       case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
         if (allowNoReply) {
           None

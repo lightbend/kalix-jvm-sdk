@@ -142,10 +142,7 @@ object EventSourcedMessages extends EntityMessages {
     replyAction(id, clientActionForward(service, command, payload), effects)
 
   def actionFailure(id: Long, description: String): OutMessage =
-    OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description, restart = false)))
-
-  def actionFailure(id: Long, description: String, restart: Boolean): OutMessage =
-    OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description, restart)))
+    OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description)))
 
   def failure(description: String): OutMessage =
     failure(id = 0, description)
