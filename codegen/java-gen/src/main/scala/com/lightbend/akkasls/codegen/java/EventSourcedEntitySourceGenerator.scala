@@ -237,7 +237,6 @@ object EventSourcedEntitySourceGenerator {
        |
        |${unmanagedComment(Right(entity))}
        |
-       |/** An event sourced entity. */
        |public class $className extends ${interfaceClassName} {
        |
        |  @SuppressWarnings("unused")
@@ -276,15 +275,13 @@ object EventSourcedEntitySourceGenerator {
         s"$mainPackageName.ComponentsImpl"))
 
     val commandHandlers = service.commands.map { command =>
-      s"""|/** Command handler for "${command.name}". */
-          |public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
+      s"""|public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
         entity.state.fqn)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)});
           |""".stripMargin
     }
 
     val eventHandlers = entity.events.map { event =>
-      s"""|/** Event handler for "${event.fqn.name}". */
-          |public abstract ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
+      s"""|public abstract ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
         entity.state.fqn)} currentState, ${qualifiedType(event.fqn)} ${lowerFirst(event.fqn.name)});
           |""".stripMargin
     }
@@ -295,7 +292,6 @@ object EventSourcedEntitySourceGenerator {
        |
        |$managedComment
        |
-       |/** An event sourced entity. */
        |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
        |
        |  protected final Components components() {

@@ -21,16 +21,13 @@ import akka.stream.scaladsl.{ Sink, Source }
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 
-/** An action. */
 class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckModelAction {
   private implicit val mat = ctx.materializer
   import mat.executionContext
 
-  /** Handler for "ProcessUnary". */
   override def processUnary(request: Request): Action.Effect[Response] =
     response(request.groups)
 
-  /** Handler for "ProcessStreamedIn". */
   override def processStreamedIn(requestSrc: Source[Request, NotUsed]): Action.Effect[Response] =
     effects.asyncEffect(
       requestSrc
@@ -39,12 +36,10 @@ class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckMo
         // and then create a single resource
         .map(reqs => response(reqs.flatMap(_.groups))))
 
-  /** Handler for "ProcessStreamedOut". */
   override def processStreamedOut(request: Request): Source[Action.Effect[Response], NotUsed] =
     // each group can create a response
     Source(request.groups).map(g => response(g :: Nil))
 
-  /** Handler for "ProcessStreamed". */
   override def processStreamed(requestSrc: Source[Request, NotUsed]): Source[Action.Effect[Response], NotUsed] =
     requestSrc.mapConcat(_.groups).map(g => response(g :: Nil))
 

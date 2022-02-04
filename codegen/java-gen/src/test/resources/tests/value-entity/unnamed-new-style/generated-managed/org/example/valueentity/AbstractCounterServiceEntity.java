@@ -10,17 +10,14 @@ import org.example.valueentity.domain.CounterDomain;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A value entity. */
 public abstract class AbstractCounterServiceEntity extends ValueEntity<CounterDomain.CounterState> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());
   }
 
-  /** Command handler for "Increase". */
   public abstract Effect<Empty> increase(CounterDomain.CounterState currentState, CounterApi.IncreaseValue increaseValue);
 
-  /** Command handler for "Decrease". */
   public abstract Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue decreaseValue);
 
 }

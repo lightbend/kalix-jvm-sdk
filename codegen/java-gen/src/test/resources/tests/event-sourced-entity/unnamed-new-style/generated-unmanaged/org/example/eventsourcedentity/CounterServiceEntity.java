@@ -12,7 +12,6 @@ import org.example.eventsourcedentity.domain.CounterDomain;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An event sourced entity. */
 public class CounterServiceEntity extends AbstractCounterServiceEntity {
 
   @SuppressWarnings("unused")

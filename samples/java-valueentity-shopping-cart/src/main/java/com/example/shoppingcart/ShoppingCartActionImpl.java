@@ -7,7 +7,6 @@ import com.google.protobuf.Empty;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
-/** An action. */
 public class ShoppingCartActionImpl extends AbstractShoppingCartAction {
 
   public ShoppingCartActionImpl(ActionCreationContext creationContext) {}

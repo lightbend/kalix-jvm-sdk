@@ -12,7 +12,6 @@ import com.example.CurrentCounter
 import com.google.protobuf.empty.Empty
 
 // tag::class[]
-/** A value entity. */
 class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
 
   override def emptyState: CounterState = CounterState() // <2>

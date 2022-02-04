@@ -10,7 +10,6 @@ import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.example
 import com.google.protobuf.empty.Empty
 
-/** A value entity. */
 class Counter(context: ValueEntityContext) extends AbstractCounter {
   override def emptyState: CounterState =
     throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")

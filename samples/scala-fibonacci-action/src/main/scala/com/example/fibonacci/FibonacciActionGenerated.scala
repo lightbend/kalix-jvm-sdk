@@ -9,11 +9,9 @@ import akka.stream.scaladsl.Source
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 object FibonacciActionGenerated {
-  /** An action. */
   // tag::generated-action[]
   class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFibonacciAction {  // <1>
 
-    /** Handler for "NextNumber". */
     override def nextNumber(number: Number): Action.Effect[Number] = { //<2>
       throw new RuntimeException("The command handler for `NextNumber` is not implemented, yet")
     }

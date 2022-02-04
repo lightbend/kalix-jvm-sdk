@@ -65,25 +65,21 @@ object ActionServiceSourceGenerator {
           else ""
         }
 
-        c"""|/** Handler for "$methodName". */
-            |override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
+        c"""|override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
             |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
             |}"""
       } else if (cmd.isStreamOut) {
         c"""
-           |/** Handler for "$methodName". */
            |override def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
            |}"""
       } else if (cmd.isStreamIn) {
         c"""
-           |/** Handler for "$methodName". */
            |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, $NotUsed]): $Action.Effect[$outputType] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
            |}"""
       } else {
         c"""
-           |/** Handler for "$methodName". */
            |override def ${lowerFirst(methodName)}(${input}Src: Source[$inputType, $NotUsed]): $Source[$Action.Effect[$outputType], $NotUsed] = {
            |  throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
            |}"""
@@ -95,7 +91,6 @@ object ActionServiceSourceGenerator {
       className,
       c"""|$unmanagedComment
           |
-          |/** An action. */
           |class $className(creationContext: $ActionCreationContext) extends ${service.abstractActionName} {
           |
           |  $methods
@@ -114,19 +109,15 @@ object ActionServiceSourceGenerator {
       val outputType = cmd.outputType
 
       if (cmd.isUnary) {
-        c"""|/** Handler for "$methodName". */
-            |def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
+        c"""|def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
       } else if (cmd.isStreamOut) {
         c"""
-           |/** Handler for "$methodName". */
            |def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed]"""
       } else if (cmd.isStreamIn) {
         c"""
-           |/** Handler for "$methodName". */
            |def ${lowerFirst(methodName)}(${input}Src: $Source[$inputType, $NotUsed]): $Action.Effect[$outputType]"""
       } else {
         c"""
-           |/** Handler for "$methodName". */
            |def ${lowerFirst(
           methodName)}(${input}Src: $Source[$inputType, $NotUsed]): $Source[$Action.Effect[$outputType], $NotUsed]"""
       }
@@ -140,7 +131,6 @@ object ActionServiceSourceGenerator {
       service.abstractActionName,
       c"""|$managedComment
           |
-          |/** An action. */
           |abstract class ${service.abstractActionName} extends $Action {
           |
           |  def components: $Components =
@@ -196,7 +186,6 @@ object ActionServiceSourceGenerator {
       service.routerName,
       c"""|$managedComment
           |
-          |/** An Action handler */
           |class ${service.routerName}(action: ${service.className}) extends $ActionRouter[${service.className}](action) {
           |
           |  override def handleUnary(commandName: String, message: $MessageEnvelope[Any]):  $Action.Effect[_] = {

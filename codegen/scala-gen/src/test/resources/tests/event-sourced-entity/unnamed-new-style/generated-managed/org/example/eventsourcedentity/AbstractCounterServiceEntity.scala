@@ -13,7 +13,6 @@ import org.example.eventsourcedentity.domain.Increased
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** An event sourced entity. */
 abstract class AbstractCounterServiceEntity extends EventSourcedEntity[CounterState] {
 
   def components: Components =

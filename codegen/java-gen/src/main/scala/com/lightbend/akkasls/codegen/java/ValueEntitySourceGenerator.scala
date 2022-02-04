@@ -55,7 +55,6 @@ object ValueEntitySourceGenerator {
         |
         |${unmanagedComment(Right(entity))}
         |
-        |/** A value entity. */
         |public class $className extends Abstract$className {
         |  @SuppressWarnings("unused")
         |  private final String entityId;
@@ -244,8 +243,7 @@ object ValueEntitySourceGenerator {
       .map { cmd =>
         val methodName = cmd.name
 
-        s"""|/** Command handler for "${cmd.name}". */
-            |public abstract Effect<${typeName(cmd.outputType)}> ${lowerFirst(methodName)}(${typeName(
+        s"""|public abstract Effect<${typeName(cmd.outputType)}> ${lowerFirst(methodName)}(${typeName(
           stateType)} currentState, ${typeName(cmd.inputType)} ${lowerFirst(cmd.inputType.name)});
             |""".stripMargin
 
@@ -257,7 +255,6 @@ object ValueEntitySourceGenerator {
         |
         |$managedComment
         |
-        |/** A value entity. */
         |public abstract class Abstract$className extends ValueEntity<${typeName(stateType)}> {
         |
         |  protected final Components components() {

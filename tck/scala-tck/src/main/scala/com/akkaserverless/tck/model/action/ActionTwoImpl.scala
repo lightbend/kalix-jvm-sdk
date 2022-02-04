@@ -19,10 +19,8 @@ package com.akkaserverless.tck.model.action
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 
-/** An action. */
 class ActionTwoImpl(creationContext: ActionCreationContext) extends AbstractActionTwoAction {
 
-  /** Handler for "Call". */
   override def call(otherRequest: OtherRequest): Action.Effect[Response] =
     effects.reply(Response.defaultInstance)
 }

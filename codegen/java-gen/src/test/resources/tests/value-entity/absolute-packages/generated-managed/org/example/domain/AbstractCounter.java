@@ -11,17 +11,14 @@ import org.example.valueentity.CounterApi;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A value entity. */
 public abstract class AbstractCounter extends ValueEntity<OuterCounterState.CounterState> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());
   }
 
-  /** Command handler for "Increase". */
   public abstract Effect<Empty> increase(OuterCounterState.CounterState currentState, CounterApi.IncreaseValue increaseValue);
 
-  /** Command handler for "Decrease". */
   public abstract Effect<Empty> decrease(OuterCounterState.CounterState currentState, CounterApi.DecreaseValue decreaseValue);
 
 }

@@ -11,14 +11,12 @@ import org.example.ComponentsImpl;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-/** A replicated entity. */
 public abstract class AbstractSomeMultiMap extends ReplicatedMultiMapEntity<SomeMultiMapDomain.SomeKey, SomeMultiMapDomain.SomeValue> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());
   }
 
-  /** Command handler for "Put". */
   public abstract Effect<Empty> put(ReplicatedMultiMap<SomeMultiMapDomain.SomeKey, SomeMultiMapDomain.SomeValue> currentData, SomeMultiMapApi.PutValue putValue);
 
 }

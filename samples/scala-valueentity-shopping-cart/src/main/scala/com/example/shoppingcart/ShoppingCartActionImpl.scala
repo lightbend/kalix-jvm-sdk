@@ -13,7 +13,6 @@ import scala.concurrent.Future
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** An action. */
 class ShoppingCartActionImpl(creationContext: ActionCreationContext) extends AbstractShoppingCartAction {
 
   // tag::initialize[]
