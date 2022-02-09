@@ -207,7 +207,7 @@ sbt docker:publish -Ddocker.username=[your-docker-hub-username]
 ----
 
 . If you haven't yet, sign in to akkasls with `akkasls auth login`. If this is your first time using Akka Serverless, this will let you register an account, create your first project and set it as the default.
-. Deploy your project with `akkasls services deploy MY-SERVICE MY-IMAGE`
+. Deploy your project with `akkasls service deploy MY-SERVICE MY-IMAGE`
 
 == Invoke your service
 
@@ -215,11 +215,13 @@ Once the service has been successfully started (this may take a while),
 you can create an ad-hoc proxy to call it from your local machine:
 
 ```
-$ akkasls services proxy my-service
+$ akkasls service proxy my-service --grpcui
 Listening on 127.0.0.1:8080
+Opening grpcui in browser: http://127.0.0.1:8080/ui/
 ```
 
-You can now invoke it, for example with `grpcurl`:
+You can now invoke it through the web UI that popped up
+at http://127.0.0.1:8080/ui/ or with `grpcurl`:
 
 ```
 $ grpcurl --plaintext \
