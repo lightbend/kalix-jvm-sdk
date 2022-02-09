@@ -29,9 +29,9 @@ class ExampleSuite extends ExampleSuiteBase {
 
   override def propertyPath: String = "example.suite.scala.regenerate"
 
-  override def createFQNExtractor(
-      fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.FullyQualifiedNameExtractor =
-    new FullyQualifiedNameExtractor(new DescriptorImplicits(GeneratorParams(flatPackage = true), fileDescriptors))
+  override def createMessageTypeExtractor(
+      fileDescriptors: Seq[Descriptors.FileDescriptor]): ModelBuilder.ProtoMessageTypeExtractor =
+    new ProtoMessageTypeExtractor(new DescriptorImplicits(GeneratorParams(flatPackage = true), fileDescriptors))
 
   override def generateFiles(model: ModelBuilder.Model): GeneratedFiles =
     SourceGenerator.generateFiles(model, Some("org.example"))

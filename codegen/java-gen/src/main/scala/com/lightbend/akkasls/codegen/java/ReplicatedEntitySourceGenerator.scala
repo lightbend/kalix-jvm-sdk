@@ -18,10 +18,12 @@ package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ReplicatedEntitySourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   private[codegen] def replicatedEntitySource(
       service: ModelBuilder.EntityService,
@@ -115,12 +117,12 @@ object ReplicatedEntitySourceGenerator {
         |$managedComment
         |
         |/**
-        | * A replicated entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
-        | * and the command handler methods in the <code>${entity.fqn.name}</code> class.
+        | * A replicated entity handler that is the glue between the Protobuf service <code>${service.messageType.name}</code>
+        | * and the command handler methods in the <code>${entity.messageType.name}</code> class.
         | */
-        |public class ${className}Router extends ReplicatedEntityRouter<$parameterizedDataType, ${entity.fqn.name}> {
+        |public class ${className}Router extends ReplicatedEntityRouter<$parameterizedDataType, ${entity.messageType.name}> {
         |
-        |  public ${className}Router(${entity.fqn.name} entity) {
+        |  public ${className}Router(${entity.messageType.name} entity) {
         |    super(entity);
         |  }
         |
@@ -146,16 +148,11 @@ object ReplicatedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val relevantTypes = {
-      entity.data.typeArguments.collect { case ModelBuilder.MessageTypeArgument(fqn) =>
-        fqn
-      } ++ service.commands.flatMap { cmd =>
-        cmd.inputType :: cmd.outputType :: Nil
-      }
-    }
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
     implicit val imports = generateImports(
-      relevantTypes ++ relevantTypes.map(_.descriptorImport),
+      relevantTypes ++ relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
@@ -168,10 +165,12 @@ object ReplicatedEntitySourceGenerator {
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
+    val relevantDescriptors =
+      collectRelevantTypes(relevantProtoTypes, service.messageType)
+        .map { messageType => s"${messageType.parent.javaOuterClassname}.getDescriptor()" }
+
     val descriptors =
-      (collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d =>
-          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
         |
@@ -181,7 +180,7 @@ object ReplicatedEntitySourceGenerator {
         |
         |/**
         | * A replicated entity provider that defines how to register and create the entity for
-        | * the Protobuf service <code>${service.fqn.name}</code>.
+        | * the Protobuf service <code>${service.messageType.name}</code>.
         | *
         | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
         | */
@@ -213,7 +212,7 @@ object ReplicatedEntitySourceGenerator {
         |
         |  @Override
         |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-        |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
+        |    return ${typeName(service.messageType.descriptorImport)}.getDescriptor().findServiceByName("${service.messageType.name}");
         |  }
         |
         |  @Override

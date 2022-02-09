@@ -19,7 +19,9 @@ package com.lightbend.akkasls.codegen.java
 import com.lightbend.akkasls.codegen.Format
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.allMessageTypes
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.allRelevantMessageTypes
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.collectRelevantTypes
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.generateImports
 import com.lightbend.akkasls.codegen.SourceGeneratorUtils.lowerFirst
@@ -37,23 +39,23 @@ object EventSourcedEntitySourceGenerator {
       className: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))
 
-    val stateType = entity.state.fqn.fullName
+    val stateType = entity.state.messageType.fullName
 
     val eventCases = {
       if (entity.events.isEmpty)
         List(s"throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());")
       else
         entity.events.zipWithIndex.map { case (evt, i) =>
-          val eventType = evt.fqn.fullName
+          val eventType = evt.messageType.fullName
           s"""|${if (i == 0) "" else "} else "}if (event instanceof $eventType) {
-              |  return entity().${lowerFirst(evt.fqn.name)}(state, ($eventType) event);""".stripMargin
+              |  return entity().${lowerFirst(evt.messageType.name)}(state, ($eventType) event);""".stripMargin
         }.toSeq :+
         s"""|} else {
               |  throw new EventSourcedEntityRouter.EventHandlerNotFound(event.getClass());
@@ -76,12 +78,12 @@ object EventSourcedEntitySourceGenerator {
        |$managedComment
        |
        |/**
-       | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.fqn.name}</code>
-       | * and the command and event handler methods in the <code>${entity.fqn.name}</code> class.
+       | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.messageType.name}</code>
+       | * and the command and event handler methods in the <code>${entity.messageType.name}</code> class.
        | */
-       |public class ${className}Router extends EventSourcedEntityRouter<$stateType, ${entity.fqn.name}> {
+       |public class ${className}Router extends EventSourcedEntityRouter<$stateType, ${entity.messageType.name}> {
        |
-       |  public ${className}Router(${entity.fqn.name} entity) {
+       |  public ${className}Router(${entity.messageType.name} entity) {
        |    super(entity);
        |  }
        |
@@ -112,10 +114,11 @@ object EventSourcedEntitySourceGenerator {
       packageName: String,
       className: String): String = {
 
-    val relevantTypes = allMessageTypes(service, entity)
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
     implicit val imports: Imports = generateImports(
-      relevantTypes ++ relevantTypes.map(_.descriptorImport),
+      relevantTypes ++ relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
@@ -124,10 +127,12 @@ object EventSourcedEntitySourceGenerator {
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
+    val relevantDescriptors =
+      collectRelevantTypes(relevantProtoTypes, service.messageType)
+        .map { messageType => s"${messageType.parent.javaOuterClassname}.getDescriptor()" }
+
     val descriptors =
-      (collectRelevantTypes(relevantTypes, service.fqn)
-        .map(d =>
-          s"${d.parent.javaOuterClassname}.getDescriptor()") :+ s"${service.fqn.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
        |
@@ -137,11 +142,11 @@ object EventSourcedEntitySourceGenerator {
        |
        |/**
        | * An event sourced entity provider that defines how to register and create the entity for
-       | * the Protobuf service <code>${service.fqn.name}</code>.
+       | * the Protobuf service <code>${service.messageType.name}</code>.
        | *
        | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
        | */
-       |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.fqn.fullName}, $className> {
+       |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.messageType.fullName}, $className> {
        |
        |  private final Function<EventSourcedEntityContext, $className> entityFactory;
        |  private final EventSourcedEntityOptions options;
@@ -169,7 +174,7 @@ object EventSourcedEntitySourceGenerator {
        |
        |  @Override
        |  public final Descriptors.ServiceDescriptor serviceDescriptor() {
-       |    return ${typeName(service.fqn.descriptorImport)}.getDescriptor().findServiceByName("${service.fqn.name}");
+       |    return ${typeName(service.messageType.descriptorImport)}.getDescriptor().findServiceByName("${service.messageType.name}");
        |  }
        |
        |  @Override
@@ -201,7 +206,7 @@ object EventSourcedEntitySourceGenerator {
       interfaceClassName: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
@@ -213,7 +218,8 @@ object EventSourcedEntitySourceGenerator {
         .map { command =>
           s"""|@Override
               |public Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
-            entity.state.fqn)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)}) {
+            entity.state.messageType)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(
+            command.inputType.name)}) {
               |  return effects().error("The command handler for `${command.name}` is not implemented, yet");
               |}
               |""".stripMargin
@@ -224,9 +230,10 @@ object EventSourcedEntitySourceGenerator {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           events.map { event =>
             s"""|@Override
-                |public ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
-              entity.state.fqn)} currentState, ${qualifiedType(event.fqn)} ${lowerFirst(event.fqn.name)}) {
-                |  throw new RuntimeException("The event handler for `${event.fqn.name}` is not implemented, yet");
+                |public ${qualifiedType(entity.state.messageType)} ${lowerFirst(
+              event.messageType.name)}(${qualifiedType(entity.state.messageType)} currentState, ${qualifiedType(
+              event.messageType)} ${lowerFirst(event.messageType.name)}) {
+                |  throw new RuntimeException("The event handler for `${event.messageType.name}` is not implemented, yet");
                 |}""".stripMargin
           }
       }
@@ -247,7 +254,7 @@ object EventSourcedEntitySourceGenerator {
        |  }
        |
        |  @Override
-       |  public ${qualifiedType(entity.state.fqn)} emptyState() {
+       |  public ${qualifiedType(entity.state.messageType)} emptyState() {
        |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state");
        |  }
        |
@@ -267,7 +274,7 @@ object EventSourcedEntitySourceGenerator {
       mainPackageName: String): String = {
 
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       Seq(
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
@@ -276,13 +283,15 @@ object EventSourcedEntitySourceGenerator {
 
     val commandHandlers = service.commands.map { command =>
       s"""|public abstract Effect<${qualifiedType(command.outputType)}> ${lowerFirst(command.name)}(${qualifiedType(
-        entity.state.fqn)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(command.inputType.name)});
+        entity.state.messageType)} currentState, ${qualifiedType(command.inputType)} ${lowerFirst(
+        command.inputType.name)});
           |""".stripMargin
     }
 
     val eventHandlers = entity.events.map { event =>
-      s"""|public abstract ${qualifiedType(entity.state.fqn)} ${lowerFirst(event.fqn.name)}(${qualifiedType(
-        entity.state.fqn)} currentState, ${qualifiedType(event.fqn)} ${lowerFirst(event.fqn.name)});
+      s"""|public abstract ${qualifiedType(entity.state.messageType)} ${lowerFirst(
+        event.messageType.name)}(${qualifiedType(entity.state.messageType)} currentState, ${qualifiedType(
+        event.messageType)} ${lowerFirst(event.messageType.name)});
           |""".stripMargin
     }
 
@@ -292,7 +301,7 @@ object EventSourcedEntitySourceGenerator {
        |
        |$managedComment
        |
-       |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.fqn)}> {
+       |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.messageType)}> {
        |
        |  protected final Components components() {
        |    return new ComponentsImpl(commandContext());

@@ -21,22 +21,19 @@ import java.nio.file.Paths
 
 import scala.annotation.tailrec
 import scala.collection.immutable
+import scala.util.control.NoStackTrace
 
 import com.lightbend.akkasls.codegen.ModelBuilder.Command
 import com.lightbend.akkasls.codegen.ModelBuilder.MessageTypeArgument
-import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
-import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
-import com.lightbend.akkasls.codegen.ModelBuilder.State
-import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeElement.FQNElement
-import scala.util.control.NoStackTrace
-
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedCounterMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedMultiMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedRegister
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedRegisterMap
 import com.lightbend.akkasls.codegen.ModelBuilder.ReplicatedSet
+import com.lightbend.akkasls.codegen.ModelBuilder.ScalarType
+import com.lightbend.akkasls.codegen.ModelBuilder.ScalarTypeArgument
+import com.lightbend.akkasls.codegen.ModelBuilder.TypeArgument
 
 object SourceGeneratorUtils {
   val managedComment =
@@ -52,13 +49,14 @@ object SourceGeneratorUtils {
 
   def unmanagedComment(service: Either[ModelBuilder.Service, ModelBuilder.Entity]) = {
 
-    val (kind, fileName) = service match {
-      case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.fqn.parent.protoFileName)
-      case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.fqn.parent.protoFileName)
-      case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.fqn.parent.protoFileName)
+    val (kind, messageType) = service match {
+      case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.messageType)
+      case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.messageType)
+      case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.messageType)
+      case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.messageType)
+      case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)
     }
+    val fileName = messageType.parent.protoFileName
     s"""// This class was initially generated based on the .proto definition by Akka Serverless tooling.
        |// This is the implementation for the $kind described in your $fileName file.
        |//
@@ -110,16 +108,33 @@ object SourceGeneratorUtils {
     packageName -> className
   }
 
-  def qualifiedType(fullyQualifiedName: FullyQualifiedName): String =
-    if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
-    else s"${fullyQualifiedName.parent.javaOuterClassname}.${fullyQualifiedName.name}"
+  /**
+   * Returns the name of the passed MessageType.
+   *
+   * If it's a ProtoMessageType with java outer class, the name will be: `OuterClass.Foo` Otherwise, it will just return
+   * the message name, eg: `Foo`.
+   */
+  def qualifiedType(messageType: MessageType): String = {
+    messageType match {
+      case proto: ProtoMessageType =>
+        if (proto.parent.javaMultipleFiles) messageType.name
+        else s"${proto.parent.javaOuterClassname}.${messageType.name}"
+      case _ => messageType.name
+    }
+  }
 
-  def typeImport(fullyQualifiedName: FullyQualifiedName): String = {
+  def typeImport(messageType: MessageType): String = {
     val name =
-      if (fullyQualifiedName.parent.javaMultipleFiles) fullyQualifiedName.name
-      else if (fullyQualifiedName.parent.javaOuterClassnameOption.nonEmpty) fullyQualifiedName.parent.javaOuterClassname
-      else fullyQualifiedName.name
-    s"${fullyQualifiedName.parent.javaPackage}.$name"
+      messageType match {
+        case proto: ProtoMessageType =>
+          if (proto.parent.javaMultipleFiles) proto.name
+          else if (proto.parent.javaOuterClassnameOption.nonEmpty) proto.parent.javaOuterClassname
+          else proto.name
+
+        case _ => messageType.name
+      }
+
+    s"${messageType.packageName}.$name"
   }
 
   def lowerFirst(text: String): String =
@@ -132,13 +147,13 @@ object SourceGeneratorUtils {
     Paths.get(packageName.replace(".", "/"))
 
   /**
-   * Given a Service and an Entity, return all FullQualifiedNames for all possible messages:
+   * Given a Service and an Entity, return all MessageType for all possible messages:
    *   - commands for all cases
    *   - state for Value Entities
    *   - state and events for Event Sourced Entities
    *   - Value and eventually Key types for Replicated Entities (when applicable)
    */
-  def allMessageTypes(service: ModelBuilder.EntityService, entity: ModelBuilder.Entity) = {
+  def allRelevantMessageTypes(service: ModelBuilder.EntityService, entity: ModelBuilder.Entity) = {
 
     val allCommands = service.commands.toSeq
       .flatMap(command => Seq(command.inputType, command.outputType))
@@ -146,9 +161,9 @@ object SourceGeneratorUtils {
     val entitySpecificMessages =
       entity match {
         case es: ModelBuilder.EventSourcedEntity =>
-          es.events.map(_.fqn).toSeq :+ es.state.fqn
+          es.events.map(_.messageType).toSeq :+ es.state.messageType
         case va: ModelBuilder.ValueEntity =>
-          Seq(va.state.fqn)
+          Seq(va.state.messageType)
         case re: ModelBuilder.ReplicatedEntity =>
           re.data match {
             case ReplicatedRegister(MessageTypeArgument(valueFqn))   => Seq(valueFqn)
@@ -170,20 +185,15 @@ object SourceGeneratorUtils {
   }
 
   def generateImports(
-      types: Iterable[FullyQualifiedName],
+      types: Iterable[MessageType],
       packageName: String,
       otherImports: Seq[String],
       packageImports: Seq[String] = Seq.empty): Imports = {
+
     val messageTypeImports = types
-      .filterNot { typ =>
-        typ.parent.javaPackage == packageName
-      }
-      .filterNot { typ =>
-        typ.parent.javaPackage.isEmpty
-      }
-      .filterNot { typ =>
-        packageImports.contains(typ.parent.javaPackage)
-      }
+      .filterNot(_.packageName == packageName)
+      .filterNot(_.packageName.isEmpty)
+      .filterNot(typ => packageImports.contains(typ.packageName))
       .map(typeImport)
 
     new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
@@ -197,7 +207,7 @@ object SourceGeneratorUtils {
       packageImports: Seq[String] = Seq.empty): Imports = {
 
     val types = commandTypes(commands) ++
-      typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
+      typeArguments.collect { case MessageTypeArgument(messageType) => messageType }
 
     generateImports(types, packageName, otherImports ++ extraTypeImports(typeArguments), packageImports)
   }
@@ -207,21 +217,19 @@ object SourceGeneratorUtils {
       "com.google.protobuf.ByteString"
     }.toSeq
 
-  def commandTypes(commands: Iterable[Command]): Seq[FullyQualifiedName] =
+  def commandTypes(commands: Iterable[Command]): Seq[ProtoMessageType] =
     commands.flatMap(command => Seq(command.inputType, command.outputType)).toSeq
 
   def collectRelevantTypes(
-      fullQualifiedNames: Iterable[FullyQualifiedName],
-      service: FullyQualifiedName): immutable.Seq[FullyQualifiedName] = {
-    fullQualifiedNames.filterNot { desc =>
-      desc.parent == service.parent
+      messageTypes: Iterable[ProtoMessageType],
+      service: ProtoMessageType): immutable.Seq[ProtoMessageType] = {
+    messageTypes.filterNot { messageType =>
+      messageType.parent == service.parent
     }.toList
   }
 
-  def collectRelevantTypeDescriptors(
-      fullQualifiedNames: Iterable[FullyQualifiedName],
-      service: FullyQualifiedName): String = {
-    collectRelevantTypes(fullQualifiedNames, service)
+  def collectRelevantTypeDescriptors(messageTypes: Iterable[ProtoMessageType], service: ProtoMessageType): String = {
+    collectRelevantTypes(messageTypes, service)
       .map(desc => s"${desc.parent.javaOuterClassname}.getDescriptor()")
       .distinct
       .sorted
@@ -247,10 +255,10 @@ object SourceGeneratorUtils {
   sealed trait CodeElement
   object CodeElement {
     case class StringElement(string: String) extends CodeElement
-    case class FQNElement(fqn: FullyQualifiedName) extends CodeElement
+    case class MessageTypeElement(messageType: MessageType) extends CodeElement
 
     implicit def stringElement(string: String): CodeElement = StringElement(string)
-    implicit def fqnElement(fqn: FullyQualifiedName): CodeElement = FQNElement(fqn)
+    implicit def messageTypeElement(messageType: MessageType): CodeElement = MessageTypeElement(messageType)
     implicit def block(els: Iterable[CodeElement]): CodeElement =
       CodeBlock(
         // add line terminator between each two elements
@@ -260,13 +268,13 @@ object SourceGeneratorUtils {
     import CodeElement._
 
     /** All classes used in this code block */
-    def fqns: Seq[FullyQualifiedName] = code.flatMap {
-      case FQNElement(name) => Seq(name)
-      case block: CodeBlock => block.fqns
-      case _: StringElement => Seq.empty
+    def messageTypes: Seq[MessageType] = code.flatMap {
+      case MessageTypeElement(name) => Seq(name)
+      case block: CodeBlock         => block.messageTypes
+      case _: StringElement         => Seq.empty
     }
 
-    def write(imports: Imports, typeName: FullyQualifiedName => String): String =
+    def write(imports: Imports, typeName: MessageType => String): String =
       code.foldLeft("")((acc, o) =>
         o match {
           case StringElement(s) =>
@@ -274,8 +282,8 @@ object SourceGeneratorUtils {
           case block: CodeBlock =>
             val currentIndent = lastIndentRegex.findFirstMatchIn(acc).get.matched
             acc ++ block.write(imports, typeName).replaceAll("\n", "\n" + currentIndent)
-          case FQNElement(fqn) =>
-            acc ++ typeName(fqn)
+          case MessageTypeElement(messageType) =>
+            acc ++ typeName(messageType)
         })
   }
 

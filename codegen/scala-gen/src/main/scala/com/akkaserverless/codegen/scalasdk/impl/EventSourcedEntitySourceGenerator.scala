@@ -17,9 +17,10 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object EventSourcedEntitySourceGenerator {
   import ScalaGeneratorUtils._
@@ -46,7 +47,7 @@ object EventSourcedEntitySourceGenerator {
     import Types.EventSourcedEntity._
     val abstractEntityName = eventSourcedEntity.abstractEntityName
 
-    val stateType = eventSourcedEntity.state.fqn
+    val stateType = eventSourcedEntity.state.messageType
     val commandHandlers = service.commands
       .map { cmd =>
         val methodName = cmd.name
@@ -59,16 +60,16 @@ object EventSourcedEntitySourceGenerator {
       eventSourcedEntity match {
         case ModelBuilder.EventSourcedEntity(_, _, _, events) =>
           events.map { event =>
-            c"""|def ${lowerFirst(event.fqn.name)}(currentState: $stateType, ${lowerFirst(
-              event.fqn.name)}: ${event.fqn}): $stateType"""
+            c"""|def ${lowerFirst(event.messageType.name)}(currentState: $stateType, ${lowerFirst(
+              event.messageType.name)}: ${event.messageType}): $stateType"""
           }
       }
 
-    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
-    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+    val Components = ClassMessageType(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = ClassMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
 
     generate(
-      eventSourcedEntity.fqn.parent,
+      eventSourcedEntity.messageType.parent,
       abstractEntityName,
       c"""|$managedComment
           |
@@ -81,7 +82,7 @@ object EventSourcedEntitySourceGenerator {
           |  $eventHandlers
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   private[codegen] def handler(
@@ -89,12 +90,12 @@ object EventSourcedEntitySourceGenerator {
       service: ModelBuilder.EntityService): File = {
     import Types.EventSourcedEntity._
 
-    val stateType = eventSourcedEntity.state.fqn
-    val eventSourcedEntityName = eventSourcedEntity.fqn
+    val stateType = eventSourcedEntity.state.messageType
+    val eventSourcedEntityName = eventSourcedEntity.messageType
 
     val eventCases = eventSourcedEntity.events.map { evt =>
-      c"""|case evt: ${evt.fqn} =>
-          |  entity.${lowerFirst(evt.fqn.name)}(state, evt)
+      c"""|case evt: ${evt.messageType} =>
+          |  entity.${lowerFirst(evt.messageType.name)}(state, evt)
           |"""
     }
 
@@ -106,7 +107,7 @@ object EventSourcedEntitySourceGenerator {
             |"""
       }
     generate(
-      eventSourcedEntity.fqn.parent,
+      eventSourcedEntity.messageType.parent,
       eventSourcedEntity.routerName,
       c"""|$managedComment
           |
@@ -131,36 +132,37 @@ object EventSourcedEntitySourceGenerator {
           |  }
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   def provider(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): File = {
-    import Types.{ ImmutableSeq, Descriptors }
+    import Types.Descriptors
     import Types.EventSourcedEntity._
+    import Types.ImmutableSeq
     val className = entity.providerName
 
-    val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(
-        _.outputType)) ++ entity.events.map(_.fqn))
-        .map(_.descriptorImport)
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+
+    val relevantDescriptors = relevantProtoTypes.map(_.descriptorImport).distinct
 
     generate(
-      entity.fqn.parent,
+      entity.messageType.parent,
       entity.providerName,
       c"""|$managedComment
           |
           |object $className {
-          |  def apply(entityFactory: $EventSourcedEntityContext => ${entity.fqn.name}): $className =
+          |  def apply(entityFactory: $EventSourcedEntityContext => ${entity.messageType.name}): $className =
           |    new $className(entityFactory, $EventSourcedEntityOptions.defaults)
           |}
-          |class $className private(entityFactory: $EventSourcedEntityContext => ${entity.fqn.name}, override val options: $EventSourcedEntityOptions)
-          |  extends $EventSourcedEntityProvider[${entity.state.fqn}, ${entity.fqn}] {
+          |class $className private(entityFactory: $EventSourcedEntityContext => ${entity.messageType.name}, override val options: $EventSourcedEntityOptions)
+          |  extends $EventSourcedEntityProvider[${entity.state.messageType}, ${entity.messageType}] {
           |
           |  def withOptions(newOptions: $EventSourcedEntityOptions): $className =
           |    new $className(entityFactory, newOptions)
           |
           |  override final val serviceDescriptor: $Descriptors.ServiceDescriptor =
-          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |    ${service.messageType.descriptorImport}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
           |
           |  override final val entityType: String = "${entity.entityType}"
           |
@@ -168,10 +170,10 @@ object EventSourcedEntitySourceGenerator {
           |    new ${entity.routerName}(entityFactory(context))
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
-          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
+          |    ${relevantDescriptors.distinct.map(d => c"$d.javaDescriptor ::").toVector.distinct} Nil
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   def generateImplementationSkeleton(
@@ -181,32 +183,33 @@ object EventSourcedEntitySourceGenerator {
 
     val eventHandlers =
       eventSourcedEntity.events.map { event =>
-        c"""|override def ${lowerFirst(event.fqn.name)}(currentState: ${eventSourcedEntity.state.fqn}, ${lowerFirst(
-          event.fqn.name)}: ${event.fqn}): ${eventSourcedEntity.state.fqn} =
-            |  throw new RuntimeException("The event handler for `${event.fqn.name}` is not implemented, yet")
+        c"""|override def ${lowerFirst(
+          event.messageType.name)}(currentState: ${eventSourcedEntity.state.messageType}, ${lowerFirst(
+          event.messageType.name)}: ${event.messageType}): ${eventSourcedEntity.state.messageType} =
+            |  throw new RuntimeException("The event handler for `${event.messageType.name}` is not implemented, yet")
             |"""
       }
 
     val commandHandlers =
       service.commands.map { cmd =>
-        c"""|override def ${lowerFirst(cmd.name)}(currentState: ${eventSourcedEntity.state.fqn}, ${lowerFirst(
+        c"""|override def ${lowerFirst(cmd.name)}(currentState: ${eventSourcedEntity.state.messageType}, ${lowerFirst(
           cmd.inputType.name)}: ${cmd.inputType}): $EventSourcedEntity.Effect[${cmd.outputType}] =
             |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
             |"""
       }
 
     generate(
-      eventSourcedEntity.fqn.parent,
-      eventSourcedEntity.fqn.name,
+      eventSourcedEntity.messageType.parent,
+      eventSourcedEntity.messageType.name,
       c"""|$unmanagedComment
           |
-          |class ${eventSourcedEntity.fqn.name}(context: $EventSourcedEntityContext) extends ${eventSourcedEntity.abstractEntityName} {
-          |  override def emptyState: ${eventSourcedEntity.state.fqn} =
+          |class ${eventSourcedEntity.messageType.name}(context: $EventSourcedEntityContext) extends ${eventSourcedEntity.abstractEntityName} {
+          |  override def emptyState: ${eventSourcedEntity.state.messageType} =
           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
           |
           |  $commandHandlers
           |  $eventHandlers
           |}""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 }

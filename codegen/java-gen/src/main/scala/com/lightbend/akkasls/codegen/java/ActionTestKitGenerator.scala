@@ -22,7 +22,7 @@ object ActionTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generate(service: ModelBuilder.ActionService): GeneratedFiles = {
-    val pkg = service.fqn.parent
+    val pkg = service.messageType.parent
     val className = service.className
 
     GeneratedFiles.Empty
@@ -32,7 +32,7 @@ object ActionTestKitGenerator {
 
   private[codegen] def generateSourceCode(service: ModelBuilder.ActionService): String = {
 
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
     val className = service.className
 
     val imports = generateImports(
@@ -54,7 +54,7 @@ object ActionTestKitGenerator {
 
     val testKitClassName = s"${className}TestKit"
 
-    s"""package ${service.fqn.parent.javaPackage};
+    s"""package ${service.messageType.parent.javaPackage};
         |
         |${writeImports(imports)}
         |
@@ -90,7 +90,7 @@ object ActionTestKitGenerator {
 
   private[codegen] def generateTestSourceCode(service: ModelBuilder.ActionService): String = {
     val className = service.className
-    val packageName = service.fqn.parent.javaPackage
+    val packageName = service.messageType.parent.javaPackage
     val imports = generateImports(
       commandTypes(service.commands),
       "",
@@ -105,7 +105,7 @@ object ActionTestKitGenerator {
 
     val testClassName = s"${className}Test"
 
-    s"""package ${service.fqn.parent.javaPackage};
+    s"""package ${service.messageType.parent.javaPackage};
         |
         |${writeImports(imports)}
         |

@@ -18,7 +18,7 @@ package com.lightbend.akkasls.codegen.java
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.GeneratedFiles
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
@@ -51,8 +51,9 @@ object ComponentsSourceGenerator {
           val name = nameFor(component)
           if (services.exists(other => other != component && nameFor(other) == name)) {
             // conflict give it a longer unique name
-            // FIXME component.fqn.name is the gRPC service name, not the component class which is what we want
-            val uniqueName = component.fqn.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + component.fqn.name
+            // FIXME component.messageType.name is the gRPC service name, not the component class which is what we want
+            val uniqueName =
+              component.messageType.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + component.messageType.name
             Some(CallableComponent(uniqueName, component, callableCommands))
           } else {
             Some(CallableComponent(name, component, callableCommands))
@@ -138,9 +139,9 @@ object ComponentsSourceGenerator {
              |  return new DeferredCallImpl<>(
              |    ${lowerFirst(command.inputType.name)},
              |    MetadataImpl.Empty(),
-             |    "${component.service.fqn.fullyQualifiedProtoName}",
+             |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () -> getGrpcClient(${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}.class).$commandMethod($paramName)
+             |    () -> getGrpcClient(${component.service.messageType.fullyQualifiedGrpcServiceInterfaceName}.class).$commandMethod($paramName)
              |  );
              |}""".stripMargin
         }
@@ -179,7 +180,7 @@ object ComponentsSourceGenerator {
        |""".stripMargin
   }
 
-  private def fullyQualifiedMessage(messageType: FullyQualifiedName): String =
+  private def fullyQualifiedMessage(messageType: ProtoMessageType): String =
     s"${messageType.parent.javaPackage}.${messageType.fullName}"
 
   private def nameFor(component: Service): String = {

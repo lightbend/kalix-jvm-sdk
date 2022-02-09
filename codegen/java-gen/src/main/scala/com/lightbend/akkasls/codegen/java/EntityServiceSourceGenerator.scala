@@ -47,9 +47,9 @@ object EntityServiceSourceGenerator {
       service: ModelBuilder.EntityService,
       mainClassPackageName: String,
       mainClassName: String): GeneratedFiles = {
-    val entityPackage = entity.fqn.parent
-    val servicePackage = service.fqn.parent
-    val className = entity.fqn.name
+    val entityPackage = entity.messageType.parent
+    val servicePackage = service.messageType.parent
+    val className = entity.messageType.name
 
     GeneratedFiles.Empty
       .addManaged(
@@ -168,14 +168,14 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.Entity,
       packageName: String,
       testClassName: String): String = {
-    val serviceName = service.fqn.name
+    val serviceName = service.messageType.name
 
     val importTypes = commandTypes(service.commands) ++
       (entity match {
-        case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.fqn)
-        case v: ModelBuilder.ValueEntity                     => Seq(v.state.fqn)
+        case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.messageType)
+        case v: ModelBuilder.ValueEntity                     => Seq(v.state.messageType)
         case ModelBuilder.ReplicatedEntity(_, _, data) =>
-          data.typeArguments.collect { case MessageTypeArgument(fqn) => fqn }
+          data.typeArguments.collect { case MessageTypeArgument(messageType) => messageType }
       })
 
     val extraImports = entity match {
@@ -187,7 +187,7 @@ object EntityServiceSourceGenerator {
     val imports = generateImports(
       importTypes,
       packageName,
-      List(service.fqn.parent.javaPackage + "." + serviceName) ++
+      List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
         "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource",
         "org.junit.ClassRule",

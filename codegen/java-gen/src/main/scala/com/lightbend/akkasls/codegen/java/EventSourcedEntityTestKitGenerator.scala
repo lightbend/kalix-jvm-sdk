@@ -22,8 +22,8 @@ object EventSourcedEntityTestKitGenerator {
   import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generate(entity: ModelBuilder.EventSourcedEntity, service: ModelBuilder.EntityService): GeneratedFiles = {
-    val pkg = entity.fqn.parent
-    val className = entity.fqn.name
+    val pkg = entity.messageType.parent
+    val className = entity.messageType.name
 
     GeneratedFiles.Empty
       .addManagedTest(
@@ -37,7 +37,7 @@ object EventSourcedEntityTestKitGenerator {
       packageName: String,
       className: String): String = {
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -58,11 +58,11 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional"))
 
-    val entityClassName = entity.fqn.name
-    val stateClassName = entity.state.fqn.fullName
+    val entityClassName = entity.messageType.name
+    val stateClassName = entity.state.messageType.fullName
     val testkitClassName = s"${entityClassName}TestKit"
 
-    s"""package ${entity.fqn.parent.javaPackage};
+    s"""package ${entity.messageType.parent.javaPackage};
           |
           |${writeImports(imports)}
           |
@@ -136,13 +136,14 @@ object EventSourcedEntityTestKitGenerator {
     require(events.nonEmpty, "empty `events` not allowed")
 
     val top =
-      s"""|if (event instanceof ${events.head.fqn.fullName}) {
-          |  return entity.${lowerFirst(events.head.fqn.name)}(state, (${events.head.fqn.fullName}) event);
+      s"""|if (event instanceof ${events.head.messageType.fullName}) {
+          |  return entity.${lowerFirst(events.head.messageType.name)}(state, (${events.head.messageType.fullName}) event);
           |""".stripMargin
 
     val middle = events.tail.map { event =>
-      s"""|} else if (event instanceof ${event.fqn.fullName}) {
-          |  return entity.${lowerFirst(event.fqn.name)}(state, (${event.fqn.fullName}) event);""".stripMargin
+      s"""|} else if (event instanceof ${event.messageType.fullName}) {
+          |  return entity.${lowerFirst(
+        event.messageType.name)}(state, (${event.messageType.fullName}) event);""".stripMargin
     }
 
     val bottom =
@@ -155,9 +156,9 @@ object EventSourcedEntityTestKitGenerator {
   }
 
   def generateTestSources(service: ModelBuilder.EntityService, entity: ModelBuilder.EventSourcedEntity): String = {
-    val packageName = entity.fqn.parent.javaPackage
+    val packageName = entity.messageType.parent.javaPackage
     val imports = generateImports(
-      allMessageTypes(service, entity),
+      allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
@@ -166,7 +167,7 @@ object EventSourcedEntityTestKitGenerator {
         "com.akkaserverless.javasdk.testkit.EventSourcedResult",
         "org.junit.Test"))
 
-    val entityClassName = entity.fqn.name
+    val entityClassName = entity.messageType.name
     val testkitClassName = s"${entityClassName}TestKit"
 
     val dummyTestCases = service.commands.map { command =>
