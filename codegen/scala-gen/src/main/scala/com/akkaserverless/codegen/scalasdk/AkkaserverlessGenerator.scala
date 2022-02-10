@@ -16,46 +16,14 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import com.akkaserverless.Annotations
 import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
-import com.google.protobuf.ExtensionRegistry
-import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocbridge.Artifact
-import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
-import com.lightbend.akkasls.codegen.{ Log, ModelBuilder }
+import com.lightbend.akkasls.codegen.{ File, ModelBuilder }
 
-object AkkaserverlessGenerator extends CodeGenApp {
-  val enableDebug = "enableDebug"
-  def rootPackage(packageName: String) = s"rootPackage=$packageName"
-  val rootPackageRegex = """rootPackage=(\w+)""".r
-  def extractRootPackage(parameter: String): Option[String] =
-    rootPackageRegex.findFirstMatchIn(parameter).map(found => found.group(1))
+object AkkaserverlessGenerator extends AbstractAkkaserverlessGenerator {
 
-  override def registerExtensions(registry: ExtensionRegistry): Unit =
-    Annotations.registerAllExtensions(registry)
-
-  override def process(request: CodeGenRequest): CodeGenResponse = {
-    val debugEnabled = request.parameter.contains(enableDebug)
-    val configuredRootPackage = extractRootPackage(request.parameter)
-    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
-      DebugPrintlnLog(debugEnabled),
-      FullyQualifiedNameExtractor(request))
-    try {
-      CodeGenResponse.succeed(
-        SourceGenerator
-          .generateManaged(model, configuredRootPackage)
-          .map(file =>
-            CodeGeneratorResponse.File
-              .newBuilder()
-              .setName(file.name)
-              .setContent(file.content)
-              .build()))
-    } catch {
-      case t: Throwable =>
-        t.printStackTrace()
-        CodeGenResponse.fail(t.getMessage)
-    }
-  }
+  override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
+    SourceGenerator.generateManaged(model, configuredRootPackage)
 
   // FIXME #382 add reference to the runtime lib here
   override def suggestedDependencies: Seq[Artifact] = Seq(
