@@ -16,41 +16,13 @@
 
 package com.akkaserverless.codegen.scalasdk
 
-import com.akkaserverless.Annotations
 import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
-import com.google.protobuf.ExtensionRegistry
-import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
-import com.google.protobuf.compiler.PluginProtos.registerAllExtensions
-import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.{ File, ModelBuilder }
 import protocbridge.Artifact
-import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
-object AkkaserverlessUnmanagedGenerator extends CodeGenApp {
-  override def registerExtensions(registry: ExtensionRegistry): Unit =
-    Annotations.registerAllExtensions(registry)
-
-  override def process(request: CodeGenRequest): CodeGenResponse = {
-    val debugEnabled = request.parameter.contains(AkkaserverlessGenerator.enableDebug)
-    val configuredRootPackage = AkkaserverlessGenerator.extractRootPackage(request.parameter)
-    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
-      DebugPrintlnLog(debugEnabled),
-      FullyQualifiedNameExtractor(request))
-    try {
-      CodeGenResponse.succeed(
-        SourceGenerator
-          .generateUnmanaged(model, configuredRootPackage)
-          .map(file =>
-            CodeGeneratorResponse.File
-              .newBuilder()
-              .setName(file.name)
-              .setContent(file.content)
-              .build()))
-    } catch {
-      case t: Throwable =>
-        t.printStackTrace()
-        CodeGenResponse.fail(t.getMessage)
-    }
-  }
+object AkkaserverlessUnmanagedGenerator extends AbstractAkkaserverlessGenerator {
+  override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
+    SourceGenerator.generateUnmanaged(model, configuredRootPackage)
 
   override def suggestedDependencies: Seq[Artifact] = Nil
 }
