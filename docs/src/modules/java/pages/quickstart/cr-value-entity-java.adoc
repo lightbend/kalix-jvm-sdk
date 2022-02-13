@@ -115,6 +115,52 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/api/c
 include::example$java-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
 ----
 
+== Define an Action
+
+The Customer Registry service will publish an event each time a customer is created or updated. The `customer_cation.proto` will contain the definition of this action.
+
+. In your project, create one directories for your protobuf file, `src/main/proto/customer/action`.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/customer/action
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/customer/action
+----
+--
+
+. Create a `customer_action.proto` file and save it in the `src/main/proto/customer/action` directory.
+
+. Add declarations for:
++
+* The protobuf syntax version, `proto3`.
+* The package name, `customer.action`.
+* The required Java outer classname, `CustomerAction`. Messages defined in this file will be generated as inner classes.
+* Import `customer/domain/customer_domain.proto` and Akka Serverless `akkaserverless/annotations.proto`.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-customer-registry-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
+----
+
+. Add the service definition. The service definition is annotated with `akkaserverless.codegen` indicating we want to generate an Action for this service.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-customer-registry-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
+----
+
 == Define the domain model
 
 The `customer_domain.proto` contains all the internal data objects (https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entities, window="new"]). The https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity, window="new"] in this quickstart is a Key/Value store that stores only the latest updates.
@@ -182,6 +228,23 @@ include::example$java-customer-registry-quickstart/src/main/java/customer/domain
 The `src/main/java/customer/Main.java` file already contains the required code to start your service and register it with Akka Serverless.
 ====
 
+
+== Create an Action
+
+Actions are stateless functions that can be triggered in multiple ways. In this case by each event `customer.domain.CustomerState` received by the Value Entity `customer.domain.Customer`. 
+
+. If it's not open already, open `src/main/java/customer/action/CustomerStateSubscriptionAction.java` for editing.
+
+. Modify the `onUpsertState` method by adding the logic to handle the action. The complete method should include the following:
++
+[source, java]
+.src/main/java/customer/action/CustomerStateSubscriptionAction.java
+----
+include::example$java-customer-registry-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
+----
++
+* The incoming message contains the request data from your client and this action just passes it along to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of your choice.
+
 == Package and deploy your service
 
 To compile, build the container image, and publish it to your container registry, follow these steps
@@ -207,6 +270,7 @@ mvn deploy
 . Enter the container image URL from the above step and click *Next*
 . Click *Next* (no environment variables are needed for these samples)
 . Check both _Add a route to this service_ and _Enable CORS_ and click *Next*
+. Check your message broker is configured after following the https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers] instructions.
 . Click *Finish* to start the deployment
 . Click *Go to Service* to see your newly deployed service
 

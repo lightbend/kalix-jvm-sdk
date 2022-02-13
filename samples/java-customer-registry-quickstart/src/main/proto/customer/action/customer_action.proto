@@ -1,11 +1,13 @@
+// tag::declarations[]
 syntax = "proto3";
-package customer.actions;
+package customer.action;
+
+option java_outer_classname = "CustomerAction";
 
 import "akkaserverless/annotations.proto"; 
 import "customer/domain/customer_domain.proto"; 
-
-option java_outer_classname = "StateSubscriptionDomain";
-
+// end::declarations[]
+// tag::service[]
 service CustomerStateSubscription {
   option (akkaserverless.codegen) = { 
     action: {} 
@@ -16,8 +18,8 @@ service CustomerStateSubscription {
       value_entity: "customers" 
     };
     option (akkaserverless.method).eventing.out = {
-      topic: "customer_updates" 
+      topic: "customer_upserts" 
     };
   } 
-
 }
+// end::service[]

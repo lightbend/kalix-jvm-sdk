@@ -1,4 +1,4 @@
-package customer.actions;
+package customer.action;
 
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import customer.domain.CustomerDomain;
@@ -11,9 +11,12 @@ import customer.domain.CustomerDomain;
 public class CustomerStateSubscriptionAction extends AbstractCustomerStateSubscriptionAction {
 
   public CustomerStateSubscriptionAction(ActionCreationContext creationContext) {}
+// tag::upsert[]
 
   @Override
   public Effect<CustomerDomain.CustomerState> onUpsertState(CustomerDomain.CustomerState customerState) {
     return effects().reply(customerState);
   }
+// end::upsert[]
+
 }
