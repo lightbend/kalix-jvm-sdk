@@ -1,0 +1,23 @@
+syntax = "proto3";
+package customer.actions;
+
+import "akkaserverless/annotations.proto"; 
+import "customer/domain/customer_domain.proto"; 
+
+option java_outer_classname = "StateSubscriptionDomain";
+
+service CustomerStateSubscription {
+  option (akkaserverless.codegen) = { 
+    action: {} 
+  };
+  
+  rpc OnUpdateState (customer.domain.CustomerState) returns (customer.domain.CustomerState) {
+    option (akkaserverless.method).eventing.in = {  
+      value_entity: "customers" 
+    };
+    option (akkaserverless.method).eventing.out = {
+      topic: "customer_updates" 
+    };
+  } 
+
+}
