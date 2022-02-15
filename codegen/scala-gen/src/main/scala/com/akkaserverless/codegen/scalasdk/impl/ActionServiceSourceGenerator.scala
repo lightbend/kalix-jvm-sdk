@@ -17,9 +17,10 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.ClassMessageType
 
 /**
  * Responsible for generating Scala sourced for Actions
@@ -87,7 +88,7 @@ object ActionServiceSourceGenerator {
     }
 
     generate(
-      service.fqn.parent,
+      service.messageType.parent,
       className,
       c"""|$unmanagedComment
           |
@@ -123,11 +124,11 @@ object ActionServiceSourceGenerator {
       }
     }
 
-    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
-    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+    val Components = ClassMessageType(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = ClassMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
 
     generate(
-      service.fqn.parent,
+      service.messageType.parent,
       service.abstractActionName,
       c"""|$managedComment
           |
@@ -182,7 +183,7 @@ object ActionServiceSourceGenerator {
     }
 
     generate(
-      service.fqn.parent,
+      service.messageType.parent,
       service.routerName,
       c"""|$managedComment
           |
@@ -228,7 +229,7 @@ object ActionServiceSourceGenerator {
     import Types.Action._
 
     generate(
-      service.fqn.parent,
+      service.messageType.parent,
       service.providerName,
       c"""|$managedComment
           |
@@ -245,13 +246,13 @@ object ActionServiceSourceGenerator {
           |  extends $ActionProvider[${service.className}] {
           |
           |  override final def serviceDescriptor: $Descriptors.ServiceDescriptor =
-          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |    ${service.messageType.descriptorImport}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
           |
           |  override final def newRouter(context: $ActionCreationContext): ${service.routerName} =
           |    new ${service.routerName}(actionFactory(context))
           |
           |  override final def additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
-          |    ${service.fqn.descriptorImport}.javaDescriptor ::
+          |    ${service.messageType.descriptorImport}.javaDescriptor ::
           |    Nil
           |
           |  def withOptions(options: $ActionOptions): ${service.providerName} =

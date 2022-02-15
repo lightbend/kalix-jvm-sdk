@@ -28,7 +28,7 @@ object ViewServiceSourceGenerator {
    * it does not already exist.
    */
   def generate(service: ModelBuilder.ViewService): GeneratedFiles = {
-    val pkg = service.fqn.parent
+    val pkg = service.messageType.parent
 
     GeneratedFiles.Empty
       .addManaged(File.java(pkg, service.abstractViewName, abstractView(service, pkg)))
@@ -54,16 +54,16 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |public class ${view.routerName} extends $ViewRouter<${view.state.fqn}, ${view.impl}> {
+          |public class ${view.routerName} extends $ViewRouter<${view.state.messageType}, ${view.impl}> {
           |
           |  public ${view.routerName}(${view.impl} view) {
           |    super(view);
           |  }
           |
           |  @Override
-          |  public $View.UpdateEffect<${view.state.fqn}> handleUpdate(
+          |  public $View.UpdateEffect<${view.state.messageType}> handleUpdate(
           |      String eventName,
-          |      ${view.state.fqn} state,
+          |      ${view.state.messageType} state,
           |      Object event) {
           |
           |    switch (eventName) {
@@ -86,7 +86,7 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |public class ${view.providerName} implements $ViewProvider<${view.state.fqn}, ${view.impl}> {
+          |public class ${view.providerName} implements $ViewProvider<${view.state.messageType}, ${view.impl}> {
           |
           |  private final $Function<$ViewCreationContext, ${view.className}> viewFactory;
           |  private final String viewId;
@@ -131,7 +131,7 @@ object ViewServiceSourceGenerator {
           |
           |  @Override
           |  public final $Descriptors.ServiceDescriptor serviceDescriptor() {
-          |    return ${view.fqn.descriptorImport}.getDescriptor().findServiceByName("${view.fqn.protoName}");
+          |    return ${view.messageType.descriptorImport}.getDescriptor().findServiceByName("${view.messageType.protoName}");
           |  }
           |
           |  @Override
@@ -141,7 +141,7 @@ object ViewServiceSourceGenerator {
           |
           |  @Override
           |  public final $Descriptors.FileDescriptor[] additionalDescriptors() {
-          |    return new $Descriptors.FileDescriptor[] {${view.fqn.parent.javaOuterClassname}.getDescriptor()};
+          |    return new $Descriptors.FileDescriptor[] {${view.messageType.parent.javaOuterClassname}.getDescriptor()};
           |  }
           |}
           |""",
@@ -157,7 +157,7 @@ object ViewServiceSourceGenerator {
       else
         c"""|
             |@Override
-            |public ${view.state.fqn} emptyState() {
+            |public ${view.state.messageType} emptyState() {
             |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
             |}
             |"""
@@ -192,7 +192,7 @@ object ViewServiceSourceGenerator {
       if (view.transformedUpdates.isEmpty)
         c"""|
             |@Override
-            |public ${view.state.fqn} emptyState() {
+            |public ${view.state.messageType} emptyState() {
             |  return null; // emptyState is only used with transform_updates=true
             |}
             |"""
@@ -210,7 +210,7 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""$managedComment
          |
-         |public abstract class ${view.abstractViewName} extends $View<${view.state.fqn}> {
+         |public abstract class ${view.abstractViewName} extends $View<${view.state.messageType}> {
          |  $emptyState
          |  $handlers
          |}

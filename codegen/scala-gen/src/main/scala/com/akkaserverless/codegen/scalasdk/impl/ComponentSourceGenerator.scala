@@ -17,7 +17,7 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.ModelBuilder.ActionService
 import com.lightbend.akkasls.codegen.ModelBuilder.EntityService
@@ -45,10 +45,11 @@ object ComponentSourceGenerator {
         val callableCommands = callableCommandsFor(service)
         if (callableCommands.nonEmpty) {
           val name = nameFor(service)
-          // FIXME component.fqn.name is the gRPC service name, not the component class which is what we want
+          // FIXME component.messageType.name is the gRPC service name, not the component class which is what we want
           if (services.exists(other => other != service && nameFor(other) == name)) {
             // give it a longer unique name
-            val uniqueName = service.fqn.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + service.fqn.name
+            val uniqueName =
+              service.messageType.parent.javaPackage.replaceAllLiterally(".", "_") + "_" + service.messageType.name
             Some(CallableComponent(uniqueName, service, callableCommands))
           } else {
             Some(CallableComponent(name, service, callableCommands))
@@ -125,9 +126,9 @@ object ComponentSourceGenerator {
              |  $ScalaDeferredCallAdapter(
              |    command,
              |    $Metadata.empty,
-             |    "${component.service.fqn.fullyQualifiedProtoName}",
+             |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[_root_.${component.service.fqn.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
+             |    () => getGrpcClient(classOf[_root_.${component.service.messageType.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
              |  )"""
         }
 
@@ -167,7 +168,7 @@ object ComponentSourceGenerator {
       case vs: ViewService   => vs.className.split('.').last
     }
 
-  private def fullyQualifiedMessage(messageType: FullyQualifiedName): String =
+  private def fullyQualifiedMessage(messageType: ProtoMessageType): String =
     s"${messageType.parent.javaPackage}.${messageType.name}"
 
   private def callableCommandsFor(service: Service): Iterable[ModelBuilder.Command] =
@@ -180,6 +181,6 @@ object ComponentSourceGenerator {
         service.commands.filter(_.isUnary)
     }
 
-  private def fullyQualifiedClassWithRoot(name: FullyQualifiedName): String =
-    s"_root_.${name.fullyQualifiedJavaName}"
+  private def fullyQualifiedClassWithRoot(name: ProtoMessageType): String =
+    s"_root_.${name.fullyQualifiedName}"
 }

@@ -33,29 +33,29 @@ object TestData {
   val javaStyle: TestData = apply(javaStylePackageNamingTemplate)
   val scalaStyle: TestData = apply(javaStylePackageNamingTemplate.copy(javaOuterClassnameOption = None))
 
-  def guessDescriptor(protoName: String, proto: PackageNaming): Option[FullyQualifiedName] =
+  def guessDescriptor(protoName: String, proto: PackageNaming): Option[ProtoMessageType] =
     proto.javaOuterClassnameOption match {
       case Some(outer) =>
         Some(
-          FullyQualifiedName(outer, outer, proto.copy(javaOuterClassnameOption = None, javaMultipleFiles = true), None))
+          ProtoMessageType(outer, outer, proto.copy(javaOuterClassnameOption = None, javaMultipleFiles = true), None))
       case None =>
         Some(
-          FullyQualifiedName(
+          ProtoMessageType(
             protoName + "Proto",
             protoName + "Proto",
             proto.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
             None))
     }
 
-  def fullyQualifiedName(name: String, parent: PackageNaming): FullyQualifiedName = {
-    FullyQualifiedName(
+  def protoMessageType(parent: PackageNaming, name: String): ProtoMessageType = {
+    ProtoMessageType(
       name,
       name,
       parent,
       parent.javaOuterClassnameOption match {
         case Some(outer) =>
           Some(
-            FullyQualifiedName(
+            ProtoMessageType(
               outer,
               outer,
               parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
@@ -71,7 +71,7 @@ object TestData {
             }
           val protoClassName = capitalize(parent.protoFileName.replaceAll(".proto", "") + "Proto")
           Some(
-            FullyQualifiedName(
+            ProtoMessageType(
               protoClassName,
               protoClassName,
               parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
@@ -84,7 +84,6 @@ object TestData {
  * Used by java and scala codegen projects for their tests
  */
 class TestData(val packageNamingTemplate: PackageNaming) {
-  import TestData._
 
   def domainProto(suffix: String = ""): PackageNaming =
     packageNamingTemplate.copy(

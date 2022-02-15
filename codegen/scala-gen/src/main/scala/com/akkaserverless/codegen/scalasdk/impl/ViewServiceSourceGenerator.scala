@@ -42,8 +42,8 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewRouter(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn) ++ view.commandTypes,
-        view.fqn.parent.scalaPackage,
+        Seq(view.state.messageType) ++ view.commandTypes,
+        view.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
           "com.akkaserverless.scalasdk.impl.view.ViewRouter",
@@ -61,21 +61,21 @@ object ViewServiceSourceGenerator {
       }
 
     File.scala(
-      view.fqn.parent.scalaPackage,
+      view.messageType.parent.scalaPackage,
       view.routerName,
-      s"""|package ${view.fqn.parent.scalaPackage}
+      s"""|package ${view.messageType.parent.scalaPackage}
         |
         |${writeImports(imports)}
         |
         |$managedComment
         |
         |class ${view.routerName}(view: ${view.className})
-        |  extends ViewRouter[${typeName(view.state.fqn)}, ${view.className}](view) {
+        |  extends ViewRouter[${typeName(view.state.messageType)}, ${view.className}](view) {
         |
         |  override def handleUpdate(
         |      eventName: String,
-        |      state: ${typeName(view.state.fqn)},
-        |      event: Any): View.UpdateEffect[${typeName(view.state.fqn)}] = {
+        |      state: ${typeName(view.state.messageType)},
+        |      event: Any): View.UpdateEffect[${typeName(view.state.messageType)}] = {
         |
         |    eventName match {
         |      ${Format.indent(cases, 6)}
@@ -92,8 +92,8 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn, view.fqn.descriptorImport),
-        view.fqn.parent.scalaPackage,
+        Seq(view.state.messageType, view.messageType.descriptorImport),
+        view.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
           "com.akkaserverless.scalasdk.impl.view.ViewRouter",
@@ -108,9 +108,9 @@ object ViewServiceSourceGenerator {
         packageImports = Nil)
 
     File.scala(
-      view.fqn.parent.scalaPackage,
+      view.messageType.parent.scalaPackage,
       view.providerName,
-      s"""|package ${view.fqn.parent.scalaPackage}
+      s"""|package ${view.messageType.parent.scalaPackage}
         |
         |${writeImports(imports)}
         |
@@ -125,7 +125,7 @@ object ViewServiceSourceGenerator {
         |    viewFactory: ViewCreationContext => ${view.className},
         |    override val viewId: String,
         |    override val options: ViewOptions)
-        |  extends ViewProvider[${typeName(view.state.fqn)}, ${view.className}] {
+        |  extends ViewProvider[${typeName(view.state.messageType)}, ${view.className}] {
         |
         |  /**
         |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
@@ -138,13 +138,13 @@ object ViewServiceSourceGenerator {
         |    new ${view.providerName}(viewFactory, viewId, newOptions)
         |
         |  override final def serviceDescriptor: Descriptors.ServiceDescriptor =
-        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor.findServiceByName("${view.fqn.protoName}")
+        |    ${typeName(view.messageType.descriptorImport)}.javaDescriptor.findServiceByName("${view.messageType.protoName}")
         |
         |  override final def newRouter(context: ViewCreationContext): ${view.routerName} =
         |    new ${view.routerName}(viewFactory(context))
         |
         |  override final def additionalDescriptors: Seq[Descriptors.FileDescriptor] =
-        |    ${typeName(view.fqn.descriptorImport)}.javaDescriptor ::
+        |    ${typeName(view.messageType.descriptorImport)}.javaDescriptor ::
         |    Nil
         |}
         |""".stripMargin)
@@ -153,8 +153,8 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewSource(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn) ++ view.commandTypes,
-        view.fqn.parent.scalaPackage,
+        Seq(view.state.messageType) ++ view.commandTypes,
+        view.messageType.parent.scalaPackage,
         otherImports =
           Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
         packageImports = Nil)
@@ -163,7 +163,7 @@ object ViewServiceSourceGenerator {
       if (view.transformedUpdates.isEmpty)
         ""
       else
-        s"""|  override def emptyState: ${typeName(view.state.fqn)} =
+        s"""|  override def emptyState: ${typeName(view.state.messageType)} =
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
             |""".stripMargin
 
@@ -176,9 +176,9 @@ object ViewServiceSourceGenerator {
     }
 
     File.scala(
-      view.fqn.parent.scalaPackage,
+      view.messageType.parent.scalaPackage,
       view.className,
-      s"""|package ${view.fqn.parent.scalaPackage}
+      s"""|package ${view.messageType.parent.scalaPackage}
         |
         |${writeImports(imports)}
         |
@@ -195,14 +195,14 @@ object ViewServiceSourceGenerator {
   private[codegen] def abstractView(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.fqn) ++ view.commandTypes,
-        view.fqn.parent.scalaPackage,
+        Seq(view.state.messageType) ++ view.commandTypes,
+        view.messageType.parent.scalaPackage,
         otherImports = Seq("com.akkaserverless.scalasdk.view.View"),
         packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
-        s"""|  override def emptyState: ${typeName(view.state.fqn)} =
+        s"""|  override def emptyState: ${typeName(view.state.messageType)} =
             |    null // emptyState is only used with transform_updates=true
             |""".stripMargin
       else
@@ -217,15 +217,15 @@ object ViewServiceSourceGenerator {
     }
 
     File.scala(
-      view.fqn.parent.scalaPackage,
+      view.messageType.parent.scalaPackage,
       view.abstractViewName,
-      s"""|package ${view.fqn.parent.scalaPackage}
+      s"""|package ${view.messageType.parent.scalaPackage}
         |
         |${writeImports(imports)}
         |
         |$managedComment
         |
-        |abstract class ${view.abstractViewName} extends View[${typeName(view.state.fqn)}] {
+        |abstract class ${view.abstractViewName} extends View[${typeName(view.state.messageType)}] {
         |
         |$emptyState
         |  ${Format.indent(handlers, 2)}

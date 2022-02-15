@@ -120,7 +120,7 @@ object SourceGenerator {
           throw new RuntimeException(s"There was a problem opening the protobuf descriptor file ${failure}", failure.e)
       }
 
-    implicit val e = FullyQualifiedNameExtractor
+    implicit val e = ProtoMessageTypeExtractor
 
     SourceGenerator.generate(
       ModelBuilder.introspectProtobufClasses(descriptors),

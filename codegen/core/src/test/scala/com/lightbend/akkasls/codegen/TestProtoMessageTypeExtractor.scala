@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.lightbend.akkasls.codegen.java
+package com.lightbend.akkasls.codegen
 
 import com.google.protobuf.Descriptors
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, ModelBuilder, PackageNaming }
 
-object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtractor {
-  override def apply(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
-    val pack = packageName(descriptor)
-    FullyQualifiedName(descriptor.getName, descriptor.getName, pack, Some(fileDescriptorObject(descriptor)))
+object TestProtoMessageTypeExtractor extends ModelBuilder.ProtoMessageTypeExtractor {
+  override def apply(descriptor: Descriptors.GenericDescriptor): ProtoMessageType =
+    ProtoMessageType(
+      descriptor.getName,
+      descriptor.getName,
+      packageName(descriptor),
+      Some(fileDescriptorObject(descriptor)))
+
+  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): ProtoMessageType = {
+    val parent = packageName(descriptor)
+    ProtoMessageType(
+      parent.javaOuterClassname,
+      parent.javaOuterClassname,
+      parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
+      None)
   }
 
   override def packageName(descriptor: Descriptors.GenericDescriptor): PackageNaming = {
     val fileDescriptor = descriptor.getFile
-    if (fileDescriptor.getName.startsWith("google.protobuf") && descriptor.getName.endsWith("Value")) {
-      PackageNaming(
-        descriptor.getName,
-        descriptor.getName,
-        fileDescriptor.getPackage,
-        // Single shared file descriptor for the NnnValue wrapper types in Java
-        Some("com.google.protobuf"),
-        Some("WrappersProto"),
-        javaMultipleFiles = true)
-    } else if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
+    if (fileDescriptor.getName == s"google.protobuf.${descriptor.getName}.placeholder.proto") {
       // In the case of placeholders for standard google types, we need to assume the package naming
       // These defaults are based on the protos from https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf
       PackageNaming(
@@ -49,12 +50,4 @@ object FullyQualifiedNameExtractor extends ModelBuilder.FullyQualifiedNameExtrac
     } else PackageNaming.from(fileDescriptor)
   }
 
-  override def fileDescriptorObject(descriptor: Descriptors.GenericDescriptor): FullyQualifiedName = {
-    val parent = packageName(descriptor)
-    FullyQualifiedName(
-      parent.javaOuterClassname,
-      parent.javaOuterClassname,
-      parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
-      None)
-  }
 }

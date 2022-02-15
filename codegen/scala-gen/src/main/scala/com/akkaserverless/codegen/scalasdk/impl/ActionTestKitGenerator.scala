@@ -37,7 +37,7 @@ object ActionTestKitGenerator {
       generateImports(
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        service.fqn.parent.scalaPackage,
+        service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
@@ -56,9 +56,9 @@ object ActionTestKitGenerator {
     }
 
     File.scala(
-      service.fqn.parent.scalaPackage,
+      service.messageType.parent.scalaPackage,
       s"${actionClassName}TestKit",
-      s"""|package ${service.fqn.parent.scalaPackage}
+      s"""|package ${service.messageType.parent.scalaPackage}
           |
           |${writeImports(imports)}
           |
@@ -99,7 +99,7 @@ object ActionTestKitGenerator {
     implicit val imports: Imports =
       generateImports(
         service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
-        service.fqn.parent.scalaPackage,
+        service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.action.Action",
           "com.akkaserverless.scalasdk.testkit.ActionResult",
@@ -123,9 +123,9 @@ object ActionTestKitGenerator {
     }
 
     File.scala(
-      service.fqn.parent.scalaPackage,
+      service.messageType.parent.scalaPackage,
       actionClassName + "Spec",
-      s"""|package ${service.fqn.parent.scalaPackage}
+      s"""|package ${service.messageType.parent.scalaPackage}
           |
           |${writeImports(imports)}
           |

@@ -16,23 +16,30 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.SourceGeneratorUtils.{ typeImport, CodeBlock }
-import com.lightbend.akkasls.codegen.{ FullyQualifiedName, Imports, ModelBuilder, PackageNaming }
+import com.lightbend.akkasls.codegen.Imports
+import com.lightbend.akkasls.codegen.MessageType
+import com.lightbend.akkasls.codegen.ModelBuilder
+import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.CodeBlock
+import com.lightbend.akkasls.codegen.SourceGeneratorUtils.typeImport
 
 object JavaGeneratorUtils {
-  def typeName(fqn: FullyQualifiedName)(implicit imports: Imports): String = {
+  def typeName(messageType: MessageType)(implicit imports: Imports): String = {
     val directParent =
-      if (fqn.parent.javaMultipleFiles)
-        fqn.parent.javaPackage
-      else
-        s"${fqn.parent.javaPackage}.${fqn.parent.javaOuterClassname}"
+      messageType match {
+        case proto: ProtoMessageType if !proto.parent.javaMultipleFiles =>
+          s"${messageType.packageName}.${proto.parent.javaOuterClassname}"
+        case _ => messageType.packageName
+      }
 
-    if (fqn.parent.javaPackage.isEmpty) fqn.name
-    else if (imports.contains(fqn.fullyQualifiedJavaName)) fqn.name
-    else if (imports.currentPackage == directParent) fqn.name
-    else if (imports.contains(directParent) || imports.currentPackage == fqn.parent.javaPackage)
-      directParent.split("\\.").last + "." + fqn.name
-    else directParent + s".${fqn.name}"
+    if (messageType.packageName.isEmpty) messageType.name
+    else if (imports.contains(messageType.fullyQualifiedName)) messageType.name
+    else if (imports.currentPackage == directParent) messageType.name
+    else if (imports.contains(directParent) || imports.currentPackage == messageType.packageName)
+      directParent.split("\\.").last + "." + messageType.name
+    else directParent + s".${messageType.name}"
   }
 
   def writeImports(imports: Imports): String =
@@ -42,8 +49,8 @@ object JavaGeneratorUtils {
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
     typeArgument match {
-      case ModelBuilder.MessageTypeArgument(fqn) =>
-        fqn.fullName
+      case ModelBuilder.MessageTypeArgument(messageType) =>
+        messageType.fullName
       case ModelBuilder.ScalarTypeArgument(scalar) =>
         scalar match {
           case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
@@ -79,11 +86,12 @@ object JavaGeneratorUtils {
     val packageImportStrings = packageImports.map(_.javaPackage)
     implicit val imports = new Imports(
       parent.javaPackage,
-      packageImportStrings ++ block.fqns
-        .filter(_.parent.javaPackage.nonEmpty)
-        .filterNot { typ =>
-          packageImportStrings.contains(typ.parent.javaPackage)
+      packageImportStrings ++ block.messageTypes
+        .filter {
+          case proto: ProtoMessageType => proto.parent.javaPackage.nonEmpty
+          case _                       => true
         }
+        .filterNot { messageType => packageImportStrings.contains(messageType.packageName) }
         .map(typeImport))
 
     s"""package ${parent.javaPackage};

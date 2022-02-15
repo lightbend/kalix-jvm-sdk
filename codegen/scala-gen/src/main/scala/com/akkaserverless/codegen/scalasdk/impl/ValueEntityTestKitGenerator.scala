@@ -18,7 +18,7 @@ package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ProtoMessageType
 import com.lightbend.akkasls.codegen.Imports
 import com.lightbend.akkasls.codegen.ModelBuilder
 
@@ -27,7 +27,7 @@ object ValueEntityTestKitGenerator {
   import ScalaGeneratorUtils._
 
   def generateUnmanagedTest(
-      main: FullyQualifiedName,
+      main: ProtoMessageType,
       valueEntity: ModelBuilder.ValueEntity,
       service: ModelBuilder.EntityService): Seq[File] =
     Seq(test(valueEntity, service), integrationTest(main, service))
@@ -38,19 +38,19 @@ object ValueEntityTestKitGenerator {
   private[codegen] def testkit(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     implicit val imports: Imports =
       generateImports(
-        Seq(valueEntity.state.fqn) ++
+        Seq(valueEntity.state.messageType) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        valueEntity.fqn.parent.scalaPackage,
+        valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+        packageImports = Seq(service.messageType.parent.scalaPackage))
 
-    val entityClassName = valueEntity.fqn.name
+    val entityClassName = valueEntity.messageType.name
 
     val methods = service.commands.map { cmd =>
       s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ValueEntityResult[${typeName(
@@ -62,8 +62,8 @@ object ValueEntityTestKitGenerator {
     }
 
     File(
-      valueEntity.fqn.fileBasename + "TestKit.scala",
-      s"""|package ${valueEntity.fqn.parent.scalaPackage}
+      valueEntity.messageType.fileBasename + "TestKit.scala",
+      s"""|package ${valueEntity.messageType.parent.scalaPackage}
           |
           |${writeImports(imports)}
           |
@@ -92,18 +92,18 @@ object ValueEntityTestKitGenerator {
           | * TestKit for unit testing $entityClassName
           | */
           |final class ${entityClassName}TestKit private(entity: $entityClassName) {
-          |  private var state: ${typeName(valueEntity.state.fqn)} = entity.emptyState
+          |  private var state: ${typeName(valueEntity.state.messageType)} = entity.emptyState
           |
           |  /**
           |   * @return The current state of the $entityClassName under test
           |   */
-          |  def currentState(): ${typeName(valueEntity.state.fqn)} =
+          |  def currentState(): ${typeName(valueEntity.state.messageType)} =
           |    state
           |
           |  private def interpretEffects[Reply](effect: ValueEntity.Effect[Reply]): ValueEntityResult[Reply] = {
           |    val result = new ValueEntityResultImpl[Reply](effect)
           |    if (result.stateWasUpdated)
-          |      this.state = result.updatedState.asInstanceOf[${typeName(valueEntity.state.fqn)}]
+          |      this.state = result.updatedState.asInstanceOf[${typeName(valueEntity.state.messageType)}]
           |    result
           |  }
           |
@@ -116,18 +116,18 @@ object ValueEntityTestKitGenerator {
 
     implicit val imports: Imports =
       generateImports(
-        Seq(valueEntity.state.fqn) ++
+        Seq(valueEntity.state.messageType) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        valueEntity.fqn.parent.scalaPackage,
+        valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec"),
-        packageImports = Seq(service.fqn.parent.scalaPackage))
+        packageImports = Seq(service.messageType.parent.scalaPackage))
 
-    val entityClassName = valueEntity.fqn.name
+    val entityClassName = valueEntity.messageType.name
 
     val testCases = service.commands.map { cmd =>
       s"""|"handle command ${cmd.name}" in {
@@ -138,8 +138,8 @@ object ValueEntityTestKitGenerator {
     }
 
     File(
-      valueEntity.fqn.fileBasename + "Spec.scala",
-      s"""|package ${valueEntity.fqn.parent.scalaPackage}
+      valueEntity.messageType.fileBasename + "Spec.scala",
+      s"""|package ${valueEntity.messageType.parent.scalaPackage}
           |
           |${writeImports(imports)}
           |
@@ -168,14 +168,14 @@ object ValueEntityTestKitGenerator {
           |""".stripMargin)
   }
 
-  def integrationTest(main: FullyQualifiedName, service: ModelBuilder.EntityService): File = {
+  def integrationTest(main: ProtoMessageType, service: ModelBuilder.EntityService): File = {
 
     implicit val imports: Imports =
       generateImports(
         Seq(main) ++
         service.commands.map(_.inputType) ++
         service.commands.map(_.outputType),
-        service.fqn.parent.scalaPackage,
+        service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
           "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
@@ -188,11 +188,11 @@ object ValueEntityTestKitGenerator {
           "org.scalatest.time.Millis"),
         packageImports = Nil)
 
-    val entityClassName = service.fqn.name
+    val entityClassName = service.messageType.name
 
     File(
-      service.fqn.fileBasename + "IntegrationSpec.scala",
-      s"""|package ${service.fqn.parent.scalaPackage}
+      service.messageType.fileBasename + "IntegrationSpec.scala",
+      s"""|package ${service.messageType.parent.scalaPackage}
           |
           |${writeImports(imports)}
           |
@@ -209,7 +209,7 @@ object ValueEntityTestKitGenerator {
           |
           |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
           |
-          |  private val client = testKit.getGrpcClient(classOf[${typeName(service.fqn)}])
+          |  private val client = testKit.getGrpcClient(classOf[${typeName(service.messageType)}])
           |
           |  "${entityClassName}" must {
           |

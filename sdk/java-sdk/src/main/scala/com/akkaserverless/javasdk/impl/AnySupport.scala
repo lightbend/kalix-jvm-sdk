@@ -16,11 +16,18 @@
 
 package com.akkaserverless.javasdk.impl
 
+import java.io.ByteArrayOutputStream
+import java.util.Locale
+
+import scala.collection.concurrent.TrieMap
+import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
+import scala.util.Try
+
 import com.akkaserverless.javasdk.JsonSupport
 import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Java
 import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Scala
 import com.google.common.base.CaseFormat
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
 import com.google.protobuf.CodedOutputStream
@@ -28,18 +35,12 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.Parser
 import com.google.protobuf.UnsafeByteOperations
 import com.google.protobuf.WireFormat
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import org.slf4j.LoggerFactory
-import scalapb.options.Scalapb
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
-
-import java.io.ByteArrayOutputStream
-import java.util.Locale
-import scala.collection.concurrent.TrieMap
-import scala.jdk.CollectionConverters._
-import scala.reflect.ClassTag
-import scala.util.Try
+import scalapb.options.Scalapb
 
 object AnySupport {
 
@@ -379,7 +380,7 @@ class AnySupport(
 
       case null =>
         throw SerializationException(
-          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
+          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
 
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
@@ -390,7 +391,7 @@ class AnySupport(
 
       case other =>
         throw SerializationException(
-          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or using a type annotated with @Jsonable.")
+          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
     }
 
   /**

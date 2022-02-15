@@ -16,23 +16,21 @@
 
 package com.lightbend.akkasls.codegen.java
 
-import com.lightbend.akkasls.codegen.FullyQualifiedName
+import com.lightbend.akkasls.codegen.ClassMessageType
 
 object Types {
   object View {
-    val UpdateHandlerNotFound = FQN("com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound")
-    val ViewRouter = FQN("com.akkaserverless.javasdk.impl.view.ViewRouter")
-    val View = FQN("com.akkaserverless.javasdk.view.View")
-    val ViewProvider = FQN("com.akkaserverless.javasdk.view.ViewProvider")
-    val ViewCreationContext = FQN("com.akkaserverless.javasdk.view.ViewCreationContext")
-    val ViewOptions = FQN("com.akkaserverless.javasdk.view.ViewOptions")
-    val ViewContext = FQN("com.akkaserverless.javasdk.view.ViewContext")
+    val UpdateHandlerNotFound = ClassMessageType("com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound")
+    val ViewRouter = ClassMessageType("com.akkaserverless.javasdk.impl.view.ViewRouter")
+    val View = ClassMessageType("com.akkaserverless.javasdk.view.View")
+    val ViewProvider = ClassMessageType("com.akkaserverless.javasdk.view.ViewProvider")
+    val ViewCreationContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewCreationContext")
+    val ViewOptions = ClassMessageType("com.akkaserverless.javasdk.view.ViewOptions")
+    val ViewContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewContext")
   }
 
-  val Descriptors = FQN("com.google.protobuf.Descriptors")
-  val EmptyProto = FQN("com.google.protobuf.EmptyProto")
-  val Function = FQN("java.util.function.Function")
+  val Descriptors = ClassMessageType("com.google.protobuf.Descriptors")
+  val EmptyProto = ClassMessageType("com.google.protobuf.EmptyProto")
+  val Function = ClassMessageType("java.util.function.Function")
 
-  private def FQN(fqn: String): FullyQualifiedName =
-    FullyQualifiedName.noDescriptor(fqn)
 }

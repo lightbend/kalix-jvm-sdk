@@ -17,15 +17,14 @@
 package com.akkaserverless.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.Imports
-import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.FullyQualifiedName
 import com.lightbend.akkasls.codegen.ModelBuilder
 import com.lightbend.akkasls.codegen.PackageNaming
+import com.lightbend.akkasls.codegen.ClassMessageType
+import com.lightbend.akkasls.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
+  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
 
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))
@@ -45,7 +44,7 @@ object ValueEntitySourceGenerator {
       mainPackageName: PackageNaming): File = {
     import Types.ValueEntity._
 
-    val stateType = valueEntity.state.fqn
+    val stateType = valueEntity.state.messageType
     val abstractEntityName = valueEntity.abstractEntityName
 
     val methods = service.commands
@@ -60,11 +59,11 @@ object ValueEntitySourceGenerator {
 
       }
 
-    val Components = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".Components")
-    val ComponentsImpl = FullyQualifiedName.noDescriptor(mainPackageName.javaPackage + ".ComponentsImpl")
+    val Components = ClassMessageType(mainPackageName.javaPackage + ".Components")
+    val ComponentsImpl = ClassMessageType(mainPackageName.javaPackage + ".ComponentsImpl")
 
     generate(
-      valueEntity.fqn.parent,
+      valueEntity.messageType.parent,
       abstractEntityName,
       c"""|$managedComment
           |
@@ -76,13 +75,13 @@ object ValueEntitySourceGenerator {
           |  $methods
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   private[codegen] def handler(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
     import Types.ValueEntity._
-    val stateType = valueEntity.state.fqn
-    val valueEntityName = valueEntity.fqn
+    val stateType = valueEntity.state.messageType
+    val valueEntityName = valueEntity.messageType
 
     val commandCases = service.commands
       .map { cmd =>
@@ -94,7 +93,7 @@ object ValueEntitySourceGenerator {
       }
 
     generate(
-      valueEntity.fqn.parent,
+      valueEntity.messageType.parent,
       valueEntity.routerName,
       c"""|$managedComment
           |
@@ -112,35 +111,37 @@ object ValueEntitySourceGenerator {
           |  }
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   def provider(entity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): File = {
-    import Types.{ ImmutableSeq, Descriptors }
     import Types.ValueEntity._
+    import Types.Descriptors
+    import Types.ImmutableSeq
     val className = entity.providerName
 
-    val descriptors =
-      (Seq(entity.state.fqn) ++ (service.commands.map(_.inputType) ++ service.commands.map(_.outputType)))
-        .map(_.descriptorImport)
+    val relevantTypes = allRelevantMessageTypes(service, entity)
+    val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
+
+    val relevantDescriptors = relevantProtoTypes.map(_.descriptorImport).distinct
 
     generate(
-      entity.fqn.parent,
+      entity.messageType.parent,
       className,
       c"""|$managedComment
           |
           |object $className {
-          |  def apply(entityFactory: $ValueEntityContext => ${entity.fqn.name}): $className =
+          |  def apply(entityFactory: $ValueEntityContext => ${entity.messageType.name}): $className =
           |    new $className(entityFactory, $ValueEntityOptions.defaults)
           |}
-          |class $className private(entityFactory: $ValueEntityContext => ${entity.fqn.name}, override val options: $ValueEntityOptions)
-          |  extends $ValueEntityProvider[${entity.state.fqn}, ${entity.fqn}] {
+          |class $className private(entityFactory: $ValueEntityContext => ${entity.messageType.name}, override val options: $ValueEntityOptions)
+          |  extends $ValueEntityProvider[${entity.state.messageType}, ${entity.messageType}] {
           |
           |  def withOptions(newOptions: $ValueEntityOptions): $className =
           |    new $className(entityFactory, newOptions)
           |
           |  override final val serviceDescriptor: $Descriptors.ServiceDescriptor =
-          |    ${service.fqn.descriptorImport}.javaDescriptor.findServiceByName("${service.fqn.protoName}")
+          |    ${service.messageType.descriptorImport}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
           |
           |  override final val entityType = "${entity.entityType}"
           |
@@ -148,10 +149,10 @@ object ValueEntitySourceGenerator {
           |    new ${entity.routerName}(entityFactory(context))
           |
           |  override final val additionalDescriptors: $ImmutableSeq[$Descriptors.FileDescriptor] =
-          |    ${descriptors.distinct.map(d => c"$d.javaDescriptor :: ")}Nil
+          |    ${relevantDescriptors.map(d => c"$d.javaDescriptor :: ")}Nil
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 
   def generateImplementationSkeleton(
@@ -160,23 +161,24 @@ object ValueEntitySourceGenerator {
     import Types.ValueEntity._
 
     val methods = service.commands.map { cmd =>
-      c"""|override def ${lowerFirst(cmd.name)}(currentState: ${valueEntity.state.fqn}, ${lowerFirst(cmd.inputType.name)}: ${cmd.inputType}): $ValueEntity.Effect[${cmd.outputType}] =
+      c"""|override def ${lowerFirst(cmd.name)}(currentState: ${valueEntity.state.messageType}, ${lowerFirst(
+        cmd.inputType.name)}: ${cmd.inputType}): $ValueEntity.Effect[${cmd.outputType}] =
           |  effects.error("The command handler for `${cmd.name}` is not implemented, yet")
           |"""
     }
 
     generate(
-      valueEntity.fqn.parent,
-      valueEntity.fqn.name,
+      valueEntity.messageType.parent,
+      valueEntity.messageType.name,
       c"""|$unmanagedComment
           |
-          |class ${valueEntity.fqn.name}(context: $ValueEntityContext) extends ${valueEntity.abstractEntityName} {
-          |  override def emptyState: ${valueEntity.state.fqn} =
+          |class ${valueEntity.messageType.name}(context: $ValueEntityContext) extends ${valueEntity.abstractEntityName} {
+          |  override def emptyState: ${valueEntity.state.messageType} =
           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty entity state")
           |
           |  $methods
           |}
           |""",
-      packageImports = Seq(service.fqn.parent))
+      packageImports = Seq(service.messageType.parent))
   }
 }
