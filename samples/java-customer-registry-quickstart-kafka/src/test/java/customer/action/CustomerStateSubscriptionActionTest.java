@@ -1,10 +1,9 @@
-package customer.actions;
+package customer.action;
 
 import akka.stream.javadsl.Source;
 import com.akkaserverless.javasdk.testkit.ActionResult;
-import com.google.protobuf.Empty;
-import customer.actions.CustomerStateSubscriptionAction;
-import customer.actions.CustomerStateSubscriptionActionTestKit;
+import customer.action.CustomerStateSubscriptionAction;
+import customer.action.CustomerStateSubscriptionActionTestKit;
 import customer.domain.CustomerDomain;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -27,9 +26,9 @@ public class CustomerStateSubscriptionActionTest {
   }
 
   @Test
-  public void onUpdateStateTest() {
+  public void onUpsertStateTest() {
     CustomerStateSubscriptionActionTestKit testKit = CustomerStateSubscriptionActionTestKit.of(CustomerStateSubscriptionAction::new);
-    // ActionResult<Empty> result = testKit.onUpdateState(CustomerDomain.CustomerState.newBuilder()...build());
+    // ActionResult<CustomerDomain.CustomerState> result = testKit.onUpsertState(CustomerDomain.CustomerState.newBuilder()...build());
   }
 
 }
