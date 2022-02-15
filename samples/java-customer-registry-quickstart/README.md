@@ -25,8 +25,6 @@ mvn compile
 ## Running Locally
 
 To run the example locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-
-### with Google Pub/Sub
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
 To start the proxy, run the following command from this directory:
 
@@ -34,15 +32,6 @@ To start the proxy, run the following command from this directory:
 docker-compose up
 ```
 
-### with Kafka
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
-To start the proxy, run the following command from the kafka directory:
-
-```
-docker-compose up
-```
-
-### Starting the application
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
 ```
