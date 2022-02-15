@@ -28,15 +28,15 @@ To run the example locally, you must run the Akka Serverless proxy. The included
 
 ### with Google Pub/Sub
 It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
-To start the proxy, run the following command from this directory:
+To start the proxy and the Google Pub/Sub emulator, run the following command from this directory:
 
 ```
 docker-compose up
 ```
 
 ### with Kafka
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
-To start the proxy, run the following command from the kafka directory:
+It also contains the configuration to start a local Kafka broker and a Zookeeper that the Akka Serverless proxy will connect to.
+To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the kafka directory:
 
 ```
 docker-compose up
