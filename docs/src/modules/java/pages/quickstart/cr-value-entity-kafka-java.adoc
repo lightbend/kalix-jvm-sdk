@@ -1,0 +1,160 @@
+= Quickstart: Customer Registry with Kafka in Java
+
+include::ROOT:partial$include.adoc[]
+include::java:partial$attributes.adoc[]
+
+
+Create a customer registry that includes publishing to Kafka. Package it into a container, and run it on Akka Serverless.
+
+== In this Quickstart you will learn:
+
+* How to add additional functionality, allowing to publish customer's events to Kafka.
+* How to package the customer registry into a container.
+* How to deploy and run the customer registry on Akka Serverless.
+
+== Before you begin
+
+* If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
+* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] if you want to deploy from a terminal window.
+* For this quickstart, you'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {java-version} or higher
+** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
+** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Akka Serverless CLI: 
+`akkasls quickstart download customer-registry-views-java`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+== Start from the Customer Registry Entity
+
+Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Akka Serverless CLI:
+
+[source,command line]
+----
+akkasls quickstart download customer-registry-java
+----
+
+In this guide we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
+
+== Define an Action
+
+The `customer_action.proto` will contain the definition of this action.
+
+. In your project, create one directories for your protobuf file, `src/main/proto/customer/action`.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/customer/action
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/customer/action
+----
+--
+
+. Create a `customer_action.proto` file and save it in the `src/main/proto/customer/action` directory.
+
+. Add declarations for:
++
+* The protobuf syntax version, `proto3`.
+* The package name, `customer.action`.
+* The required Java outer classname, `CustomerAction`. Messages defined in this file will be generated as inner classes.
+* Import `customer/domain/customer_domain.proto` and Akka Serverless `akkaserverless/annotations.proto`.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
+----
+
+. Add the service definition. The service definition is annotated with `akkaserverless.codegen` indicating we want to generate an Action for this service.
+. Add declarations for:
++
+* Listening to `customer.domain.CustomerState` events from the value entity `customer` by using the option `eventing.in`.
+* Publishing to the Kafka topic `customer_upserts` by using the option `eventing.out`.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
+----
+
+. Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
++
+----
+mvn compile
+----
+
+== Create an Action
+
+Actions are stateless functions that can be triggered in multiple ways. In this case the action is triggered by each event `customer.domain.CustomerState` received by the Value Entity `customer.domain.Customer`. 
+
+. If it's not open already, open `src/main/java/customer/action/CustomerStateSubscriptionAction.java` for editing.
+
+. Modify the `onUpsertState` method by adding the logic to handle the action. The complete method should include the following:
++
+[source, java]
+.src/main/java/customer/action/CustomerStateSubscriptionAction.java
+----
+include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
+----
++
+* The incoming message contains the request data from your client and this action just passes it along to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
+
+== Package and deploy your service
+
+To compile, build the container image, and publish it to your container registry, follow these steps
+
+. From the root project directory, compile the source code using Maven:
++
+[source, command line]
+----
+mvn compile
+----
+
+. Use the `deploy` target to build the container image and publish it to your container registry. At the end of this command Maven will show you the container image URL you'll need in the next part of this quickstart.
++
+[source, command line]
+----
+mvn deploy
+----
+
+. Sign in to your Akka Serverless account at: {console}
+. If you do not have a project, click *Add Project* to create one, otherwise choose the project you want to deploy your service to.
+. On the project dashboard click the "+" next to *services* to start the deployment wizard
+. Choose a name for your service and click *Next*
+. Enter the container image URL from the above step and click *Next*
+. Click *Next* (no environment variables are needed for these samples)
+. Check both _Add a route to this service_ and _Enable CORS_ and click *Next*
+. Check your message broker is configured to use Kafka by following the https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers] how-to.
+. Click *Finish* to start the deployment
+. Click *Go to Service* to see your newly deployed service
+
+== Invoke your service
+
+Now that you have deployed your service, the next step is to invoke it using gRPCurl
+
+. From the "_Service Explorer_" click on the method you want to invoke
+. Click on "_gRPCurl_"
+. In the bottom section of the dialog, fill in the values you want to send to your service
+. In the top section of the dialog, click the "_Copy to clipboard_" button
+. Open a new command line and paste the content you just copied
+
+== Next steps
+
+* You can learn more about Value Entities in the xref:java:value-entity.adoc[reference documentation].
+* Continue this example by xref:java:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.

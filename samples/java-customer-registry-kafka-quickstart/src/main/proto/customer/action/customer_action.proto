@@ -4,8 +4,8 @@ package customer.action;
 
 option java_outer_classname = "CustomerAction";
 
-import "akkaserverless/annotations.proto"; 
 import "customer/domain/customer_domain.proto"; 
+import "akkaserverless/annotations.proto"; 
 // end::declarations[]
 // tag::service[]
 service CustomerStateSubscription {
