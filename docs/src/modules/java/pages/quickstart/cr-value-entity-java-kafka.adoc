@@ -46,7 +46,7 @@ cd customerregistry
 +
 [source,command line]
 ----
-curl -OL https://raw.githubusercontent.com/lightbend/akkaserverless-java-sdk/main/samples/java-customer-registry-quickstart/pom.xml
+curl -OL https://raw.githubusercontent.com/lightbend/akkaserverless-java-sdk/main/samples/java-customer-registry-kafka-quickstart/pom.xml
 ----
 
 . Update the `dockerImage` property (line 13 of the `pom.xml` file) with your container registry name.
@@ -88,7 +88,7 @@ mkdir src/main/proto/customer/domain
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
 ----
 
 . Add the service endpoint. The service endpoint is annotated with `akkaserverless.codegen` indicating we want to generate a Value Entity for this service.
@@ -96,7 +96,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/api/c
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
 ----
 
 . Add messages to define the fields that comprise a `Customer` object (and its compound `Address`)
@@ -104,7 +104,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/api/c
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
 ----
 
 . Add the message that will identify which customer to retrieve for the `GetCustomer` message:
@@ -112,7 +112,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/api/c
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
 ----
 
 == Define an Action
@@ -150,7 +150,7 @@ mkdir src/main/proto/customer/action
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
 ----
 
 . Add the service definition. The service definition is annotated with `akkaserverless.codegen` indicating we want to generate an Action for this service.
@@ -158,7 +158,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/actio
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
 ----
 
 == Define the domain model
@@ -176,7 +176,7 @@ The `customer_domain.proto` contains all the internal data objects (https://deve
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
 ----
 
 . Add the `CustomerState` message with fields for entity data, and the `Address` message that defines the compound address:
@@ -184,7 +184,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/domai
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$java-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
+include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
 ----
 
 . Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
@@ -204,7 +204,7 @@ Command handlers, as the name suggests, handle incoming requests before persisti
 [source, java]
 .src/main/java/customer/domain/Customer.java
 ----
-include::example$java-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=create]
+include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/domain/Customer.java[tag=create]
 ----
 +
 * The incoming message contains the request data from your client and the command handler updates the state of the customer.
@@ -215,7 +215,7 @@ include::example$java-customer-registry-quickstart/src/main/java/customer/domain
 [source, java, indent=0]
 .src/main/java/customer/domain/Customer.java
 ----
-include::example$java-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=getCustomer]
+include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/domain/Customer.java[tag=getCustomer]
 ----
 +
 * If that customer doesn't exist, processing the command fails.
@@ -240,7 +240,7 @@ Actions are stateless functions that can be triggered in multiple ways. In this 
 [source, java]
 .src/main/java/customer/action/CustomerStateSubscriptionAction.java
 ----
-include::example$java-customer-registry-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
+include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
 ----
 +
 * The incoming message contains the request data from your client and this action just passes it along to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of your choice.
