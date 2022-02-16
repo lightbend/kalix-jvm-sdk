@@ -340,7 +340,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry quickstart
+          name: Java Customer Registry Kafka quickstart
           command: |
             cd samples/java-customer-registry-kafka-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
