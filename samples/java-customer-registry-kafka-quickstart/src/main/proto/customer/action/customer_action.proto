@@ -1,0 +1,26 @@
+// tag::declarations[]
+syntax = "proto3";
+package customer.action;
+
+option java_outer_classname = "CustomerAction";
+
+import "customer/api/customer_api.proto"; 
+import "customer/domain/customer_domain.proto"; 
+import "akkaserverless/annotations.proto"; 
+// end::declarations[]
+// tag::service[]
+service CustomerStateSubscription {
+  option (akkaserverless.codegen) = { 
+    action: {} 
+  };
+  
+  rpc OnStateChange (customer.domain.CustomerState) returns (customer.api.Customer) {
+    option (akkaserverless.method).eventing.in = {  
+      value_entity: "customers" 
+    };
+    option (akkaserverless.method).eventing.out = {
+      topic: "customer_changes" 
+    };
+  } 
+}
+// end::service[]
