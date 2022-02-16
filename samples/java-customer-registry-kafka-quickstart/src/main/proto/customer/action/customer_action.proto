@@ -18,7 +18,7 @@ service CustomerStateSubscription {
       value_entity: "customers" 
     };
     option (akkaserverless.method).eventing.out = {
-      topic: "customer_upserts" 
+      topic: "customer_changes" 
     };
   } 
 }
