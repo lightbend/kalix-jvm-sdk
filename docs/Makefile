@@ -54,6 +54,7 @@ examples:
 bundles:
 	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
 	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
+	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
 	bin/bundle.sh --zip "${managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
 	bin/bundle.sh --zip "${managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
 
