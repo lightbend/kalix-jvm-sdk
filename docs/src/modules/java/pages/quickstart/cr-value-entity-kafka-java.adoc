@@ -48,7 +48,7 @@ In this guide we will describe how to subscribe to events from the entity and fo
 
 The `customer_action.proto` will contain the definition of this action.
 
-. In your project, create one directories for your protobuf file, `src/main/proto/customer/action`.
+. In your project, create a directory for your protobuf file, `src/main/proto/customer/action`.
 [.tabset]
 Linux or macOS::
 +
