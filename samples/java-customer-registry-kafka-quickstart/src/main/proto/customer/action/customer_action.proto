@@ -4,6 +4,7 @@ package customer.action;
 
 option java_outer_classname = "CustomerAction";
 
+import "customer/api/customer_api.proto"; 
 import "customer/domain/customer_domain.proto"; 
 import "akkaserverless/annotations.proto"; 
 // end::declarations[]
@@ -13,7 +14,7 @@ service CustomerStateSubscription {
     action: {} 
   };
   
-  rpc OnUpsertState (customer.domain.CustomerState) returns (customer.domain.CustomerState) {
+  rpc OnStateChange (customer.domain.CustomerState) returns (customer.api.Customer) {
     option (akkaserverless.method).eventing.in = {  
       value_entity: "customers" 
     };

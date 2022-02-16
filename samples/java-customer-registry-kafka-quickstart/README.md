@@ -22,19 +22,10 @@ mvn compile
 ```
 
 
-## Running Locally
+## Running Locally 
 
 To run the example locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 
-### with Google Pub/Sub
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
-To start the proxy and the Google Pub/Sub emulator, run the following command from this directory:
-
-```
-docker-compose up
-```
-
-### with Kafka
 It also contains the configuration to start a local Kafka broker and a Zookeeper that the Akka Serverless proxy will connect to.
 To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the kafka directory:
 

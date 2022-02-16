@@ -21,7 +21,7 @@ Create a customer registry that includes publishing to Kafka. Package it into a 
 ** Java {java-version} or higher
 ** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
-** Configure your project message broker to use Kafka by following the https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers] how-to.
+** Configure your project message broker to use Kafka and create the topic `update_changes` by following the https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project. 
 
 [NOTE]
 ====
@@ -42,7 +42,7 @@ Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Custome
 akkasls quickstart download customer-registry-java
 ----
 
-In this guide we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
+In this guide, we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
 
 == Define an Action
 
@@ -74,7 +74,7 @@ mkdir src/main/proto/customer/action
 * The protobuf syntax version, `proto3`.
 * The package name, `customer.action`.
 * The required Java outer classname, `CustomerAction`. Messages defined in this file will be generated as inner classes.
-* Import `customer/domain/customer_domain.proto` and Akka Serverless `akkaserverless/annotations.proto`.
+* Import `customer/api/customer_api.proto`,`customer/domain/customer_domain.proto`, and Akka Serverless `akkaserverless/annotations.proto`.
 +
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
@@ -86,7 +86,7 @@ include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer
 . Add declarations for:
 +
 * Listening to `customer.domain.CustomerState` events from the value entity `customer` by using the option `eventing.in`.
-* Publishing to the Kafka topic `customer_upserts` by using the option `eventing.out`.
+* Publishing to the Kafka topic `customer_changes` by using the option `eventing.out`.
 +
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
@@ -102,7 +102,7 @@ mvn compile
 
 == Create an Action
 
-Actions are stateless functions that can be triggered in multiple ways. In this case the action is triggered by each event `customer.domain.CustomerState` received by the Value Entity `customer.domain.Customer`. 
+Actions are stateless functions that can be triggered in multiple ways. In this case, the action is triggered by each value change `customer.domain.CustomerState` received by the Value Entity `customer.domain.Customer`. 
 
 . If it's not open already, open `src/main/java/customer/action/CustomerStateSubscriptionAction.java` for editing.
 
@@ -114,7 +114,7 @@ Actions are stateless functions that can be triggered in multiple ways. In this 
 include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
 ----
 +
-* The incoming message contains the request data from your client and this action just passes it along to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
+* The incoming message contains the updated state of the customer entity and this action converts it to a `CustomerApi.Customer` and passes it to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
 
 == Package and deploy your service
 
@@ -147,6 +147,7 @@ Now that you have deployed your service, the next step is to invoke it using gRP
 . In the bottom section of the dialog, fill in the values you want to send to your service
 . In the top section of the dialog, click the "_Copy to clipboard_" button
 . Open a new command line and paste the content you just copied
+. Check the change made to the Customer appears in the topic `customer_changes` in the Kafka cluster on your Confluent Cloud. 
 
 == Next steps
 
