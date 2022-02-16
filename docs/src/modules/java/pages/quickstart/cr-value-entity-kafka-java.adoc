@@ -106,7 +106,7 @@ Actions are stateless functions that can be triggered in multiple ways. In this 
 
 . If it's not open already, open `src/main/java/customer/action/CustomerStateSubscriptionAction.java` for editing.
 
-. Modify the `onUpsertState` method by adding the logic to handle the action. The complete method should include the following:
+. Modify the `onStateChange` method by adding the logic to handle the action. The complete method should include the following:
 +
 [source, java]
 .src/main/java/customer/action/CustomerStateSubscriptionAction.java
