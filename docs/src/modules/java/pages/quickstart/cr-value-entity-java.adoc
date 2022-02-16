@@ -8,7 +8,7 @@ Learn how to create a customer registry in Java, package it into a container, an
 == Before you begin
 
 * If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
-* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] if you want to deploy from a terminal window.
+* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
@@ -184,43 +184,71 @@ The `src/main/java/customer/Main.java` file already contains the required code t
 
 == Package and deploy your service
 
-To compile, build the container image, and publish it to your container registry, follow these steps
+To build and publish the container image and then deploy the service, follow these steps:
 
-. From the root project directory, compile the source code using Maven:
+. If you haven't done so yet, sign in to your Akka Serverless account. If this is your first time using Akka Serverless, this will let you register an account, https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[create your first project], and set this project as the default.
 +
-[source, command line]
 ----
-mvn compile
+akkasls auth login
 ----
 
-. Use the `deploy` target to build the container image and publish it to your container registry. At the end of this command Maven will show you the container image URL you'll need in the next part of this quickstart.
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_deploy[deploy the service] to Akka Serverless using `akkasls`:
 +
-[source, command line]
 ----
 mvn deploy
 ----
 
-. Sign in to your Akka Serverless account at: {console}
-. If you do not have a project, click *Add Project* to create one, otherwise choose the project you want to deploy your service to.
-. On the project dashboard click the "+" next to *services* to start the deployment wizard
-. Choose a name for your service and click *Next*
-. Enter the container image URL from the above step and click *Next*
-. Click *Next* (no environment variables are needed for these samples)
-. Check both _Add a route to this service_ and _Enable CORS_ and click *Next*
-. Click *Finish* to start the deployment
-. Click *Go to Service* to see your newly deployed service
+. You can https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
++
+----
+akkasls service list
+----
 
 == Invoke your service
 
-Now that you have deployed your service, the next step is to invoke it using gRPCurl
+Once the service has started successfully, you can https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
-. From the "_Service Explorer_" click on the method you want to invoke
-. Click on "_gRPCurl_"
-. In the bottom section of the dialog, fill in the values you want to send to your service
-. In the top section of the dialog, click the "_Copy to clipboard_" button
-. Open a new command line and paste the content you just copied
+----
+akkasls service proxy <service name> --grpcui
+----
+
+The `--grpcui` option also starts and opens a https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+
+Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{
+    "customer_id": "abc123",
+    "email": "someone@example.com",
+    "name": "Someone",
+    "address": {
+      "street": "123 Some Street",
+      "city": "Somewhere"
+    }
+  }' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/Create
+----
+
+The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"customer_id": "abc123"}' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/GetCustomer
+----
+
+You can https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+
+----
+akkasls service expose <service name>
+----
 
 == Next steps
 
-* You can learn more about Value Entities in the xref:java:value-entity.adoc[reference documentation].
+* You can learn more about xref:java:value-entity.adoc[Value Entities].
 * Continue this example by xref:java:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.
