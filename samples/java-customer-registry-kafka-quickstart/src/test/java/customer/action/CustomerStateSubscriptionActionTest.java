@@ -26,7 +26,7 @@ public class CustomerStateSubscriptionActionTest {
   }
 
   @Test
-  public void onUpsertStateTest() {
+  public void onStateChangeTest() {
     CustomerStateSubscriptionActionTestKit testKit = CustomerStateSubscriptionActionTestKit.of(CustomerStateSubscriptionAction::new);
     // ActionResult<CustomerDomain.CustomerState> result = testKit.onUpsertState(CustomerDomain.CustomerState.newBuilder()...build());
   }
