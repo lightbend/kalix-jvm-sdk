@@ -138,7 +138,8 @@ jobs:
       - save_deps_cache
 
   check-sample-sdk-versions:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Check all samples have the same SDK version"
     steps:
       - checkout-and-merge-to-main
@@ -174,7 +175,8 @@ jobs:
             fi       
 
   validate-docs:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Validate docs"
     steps:
       - checkout-and-merge-to-main
@@ -187,7 +189,8 @@ jobs:
       - save_deps_cache
 
   validate-doc-links:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Validate doc links"
     steps:
       - checkout-and-merge-to-main
@@ -213,7 +216,8 @@ jobs:
       - save_deps_cache
 
   tck-tests:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "TCK tests"
     steps:
       - checkout-and-merge-to-main
@@ -230,7 +234,8 @@ jobs:
   # by setting a snapshot version with set-sdk-version we publish the deps so that
   # other jobs can use them by depending on this job in the workflow
   publish-local:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Build and publish a local version of the artifacts"
     steps:
       - checkout-and-merge-to-main
@@ -240,8 +245,9 @@ jobs:
       - publish-local
       - save_deps_cache
 
-  compile-example-suite-java: 
-    machine: true
+  compile-example-suite-java:
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Compile Test Projects from Example Suite (Java)"
     steps:
       - checkout-and-merge-to-main
@@ -252,8 +258,9 @@ jobs:
             command: sbt -Dexample.suite.java.enabled codegenJavaCompilationExampleSuite/compile
       - save_deps_cache
 
-  compile-example-suite-scala: 
-    machine: true
+  compile-example-suite-scala:
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Compile Test Projects from Example Suite (Scala)"
     steps:
       - checkout-and-merge-to-main
@@ -265,7 +272,8 @@ jobs:
       - save_deps_cache      
 
   verify-all-samples-tested:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Check that all samples are included in CI-verification"
     steps:
       - checkout-and-merge-to-main
@@ -284,7 +292,8 @@ jobs:
             $ALL_OK
 
   maven-java-tests:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     description: "Maven Java (plugin and archetype tests)"
     steps:
       - checkout-and-merge-to-main
@@ -310,7 +319,8 @@ jobs:
       - save_deps_cache
 
   sample-java-customer-registry-quickstart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -352,7 +362,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-customer-registry-views-quickstart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -373,7 +384,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-shopping-cart-quickstart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -394,7 +406,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-fibonacci-action:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -414,7 +427,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-doc-snippets:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -430,7 +444,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-first-service:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -449,7 +464,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-customer-registry:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -469,7 +485,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-customer-registry:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -489,7 +506,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -509,7 +527,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -529,7 +548,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-replicatedentity-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -549,7 +569,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-counter:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -571,7 +592,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-counter:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -591,7 +613,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-java-replicatedentity-examples:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -611,7 +634,8 @@ jobs:
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
   sample-scala-doc-snippets:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -631,7 +655,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-fibonacci-action:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -651,7 +676,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-customer-registry:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -671,7 +697,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-customer-registry-quickstart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -691,7 +718,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-customer-registry:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -711,7 +739,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-first-service:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -731,7 +760,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-counter:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -751,7 +781,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-counter:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -771,7 +802,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -791,7 +823,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-replicatedentity-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -810,7 +843,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-replicatedentity-examples:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -829,7 +863,8 @@ jobs:
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-shopping-cart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -914,7 +949,8 @@ jobs:
       - save_deps_cache
 
   publish-docs:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout
       - setup_sbt
