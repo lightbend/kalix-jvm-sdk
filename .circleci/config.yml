@@ -1015,6 +1015,10 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-valueentity-counter-spring-client:
+          requires:
+            - checks
+            - publish-local
       - sample-java-replicatedentity-examples:
           requires:
             - checks
