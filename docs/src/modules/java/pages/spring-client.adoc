@@ -67,4 +67,6 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 Please refer to following sample which has support for both REST and GRPC consumers.
 
-* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples/java-valueentity-counter-spring-client[Spring Client Java Value Entity Counter,window="new"]
+`java-valueentity-counter-spring-client` module under samples link in the following repo :
+
+* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples[Spring Client Java Value Entity Counter,window="new"]
