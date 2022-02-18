@@ -10,7 +10,6 @@ import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** An action. */
 // tag::counter-topic-sub[]
 public class CounterTopicSubscriptionAction extends AbstractCounterTopicSubscriptionAction {
 
@@ -18,14 +17,12 @@ public class CounterTopicSubscriptionAction extends AbstractCounterTopicSubscrip
 
   public CounterTopicSubscriptionAction(ActionCreationContext creationContext) {}
 
-  /** Handler for "Increase". */
   @Override
   public Effect<Empty> increase(CounterTopicApi.Increased increased) { //<1> 
     logger.info("Received increase event: " + increased.toString());
     return effects().noReply();
   }
 
-  /** Handler for "Decrease". */
   @Override
   public Effect<Empty> decrease(CounterTopicApi.Decreased decreased) {  
     logger.info("Received increase event: " + decreased.toString());

@@ -5,10 +5,8 @@ import com.akkaserverless.scalasdk.action.ActionCreationContext
 
 import scala.concurrent.ExecutionContext
 
-/** An action. */
 class DelegatingServiceAction(creationContext: ActionCreationContext) extends AbstractDelegatingServiceAction {
 
-  /** Handler for "AddAndReturn". */
   // tag::delegating-action[]
   override def addAndReturn(request: Request): Action.Effect[Result] = {
     implicit val executionContext: ExecutionContext = ExecutionContext.global

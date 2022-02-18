@@ -9,7 +9,6 @@ import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-/** An event sourced entity. */
 public class CustomerEntity extends AbstractCustomerEntity {
     @SuppressWarnings("unused")
     private final String entityId;

@@ -9,12 +9,10 @@ import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 
-/** An action. */
 public class CounterStateSubscriptionAction extends AbstractCounterStateSubscriptionAction {
 
   public CounterStateSubscriptionAction(ActionCreationContext creationContext) {}
 
-  /** Handler for "OnUpdateState". */
   @Override
   public Effect<Empty> onUpdateState(CounterDomain.CounterState counterState) {
     return effects().noReply();

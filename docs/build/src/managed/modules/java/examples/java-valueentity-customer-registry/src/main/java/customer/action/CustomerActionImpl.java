@@ -9,12 +9,10 @@ import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-/** An action. */
 public class CustomerActionImpl extends AbstractCustomerAction {
 
   public CustomerActionImpl(ActionCreationContext creationContext) { }
 
-  /** Handler for "Create". */
   @Override
   public Effect<Empty> create(CustomerApi.Customer customer) {
     return effects().forward(components().customerValueEntity().create(customer));

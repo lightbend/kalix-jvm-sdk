@@ -12,14 +12,12 @@ import com.google.protobuf.Any;
 
 import java.util.Optional;
 
-/** An action. */
 // tag::counter-topic[]
 // tag::counter-ignore[]
 public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAction {
 // end::counter-ignore[]
   public CounterJournalToTopicAction(ActionCreationContext creationContext) {}
 
-  /** Handler for "Increase". */
   // tag::counter-topic-event-subject[]
   @Override
   public Effect<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased valueIncreased) {
@@ -43,7 +41,6 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
   // end::counter-topic-event-subject[]
   // end::counter-topic[]
 
-  /** Handler for "Decrease". */
   @Override
   public Effect<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
     CounterTopicApi.Decreased decreased =

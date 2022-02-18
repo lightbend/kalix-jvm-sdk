@@ -11,7 +11,6 @@ import com.google.protobuf.empty.Empty
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-/** A replicated entity. */
 class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMap {
 
   // tag::update[]

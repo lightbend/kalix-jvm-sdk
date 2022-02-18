@@ -1,4 +1,4 @@
-:akkaserverless-java-sdk-version: 0.10.5
+:akkaserverless-java-sdk-version: 0.10.6
 :java-version: 11
 :java_minimum_sdk_version: 0.7.0
 :console: https://console.akkaserverless.com/

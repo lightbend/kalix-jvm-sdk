@@ -8,7 +8,6 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
-/** A value entity. */
 public class CustomerValueEntity extends AbstractCustomerValueEntity {
   @SuppressWarnings("unused")
   private final String entityId;

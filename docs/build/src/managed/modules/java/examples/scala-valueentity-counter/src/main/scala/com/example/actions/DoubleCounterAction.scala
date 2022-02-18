@@ -12,11 +12,9 @@ import com.google.protobuf.empty.Empty
 
 // tag::controller-forward[]
 // tag::controller-side-effect[]
-/** An action. */
 class DoubleCounterAction(creationContext: ActionCreationContext) extends AbstractDoubleCounterAction {
 
 
-  /** Handler for "Increase". */
   override def increase(increaseValue: IncreaseValue): Action.Effect[Empty] = {
     // end::controller-side-effect[]
     val doubled = increaseValue.value * 2

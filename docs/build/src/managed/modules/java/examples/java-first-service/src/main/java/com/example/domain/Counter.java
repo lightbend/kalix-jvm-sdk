@@ -8,7 +8,6 @@ import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
-/** A value entity. */
 public class Counter extends AbstractCounter {
   @SuppressWarnings("unused")
   private final String entityId;

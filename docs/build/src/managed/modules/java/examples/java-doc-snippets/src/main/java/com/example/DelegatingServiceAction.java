@@ -10,7 +10,6 @@ import com.google.protobuf.Empty;
 
 import java.util.concurrent.CompletionStage;
 
-/** An action. */
 public class DelegatingServiceAction extends AbstractDelegatingServiceAction {
 
   public DelegatingServiceAction(ActionCreationContext creationContext) {}
