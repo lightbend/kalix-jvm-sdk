@@ -1,0 +1,70 @@
+= Consuming Akka Serverless Services using Spring
+
+Akka Serverless services are exposed using REST and GRPC interfaces.
+This guide walks you through the process of consuming these services using Spring.
+
+== Consuming REST endpoints
+
+Create a separate new Springboot project.
+
+For consuming the REST endpoints, we can use various REST client libraries provided via spring or others.
+For instance libraries like RestTemplate, Webflux etc.
+
+In this guide we are looking at steps using a Spring client using Webflux library.
+
+----
+ <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+ </dependency>
+----
+
+Steps:
+
+- Define a Webclient and Configure it to use Akka Serverless service's host and port.
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java[tag=webclientconfig]
+----
+
+- Using the above defined client call a relevant API in Akka Serverless service.
+For e.g. GET, POST etc. endpoints.
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
+----
+
+== Consuming GRPC Services
+
+Create a separate new Springboot project.
+
+For Consuming GRPC Services of Akka Serverless service we need to generate grpc client stubs.
+
+You could use protobuf maven plugins for stub creation.
+
+----
+<groupId>org.xolstice.maven.plugins</groupId>
+<artifactId>protobuf-maven-plugin</artifactId>
+----
+
+Following steps walks you through steps for creating
+
+- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.
+- Generate client stubs by running `mvn compile` or `mvn protobuf:compile`
+- Build client service via connecting to host and port of akka serverless service and then using relevant client stub call the desired service/method.
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/service/GrpcClientService.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java[tag=decreaseCounterCall]
+----
+
+== Sample
+
+Please refer to following sample which has support for both REST and GRPC consumers.
+
+* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples/java-valueentity-counter-spring-client[Spring Client Java Value Entity Counter,window="new"]

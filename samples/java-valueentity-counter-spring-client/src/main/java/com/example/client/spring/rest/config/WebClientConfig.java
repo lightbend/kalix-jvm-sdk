@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
+// tag::webclientconfig[]
 @Configuration
 public class WebClientConfig {
 
@@ -23,3 +24,4 @@ public class WebClientConfig {
         .build();
   }
 }
+// end::webclientconfig[]

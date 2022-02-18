@@ -9,6 +9,7 @@ import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+// tag::decreaseCounterCall[]
 @Service
 public class GrpcClientService {
 
@@ -35,6 +36,5 @@ public class GrpcClientService {
 
     return decreaseResponse.toString();
   }
-
-
 }
+// end::decreaseCounterCall[]

@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class CounterServiceImpl implements CounterService {
 
+  // tag::getCurrentCounterCall[]
   @Autowired
   WebClient webClient;
 
@@ -23,6 +24,7 @@ public class CounterServiceImpl implements CounterService {
         .retrieve()
         .bodyToMono(String.class);
   }
+  // end::getCurrentCounterCall[]
 
   @Override
   public Mono<String> increase(CounterRequest request, MultiValueMap<String, String> requestHeaders) {
