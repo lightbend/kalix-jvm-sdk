@@ -1,7 +1,7 @@
 package com.example.client.spring.rest;
 
 import com.example.client.spring.rest.controller.CounterController;
-import com.example.client.spring.rest.model.CounterRequest;
+import com.example.client.spring.rest.model.ValueRequest;
 import com.example.client.spring.rest.service.CounterService;
 import com.example.client.spring.rest.service.GrpcClientService;
 import org.junit.jupiter.api.Test;
@@ -33,14 +33,10 @@ public class CounterControllerTest {
   @Test
   public void testGetCurrentCounter() {
 
-    CounterRequest counterRequest = new CounterRequest();
-    counterRequest.setCounterId("test");
-
     when(counterService.getCurrentCounter(any(), any())).thenReturn(Mono.just("{}"));
 
-    webTestClient.post()
-        .uri("/getCurrentCounter")
-        .bodyValue(counterRequest)
+    webTestClient.get()
+        .uri("/counter/{counterId}", "test")
         .exchange()
         .expectStatus().isOk();
   }
@@ -49,15 +45,14 @@ public class CounterControllerTest {
   @Test
   public void testIncreaseCounter() {
 
-    CounterRequest counterRequest = new CounterRequest();
-    counterRequest.setCounterId("test");
-    counterRequest.setValue(1);
+    ValueRequest valueRequest = new ValueRequest();
+    valueRequest.setValue(1);
 
-    when(counterService.increase(any(), any())).thenReturn(Mono.just("{}"));
+    when(counterService.increase(any(), any(), any())).thenReturn(Mono.just("{}"));
 
     webTestClient.post()
-        .uri("/increase")
-        .bodyValue(counterRequest)
+        .uri("/counter/{counterId}/increase", "test")
+        .bodyValue(valueRequest)
         .exchange()
         .expectStatus().isOk();
   }
@@ -66,15 +61,14 @@ public class CounterControllerTest {
   @Test
   public void testDecreaseCounter() {
 
-    CounterRequest counterRequest = new CounterRequest();
-    counterRequest.setCounterId("test");
-    counterRequest.setValue(1);
+    ValueRequest valueRequest = new ValueRequest();
+    valueRequest.setValue(1);
 
-    when(grpcClientService.decrease(any())).thenReturn("{}");
+    when(grpcClientService.decrease(any(), any())).thenReturn("{}");
 
     webTestClient.post()
-        .uri("/decrease")
-        .bodyValue(counterRequest)
+        .uri("/counter/{counterId}/decrease", "test")
+        .bodyValue(valueRequest)
         .exchange()
         .expectStatus().isOk();
   }
@@ -83,15 +77,13 @@ public class CounterControllerTest {
   @Test
   public void testResetCounter() {
 
-    CounterRequest counterRequest = new CounterRequest();
-    counterRequest.setCounterId("test");
-    counterRequest.setValue(1);
-
+    ValueRequest valueRequest = new ValueRequest();
+    valueRequest.setValue(1);
     when(counterService.reset(any(), any())).thenReturn(Mono.just("{}"));
 
     webTestClient.post()
-        .uri("/increase")
-        .bodyValue(counterRequest)
+        .uri("/counter/{counterId}/reset", "test")
+        .bodyValue(valueRequest)
         .exchange()
         .expectStatus().isOk();
   }

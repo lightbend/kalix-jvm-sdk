@@ -55,7 +55,15 @@ Following steps walks you through steps for creating
 
 - Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.
 - Generate client stubs by running `mvn compile` or `mvn protobuf:compile`
-- Build client service via connecting to host and port of akka serverless service and then using relevant client stub call the desired service/method.
+- Define a Message channel with host and port of akka serverless service
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java[tag=grpcclientconfig]
+----
+
+- Build client service via connecting message channel and then using relevant client stub call the desired service/method.
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/GrpcClientService.java

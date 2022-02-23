@@ -32,7 +32,19 @@ mvn spring-boot:run
 With both the java-valueentity-counter module and your application running, any defined endpoints should be available at `http://localhost:8083`.
 Rest Endpoints are exposed via this application, and they can be invoked using any RestClient.
 ```shell
-curl --request POST 'localhost:8083/getCurrentCounter' \
+curl --request GET 'localhost:8083/counter/foo'
+```
+```shell
+curl --request POST 'localhost:8083/counter/foo/increase' \
 --header 'Content-Type: application/json' \
---data-raw '{"counterId": "foo"}'
+--data-raw '{"counterId": "foo", "value" : 1}'
+```
+```shell
+curl --request POST 'localhost:8083/counter/foo/decrease' \
+--header 'Content-Type: application/json' \
+--data-raw '{"counterId": "foo", "value" : 1}'
+```
+
+```shell
+curl --request POST 'localhost:8083/counter/foo/reset'
 ```

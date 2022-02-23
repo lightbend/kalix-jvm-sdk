@@ -2,37 +2,28 @@ package com.example.client.spring.rest.service;
 
 import com.example.CounterApi;
 import com.example.CounterServiceGrpc;
-import com.example.client.spring.rest.model.CounterRequest;
+import com.example.client.spring.rest.model.ValueRequest;
 import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 // tag::decreaseCounterCall[]
 @Service
 public class GrpcClientService {
 
-  @Value("${as.host}")
-  String host;
+  @Autowired
+  ManagedChannel channel;
 
-  @Value("${as.port}")
-  int port;
-
-  public String decrease(CounterRequest counterRequest) {
-    ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-        .usePlaintext()
-        .build();
+  public String decrease(String counterId, ValueRequest valueRequest) {
 
     CounterServiceGrpc.CounterServiceBlockingStub counterServiceBlockingStub =
         CounterServiceGrpc.newBlockingStub(channel);
 
     Empty decreaseResponse = counterServiceBlockingStub.decrease(CounterApi.DecreaseValue.newBuilder()
-        .setCounterId(counterRequest.getCounterId())
-        .setValue(counterRequest.getValue())
+        .setCounterId(counterId)
+        .setValue(valueRequest.getValue())
         .build());
-
-    channel.shutdown();
 
     return decreaseResponse.toString();
   }
