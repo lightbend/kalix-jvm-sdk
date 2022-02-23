@@ -2,15 +2,32 @@
 
 Akka Serverless services are exposed using REST and GRPC interfaces.
 This guide walks you through the process of consuming these services using Spring.
+This guide uses sample(s) from following repository:
+
+== Sample
+
+Please refer to following Spring Boot sample application which has support for both REST and GRPC consumers.
+
+`java-valueentity-counter-spring-client` module under samples link in the following repo :
+
+* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples[Spring Client Java Value Entity Counter,window="new"]
+
+Following is the Akka Serverless application to which above application acts as Spring Client.
+
+`java-valueentity-counter`  module under samples link in the following repo :
+
+* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples/java-valueentity-counter[Java Value Entity Counter,window="new"]
 
 == Consuming REST endpoints
 
-Create a separate new Springboot project.
+Create a separate new Spring Boot project.
 
 For consuming the REST endpoints, we can use various REST client libraries provided via spring or others.
 For instance libraries like RestTemplate, Webflux etc.
 
 In this guide we are looking at steps using a Spring client using Webflux library.
+
+The Spring Boot application used in this sample is consuming REST API's and GRPC Services exposed via Akka Serverless (java-valuentity-counter) and The Spring Boot application will work as a simple proxy to an Akka Serverless application.
 
 ----
  <dependency>
@@ -40,11 +57,13 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 == Consuming GRPC Services
 
-Create a separate new Springboot project.
+Create a separate new Spring Boot project.
 
 For Consuming GRPC Services of Akka Serverless service we need to generate grpc client stubs.
 
 You could use protobuf maven plugins for stub creation.
+
+The Spring Boot application used in this sample is consuming REST API's and GRPC Services exposed via Akka Serverless (java-valuentity-counter) and The Spring Boot application will work as a simple proxy to an Akka Serverless application.
 
 ----
 <groupId>org.xolstice.maven.plugins</groupId>
@@ -53,7 +72,7 @@ You could use protobuf maven plugins for stub creation.
 
 Following steps walks you through steps for creating
 
-- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.
+- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.  Remove all the akka serverless annotations from the proto files. For instance `[(akkaserverless.field).entity_key = true]` and `akkaserverless.codegen` etc.
 - Generate client stubs by running `mvn compile` or `mvn protobuf:compile`
 - Define a Message channel with host and port of akka serverless service
 
@@ -71,10 +90,3 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java[tag=decreaseCounterCall]
 ----
 
-== Sample
-
-Please refer to following sample which has support for both REST and GRPC consumers.
-
-`java-valueentity-counter-spring-client` module under samples link in the following repo :
-
-* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples[Spring Client Java Value Entity Counter,window="new"]
