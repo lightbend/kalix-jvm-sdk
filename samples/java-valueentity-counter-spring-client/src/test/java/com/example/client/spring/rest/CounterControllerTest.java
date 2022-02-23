@@ -33,7 +33,7 @@ public class CounterControllerTest {
   @Test
   public void testGetCurrentCounter() {
 
-    when(counterService.getCurrentCounter(any(), any())).thenReturn(Mono.just("{}"));
+    when(counterService.getCounter(any())).thenReturn(Mono.just("{}"));
 
     webTestClient.get()
         .uri("/counter/{counterId}", "test")
@@ -48,7 +48,7 @@ public class CounterControllerTest {
     ValueRequest valueRequest = new ValueRequest();
     valueRequest.setValue(1);
 
-    when(counterService.increase(any(), any(), any())).thenReturn(Mono.just("{}"));
+    when(counterService.increaseCounter(any(), any(), any())).thenReturn(Mono.just("{}"));
 
     webTestClient.post()
         .uri("/counter/{counterId}/increase", "test")
@@ -64,7 +64,7 @@ public class CounterControllerTest {
     ValueRequest valueRequest = new ValueRequest();
     valueRequest.setValue(1);
 
-    when(grpcClientService.decrease(any(), any())).thenReturn("{}");
+    when(grpcClientService.decreaseCounter(any(), any())).thenReturn("{}");
 
     webTestClient.post()
         .uri("/counter/{counterId}/decrease", "test")
@@ -79,7 +79,7 @@ public class CounterControllerTest {
 
     ValueRequest valueRequest = new ValueRequest();
     valueRequest.setValue(1);
-    when(counterService.reset(any(), any())).thenReturn(Mono.just("{}"));
+    when(counterService.resetCounter(any())).thenReturn(Mono.just("{}"));
 
     webTestClient.post()
         .uri("/counter/{counterId}/reset", "test")

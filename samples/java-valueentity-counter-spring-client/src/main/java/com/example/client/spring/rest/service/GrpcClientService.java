@@ -15,7 +15,7 @@ public class GrpcClientService {
   @Autowired
   ManagedChannel channel;
 
-  public String decrease(String counterId, ValueRequest valueRequest) {
+  public String decreaseCounter(String counterId, ValueRequest valueRequest) {
 
     CounterServiceGrpc.CounterServiceBlockingStub counterServiceBlockingStub =
         CounterServiceGrpc.newBlockingStub(channel);

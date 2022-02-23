@@ -19,22 +19,22 @@ public class CounterController {
   GrpcClientService grpcClientService;
 
   @GetMapping(path = "/{counterId}")
-  public Mono<String> getCurrentCounter(@PathVariable String counterId, @RequestHeader MultiValueMap<String, String> requestHeaders) {
-    return counterService.getCurrentCounter(requestHeaders, counterId);
+  public Mono<String> getCounter(@PathVariable String counterId){//}, @RequestHeader MultiValueMap<String, String> requestHeaders) {
+    return counterService.getCounter(counterId);
   }
 
   @PostMapping(path = "/{counterId}/increase")
   public Mono<String> increaseCounter(@PathVariable String counterId, @RequestBody ValueRequest input, @RequestHeader MultiValueMap<String, String> requestHeaders) {
-    return counterService.increase(counterId, input, requestHeaders);
+    return counterService.increaseCounter(counterId, input, requestHeaders);
   }
 
   @PostMapping(path = "/{counterId}/decrease")
   public String decreaseCounter(@PathVariable String counterId, @RequestBody ValueRequest input) {
-    return grpcClientService.decrease(counterId, input);
+    return grpcClientService.decreaseCounter(counterId, input);
   }
 
   @PostMapping(path = "/{counterId}/reset")
-  public Mono<String> resetCounter(@PathVariable String counterId, @RequestHeader MultiValueMap<String, String> requestHeaders) {
-    return counterService.reset(counterId, requestHeaders);
+  public Mono<String> resetCounter(@PathVariable String counterId) {
+    return counterService.resetCounter(counterId);
   }
 }

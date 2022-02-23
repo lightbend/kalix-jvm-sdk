@@ -17,14 +17,13 @@ public class CounterServiceImpl implements CounterService {
   WebClient webClient;
 
   @Override
-  public Mono<String> getCurrentCounter(MultiValueMap<String, String> requestHeaders, String counterId) {
+  public Mono<String> getCounter(String counterId) {
 
     CounterRequest counterRequest = new CounterRequest();
     counterRequest.setCounterId(counterId);
 
     return webClient.post()
         .uri("/com.example.CounterService/GetCurrentCounter")
-        .headers(httpHeaders -> httpHeaders.setAll(requestHeaders.toSingleValueMap()))
         .bodyValue(counterRequest)
         .retrieve()
         .bodyToMono(String.class);
@@ -32,7 +31,7 @@ public class CounterServiceImpl implements CounterService {
   // end::getCurrentCounterCall[]
 
   @Override
-  public Mono<String> increase(String counterId, ValueRequest request, MultiValueMap<String, String> requestHeaders) {
+  public Mono<String> increaseCounter(String counterId, ValueRequest request, MultiValueMap<String, String> requestHeaders) {
 
     CounterRequest counterRequest = new CounterRequest();
     counterRequest.setCounterId(counterId);
@@ -47,14 +46,13 @@ public class CounterServiceImpl implements CounterService {
   }
 
   @Override
-  public Mono<String> reset(String counterId, MultiValueMap<String, String> requestHeaders) {
+  public Mono<String> resetCounter(String counterId) {
 
     CounterRequest counterRequest = new CounterRequest();
     counterRequest.setCounterId(counterId);
 
     return webClient.post()
         .uri("/com.example.CounterService/Reset")
-        .headers(httpHeaders -> httpHeaders.setAll(requestHeaders.toSingleValueMap()))
         .bodyValue(counterRequest)
         .retrieve()
         .bodyToMono(String.class);

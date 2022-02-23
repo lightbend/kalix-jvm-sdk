@@ -6,10 +6,10 @@ import reactor.core.publisher.Mono;
 
 public interface CounterService {
 
-  Mono<String> getCurrentCounter(MultiValueMap<String, String> requestHeaders, String counterId);
+  Mono<String> getCounter(String counterId);
 
-  Mono<String> increase(String counterId, ValueRequest request, MultiValueMap<String, String> requestHeaders);
+  Mono<String> increaseCounter(String counterId, ValueRequest request, MultiValueMap<String, String> requestHeaders);
 
-  Mono<String> reset(String counterId, MultiValueMap<String, String> requestHeaders);
+  Mono<String> resetCounter(String counterId);
 
 }
