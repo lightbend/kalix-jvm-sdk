@@ -18,19 +18,18 @@ package kalix.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-import kalix.javasdk.KalixRunner.Configuration
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
-import kalix.javasdk.Context
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.Metadata
-import kalix.javasdk.valueentity._
-
 import kalix.javasdk.impl.ValueEntityFactory
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport
@@ -39,6 +38,7 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
+import kalix.javasdk.valueentity._
 import kalix.protocol.value_entity.ValueEntityAction.Action.Delete
 import kalix.protocol.value_entity.ValueEntityAction.Action.Update
 import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
@@ -47,8 +47,6 @@ import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit 
 import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
 import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
 import kalix.protocol.value_entity._
-import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 final class ValueEntityService(
     val factory: ValueEntityFactory,

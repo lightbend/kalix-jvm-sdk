@@ -18,6 +18,8 @@ package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import com.google.protobuf.Descriptors;
+import com.typesafe.config.Config;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
@@ -40,8 +42,7 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
-import com.google.protobuf.Descriptors;
-import com.typesafe.config.Config;
+import kalix.serializer.Serializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -129,6 +130,24 @@ public final class Kalix {
       return Kalix.this;
     }
 
+    public Kalix registerAction(
+        ActionFactory actionFactory,
+        Descriptors.ServiceDescriptor descriptor,
+        Map<Class<?> , Serializer> additionalSerializers,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      final AnySupport anySupport = newAnySupport(additionalDescriptors, additionalSerializers);
+
+      ActionFactory resolvedActionFactory =
+          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
+
+      ActionService service = new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
+
+      services.put(descriptor.getFullName(), system -> service);
+
+      return Kalix.this;
+    }
+
     /**
      * Register a value based entity factory.
      *
@@ -140,6 +159,27 @@ public final class Kalix {
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
+    public Kalix registerValueEntity(
+        ValueEntityFactory factory,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        ValueEntityOptions entityOptions,
+        Map<Class<?> , Serializer> additionalSerializers,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors, additionalSerializers);
+      ValueEntityFactory resolvedFactory =
+          new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+
+      services.put(
+          descriptor.getFullName(),
+          system ->
+              new ValueEntityService(
+                  resolvedFactory, descriptor, additionalDescriptors, anySupport, entityType, entityOptions));
+
+      return Kalix.this;
+    }
+
     public Kalix registerValueEntity(
         ValueEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
@@ -311,6 +351,7 @@ public final class Kalix {
         provider.serviceDescriptor(),
         provider.entityType(),
         provider.options(),
+        provider.additionalSerializers(),
         provider.additionalDescriptors());
   }
 
@@ -359,7 +400,7 @@ public final class Kalix {
    */
   public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
+        provider::newRouter, provider.serviceDescriptor(),  provider.additionalSerializers(), provider.additionalDescriptors());
   }
 
   /**
@@ -402,6 +443,10 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, new HashMap<>());
+  }
+
+  private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors, Map<Class<?>, Serializer> additionalSerializers) {
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, additionalSerializers);
   }
 }

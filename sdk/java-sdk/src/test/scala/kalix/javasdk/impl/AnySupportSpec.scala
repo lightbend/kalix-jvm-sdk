@@ -18,13 +18,17 @@ package kalix.javasdk.impl
 
 import kalix.protocol.discovery.{ DiscoveryProto, UserFunctionError }
 import kalix.protocol.event_sourced_entity.EventSourcedEntityProto
+import kalix.protocol.discovery.DiscoveryProto
+import kalix.protocol.discovery.UserFunctionError
+import kalix.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
-import com.google.protobuf.{ ByteString, Empty }
-import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
+import com.google.protobuf.ByteString
+import com.google.protobuf.Empty
 import org.scalatest.OptionValues
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
@@ -32,11 +36,13 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
     "com.example")
+
   private val anySupportScala = new AnySupport(
     Array(ShoppingCartApi.getDescriptor, EventSourcedEntityProto.javaDescriptor, DiscoveryProto.javaDescriptor),
     getClass.getClassLoader,
     "com.example",
     AnySupport.PREFER_SCALA)
+
   private val addLineItem = ShoppingCartApi.AddLineItem
     .newBuilder()
     .setName("item")
@@ -69,16 +75,12 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
       val method = methods("AddItem")
 
       // Input type
-      method.inputType.typeUrl should ===("com.example/" + ShoppingCartApi.AddLineItem.getDescriptor.getFullName)
-      method.inputType.typeClass should ===(classOf[ShoppingCartApi.AddLineItem])
-      val iBytes = method.inputType.asInstanceOf[ResolvedType[Any]].toByteString(addLineItem)
-      method.inputType.parseFrom(iBytes) should ===(addLineItem)
+      val inputAny = anySupport.encodeScala(addLineItem)
+      method.inputType.parseFrom(inputAny.value) should ===(addLineItem)
 
       // Output type - this also checks that when java_multiple_files is true, it works
-      method.outputType.typeUrl should ===("com.example/" + Empty.getDescriptor.getFullName)
-      method.outputType.typeClass should ===(classOf[Empty])
-      val oBytes = method.outputType.asInstanceOf[ResolvedType[Any]].toByteString(Empty.getDefaultInstance)
-      method.outputType.parseFrom(oBytes) should ===(Empty.getDefaultInstance)
+      val outputAny = anySupport.encodeScala(Empty.getDefaultInstance)
+      method.outputType.parseFrom(outputAny.value) should ===(Empty.getDefaultInstance)
     }
 
     def testPrimitive[T](name: String, value: T, defaultValue: T) = {
