@@ -1,12 +1,12 @@
 = Consuming Akka Serverless Services using Spring
 
-Akka Serverless services are exposed using REST and GRPC interfaces.
+Akka Serverless services are exposed using REST and gRPC interfaces.
 This guide walks you through the process of consuming these services using Spring.
 This guide uses sample(s) from following repository:
 
 == Sample
 
-Please refer to following Spring Boot sample application which has support for both REST and GRPC consumers.
+Please refer to following Spring Boot sample application which has support for both REST and gRPC consumers.
 
 `java-valueentity-counter-spring-client` module under samples link in the following repo :
 
@@ -18,6 +18,22 @@ Following is the Akka Serverless application to which above application acts as 
 
 * https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples/java-valueentity-counter[Java Value Entity Counter,window="new"]
 
+== Running Spring Client Sample Locally
+
+Following steps guide you to run the spring client application in your local environment.
+
+- Please make sure you have the following installed:
+    * JDK 11 or later
+    * Apache Maven 3.6 or later
+    * Docker 20.10.8 or higher
+- git clone the following repo https://github.com/lightbend/akkaserverless-java-sdk[Akka Serverless Java SDK,window="new"]
+- Navigate to `akkaserverless-java-sdk/samples/java-valueentity-counter/`
+- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter/README.md` file navigate to `Running Locally` section and run the project locally in a new Command line Window or IDE.
+- In a separate new window on Command Line or IDE, Navigate to `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/`
+- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/README.md` file navigate to `Running Locally` section and run the project locally in a new Command line Window or IDE.
+- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/README.md` file navigate to `Exercise the service` section and run few endpoints locally in a new Command line Window or IDE.
+
+
 == Consuming REST endpoints
 
 Create a separate new Spring Boot project.
@@ -27,7 +43,7 @@ For instance libraries like RestTemplate, Webflux etc.
 
 In this guide we are looking at steps using a Spring client using Webflux library.
 
-The Spring Boot application used in this sample is consuming REST API's and GRPC Services exposed via Akka Serverless (java-valuentity-counter) and The Spring Boot application will work as a simple proxy to an Akka Serverless application.
+The Spring Boot application used in this sample is consuming REST APIs and gRPC Services exposed via Akka Serverless (java-valuentity-counter) and the Spring Boot application will work as a simple proxy to an Akka Serverless application.
 
 ----
  <dependency>
@@ -55,15 +71,15 @@ For e.g. GET, POST etc. endpoints.
 include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
 ----
 
-== Consuming GRPC Services
+== Consuming gRPC Services
 
 Create a separate new Spring Boot project.
 
-For Consuming GRPC Services of Akka Serverless service we need to generate grpc client stubs.
+For Consuming gRPC Services of Akka Serverless service we need to generate grpc client stubs.
 
 You could use protobuf maven plugins for stub creation.
 
-The Spring Boot application used in this sample is consuming REST API's and GRPC Services exposed via Akka Serverless (java-valuentity-counter) and The Spring Boot application will work as a simple proxy to an Akka Serverless application.
+The Spring Boot application used in this sample is consuming REST APIs and gRPC Services exposed via Akka Serverless (java-valuentity-counter) and the Spring Boot application will work as a simple proxy to an Akka Serverless application.
 
 ----
 <groupId>org.xolstice.maven.plugins</groupId>
