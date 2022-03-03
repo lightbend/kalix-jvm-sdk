@@ -1,37 +1,82 @@
-= Consuming Akka Serverless Services using Spring
+= Using Spring to consume Akka Serverless Services
 
-Akka Serverless services are exposed using REST and gRPC interfaces.
-This guide walks you through the process of consuming these services using Spring.
-This guide uses sample(s) from following repository:
+This guide provides a simple example of how a Spring client can be built to interact with an Akka Serverless Service. 
 
-== Sample
+== What You Will Build
 
-Please refer to following Spring Boot sample application which has support for both REST and gRPC consumers.
+You will build an Akka Serverless Service along with a Spring client to interact with that Service.
 
-`java-valueentity-counter-spring-client` module under samples link in the following repo :
+The Akka Serverless Service will create, read, update and persist simple counters.
 
-* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples[Spring Client Java Value Entity Counter,window="new"]
+The Spring client will expose the functionality of the Akka Serverless Service as a REST API.
 
-Following is the Akka Serverless application to which above application acts as Spring Client.
+== What You Need
 
-`java-valueentity-counter`  module under samples link in the following repo :
+- About 15 minutes
+- A favorite text editor or IDE
+- https://adoptium.net/[JDK 11] or later
+- https://maven.apache.org/download.cgi[Apache Maven 3.6] or later
+- https://www.docker.com/[Docker 20.10.8] or higher
 
-* https://github.com/lightbend/akkaserverless-java-sdk/tree/main/samples/java-valueentity-counter[Java Value Entity Counter,window="new"]
+== How to get started
 
-== Running Spring Client Sample Locally
+To get started, do the following:
 
-Following steps guide you to run the spring client application in your local environment.
+- https://github.com/lightbend/akkaserverless-java-sdk/archive/refs/heads/main.zip[Download] and unzip the source repository for this guide, or clone it using Git:
 
-- Please make sure you have the following installed:
-    * JDK 11 or later
-    * Apache Maven 3.6 or later
-    * Docker 20.10.8 or higher
-- git clone the following repo https://github.com/lightbend/akkaserverless-java-sdk[Akka Serverless Java SDK,window="new"]
-- Navigate to `akkaserverless-java-sdk/samples/java-valueentity-counter/`
-- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter/README.md` file navigate to `Running Locally` section and run the project locally in a new Command line Window or IDE.
-- In a separate new window on Command Line or IDE, Navigate to `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/`
-- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/README.md` file navigate to `Running Locally` section and run the project locally in a new Command line Window or IDE.
-- On README.md `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/README.md` file navigate to `Exercise the service` section and run few endpoints locally in a new Command line Window or IDE.
+`git clone https://github.com/lightbend/akkaserverless-java-sdk.git`
+
+- cd into `akkaserverless-java-sdk/samples/java-valueentity-counter`
+
+== Build and Run the Akka Serverless Service Locally
+
+With the source repository downloaded, you can build and run the Akka Serverless Service locally. 
+
+Run the Akka Serverless Service using Maven:
+
+`mvn compile exec:exec`
+
+You should see output similar to the following:
+
+```
+[INFO] --- exec-maven-plugin:3.0.0:exec (default-cli) @ valueentity-counter ---
+{"timestamp":"2022-03-02T23:38:12.174Z","thread":"main","logger":"com.example.Main","message":"starting the Akka Serverless service","context":"default","severity":"INFO"}
+{"timestamp":"2022-03-02T23:38:12.829Z","thread":"akkaserverless-akka.actor.default-dispatcher-2","logger":"akka.event.slf4j.Slf4jLogger","message":"Slf4jLogger started","context":"default","severity":"INFO"}
+```
+
+== Build and Run the Akka Serverless proxy locally
+
+In another terminal window, run the Akka Serverless proxy using Docker:
+
+`docker compose up`
+
+You should see output similar to the following:app-name: 
+
+```
+akka-serverless-proxy_1   | {"timestamp":"2022-03-02T23:40:40.766Z","mdc":{"akkaAddress":"akka://akkaserverless-proxy@172.21.0.2:25520","akkaSource":"akka://akkaserverless-proxy/user/discovery-manager","sourceActorSystem":"akkaserverless-proxy"},"logger":"com.akkaserverless.proxy.DiscoveryManager","message":"gRPC proxy started at 0.0.0.0:9000","severity":"INFO","thread":"akkaserverless-proxy-akka.actor.default-dispatcher-8"}
+```
+
+== Create a Spring WebClient
+
+cd into `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client`.
+
+Now you can create a `WebClient`. You need to configure the WebClient to use the Akka Serverless Service's host and port. The following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java`) shows how to do so:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java[tag=webclientconfig]
+----
+
+== Create a Spring Service
+
+The `CounterServiceImpl` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java`) uses the Spring client to interact with the Akka Serverless Service and return new instances of `Mono<String>`:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
+----
+include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
+----
 
 
 == Consuming REST endpoints
