@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+// tag::getCounterEndpoint[]
 @RestController
 @RequestMapping("/counter")
 public class CounterController {
@@ -19,9 +20,10 @@ public class CounterController {
   GrpcClientService grpcClientService;
 
   @GetMapping(path = "/{counterId}")
-  public Mono<String> getCounter(@PathVariable String counterId){//}, @RequestHeader MultiValueMap<String, String> requestHeaders) {
+  public Mono<String> getCounter(@PathVariable String counterId){
     return counterService.getCounter(counterId);
   }
+  // end::getCounterEndpoint[]
 
   @PostMapping(path = "/{counterId}/increase")
   public Mono<String> increaseCounter(@PathVariable String counterId, @RequestBody ValueRequest input, @RequestHeader MultiValueMap<String, String> requestHeaders) {
