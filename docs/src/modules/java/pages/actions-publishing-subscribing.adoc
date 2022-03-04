@@ -222,7 +222,7 @@ The corresponding implementation must exist in the component.
 Java::
 +
 [source,java,indent=0]
-.src/main/java/com/example/actions/CounterJournalToTeffects().thenReply(Empty.getDefaultInstance())opicAction.java
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-ignore]
 ----
