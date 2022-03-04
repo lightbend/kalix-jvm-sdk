@@ -75,14 +75,11 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
     case _ => throw new IllegalStateException(s"The effect was not error but [$effectName]")
   }
 
-  override def isNoReply: Boolean = effect.isInstanceOf[ActionEffectImpl.NoReply[_]]
-
   private def effectName: String =
     effect match {
       case _: ActionEffectImpl.ReplyEffect[_]   => "reply"
       case _: ActionEffectImpl.ForwardEffect[_] => "forward"
       case _: ActionEffectImpl.ErrorEffect[_]   => "error"
-      case _: ActionEffectImpl.NoReply[_]       => "noReply"
       case _: ActionEffectImpl.AsyncEffect[_]   => "async effect"
     }
 }

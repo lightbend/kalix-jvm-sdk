@@ -22,7 +22,6 @@ import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
@@ -88,7 +87,6 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
     case _: MessageReplyImpl[_] => "reply"
     case _: ForwardReplyImpl[_] => "forward"
     case _: ErrorReplyImpl[_]   => "error"
-    case _: NoReply[_]          => "noReply"
     case NoSecondaryEffectImpl  => "no effect" // this should never happen
   }
 
@@ -116,8 +114,6 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
     case ErrorReplyImpl(description, _) => description
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
-
-  override def isNoReply: Boolean = secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def getUpdatedState: AnyRef = state.asInstanceOf[AnyRef]
 

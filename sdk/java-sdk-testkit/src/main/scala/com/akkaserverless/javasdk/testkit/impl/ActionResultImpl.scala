@@ -89,9 +89,6 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
     error.description
   }
 
-  /** @return true if the call had a noReply effect, false if not */
-  def isNoReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.NoReply[T]]
-
   /**
    * Look at effect and verifies that it is of type E or fail if not.
    *

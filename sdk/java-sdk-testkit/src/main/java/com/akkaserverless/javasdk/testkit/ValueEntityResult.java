@@ -51,9 +51,6 @@ public interface ValueEntityResult<R> {
   /** The error description. If the result was not an error an exception is thrown */
   String getError();
 
-  /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
-
   /** @return true if the call updated the entity state */
   boolean stateWasUpdated();
 

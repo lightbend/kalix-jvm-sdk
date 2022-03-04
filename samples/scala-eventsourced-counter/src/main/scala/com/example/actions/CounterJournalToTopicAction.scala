@@ -35,7 +35,7 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
 
   // tag::counter-ignore[]
   override def ignore(any: ScalaPbAny): Action.Effect[Empty] =
-    effects.noReply // <1>
+    effects.reply(Empty.defaultInstance) // <1>
   // tag::counter-topic[]
 }
 // end::counter-ignore[]

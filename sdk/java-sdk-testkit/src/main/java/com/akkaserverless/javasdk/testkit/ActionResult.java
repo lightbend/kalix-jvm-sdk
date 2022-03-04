@@ -64,9 +64,6 @@ public interface ActionResult<T> {
    */
   String getError();
 
-  /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
-
   /** @return The list of side effects */
   List<DeferredCallDetails<?, ?>> getSideEffects();
 }

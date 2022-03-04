@@ -26,7 +26,6 @@ import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
@@ -92,11 +91,6 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def noReply[T](): EventSourcedEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
-  }
-
   override def thenReply[T](replyMessage: JFunction[S, T]): EventSourcedEntityEffectImpl[T] =
     thenReply(replyMessage, Metadata.EMPTY)
 
@@ -107,11 +101,6 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
 
   override def thenForward[T](serviceCall: JFunction[S, DeferredCall[_, T]]): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
-  }
-
-  override def thenNoReply[T](): EventSourcedEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 

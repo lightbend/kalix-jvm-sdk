@@ -21,7 +21,6 @@ import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.Metadata
@@ -79,11 +78,6 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   def hasError(): Boolean =
     _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def noReply[T](): ValueEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffectImpl[T]]
-  }
-
   override def thenReply[T](message: T): ValueEntityEffectImpl[T] =
     thenReply(message, Metadata.EMPTY)
 
@@ -94,11 +88,6 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
 
   override def thenForward[T](serviceCall: DeferredCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffectImpl[T]]
-  }
-
-  override def thenNoReply[T](): ValueEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 

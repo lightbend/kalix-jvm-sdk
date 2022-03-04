@@ -108,17 +108,6 @@ object EventSourcedEntity {
        */
       def error[T](description: String): Effect[T]
 
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return
-       *   The reply.
-       * @tparam T
-       *   The type of the message that must be returned by this call.
-       */
-      def noReply[T]: Effect[T]
     }
 
     trait OnSuccessBuilder[S] {
@@ -160,18 +149,6 @@ object EventSourcedEntity {
        *   The type of the message that must be returned by this call.
        */
       def thenForward[T](serviceCall: S => DeferredCall[_, T]): Effect[T]
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return
-       *   The reply.
-       * @tparam T
-       *   The type of the message that must be returned by this call.
-       */
-      def thenNoReply[T]: Effect[T]
 
       /**
        * Attach the given side effect to this reply from the new state.

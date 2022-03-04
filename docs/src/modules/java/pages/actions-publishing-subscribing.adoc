@@ -222,11 +222,11 @@ The corresponding implementation must exist in the component.
 Java::
 +
 [source,java,indent=0]
-.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+.src/main/java/com/example/actions/CounterJournalToTeffects().thenReply(Empty.getDefaultInstance())opicAction.java
 ----
 include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-ignore]
 ----
-<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().noReply()`.
+<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().thenReply(Empty.getDefaultInstance())`.
 
 Scala::
 +
@@ -235,4 +235,4 @@ Scala::
 ----
 include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-ignore]
 ----
-<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects.noReply`.
+<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().thenReply(Empty.defaultInstance)`.

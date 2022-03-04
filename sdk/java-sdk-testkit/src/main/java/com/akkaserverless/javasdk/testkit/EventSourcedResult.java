@@ -52,9 +52,6 @@ public interface EventSourcedResult<R> {
   /** The error description. If the result was not an error an exception is thrown */
   String getError();
 
-  /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
-
   /**
    * @return The updated state. If the state was not updated (no events emitted) an exeption is
    *     thrown

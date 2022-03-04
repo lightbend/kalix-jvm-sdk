@@ -49,9 +49,6 @@ trait ValueEntityResult[R] {
   /** The error description. If the result was not an error an exception is thrown */
   def errorDescription: String
 
-  /** @return true if the call had a noReply effect, false if not */
-  def isNoReply: Boolean
-
   /** @return true if the call updated the entity state */
   def stateWasUpdated: Boolean
 

@@ -13,6 +13,6 @@ class CounterStateSubscriptionAction(creationContext: ActionCreationContext)
     extends AbstractCounterStateSubscriptionAction {
 
   override def onUpdateState(counterState: CounterState): Action.Effect[Empty] =
-    effects.noReply
+    effects.reply(Empty.defaultInstance)
 
 }

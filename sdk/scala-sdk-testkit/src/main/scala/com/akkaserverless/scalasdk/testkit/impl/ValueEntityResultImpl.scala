@@ -19,7 +19,6 @@ package com.akkaserverless.scalasdk.testkit.impl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
@@ -64,9 +63,6 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
       case error: ErrorReplyImpl[_] => error.description
       case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
     }
-
-  override def isNoReply: Boolean =
-    secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def stateWasUpdated: Boolean =
     primaryEffect.isInstanceOf[JValueEntityEffectImpl.UpdateState[_]]

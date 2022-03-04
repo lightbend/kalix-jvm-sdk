@@ -22,7 +22,6 @@ import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity.Effect
@@ -82,11 +81,6 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
   def hasError: Boolean =
     _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def noReply[T](): ReplicatedEntityEffectImpl[D, T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
-  }
-
   override def thenReply[T](message: T): ReplicatedEntityEffectImpl[D, T] =
     thenReply(message, Metadata.EMPTY)
 
@@ -97,11 +91,6 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
 
   override def thenForward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
-  }
-
-  override def thenNoReply[T](): ReplicatedEntityEffectImpl[D, T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 

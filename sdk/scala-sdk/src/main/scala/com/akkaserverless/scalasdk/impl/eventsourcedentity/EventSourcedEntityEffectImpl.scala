@@ -51,8 +51,6 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
       case ScalaDeferredCallAdapter(jdc) => EventSourcedEntityEffectImpl(javasdkEffect.forward(jdc))
     }
 
-  def noReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.noReply())
-
   def reply[T](message: T, metadata: Metadata): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
     javasdkEffect.reply(message, metadata.impl))
 
@@ -75,8 +73,6 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
         case ScalaDeferredCallAdapter(javaSdkDeferredCall) => javaSdkDeferredCall
       }
     })
-
-  def thenNoReply[T]: EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(javasdkEffect.thenNoReply())
 
   def thenReply[T](replyMessage: S => T, metadata: Metadata): EventSourcedEntity.Effect[T] =
     EventSourcedEntityEffectImpl(javasdkEffect.thenReply(replyMessage.asJava, metadata.impl))

@@ -93,16 +93,6 @@ object Action {
       def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S]
 
       /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * @return
-       *   The reply.
-       * @tparam S
-       *   The type of the message that must be returned by this call.
-       */
-      def noReply[S]: Action.Effect[S]
-
-      /**
        * Create an error reply.
        *
        * @param description

@@ -21,7 +21,6 @@ import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
@@ -48,7 +47,6 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
     case _: MessageReplyImpl[_] => "reply"
     case _: ForwardReplyImpl[_] => "forward"
     case _: ErrorReplyImpl[_]   => "error"
-    case _: NoReply[_]          => "noReply"
     case NoSecondaryEffectImpl  => "no effect" // this should never happen
   }
 
@@ -75,8 +73,6 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
     case error: ErrorReplyImpl[_] => error.description
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
-
-  override def isNoReply(): Boolean = effect.secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def stateWasUpdated(): Boolean = effect.primaryEffect.isInstanceOf[ValueEntityEffectImpl.UpdateState[_]]
 

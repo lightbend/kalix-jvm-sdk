@@ -12,12 +12,12 @@ class CounterTopicSubscriptionAction(creationContext: ActionCreationContext)
   /** Handler for "Increase". */
   override def increase(increased: Increased): Action.Effect[Empty] = {
     logger.info("Received increase event: " + increased.toString())
-    effects.noReply
+    effects.reply(Empty.getDefaultInstance())
   }
 
   override def decrease(decreased: Decreased): Action.Effect[Empty] = {
     logger.info("Received decrease event: " + decreased.toString())
-    effects.noReply
+    effects.reply(Empty.defaultInstance)
   }
 }
 // end::counter-topic-sub[]

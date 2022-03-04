@@ -106,7 +106,7 @@ public class ActionTckModelImpl extends AbstractActionTckModelAction {
       }
     }
     if (effect == null) {
-      effect = effects().noReply();
+      effect = effects().reply(Response.getDefaultInstance());
     }
     return effect.addSideEffects(sideEffects);
   }

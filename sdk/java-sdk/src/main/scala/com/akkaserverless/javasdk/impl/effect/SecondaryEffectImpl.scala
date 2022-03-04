@@ -29,10 +29,7 @@ sealed trait SecondaryEffectImpl {
   def sideEffects: Vector[SideEffect]
   def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl
 
-  final def replyToClientAction(
-      anySupport: AnySupport,
-      commandId: Long,
-      allowNoReply: Boolean): Option[ClientAction] = {
+  final def replyToClientAction(anySupport: AnySupport, commandId: Long): Option[ClientAction] = {
     this match {
       case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
         Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
@@ -43,12 +40,8 @@ sealed trait SecondaryEffectImpl {
           ClientAction(
             ClientAction.Action
               .Failure(com.akkaserverless.protocol.component.Failure(commandId, failure.description))))
-      case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
-        if (allowNoReply) {
-          None
-        } else {
-          throw new RuntimeException("No reply or forward returned by command handler!")
-        }
+      case NoSecondaryEffectImpl =>
+        throw new RuntimeException("No reply or forward returned by command handler!")
     }
   }
 }
@@ -56,8 +49,11 @@ sealed trait SecondaryEffectImpl {
 case object NoSecondaryEffectImpl extends SecondaryEffectImpl {
   override def sideEffects: Vector[SideEffect] = Vector.empty
 
-  override def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
-    NoReply(sideEffects.toVector)
+  override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
+    throw new RuntimeException(
+      "can't add side effect to NoSecondaryEffectImpl!"
+    ) //TODO review, this seems fishy. Shall we redesing the trait?
+
 }
 
 final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects: Vector[SideEffect])
@@ -77,16 +73,6 @@ final case class ForwardReplyImpl[T](deferredCall: DeferredCall[_, T], sideEffec
 final case class ErrorReplyImpl[T](description: String, sideEffects: Vector[SideEffect]) extends SecondaryEffectImpl {
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
     copy(sideEffects = sideEffects ++ newSideEffects)
-}
-
-final case class NoReply[T](sideEffects: Vector[SideEffect]) extends SecondaryEffectImpl {
-  override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
-    copy(sideEffects = sideEffects ++ newSideEffects)
-}
-
-object NoReply {
-  private val instance = NoReply[Any](Vector.empty)
-  def apply[T]: NoReply[T] = instance.asInstanceOf[NoReply[T]]
 }
 
 final case class SideEffectImpl(call: DeferredCall[_, _], synchronous: Boolean) extends SideEffect

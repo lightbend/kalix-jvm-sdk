@@ -90,14 +90,6 @@ public abstract class Action {
       <S> Effect<S> forward(DeferredCall<? extends Object, S> serviceCall);
 
       /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * @return The reply.
-       * @param <S> The type of the message that must be returned by this call.
-       */
-      <S> Effect<S> noReply();
-
-      /**
        * Create an error reply.
        *
        * @param description The description of the error.

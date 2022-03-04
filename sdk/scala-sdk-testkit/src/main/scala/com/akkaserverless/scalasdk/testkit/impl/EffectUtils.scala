@@ -21,7 +21,6 @@ import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.{ SecondaryEffectImpl => JavaSecondaryEffectImpl }
 import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
@@ -47,7 +46,6 @@ private[akkaserverless] object EffectUtils {
       case _: MessageReplyImpl[_] => "reply"
       case _: ForwardReplyImpl[_] => "forward"
       case _: ErrorReplyImpl[_]   => "error"
-      case _: NoReply[_]          => "noReply"
       case NoSecondaryEffectImpl  => "no effect"
     }
 }

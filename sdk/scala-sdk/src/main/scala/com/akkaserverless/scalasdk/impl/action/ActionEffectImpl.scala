@@ -108,23 +108,10 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class NoReply[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
-
-    def isEmpty: Boolean = true
-    protected def withSideEffects(sideEffects: Seq[SideEffect]): NoReply[T] =
-      copy(internalSideEffects = sideEffects)
-
-    override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(jse) => jse }
-      javasdk.impl.action.ActionEffectImpl.NoReply(sideEffects)
-    }
-  }
-
   object Builder extends Action.Effect.Builder {
     override def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     override def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
-    override def noReply[S]: Action.Effect[S] = NoReply(Nil)
     override def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)

@@ -64,9 +64,6 @@ trait ActionResult[T] {
    */
   def errorDescription: String
 
-  /** @return true if the call had a noReply effect, false if not */
-  def isNoReply: Boolean
-
   /** @return The list of side effects */
   def sideEffects: Seq[DeferredCallDetails[_, _]];
 }
