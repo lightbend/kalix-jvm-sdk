@@ -15,6 +15,6 @@ public class CounterStateSubscriptionAction extends AbstractCounterStateSubscrip
 
   @Override
   public Effect<Empty> onUpdateState(CounterDomain.CounterState counterState) {
-    return effects().thenReply(Empty.getDefaultInstance());
+    return effects().reply(Empty.getDefaultInstance());
   }
 }
