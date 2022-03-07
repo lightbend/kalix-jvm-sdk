@@ -68,7 +68,7 @@ Navigate to https://start.spring.io. This service pulls in all the dependencies 
 
 Choose Maven and the Java language.
 
-Click Dependencies and select Spring Web and Spring Reactive Web.
+Click Dependencies and select Spring Reactive Web.
 
 Click Generate.
 
@@ -142,7 +142,7 @@ Navigate to https://start.spring.io. This service pulls in all the dependencies 
 
 Choose Maven and the Java language.
 
-Click Dependencies and select Spring Web.
+Click Dependencies and select Spring Reactive Web.
 
 Click Generate.
 
@@ -179,7 +179,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>net.devh</groupId>
