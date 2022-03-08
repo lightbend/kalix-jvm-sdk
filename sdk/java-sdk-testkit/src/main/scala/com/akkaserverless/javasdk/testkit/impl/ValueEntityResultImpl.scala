@@ -44,10 +44,10 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
   override def isReply(): Boolean = effect.secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
   private def secondaryEffectName: String = effect.secondaryEffect match {
-    case _: MessageReplyImpl[_] => "reply"
-    case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_]   => "error"
-    case NoSecondaryEffectImpl  => "no effect" // this should never happen
+    case _: MessageReplyImpl[_]   => "reply"
+    case _: ForwardReplyImpl[_]   => "forward"
+    case _: ErrorReplyImpl[_]     => "error"
+    case _: NoSecondaryEffectImpl => "no effect" // this should never happen
   }
 
   override def getReply(): R = effect.secondaryEffect match {

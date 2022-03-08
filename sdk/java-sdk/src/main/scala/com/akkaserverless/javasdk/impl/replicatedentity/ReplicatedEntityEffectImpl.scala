@@ -44,7 +44,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
   import ReplicatedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
   def primaryEffect: PrimaryEffectImpl = _primaryEffect
 

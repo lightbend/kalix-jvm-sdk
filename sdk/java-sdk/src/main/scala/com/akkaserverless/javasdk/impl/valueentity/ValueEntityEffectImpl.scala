@@ -41,7 +41,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   import ValueEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl[S] = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
   def primaryEffect: PrimaryEffectImpl[S] = _primaryEffect
 

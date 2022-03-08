@@ -84,10 +84,10 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
   private lazy val eventsIterator = getAllEvents().iterator
 
   private def secondaryEffectName: String = secondaryEffect match {
-    case _: MessageReplyImpl[_] => "reply"
-    case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_]   => "error"
-    case NoSecondaryEffectImpl  => "no effect" // this should never happen
+    case _: MessageReplyImpl[_]   => "reply"
+    case _: ForwardReplyImpl[_]   => "forward"
+    case _: ErrorReplyImpl[_]     => "error"
+    case _: NoSecondaryEffectImpl => "no effect" // this should never happen
   }
 
   /** All emitted events. */

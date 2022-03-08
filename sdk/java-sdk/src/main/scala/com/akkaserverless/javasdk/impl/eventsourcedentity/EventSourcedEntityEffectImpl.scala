@@ -44,9 +44,9 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   import EventSourcedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
-  private var _functionSecondaryEffect: Function[S, SecondaryEffectImpl] = _ => NoSecondaryEffectImpl
+  private var _functionSecondaryEffect: Function[S, SecondaryEffectImpl] = _ => NoSecondaryEffectImpl()
   private var _functionSideEffects: Vector[JFunction[S, SideEffect]] = Vector.empty
 
   def primaryEffect: PrimaryEffectImpl = _primaryEffect
@@ -54,8 +54,8 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   def secondaryEffect(state: S): SecondaryEffectImpl = {
     var secondary =
       _functionSecondaryEffect(state) match {
-        case NoSecondaryEffectImpl => _secondaryEffect
-        case newSecondary          => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
+        case NoSecondaryEffectImpl(_) => _secondaryEffect
+        case newSecondary             => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
       }
     if (_functionSideEffects.nonEmpty) {
       secondary = secondary.addSideEffects(_functionSideEffects.map(_.apply(state)))

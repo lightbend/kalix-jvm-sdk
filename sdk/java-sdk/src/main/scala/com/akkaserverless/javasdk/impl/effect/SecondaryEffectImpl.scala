@@ -40,20 +40,16 @@ sealed trait SecondaryEffectImpl {
           ClientAction(
             ClientAction.Action
               .Failure(com.akkaserverless.protocol.component.Failure(commandId, failure.description))))
-      case NoSecondaryEffectImpl =>
+      case NoSecondaryEffectImpl(_) =>
         throw new RuntimeException("No reply or forward returned by command handler!")
     }
   }
 }
 
-case object NoSecondaryEffectImpl extends SecondaryEffectImpl {
-  override def sideEffects: Vector[SideEffect] = Vector.empty
+case class NoSecondaryEffectImpl(sideEffects: Vector[SideEffect] = Vector.empty) extends SecondaryEffectImpl {
 
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
-    throw new RuntimeException(
-      "can't add side effect to NoSecondaryEffectImpl!"
-    ) //TODO review, this seems fishy. Shall we redesing the trait?
-
+    copy(sideEffects = sideEffects ++ newSideEffects)
 }
 
 final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects: Vector[SideEffect])
