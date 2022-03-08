@@ -80,7 +80,7 @@ Creating a Spring REST WebClient would allow Spring application to communicate w
 
 cd into `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client`.
 
-Now you can create a `WebClient`. You need to configure the WebClient to use the Akka Serverless Service's host and port. The following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java`) shows how to do so:
+Now you can create a `WebClient`. You need to configure the WebClient to use the Akka Serverless Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
@@ -92,7 +92,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Service methods interact with endpoints defined in Akka Serverless Service.
 
-The `CounterServiceImpl` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java`) uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
+The `CounterServiceImpl` shown in the following listing uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
@@ -104,7 +104,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Controller defines the Spring application REST endpoints which will be exposed to the user for interaction.
 
-The `CounterController` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java`) uses the Spring service to get actual processing done:
+The `CounterController` shown in the following listing uses the Spring service to get actual processing done:
 
 [source,java,indent=0]
 ./src/main/java/com/example/client/spring/rest/controller/CounterController.java
@@ -116,7 +116,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Main Application class defines the starting point for spring boot application.
 
-The `CounterClientApplication` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java`) starts spring application:
+The `CounterClientApplication` shown in the following listing starts spring application:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/CounterClientApplication.java
@@ -243,7 +243,7 @@ Creating a Spring gRPC would allow Spring application to communicate with the gR
 
 cd into `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client`.
 
-Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Akka Serverless Service's host and port. The following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java`) shows how to do so:
+Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Akka Serverless Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java
@@ -255,7 +255,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Service methods interact with gRPC services defined in Akka Serverless Service.
 
-The `GrpcClientService` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java`) uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
+The `GrpcClientService` shown in the following listing uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/GrpcClientService.java
@@ -267,7 +267,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Controller defines the Spring application REST endpoints which will be exposed to the user for interaction.
 
-The `CounterController` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java`) uses the Spring service to get actual processing done:
+The `CounterController` shown in the following listing uses the Spring service to get actual processing done:
 
 [source,java,indent=0]
 ./src/main/java/com/example/client/spring/rest/controller/CounterController.java
@@ -279,7 +279,7 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 The Main Application class defines the starting point for spring boot application.
 
-The `CounterClientApplication` shown in the following listing (from `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java`) starts spring application:
+The `CounterClientApplication` shown in the following listing starts spring application:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/CounterClientApplication.java
