@@ -20,12 +20,11 @@ import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.DeferredCall
-import com.akkaserverless.scalasdk.SideEffect
+import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import com.akkaserverless.scalasdk.action.Action
 import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
+import io.grpc.Status
 
 private[scalasdk] object ActionEffectImpl {
 
@@ -96,7 +95,11 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ErrorEffect[T](description: String, internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class ErrorEffect[T](
+      description: String,
+      statusCode: Option[Status.Code],
+      internalSideEffects: Seq[SideEffect])
+      extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
@@ -104,7 +107,8 @@ private[scalasdk] object ActionEffectImpl {
 
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
       val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(jse) => jse }
-      javasdk.impl.action.ActionEffectImpl.ErrorEffect(description, sideEffects)
+      javasdk.impl.action.ActionEffectImpl
+        .ErrorEffect(description, statusCode, sideEffects)
     }
   }
 
@@ -125,7 +129,10 @@ private[scalasdk] object ActionEffectImpl {
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     override def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     override def noReply[S]: Action.Effect[S] = NoReply(Nil)
-    override def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
+    override def error[S](description: String, statusCode: Option[Status.Code]): Action.Effect[S] = {
+      if (statusCode.exists(_.toStatus.isOk)) throw new IllegalArgumentException("Cannot fail with a success status")
+      ErrorEffect(description, statusCode, Nil)
+    }
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =

@@ -27,8 +27,10 @@ import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.testkit.ValueEntityResult
 import com.akkaserverless.javasdk.valueentity.ValueEntity
-
 import java.util.{ List => JList }
+
+import io.grpc.Status
+
 import scala.jdk.CollectionConverters._
 
 /**
@@ -73,6 +75,11 @@ private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntity
 
   override def getError(): String = effect.secondaryEffect match {
     case error: ErrorReplyImpl[_] => error.description
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
+  }
+
+  override def getErrorStatusCode: Status.Code = effect.secondaryEffect match {
+    case ErrorReplyImpl(_, status, _) => status.getOrElse(Status.Code.UNKNOWN)
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
 

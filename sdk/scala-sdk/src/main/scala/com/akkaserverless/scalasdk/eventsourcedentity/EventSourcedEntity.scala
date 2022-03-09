@@ -16,11 +16,9 @@
 
 package com.akkaserverless.scalasdk.eventsourcedentity
 
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.DeferredCall
-import com.akkaserverless.scalasdk.Context
-import com.akkaserverless.scalasdk.SideEffect
+import com.akkaserverless.scalasdk.{ Context, DeferredCall, Metadata, SideEffect }
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
+import io.grpc.Status
 
 object EventSourcedEntity {
 
@@ -101,12 +99,14 @@ object EventSourcedEntity {
        *
        * @param description
        *   The description of the error.
+       * @param statusCode
+       *   An optional gRPC status code.
        * @return
        *   An error reply.
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String): Effect[T]
+      def error[T](description: String, statusCode: Option[Status.Code] = None): Effect[T]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

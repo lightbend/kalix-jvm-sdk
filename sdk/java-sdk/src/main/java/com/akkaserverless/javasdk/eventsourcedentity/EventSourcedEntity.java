@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.SideEffect;
+import io.grpc.Status;
 
 import java.util.Collection;
 import java.util.List;
@@ -132,6 +133,16 @@ public abstract class EventSourcedEntity<S> {
        * @param <T> The type of the message that must be returned by this call.
        */
       <T> Effect<T> error(String description);
+
+      /**
+       * Create an error reply.
+       *
+       * @param description The description of the error.
+       * @param statusCode A custom gRPC status code.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description, Status.Code statusCode);
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.

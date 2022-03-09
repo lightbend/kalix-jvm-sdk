@@ -16,6 +16,8 @@
 
 package com.akkaserverless.javasdk.testkit;
 
+import io.grpc.Status;
+
 import java.util.concurrent.CompletionStage;
 import java.util.List;
 
@@ -63,6 +65,11 @@ public interface ActionResult<T> {
    *     an error
    */
   String getError();
+
+  /**
+   * @return The error status code or throws if the effect returned by the action was not an error.
+   */
+  Status.Code getErrorStatusCode();
 
   /** @return true if the call had a noReply effect, false if not */
   boolean isNoReply();

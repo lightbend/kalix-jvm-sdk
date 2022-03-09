@@ -24,6 +24,8 @@ import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
+import io.grpc.Status
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -72,6 +74,11 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
 
   override def errorDescription: String = effect match {
     case e: ActionEffectImpl.ErrorEffect[_] => e.description
+    case _ => throw new IllegalStateException(s"The effect was not error but [$effectName]")
+  }
+
+  override def errorStatusCode: Status.Code = effect match {
+    case e: ActionEffectImpl.ErrorEffect[_] => e.statusCode.getOrElse(Status.Code.UNKNOWN)
     case _ => throw new IllegalStateException(s"The effect was not error but [$effectName]")
   }
 

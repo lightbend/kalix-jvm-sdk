@@ -17,6 +17,7 @@
 package com.akkaserverless.javasdk.impl.valueentity
 
 import java.util
+
 import scala.jdk.CollectionConverters._
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
@@ -24,12 +25,11 @@ import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
 import com.akkaserverless.javasdk.impl.effect.NoReply
 import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
 import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
 import com.akkaserverless.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
-import com.akkaserverless.javasdk.DeferredCall
+import io.grpc.Status
 
 object ValueEntityEffectImpl {
   sealed trait PrimaryEffectImpl[+S]
@@ -72,7 +72,13 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   }
 
   override def error[T](description: String): ValueEntityEffectImpl[T] = {
-    _secondaryEffect = ErrorReplyImpl(description, _secondaryEffect.sideEffects)
+    _secondaryEffect = ErrorReplyImpl(description, None, _secondaryEffect.sideEffects)
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
+  }
+
+  override def error[T](description: String, statusCode: Status.Code): ValueEntityEffectImpl[T] = {
+    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 

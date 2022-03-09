@@ -31,9 +31,11 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
 import com.akkaserverless.javasdk.testkit.EventSourcedResult
 import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
-
 import java.util.Collections
 import java.util.{ List => JList }
+
+import io.grpc.Status
+
 import scala.jdk.CollectionConverters._
 
 /**
@@ -113,7 +115,12 @@ private[akkaserverless] final class EventSourcedResultImpl[R, S](
   override def isError: Boolean = secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
   override def getError: String = secondaryEffect match {
-    case ErrorReplyImpl(description, _) => description
+    case ErrorReplyImpl(description, _, _) => description
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
+  }
+
+  override def getErrorStatusCode: Status.Code = secondaryEffect match {
+    case ErrorReplyImpl(_, status, _) => status.getOrElse(Status.Code.UNKNOWN)
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
 
