@@ -612,6 +612,26 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
 
+  sample-java-valueentity-counter-spring-client:
+    machine: true
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring Client for Java Value Entity "Counter" sample
+          command: |
+            cd samples/java-valueentity-counter-spring-client
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
+
   sample-java-replicatedentity-examples:
     machine:
       image: ubuntu-2004:202201-02
@@ -1049,6 +1069,10 @@ workflows:
             - checks
             - publish-local
       - sample-java-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-java-valueentity-counter-spring-client:
           requires:
             - checks
             - publish-local
