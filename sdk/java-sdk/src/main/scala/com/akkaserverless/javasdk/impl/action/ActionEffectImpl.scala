@@ -16,13 +16,13 @@
 
 package com.akkaserverless.javasdk.impl.action
 
-import com.akkaserverless.javasdk.DeferredCall
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.SideEffect
+import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
 import com.akkaserverless.javasdk.action.Action
-
 import java.util
 import java.util.concurrent.CompletionStage
+
+import io.grpc.Status
+
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -58,7 +58,11 @@ object ActionEffectImpl {
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class ErrorEffect[T](description: String, internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class ErrorEffect[T](
+      description: String,
+      statusCode: Option[Status.Code],
+      internalSideEffects: Seq[SideEffect])
+      extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
       copy(internalSideEffects = sideEffects)
@@ -73,7 +77,11 @@ object ActionEffectImpl {
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def noReply[S](): Action.Effect[S] = NoReply(Nil)
-    def error[S](description: String): Action.Effect[S] = ErrorEffect(description, Nil)
+    def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
+    def error[S](description: String, statusCode: Status.Code): Action.Effect[S] = {
+      if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+      ErrorEffect(description, Some(statusCode), Nil)
+    }
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =

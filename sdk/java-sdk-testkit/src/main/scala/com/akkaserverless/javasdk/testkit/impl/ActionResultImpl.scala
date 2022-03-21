@@ -22,9 +22,11 @@ import com.akkaserverless.javasdk.impl.DeferredCallImpl
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
 import com.akkaserverless.javasdk.testkit.ActionResult
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails
-
 import java.util.concurrent.CompletionStage
 import java.util.{ List => JList }
+
+import io.grpc.Status
+
 import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
@@ -87,6 +89,11 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
   def getError(): String = {
     val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
     error.description
+  }
+
+  def getErrorStatusCode(): Status.Code = {
+    val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
+    error.statusCode.getOrElse(Status.Code.UNKNOWN)
   }
 
   /** @return true if the call had a noReply effect, false if not */

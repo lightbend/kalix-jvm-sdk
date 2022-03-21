@@ -16,6 +16,8 @@
 
 package com.akkaserverless.scalasdk.testkit
 
+import io.grpc.Status
+
 import scala.concurrent.Future
 
 /**
@@ -63,6 +65,12 @@ trait ActionResult[T] {
    *   The error description returned or throws if the effect returned by the action was not an error
    */
   def errorDescription: String
+
+  /**
+   * @return
+   *   The error status code returned or throws if the effect returned by the action was not an error
+   */
+  def errorStatusCode: Status.Code
 
   /** @return true if the call had a noReply effect, false if not */
   def isNoReply: Boolean

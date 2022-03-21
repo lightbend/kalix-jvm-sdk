@@ -22,10 +22,7 @@ import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffe
 import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import com.akkaserverless.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.javasdk.SideEffect
-import com.akkaserverless.scalasdk.DeferredCall
-
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
+import io.grpc.Status
 
 import scala.reflect.ClassTag
 
@@ -70,6 +67,12 @@ final class EventSourcedResultImpl[R, S](
   override def errorDescription: String =
     secondaryEffect match {
       case error: ErrorReplyImpl[_] => error.description
+      case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
+    }
+
+  override def errorStatusCode: Status.Code =
+    secondaryEffect match {
+      case error: ErrorReplyImpl[_] => error.status.getOrElse(Status.Code.UNKNOWN)
       case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
     }
 

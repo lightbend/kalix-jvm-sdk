@@ -16,6 +16,8 @@
 
 package com.akkaserverless.scalasdk.testkit
 
+import io.grpc.Status
+
 import scala.reflect.ClassTag
 
 /**
@@ -50,6 +52,9 @@ trait EventSourcedResult[R] {
 
   /** The error description. If the result was not an error an exception is thrown */
   def errorDescription: String
+
+  /** The error status code. If the result was not an error an exception is thrown. */
+  def errorStatusCode: Status.Code
 
   /** @return true if the call had a noReply effect, false if not */
   def isNoReply: Boolean

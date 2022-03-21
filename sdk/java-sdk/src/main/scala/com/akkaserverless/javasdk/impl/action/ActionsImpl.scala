@@ -134,10 +134,11 @@ private[javasdk] final class ActionsImpl(
           .recover { case NonFatal(ex) =>
             handleUnexpectedException(service, command, ex)
           }
-      case ErrorEffect(description, sideEffects) =>
+      case ErrorEffect(description, status, sideEffects) =>
         Future.successful(
           ActionResponse(
-            ActionResponse.Response.Failure(Failure(description = description)),
+            ActionResponse.Response.Failure(
+              Failure(description = description, grpcStatusCode = status.map(_.value()).getOrElse(0))),
             toProtocol(anySupport, sideEffects)))
       case NoReply(sideEffects) =>
         Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(anySupport, sideEffects)))

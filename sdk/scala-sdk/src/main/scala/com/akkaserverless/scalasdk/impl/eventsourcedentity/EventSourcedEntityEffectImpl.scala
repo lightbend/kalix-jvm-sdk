@@ -19,12 +19,11 @@ package com.akkaserverless.scalasdk.impl.eventsourcedentity
 import scala.jdk.CollectionConverters._
 import scala.compat.java8.FunctionConverters._
 import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.DeferredCall
-import com.akkaserverless.scalasdk.SideEffect
+import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
 import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
+import io.grpc.Status
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
@@ -43,8 +42,11 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def emitEvents(event: List[_]): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.emitEvents(event.asJava))
 
-  def error[T](description: String): EventSourcedEntity.Effect[T] = EventSourcedEntityEffectImpl(
-    javasdkEffect.error(description))
+  def error[T](description: String, statusCode: Option[Status.Code]): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(statusCode match {
+      case Some(code) => javasdkEffect.error[T](description, code)
+      case None       => javasdkEffect.error[T](description)
+    })
 
   def forward[T](deferredCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] =
     deferredCall match {

@@ -20,6 +20,7 @@ import com.akkaserverless.javasdk.DeferredCall;
 import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
+import io.grpc.Status;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -105,6 +106,16 @@ public abstract class Action {
        * @param <S> The type of the message that must be returned by this call.
        */
       <S> Effect<S> error(String description);
+
+      /**
+       * Create an error reply.
+       *
+       * @param description The description of the error.
+       * @param statusCode A custom gRPC status code.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description, Status.Code statusCode);
 
       /**
        * Create a message reply from an async operation result.

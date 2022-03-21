@@ -16,13 +16,11 @@
 
 package com.akkaserverless.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.DeferredCall
-
+import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
 import java.util
 import java.util.function.{ Function => JFunction }
+
 import scala.jdk.CollectionConverters._
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.SideEffect
 import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
 import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
@@ -32,6 +30,7 @@ import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
+import io.grpc.Status
 
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 
@@ -88,7 +87,13 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   }
 
   override def error[T](description: String): EventSourcedEntityEffectImpl[T] = {
-    _secondaryEffect = ErrorReplyImpl(description, _secondaryEffect.sideEffects)
+    _secondaryEffect = ErrorReplyImpl(description, None, _secondaryEffect.sideEffects)
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+  }
+
+  override def error[T](description: String, statusCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
+    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
