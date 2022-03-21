@@ -15,7 +15,7 @@ object Dependencies {
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.6.18"
+  val AkkaVersion = "2.6.19"
   val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
   val JacksonVersion = "2.11.4" // Akka 2.6.16: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
