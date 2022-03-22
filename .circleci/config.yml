@@ -64,11 +64,12 @@ commands:
           key: deps-cache-01
 
   set-sdk-version:
-    description: "Grab current SDK version"
+    description: "Set global option, grab current SDK version"
     steps:
       - run:
-          name: "Set SDK version"
+          name: "Set SDK version and global options"
           command: |
+            echo "export VERSION_CHECK_ON_STARTUP=false" >> $BASH_ENV
             if [ -e workspace/published-version ]; then
               echo "Extracting version from previous publish step"
               echo 'export SDK_VERSION='`cat workspace/published-version` >> $BASH_ENV
@@ -897,6 +898,7 @@ jobs:
           command: |
             cd samples/scala-valueentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
+            echo "Version check: $VERSION_CHECK_ON_STARTUP"
             sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
