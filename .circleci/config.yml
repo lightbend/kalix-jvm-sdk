@@ -14,7 +14,7 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          parent: kalix-main
 
   install-java-11:
     description: install openjdk-11
@@ -173,7 +173,7 @@ jobs:
             elif [ "$AKKA_GRPC_PROTOC" != "$POM_PROTOC_VERSIONS" ]; then
               echo  "Java Samples and Archetypes ($POM_PROTOC_VERSIONS) does not have the same protoc version as Akka gRPC ($AKKA_GRPC_PROTOC)"
               false
-            fi       
+            fi
 
   validate-docs:
     machine:
@@ -270,7 +270,7 @@ jobs:
       - run:
             name: Compile test projects from ExampleSuite (Scala)
             command: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
-      - save_deps_cache      
+      - save_deps_cache
 
   verify-all-samples-tested:
     machine:
