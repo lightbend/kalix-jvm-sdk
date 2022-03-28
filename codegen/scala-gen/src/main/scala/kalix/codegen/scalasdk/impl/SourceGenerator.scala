@@ -16,7 +16,7 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.{ File, GeneratedFiles, ModelBuilder, PackageNaming, SourceGeneratorUtils }
+import kalix.codegen.{ File, GeneratedFiles, ModelBuilder, PackageNaming, SourceGeneratorUtils }
 
 object SourceGenerator {
 

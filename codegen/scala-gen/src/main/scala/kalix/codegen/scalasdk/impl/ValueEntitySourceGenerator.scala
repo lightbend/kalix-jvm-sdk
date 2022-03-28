@@ -16,15 +16,15 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.ClassMessageType
-import com.lightbend.akkasls.codegen.ProtoMessageType
+import kalix.codegen.File
+import kalix.codegen.ModelBuilder
+import kalix.codegen.PackageNaming
+import kalix.codegen.ClassMessageType
+import kalix.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
   import ScalaGeneratorUtils._
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import kalix.codegen.SourceGeneratorUtils._
 
   def generateUnmanaged(valueEntity: ModelBuilder.ValueEntity, service: ModelBuilder.EntityService): Seq[File] =
     Seq(generateImplementationSkeleton(valueEntity, service))

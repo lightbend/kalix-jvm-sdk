@@ -16,11 +16,11 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.ProtoMessageType
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.PackageNaming
-import com.lightbend.akkasls.codegen.ClassMessageType
+import kalix.codegen.File
+import kalix.codegen.ProtoMessageType
+import kalix.codegen.ModelBuilder
+import kalix.codegen.PackageNaming
+import kalix.codegen.ClassMessageType
 
 /**
  * Responsible for generating Scala sourced for Actions
@@ -28,7 +28,7 @@ import com.lightbend.akkasls.codegen.ClassMessageType
 object ActionServiceSourceGenerator {
 
   import ScalaGeneratorUtils._
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import kalix.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Scala sources the user view source file.

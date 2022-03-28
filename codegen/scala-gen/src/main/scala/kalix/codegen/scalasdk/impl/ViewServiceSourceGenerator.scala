@@ -16,15 +16,15 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.Format
-import com.lightbend.akkasls.codegen.ModelBuilder
+import kalix.codegen.File
+import kalix.codegen.Format
+import kalix.codegen.ModelBuilder
 
 /**
  * Responsible for generating Scala sources for a view
  */
 object ViewServiceSourceGenerator {
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import kalix.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
 
   /**

@@ -16,7 +16,7 @@
 
 package kalix.codegen.scalasdk
 
-import com.lightbend.akkasls.codegen.Log
+import kalix.codegen.Log
 
 case class DebugPrintlnLog(debugEnabled: Boolean) extends Log {
   override def debug(message: String): Unit =

@@ -17,7 +17,7 @@
 package kalix.codegen.scalasdk
 
 import kalix.codegen.scalasdk.impl.SourceGenerator
-import com.lightbend.akkasls.codegen.{ File, ModelBuilder }
+import kalix.codegen.{ File, ModelBuilder }
 import protocbridge.Artifact
 
 object AkkaserverlessUnmanagedTestGenerator extends AbstractAkkaserverlessGenerator {

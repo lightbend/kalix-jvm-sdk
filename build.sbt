@@ -219,7 +219,7 @@ lazy val codegenJava =
     .settings(
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       // to provide access to protoc to tests
-      Test / buildInfoPackage := "com.lightbend.akkasls.codegen.java",
+      Test / buildInfoPackage := "kalix.codegen.java",
       Test / buildInfoKeys := Seq(
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),

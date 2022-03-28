@@ -14,47 +14,48 @@
  * limitations under the License.
  */
 
-package kalix.codegen.scalasdk.impl
+package kalix.codegen.java
 
-import kalix.codegen.File
 import kalix.codegen.Imports
 import kalix.codegen.MessageType
 import kalix.codegen.ModelBuilder
 import kalix.codegen.PackageNaming
 import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
-import kalix.codegen.SourceGeneratorUtils._
+import kalix.codegen.SourceGeneratorUtils.CodeBlock
+import kalix.codegen.SourceGeneratorUtils.typeImport
 
-object ScalaGeneratorUtils {
-  def typeName(messageType: MessageType)(implicit imports: Imports): String =
-    if (messageType.fullyQualifiedName == "com.google.protobuf.any.Any") "ScalaPbAny"
+object JavaGeneratorUtils {
+  def typeName(messageType: MessageType)(implicit imports: Imports): String = {
+    val directParent =
+      messageType match {
+        case proto: ProtoMessageType if !proto.parent.javaMultipleFiles =>
+          s"${messageType.packageName}.${proto.parent.javaOuterClassname}"
+        case _ => messageType.packageName
+      }
+
+    if (messageType.packageName.isEmpty) messageType.name
     else if (imports.contains(messageType.fullyQualifiedName)) messageType.name
-    else if (messageType.packageName == imports.currentPackage) messageType.name
-    else if (imports.contains(messageType.packageName))
-      messageType.packageName.split("\\.").last + "." + messageType.name
-    else
-      s"${messageType.packageName}.${messageType.name}"
-
-  def writeImports(imports: Imports): String = {
-    imports.ordered
-      .map(_.map { imported =>
-        if (imported == "com.google.protobuf.any.Any") {
-          s"import com.google.protobuf.any.{ Any => ScalaPbAny }"
-        } else
-          s"import $imported"
-      }.mkString("\n"))
-      .mkString("\n\n")
+    else if (imports.currentPackage == directParent) messageType.name
+    else if (imports.contains(directParent) || imports.currentPackage == messageType.packageName)
+      directParent.split("\\.").last + "." + messageType.name
+    else directParent + s".${messageType.name}"
   }
+
+  def writeImports(imports: Imports): String =
+    imports.ordered
+      .map(_.map { imported => s"import $imported;" }.mkString("\n"))
+      .mkString("\n\n")
 
   def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
     typeArgument match {
       case ModelBuilder.MessageTypeArgument(messageType) =>
-        typeName(messageType)
+        messageType.fullName
       case ModelBuilder.ScalarTypeArgument(scalar) =>
         scalar match {
           case ModelBuilder.ScalarType.Int32 | ModelBuilder.ScalarType.UInt32 | ModelBuilder.ScalarType.SInt32 |
               ModelBuilder.ScalarType.Fixed32 | ModelBuilder.ScalarType.SFixed32 =>
-            "Int"
+            "Integer"
           case ModelBuilder.ScalarType.Int64 | ModelBuilder.ScalarType.UInt64 | ModelBuilder.ScalarType.SInt64 |
               ModelBuilder.ScalarType.Fixed64 | ModelBuilder.ScalarType.SFixed64 =>
             "Long"
@@ -63,7 +64,7 @@ object ScalaGeneratorUtils {
           case ModelBuilder.ScalarType.Bool   => "Boolean"
           case ModelBuilder.ScalarType.String => "String"
           case ModelBuilder.ScalarType.Bytes  => "ByteString"
-          case _                              => "_"
+          case _                              => "?"
         }
     }
 
@@ -79,16 +80,12 @@ object ScalaGeneratorUtils {
 
   def parameterizeTypes(types: Iterable[String]): String =
     if (types.isEmpty) ""
-    else types.mkString("[", ", ", "]")
+    else types.mkString("<", ", ", ">")
 
-  def generate(
-      parent: PackageNaming,
-      name: String,
-      block: CodeBlock,
-      packageImports: Seq[PackageNaming] = Nil): File = {
-    val packageImportStrings = packageImports.map(_.scalaPackage)
+  def generate(parent: PackageNaming, block: CodeBlock, packageImports: Seq[PackageNaming] = Nil): String = {
+    val packageImportStrings = packageImports.map(_.javaPackage)
     implicit val imports = new Imports(
-      parent.scalaPackage,
+      parent.javaPackage,
       packageImportStrings ++ block.messageTypes
         .filter {
           case proto: ProtoMessageType => proto.parent.javaPackage.nonEmpty
@@ -97,14 +94,11 @@ object ScalaGeneratorUtils {
         .filterNot { messageType => packageImportStrings.contains(messageType.packageName) }
         .map(typeImport))
 
-    File.scala(
-      parent.scalaPackage,
-      name,
-      s"""package ${parent.scalaPackage}
-         |
-         |${writeImports(imports)}
-         |
-         |${block.write(imports, typeName(_))}
-         |""".stripMargin.replaceAll("[ \t]+\n", "\n"))
+    s"""package ${parent.javaPackage};
+       |
+       |${writeImports(imports)}
+       |
+       |${block.write(imports, typeName(_))}
+       |""".stripMargin.replaceAll("[ \t]+\n", "\n")
   }
 }

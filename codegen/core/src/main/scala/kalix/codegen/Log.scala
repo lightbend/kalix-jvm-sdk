@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package kalix.codegen.scalasdk
+package kalix.codegen
 
-import kalix.codegen.scalasdk.impl.SourceGenerator
-import kalix.codegen.{ File, ModelBuilder }
-import protocbridge.Artifact
-
-object AkkaserverlessUnmanagedGenerator extends AbstractAkkaserverlessGenerator {
-  override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
-    SourceGenerator.generateUnmanaged(model, configuredRootPackage)
-
-  override def suggestedDependencies: Seq[Artifact] = Nil
+trait Log {
+  // On sbt we don't have a neat way to hook into logging,
+  // so there debug/info messages are either silent or println'ed, and
+  // all other problems should be fatal.
+  def debug(message: String): Unit
+  def info(message: String): Unit
 }
