@@ -123,8 +123,7 @@ public class LocalPersistenceSubscriber extends Action {
   //                  .effect(
   private DeferredCall<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
       localPersistenceEventingEffect(
-          kalix.tck.model.eventing.LocalPersistenceEventing.EffectRequest
-              effectRequest) {
+          kalix.tck.model.eventing.LocalPersistenceEventing.EffectRequest effectRequest) {
     return new DeferredCallImpl<>(
         effectRequest,
         MetadataImpl.Empty(),

@@ -20,8 +20,7 @@ import kalix.replicatedentity.ReplicatedData;
 import java.util.Set;
 
 /**
- * A Map of counters. Uses {@link kalix.javasdk.replicatedentity.ReplicatedCounter}'s
- * as values.
+ * A Map of counters. Uses {@link kalix.javasdk.replicatedentity.ReplicatedCounter}'s as values.
  *
  * @param <K> The type for keys.
  */
