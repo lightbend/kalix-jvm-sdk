@@ -8,7 +8,7 @@ import org.example.eventsourcedentity.CounterApi;
 import org.example.eventsourcedentity.events.OuterCounterEvents;
 import org.example.eventsourcedentity.state.OuterCounterState;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 // This is the implementation for the Event Sourced Entity Service described in your counter_api.proto file.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,

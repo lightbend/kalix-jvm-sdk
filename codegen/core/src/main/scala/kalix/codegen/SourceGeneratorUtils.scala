@@ -37,12 +37,12 @@ import kalix.codegen.ModelBuilder.TypeArgument
 
 object SourceGeneratorUtils {
   val managedComment =
-    """// This code is managed by Akka Serverless tooling.
+    """// This code is managed by Kalix tooling.
        |// It will be re-generated to reflect any changes to your protobuf definitions.
        |// DO NOT EDIT""".stripMargin
   //TODO delete this val
   val unmanagedComment =
-    """// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+    """// This class was initially generated based on the .proto definition by Kalix tooling.
        |//
        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
        |// or delete it so it is regenerated as needed.""".stripMargin
@@ -57,7 +57,7 @@ object SourceGeneratorUtils {
       case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)
     }
     val fileName = messageType.parent.protoFileName
-    s"""// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+    s"""// This class was initially generated based on the .proto definition by Kalix tooling.
        |// This is the implementation for the $kind described in your $fileName file.
        |//
        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
@@ -78,7 +78,7 @@ object SourceGeneratorUtils {
         throw new RuntimeException(
           s"No common package prefix found for protobuf packages [${packageNames.mkString(", ")}]. " +
           "Auto-selection of root package for shared generated classes not possible, please configure explicit root package for " +
-          "Akka Serverless code generation in your sbt build using the Akka Serverless sbt plugin setting 'rootPackage', " +
+          "Kalix code generation in your sbt build using the Kalix sbt plugin setting 'rootPackage', " +
           """for example: 'rootPackage := Some("com.example")'""") with NoStackTrace
       case prefix => prefix
     }

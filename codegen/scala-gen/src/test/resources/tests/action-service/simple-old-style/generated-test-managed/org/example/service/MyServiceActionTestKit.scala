@@ -8,7 +8,7 @@ import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
 import org.external.Empty
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
