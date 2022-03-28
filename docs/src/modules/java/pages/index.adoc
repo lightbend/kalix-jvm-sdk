@@ -62,7 +62,7 @@ Scala::
 ----
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin)
+enablePlugins(KalixPlugin)
 ----
 
 [.group-scala]

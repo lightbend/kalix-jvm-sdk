@@ -183,7 +183,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         allManaged
     })
 
-  // copied from AkkaserverlessPlugin.scala
+  // copied from KalixPlugin.scala
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
 
