@@ -56,7 +56,7 @@ object AkkaserverlessPlugin extends AutoPlugin {
     libraryDependencies ++= Seq(
       "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerlessProtocolVersion % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
-      "com.akkaserverless" %% "akkaserverless-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
+      "com.akkaserverless" %% "kalix-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
     Compile / PB.targets +=
       gen(
         (akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
