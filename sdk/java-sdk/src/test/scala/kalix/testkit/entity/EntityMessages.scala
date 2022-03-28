@@ -78,10 +78,10 @@ trait EntityMessages {
   }
 
   def primitiveString(value: String): ScalaPbAny =
-    ScalaPbAny("p.akkaserverless.com/string", StringValue.of(value).toByteString)
+    ScalaPbAny("p.kalix.io/string", StringValue.of(value).toByteString)
 
   def readPrimitiveString(any: ScalaPbAny): String =
-    if (any.typeUrl == "p.akkaserverless.com/string") {
+    if (any.typeUrl == "p.kalix.io/string") {
       val stream = any.value.newCodedInput
       stream.readTag // assume it's for string
       stream.readString

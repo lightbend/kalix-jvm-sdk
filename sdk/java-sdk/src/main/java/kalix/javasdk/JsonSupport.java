@@ -31,7 +31,7 @@ import java.util.Optional;
 
 public final class JsonSupport {
 
-  public static final String AKKA_SERVERLESS_JSON = "json.akkaserverless.com/";
+  public static final String KALIX_JSON = "json.kalix.io/";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -69,7 +69,7 @@ public final class JsonSupport {
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
-   * Any with the type URL {@code "json.akkaserverless.com/[valueClassName]"}.
+   * Any with the type URL {@code "json.kalix.io/[valueClassName]"}.
    *
    * <p>Note that if the serialized Any is published to a pub/sub topic that is consumed by an
    * external service using the class name suffix this introduces coupling as the internal class
@@ -85,7 +85,7 @@ public final class JsonSupport {
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
-   * Any with the type URL {@code "json.akkaserverless.com/[jsonType]"}.
+   * Any with the type URL {@code "json.kalix.io/[jsonType]"}.
    *
    * @param value the object to encode as JSON, must be an instance of a class properly annotated
    *     with the needed Jackson annotations.
@@ -100,10 +100,7 @@ public final class JsonSupport {
           UnsafeByteOperations.unsafeWrap(
               objectMapper.writerFor(value.getClass()).writeValueAsBytes(value));
       ByteString encodedBytes = ByteStringEncoding.encodePrimitiveBytes(bytes);
-      return Any.newBuilder()
-          .setTypeUrl(AKKA_SERVERLESS_JSON + jsonType)
-          .setValue(encodedBytes)
-          .build();
+      return Any.newBuilder().setTypeUrl(KALIX_JSON + jsonType).setValue(encodedBytes).build();
     } catch (JsonProcessingException ex) {
       throw new IllegalArgumentException(
           "Could not encode [" + value.getClass().getName() + "] as JSON", ex);
@@ -112,7 +109,7 @@ public final class JsonSupport {
 
   /**
    * Decode the given protobuf Any object to an instance of T using Jackson. The object must have
-   * the JSON string as bytes as value and a type URL starting with "json.akkaserverless.com/".
+   * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
    *
    * @param valueClass The type of class to deserialize the object to, the class must have the
    *     proper Jackson annotations for deserialization.
@@ -120,12 +117,12 @@ public final class JsonSupport {
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
   public static <T> T decodeJson(Class<T> valueClass, Any any) {
-    if (!any.getTypeUrl().startsWith(AKKA_SERVERLESS_JSON)) {
+    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
-              + AKKA_SERVERLESS_JSON
+              + KALIX_JSON
               + "]");
     } else {
       try {

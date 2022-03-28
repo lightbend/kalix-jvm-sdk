@@ -44,34 +44,34 @@ import scalapb.options.Scalapb
 
 object AnySupport {
 
-  private final val AkkaServerlessPrimitiveFieldNumber = 1
-  final val AkkaServerlessPrimitive = "p.akkaserverless.com/"
+  private final val KalixPrimitiveFieldNumber = 1
+  final val KalixPrimitive = "p.kalix.io/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
 
   private sealed abstract class Primitive[T: ClassTag] {
     val name = fieldType.name().toLowerCase(Locale.ROOT)
-    val fullName = AkkaServerlessPrimitive + name
+    val fullName = KalixPrimitive + name
     final val clazz = implicitly[ClassTag[T]].runtimeClass
     def write(stream: CodedOutputStream, t: T): Unit
     def read(stream: CodedInputStream): T
     def fieldType: WireFormat.FieldType
     def defaultValue: T
-    val tag = (AkkaServerlessPrimitiveFieldNumber << 3) | fieldType.getWireType
+    val tag = (KalixPrimitiveFieldNumber << 3) | fieldType.getWireType
   }
 
   private final object StringPrimitive extends Primitive[String] {
     override def fieldType = WireFormat.FieldType.STRING
     override def defaultValue = ""
-    override def write(stream: CodedOutputStream, t: String) = stream.writeString(AkkaServerlessPrimitiveFieldNumber, t)
+    override def write(stream: CodedOutputStream, t: String) = stream.writeString(KalixPrimitiveFieldNumber, t)
     override def read(stream: CodedInputStream) = stream.readString()
   }
   private final object BytesPrimitive extends Primitive[ByteString] {
     override def fieldType = WireFormat.FieldType.BYTES
     override def defaultValue = ByteString.EMPTY
     override def write(stream: CodedOutputStream, t: ByteString) =
-      stream.writeBytes(AkkaServerlessPrimitiveFieldNumber, t)
+      stream.writeBytes(KalixPrimitiveFieldNumber, t)
     override def read(stream: CodedInputStream) = stream.readBytes()
   }
 
@@ -82,35 +82,35 @@ object AnySupport {
       override def fieldType = WireFormat.FieldType.INT32
       override def defaultValue = 0
       override def write(stream: CodedOutputStream, t: Integer) =
-        stream.writeInt32(AkkaServerlessPrimitiveFieldNumber, t)
+        stream.writeInt32(KalixPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readInt32()
     },
     new Primitive[java.lang.Long] {
       override def fieldType = WireFormat.FieldType.INT64
       override def defaultValue = 0L
       override def write(stream: CodedOutputStream, t: java.lang.Long) =
-        stream.writeInt64(AkkaServerlessPrimitiveFieldNumber, t)
+        stream.writeInt64(KalixPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readInt64()
     },
     new Primitive[java.lang.Float] {
       override def fieldType = WireFormat.FieldType.FLOAT
       override def defaultValue = 0f
       override def write(stream: CodedOutputStream, t: java.lang.Float) =
-        stream.writeFloat(AkkaServerlessPrimitiveFieldNumber, t)
+        stream.writeFloat(KalixPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readFloat()
     },
     new Primitive[java.lang.Double] {
       override def fieldType = WireFormat.FieldType.DOUBLE
       override def defaultValue = 0d
       override def write(stream: CodedOutputStream, t: java.lang.Double) =
-        stream.writeDouble(AkkaServerlessPrimitiveFieldNumber, t)
+        stream.writeDouble(KalixPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readDouble()
     },
     new Primitive[java.lang.Boolean] {
       override def fieldType = WireFormat.FieldType.BOOL
       override def defaultValue = false
       override def write(stream: CodedOutputStream, t: java.lang.Boolean) =
-        stream.writeBool(AkkaServerlessPrimitiveFieldNumber, t)
+        stream.writeBool(KalixPrimitiveFieldNumber, t)
       override def read(stream: CodedInputStream) = stream.readBool()
     })
 
@@ -395,12 +395,12 @@ class AnySupport(
     }
 
   /**
-   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a ScalaPbAny wrapped
-   * Akkaserverless primitive into the Java primitive type value. Must only be used where primitive values are expected.
+   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a ScalaPbAny wrapped Kalix
+   * primitive into the Java primitive type value. Must only be used where primitive values are expected.
    */
   def decodePossiblyPrimitive(any: ScalaPbAny): Any = {
     val typeUrl = any.typeUrl
-    if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
+    if (typeUrl.startsWith(KalixPrimitive)) {
       // Note that this decodes primitive bytestring and string but not json which falls over to message decode below
       NameToPrimitives.get(typeUrl) match {
         case Some(primitive) =>
@@ -414,9 +414,9 @@ class AnySupport(
   }
 
   /**
-   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a Akka Serverless specific
-   * wrapping of bytes, string or strings containing JSON into com.google.protobuf.{BytesValue, StringValue} which the
-   * user method is expected to accept for such messages (for example coming from a topic).
+   * Decodes a JavaPbAny wrapped proto message into the concrete user message type or a Kalix specific wrapping of
+   * bytes, string or strings containing JSON into com.google.protobuf.{BytesValue, StringValue} which the user method
+   * is expected to accept for such messages (for example coming from a topic).
    *
    * Other JavaPbAny wrapped primitives are not expected, but the wrapped value is passed through as it is.
    */
@@ -438,7 +438,7 @@ class AnySupport(
       else
         com.google.protobuf.wrappers.StringValue.of(string)
 
-    } else if (typeUrl.startsWith(JsonSupport.AKKA_SERVERLESS_JSON)) {
+    } else if (typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
       // we do not actually parse JSON here but returns it as is and let the user
       // decide which json type to try decode it into etc. based on the type_url which
       // may have additional detail about what it can be JSON-deserialized into
@@ -447,7 +447,7 @@ class AnySupport(
       else
         any
 
-    } else if (typeUrl.startsWith(AkkaServerlessPrimitive)) {
+    } else if (typeUrl.startsWith(KalixPrimitive)) {
       // pass on as is, the generated types will not match the primitive type if we unwrap/decode
       any
     } else {

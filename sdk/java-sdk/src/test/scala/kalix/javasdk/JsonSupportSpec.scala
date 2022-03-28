@@ -33,16 +33,16 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
   "JsonSupport" must {
     "serialize and deserialize JSON" in {
       val any = JsonSupport.encodeJson(myJsonable)
-      any.getTypeUrl should ===(JsonSupport.AKKA_SERVERLESS_JSON + classOf[MyJsonable].getName)
+      any.getTypeUrl should ===(JsonSupport.KALIX_JSON + classOf[MyJsonable].getName)
       JsonSupport.decodeJson(classOf[MyJsonable], any).field should ===("foo")
     }
     "serialize JSON with an explicit type url suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
-      any.getTypeUrl should ===(JsonSupport.AKKA_SERVERLESS_JSON + "bar")
+      any.getTypeUrl should ===(JsonSupport.KALIX_JSON + "bar")
     }
     "conditionally decode JSON depending on suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
-      any.getTypeUrl should ===(JsonSupport.AKKA_SERVERLESS_JSON + "bar")
+      any.getTypeUrl should ===(JsonSupport.KALIX_JSON + "bar")
       JsonSupport.decodeJson(classOf[MyJsonable], "other", any).isPresent() should ===(false)
       val decoded = JsonSupport.decodeJson(classOf[MyJsonable], "bar", any)
       decoded.isPresent() should ===(true)
