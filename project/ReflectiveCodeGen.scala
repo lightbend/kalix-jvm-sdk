@@ -60,10 +60,7 @@ object ReflectiveCodeGen extends AutoPlugin {
     (
       SandboxedJvmGenerator.forModule(
         "scala",
-        Artifact(
-          "kalix.codegen.scalasdk.BuildInfo.organization",
-          "akkaserverless-codegen-scala_2.12",
-          "SNAPSHOT"),
+        Artifact("kalix.codegen.scalasdk.BuildInfo.organization", "akkaserverless-codegen-scala_2.12", "SNAPSHOT"),
         generatorClass,
         Nil),
       options)
