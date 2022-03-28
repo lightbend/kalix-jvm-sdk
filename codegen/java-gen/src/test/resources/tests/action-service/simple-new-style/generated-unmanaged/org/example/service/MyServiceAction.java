@@ -5,7 +5,7 @@ import akka.stream.javadsl.Source;
 import kalix.javasdk.action.ActionCreationContext;
 import org.external.ExternalDomain;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 // This is the implementation for the Action Service described in your example-action.proto file.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,

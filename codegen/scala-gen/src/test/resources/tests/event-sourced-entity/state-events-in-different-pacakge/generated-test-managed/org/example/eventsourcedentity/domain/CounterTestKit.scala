@@ -14,7 +14,7 @@ import org.example.eventsourcedentity.state.CounterState
 
 import scala.collection.immutable.Seq
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

@@ -7,7 +7,7 @@ import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.MessageEnvelope
 import kalix.scalasdk.impl.action.ActionRouter
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
