@@ -249,7 +249,7 @@ lazy val codegenJavaCompilationTest = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     (publish / skip) := true,
     name := "kalix-codegen-java-compilation-tests",
-    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
+    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val javaValueentityCustomerRegistry = project
@@ -330,7 +330,7 @@ lazy val codegenScalaCompilationTest = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     (publish / skip) := true,
     name := "kalix-codegen-scala-compilation-tests",
-    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
+    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val codegenJavaCompilationExampleSuite: CompositeProject =
@@ -349,7 +349,7 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
           libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
   }
 
-lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
+lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .enablePlugins(PublishSonatype)
   .settings(Dependencies.sbtPlugin)
