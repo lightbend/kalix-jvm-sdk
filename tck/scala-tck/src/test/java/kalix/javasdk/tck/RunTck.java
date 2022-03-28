@@ -30,7 +30,7 @@ import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 public final class RunTck {
-  public static final String TCK_IMAGE = "gcr.io/akkaserverless-public/akkaserverless-tck";
+  public static final String TCK_IMAGE = "gcr.io/akkaserverless-public/kalix-tck";
   public static final String TCK_VERSION = BuildInfo.proxyVersion();
 
   public static void main(String[] args) throws Exception {
@@ -41,7 +41,9 @@ public final class RunTck {
     Testcontainers.exposeHostPorts(8080);
 
     try {
-      new GenericContainer<>(DockerImageName.parse(TCK_IMAGE).withTag(TCK_VERSION))
+      String version = TCK_VERSION;
+      if (version.endsWith("-SNAPSHOT")) version = version.substring(0, version.length() - 9);
+      new GenericContainer<>(DockerImageName.parse(TCK_IMAGE).withTag(version))
           .withEnv("TCK_SERVICE_HOST", "host.testcontainers.internal")
           .withLogConsumer(new LogConsumer().withRemoveAnsiCodes(false))
           .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy())
