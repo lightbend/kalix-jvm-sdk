@@ -14,15 +14,35 @@
  * limitations under the License.
  */
 
-package kalix.codegen.scalasdk
+import kalix.codegen.Format
 
-import kalix.codegen.scalasdk.impl.SourceGenerator
-import kalix.codegen.{ File, ModelBuilder }
-import protocbridge.Artifact
+class FormatSpec extends munit.FunSuite {
 
-object AkkaserverlessUnmanagedGenerator extends AbstractAkkaserverlessGenerator {
-  override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
-    SourceGenerator.generateUnmanaged(model, configuredRootPackage)
+  test("indenting should leave alone the first line") {
 
-  override def suggestedDependencies: Seq[Artifact] = Nil
+    val method = """|public String someName(){
+                    |  return "hi";
+                    |}""".stripMargin
+
+    val obtained =
+      s"""
+        |a
+        |
+        |  ${Format.indent(method, 2)}
+        |b
+        """.stripMargin
+
+    val expected =
+      s"""
+        |a
+        |
+        |  public String someName(){
+        |    return "hi";
+        |  }
+        |b
+        """.stripMargin
+
+    assertEquals(obtained, expected)
+  }
+
 }

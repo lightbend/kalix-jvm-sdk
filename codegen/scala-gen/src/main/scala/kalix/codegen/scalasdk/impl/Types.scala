@@ -16,7 +16,7 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.ClassMessageType
+import kalix.codegen.ClassMessageType
 
 object Types {
   object Action {

@@ -82,7 +82,7 @@ object ReflectiveCodeGen extends AutoPlugin {
 
     val source =
       s"""
-      |import com.lightbend.akkasls.codegen.java.SourceGenerator
+      |import kalix.codegen.java.SourceGenerator
       |import scala.collection.immutable
       |
       |(protobufDescriptor: java.io.File, srcDir: java.io.File, genSrcDir: java.io.File, genTestSrcDir: java.io.File, logger: sbt.util.Logger) => {
@@ -90,7 +90,7 @@ object ReflectiveCodeGen extends AutoPlugin {
       |  val path = genSrcDir.toPath
       |  val testPath = genTestSrcDir.toPath
       |
-      |  implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
+      |  implicit val codegenLog = new kalix.codegen.Log {
       |      override def debug(message: String): Unit = logger.debug(message)
       |      override def info(message: String): Unit = logger.info(message)
       |    }

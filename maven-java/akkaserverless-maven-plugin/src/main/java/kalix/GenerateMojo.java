@@ -2,9 +2,9 @@ package kalix;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FileDescriptor;
-import com.lightbend.akkasls.codegen.DescriptorSet;
-import com.lightbend.akkasls.codegen.java.ProtoMessageTypeExtractor$;
-import com.lightbend.akkasls.codegen.java.SourceGenerator;
+import kalix.codegen.DescriptorSet;
+import kalix.codegen.java.ProtoMessageTypeExtractor$;
+import kalix.codegen.java.SourceGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -16,8 +16,8 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.nio.file.Path;
 
-import com.lightbend.akkasls.codegen.Log;
-import com.lightbend.akkasls.codegen.ModelBuilder;
+import kalix.codegen.Log;
+import kalix.codegen.ModelBuilder;
 import scala.collection.Iterable;
 import scala.util.Either;
 

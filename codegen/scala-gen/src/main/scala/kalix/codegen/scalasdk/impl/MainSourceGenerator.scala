@@ -16,18 +16,18 @@
 
 package kalix.codegen.scalasdk.impl
 
-import com.lightbend.akkasls.codegen.File
-import com.lightbend.akkasls.codegen.ModelBuilder
-import com.lightbend.akkasls.codegen.ModelBuilder.Entity
-import com.lightbend.akkasls.codegen.ModelBuilder.Service
-import com.lightbend.akkasls.codegen._
+import kalix.codegen.File
+import kalix.codegen.ModelBuilder
+import kalix.codegen.ModelBuilder.Entity
+import kalix.codegen.ModelBuilder.Service
+import kalix.codegen._
 
 /**
  * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
  */
 object MainSourceGenerator {
 
-  import com.lightbend.akkasls.codegen.SourceGeneratorUtils._
+  import kalix.codegen.SourceGeneratorUtils._
   import ScalaGeneratorUtils._
 
   def generateUnmanaged(model: ModelBuilder.Model, mainPackageName: PackageNaming): Iterable[File] =

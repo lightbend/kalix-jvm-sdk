@@ -17,7 +17,7 @@
 package kalix.codegen.scalasdk
 
 import com.google.protobuf.Descriptors
-import com.lightbend.akkasls.codegen.{ ModelBuilder, PackageNaming, ProtoMessageType }
+import kalix.codegen.{ ModelBuilder, PackageNaming, ProtoMessageType }
 import protocgen.CodeGenRequest
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
 
