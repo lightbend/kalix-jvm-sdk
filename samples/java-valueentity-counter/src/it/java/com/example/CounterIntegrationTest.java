@@ -1,4 +1,4 @@
-/* This code was initialised by Akka Serverless tooling.
+/* This code was initialised by Kalix tooling.
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
@@ -21,14 +21,14 @@ import static java.util.concurrent.TimeUnit.*;
 public class CounterIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Akka Serverless proxy.
+   * The test kit starts both the service container and the Kalix proxy.
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
           new KalixTestKitResource(Main.createKalix());
 
   /**
-   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+   * Use the generated gRPC client to call the service through the Kalix proxy.
    */
   private final CounterService client;
 

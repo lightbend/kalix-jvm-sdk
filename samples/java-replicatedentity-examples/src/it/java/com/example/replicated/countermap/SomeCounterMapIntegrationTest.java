@@ -15,21 +15,21 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-// Example of an integration test calling our service via the Akka Serverless proxy
+// Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class SomeCounterMapIntegrationTest {
 
-  /** The test kit starts both the service container and the Akka Serverless proxy. */
+  /** The test kit starts both the service container and the Kalix proxy. */
   @ClassRule
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix());
 
-  /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
+  /** Use the generated gRPC client to call the service through the Kalix proxy. */
   private final CounterMapService client;
 
   public SomeCounterMapIntegrationTest() {

@@ -13,8 +13,8 @@ sbt test
 
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
+In order to run your application locally, you must run the Kalix proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
 ```
@@ -55,8 +55,8 @@ If you are publishing to a different registry than docker hub, you will also nee
 
 Refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
-for more information on how to make your docker image available to Akka Serverless.
+for more information on how to make your docker image available to Kalix.
 
-Finally, you can use the [Akka Serverless Console](https://console.akkaserverless.com)
-to create an Akka Serverless project and then deploy your service into it 
+Finally, you can use the [Kalix Console](https://console.akkaserverless.com)
+to create an Kalix project and then deploy your service into it 
 through the `akkasls` CLI or via the web interface. 

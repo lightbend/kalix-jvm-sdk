@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 public class FibonacciActionIntegrationTest {
   /**
-   * The test kit starts both the service container and the Akka Serverless proxy.
+   * The test kit starts both the service container and the Kalix proxy.
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
