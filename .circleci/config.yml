@@ -50,7 +50,7 @@ commands:
     description: "Save dependency cache"
     steps:
       - save_cache:
-          key: deps-cache-01
+          key: deps-cache-02
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
@@ -61,7 +61,7 @@ commands:
     description: "Restore dependency cache"
     steps:
       - restore_cache:
-          key: deps-cache-01
+          key: deps-cache-02
 
   set-sdk-version:
     description: "Set global option, grab current SDK version"
