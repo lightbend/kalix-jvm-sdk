@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.eventsourcedentity
+package kalix.tck.model.eventsourcedentity
 
-import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
+import kalix.scalasdk.SideEffect
+import kalix.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
 
 class EventSourcedTckModelEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTckModelEntity {
   override def emptyState: Persisted = Persisted.defaultInstance

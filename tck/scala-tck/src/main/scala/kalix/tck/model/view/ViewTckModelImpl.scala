@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.view
+package kalix.tck.model.view
 
-import com.akkaserverless.scalasdk.view.View.UpdateEffect
-import com.akkaserverless.scalasdk.view.ViewContext
+import kalix.scalasdk.view.View.UpdateEffect
+import kalix.scalasdk.view.ViewContext
 
 class ViewTckModelImpl(context: ViewContext) extends AbstractViewTckModelView {
 

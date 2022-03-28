@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.valueentity
+package kalix.tck.model.view
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.valueentity.ValueEntityContext
 
 /** A value entity. */
-class ValueEntityConfiguredEntity(context: ValueEntityContext) extends AbstractValueEntityConfiguredEntity {
-  override def emptyState: Persisted = Persisted.defaultInstance
+class ViewTckSourceEntity(context: ValueEntityContext) extends AbstractViewTckSourceEntity {
+  override def emptyState: Ignore = Ignore.defaultInstance
 
-  override def call(currentState: Persisted, request: Request): ValueEntity.Effect[Response] =
-    effects.reply(Response.defaultInstance)
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.eventsourcedentity
+package kalix.tck.model.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
+import kalix.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
 
 class EventSourcedTwoEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTwoEntity {
   override def emptyState: Persisted = Persisted.defaultInstance

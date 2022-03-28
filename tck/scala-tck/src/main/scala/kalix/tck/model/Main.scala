@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model
+package kalix.tck.model
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.tck.model.action.ActionTckModelImpl
-import com.akkaserverless.tck.model.action.ActionTwoImpl
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntity
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntity
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity
-import com.akkaserverless.tck.model.valueentity.ValueEntityConfiguredEntity
-import com.akkaserverless.tck.model.valueentity.ValueEntityTckModelEntity
-import com.akkaserverless.tck.model.valueentity.ValueEntityTwoEntity
-import com.akkaserverless.tck.model.view.ViewTckModelImpl
-import com.akkaserverless.tck.model.view.ViewTckSourceEntity
+import kalix.scalasdk.AkkaServerless
+import kalix.tck.model.action.ActionTckModelImpl
+import kalix.tck.model.action.ActionTwoImpl
+import kalix.tck.model.eventsourcedentity.EventSourcedConfiguredEntity
+import kalix.tck.model.eventsourcedentity.EventSourcedTckModelEntity
+import kalix.tck.model.eventsourcedentity.EventSourcedTwoEntity
+import kalix.tck.model.valueentity.ValueEntityConfiguredEntity
+import kalix.tck.model.valueentity.ValueEntityTckModelEntity
+import kalix.tck.model.valueentity.ValueEntityTwoEntity
+import kalix.tck.model.view.ViewTckModelImpl
+import kalix.tck.model.view.ViewTckSourceEntity
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
 
 object Main {
 
-  private val log = LoggerFactory.getLogger("com.akkaserverless.tck.model.Main")
+  private val log = LoggerFactory.getLogger("kalix.tck.model.Main")
 
   def createAkkaServerless(): AkkaServerless = {
     // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,

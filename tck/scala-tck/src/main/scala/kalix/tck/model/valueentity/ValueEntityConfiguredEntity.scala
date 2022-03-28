@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.action
+package kalix.tck.model.valueentity
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntityContext
 
-class ActionTwoImpl(creationContext: ActionCreationContext) extends AbstractActionTwoAction {
+/** A value entity. */
+class ValueEntityConfiguredEntity(context: ValueEntityContext) extends AbstractValueEntityConfiguredEntity {
+  override def emptyState: Persisted = Persisted.defaultInstance
 
-  override def call(otherRequest: OtherRequest): Action.Effect[Response] =
+  override def call(currentState: Persisted, request: Request): ValueEntity.Effect[Response] =
     effects.reply(Response.defaultInstance)
 }

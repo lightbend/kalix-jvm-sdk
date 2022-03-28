@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.action
+package kalix.tck.model.action
 
 import akka.NotUsed
 import akka.stream.scaladsl.{ Sink, Source }
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 
 class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckModelAction {
   private implicit val mat = ctx.materializer
@@ -50,7 +50,7 @@ class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckMo
     }
     val sideEffects =
       allSteps.collect { case ProcessStep.Step.Effect(e) =>
-        com.akkaserverless.scalasdk.SideEffect(components.actionTwoImpl.call(OtherRequest(e.id)), e.synchronous)
+        kalix.scalasdk.SideEffect(components.actionTwoImpl.call(OtherRequest(e.id)), e.synchronous)
       }
 
     val res =

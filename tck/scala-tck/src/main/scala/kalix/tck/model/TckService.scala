@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model
+package kalix.tck.model
 
 import scala.concurrent.duration._
-import com.akkaserverless.scalasdk.PassivationStrategy
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
-import com.akkaserverless.tck.model.eventsourcedentity.{
+import kalix.scalasdk.PassivationStrategy
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
+import kalix.scalasdk.valueentity.ValueEntityOptions
+import kalix.tck.model.eventsourcedentity.{
   EventSourcedConfiguredEntity,
   EventSourcedConfiguredEntityProvider,
   EventSourcedTckModelEntity,
   EventSourcedTckModelEntityProvider
 }
-import com.akkaserverless.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityConfiguredEntityProvider }
+import kalix.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityConfiguredEntityProvider }
 
 /**
  * Create the AkkaServerless instance with some required configuration changes.

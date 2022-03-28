@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.view
+package kalix.tck.model.eventsourcedentity
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
 
-/** A value entity. */
-class ViewTckSourceEntity(context: ValueEntityContext) extends AbstractViewTckSourceEntity {
-  override def emptyState: Ignore = Ignore.defaultInstance
+class EventSourcedConfiguredEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedConfiguredEntity {
+  override def emptyState: Persisted = Persisted.defaultInstance
 
+  override def call(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] =
+    effects.reply(Response.defaultInstance)
+
+  override def persisted(currentState: Persisted, persisted: Persisted): Persisted =
+    Persisted.defaultInstance
 }

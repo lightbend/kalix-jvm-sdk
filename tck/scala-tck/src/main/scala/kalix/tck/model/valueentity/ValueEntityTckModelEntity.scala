@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.valueentity
+package kalix.tck.model.valueentity
 
-import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.valueentity.{ ValueEntity, ValueEntityContext }
+import kalix.scalasdk.SideEffect
+import kalix.scalasdk.valueentity.{ ValueEntity, ValueEntityContext }
 
 /** A value entity. */
 class ValueEntityTckModelEntity(context: ValueEntityContext) extends AbstractValueEntityTckModelEntity {

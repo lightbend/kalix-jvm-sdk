@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.eventsourcedentity
+package kalix.tck.model.action
 
-import com.akkaserverless.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 
-class EventSourcedConfiguredEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedConfiguredEntity {
-  override def emptyState: Persisted = Persisted.defaultInstance
+class ActionTwoImpl(creationContext: ActionCreationContext) extends AbstractActionTwoAction {
 
-  override def call(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] =
+  override def call(otherRequest: OtherRequest): Action.Effect[Response] =
     effects.reply(Response.defaultInstance)
-
-  override def persisted(currentState: Persisted, persisted: Persisted): Persisted =
-    Persisted.defaultInstance
 }
