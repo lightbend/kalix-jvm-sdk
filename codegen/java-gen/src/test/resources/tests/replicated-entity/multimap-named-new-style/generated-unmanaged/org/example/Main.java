@@ -1,7 +1,7 @@
 package org.example;
 
-import kalix.javasdk.AkkaServerless;
 import com.example.replicated.multimap.domain.SomeMultiMap;
+import kalix.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

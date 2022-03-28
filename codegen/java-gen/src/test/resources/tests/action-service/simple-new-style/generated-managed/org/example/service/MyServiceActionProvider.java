@@ -1,10 +1,10 @@
 package org.example.service;
 
+import com.google.protobuf.Descriptors;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.action.ActionRouter;
-import com.google.protobuf.Descriptors;
 import org.external.ExternalDomain;
 
 import java.util.function.Function;

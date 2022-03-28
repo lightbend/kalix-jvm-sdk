@@ -1,5 +1,6 @@
 package org.example.valueentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
 import kalix.javasdk.impl.effect.SecondaryEffectImpl;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
@@ -8,7 +9,6 @@ import kalix.javasdk.testkit.impl.TestKitValueEntityContext;
 import kalix.javasdk.testkit.impl.ValueEntityResultImpl;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import com.google.protobuf.Empty;
 import org.example.valueentity.domain.CounterDomain;
 
 import java.util.function.Function;

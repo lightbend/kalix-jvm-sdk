@@ -1,15 +1,15 @@
 package com.example.replicated.multimap.domain;
 
-import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
-import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
-import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
-import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.example.replicated.multimap.domain.key.SomeMultiMapDomainKey;
 import com.example.replicated.multimap.domain.value.SomeMultiMapDomainValue;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
+import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 
 import java.util.function.Function;
 

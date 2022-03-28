@@ -1,9 +1,9 @@
 package org.example.valueentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 import kalix.javasdk.valueentity.CommandContext;
 import kalix.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

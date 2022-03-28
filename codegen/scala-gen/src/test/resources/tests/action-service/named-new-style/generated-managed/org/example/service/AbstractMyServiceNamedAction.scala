@@ -2,8 +2,8 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import kalix.scalasdk.action.Action
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.action.Action
 import org.example.Components
 import org.example.ComponentsImpl
 

@@ -1,11 +1,11 @@
 package com.example.replicated.multimap.domain
 
+import com.example.replicated.multimap
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound
 import kalix.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import kalix.scalasdk.replicatedentity.CommandContext
 import kalix.scalasdk.replicatedentity.ReplicatedEntity
 import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

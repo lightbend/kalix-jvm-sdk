@@ -1,8 +1,8 @@
 package com.example.replicated.multimap;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
-import com.google.protobuf.Empty;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 // This is the implementation for the Replicated Entity Service described in your multi_map_api.proto file.

@@ -1,10 +1,10 @@
 package org.example.valueentity
 
+import com.google.protobuf.Descriptors
+import com.google.protobuf.empty.EmptyProto
 import kalix.scalasdk.valueentity.ValueEntityContext
 import kalix.scalasdk.valueentity.ValueEntityOptions
 import kalix.scalasdk.valueentity.ValueEntityProvider
-import com.google.protobuf.Descriptors
-import com.google.protobuf.empty.EmptyProto
 import org.example.valueentity
 import org.example.valueentity.domain.CounterDomainProto
 import org.example.valueentity.domain.CounterState

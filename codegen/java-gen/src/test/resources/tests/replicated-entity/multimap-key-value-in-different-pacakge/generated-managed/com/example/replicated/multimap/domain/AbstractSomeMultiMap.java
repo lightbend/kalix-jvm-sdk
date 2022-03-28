@@ -1,11 +1,11 @@
 package com.example.replicated.multimap.domain;
 
-import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
-import kalix.javasdk.replicatedentity.ReplicatedMultiMapEntity;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.example.replicated.multimap.domain.key.SomeMultiMapDomainKey;
 import com.example.replicated.multimap.domain.value.SomeMultiMapDomainValue;
 import com.google.protobuf.Empty;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMapEntity;
 import org.example.Components;
 import org.example.ComponentsImpl;
 

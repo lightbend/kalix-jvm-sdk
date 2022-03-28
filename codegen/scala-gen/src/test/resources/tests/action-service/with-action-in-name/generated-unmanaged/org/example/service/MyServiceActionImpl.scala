@@ -1,8 +1,8 @@
 package org.example.service
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
-import com.google.protobuf.empty.Empty
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //

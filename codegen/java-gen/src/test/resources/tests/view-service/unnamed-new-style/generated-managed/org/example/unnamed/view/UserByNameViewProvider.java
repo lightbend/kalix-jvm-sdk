@@ -1,9 +1,9 @@
 package org.example.unnamed.view;
 
+import com.google.protobuf.Descriptors;
 import kalix.javasdk.view.ViewCreationContext;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
-import com.google.protobuf.Descriptors;
 
 import java.util.function.Function;
 

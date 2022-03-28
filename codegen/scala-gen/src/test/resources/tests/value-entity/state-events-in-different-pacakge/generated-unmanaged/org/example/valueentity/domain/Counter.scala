@@ -1,8 +1,8 @@
 package org.example.valueentity.domain
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
-import com.google.protobuf.empty.Empty
 import org.example.valueentity
 import org.example.valueentity.state.CounterState
 

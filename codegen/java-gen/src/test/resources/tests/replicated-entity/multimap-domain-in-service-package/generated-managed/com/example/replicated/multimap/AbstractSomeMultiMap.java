@@ -1,8 +1,8 @@
 package com.example.replicated.multimap;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 import kalix.javasdk.replicatedentity.ReplicatedMultiMapEntity;
-import com.google.protobuf.Empty;
 import org.example.Components;
 import org.example.ComponentsImpl;
 

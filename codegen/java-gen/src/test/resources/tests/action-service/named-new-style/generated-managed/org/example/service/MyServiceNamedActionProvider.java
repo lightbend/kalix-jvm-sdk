@@ -1,12 +1,12 @@
 package org.example.service;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Empty;
+import com.google.protobuf.EmptyProto;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.action.ActionRouter;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Empty;
-import com.google.protobuf.EmptyProto;
 
 import java.util.function.Function;
 

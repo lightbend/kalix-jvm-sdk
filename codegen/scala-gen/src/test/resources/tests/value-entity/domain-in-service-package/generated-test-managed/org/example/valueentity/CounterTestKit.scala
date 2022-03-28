@@ -1,11 +1,11 @@
 package org.example.valueentity
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.testkit.ValueEntityResult
 import kalix.scalasdk.testkit.impl.TestKitValueEntityContext
 import kalix.scalasdk.testkit.impl.ValueEntityResultImpl
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
-import com.google.protobuf.empty.Empty
 import org.example.valueentity
 
 // This code is managed by Akka Serverless tooling.

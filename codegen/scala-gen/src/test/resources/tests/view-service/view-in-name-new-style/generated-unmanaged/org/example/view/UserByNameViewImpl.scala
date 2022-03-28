@@ -11,5 +11,5 @@ import kalix.scalasdk.view.ViewContext
 class UserByNameViewImpl(context: ViewContext) extends AbstractUserByNameView {
 
 
-
+  
 }

@@ -1,5 +1,6 @@
 package org.example.eventsourcedentity
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.scalasdk.testkit.EventSourcedResult
@@ -8,7 +9,6 @@ import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
 import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
 import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
 import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
-import com.google.protobuf.empty.Empty
 import org.example.eventsourcedentity
 import org.example.eventsourcedentity.domain.CounterState
 

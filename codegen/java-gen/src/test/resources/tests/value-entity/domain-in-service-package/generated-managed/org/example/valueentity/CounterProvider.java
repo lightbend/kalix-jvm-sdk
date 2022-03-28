@@ -1,11 +1,11 @@
 package org.example.valueentity;
 
-import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.javasdk.valueentity.ValueEntityOptions;
-import kalix.javasdk.valueentity.ValueEntityProvider;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.javasdk.valueentity.ValueEntityProvider;
 
 import java.util.function.Function;
 

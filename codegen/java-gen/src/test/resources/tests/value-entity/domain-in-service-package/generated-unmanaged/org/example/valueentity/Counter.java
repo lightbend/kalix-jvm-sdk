@@ -1,7 +1,7 @@
 package org.example.valueentity;
 
-import kalix.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntityContext;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 // This is the implementation for the Value Entity Service described in your counter_api.proto file.

@@ -1,8 +1,8 @@
 package org.example.valueentity.domain;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
 import org.example.valueentity.CounterApi;
 import org.example.valueentity.state.OuterCounterState;
 import org.junit.Test;

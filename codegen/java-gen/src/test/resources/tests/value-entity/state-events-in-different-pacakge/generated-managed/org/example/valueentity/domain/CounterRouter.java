@@ -1,9 +1,9 @@
 package org.example.valueentity.domain;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 import kalix.javasdk.valueentity.CommandContext;
 import kalix.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
 import org.example.valueentity.CounterApi;
 import org.example.valueentity.state.OuterCounterState;
 

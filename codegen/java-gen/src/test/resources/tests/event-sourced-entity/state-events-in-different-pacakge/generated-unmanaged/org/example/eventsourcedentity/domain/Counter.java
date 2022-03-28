@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity.domain;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.google.protobuf.Empty;
 import org.example.eventsourcedentity.CounterApi;
 import org.example.eventsourcedentity.events.OuterCounterEvents;
 import org.example.eventsourcedentity.state.OuterCounterState;

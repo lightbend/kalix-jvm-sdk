@@ -1,12 +1,12 @@
 package com.example.replicated.multimap;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Empty;
+import com.google.protobuf.EmptyProto;
 import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
 import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
 import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Empty;
-import com.google.protobuf.EmptyProto;
 
 import java.util.function.Function;
 

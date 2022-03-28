@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity.domain;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.google.protobuf.Empty;
 import org.example.eventsourcedentity.CounterApi;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

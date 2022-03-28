@@ -1,8 +1,8 @@
 package org.example.eventsourcedentity
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.google.protobuf.empty.Empty
 import org.example.eventsourcedentity
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

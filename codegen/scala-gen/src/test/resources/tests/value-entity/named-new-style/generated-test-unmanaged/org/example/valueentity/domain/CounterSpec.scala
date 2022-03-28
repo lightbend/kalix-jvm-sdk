@@ -1,8 +1,8 @@
 package org.example.valueentity.domain
 
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.testkit.ValueEntityResult
 import kalix.scalasdk.valueentity.ValueEntity
-import com.google.protobuf.empty.Empty
 import org.example.valueentity
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

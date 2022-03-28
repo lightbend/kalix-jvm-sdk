@@ -1,9 +1,9 @@
 package org.example.service
 
+import com.google.protobuf.Descriptors
 import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.action.ActionOptions
 import kalix.scalasdk.action.ActionProvider
-import com.google.protobuf.Descriptors
 
 import scala.collection.immutable.Seq
 

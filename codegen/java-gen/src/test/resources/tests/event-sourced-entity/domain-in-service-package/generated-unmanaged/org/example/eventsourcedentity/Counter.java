@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.google.protobuf.Empty;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 // This is the implementation for the Event Sourced Entity Service described in your counter_api.proto file.

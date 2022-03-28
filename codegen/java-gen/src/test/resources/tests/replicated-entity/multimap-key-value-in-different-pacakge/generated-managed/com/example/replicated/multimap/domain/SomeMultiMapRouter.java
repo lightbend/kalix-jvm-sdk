@@ -1,13 +1,13 @@
 package com.example.replicated.multimap.domain;
 
-import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
-import kalix.javasdk.replicatedentity.CommandContext;
-import kalix.javasdk.replicatedentity.ReplicatedEntity;
-import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.example.replicated.multimap.domain.key.SomeMultiMapDomainKey;
 import com.example.replicated.multimap.domain.value.SomeMultiMapDomainValue;
 import com.google.protobuf.Empty;
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
+import kalix.javasdk.replicatedentity.CommandContext;
+import kalix.javasdk.replicatedentity.ReplicatedEntity;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

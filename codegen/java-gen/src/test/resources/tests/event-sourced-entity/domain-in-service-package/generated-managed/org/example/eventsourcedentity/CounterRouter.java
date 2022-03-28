@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
-import com.google.protobuf.Empty;
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

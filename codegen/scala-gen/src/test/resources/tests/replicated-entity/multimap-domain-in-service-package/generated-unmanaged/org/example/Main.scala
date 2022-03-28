@@ -1,7 +1,7 @@
 package org.example
 
-import kalix.scalasdk.AkkaServerless
 import com.example.replicated.multimap.SomeMultiMap
+import kalix.scalasdk.AkkaServerless
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

@@ -17,7 +17,7 @@ class UserByNameViewRouter(view: UserByNameView)
       event: Any): View.UpdateEffect[UserState] = {
 
     eventName match {
-
+      
 
       case _ =>
         throw new UpdateHandlerNotFound(eventName)

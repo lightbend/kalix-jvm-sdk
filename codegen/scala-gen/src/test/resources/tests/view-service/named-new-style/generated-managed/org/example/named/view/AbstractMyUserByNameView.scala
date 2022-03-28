@@ -11,5 +11,5 @@ abstract class AbstractMyUserByNameView extends View[UserState] {
   override def emptyState: UserState =
     null // emptyState is only used with transform_updates=true
 
-
+  
 }

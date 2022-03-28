@@ -2,8 +2,8 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.action.ActionCreationContext;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 // This is the implementation for the Action Service described in your com/example/different/example-action.proto file.

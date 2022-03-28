@@ -1,10 +1,10 @@
 package com.example.replicated.multimap
 
+import com.example.replicated.multimap
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.replicatedentity.ReplicatedEntity
 import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
 import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.example.replicated.multimap
-import com.google.protobuf.empty.Empty
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //

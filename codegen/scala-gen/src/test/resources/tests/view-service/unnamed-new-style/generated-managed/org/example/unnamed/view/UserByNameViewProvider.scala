@@ -1,13 +1,13 @@
 package org.example.unnamed.view
 
+import com.google.protobuf.Descriptors
+import com.google.protobuf.EmptyProto
 import kalix.javasdk.impl.view.UpdateHandlerNotFound
 import kalix.scalasdk.impl.view.ViewRouter
 import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewCreationContext
 import kalix.scalasdk.view.ViewOptions
 import kalix.scalasdk.view.ViewProvider
-import com.google.protobuf.Descriptors
-import com.google.protobuf.EmptyProto
 
 import scala.collection.immutable.Seq
 

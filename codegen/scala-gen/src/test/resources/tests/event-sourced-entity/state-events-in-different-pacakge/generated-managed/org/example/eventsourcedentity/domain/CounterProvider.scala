@@ -1,10 +1,10 @@
 package org.example.eventsourcedentity.domain
 
+import com.google.protobuf.Descriptors
+import com.google.protobuf.empty.EmptyProto
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
-import com.google.protobuf.Descriptors
-import com.google.protobuf.empty.EmptyProto
 import org.example.eventsourcedentity
 import org.example.eventsourcedentity.events.CounterEventsProto
 import org.example.eventsourcedentity.state.CounterState

@@ -1,8 +1,8 @@
 package org.example.valueentity
 
 import akka.actor.ActorSystem
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import org.example.Main
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures

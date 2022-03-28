@@ -2,9 +2,9 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.testkit.ActionResult
-import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

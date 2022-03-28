@@ -1,7 +1,7 @@
 package org.example.domain
 
-import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import org.example.Components
 import org.example.ComponentsImpl
 import org.example.events.Decreased

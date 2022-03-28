@@ -1,5 +1,6 @@
 package org.example.eventsourcedentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
@@ -11,7 +12,6 @@ import kalix.javasdk.testkit.impl.EventSourcedResultImpl;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext;
-import com.google.protobuf.Empty;
 
 import java.util.ArrayList;
 import java.util.List;

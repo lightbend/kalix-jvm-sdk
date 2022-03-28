@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity.domain;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
-import com.google.protobuf.Empty;
 import org.example.eventsourcedentity.CounterApi;
 
 // This code is managed by Akka Serverless tooling.

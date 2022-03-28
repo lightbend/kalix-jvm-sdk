@@ -1,7 +1,7 @@
 package org.example.domain
 
-import kalix.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.valueentity.ValueEntity
 import org.example.Components
 import org.example.ComponentsImpl
 import org.example.state.CounterState

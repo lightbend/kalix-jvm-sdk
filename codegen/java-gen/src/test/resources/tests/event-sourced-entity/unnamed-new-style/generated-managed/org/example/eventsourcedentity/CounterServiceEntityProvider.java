@@ -1,11 +1,11 @@
 package org.example.eventsourcedentity;
 
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import org.example.eventsourcedentity.domain.CounterDomain;
 
 import java.util.function.Function;

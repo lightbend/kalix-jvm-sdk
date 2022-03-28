@@ -1,14 +1,14 @@
 
 package com.example.replicated.multimap
 
-import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
-import kalix.scalasdk.replicatedentity.ReplicatedEntityOptions
-import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
-import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
 import com.example.replicated.multimap
 import com.example.replicated.multimap.domain.MultiMapDomainProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
 
 import scala.collection.immutable.Seq
 

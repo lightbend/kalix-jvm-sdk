@@ -1,9 +1,9 @@
 package org.example.eventsourcedentity;
 
+import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.testkit.EventSourcedResult;
-import com.google.protobuf.Empty;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

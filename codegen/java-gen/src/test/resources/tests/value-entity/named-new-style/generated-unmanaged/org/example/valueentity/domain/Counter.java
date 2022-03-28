@@ -1,7 +1,7 @@
 package org.example.valueentity.domain;
 
-import kalix.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.example.valueentity.CounterApi;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

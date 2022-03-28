@@ -1,10 +1,10 @@
 package org.example;
 
-import kalix.javasdk.AkkaServerless;
-import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.example.replicated.multimap.SomeMultiMap;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.example.replicated.multimap.SomeMultiMapProvider;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 
 import java.util.function.Function;
 
