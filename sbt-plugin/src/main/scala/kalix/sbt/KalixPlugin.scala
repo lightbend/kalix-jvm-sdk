@@ -30,13 +30,13 @@ import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
-object AkkaserverlessPlugin extends AutoPlugin {
+object KalixPlugin extends AutoPlugin {
   override def trigger = noTrigger
   override def requires = ProtocPlugin && AkkaGrpcPlugin
 
   trait Keys { _: autoImport.type =>
     val generateUnmanaged = taskKey[Seq[File]](
-      "Generate \"unmanaged\" akkaserverless scaffolding code based on the available .proto definitions.\n" +
+      "Generate \"unmanaged\" kalix scaffolding code based on the available .proto definitions.\n" +
       "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
       "Files that already exist they are not re-generated.")
     val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
@@ -49,24 +49,24 @@ object AkkaserverlessPlugin extends AutoPlugin {
   object autoImport extends Keys
   import autoImport._
 
-  val AkkaServerlessSdkVersion = BuildInfo.version
-  val AkkaServerlessProtocolVersion = BuildInfo.protocolVersion
+  val KalixSdkVersion = BuildInfo.version
+  val KalixProtocolVersion = BuildInfo.protocolVersion
 
   override def projectSettings: Seq[sbt.Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerlessProtocolVersion % "protobuf-src",
+      "com.akkaserverless" % "akkaserverless-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
-      "com.akkaserverless" %% "kalix-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
+      "com.akkaserverless" %% "kalix-scala-sdk-testkit" % KalixSdkVersion % Test),
     Compile / PB.targets +=
       gen(
         (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
         ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / sourceManaged).value,
-    Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
-    Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
+    Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "kalix-unmanaged",
+    Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "kalix-unmanaged-test",
     protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
     rootPackage := None,
     // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
-    // and the Akka Serverless 'handler'. For now working around it by only generating
+    // and the Kalix 'handler'. For now working around it by only generating
     // the client, but we should probably resolve this before the first public release.
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Compile / PB.targets ++= Seq(

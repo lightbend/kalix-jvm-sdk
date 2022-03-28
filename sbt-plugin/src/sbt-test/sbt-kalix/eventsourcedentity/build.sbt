@@ -1,6 +1,6 @@
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin)
+enablePlugins(KalixPlugin)
 
 testOptions ++=(
   // Skip integration tests in CircleCI since to be able to connect to docker

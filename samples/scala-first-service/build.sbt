@@ -2,7 +2,7 @@ organization := "com.example"
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
+enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
