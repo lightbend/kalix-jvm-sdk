@@ -1,6 +1,6 @@
 # Shopping Cart example (using a Value Entity)
 
-This example project implements an API for a shopping cart using an Akka Serverless Value Entity.
+This example project implements an API for a shopping cart using an Kalix Value Entity.
 ## Designing
 
 While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
@@ -22,8 +22,8 @@ sbt compile
 
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
+In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
 ```
@@ -81,8 +81,8 @@ sbt -Ddocker.username=mary docker:publish
 ```
 
 Refer to [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
-for more information on how to make your docker image available to Akka Serverless.
+for more information on how to make your docker image available to Kalix.
 
-Finally you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
+Finally you can or use the [Kalix Console](https://console.akkaserverless.com)
 to create a project and then deploy your service into the project
 through the `akkasls` CLI or via the web interface.

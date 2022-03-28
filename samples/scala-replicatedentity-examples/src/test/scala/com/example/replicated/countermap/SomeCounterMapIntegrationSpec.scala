@@ -1,6 +1,6 @@
 package com.example.replicated.countermap
 
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.example.replicated.Main
 import com.example.replicated.countermap.CounterMapService
 import com.example.replicated.countermap.DecreaseValue
@@ -19,7 +19,7 @@ class SomeCounterMapIntegrationSpec extends AnyWordSpec with Matchers with Befor
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val counterMap = testKit.getGrpcClient(classOf[CounterMapService])

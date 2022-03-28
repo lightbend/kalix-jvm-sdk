@@ -1,6 +1,6 @@
 package com.example.replicated.counter
 
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.example.replicated.Main
 import com.example.replicated.counter.CounterService
 import com.example.replicated.counter.DecreaseValue
@@ -19,7 +19,7 @@ class SomeCounterIntegrationSpec extends AnyWordSpec with Matchers with BeforeAn
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val counter = testKit.getGrpcClient(classOf[CounterService])

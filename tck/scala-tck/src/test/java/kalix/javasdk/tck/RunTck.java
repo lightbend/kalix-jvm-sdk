@@ -18,8 +18,8 @@ package kalix.javasdk.tck;
 
 import kalix.tck.model.TckService;
 import kalix.javasdk.testkit.BuildInfo;
-import kalix.scalasdk.AkkaServerless;
-import kalix.scalasdk.AkkaServerlessRunner;
+import kalix.scalasdk.Kalix;
+import kalix.scalasdk.KalixRunner;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.BaseConsumer;
@@ -34,8 +34,8 @@ public final class RunTck {
   public static final String TCK_VERSION = BuildInfo.proxyVersion();
 
   public static void main(String[] args) throws Exception {
-    AkkaServerless service = TckService.createService();
-    AkkaServerlessRunner runner = service.createRunner();
+    Kalix service = TckService.createService();
+    KalixRunner runner = service.createRunner();
     runner.run();
 
     Testcontainers.exposeHostPorts(8080);

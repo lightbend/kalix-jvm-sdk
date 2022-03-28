@@ -24,7 +24,7 @@ import java.lang.{ Boolean => JBoolean }
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, AkkaserverlessGenerator, BuildInfo }
+import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, BuildInfo, KalixGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
@@ -59,8 +59,8 @@ object AkkaserverlessPlugin extends AutoPlugin {
       "com.akkaserverless" %% "kalix-scala-sdk-testkit" % AkkaServerlessSdkVersion % Test),
     Compile / PB.targets +=
       gen(
-        (akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
-        ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Compile / sourceManaged).value,
+        (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / sourceManaged).value,
     Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "akkaserverless-unmanaged",
     Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "akkaserverless-unmanaged-test",
     protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
@@ -70,8 +70,8 @@ object AkkaserverlessPlugin extends AutoPlugin {
     // the client, but we should probably resolve this before the first public release.
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Compile / PB.targets ++= Seq(
-      genUnmanaged((akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
-      ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Compile / temporaryUnmanagedDirectory).value),
+      genUnmanaged((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+      ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / temporaryUnmanagedDirectory).value),
     Compile / PB.generate := (Compile / PB.generate)
       .dependsOn(Def.task {
         protobufDescriptorSetOut.value.getParentFile.mkdirs()
@@ -82,13 +82,13 @@ object AkkaserverlessPlugin extends AutoPlugin {
       protobufDescriptorSetOut.value.getAbsolutePath,
       "--include_source_info"),
     Test / PB.targets ++= Seq(
-      genUnmanagedTest((akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
-      ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Test / temporaryUnmanagedDirectory).value),
+      genUnmanagedTest((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+      ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / temporaryUnmanagedDirectory).value),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets +=
       genTests(
-        (akkaGrpcCodeGeneratorSettings.value :+ AkkaserverlessGenerator.enableDebug)
-        ++ rootPackage.value.map(AkkaserverlessGenerator.rootPackage)) -> (Test / sourceManaged).value,
+        (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / sourceManaged).value,
     Compile / generateUnmanaged := {
       Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
       // Make sure generation has happened

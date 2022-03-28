@@ -23,7 +23,7 @@ import kalix.codegen.ModelBuilder.Service
 import kalix.codegen._
 
 /**
- * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
+ * Responsible for generating Main and KalixFactory Java source from an entity model
  */
 object MainSourceGenerator {
 
@@ -34,7 +34,7 @@ object MainSourceGenerator {
     Seq(mainSource(model, mainPackageName))
 
   def generateManaged(model: ModelBuilder.Model, mainPackageName: PackageNaming): Iterable[File] =
-    Seq(akkaServerlessFactorySource(model, mainPackageName))
+    Seq(kalixFactorySource(model, mainPackageName))
 
   def mainClassName(model: ModelBuilder.Model, mainPackageName: PackageNaming): ProtoMessageType =
     ProtoMessageType.noDescriptor("Main", mainPackageName)
@@ -54,7 +54,7 @@ object MainSourceGenerator {
     }.toSeq
 
     val allImports = entityImports ++ serviceImports ++
-      List("kalix.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
+      List("kalix.scalasdk.Kalix", "org.slf4j.LoggerFactory")
 
     implicit val imports: Imports =
       generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
@@ -89,24 +89,24 @@ object MainSourceGenerator {
         |
         |  private val log = LoggerFactory.getLogger("${mainClass.parent.scalaPackage}.${mainClass.name}")
         |
-        |  def createAkkaServerless(): AkkaServerless = {
-        |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+        |  def createKalix(): Kalix = {
+        |    // The KalixFactory automatically registers any generated Actions, Views or Entities,
         |    // and is kept up-to-date with any changes in your protobuf definitions.
         |    // If you prefer, you may remove this and manually register these components in a
-        |    // `AkkaServerless()` instance.
-        |    AkkaServerlessFactory.withComponents(
+        |    // `Kalix()` instance.
+        |    KalixFactory.withComponents(
         |      ${registrationParameters.mkString(",\n      ")})
         |  }
         |
         |  def main(args: Array[String]): Unit = {
-        |    log.info("starting the Akka Serverless service")
-        |    createAkkaServerless().start()
+        |    log.info("starting the Kalix service")
+        |    createKalix().start()
         |  }
         |}
         |""".stripMargin)
   }
 
-  private[codegen] def akkaServerlessFactorySource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
+  private[codegen] def kalixFactorySource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
 
     val entityImports = model.entities.values.flatMap { ety =>
       val imp =
@@ -152,7 +152,7 @@ object MainSourceGenerator {
       generateImports(
         entityImports,
         mainPackageName.javaPackage,
-        Seq("kalix.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
+        Seq("kalix.scalasdk.Kalix") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
 
     def creator(messageType: ProtoMessageType): String = {
       if (imports.clashingNames.contains(messageType.name)) s"create${dotsToCamelCase(typeName(messageType))}"
@@ -206,19 +206,19 @@ object MainSourceGenerator {
 
     File.scala(
       mainPackageName.javaPackage,
-      "AkkaServerlessFactory",
+      "KalixFactory",
       s"""|package ${mainPackageName.javaPackage}
         |
         |${writeImports(imports)}
         |
         |$managedComment
         |
-        |object AkkaServerlessFactory {
+        |object KalixFactory {
         |
         |  def withComponents(
-        |      ${creatorParameters.mkString(",\n      ")}): AkkaServerless = {
-        |    val akkaServerless = AkkaServerless()
-        |    akkaServerless
+        |      ${creatorParameters.mkString(",\n      ")}): Kalix = {
+        |    val kalix = Kalix()
+        |    kalix
         |      ${Format.indent(registrations, 6)}
         |  }
         |}

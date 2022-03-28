@@ -16,18 +16,13 @@
 
 package kalix.codegen.java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-import com.google.common.base.Charsets
 import kalix.codegen.ModelBuilder
 import kalix.codegen.ModelBuilder.Entity
 import kalix.codegen.ModelBuilder.Service
 import kalix.codegen._
 
-import scala.annotation.tailrec
-
 /**
- * Responsible for generating Main and AkkaServerlessFactory Java source from an entity model
+ * Responsible for generating Main and KalixFactory Java source from an entity model
  */
 object MainSourceGenerator {
   import kalix.codegen.SourceGeneratorUtils._
@@ -35,11 +30,7 @@ object MainSourceGenerator {
 
   def generate(model: ModelBuilder.Model, mainClassPackage: PackageNaming, mainClassName: String): GeneratedFiles =
     GeneratedFiles.Empty
-      .addManaged(
-        File.java(
-          mainClassPackage,
-          "AkkaServerlessFactory",
-          akkaServerlessFactorySource(mainClassPackage.javaPackage, model)))
+      .addManaged(File.java(mainClassPackage, "KalixFactory", kalixFactorySource(mainClassPackage.javaPackage, model)))
       .addUnmanaged(
         File.java(
           mainClassPackage,
@@ -67,7 +58,7 @@ object MainSourceGenerator {
       generateImports(
         entityImports ++ serviceImports,
         mainClassPackageName,
-        Seq("kalix.javasdk.AkkaServerless", "org.slf4j.Logger", "org.slf4j.LoggerFactory"))
+        Seq("kalix.javasdk.Kalix", "org.slf4j.Logger", "org.slf4j.LoggerFactory"))
 
     val entityRegistrationParameters = entities.values.toList
       .sortBy(_.messageType.name)
@@ -95,25 +86,25 @@ object MainSourceGenerator {
         |
         |  private static final Logger LOG = LoggerFactory.getLogger(${mainClassName}.class);
         |
-        |  public static AkkaServerless createAkkaServerless() {
-        |    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+        |  public static Kalix createKalix() {
+        |    // The KalixFactory automatically registers any generated Actions, Views or Entities,
         |    // and is kept up-to-date with any changes in your protobuf definitions.
         |    // If you prefer, you may remove this and manually register these components in a
-        |    // `new AkkaServerless()` instance.
-        |    return AkkaServerlessFactory.withComponents(
+        |    // `new Kalix()` instance.
+        |    return KalixFactory.withComponents(
         |      ${registrationParameters.mkString(",\n      ")});
         |  }
         |
         |  public static void main(String[] args) throws Exception {
-        |    LOG.info("starting the Akka Serverless service");
-        |    createAkkaServerless().start();
+        |    LOG.info("starting the Kalix service");
+        |    createKalix().start();
         |  }
         |}
         |""".stripMargin
 
   }
 
-  private[codegen] def akkaServerlessFactorySource(mainClassPackageName: String, model: ModelBuilder.Model): String = {
+  private[codegen] def kalixFactorySource(mainClassPackageName: String, model: ModelBuilder.Model): String = {
     val entityImports = model.entities.values.flatMap { ety =>
       Seq(ety.impl, ety.provider)
     }
@@ -147,10 +138,7 @@ object MainSourceGenerator {
     val contextImports = (entityContextImports ++ serviceContextImports).toSeq
 
     implicit val imports =
-      generateImports(
-        entityImports ++ serviceImports,
-        mainClassPackageName,
-        "kalix.javasdk.AkkaServerless" +: contextImports)
+      generateImports(entityImports ++ serviceImports, mainClassPackageName, "kalix.javasdk.Kalix" +: contextImports)
 
     def creator(messageType: ProtoMessageType): String = {
       if (imports.clashingNames.contains(messageType.name)) s"create${dotsToCamelCase(typeName(messageType))}"
@@ -208,12 +196,12 @@ object MainSourceGenerator {
         |
         |$managedComment
         |
-        |public final class AkkaServerlessFactory {
+        |public final class KalixFactory {
         |
-        |  public static AkkaServerless withComponents(
+        |  public static Kalix withComponents(
         |      ${creatorParameters.mkString(",\n      ")}) {
-        |    AkkaServerless akkaServerless = new AkkaServerless();
-        |    return akkaServerless
+        |    Kalix kalix = new Kalix();
+        |    return kalix
         |      ${Format.indent(registrations, 6)};
         |  }
         |}

@@ -2,7 +2,7 @@
 
 ## Designing
 
-To understand the Akka Serverless concepts that are the basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html) in the documentation.
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html) in the documentation.
 
 
 ## Developing
@@ -24,9 +24,9 @@ mvn compile
 
 ## Running Locally 
 
-To run the example locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 
-It also contains the configuration to start a local Kafka broker and a Zookeeper that the Akka Serverless proxy will connect to.
+It also contains the configuration to start a local Kafka broker and a Zookeeper that the Kalix proxy will connect to.
 To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the kafka directory:
 
 ```
@@ -68,9 +68,9 @@ and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
-for more information on how to make your docker image available to Akka Serverless.
+for more information on how to make your docker image available to Kalix.
 
-Finally, you can use the [Akka Serverless Console](https://console.akkaserverless.com)
+Finally, you can use the [Kalix Console](https://console.akkaserverless.com)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image

@@ -16,11 +16,12 @@
 
 package kalix.javasdk.valueentity;
 
+import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register a value based entity in {@link kalix.javasdk.AkkaServerless} using a <code>
+ * Register a value based entity in {@link Kalix} using a <code>
  * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the
  * specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
  */

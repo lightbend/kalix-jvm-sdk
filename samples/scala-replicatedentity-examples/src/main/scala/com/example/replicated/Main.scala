@@ -1,6 +1,6 @@
 package com.example.replicated
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import com.example.replicated.counter.domain.SomeCounter
 import com.example.replicated.countermap.domain.SomeCounterMap
 import com.example.replicated.map.domain.SomeMap
@@ -10,7 +10,7 @@ import com.example.replicated.registermap.domain.SomeRegisterMap
 import com.example.replicated.set.domain.SomeSet
 import org.slf4j.LoggerFactory
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
@@ -19,12 +19,12 @@ object Main {
 
   private val log = LoggerFactory.getLogger("com.example.replicated.Main")
 
-  def createAkkaServerless(): AkkaServerless = {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  def createKalix(): Kalix = {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
-    AkkaServerlessFactory.withComponents(
+    // `Kalix()` instance.
+    KalixFactory.withComponents(
       new SomeCounter(_),
       new SomeCounterMap(_),
       new SomeMap(_),
@@ -35,7 +35,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }

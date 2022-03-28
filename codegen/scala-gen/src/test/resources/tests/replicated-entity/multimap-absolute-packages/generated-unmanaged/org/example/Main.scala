@@ -1,7 +1,7 @@
 package org.example
 
 import com.example.replicated.multimap.domain.SomeMultiMap
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
@@ -13,17 +13,17 @@ object Main {
 
   private val log = LoggerFactory.getLogger("org.example.Main")
 
-  def createAkkaServerless(): AkkaServerless = {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  def createKalix(): Kalix = {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
-    AkkaServerlessFactory.withComponents(
+    // `Kalix()` instance.
+    KalixFactory.withComponents(
       new SomeMultiMap(_))
   }
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }

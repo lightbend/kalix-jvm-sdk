@@ -19,7 +19,7 @@ package kalix.javasdk.impl.eventsourcedentity
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
-import kalix.javasdk.{ AkkaServerless, AkkaServerlessRunner }
+import kalix.javasdk.{ Kalix, KalixRunner }
 import com.typesafe.config.{ Config, ConfigFactory }
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
 
@@ -41,7 +41,7 @@ class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _]) 
     }
   """))
 
-  val runner: AkkaServerlessRunner = new AkkaServerless()
+  val runner: KalixRunner = new Kalix()
     .register(entityProvider)
     .createRunner(config)
 

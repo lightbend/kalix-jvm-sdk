@@ -2,7 +2,7 @@
  * Root package for the Akka Serverless Java SDK library.
  *
  * <p>The main entry point to creating an Akka Serverless Java server is the {@link
- * kalix.javasdk.AkkaServerless} class.
+ * kalix.javasdk.Kalix} class.
  *
  * <p>For information about specific component types, see:
  *

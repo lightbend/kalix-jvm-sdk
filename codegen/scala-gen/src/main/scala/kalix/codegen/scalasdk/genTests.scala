@@ -20,5 +20,5 @@ import protocbridge.SandboxedJvmGenerator
 
 object genTests {
   def apply(options: Seq[String] = Seq.empty): (SandboxedJvmGenerator, Seq[String]) =
-    gen(options, "kalix.codegen.scalasdk.AkkaserverlessTestGenerator$")
+    gen(options, "kalix.codegen.scalasdk.KalixTestGenerator$")
 }

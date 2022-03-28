@@ -1,7 +1,7 @@
 > products
 
 $ exists src/main/scala/com/example/Main.scala
-$ exists target/scala-2.13/src_managed/main/com/example/AkkaServerlessFactory.scala
+$ exists target/scala-2.13/src_managed/main/com/example/KalixFactory.scala
 
 # com/example/echo_action.proto
 $ exists src/main/scala/com/example/EchoActionImpl.scala

@@ -44,7 +44,7 @@ public class GenerateMojoTest {
 //                .toFile().exists());
         assertTrue(projectDirectory.resolve("src/it/java/com/example/shoppingcart/ShoppingCartIntegrationTest.java")
                 .toFile().exists());
-        assertTrue(projectDirectory.resolve("target/generated-sources/akkaserverless/java/com/lightbend/AkkaServerlessFactory.java")
+        assertTrue(projectDirectory.resolve("target/generated-sources/akkaserverless/java/com/lightbend/KalixFactory.java")
                 .toFile().exists());
         assertTrue(projectDirectory.resolve("src/main/java/com/lightbend/Main.java").toFile().exists());
     }

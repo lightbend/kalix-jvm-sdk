@@ -189,7 +189,7 @@ object EntityServiceSourceGenerator {
       packageName,
       List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
-        "kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource",
+        "kalix.javasdk.testkit.junit.KalixTestKitResource",
         "org.junit.ClassRule",
         "org.junit.Test",
         mainClassPackageName + "." + mainClassName) ++ extraImports)
@@ -213,19 +213,19 @@ object EntityServiceSourceGenerator {
       |
       |${unmanagedComment}
       |
-      |// Example of an integration test calling our service via the Akka Serverless proxy
+      |// Example of an integration test calling our service via the Kalix proxy
       |// Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
       |public class $testClassName {
       |
       |  /**
-      |   * The test kit starts both the service container and the Akka Serverless proxy.
+      |   * The test kit starts both the service container and the Kalix proxy.
       |   */
       |  @ClassRule
-      |  public static final AkkaServerlessTestKitResource testKit =
-      |    new AkkaServerlessTestKitResource(${mainClassName}.createAkkaServerless());
+      |  public static final KalixTestKitResource testKit =
+      |    new KalixTestKitResource(${mainClassName}.createKalix());
       |
       |  /**
-      |   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+      |   * Use the generated gRPC client to call the service through the Kalix proxy.
       |   */
       |  private final $serviceName client;
       |
